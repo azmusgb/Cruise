@@ -22,14 +22,14 @@
       --warning: #f59e0b;
       --danger: #ef4444;
       --bg: #0f172a;
-      --bg-alt: #1e293b;
+      --bg-alt: #111c33;
       --bg-card: #1e293b;
       --text: #f1f5f9;
       --text-muted: #94a3b8;
       --border: #334155;
-      --shadow: rgba(0, 0, 0, 0.3);
-      --radius: 12px;
-      --radius-sm: 8px;
+      --shadow: rgba(0, 0, 0, 0.35);
+      --radius: 14px;
+      --radius-sm: 10px;
     }
 
     body {
@@ -40,84 +40,88 @@
       overflow-x: hidden;
     }
 
-    /* Mobile-First Header */
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Loading */
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.98);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 999;
+      transition: opacity 0.4s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Header */
     .header {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: var(--bg-alt);
+      background: rgba(17, 28, 51, 0.96);
       border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(20px);
-      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(18px);
     }
 
     .header-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: 14px 16px;
       gap: 12px;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 20px;
       font-weight: 700;
     }
 
     .logo-icon {
-      font-size: 24px;
+      font-size: 26px;
     }
 
-    .header-actions {
-      display: flex;
-      gap: 8px;
+    .header-chip {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      font-weight: 600;
     }
 
-    .icon-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-
-    .icon-btn:active {
-      transform: scale(0.95);
-    }
-
-    .icon-btn:hover {
-      background: var(--primary);
-    }
-
-    .badge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--danger);
-      color: white;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
-      min-width: 18px;
-      text-align: center;
-    }
-
-    /* Tabs Navigation */
+    /* Tabs */
     .tabs {
       display: flex;
       overflow-x: auto;
-      padding: 0 16px;
+      padding: 0 16px 4px;
       gap: 8px;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
@@ -129,7 +133,7 @@
 
     .tab {
       flex-shrink: 0;
-      padding: 12px 20px;
+      padding: 12px 18px;
       border: none;
       background: transparent;
       color: var(--text-muted);
@@ -137,7 +141,7 @@
       font-weight: 600;
       cursor: pointer;
       border-bottom: 2px solid transparent;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
       white-space: nowrap;
     }
 
@@ -146,583 +150,355 @@
       border-bottom-color: var(--primary);
     }
 
-    .tab:active {
-      transform: scale(0.97);
-    }
-
-    /* Main Content */
+    /* Layout */
     .container {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 16px;
     }
 
-    /* Info Cards */
-    .info-cards {
+    .hero {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(139, 92, 246, 0.18));
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 20px 40px var(--shadow);
+    }
+
+    .hero h1 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .info-grid {
       display: grid;
       gap: 12px;
-      margin-bottom: 24px;
+      margin-top: 16px;
     }
 
     .info-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: var(--radius-sm);
       padding: 16px;
+      box-shadow: 0 12px 24px var(--shadow);
     }
 
     .info-card-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-weight: 600;
     }
 
     .info-icon {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 10px;
+      background: rgba(59, 130, 246, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-    }
-
-    .info-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 18px;
     }
 
     .info-value {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
-      margin-bottom: 4px;
     }
 
     .info-subtitle {
-      font-size: 13px;
       color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 4px;
     }
 
-    /* Stats Grid */
     .stats {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-      margin-bottom: 24px;
+      margin: 16px 0 4px;
     }
 
     .stat-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      text-align: center;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      text-align: left;
     }
 
     .stat-value {
-      font-size: 32px;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
+      font-size: 20px;
+      font-weight: 700;
     }
 
     .stat-label {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
-    /* Timeline */
+    .section-title {
+      margin: 22px 0 12px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .content-section {
+      margin-bottom: 20px;
+    }
+
+    .content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 14px 30px var(--shadow);
+    }
+
+    .content-card h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .content-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(59, 130, 246, 0.18);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .pill.critical {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    .pill.warn {
+      background: rgba(245, 158, 11, 0.18);
+      color: #facc15;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .pill.info {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .toc-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .toc-item {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .toc-item span {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .data-table th,
+    .data-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .data-table th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
     .timeline {
-      margin-bottom: 24px;
+      display: grid;
+      gap: 12px;
     }
 
     .timeline-item {
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: var(--radius-sm);
       padding: 16px;
-      margin-bottom: 12px;
       position: relative;
     }
 
     .timeline-item.active {
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
     }
 
     .timeline-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
+      font-weight: 600;
     }
 
     .timeline-day {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-weight: 700;
-      font-size: 16px;
     }
 
     .day-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
       background: var(--primary);
       color: white;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 700;
     }
 
     .timeline-status {
-      padding: 4px 12px;
-      border-radius: 20px;
       font-size: 12px;
-      font-weight: 600;
-      background: rgba(59, 130, 246, 0.1);
-      color: var(--primary);
+      color: var(--text-muted);
     }
 
     .timeline-port {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
+      font-size: 16px;
+      font-weight: 600;
     }
 
     .timeline-time {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    /* Tasks */
-    .tasks {
-      margin-bottom: 24px;
-    }
-
-    .task-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .task-checkbox {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      border: 2px solid var(--border);
-      flex-shrink: 0;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .task-card.done .task-checkbox {
-      background: var(--success);
-      border-color: var(--success);
-    }
-
-    .task-checkbox i {
-      color: white;
-      font-size: 12px;
-      opacity: 0;
-    }
-
-    .task-card.done .task-checkbox i {
-      opacity: 1;
-    }
-
-    .task-content {
-      flex: 1;
-    }
-
-    .task-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .task-card.done .task-title {
-      text-decoration: line-through;
-      opacity: 0.5;
-    }
-
-    .task-meta {
-      display: flex;
-      flex-wrap: wrap;
       gap: 8px;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-muted);
+      margin-top: 6px;
     }
 
-    .task-tag {
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 600;
-    }
-
-    .task-tag.critical {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger);
-    }
-
-    .task-tag.warning {
-      background: rgba(245, 158, 11, 0.1);
-      color: var(--warning);
-    }
-
-    .task-tag.info {
-      background: rgba(59, 130, 246, 0.1);
-      color: var(--primary);
-    }
-
-    /* Quick Actions */
-    .quick-actions {
+    .badge-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .action-btn {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       gap: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
     }
 
-    .action-btn:active {
-      transform: scale(0.97);
-    }
-
-    .action-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-    }
-
-    .action-label {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    /* Bottom Navigation */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--bg-alt);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-      z-index: 100;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      padding: 8px 16px;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-
-    .nav-item.active {
-      color: var(--primary);
-    }
-
-    .nav-item i {
-      font-size: 20px;
-    }
-
-    .nav-label {
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    /* FAB */
-    .fab {
-      position: fixed;
-      bottom: 80px;
-      right: 16px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      border: none;
-      box-shadow: 0 4px 12px var(--shadow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 90;
-      transition: all 0.3s;
-    }
-
-    .fab:active {
-      transform: scale(0.95);
-    }
-
-    /* Drawer */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 200;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .drawer-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .drawer {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 85%;
-      max-width: 400px;
-      height: 100%;
-      background: var(--bg-alt);
-      z-index: 201;
-      transform: translateX(100%);
-      transition: transform 0.3s;
-      overflow-y: auto;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .drawer.active {
-      transform: translateX(0);
-    }
-
-    .drawer-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
+    .badge-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-    }
-
-    .drawer-title {
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .drawer-content {
-      padding: 20px;
-    }
-
-    .filter-group {
-      margin-bottom: 24px;
-    }
-
-    .filter-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .filter-option {
-      display: flex;
-      align-items: center;
       gap: 12px;
-      padding: 12px 0;
-      cursor: pointer;
-    }
-
-    .checkbox {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      border: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .filter-option input:checked + .checkbox {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-
-    .filter-option input {
-      display: none;
-    }
-
-    .checkbox i {
-      color: white;
-      font-size: 12px;
-      opacity: 0;
-    }
-
-    .filter-option input:checked + .checkbox i {
-      opacity: 1;
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: var(--bg-card);
+      padding: 10px 12px;
+      border-radius: 10px;
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
+      background: rgba(30, 41, 59, 0.5);
+      font-size: 13px;
+    }
+
+    .paths-grid {
+      display: grid;
       gap: 12px;
-      box-shadow: 0 4px 12px var(--shadow);
-      z-index: 300;
-      transition: transform 0.3s;
-      max-width: calc(100% - 32px);
+      margin-top: 8px;
     }
 
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
+    .path-card {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
     }
 
-    /* Responsive */
-    @media (min-width: 640px) {
-      .stats {
-        grid-template-columns: repeat(4, 1fr);
-      }
-
-      .quick-actions {
-        grid-template-columns: repeat(4, 1fr);
-      }
-
-      .info-cards {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .path-card h4 {
+      margin-bottom: 6px;
+      font-size: 14px;
     }
 
-    @media (min-width: 768px) {
-      .container {
-        padding: 24px;
-      }
-
-      .bottom-nav {
-        display: none;
-      }
-
-      .fab {
-        bottom: 24px;
-      }
+    .callout {
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      background: rgba(59, 130, 246, 0.15);
+      font-size: 13px;
+      color: var(--text);
     }
 
-    /* Loading */
-    .loading {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
+    .legend {
       display: flex;
-      align-items: center;
-      justify-content: center;
       flex-direction: column;
-      gap: 20px;
-      z-index: 1000;
-      transition: opacity 0.3s;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 13px;
     }
 
-    .loading.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 16px;
+    .legend-item {
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .empty-state {
-      text-align: center;
-      padding: 48px 16px;
-      color: var(--text-muted);
-    }
+    @media (min-width: 768px) {
+      .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
 
-    .empty-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.5;
+      .stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .paths-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .badge-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <div>Loading your cruise...</div>
+    <div>Loading your cruise manual...</div>
   </div>
-
-  <!-- Header -->
 
   <header class="header">
     <div class="header-top">
@@ -730,305 +506,460 @@
         <span class="logo-icon">🚢</span>
         <span>Cruise Companion</span>
       </div>
-      <div class="header-actions">
-        <button class="icon-btn" id="search-btn" aria-label="Search">
-          <i class="fas fa-search"></i>
-        </button>
-        <button class="icon-btn" id="filter-btn" aria-label="Filters">
-          <i class="fas fa-filter"></i>
-          <span class="badge" id="filter-badge">3</span>
-        </button>
-        <button class="icon-btn" id="menu-btn" aria-label="Menu">
-          <i class="fas fa-bars"></i>
-        </button>
-      </div>
+      <div class="header-chip">Adventure of the Seas</div>
     </div>
     <div class="tabs">
       <button class="tab active" data-tab="overview">Overview</button>
-      <button class="tab" data-tab="timeline">Timeline</button>
-      <button class="tab" data-tab="tasks">Tasks</button>
-      <button class="tab" data-tab="actions">Actions</button>
+      <button class="tab" data-tab="manual">Manual</button>
+      <button class="tab" data-tab="itinerary">Itinerary</button>
+      <button class="tab" data-tab="addendum">Addendum</button>
     </div>
   </header>
 
-  <!-- Main Content -->
-
   <div class="container">
-    <!-- Overview Tab -->
     <div class="tab-content" id="overview-content">
-      <!-- Info Cards -->
-      <div class="info-cards">
+      <div class="hero">
+        <h1>The Family and Friends Cruise Companion: Unabridged Operations Manual</h1>
+        <p>Adventure of the Seas • February 14–20, 2026 • Western Caribbean & Perfect Day</p>
+      </div>
+
+      <div class="info-grid">
         <div class="info-card">
           <div class="info-card-header">
-            <div class="info-icon">🚢</div>
-            <div class="info-title">Your Ship</div>
+            <div class="info-icon">🛳️</div>
+            <div>Your Ship</div>
           </div>
           <div class="info-value">Adventure of the Seas</div>
-          <div class="info-subtitle">Royal Caribbean • Stateroom 6650</div>
+          <div class="info-subtitle">Primary hub: Deck 6 Aft (Staterooms 6650, 6651)</div>
         </div>
-
         <div class="info-card">
           <div class="info-card-header">
-            <div class="info-icon">📅</div>
-            <div class="info-title">Sailing Dates</div>
+            <div class="info-icon">📍</div>
+            <div>Route</div>
           </div>
-          <div class="info-value">Feb 14-20, 2026</div>
-          <div class="info-subtitle">7-day Caribbean cruise</div>
+          <div class="info-value">Western Caribbean Loop</div>
+          <div class="info-subtitle">Grand Cayman, Falmouth & Perfect Day at CocoCay</div>
         </div>
       </div>
 
-      <!-- Stats -->
       <div class="stats">
         <div class="stat-card">
-          <div class="stat-value" id="days-until">14</div>
+          <div class="stat-value" id="days-until">0</div>
           <div class="stat-label">Days Until Cruise</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="tasks-total">24</div>
-          <div class="stat-label">Total Tasks</div>
+          <div class="stat-value">6</div>
+          <div class="stat-label">Total Guests</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="tasks-done">8</div>
-          <div class="stat-label">Completed</div>
+          <div class="stat-value">3</div>
+          <div class="stat-label">Linked Bookings</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="progress-pct">33%</div>
-          <div class="stat-label">Progress</div>
+          <div class="stat-value">2</div>
+          <div class="stat-label">Muster Stations</div>
         </div>
       </div>
 
-      <h2 class="section-title">
-        <i class="fas fa-exclamation-circle"></i>
-        Critical Tasks
-      </h2>
-      <div class="tasks" id="critical-tasks"></div>
+      <h2 class="section-title"><i class="fas fa-compass"></i> Table of Contents</h2>
+      <div class="toc-list">
+        <div class="toc-item">Pre-Cruise Command Center <span>Guest manifest, itinerary, tasks</span></div>
+        <div class="toc-item">Embarkation Day: Golden Hour <span>Minute-by-minute protocol</span></div>
+        <div class="toc-item">Ship Fundamentals & Daily Rhythm <span>Deck strategy + daily beat</span></div>
+        <div class="toc-item">The Daily Navigator <span>Flexible paths for each day</span></div>
+        <div class="toc-item">Port Playbook <span>Grand Cayman, Falmouth, CocoCay</span></div>
+        <div class="toc-item">Dining & Specialty Strategy <span>3-night plan + venues</span></div>
+        <div class="toc-item">Finance, Communication & Logistics <span>Money, Wi-Fi, luggage</span></div>
+        <div class="toc-item">Debarkation & Return to Reality <span>Final night + morning</span></div>
+        <div class="toc-item">Addendum X <span>Failure modes & contingencies</span></div>
+      </div>
 
-      <h2 class="section-title">
-        <i class="fas fa-bolt"></i>
-        Quick Actions
-      </h2>
-      <div class="quick-actions">
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-life-ring"></i></div>
-          <div class="action-label">Muster</div>
-        </button>
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-utensils"></i></div>
-          <div class="action-label">Dining</div>
-        </button>
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-suitcase"></i></div>
-          <div class="action-label">Packing</div>
-        </button>
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-map"></i></div>
-          <div class="action-label">Ports</div>
-        </button>
+      <h2 class="section-title"><i class="fas fa-bolt"></i> Emoji Legend</h2>
+      <div class="content-card">
+        <div class="legend">
+          <div class="legend-item"><span class="pill critical">🔴 Critical</span> Must be on time / affects safety or major plans.</div>
+          <div class="legend-item"><span class="pill warn">🟡 Recommended</span> Enhances experience but not mandatory.</div>
+          <div class="legend-item"><span class="pill info">🟢 Informational</span> Helpful tips and reminders.</div>
+        </div>
       </div>
     </div>
 
-    <!-- Timeline Tab -->
-    <div class="tab-content" id="timeline-content" style="display: none;">
+    <div class="tab-content" id="manual-content" style="display: none;">
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-clipboard-list"></i> 1. Pre-Cruise Command Center</h2>
+        <div class="content-card">
+          <h3>1.1 Guest Manifest & Core Data</h3>
+          <p><strong>Primary Booking (4519230):</strong> Stateroom 6650 (Deck 6, Aft) • Guests: William, Melissa, Declan, Owen • Muster Station: D22</p>
+          <p><strong>Secondary Booking (6788946):</strong> Stateroom 6651 (Deck 6, Aft) • Guest: Amy Abel • Muster Station: D22</p>
+          <p><strong>Tertiary Booking (4352113):</strong> Stateroom 8528 (Deck 8, Forward-Mid) • Guest: Karin Aimee • Muster Station: A2</p>
+        </div>
+        <div class="content-card">
+          <h3>1.2 Official Itinerary (Quick View)</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Port</th>
+                <th>Time</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Feb 14 (Sat)</td><td>Port Canaveral – Depart</td><td>4:00 PM</td><td>🔴</td></tr>
+              <tr><td>Feb 15 (Sun)</td><td>At Sea</td><td>All Day</td><td>🟡</td></tr>
+              <tr><td>Feb 16 (Mon)</td><td>George Town, Grand Cayman (Tender)</td><td>10:30 AM – 6:00 PM</td><td>🔴</td></tr>
+              <tr><td>Feb 17 (Tue)</td><td>Falmouth, Jamaica</td><td>8:00 AM – 5:00 PM</td><td>🔴</td></tr>
+              <tr><td>Feb 18 (Wed)</td><td>At Sea</td><td>All Day</td><td>🟡</td></tr>
+              <tr><td>Feb 19 (Thu)</td><td>Perfect Day at CocoCay</td><td>7:00 AM – 5:00 PM</td><td>🔴</td></tr>
+              <tr><td>Feb 20 (Fri)</td><td>Port Canaveral – Arrive</td><td>7:00 AM</td><td>🔴</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="content-card">
+          <h3>1.3 🔴 Mandatory Pre-Departure Tasks (By Feb 13)</h3>
+          <p><span class="pill critical">Royal App</span> Download and ensure all adults have access.</p>
+          <p><span class="pill critical">Online Check-In</span> Complete via app when it opens (~45 days prior). Upload photos and select earliest arrival (10:30 AM target).</p>
+          <p><span class="pill critical">Linking Bookings</span> Concierge (William/Melissa) must link all three booking numbers in the Royal app.</p>
+          <p><span class="pill warn">Documentation</span> Verify passports; print SetSail passes and luggage tags.</p>
+          <p><span class="pill info">Communication</span> Create WhatsApp group; Concierge device holds the 1-device VOOM plan.</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-stopwatch"></i> 2. Embarkation Day: The Golden Hour Protocol</h2>
+        <div class="content-card">
+          <p><strong>Objective:</strong> Transition from land-based chaos to onboard control within the first 60 minutes.</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Location</th>
+                <th>Lead</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>10:30 AM</td>
+                <td>🔴 Arrive at Terminal</td>
+                <td>Port Canaveral</td>
+                <td>All</td>
+                <td>SetSail pass + passport ready. Check bags with porters.</td>
+              </tr>
+              <tr>
+                <td>12:00 PM</td>
+                <td>🔴 Step 1: The Huddle</td>
+                <td>Deck 4/5 Promenade</td>
+                <td>All</td>
+                <td>Do not disperse. Find a wall or quiet seating.</td>
+              </tr>
+              <tr>
+                <td>12:05 PM</td>
+                <td>🔴 Step 2: Digital Activation</td>
+                <td>Onboard</td>
+                <td>Concierge 1</td>
+                <td>Connect to ROYAL-WIFI, verify linked bookings.</td>
+              </tr>
+              <tr>
+                <td>12:10 PM</td>
+                <td>🔴 Step 3: Priority Booking</td>
+                <td>Royal App</td>
+                <td>Concierge 1</td>
+                <td>Dining: Nights 1,3,4 for 6 people. Shows if reservable.</td>
+              </tr>
+              <tr>
+                <td>12:30 PM</td>
+                <td>🔴 Step 4: Muster & Verify</td>
+                <td>Muster/Dining</td>
+                <td>All</td>
+                <td>Complete eMuster, regroup at Pool Bar, confirm linked tables.</td>
+              </tr>
+              <tr>
+                <td>1:00 PM</td>
+                <td>🟢 Mission Complete</td>
+                <td>Windjammer / Café</td>
+                <td>All</td>
+                <td>Lunch. Cabins ready ~1:30 PM.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-route"></i> 3. Ship Fundamentals & Daily Rhythm</h2>
+        <div class="content-card">
+          <h3>3.1 Ship Geography</h3>
+          <p><strong>Deck 6 Aft (6650, 6651):</strong> “The Quiet Zone.” Use aft elevators for Dining Rooms (Decks 3–5) and Windjammer (Deck 11).</p>
+          <p><strong>Deck 8 Forward-Mid (8528):</strong> “The Central Hub.” Near theater and spa. Meeting point: R Bar on Deck 5 Promenade.</p>
+        </div>
+        <div class="content-card">
+          <h3>3.2 The Non-Negotiable Daily Beat</h3>
+          <div class="badge-grid">
+            <div class="badge-row"><span>7:30–9:00 AM</span><span>🟡 Breakfast + group plan check</span></div>
+            <div class="badge-row"><span>10:00 AM</span><span>🟡 Begin the day’s Path</span></div>
+            <div class="badge-row"><span>1:00–4:00 PM</span><span>🟡 Lunch + flexible time</span></div>
+            <div class="badge-row"><span>6:45 PM</span><span>🟡 Group meet at R Bar</span></div>
+            <div class="badge-row"><span>7:30 PM+</span><span>🟡 Dinner + shows</span></div>
+            <div class="badge-row"><span>10:00 PM+</span><span>🟢 Optional late night</span></div>
+          </div>
+        </div>
+        <div class="content-card">
+          <h3>3.3 Entertainment & Booking Truths</h3>
+          <p><strong>Myth:</strong> Shows must be booked months in advance.</p>
+          <p><strong>Reality:</strong> On Adventure of the Seas, most theater and ice shows are first-come, first-served.</p>
+          <p><strong>Strategy:</strong> Ice Show in Studio B is priority. Check the app for performance days and arrive 30 minutes early.</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-map"></i> 4. The Daily Navigator: Flexible Itinerary</h2>
+        <div class="content-card">
+          <h3>Day 2 (Sun, Feb 15) — At Sea (Formal Night #1)</h3>
+          <div class="paths-grid">
+            <div class="path-card">
+              <h4>Path A | Thrill-Seeker</h4>
+              Morning FlowRider clinic. Afternoon rock climbing or waterslides. Pre-dinner formal photos.
+            </div>
+            <div class="path-card">
+              <h4>Path B | Culturist</h4>
+              Art auction or trivia. Afternoon ice show. Solarium before formal dinner.
+            </div>
+            <div class="path-card">
+              <h4>Path C | Family Anchor</h4>
+              Pool games + mini-golf. Adventure Ocean for kids, spa for adults. Casual early dinner.
+            </div>
+          </div>
+          <p><strong>Dinner:</strong> Formal Night in Main Dining Room.</p>
+        </div>
+        <div class="content-card">
+          <h3>Day 3 (Mon, Feb 16) — George Town, Grand Cayman</h3>
+          <div class="paths-grid">
+            <div class="path-card">
+              <h4>Path A | Aquatic Adventure</h4>
+              Ship-sponsored Stingray City & snorkel tour. Return for late lunch onboard.
+            </div>
+            <div class="path-card">
+              <h4>Path B | Beach Club</h4>
+              Taxi to Seven Mile Beach (Calico Jack’s or Public Beach). Rent chairs.
+            </div>
+            <div class="path-card">
+              <h4>Path C | Historic & Culinary</h4>
+              Explore George Town + National Museum. Lunch at Paradise Grill.
+            </div>
+          </div>
+          <p><strong>Dinner:</strong> Specialty Dining #1 (Giovanni’s Table suggested).</p>
+        </div>
+        <div class="content-card">
+          <h3>Day 4 (Tue, Feb 17) — Falmouth, Jamaica</h3>
+          <div class="paths-grid">
+            <div class="path-card">
+              <h4>Path A | Iconic Excursion</h4>
+              Dunn’s River Falls and/or Blue Hole. Water shoes required.
+            </div>
+            <div class="path-card">
+              <h4>Path B | Curated Culture</h4>
+              Historic Falmouth walking tour + resort day pass at Royalton.
+            </div>
+            <div class="path-card">
+              <h4>Path C | Ship Day Savvy</h4>
+              Enjoy a quieter ship: pool, spa, and onboard activities.
+            </div>
+          </div>
+          <p><strong>Dinner:</strong> Specialty Dining #2 (Chops Grille suggested).</p>
+        </div>
+        <div class="content-card">
+          <h3>Day 5 (Wed, Feb 18) — At Sea (Formal Night #2)</h3>
+          <div class="paths-grid">
+            <div class="path-card">
+              <h4>Path A | Final Challenges</h4>
+              Last FlowRider/rock wall sessions. Afternoon packing.
+            </div>
+            <div class="path-card">
+              <h4>Path B | Enrichment & Leisure</h4>
+              Guest lecture or cooking demo. Farewell show or trivia.
+            </div>
+            <div class="path-card">
+              <h4>Path C | Ultimate Relaxation</h4>
+              Extended spa treatment. Reading on the helipad.
+            </div>
+          </div>
+          <p><strong>Dinner:</strong> Formal Night in Main Dining Room (Lobster Tail night).</p>
+        </div>
+        <div class="content-card">
+          <h3>Day 6 (Thu, Feb 19) — Perfect Day at CocoCay</h3>
+          <div class="paths-grid">
+            <div class="path-card">
+              <h4>Path A | Thrill Island</h4>
+              Early access to Thrill Waterpark slides. Oasis Lagoon in afternoon.
+            </div>
+            <div class="path-card">
+              <h4>Path B | Chill Island</h4>
+              Secure loungers, snorkel, swim. Lunch at Chill Grill.
+            </div>
+            <div class="path-card">
+              <h4>Path C | Explorer</h4>
+              Nature trail, observation tower, Up, Up & Away balloon.
+            </div>
+          </div>
+          <p><strong>Dinner:</strong> Specialty Dining #3 or Main Dining Room Farewell.</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-anchor"></i> 5. Port Playbook: Tactical Briefs</h2>
+        <div class="content-card">
+          <h3>5.1 Grand Cayman (Tender Port)</h3>
+          <p>🔴 Tender process begins ~10:45 AM. Go early (10:15 AM) or expect lines.</p>
+          <p>🔴 Last tender 5:15 PM. Aim to queue by 4:30 PM.</p>
+          <p>🟢 USD widely accepted; credit cards common.</p>
+        </div>
+        <div class="content-card">
+          <h3>5.2 Falmouth, Jamaica</h3>
+          <p>🟡 Docking port with easy walk-off access.</p>
+          <p>🟡 Use licensed operators inside the port gate for independent tours.</p>
+          <p>🟢 Must-try: Jerk chicken from Scotchies (just outside port).</p>
+        </div>
+        <div class="content-card">
+          <h3>5.3 Perfect Day at CocoCay</h3>
+          <p>🔴 Disembark by 8:00 AM to claim prime loungers.</p>
+          <p>🟡 Included: beaches, Oasis Lagoon pool, Chill/Skipper’s Grill, Snack Shacks.</p>
+          <p>🟢 Refreshment Package works on the island. All aboard 4:30 PM.</p>
+        </div>
+        <div class="content-card">
+          <h3>🔴 Quick-Reference: Critical Tasks</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Time/Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Arrive at Terminal</td><td>Feb 14, 10:30 AM</td></tr>
+              <tr><td>Muster Drill Complete</td><td>Feb 14, 12:30 PM</td></tr>
+              <tr><td>Link Bookings in App</td><td>By Feb 13</td></tr>
+              <tr><td>Grand Cayman Last Tender</td><td>Feb 16, 5:15 PM</td></tr>
+              <tr><td>CocoCay All Aboard</td><td>Feb 19, 4:30 PM</td></tr>
+              <tr><td>Luggage in Hallway</td><td>Feb 19, 11:00 PM</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-utensils"></i> 6. Dining & Speciality Restaurant Strategy</h2>
+        <div class="content-card">
+          <h3>6.1 The 3-Night Package Execution</h3>
+          <p>Bookings made and linked on Embarkation Day.</p>
+          <p><strong>Recommended Nights:</strong> Day 1 (avoid MDR chaos), Day 3 (post-Grand Cayman), Day 6 (CocoCay celebration).</p>
+          <p><strong>Venue Guide:</strong> Chops Grille (filet + shareable sides), Giovanni’s Table (family-style Italian), Izumi (hibachi or sushi).</p>
+        </div>
+        <div class="content-card">
+          <h3>6.2 Main Dining Room & Other Venues</h3>
+          <p><strong>My Time Dining:</strong> Arrive at your set time each night.</p>
+          <p><strong>Windjammer:</strong> Best for breakfast variety and casual lunches. Avoid 8:30 AM and 12:30 PM.</p>
+          <p><strong>Café Promenade:</strong> 24/7 snacks (pizza, sandwiches, cookies).</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-wallet"></i> 7. Finance, Communication & Logistics</h2>
+        <div class="content-card">
+          <h3>7.1 The Financial Control Panel</h3>
+          <p><strong>SeaPass:</strong> Your onboard credit card. All spending charged to cabin account.</p>
+          <p><strong>Tracking:</strong> Use the Royal app onboard account feature daily.</p>
+          <p><strong>Gratuities:</strong> Standard daily gratuity ($18.50+/person/day) auto-charged.</p>
+          <p><strong>Settling Up:</strong> Final bill charged to card on file early debarkation day.</p>
+        </div>
+        <div class="content-card">
+          <h3>7.2 The Communication Matrix</h3>
+          <p><strong>Onboard Primary:</strong> Royal App free in-app chat group for all 6 guests.</p>
+          <p><strong>Onboard Secondary:</strong> 1-device VOOM plan for WhatsApp/email.</p>
+          <p><strong>In Port:</strong> Use local cell service if available; set a physical meet-up time/place.</p>
+        </div>
+        <div class="content-card">
+          <h3>7.3 Luggage & Packing</h3>
+          <p><strong>Embarkation:</strong> Tag bags; keep essentials + documents in carry-on.</p>
+          <p><strong>Debarkation:</strong> Place large bags outside cabin by 11:00 PM final night.</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-plane-arrival"></i> 8. Debarkation & Return to Reality</h2>
+        <div class="content-card">
+          <h3>8.1 The Night Before (Day 6)</h3>
+          <p>Pack checked luggage, settle onboard account, place luggage in hallway by 11:00 PM.</p>
+        </div>
+        <div class="content-card">
+          <h3>8.2 Debarkation Morning (Day 7)</h3>
+          <p><strong>Early breakfast:</strong> Windjammer or Café Promenade opens early.</p>
+          <p><strong>Self-Assist:</strong> Walk off once ship clears (~7:15 AM) with your luggage.</p>
+          <p><strong>Checked luggage:</strong> Wait in designated lounge for tag number/color.</p>
+          <p><strong>Customs:</strong> Facial recognition or present passport; proceed to transportation.</p>
+        </div>
+        <div class="content-card">
+          <h3>8.3 Post-Cruise</h3>
+          <p>Guest satisfaction survey may arrive via email. SeaPass cards are souvenirs. Photos can be purchased or downloaded.</p>
+        </div>
+        <div class="callout">
+          <strong>Final Transmission:</strong> This manual is your blueprint. Trust the plan, then live beyond it. Bon Voyage.
+        </div>
+      </section>
+    </div>
+
+    <div class="tab-content" id="itinerary-content" style="display: none;">
       <div class="timeline" id="timeline"></div>
     </div>
 
-    <!-- Tasks Tab -->
-    <div class="tab-content" id="tasks-content" style="display: none;">
-      <div class="tasks" id="all-tasks"></div>
-    </div>
-
-    <!-- Actions Tab -->
-    <div class="tab-content" id="actions-content" style="display: none;">
-      <div class="quick-actions">
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-file-pdf"></i></div>
-          <div class="action-label">Export PDF</div>
-        </button>
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-share-alt"></i></div>
-          <div class="action-label">Share</div>
-        </button>
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-download"></i></div>
-          <div class="action-label">Download</div>
-        </button>
-        <button class="action-btn">
-          <div class="action-icon"><i class="fas fa-sync"></i></div>
-          <div class="action-label">Sync</div>
-        </button>
+    <div class="tab-content" id="addendum-content" style="display: none;">
+      <section class="content-section">
+        <h2 class="section-title"><i class="fas fa-shield-heart"></i> Addendum X — Failure Modes, Contingencies & Force Multipliers</h2>
+        <div class="content-card">
+          <p>Purpose: Covers health, weather, kids, fatigue, human error, and ship quirks. Read once. Use rarely. Appreciate silently.</p>
+        </div>
+        <div class="content-card">
+          <h3>X1) Medical & Health Contingency Protocol</h3>
+          <p><strong>Medical Center:</strong> Deck 4 forward. Hours posted daily; 24-hour emergency availability. Charges go to SeaPass.</p>
+          <div class="badge-grid">
+            <div class="badge-row"><span>Minor issue</span><span>→ Treat in cabin, reassess in 30–60 minutes</span></div>
+            <div class="badge-row"><span>Moderate issue</span><span>→ One adult to Medical, one with kids, Concierge notified</span></div>
+            <div class="badge-row"><span>Serious issue</span><span>→ Call ship emergency number immediately</span></div>
+          </div>
+          <p><strong>Medication Safeguard:</strong> Split critical meds across two carry-ons. Never keep all meds in one cabin.</p>
+        </div>
+        <div class="content-card">
+          <h3>X2) Weather & Sea-State Adaptation Logic</h3>
+          <p><strong>If CocoCay is windy/overcast:</strong> Shade > chairs > water. Poolside + Snack Shack beats beach frustration. Accept a half-day win.</p>
+          <p><strong>If tendering delayed (Grand Cayman):</strong> Ship excursions go first. Independent plans shift morning → afternoon without negotiation.</p>
+        </div>
+      </section>
+      <div class="callout">
+        With this manual, you are fully prepared. Enjoy the cruise. Trust the plan. Live beyond it. 🚢 Bon Voyage!
       </div>
     </div>
-  </div>
-
-  <!-- Bottom Navigation -->
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-nav="overview">
-      <i class="fas fa-home"></i>
-      <span class="nav-label">Overview</span>
-    </button>
-    <button class="nav-item" data-nav="timeline">
-      <i class="fas fa-calendar"></i>
-      <span class="nav-label">Timeline</span>
-    </button>
-    <button class="nav-item" data-nav="tasks">
-      <i class="fas fa-check-circle"></i>
-      <span class="nav-label">Tasks</span>
-    </button>
-    <button class="nav-item" data-nav="actions">
-      <i class="fas fa-ellipsis-h"></i>
-      <span class="nav-label">More</span>
-    </button>
-  </nav>
-
-  <!-- FAB -->
-
-  <button class="fab" id="fab" aria-label="Add">
-    <i class="fas fa-plus"></i>
-  </button>
-
-  <!-- Filter Drawer -->
-
-  <div class="drawer-overlay" id="drawer-overlay"></div>
-  <div class="drawer" id="filter-drawer">
-    <div class="drawer-header">
-      <h2 class="drawer-title">Filters</h2>
-      <button class="icon-btn" id="close-drawer" aria-label="Close filters">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="drawer-content">
-      <div class="filter-group">
-        <label class="filter-label">Priority</label>
-        <label class="filter-option">
-          <input type="checkbox" checked>
-          <div class="checkbox"><i class="fas fa-check"></i></div>
-          <span>🔴 Critical</span>
-        </label>
-        <label class="filter-option">
-          <input type="checkbox" checked>
-          <div class="checkbox"><i class="fas fa-check"></i></div>
-          <span>🟡 Recommended</span>
-        </label>
-        <label class="filter-option">
-          <input type="checkbox" checked>
-          <div class="checkbox"><i class="fas fa-check"></i></div>
-          <span>🟢 Info</span>
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast -->
-
-  <div class="toast" id="toast" role="status" aria-live="polite">
-    <i class="fas fa-check-circle"></i>
-    <span id="toast-message">Task completed!</span>
   </div>
 
   <script>
-    // Sample data
     const cruiseData = {
       sailDate: '2026-02-14',
       days: [
-        { day: 1, port: 'Fort Lauderdale', arrive: '—', depart: '16:00', status: 'Embarkation' },
+        { day: 1, port: 'Port Canaveral', arrive: '—', depart: '16:00', status: 'Embarkation' },
         { day: 2, port: 'At Sea', arrive: '—', depart: '—', status: 'Sailing' },
-        { day: 3, port: 'Cozumel, Mexico', arrive: '08:00', depart: '18:00', status: 'Port' },
-        { day: 4, port: 'Grand Cayman', arrive: '07:00', depart: '16:00', status: 'Port' },
-        { day: 5, port: 'Jamaica', arrive: '10:00', depart: '19:00', status: 'Port' },
-        { day: 6, port: 'At Sea', arrive: '—', depart: '—', status: 'Sailing' },
-        { day: 7, port: 'Fort Lauderdale', arrive: '06:00', depart: '—', status: 'Disembarkation' }
-      ],
-      tasks: [
-        { id: 1, title: 'Complete online check-in', priority: 'critical', done: false, day: 'Pre-cruise' },
-        { id: 2, title: 'Book muster station time', priority: 'critical', done: false, day: 'Day 1' },
-        { id: 3, title: 'Reserve specialty dining', priority: 'warning', done: false, day: 'Pre-cruise' },
-        { id: 4, title: 'Pack carry-on essentials', priority: 'critical', done: true, day: 'Pre-cruise' },
-        { id: 5, title: 'Print boarding documents', priority: 'warning', done: false, day: 'Pre-cruise' },
-        { id: 6, title: 'Book Cozumel excursion', priority: 'info', done: false, day: 'Day 3' }
+        { day: 3, port: 'George Town, Grand Cayman', arrive: '10:30', depart: '18:00', status: 'Tender Port' },
+        { day: 4, port: 'Falmouth, Jamaica', arrive: '08:00', depart: '17:00', status: 'Port' },
+        { day: 5, port: 'At Sea', arrive: '—', depart: '—', status: 'Sailing' },
+        { day: 6, port: 'Perfect Day at CocoCay', arrive: '07:00', depart: '17:00', status: 'Port' },
+        { day: 7, port: 'Port Canaveral', arrive: '07:00', depart: '—', status: 'Disembarkation' }
       ]
     };
 
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-
-    function showToast(message) {
-      toastMessage.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
-    }
-
-    // Calculate days until cruise
     function updateCountdown() {
       const today = new Date();
       const sail = new Date(cruiseData.sailDate);
       const diff = Math.ceil((sail - today) / (1000 * 60 * 60 * 24));
       document.getElementById('days-until').textContent = diff > 0 ? diff : '0';
-    }
-
-    function updateStats() {
-      const total = cruiseData.tasks.length;
-      const done = cruiseData.tasks.filter(task => task.done).length;
-      const progress = total ? Math.round((done / total) * 100) : 0;
-
-      document.getElementById('tasks-total').textContent = total;
-      document.getElementById('tasks-done').textContent = done;
-      document.getElementById('progress-pct').textContent = `${progress}%`;
-    }
-
-    function taskTag(priority) {
-      if (priority === 'critical') return 'Critical';
-      if (priority === 'warning') return 'Recommended';
-      return 'Info';
-    }
-
-    // Render tasks
-    function renderTasks() {
-      const criticalContainer = document.getElementById('critical-tasks');
-      const allContainer = document.getElementById('all-tasks');
-
-      const critical = cruiseData.tasks.filter(task => task.priority === 'critical' && !task.done);
-      const all = cruiseData.tasks;
-
-      criticalContainer.innerHTML = critical.length
-        ? critical.map(task => `
-          <div class="task-card ${task.done ? 'done' : ''}" data-id="${task.id}">
-            <div class="task-checkbox"><i class="fas fa-check"></i></div>
-            <div class="task-content">
-              <div class="task-title">${task.title}</div>
-              <div class="task-meta">
-                <span class="task-tag ${task.priority}">${taskTag(task.priority)}</span>
-                <span>${task.day}</span>
-              </div>
-            </div>
-          </div>
-        `).join('')
-        : `
-          <div class="empty-state">
-            <div class="empty-icon">🎉</div>
-            <div>All critical tasks are complete.</div>
-          </div>
-        `;
-
-      allContainer.innerHTML = all.length
-        ? all.map(task => `
-          <div class="task-card ${task.done ? 'done' : ''}" data-id="${task.id}">
-            <div class="task-checkbox"><i class="fas fa-check"></i></div>
-            <div class="task-content">
-              <div class="task-title">${task.title}</div>
-              <div class="task-meta">
-                <span class="task-tag ${task.priority}">${taskTag(task.priority)}</span>
-                <span>${task.day}</span>
-              </div>
-            </div>
-          </div>
-        `).join('')
-        : `
-          <div class="empty-state">
-            <div class="empty-icon">🧳</div>
-            <div>No tasks yet.</div>
-          </div>
-        `;
     }
 
     function renderTimeline() {
@@ -1053,33 +984,9 @@
       `).join('');
     }
 
-    function updateFilterBadge() {
-      const checked = Array.from(document.querySelectorAll('.filter-option input'))
-        .filter(input => input.checked).length;
-      document.getElementById('filter-badge').textContent = checked;
-    }
-
-    function handleTaskToggle(event) {
-      const card = event.target.closest('.task-card');
-      if (!card) return;
-
-      const id = Number(card.dataset.id);
-      const task = cruiseData.tasks.find(item => item.id === id);
-      if (!task) return;
-
-      task.done = !task.done;
-      renderTasks();
-      updateStats();
-      showToast(task.done ? 'Task completed!' : 'Task marked as incomplete.');
-    }
-
     function switchTab(tabName) {
       document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.tab === tabName);
-      });
-
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.toggle('active', item.dataset.nav === tabName);
       });
 
       document.querySelectorAll('.tab-content').forEach(section => {
@@ -1091,33 +998,6 @@
       document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
       });
-
-      document.querySelectorAll('.nav-item').forEach(nav => {
-        nav.addEventListener('click', () => switchTab(nav.dataset.nav));
-      });
-    }
-
-    function initDrawer() {
-      const overlay = document.getElementById('drawer-overlay');
-      const drawer = document.getElementById('filter-drawer');
-
-      function openDrawer() {
-        overlay.classList.add('active');
-        drawer.classList.add('active');
-      }
-
-      function closeDrawer() {
-        overlay.classList.remove('active');
-        drawer.classList.remove('active');
-      }
-
-      document.getElementById('filter-btn').addEventListener('click', openDrawer);
-      document.getElementById('close-drawer').addEventListener('click', closeDrawer);
-      overlay.addEventListener('click', closeDrawer);
-
-      document.querySelectorAll('.filter-option input').forEach(input => {
-        input.addEventListener('change', updateFilterBadge);
-      });
     }
 
     function initLoading() {
@@ -1125,22 +1005,15 @@
       window.addEventListener('load', () => {
         setTimeout(() => {
           loading.classList.add('hidden');
-        }, 700);
+        }, 500);
       });
     }
 
     function init() {
       updateCountdown();
-      updateStats();
-      renderTasks();
       renderTimeline();
-      updateFilterBadge();
       initTabs();
-      initDrawer();
       initLoading();
-
-      document.getElementById('critical-tasks').addEventListener('click', handleTaskToggle);
-      document.getElementById('all-tasks').addEventListener('click', handleTaskToggle);
     }
 
     init();
