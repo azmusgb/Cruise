@@ -1326,305 +1326,6 @@ class EnhancedItinerary {
   }
 }
 
-// Enhanced Search with AI suggestions
-class EnhancedSearch {
-  constructor() {
-    this.input = $('#search-input');
-    this.count = $('#search-count');
-    this.pos = $('#search-pos');
-    this.main = $('#main');
-    this.suggestions = $('#search-suggestions');
-    this.clearBtn = $('#search-clear');
-    this.hits = [];
-    this.idx = 0;
-    this.suggestionData = this.getSuggestionData();
-  }
-
-  init() {
-    if (!this.input) return;
-
-    // Debounced search
-    this.input.addEventListener('input', debounce(() => {
-      this.run(this.input.value);
-      this.showSuggestions(this.input.value);
-    }, 250));
-
-    this.input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (!this.input.value.trim()) return;
-        if (!this.hits.length) this.run(this.input.value);
-        else this.jump(this.idx + 1);
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        this.clear();
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        this.navigateSuggestions(1);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        this.navigateSuggestions(-1);
-      }
-    });
-
-    if (this.clearBtn) {
-      on(this.clearBtn, 'click', () => this.clear());
-    }
-
-    // Global search shortcut
-    document.addEventListener('keydown', (e) => {
-      if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        this.input.focus();
-        this.input.select();
-      }
-    });
-
-    // Click outside to clear suggestions
-    document.addEventListener('click', (e) => {
-      if (!this.suggestions.contains(e.target) && e.target !== this.input) {
-        this.hideSuggestions();
-      }
-    });
-  }
-
-  getSuggestionData() {
-    return {
-      muster: {
-        title: 'Muster Drill',
-        description: 'Safety briefing and station check',
-        icon: '🆘',
-        category: 'Safety'
-      },
-      dining: {
-        title: 'Dining Reservations',
-        description: 'Specialty restaurants and MDR',
-        icon: '🍽️',
-        category: 'Dining'
-      },
-      cococay: {
-        title: 'Perfect Day at CocoCay',
-        description: 'Private island information',
-        icon: '🏝️',
-        category: 'Port'
-      },
-      tender: {
-        title: 'Tender Process',
-        description: 'Grand Cayman tender information',
-        icon: '🚤',
-        category: 'Logistics'
-      },
-      packing: {
-        title: 'Packing List',
-        description: 'What to bring on your cruise',
-        icon: '🧳',
-        category: 'Preparation'
-      },
-      wifi: {
-        title: 'Wi-Fi & Internet',
-        description: 'Connectivity and packages',
-        icon: '📶',
-        category: 'Technology'
-      },
-      kids: {
-        title: 'Kids Programs',
-        description: 'Adventure Ocean and activities',
-        icon: '👨‍👩‍👧‍👦',
-        category: 'Family'
-      },
-      shows: {
-        title: 'Entertainment Shows',
-        description: 'Theater and ice shows',
-        icon: '🎭',
-        category: 'Entertainment'
-      }
-    };
-  }
-
-  showSuggestions(query) {
-    if (!this.suggestions || !query.trim()) {
-      this.hideSuggestions();
-      return;
-    }
-
-    const lowerQuery = query.toLowerCase();
-    const matches = Object.entries(this.suggestionData)
-      .filter(([key, data]) => 
-        key.includes(lowerQuery) || 
-        data.title.toLowerCase().includes(lowerQuery) ||
-        data.description.toLowerCase().includes(lowerQuery)
-      )
-      .slice(0, 5);
-
-    if (matches.length === 0) {
-      this.hideSuggestions();
-      return;
-    }
-
-    this.suggestions.innerHTML = matches.map(([key, data]) => `
-      <div class="search-suggestion" data-key="${key}">
-        <div class="search-suggestion__icon">${data.icon}</div>
-        <div class="search-suggestion__content">
-          <div class="search-suggestion__title">${data.title}</div>
-          <div class="search-suggestion__desc">${data.description}</div>
-          <div class="search-suggestion__category">${data.category}</div>
-        </div>
-        <div class="search-suggestion__arrow">→</div>
-      </div>
-    `).join('');
-
-    this.suggestions.style.display = 'block';
-    
-    // Add click handlers
-    $$('.search-suggestion', this.suggestions).forEach(suggestion => {
-      on(suggestion, 'click', () => {
-        const key = suggestion.dataset.key;
-        this.input.value = key;
-        this.run(key);
-        this.hideSuggestions();
-      });
-    });
-  }
-
-  hideSuggestions() {
-    if (this.suggestions) {
-      this.suggestions.style.display = 'none';
-      this.suggestions.innerHTML = '';
-    }
-  }
-
-  navigateSuggestions(direction) {
-    const suggestions = $$('.search-suggestion', this.suggestions);
-    if (suggestions.length === 0) return;
-
-    const current = suggestions.findIndex(s => s.classList.contains('search-suggestion--active'));
-    let next = current + direction;
-    
-    if (next < 0) next = suggestions.length - 1;
-    if (next >= suggestions.length) next = 0;
-
-    suggestions.forEach((s, i) => {
-      s.classList.toggle('search-suggestion--active', i === next);
-    });
-
-    if (suggestions[next]) {
-      suggestions[next].scrollIntoView({ block: 'nearest' });
-    }
-  }
-
-  clearMarks() {
-    if (!this.main) return;
-    $$('mark.hit', this.main).forEach(m => {
-      const t = document.createTextNode(m.textContent);
-      m.parentNode.replaceChild(t, m);
-      m.parentNode.normalize();
-    });
-  }
-
-  clear() {
-    this.input.value = '';
-    this.clearMarks();
-    this.hits = [];
-    this.idx = 0;
-    this.updateMeta();
-    this.hideSuggestions();
-    toast.show('Search cleared', 'info');
-  }
-
-  updateMeta() {
-    if (this.count) this.count.textContent = String(this.hits.length);
-    if (this.pos) this.pos.textContent = this.hits.length ? `${this.idx + 1}/${this.hits.length}` : '0/0';
-  }
-
-  escape(s) { 
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
-  }
-
-  run(query) {
-    this.clearMarks();
-    this.hits = [];
-    this.idx = 0;
-
-    const q = query.trim();
-    if (!q) { 
-      this.updateMeta(); 
-      this.hideSuggestions();
-      return; 
-    }
-
-    const rx = new RegExp(this.escape(q), 'gi');
-    const scopes = ['#chapters', '.hero', '.dashboard', '.panel__body']
-      .map(sel => $(sel)).filter(Boolean);
-
-    const walkerAccept = (node) => {
-      if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
-      const p = node.parentElement;
-      if (!p) return NodeFilter.FILTER_REJECT;
-      if (p.closest('.sidebar') || p.closest('.palette') || p.closest('.ai-assistant') || 
-          p.closest('script') || p.closest('style') || p.closest('.search-suggestion')) {
-        return NodeFilter.FILTER_REJECT;
-      }
-      return NodeFilter.FILTER_ACCEPT;
-    };
-
-    scopes.forEach(scope => {
-      const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, { acceptNode: walkerAccept });
-      const nodes = [];
-      while (walker.nextNode()) nodes.push(walker.currentNode);
-
-      nodes.forEach(textNode => {
-        const text = textNode.nodeValue;
-        rx.lastIndex = 0;
-        if (!rx.test(text)) return;
-        rx.lastIndex = 0;
-
-        const frag = document.createDocumentFragment();
-        let last = 0, m;
-        while ((m = rx.exec(text)) !== null) {
-          const s = m.index;
-          const e = s + m[0].length;
-          if (s > last) frag.appendChild(document.createTextNode(text.slice(last, s)));
-          const mark = document.createElement('mark');
-          mark.className = 'hit';
-          mark.textContent = text.slice(s, e);
-          mark.setAttribute('data-hit-index', this.hits.length);
-          frag.appendChild(mark);
-          this.hits.push(mark);
-          last = e;
-          if (m.index === rx.lastIndex) rx.lastIndex++;
-        }
-        if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
-        textNode.parentNode.replaceChild(frag, textNode);
-      });
-    });
-
-    this.updateMeta();
-    if (this.hits.length) {
-      this.jump(0);
-      toast.show(`Found ${this.hits.length} match${this.hits.length !== 1 ? 'es' : ''}`, 'success');
-    } else {
-      toast.show('No matches found', 'warning');
-    }
-    
-    this.hideSuggestions();
-  }
-
-  jump(i) {
-    if (!this.hits.length) return;
-    this.idx = ((i % this.hits.length) + this.hits.length) % this.hits.length;
-    const hit = this.hits[this.idx];
-    
-    smoothTo(hit, { block: 'center' });
-    hit.classList.add('hit--active');
-    
-    setTimeout(() => {
-      hit.classList.remove('hit--active');
-    }, 2000);
-    
-    this.updateMeta();
-  }
-}
-
 // Enhanced Command Palette
 class EnhancedPalette {
   constructor() {
@@ -1642,7 +1343,6 @@ class EnhancedPalette {
 
     on($('#open-palette'), 'click', () => this.open());
     on($('#fab-command'), 'click', () => this.open());
-    on($('#fab-search'), 'click', () => this.open());
 
     this.input.addEventListener('input', () => this.render());
     this.input.addEventListener('keydown', (e) => this.onKey(e));
@@ -1826,9 +1526,9 @@ class EnhancedPalette {
     if (this.filteredCommands.length === 0) {
       this.list.innerHTML = `
         <div class="palette__empty">
-          <div class="palette__empty-icon">🔍</div>
+          <div class="palette__empty-icon">🧭</div>
           <div class="palette__empty-title">No matches found</div>
-          <div class="palette__empty-desc">Try a different search term</div>
+          <div class="palette__empty-desc">Try a different command</div>
         </div>
       `;
       return;
@@ -2567,7 +2267,6 @@ class Filters {
 class TOC {
   constructor() {
     this.tocEl = $('#toc');
-    this.filterInput = $('#toc-filter');
     this.chapterCount = $('#toc-chapter-count');
     this.taskCount = $('#toc-task-count');
     this.items = [];
@@ -2577,7 +2276,6 @@ class TOC {
   init() {
     if (!this.tocEl) return;
     this.build();
-    on(this.filterInput, 'input', () => this.applyFilter());
     this.observeChapters();
   }
 
@@ -2604,14 +2302,6 @@ class TOC {
 
     if (this.chapterCount) this.chapterCount.textContent = chapters.length;
     if (this.taskCount) this.taskCount.textContent = $$('.task').length;
-  }
-
-  applyFilter() {
-    const query = (this.filterInput?.value || '').trim().toLowerCase();
-    this.items.forEach(item => {
-      const match = !query || item.title.includes(query);
-      item.element.style.display = match ? '' : 'none';
-    });
   }
 
   observeChapters() {
@@ -2682,14 +2372,8 @@ class EnhancedFAB {
       this.close();
     });
     
-    on($('#fab-search'), 'click', () => {
-      $('#search-input').focus();
-      $('#search-input').select();
-      this.close();
-    });
-    
     on($('#fab-help'), 'click', () => {
-      toast.show('Press Ctrl/⌘K for commands, / to search, Enter to cycle results', 'info');
+      toast.show('Press Ctrl/⌘K for commands, Enter to confirm', 'info');
       this.close();
     });
     
@@ -2785,8 +2469,6 @@ function initApp() {
   const tasks = new EnhancedTaskSystem(); 
   tasks.init();
   
-  const search = new EnhancedSearch(); 
-  search.init();
   
   const palette = new EnhancedPalette(); 
   palette.init();
