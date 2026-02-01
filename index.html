@@ -129,6 +129,17 @@ img { max-width: 100%; height: auto; }
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
+/* Reduced effects (manual) */
+.reduced-effects .stars,
+.reduced-effects .ocean-waves {
+  animation: none;
+  opacity: 0.08;
+}
+.reduced-effects .logo::after,
+.reduced-effects .hero__art::before {
+  animation: none;
+}
+
 /* ------------------------------ Backdrop -------------------------------- */
 .stars {
   position: fixed; inset: 0; pointer-events: none; opacity: .6; z-index: var(--z-stars);
@@ -1069,6 +1080,11 @@ body { padding-left: var(--safe-left); padding-right: var(--safe-right); }
             <span class="toggle__slider"></span>
             <span class="toggle__label">Focus mode (tasks only)</span>
           </label>
+          <label class="toggle">
+            <input type="checkbox" id="effects-mode">
+            <span class="toggle__slider"></span>
+            <span class="toggle__label">Performance mode (reduce effects)</span>
+          </label>
 
           <div class="button-row">
             <button id="expand-all" class="button" type="button"><span class="button__icon"><i class="fas fa-expand-alt"></i></span> Expand</button>
@@ -1596,6 +1612,28 @@ class Theme {
   }
 }
 
+/* ----------------------------- Effects ---------------------------------- */
+class Effects {
+  constructor() {
+    this.store = new Store('mc-effects-v1');
+    this.root = document.documentElement;
+  }
+
+  init() {
+    this.toggle = $('#effects-mode');
+    this.toggle?.addEventListener('change', () => this.apply(this.toggle.checked));
+    const reduced = !!this.store.get('reduced', false);
+    this.apply(reduced);
+    if (this.toggle) this.toggle.checked = reduced;
+  }
+
+  apply(enabled) {
+    this.root.classList.toggle('reduced-effects', enabled);
+    this.store.set('reduced', enabled);
+    toast(`Performance mode: ${enabled ? 'on' : 'off'}`, 'info');
+  }
+}
+
 /* ---------------------------- Itinerary --------------------------------- */
 class Itinerary {
   constructor(state) { this.state = state; }
@@ -1915,7 +1953,7 @@ class Search {
     let timer;
     this.input.addEventListener('input', () => {
       clearTimeout(timer);
-      timer = setTimeout(() => this.run(this.input.value), 120);
+      timer = setTimeout(() => this.run(this.input.value), 250);
     });
 
     this.input.addEventListener('keydown', (e) => {
@@ -2354,6 +2392,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize all components
   const state = new AppState();
   const theme = new Theme(); theme.init();
+  const effects = new Effects(); effects.init();
   const itin = new Itinerary(state); itin.init();
   const chapterRenderer = new ChapterRenderer(state); chapterRenderer.init();
   const filters = new Filters(); filters.init();
