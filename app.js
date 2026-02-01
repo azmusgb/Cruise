@@ -2449,6 +2449,208 @@ class EnhancedChapterRenderer {
   }
 }
 
+// Filters and presets for task visibility
+class Filters {
+  constructor() {
+    this.filters = {
+      crit: $('#filter-crit'),
+      warn: $('#filter-warn'),
+      ok: $('#filter-ok'),
+      info: $('#filter-info')
+    };
+    this.focusToggle = $('#focus-mode');
+    this.presets = $$('.filter-preset');
+    this.expandBtn = $('#expand-all');
+    this.collapseBtn = $('#collapse-all');
+    this.tasksOnly = false;
+  }
+
+  init() {
+    Object.values(this.filters).forEach(input => {
+      on(input, 'change', () => this.applyFilters());
+    });
+
+    on(this.focusToggle, 'change', () => this.applyFilters());
+
+    this.presets.forEach(btn => {
+      on(btn, 'click', () => this.applyPreset(btn.dataset.preset));
+    });
+
+    on(this.expandBtn, 'click', () => this.toggleAll(true));
+    on(this.collapseBtn, 'click', () => this.toggleAll(false));
+
+    this.applyFilters();
+  }
+
+  applyPreset(preset) {
+    if (preset === 'all') {
+      this.setAllFilters(true);
+      this.tasksOnly = false;
+      if (this.focusToggle) this.focusToggle.checked = false;
+      toast.show('Showing all items', 'info');
+    } else if (preset === 'tasks') {
+      this.setAllFilters(true);
+      this.tasksOnly = true;
+      if (this.focusToggle) this.focusToggle.checked = false;
+      toast.show('Showing task-focused view', 'info');
+    } else if (preset === 'today') {
+      if (this.filters.crit) this.filters.crit.checked = true;
+      if (this.filters.warn) this.filters.warn.checked = true;
+      if (this.filters.ok) this.filters.ok.checked = false;
+      if (this.filters.info) this.filters.info.checked = false;
+      this.tasksOnly = true;
+      if (this.focusToggle) this.focusToggle.checked = true;
+      toast.show('Showing today’s priorities', 'info');
+    }
+
+    this.applyFilters();
+  }
+
+  setAllFilters(value) {
+    Object.values(this.filters).forEach(input => {
+      if (input) input.checked = value;
+    });
+  }
+
+  applyFilters() {
+    const active = {
+      crit: this.filters.crit ? this.filters.crit.checked : true,
+      warn: this.filters.warn ? this.filters.warn.checked : true,
+      ok: this.filters.ok ? this.filters.ok.checked : true,
+      info: this.filters.info ? this.filters.info.checked : true
+    };
+    const focusMode = this.focusToggle ? this.focusToggle.checked : false;
+
+    $$('.task').forEach(task => {
+      const matchesType = Object.keys(active).some(type => 
+        task.classList.contains(`task--${type}`) && active[type]
+      );
+      const isDone = task.classList.contains('task--done');
+      const visible = matchesType && (!focusMode || !isDone);
+      task.style.display = visible ? '' : 'none';
+    });
+
+    // Hide sections with no visible tasks when in task-only mode
+    $$('.section').forEach(section => {
+      const tasks = $$('.task', section);
+      if (!tasks.length) {
+        section.style.display = this.tasksOnly ? 'none' : '';
+        return;
+      }
+      const hasVisible = tasks.some(task => task.style.display !== 'none');
+      section.style.display = hasVisible ? '' : 'none';
+    });
+
+    document.dispatchEvent(new CustomEvent('filters:applied'));
+  }
+
+  toggleAll(expand) {
+    $$('.chapter').forEach(ch => {
+      const body = $('.chapter__body', ch);
+      const btn = $('.chapter__toggle', ch);
+      if (body) body.style.display = expand ? '' : 'none';
+      if (btn) {
+        btn.style.transform = expand ? 'rotate(0deg)' : 'rotate(180deg)';
+        btn.setAttribute('aria-label', expand ? 'Collapse chapter' : 'Expand chapter');
+      }
+    });
+
+    $$('.section').forEach(section => {
+      section.open = expand;
+    });
+
+    toast.show(expand ? 'Expanded all chapters' : 'Collapsed all chapters', 'info');
+  }
+}
+
+// Table of contents helper
+class TOC {
+  constructor() {
+    this.tocEl = $('#toc');
+    this.filterInput = $('#toc-filter');
+    this.chapterCount = $('#toc-chapter-count');
+    this.taskCount = $('#toc-task-count');
+    this.items = [];
+    this.observer = null;
+  }
+
+  init() {
+    if (!this.tocEl) return;
+    this.build();
+    on(this.filterInput, 'input', () => this.applyFilter());
+    this.observeChapters();
+  }
+
+  build() {
+    const chapters = $$('.chapter');
+    this.tocEl.innerHTML = '';
+    this.items = chapters.map(ch => {
+      const title = $('.chapter__title', ch)?.textContent || ch.id;
+      const num = ch.dataset.chapter ? `Chapter ${ch.dataset.chapter}` : 'Chapter';
+      const li = document.createElement('li');
+      li.className = 'toc__item';
+      li.innerHTML = `
+        <button class="toc__link" type="button" data-target="${ch.id}">
+          <span class="toc__title">${num} · ${title}</span>
+        </button>
+      `;
+      const btn = $('button', li);
+      on(btn, 'click', () => {
+        smoothTo(ch, { behavior: 'smooth', block: 'start' });
+      });
+      this.tocEl.appendChild(li);
+      return { chapter: ch, element: li, title: `${num} ${title}`.toLowerCase() };
+    });
+
+    if (this.chapterCount) this.chapterCount.textContent = chapters.length;
+    if (this.taskCount) this.taskCount.textContent = $$('.task').length;
+  }
+
+  applyFilter() {
+    const query = (this.filterInput?.value || '').trim().toLowerCase();
+    this.items.forEach(item => {
+      const match = !query || item.title.includes(query);
+      item.element.style.display = match ? '' : 'none';
+    });
+  }
+
+  observeChapters() {
+    if (this.observer) this.observer.disconnect();
+
+    this.observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const item = this.items.find(i => i.chapter === entry.target);
+        if (!item) return;
+        item.element.classList.toggle('toc__item--active', entry.isIntersecting);
+      });
+    }, { threshold: 0.25 });
+
+    this.items.forEach(item => this.observer.observe(item.chapter));
+  }
+}
+
+// Progress bar at top
+class ProgressBar {
+  constructor() {
+    this.el = $('#progress');
+  }
+
+  init() {
+    if (!this.el) return;
+    const update = () => this.update();
+    on(window, 'scroll', update, { passive: true });
+    on(window, 'resize', update);
+    update();
+  }
+
+  update() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    this.el.style.width = `${Math.min(100, Math.max(0, ratio))}%`;
+  }
+}
+
 // Enhanced FAB with more actions
 class EnhancedFAB {
   constructor() {
