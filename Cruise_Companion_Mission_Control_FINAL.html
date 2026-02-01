@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en" class="theme--dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Cruise Companion — Mission Control</title>
+  <style>
+/* ==========================================================================
+   Cruise Companion — Mission Control (Monolith)
+   UI/UX: glassy dark cockpit, mobile-first, accessible, printable.
+   ========================================================================== */
+
+/* ========= Theme Tokens ========= */
+:root{
+  --color-bg-primary:#070a14;
+  --color-bg-secondary:#0b1224;
+  --color-surface:rgba(255,255,255,.06);
+  --color-surface-alt:rgba(255,255,255,.09);
+  --color-text-primary:rgba(255,255,255,.92);
+  --color-text-secondary:rgba(255,255,255,.68);
+  --color-text-tertiary:rgba(255,255,255,.42);
+  --color-border:rgba(255,255,255,.12);
+  --shadow:0 18px 44px rgba(0,0,0,.46);
+
+  --accent:#7dd3fc;
+  --success:#34d399;
+  --warning:#fbbf24;
+  --danger:#fb7185;
+  --info:#60a5fa;
+
+  --task-critical:var(--danger);
+  --task-warning:var(--warning);
+  --task-ok:var(--success);
+  --task-info:var(--info);
+
+  --xs:.25rem; --sm:.5rem; --md:1rem; --lg:1.5rem; --xl:2rem;
+  --r-sm:.5rem; --r-md:1rem; --r-lg:1.5rem; --r-xl:2rem;
+
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Monaco,"Cascadia Code","Roboto Mono",monospace;
+
+  --z-stars:0;
+  --z-progress:80;
+  --z-topbar:30;
+  --z-sidebar:40;
+  --z-fab:60;
+  --z-modal:90;
+
+  --t-fast:150ms ease;
+  --t-base:250ms ease;
+  --t-slow:350ms ease;
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --color-bg-primary:#f4f6fb;
+    --color-bg-secondary:#ffffff;
+    --color-surface:rgba(10,16,32,.04);
+    --color-surface-alt:rgba(10,16,32,.06);
+    --color-text-primary:rgba(10,16,32,.92);
+    --color-text-secondary:rgba(10,16,32,.70);
+    --color-text-tertiary:rgba(10,16,32,.44);
+    --color-border:rgba(10,16,32,.14);
+    --shadow:0 14px 36px rgba(10,16,32,.14);
+  }
+}
+
+.theme--dark{
+  --color-bg-primary:#070a14;
+  --color-bg-secondary:#0b1224;
+  --color-surface:rgba(255,255,255,.06);
+  --color-surface-alt:rgba(255,255,255,.09);
+  --color-text-primary:rgba(255,255,255,.92);
+  --color-text-secondary:rgba(255,255,255,.68);
+  --color-text-tertiary:rgba(255,255,255,.42);
+  --color-border:rgba(255,255,255,.12);
+  --shadow:0 18px 44px rgba(0,0,0,.46);
+}
+.theme--light{
+  --color-bg-primary:#f4f6fb;
+  --color-bg-secondary:#ffffff;
+  --color-surface:rgba(10,16,32,.04);
+  --color-surface-alt:rgba(10,16,32,.06);
+  --color-text-primary:rgba(10,16,32,.92);
+  --color-text-secondary:rgba(10,16,32,.70);
+  --color-text-tertiary:rgba(10,16,32,.44);
+  --color-border:rgba(10,16,32,.14);
+  --shadow:0 14px 36px rgba(10,16,32,.14);
+}
+
+/* ========= Reset / Base ========= */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font);
+  color:var(--color-text-primary);
+  background:var(--color-bg-primary);
+  line-height:1.5;
+  overflow-x:hidden;
+}
+a{color:inherit}
+::selection{background:var(--accent);color:var(--color-bg-primary)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.skip-link{
+  position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden;
+}
+.skip-link:focus{
+  left:var(--md);top:var(--md);width:auto;height:auto;padding:var(--sm) var(--md);
+  background:var(--color-bg-secondary);border:1px solid var(--color-border);
+  border-radius:999px;z-index:9999;
+}
+
+/* ========= Background Stars ========= */
+.stars{
+  position:fixed;inset:0;pointer-events:none;opacity:.45;z-index:var(--z-stars);
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.55) 40%, transparent 41%),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,.35) 40%, transparent 41%),
+    radial-gradient(1px 1px at 90% 35%, rgba(255,255,255,.40) 40%, transparent 41%),
+    radial-gradient(1px 1px at 72% 82%, rgba(255,255,255,.28) 40%, transparent 41%),
+    radial-gradient(1px 1px at 22% 88%, rgba(255,255,255,.30) 40%, transparent 41%);
+  background-size:520px 520px, 620px 620px, 680px 680px, 740px 740px, 800px 800px;
+  animation:drift 28s linear infinite;
+  filter:blur(.2px);
+}
+@keyframes drift{
+  0%{transform:translate3d(0,0,0)}
+  100%{transform:translate3d(-60px,40px,0)}
+}
+
+/* ========= Progress ========= */
+.progress{
+  position:fixed;top:0;left:0;height:3px;width:0%;
+  background:linear-gradient(90deg,var(--accent),#a7f3d0);
+  z-index:var(--z-progress);
+  box-shadow:0 0 18px rgba(125,211,252,.35);
+  transition:width var(--t-fast);
+}
+
+/* ========= Layout ========= */
+.app{
+  display:grid;
+  grid-template-columns:minmax(300px,380px) 1fr;
+  min-height:100vh;
+}
+
+/* Mobile: sidebar becomes drawer */
+@media (max-width: 1020px){
+  .app{grid-template-columns:1fr}
+}
+
+/* ========= Sidebar ========= */
+.sidebar{
+  position:sticky;top:0;height:100vh;overflow:auto;
+  padding:var(--md);
+  border-right:1px solid var(--color-border);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), transparent 46%);
+  backdrop-filter:blur(10px);
+  z-index:var(--z-sidebar);
+}
+@media (max-width: 1020px){
+  .sidebar{
+    position:fixed;inset:0 auto 0 0;
+    width:min(420px, 92vw);
+    transform:translateX(-105%);
+    transition:transform var(--t-slow);
+    box-shadow:var(--shadow);
+    border-right:1px solid var(--color-border);
+  }
+  .sidebar[aria-hidden="false"]{transform:translateX(0)}
+  .sidebar__scrim{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.55);
+    display:none;z-index:calc(var(--z-sidebar) - 1);
+  }
+  .sidebar__scrim[aria-hidden="false"]{display:block}
+}
+
+.sidebar__header{
+  display:flex;gap:var(--sm);align-items:center;
+  padding:var(--sm);
+  border-radius:var(--r-xl);
+  border:1px solid var(--color-border);
+  background:var(--color-surface);
+  box-shadow:var(--shadow);
+  position:relative;overflow:hidden;
+}
+.sidebar__header::before{
+  content:"";position:absolute;inset:-1px;
+  background:
+    radial-gradient(500px 180px at 25% 0%, rgba(255,255,255,.14), transparent 55%),
+    radial-gradient(500px 180px at 80% 30%, rgba(255,255,255,.10), transparent 55%);
+  pointer-events:none;
+}
+.logo{
+  width:46px;height:46px;border-radius:var(--r-md);flex:0 0 auto;
+  border:1px solid var(--color-border);
+  background:
+    radial-gradient(circle at 30% 25%, rgba(125,211,252,.95), rgba(96,165,250,.55) 55%, transparent 72%),
+    radial-gradient(circle at 68% 75%, rgba(167,243,208,.85), rgba(52,211,153,.45) 58%, transparent 75%),
+    rgba(255,255,255,.06);
+  position:relative;overflow:hidden;
+}
+.logo::after{
+  content:"";position:absolute;inset:-45%;
+  background:conic-gradient(from 180deg, rgba(255,255,255,0), rgba(255,255,255,.18), rgba(255,255,255,0));
+  animation:spin 9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.sidebar__title{
+  font-size:.92rem;font-weight:650;margin:0;position:relative;z-index:1;
+}
+.sidebar__subtitle{
+  margin-top:.15rem;font-size:.78rem;color:var(--color-text-secondary);position:relative;z-index:1;
+}
+
+.sidebar__section{
+  margin-top:var(--md);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-xl);
+  background:var(--color-surface);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.sidebar__section-header{
+  padding:var(--sm);
+  border-bottom:1px solid var(--color-border);
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sm);
+}
+.sidebar__section-header h2{
+  font-size:.72rem;text-transform:uppercase;letter-spacing:.18px;
+  color:var(--color-text-secondary);margin:0;
+}
+.sidebar__section-body{padding:var(--sm)}
+
+.search{
+  display:flex;align-items:center;gap:var(--sm);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-md);
+  padding:var(--sm);
+  background:rgba(255,255,255,.04);
+}
+.search__icon{color:var(--color-text-secondary);flex:0 0 auto}
+.search__input{
+  width:100%;
+  border:0;outline:0;background:transparent;
+  color:var(--color-text-primary);font-size:.9rem;
+}
+.search__input::placeholder{color:var(--color-text-tertiary)}
+
+.button-group{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:var(--sm);margin-top:var(--sm);
+}
+.button{
+  display:flex;align-items:center;justify-content:center;gap:var(--sm);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-md);
+  padding:var(--sm);
+  background:rgba(255,255,255,.04);
+  color:var(--color-text-primary);
+  font-size:.9rem;
+  cursor:pointer;user-select:none;
+  transition:transform var(--t-fast), background var(--t-fast);
+}
+.button:hover{background:rgba(255,255,255,.07);transform:translateY(-1px)}
+.button:active{transform:translateY(0)}
+.button__icon{font-family:var(--mono);font-size:.78rem}
+
+.filters{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sm)}
+.filter{
+  display:flex;align-items:center;gap:var(--sm);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-md);
+  padding:var(--sm);
+  background:rgba(255,255,255,.04);
+  font-size:.9rem;color:var(--color-text-secondary);
+  cursor:pointer;user-select:none;
+}
+.filter input{width:16px;height:16px;accent-color:var(--accent)}
+.filter__label{color:var(--color-text-primary);font-weight:650}
+
+.toggle{display:flex;align-items:center;gap:var(--sm);margin-top:var(--sm);cursor:pointer;user-select:none}
+.toggle input{position:absolute;opacity:0;width:0;height:0}
+.toggle__slider{
+  position:relative;width:44px;height:24px;border-radius:12px;
+  background:var(--color-surface-alt);transition:background var(--t-fast);
+}
+.toggle__slider::before{
+  content:"";position:absolute;left:2px;top:2px;width:20px;height:20px;border-radius:50%;
+  background:var(--color-text-primary);transition:transform var(--t-fast);
+}
+.toggle input:checked + .toggle__slider{background:var(--accent)}
+.toggle input:checked + .toggle__slider::before{transform:translateX(20px)}
+.toggle__label{font-size:.9rem;font-weight:650}
+
+.toc{list-style:none;display:grid;gap:var(--xs);margin:0;padding:0}
+.toc__item{
+  display:flex;align-items:flex-start;gap:var(--sm);
+  padding:var(--sm);
+  border-radius:var(--r-md);
+  border:1px solid transparent;
+  transition:background var(--t-fast), border-color var(--t-fast);
+}
+.toc__item:hover{background:rgba(255,255,255,.06);border-color:var(--color-border)}
+.toc__link{display:flex;gap:var(--sm);align-items:flex-start;text-decoration:none;width:100%}
+.toc__number{
+  width:28px;font-family:var(--mono);font-size:.78rem;color:var(--color-text-tertiary);
+  text-align:right;padding-top:2px;flex:0 0 auto;
+}
+.toc__content{flex:1;min-width:0}
+.toc__title{font-size:.92rem;line-height:1.25;margin:0}
+.toc__meta{display:block;margin-top:3px;font-size:.78rem;color:var(--color-text-secondary)}
+
+.legend{display:flex;flex-wrap:wrap;gap:var(--xs)}
+.legend__item{
+  display:inline-flex;align-items:center;gap:var(--xs);
+  padding:6px 10px;border-radius:999px;
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  font-size:.78rem;
+}
+.legend__dot{width:10px;height:10px;border-radius:50%}
+.legend__dot--crit{background:var(--task-critical)}
+.legend__dot--warn{background:var(--task-warning)}
+.legend__dot--ok{background:var(--task-ok)}
+.legend__dot--info{background:var(--task-info)}
+.legend__label{color:var(--color-text-secondary)}
+
+.keyboard-shortcut{
+  font-family:var(--mono);font-size:.78rem;color:var(--color-text-secondary);
+  border:1px solid var(--color-border);
+  border-bottom-color:rgba(255,255,255,.22);
+  padding:4px 8px;border-radius:10px;
+  background:rgba(255,255,255,.05);
+}
+
+/* ========= Main ========= */
+.main{padding:var(--lg)}
+@media (max-width: 1020px){.main{padding:var(--md)}}
+
+/* Topbar */
+.topbar{
+  position:sticky;top:0;z-index:var(--z-topbar);
+  max-width:1160px;margin:0 auto;
+  border:1px solid var(--color-border);
+  border-radius:var(--r-xl);
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(12px);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.topbar__inner{
+  padding:var(--sm);
+  display:flex;gap:var(--sm);align-items:center;justify-content:space-between;flex-wrap:wrap;
+}
+.topbar__info{display:flex;gap:var(--sm);align-items:center;flex-wrap:wrap}
+.topbar__shortcuts{display:flex;gap:var(--sm);align-items:center;flex-wrap:wrap}
+
+.chip{
+  display:inline-flex;align-items:center;gap:var(--xs);
+  padding:var(--sm);
+  border-radius:var(--r-md);
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  color:var(--color-text-secondary);
+  font-size:.9rem;
+}
+.chip__label{color:var(--color-text-primary);font-weight:650}
+.chip__value{font-family:var(--mono)}
+
+/* Day strip */
+.daystrip{
+  display:flex;gap:var(--xs);
+  overflow:auto;
+  padding:var(--sm);
+  border-top:1px solid var(--color-border);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  scrollbar-width:thin;
+}
+.daystrip::-webkit-scrollbar{height:6px}
+.daystrip::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:3px}
+.daychip{
+  flex:0 0 auto;
+  border:1px solid var(--color-border);
+  border-radius:999px;
+  padding:var(--sm);
+  background:rgba(255,255,255,.04);
+  cursor:pointer;user-select:none;
+  transition:transform var(--t-fast), background var(--t-fast);
+  min-width:160px;
+  color:inherit;
+}
+.daychip:hover{background:rgba(255,255,255,.07);transform:translateY(-1px)}
+.daychip--today{border-color:rgba(125,211,252,.40);box-shadow:0 0 0 4px rgba(125,211,252,.12)}
+.daychip__day{font-size:.78rem;color:var(--color-text-secondary)}
+.daychip__label{font-size:.92rem;margin-top:2px}
+
+/* Hero */
+.hero{
+  max-width:1160px;margin:var(--md) auto;
+  border:1px solid var(--color-border);
+  border-radius:30px;
+  background:
+    radial-gradient(900px 320px at 20% 0%, rgba(255,255,255,.14), transparent 60%),
+    radial-gradient(900px 320px at 78% 25%, rgba(255,255,255,.10), transparent 62%),
+    linear-gradient(135deg, rgba(125,211,252,.14), rgba(167,243,208,.10) 42%, rgba(255,255,255,.06) 72%),
+    rgba(255,255,255,.05);
+  box-shadow:var(--shadow);
+  overflow:hidden;position:relative;
+}
+.hero::after{
+  content:"";position:absolute;inset:-2px;
+  background:
+    radial-gradient(680px 240px at 30% 20%, rgba(125,211,252,.10), transparent 60%),
+    radial-gradient(720px 260px at 80% 60%, rgba(167,243,208,.10), transparent 60%);
+  pointer-events:none;
+}
+.hero__content{
+  position:relative;z-index:1;
+  padding:var(--xl) var(--lg);
+  display:grid;grid-template-columns:1.15fr .85fr;
+  gap:var(--md);
+}
+@media (max-width:1020px){.hero__content{grid-template-columns:1fr}}
+.hero__title{font-size:1.28rem;letter-spacing:.2px;margin:0}
+.hero__description{margin-top:var(--sm);color:var(--color-text-secondary);font-size:.92rem;line-height:1.35}
+.hero__badges{display:flex;flex-wrap:wrap;gap:var(--sm);margin-top:var(--md)}
+.hero__art{display:grid;place-items:center;min-height:220px}
+.hero__art svg{width:100%;max-width:440px;height:auto;opacity:.95;filter:drop-shadow(0 18px 40px rgba(0,0,0,.35))}
+
+.badge{
+  display:inline-flex;align-items:center;gap:var(--xs);
+  padding:var(--sm);
+  border-radius:var(--r-md);
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  color:var(--color-text-secondary);
+  font-size:.9rem;
+}
+.badge__label{color:var(--color-text-primary);font-weight:650}
+.badge__value{font-family:var(--mono)}
+
+/* Dashboard panels */
+.dashboard{
+  max-width:1160px;margin:0 auto;
+  display:grid;grid-template-columns:1.1fr .9fr;gap:var(--md);
+}
+@media (max-width:1020px){.dashboard{grid-template-columns:1fr}}
+.panel{
+  border:1px solid var(--color-border);
+  border-radius:var(--r-xl);
+  background:rgba(255,255,255,.05);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.panel__header{
+  padding:var(--sm) var(--md);
+  border-bottom:1px solid var(--color-border);
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sm);
+}
+.panel__title{font-size:.92rem;margin:0}
+.panel__subtitle{font-size:.78rem;color:var(--color-text-secondary)}
+.panel__body{padding:var(--md)}
+
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sm)}
+@media (max-width:560px){.kpi{grid-template-columns:1fr}}
+.kpi__box{
+  border:1px solid var(--color-border);
+  border-radius:var(--r-lg);
+  padding:var(--sm);
+  background:rgba(255,255,255,.04);
+}
+.kpi__label{font-size:.78rem;color:var(--color-text-secondary);margin-bottom:var(--xs)}
+.kpi__value{font-family:var(--mono);font-size:.9rem;line-height:1.35}
+
+/* Table */
+.table{
+  width:100%;
+  border-collapse:separate;border-spacing:0;
+  border:1px solid var(--color-border);
+  border-radius:var(--r-lg);
+  overflow:hidden;
+  background:rgba(255,255,255,.03);
+}
+.table th,.table td{
+  padding:var(--sm);
+  border-bottom:1px solid var(--color-border);
+  font-size:.9rem;
+  vertical-align:top;
+}
+.table th{
+  font-size:.72rem;text-transform:uppercase;letter-spacing:.16px;
+  color:var(--color-text-secondary);
+  background:rgba(255,255,255,.05);
+  text-align:left;
+}
+.table tr:last-child td{border-bottom:0}
+.table__row--today td{background:rgba(125,211,252,.10)}
+
+/* Chapters */
+.chapters{max-width:1160px;margin:var(--md) auto 0;display:grid;gap:var(--md)}
+.chapter{
+  border:1px solid var(--color-border);
+  border-radius:30px;
+  background:rgba(255,255,255,.05);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.chapter__header{
+  padding:var(--md);
+  border-bottom:1px solid var(--color-border);
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sm);flex-wrap:wrap;
+}
+.chapter__title-container{display:flex;gap:var(--sm);align-items:center;min-width:0;flex:1}
+.chapter__number{
+  width:34px;height:34px;border-radius:var(--r-sm);
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.78rem;color:var(--color-text-secondary);
+  flex:0 0 auto;
+}
+.chapter__title{font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.chapter__meta{display:flex;gap:var(--xs);flex-wrap:wrap;justify-content:flex-end;color:var(--color-text-secondary);font-size:.78rem}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px;border-radius:999px;
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  font-family:var(--mono);font-size:.78rem;
+}
+.chapter__body{padding:var(--md) var(--md) var(--lg)}
+
+/* Content blocks */
+.content__paragraph{margin:var(--sm) 0;color:var(--color-text-primary);font-size:.92rem;line-height:1.55}
+.content__heading{margin:var(--md) 0 var(--sm);font-size:1rem;letter-spacing:.15px}
+.content__key-value{
+  display:grid;grid-template-columns:200px 1fr;gap:var(--sm);
+  padding:var(--sm);border:1px solid var(--color-border);border-radius:var(--r-lg);
+  background:rgba(255,255,255,.04);margin:var(--sm) 0;
+}
+@media (max-width:1020px){.content__key-value{grid-template-columns:1fr}}
+.content__key{font-family:var(--mono);font-size:.78rem;color:var(--color-text-secondary)}
+.content__value{font-size:.92rem;line-height:1.45}
+
+.content__list{margin:var(--sm) 0 0 var(--lg);list-style:disc}
+.content__list-item{margin:var(--xs) 0;font-size:.92rem;line-height:1.55}
+
+/* Tasks */
+.task{
+  display:flex;gap:var(--sm);align-items:flex-start;
+  border:1px solid var(--color-border);
+  border-radius:var(--r-lg);
+  padding:var(--sm);
+  background:rgba(255,255,255,.04);
+  margin:var(--sm) 0;
+}
+.task--crit{border-color:rgba(251,113,133,.35)}
+.task--warn{border-color:rgba(251,191,36,.35)}
+.task--ok{border-color:rgba(52,211,153,.30)}
+.task--info{border-color:rgba(96,165,250,.30)}
+.task__emoji{font-size:1rem;line-height:1;margin-top:2px;flex:0 0 auto}
+.task__text{font-size:.92rem;line-height:1.5;flex:1}
+.task__text strong{font-weight:650}
+
+/* Search highlight */
+.highlight{background:rgba(251,191,36,.35);padding:0 2px;border-radius:4px}
+
+/* Footer */
+.footer{
+  max-width:1160px;margin:var(--md) auto 0;
+  border:1px solid var(--color-border);
+  border-radius:var(--r-xl);
+  background:rgba(255,255,255,.04);
+  padding:var(--md) var(--lg);
+  color:var(--color-text-secondary);
+  box-shadow:var(--shadow);
+}
+.footer__tip{margin:0}
+.footer__tip strong{color:var(--color-text-primary)}
+
+/* FAB */
+.fab{
+  position:fixed;right:var(--lg);bottom:var(--lg);
+  display:grid;gap:var(--sm);z-index:var(--z-fab);
+}
+.fab__button{
+  width:46px;height:46px;border-radius:var(--r-lg);
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.06);
+  color:var(--color-text-primary);
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
+  transition:transform var(--t-fast), background var(--t-fast);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;
+}
+.fab__button:hover{background:rgba(255,255,255,.09);transform:translateY(-2px)}
+.fab__button:active{transform:translateY(0)}
+
+/* Mobile topbar: add hamburger */
+.mobilebar{
+  display:none;
+  max-width:1160px;margin:0 auto var(--md);
+  gap:var(--sm);align-items:center;justify-content:space-between;
+}
+@media (max-width:1020px){
+  .mobilebar{display:flex}
+}
+.hamburger{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:44px;min-width:44px;padding:0 12px;
+  border-radius:999px;border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  cursor:pointer;
+}
+.hamburger span{font-family:var(--mono);color:var(--color-text-secondary)}
+.mobilebar__title{font-weight:650;color:var(--color-text-primary)}
+.mobilebar__hint{color:var(--color-text-secondary);font-size:.86rem}
+
+/* Command palette */
+.palette{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:flex-start;justify-content:center;
+  padding:80px var(--md) var(--md);
+  z-index:var(--z-modal);
+  backdrop-filter:blur(6px);
+}
+.palette[aria-hidden="false"]{display:flex}
+.palette__content{
+  width:min(760px,100%);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-xl);
+  background:rgba(255,255,255,.06);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.palette__header{
+  padding:var(--sm);
+  border-bottom:1px solid var(--color-border);
+  display:flex;gap:var(--sm);align-items:center;
+  background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+}
+.palette__icon{
+  width:30px;height:30px;border-radius:var(--r-sm);
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.92rem;flex:0 0 auto;
+}
+.palette__input{
+  width:100%;border:0;outline:0;background:transparent;
+  color:var(--color-text-primary);
+  font-size:1rem;
+  padding:var(--sm);
+}
+.palette__input::placeholder{color:var(--color-text-tertiary)}
+.palette__list{max-height:52vh;overflow:auto;padding:var(--xs);list-style:none;margin:0}
+.palette__empty{padding:var(--md);color:var(--color-text-tertiary);text-align:center}
+
+.command-item{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--sm);
+  padding:var(--sm);
+  border-radius:var(--r-lg);
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:background var(--t-fast), border-color var(--t-fast);
+}
+.command-item:hover,.command-item:focus{background:rgba(255,255,255,.06);border-color:var(--color-border)}
+.command-item__content{display:flex;gap:var(--sm);align-items:flex-start;min-width:0;flex:1}
+.command-item__icon{
+  width:30px;height:30px;border-radius:var(--r-sm);
+  border:1px solid var(--color-border);
+  background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;
+}
+.command-item__text{min-width:0;flex:1}
+.command-item__title{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.command-item__subtitle{font-size:.78rem;color:var(--color-text-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.command-item__shortcut{
+  font-family:var(--mono);font-size:.78rem;color:var(--color-text-secondary);
+  border:1px solid var(--color-border);
+  padding:4px 8px;border-radius:10px;
+  background:rgba(255,255,255,.05);
+  flex:0 0 auto;
+}
+
+/* Print */
+@media print{
+  .stars,.progress,.sidebar,.sidebar__scrim,.topbar,.fab,.palette,.mobilebar{display:none !important}
+  .app{grid-template-columns:1fr !important}
+  body{background:#fff !important;color:#111 !important}
+  .hero,.panel,.chapter{box-shadow:none !important}
+  .highlight{background:none !important}
+}
+
+/* Utilities */
+.visually-hidden{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0
+}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="stars" aria-hidden="true"></div>
+  <div class="progress" id="progress"></div>
+
+  <!-- Mobile scrim + sidebar drawer -->
+  <div class="sidebar__scrim" id="sidebar-scrim" aria-hidden="true"></div>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-hidden="false">
+      <header class="sidebar__header">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1 class="sidebar__title">Family & Friends Cruise Companion</h1>
+          <p class="sidebar__subtitle">Mission Control · Unabridged Operations Manual</p>
+        </div>
+      </header>
+
+      <section class="sidebar__section" aria-labelledby="search-section">
+        <div class="sidebar__section-header">
+          <h2 id="search-section">Search & Commands</h2>
+          <span class="keyboard-shortcut">Ctrl/⌘ K</span>
+        </div>
+        <div class="sidebar__section-body">
+          <div class="search">
+            <svg class="search__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 21l-4.3-4.3m1.8-5.2a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input id="search-input" class="search__input" type="search"
+                   placeholder="Search: tender, muster, CocoCay, dining…"
+                   aria-label="Search the manual"/>
+          </div>
+
+          <div class="button-group">
+            <button id="open-palette" class="button" type="button">
+              <span class="button__icon">⌘K</span><span>Palette</span>
+            </button>
+            <button id="print-btn" class="button" type="button">
+              <span class="button__icon">🖨️</span><span>Print</span>
+            </button>
+          </div>
+
+          <div class="button-group">
+            <button id="jump-today" class="button" type="button">
+              <span class="button__icon">📍</span><span>Today</span>
+            </button>
+            <button id="toggle-theme" class="button" type="button">
+              <span class="button__icon">🌓</span><span>Theme</span>
+            </button>
+          </div>
+
+          <div class="button-group">
+            <button id="copy-link" class="button" type="button">
+              <span class="button__icon">🔗</span><span>Share</span>
+            </button>
+            <button id="reset" class="button" type="button">
+              <span class="button__icon">♻</span><span>Reset</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="sidebar__section" aria-labelledby="filters-section">
+        <div class="sidebar__section-header">
+          <h2 id="filters-section">Filters</h2>
+          <span class="keyboard-shortcut">Enter = next hit</span>
+        </div>
+        <div class="sidebar__section-body">
+          <div class="filters">
+            <label class="filter">
+              <input type="checkbox" id="filter-crit" checked />
+              <span aria-hidden="true">🔴</span>
+              <span class="filter__label">Critical</span>
+            </label>
+            <label class="filter">
+              <input type="checkbox" id="filter-warn" checked />
+              <span aria-hidden="true">🟡</span>
+              <span class="filter__label">Recommended</span>
+            </label>
+            <label class="filter">
+              <input type="checkbox" id="filter-ok" checked />
+              <span aria-hidden="true">🟢</span>
+              <span class="filter__label">Info</span>
+            </label>
+            <label class="filter">
+              <input type="checkbox" id="filter-info" checked />
+              <span aria-hidden="true">🔵</span>
+              <span class="filter__label">Secondary</span>
+            </label>
+          </div>
+
+          <label class="toggle">
+            <input type="checkbox" id="focus-mode" />
+            <span class="toggle__slider" aria-hidden="true"></span>
+            <span class="toggle__label">Focus Mode (tasks only)</span>
+          </label>
+
+          <div class="button-group">
+            <button id="expand-all" class="button" type="button">
+              <span class="button__icon">↕</span><span>Expand</span>
+            </button>
+            <button id="collapse-all" class="button" type="button">
+              <span class="button__icon">↕</span><span>Collapse</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <nav class="sidebar__section" aria-labelledby="toc-section">
+        <div class="sidebar__section-header">
+          <h2 id="toc-section">Table of Contents</h2>
+          <span class="keyboard-shortcut">click</span>
+        </div>
+        <div class="sidebar__section-body">
+          <ul class="toc" id="toc" aria-label="Table of contents"></ul>
+        </div>
+      </nav>
+
+      <section class="sidebar__section" aria-labelledby="legend-section">
+        <div class="sidebar__section-header">
+          <h2 id="legend-section">Legend</h2>
+          <span class="keyboard-shortcut">emoji</span>
+        </div>
+        <div class="sidebar__section-body">
+          <div class="legend">
+            <div class="legend__item"><span class="legend__dot legend__dot--crit"></span><span class="legend__label">🔴 Critical</span></div>
+            <div class="legend__item"><span class="legend__dot legend__dot--warn"></span><span class="legend__label">🟡 Recommended</span></div>
+            <div class="legend__item"><span class="legend__dot legend__dot--ok"></span><span class="legend__label">🟢 Info</span></div>
+            <div class="legend__item"><span class="legend__dot legend__dot--info"></span><span class="legend__label">🔵 Secondary</span></div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main" id="main">
+      <div class="mobilebar">
+        <button class="hamburger" id="hamburger" type="button" aria-label="Open menu"><span>≡</span></button>
+        <div>
+          <div class="mobilebar__title">Cruise Companion</div>
+          <div class="mobilebar__hint">Ctrl/⌘K · Search · Filters</div>
+        </div>
+        <button class="hamburger" id="mobile-palette" type="button" aria-label="Open command palette"><span>⌘</span></button>
+      </div>
+
+      <header class="topbar" id="topbar">
+        <div class="topbar__inner">
+          <div class="topbar__info">
+            <span class="chip"><strong class="chip__label">Ship</strong><span class="chip__value" id="ship-name">Adventure of the Seas</span></span>
+            <span class="chip"><strong class="chip__label">Sail</strong><span class="chip__value" id="sail-dates">Feb 14–20, 2026</span></span>
+            <span id="today-banner" class="chip"><strong class="chip__label">Status</strong><span class="chip__value">Pre‑cruise</span></span>
+          </div>
+          <div class="topbar__shortcuts">
+            <span class="keyboard-shortcut">Ctrl/⌘K</span>
+            <span class="keyboard-shortcut">Esc</span>
+          </div>
+        </div>
+        <nav class="daystrip" id="daystrip" aria-label="Trip days"></nav>
+      </header>
+
+      <section class="hero" id="top">
+        <div class="hero__content">
+          <div class="hero__text">
+            <h2 class="hero__title">The Family & Friends Cruise Companion</h2>
+            <p class="hero__description">
+              A single-page cruise manual that behaves like software: it highlights <strong>today</strong>, filters by urgency,
+              and lets you jump anywhere with <span class="keyboard-shortcut">Ctrl/⌘K</span>.
+            </p>
+
+            <div class="hero__badges" id="hero-badges"></div>
+          </div>
+
+          <div class="hero__art" aria-label="Night ship cover art">
+            <!-- Stylized cover art (inline SVG, no external assets) -->
+            <svg viewBox="0 0 520 280" role="img" aria-label="Ship at night with reflections">
+              <defs>
+                <linearGradient id="gSky" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="rgba(125,211,252,.35)"/>
+                  <stop offset="1" stop-color="rgba(7,10,20,0)"/>
+                </linearGradient>
+                <linearGradient id="gHull" x1="0" x2="1">
+                  <stop offset="0" stop-color="rgba(255,255,255,.08)"/>
+                  <stop offset=".6" stop-color="rgba(255,255,255,.18)"/>
+                  <stop offset="1" stop-color="rgba(255,255,255,.06)"/>
+                </linearGradient>
+                <linearGradient id="gWater" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0" stop-color="rgba(96,165,250,.18)"/>
+                  <stop offset="1" stop-color="rgba(7,10,20,0)"/>
+                </linearGradient>
+              </defs>
+              <rect x="0" y="0" width="520" height="280" fill="rgba(255,255,255,0)"/>
+              <rect x="0" y="0" width="520" height="140" fill="url(#gSky)"/>
+              <rect x="0" y="140" width="520" height="140" fill="url(#gWater)"/>
+              <!-- moon -->
+              <circle cx="410" cy="55" r="22" fill="rgba(255,255,255,.22)"/>
+              <circle cx="406" cy="52" r="22" fill="rgba(7,10,20,.10)"/>
+              <!-- ship -->
+              <path d="M70 155 C120 140, 210 130, 350 132 C405 133, 438 140, 458 150
+                       C430 175, 355 195, 255 200 C170 205, 105 192, 70 175 Z"
+                    fill="url(#gHull)" stroke="rgba(255,255,255,.14)" stroke-width="1.2"/>
+              <rect x="155" y="105" width="235" height="35" rx="10" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.12)"/>
+              <rect x="250" y="82" width="120" height="26" rx="9" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.12)"/>
+              <rect x="345" y="70" width="18" height="16" rx="5" fill="rgba(255,255,255,.10)"/>
+              <!-- lights -->
+              <g fill="rgba(251,191,36,.55)">
+                <circle cx="190" cy="122" r="2.2"/>
+                <circle cx="205" cy="122" r="2.2"/>
+                <circle cx="220" cy="122" r="2.2"/>
+                <circle cx="235" cy="122" r="2.2"/>
+                <circle cx="250" cy="122" r="2.2"/>
+                <circle cx="265" cy="122" r="2.2"/>
+                <circle cx="280" cy="122" r="2.2"/>
+                <circle cx="295" cy="122" r="2.2"/>
+                <circle cx="310" cy="122" r="2.2"/>
+                <circle cx="325" cy="122" r="2.2"/>
+              </g>
+              <!-- reflection -->
+              <path d="M95 210 C160 235, 250 245, 410 235" fill="none" stroke="rgba(125,211,252,.18)" stroke-width="10" stroke-linecap="round"/>
+              <path d="M120 230 C180 250, 260 258, 380 250" fill="none" stroke="rgba(167,243,208,.12)" stroke-width="8" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard" aria-label="Quick panels">
+        <div class="panel">
+          <header class="panel__header">
+            <h3 class="panel__title">Command Snapshot</h3>
+            <span class="panel__subtitle">Fast context, no scrolling</span>
+          </header>
+          <div class="panel__body">
+            <div class="kpi" id="kpi"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <header class="panel__header">
+            <h3 class="panel__title">Official Itinerary</h3>
+            <span class="panel__subtitle">“Today” highlights automatically</span>
+          </header>
+          <div class="panel__body">
+            <table class="table" aria-label="Itinerary table">
+              <thead>
+                <tr>
+                  <th>Day</th>
+                  <th>Port</th>
+                  <th>Hours</th>
+                </tr>
+              </thead>
+              <tbody id="itinerary-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="chapters" id="chapters" aria-label="Manual chapters"></section>
+
+      <footer class="footer">
+        <p class="footer__tip">
+          <strong>Pro tip:</strong> Use the command palette for “Expand all”, “Collapse all”, “Jump to Today”, and instant navigation.
+          It’s a cruise manual that behaves like software.
+        </p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Floating Action Buttons -->
+  <div class="fab" aria-label="Quick actions">
+    <button id="fab-top" class="fab__button" aria-label="Back to top">↑</button>
+    <button id="fab-command" class="fab__button" aria-label="Open command palette">⌘</button>
+  </div>
+
+  <!-- Command Palette Modal -->
+  <div id="palette" class="palette" role="dialog" aria-modal="true"
+       aria-labelledby="palette-title" aria-hidden="true">
+    <div class="palette__content">
+      <header class="palette__header">
+        <span class="palette__icon" aria-hidden="true">⌘</span>
+        <input id="palette-input" class="palette__input" type="text"
+               placeholder="Type to search… (e.g., 'today', 'tender', 'dining')"
+               aria-label="Search commands"/>
+        <span class="keyboard-shortcut">Esc</span>
+      </header>
+      <ul id="palette-list" class="palette__list" role="listbox"></ul>
+    </div>
+  </div>
+
+  <script>
+/**
+ * Cruise Companion — Mission Control (Monolith)
+ * No external files. Render content + run modules. Production-safe, accessible defaults.
+ */
+
+/* =========================
+   Helpers
+   ========================= */
+const $ = (sel, parent=document) => parent.querySelector(sel);
+const $$ = (sel, parent=document) => Array.from(parent.querySelectorAll(sel));
+const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+const smoothScrollTo = (el, opts={}) => el?.scrollIntoView({behavior:"smooth", block:"start", ...opts});
+
+const escapeHTML = (s="") => String(s)
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#39;");
+
+/* =========================
+   App Data (edit here)
+   ========================= */
+const DATA = {
+  ship: "Adventure of the Seas",
+  sail: "Feb 14–20, 2026",
+  itinerary: [
+    { day: 1, date: "2026-02-14", label: "Sat, Feb 14", port: "Port Canaveral (Orlando, FL)", time: "Depart 4:00 PM" },
+    { day: 2, date: "2026-02-15", label: "Sun, Feb 15", port: "At Sea", time: "All Day" },
+    { day: 3, date: "2026-02-16", label: "Mon, Feb 16", port: "George Town, Grand Cayman (Tender)", time: "10:30 AM–6:00 PM" },
+    { day: 4, date: "2026-02-17", label: "Tue, Feb 17", port: "Falmouth, Jamaica", time: "8:00 AM–5:00 PM" },
+    { day: 5, date: "2026-02-18", label: "Wed, Feb 18", port: "At Sea", time: "All Day" },
+    { day: 6, date: "2026-02-19", label: "Thu, Feb 19", port: "Perfect Day at CocoCay", time: "7:00 AM–5:00 PM" },
+    { day: 7, date: "2026-02-20", label: "Fri, Feb 20", port: "Port Canaveral (Orlando, FL)", time: "Arrive 7:00 AM" },
+  ],
+  badges: [
+    { label:"Primary", value:"4519230 · 6650 (Deck 6, Aft)" },
+    { label:"Secondary", value:"6788946 · 6651 (Deck 6, Aft)" },
+    { label:"Tertiary", value:"4352113 · 8528 (Deck 8)" },
+    { label:"Muster", value:"D22 · A2" },
+    { label:"Meet", value:"6:45 PM @ R Bar" },
+  ],
+  snapshot: [
+    { label:"Bookings linked?", value:"In Royal app: link all 3 reservation numbers so dining/tables line up." },
+    { label:"Packages", value:"Adults: Refreshment Package · 3‑Night Specialty Dining Package." },
+    { label:"Tender day", value:"Grand Cayman is tender. Buffer time for boats + lines." },
+    { label:"Disembark plan", value:"Self‑assist for control (recommended) or tagged luggage & lounge." },
+  ],
+  chapters: [
+    {
+      id:"pre-cruise",
+      number:"1",
+      title:"Pre‑Cruise Command Center",
+      meta:"Do these before Feb 13",
+      blocks:[
+        { type:"p", text:"This is the “avoid chaos” chapter. Knock these out and embarkation becomes boring (the best outcome)." },
+        { type:"h", text:"Core data" },
+        { type:"kv", key:"Ship / Sailing", value:"Adventure of the Seas · Feb 14–20, 2026 · Western Caribbean + Perfect Day" },
+        { type:"kv", key:"Primary booking", value:"4519230 · Stateroom 6650 (Deck 6, aft) · Guests: William, Melissa, Declan, Owen · Muster: D22" },
+        { type:"kv", key:"Secondary booking", value:"6788946 · Stateroom 6651 (Deck 6, aft) · Guests: Amy Abel, Karin, Aimee · Muster: D22" },
+        { type:"kv", key:"Tertiary booking", value:"4352113 · Stateroom 8528 (Deck 8) · Guests: Reese · Muster: A2" },
+        { type:"task", level:"crit", emoji:"🔴", text:"Royal Caribbean App: install on the *concierge phone* + each adult. Log in, verify each reservation, and **link all bookings**." },
+        { type:"task", level:"crit", emoji:"🔴", text:"Check‑in (opens ~45 days prior): **grab the earliest arrival slot** you can (10:30 AM target). Upload passport photos early." },
+        { type:"task", level:"warn", emoji:"🟡", text:"Travel docs: passports valid; print a paper backup of boarding set‑sail pass + luggage tags." },
+        { type:"task", level:"warn", emoji:"🟡", text:"Show reservations (if offered): book anything reservable early (shows, specialty dining times)." },
+        { type:"task", level:"ok", emoji:"🟢", text:"Communication plan: create a **WhatsApp group** for everyone; decide who has VOOM internet (1 device) for off‑ship coordination." },
+        { type:"h", text:"Packing logic that wins" },
+        { type:"p", text:"Carry‑on should cover the first 6 hours: docs, meds, chargers, swimwear, sunscreen, a change of clothes. Checked bags can arrive later." },
+        { type:"task", level:"ok", emoji:"🟢", text:"Put *one* full outfit + essentials per person in carry‑on (in case checked bags take a scenic route)." },
+      ]
+    },
+    {
+      id:"embarkation",
+      number:"2",
+      title:"Embarkation Day: The Golden Hour Protocol",
+      meta:"Control the first 2 hours",
+      blocks:[
+        { type:"p", text:"Treat embarkation like an airport + a hotel check‑in + a theme park entry gate… on a floating city. The trick is sequencing." },
+        { type:"h", text:"Sequence (simple and ruthless)" },
+        { type:"list", items:[
+          "Arrive at Port Canaveral for your check‑in window. Porters take tagged bags; keep carry‑ons lean.",
+          "Board → put phones in low‑power mode until connected to ship Wi‑Fi.",
+          "Muster (eMuster): disperse to stations **D22 / A2**, scan in, watch video.",
+          "Regroup at Pool Bar / a known landmark. Confirm meet time.",
+          "Dining: visit Specialty Dining podium + MDR maître d’ to confirm linked table arrangements.",
+          "Explore: kids’ areas, FlowRider, Windjammer landmarks, and your cabin location."
+        ]},
+        { type:"task", level:"crit", emoji:"🔴", text:"Muster is non‑optional. Do it early. It unlocks your sailing and reduces end‑of‑day chaos." },
+        { type:"task", level:"warn", emoji:"🟡", text:"If dining matters (it does): get the table linkage confirmed on Day 1 while staff still have time to fix it." },
+      ]
+    },
+    {
+      id:"ship-fundamentals",
+      number:"3",
+      title:"Ship Fundamentals & Daily Rhythm",
+      meta:"How the floating city thinks",
+      blocks:[
+        { type:"p", text:"Once you learn the ship’s operating system, everything gets easier: SeaPass rules, Wi‑Fi rules, elevator timing, food timing." },
+        { type:"h", text:"SeaPass = wallet + room key + identity" },
+        { type:"kv", key:"Rule", value:"One card controls purchases. Set spending rules for kids before Day 1 ends." },
+        { type:"h", text:"Daily rhythm (high‑yield pattern)" },
+        { type:"list", items:[
+          "Morning: breakfast + quick plan check in app.",
+          "Late morning: pool / activities / port time.",
+          "Afternoon: recharge, showers, light snack.",
+          "Evening: dinner → show → late dessert / promenade.",
+        ]},
+        { type:"task", level:"ok", emoji:"🟢", text:"Hard rule: **sunscreen before sun**. Reapply on a timer. Caribbean sun has no mercy and no patience." },
+        { type:"task", level:"info", emoji:"🔵", text:"Elevators: if it’s slammed, walk one deck and try again. Ship physics." },
+      ]
+    },
+    {
+      id:"sea-days",
+      number:"4",
+      title:"Sea Days Playbook",
+      meta:"Day 2 & Day 5",
+      blocks:[
+        { type:"p", text:"Sea days are where you actually rest—if you don’t accidentally recreate your normal life with more humidity." },
+        { type:"h", text:"High‑value moves" },
+        { type:"list", items:[
+          "Pick *one* anchor activity per person (FlowRider, slides, arcade, pool games).",
+          "Schedule naps like a meeting. The ship will not schedule them for you.",
+          "Use low‑crowd windows: early breakfast, late lunch, early show.",
+          "Reserve dining strategically: use specialty dining on a sea day night for maximum time value.",
+        ]},
+        { type:"task", level:"warn", emoji:"🟡", text:"If you want prime deck chairs: show up early, then **use them**. Saving chairs all day is how you become the villain." },
+      ]
+    },
+    {
+      id:"port-days",
+      number:"5",
+      title:"Port Days Playbook",
+      meta:"Grand Cayman · Jamaica · CocoCay",
+      blocks:[
+        { type:"p", text:"Port days run on two laws: (1) time changes shape, (2) getting back to the ship is always harder than leaving it." },
+        { type:"h", text:"Grand Cayman (Tender) — Day 3" },
+        { type:"task", level:"crit", emoji:"🔴", text:"Tender day = buffer time. Aim to be ready early. Build slack into every plan." },
+        { type:"list", items:[
+          "Bring SeaPass + photo ID for re‑boarding.",
+          "Keep valuables minimal. Dry bag for phones helps.",
+          "Plan “last tender” like it’s a myth. Don’t chase it.",
+        ]},
+        { type:"h", text:"Falmouth, Jamaica — Day 4" },
+        { type:"task", level:"warn", emoji:"🟡", text:"Stick to the plan. If you go off‑plan, share location + return time in the group chat." },
+        { type:"h", text:"Perfect Day at CocoCay — Day 6" },
+        { type:"task", level:"crit", emoji:"🔴", text:"CocoCay is “easy mode” — until everyone picks the same two places at the same time. Pick a meeting point." },
+        { type:"list", items:[
+          "Decide morning base (South Beach / Chill Island / Oasis Lagoon) and an afternoon base.",
+          "Hydrate early. Heat + water activities hide dehydration until it’s too late.",
+          "Set a hard ‘ship time’ cutoff and do not negotiate with the ocean.",
+        ]},
+      ]
+    },
+    {
+      id:"dining",
+      number:"6",
+      title:"Dining & Specialty Strategy",
+      meta:"Make food a feature, not a problem",
+      blocks:[
+        { type:"p", text:"Cruise dining is logistics disguised as leisure. The winning move is to decide *early* what you care about: time, variety, or ritual." },
+        { type:"h", text:"Your constraints" },
+        { type:"kv", key:"Package", value:"Adults have a 3‑Night Specialty Dining Package (use on high‑value nights)." },
+        { type:"kv", key:"MDR", value:"Confirm linked table early (Day 1). MDR is the “always available” option." },
+        { type:"h", text:"Suggested pattern" },
+        { type:"list", items:[
+          "Night 1: quick + flexible (Windjammer or MDR) to get settled.",
+          "Sea day night: specialty dining (max time value).",
+          "Port day night: MDR or specialty depending on fatigue level.",
+        ]},
+        { type:"task", level:"ok", emoji:"🟢", text:"If anyone is hangry‑prone: keep an emergency snack in a bag. That one banana can save a whole marriage." },
+      ]
+    },
+    {
+      id:"logistics",
+      number:"7",
+      title:"Finance, Communication & Logistics",
+      meta:"Keep money + phones from becoming a plot",
+      blocks:[
+        { type:"p", text:"The ship is cashless (mostly). Communication is easier than it used to be, and still weird in the most oceanic way possible." },
+        { type:"h", text:"Billing + gratuities" },
+        { type:"kv", key:"Gratuities", value:"Standard daily gratuity (~$18.50+/person/day) is auto-charged unless prepaid. Final bill runs early on debarkation day." },
+        { type:"task", level:"warn", emoji:"🟡", text:"Check the paper statement delivered to your cabin. Fix issues *before* you’re trying to leave." },
+        { type:"h", text:"Communication matrix" },
+        { type:"list", items:[
+          "Onboard primary: Royal app messaging (works on ship Wi‑Fi).",
+          "Onboard external: 1‑device VOOM internet (WhatsApp/email). Log in/out as needed.",
+          "In port: use your carrier plan if it’s safe; otherwise WhatsApp on Wi‑Fi.",
+        ]},
+        { type:"task", level:"info", emoji:"🔵", text:"Create one group chat. Pin the daily plan. Assume someone’s phone will die at the worst time." },
+      ]
+    },
+    {
+      id:"medical",
+      number:"8",
+      title:"Medical & Safety",
+      meta:"Know before you need it",
+      blocks:[
+        { type:"kv", key:"Medical Center", value:"Deck 4 (forward). Hours posted daily. 24-hour emergency availability. Charges go to SeaPass." },
+        { type:"h", text:"Decision tree (practical)" },
+        { type:"list", items:[
+          "Minor (headache, nausea, scrape): treat in cabin → reassess in 30–60 min.",
+          "Moderate (fever, persistent vomiting, injury): call Guest Services / Medical.",
+          "Emergency: call ship emergency immediately (don’t ‘wait and see’).",
+        ]},
+        { type:"task", level:"warn", emoji:"🟡", text:"Hydration + sunscreen are the top two preventable trip-ruiners. Treat them like medication." },
+      ]
+    },
+    {
+      id:"disembarkation",
+      number:"9",
+      title:"Debarkation & Return to Reality",
+      meta:"Day 7 morning",
+      blocks:[
+        { type:"p", text:"Getting off the ship is a small operational exercise. Plan it like you plan airports: clear steps, clear buffers." },
+        { type:"h", text:"Options" },
+        { type:"kv", key:"Self‑assist (recommended for control)", value:"Keep all luggage, walk off once cleared (≈7:15 AM). Best for early travel." },
+        { type:"kv", key:"Checked luggage", value:"Bags out by ~11:00 PM the final night. Wait in lounge for tag color/number." },
+        { type:"task", level:"crit", emoji:"🔴", text:"Night before: pack debarkation clothes/toiletries in carry‑on. Don’t put tomorrow in the hallway." },
+      ]
+    },
+    {
+      id:"quick-ref",
+      number:"X",
+      title:"Quick Reference",
+      meta:"When brains are tired",
+      blocks:[
+        { type:"h", text:"Emergency + essentials checklist" },
+        { type:"list", items:[
+          "SeaPass + photo ID (port days)",
+          "Sunscreen + after-sun",
+          "Medications in carry-on",
+          "Portable charger",
+          "WhatsApp group pinned",
+        ]},
+        { type:"h", text:"Meet points (defaults)" },
+        { type:"kv", key:"Embarkation meetup", value:"6:45 PM @ R Bar" },
+        { type:"kv", key:"Port return buffer", value:"Aim back on ship 60–90 min before all‑aboard (tender day: more)." },
+      ]
+    },
+  ],
+};
+
+/* =========================
+   Rendering
+   ========================= */
+function renderBadges(){
+  const wrap = $("#hero-badges");
+  wrap.innerHTML = DATA.badges.map(b => `
+    <span class="badge">
+      <strong class="badge__label">${escapeHTML(b.label)}</strong>
+      <span class="badge__value">${escapeHTML(b.value)}</span>
+    </span>
+  `).join("");
+}
+
+function renderKPI(){
+  const wrap = $("#kpi");
+  wrap.innerHTML = DATA.snapshot.map(item => `
+    <div class="kpi__box">
+      <div class="kpi__label">${escapeHTML(item.label)}</div>
+      <div class="kpi__value">${escapeHTML(item.value)}</div>
+    </div>
+  `).join("");
+}
+
+function renderItinerary(){
+  const tbody = $("#itinerary-body");
+  const todayISO = getTodayISO();
+  tbody.innerHTML = DATA.itinerary.map(d => `
+    <tr class="${d.date === todayISO ? "table__row--today" : ""}">
+      <td><strong>Day ${d.day}</strong><br><span style="color:var(--color-text-secondary);font-size:.78rem">${escapeHTML(d.label)}</span></td>
+      <td>${escapeHTML(d.port)}</td>
+      <td style="font-family:var(--mono)">${escapeHTML(d.time)}</td>
+    </tr>
+  `).join("");
+}
+
+function renderDayStrip(){
+  const strip = $("#daystrip");
+  const todayISO = getTodayISO();
+  strip.innerHTML = "";
+  for (const d of DATA.itinerary){
+    const btn = document.createElement("button");
+    btn.className = "daychip";
+    btn.type = "button";
+    btn.setAttribute("aria-label", `Go to Day ${d.day}: ${d.port}`);
+    if (d.date === todayISO){
+      btn.classList.add("daychip--today");
+      btn.setAttribute("aria-current","true");
+    }
+    btn.innerHTML = `<div class="daychip__day">Day ${d.day} · ${escapeHTML(d.label)}</div>
+                     <div class="daychip__label">${escapeHTML(d.port)}</div>`;
+    btn.addEventListener("click", () => scrollToDay(d.day));
+    strip.appendChild(btn);
+  }
+  strip.querySelector(".daychip--today")?.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"});
+}
+
+function renderChapters(){
+  const root = $("#chapters");
+  root.innerHTML = DATA.chapters.map(ch => `
+    <article class="chapter" id="${escapeHTML(ch.id)}" data-chapter="${escapeHTML(ch.number)}">
+      <header class="chapter__header">
+        <div class="chapter__title-container">
+          <div class="chapter__number">${escapeHTML(ch.number)}</div>
+          <h3 class="chapter__title">${escapeHTML(ch.title)}</h3>
+        </div>
+        <div class="chapter__meta" aria-label="Chapter meta">${escapeHTML(ch.meta || "")}</div>
+      </header>
+      <div class="chapter__body">
+        ${renderBlocks(ch.blocks || [])}
+      </div>
+    </article>
+  `).join("");
+}
+
+function renderBlocks(blocks){
+  return blocks.map(b => {
+    if (b.type === "p") return `<p class="content__paragraph">${escapeHTML(b.text)}</p>`;
+    if (b.type === "h") return `<h4 class="content__heading">${escapeHTML(b.text)}</h4>`;
+    if (b.type === "kv") return `
+      <div class="content__key-value">
+        <div class="content__key">${escapeHTML(b.key)}</div>
+        <div class="content__value">${escapeHTML(b.value)}</div>
+      </div>`;
+    if (b.type === "list") return `
+      <ul class="content__list">
+        ${(b.items||[]).map(i => `<li class="content__list-item">${escapeHTML(i)}</li>`).join("")}
+      </ul>`;
+    if (b.type === "task") return `
+      <div class="task task--${escapeHTML(b.level||"ok")}">
+        <div class="task__emoji" aria-hidden="true">${escapeHTML(b.emoji||"🟢")}</div>
+        <div class="task__text">${escapeHTML(b.text)}</div>
+      </div>`;
+    return "";
+  }).join("");
+}
+
+/* =========================
+   Modules (Search / Filters / Theme / TOC / Palette / Progress)
+   ========================= */
+class SearchModule{
+  init(){
+    this.searchInput = $("#search-input");
+    this.scope = $("#main");
+    this.state = { query:"", hits:[], current:0 };
+    let t;
+    this.searchInput.addEventListener("input", () => {
+      clearTimeout(t);
+      t = setTimeout(() => this.run(this.searchInput.value), 150);
+    });
+    this.searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter"){
+        e.preventDefault();
+        if (!this.searchInput.value.trim()) return;
+        if (!this.state.hits.length) this.run(this.searchInput.value);
+        else this.jump(this.state.current + 1);
+      } else if (e.key === "Escape"){
+        e.preventDefault();
+        this.clear();
+      }
+    });
+  }
+  run(q){
+    this.clearHighlights();
+    this.state.query = q.trim();
+    this.state.hits = [];
+    this.state.current = 0;
+    if (!this.state.query) return;
+
+    const rx = new RegExp(this.escapeRegExp(this.state.query), "gi");
+    const searchScope = ["#chapters",".hero",".panel"].map(s => $(s)).filter(Boolean);
+    for (const scope of searchScope) this.state.hits.push(...this.highlight(scope, rx));
+    if (this.state.hits.length) this.jump(0);
+  }
+  escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+  clearHighlights(){
+    $$(".highlight", this.scope).forEach(mark => {
+      const text = document.createTextNode(mark.textContent);
+      mark.parentNode.replaceChild(text, mark);
+      mark.parentNode.normalize();
+    });
+  }
+  highlight(scope, rx){
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT, {
+      acceptNode:(node)=>{
+        if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const p = node.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (p.closest(".sidebar") || p.closest(".palette")) return NodeFilter.FILTER_REJECT;
+        if (["SCRIPT","STYLE"].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    const marks = [];
+    for (const node of nodes){
+      const text = node.nodeValue;
+      rx.lastIndex = 0;
+      if (!rx.test(text)) continue;
+      rx.lastIndex = 0;
+
+      const frag = document.createDocumentFragment();
+      let last = 0;
+      let m;
+      while ((m = rx.exec(text)) !== null){
+        const start = m.index, end = start + m[0].length;
+        if (start > last) frag.appendChild(document.createTextNode(text.slice(last, start)));
+        const mark = document.createElement("mark");
+        mark.className = "highlight";
+        mark.textContent = text.slice(start, end);
+        frag.appendChild(mark);
+        marks.push(mark);
+        last = end;
+        if (m.index === rx.lastIndex) rx.lastIndex++;
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    }
+    return marks;
+  }
+  jump(i){
+    if (!this.state.hits.length) return;
+    this.state.current = ((i % this.state.hits.length) + this.state.hits.length) % this.state.hits.length;
+    const hit = this.state.hits[this.state.current];
+    smoothScrollTo(hit, { block:"center" });
+    hit.style.outline = "2px solid rgba(125,211,252,.65)";
+    hit.style.outlineOffset = "2px";
+    setTimeout(()=>{ hit.style.outline=""; hit.style.outlineOffset=""; }, 900);
+  }
+  clear(){
+    this.searchInput.value = "";
+    this.clearHighlights();
+    this.state = { query:"", hits:[], current:0 };
+  }
+}
+
+class FilterModule{
+  init(){
+    this.cb = {
+      crit: $("#filter-crit"),
+      warn: $("#filter-warn"),
+      ok: $("#filter-ok"),
+      info: $("#filter-info"),
+      focus: $("#focus-mode"),
+    };
+    Object.values(this.cb).forEach(el => el?.addEventListener("change", () => this.apply()));
+    this.apply();
+  }
+  apply(){
+    const allowed = {
+      crit: this.cb.crit.checked,
+      warn: this.cb.warn.checked,
+      ok: this.cb.ok.checked,
+      info: this.cb.info.checked,
+    };
+    $$(".task").forEach(task => {
+      const level =
+        task.classList.contains("task--crit") ? "crit" :
+        task.classList.contains("task--warn") ? "warn" :
+        task.classList.contains("task--ok") ? "ok" :
+        task.classList.contains("task--info") ? "info" : null;
+      task.style.display = level && allowed[level] ? "" : "none";
+    });
+
+    const focus = this.cb.focus.checked;
+    $$(".content__paragraph,.content__key-value,.content__list,.content__heading").forEach(el => {
+      el.style.display = focus ? "none" : "";
+    });
+  }
+}
+
+class ThemeModule{
+  constructor(){
+    this.key = "mission-control-theme";
+    this.btn = $("#toggle-theme");
+    this.root = document.documentElement;
+  }
+  init(){
+    this.set(localStorage.getItem(this.key) || "auto");
+    this.btn.addEventListener("click", () => this.toggle());
+  }
+  set(theme){
+    this.root.classList.remove("theme--light","theme--dark");
+    if (theme === "light" || theme === "dark") this.root.classList.add(`theme--${theme}`);
+    localStorage.setItem(this.key, theme);
+    this._current = theme;
+  }
+  toggle(){
+    const current = localStorage.getItem(this.key) || "auto";
+    const next = current === "auto" ? "dark" : current === "dark" ? "light" : "auto";
+    this.set(next);
+    toast(`Theme: ${next}`);
+  }
+}
+
+class ItineraryModule{
+  init(){
+    this.updateTodayBanner();
+    $("#jump-today")?.addEventListener("click", () => this.jumpToToday());
+  }
+  updateTodayBanner(){
+    const todayISO = getTodayISO();
+    let status = "Pre‑cruise";
+    const hit = DATA.itinerary.find(d => d.date === todayISO);
+    if (hit) status = `Day ${hit.day}: ${hit.port}`;
+    else {
+      const today = new Date();
+      const first = parseDate(DATA.itinerary[0].date);
+      const last  = parseDate(DATA.itinerary[DATA.itinerary.length-1].date);
+      if (today > last) status = "Post‑cruise";
+    }
+    const v = $("#today-banner .chip__value");
+    if (v) v.textContent = status;
+  }
+  jumpToToday(){
+    const todayISO = getTodayISO();
+    const hit = DATA.itinerary.find(d => d.date === todayISO);
+    if (!hit) return smoothScrollTo($("#top"));
+    scrollToDay(hit.day);
+  }
+}
+
+class TOCModule{
+  init(){
+    this.toc = $("#toc");
+    this.build();
+    $("#expand-all")?.addEventListener("click", () => this.toggleBodies(true));
+    $("#collapse-all")?.addEventListener("click", () => this.toggleBodies(false));
+  }
+  build(){
+    const chapters = $$(".chapter");
+    this.toc.innerHTML = "";
+    chapters.forEach((chapter, idx) => {
+      const id = chapter.id;
+      const number = chapter.dataset.chapter || String(idx+1);
+      const title = $(".chapter__title", chapter)?.textContent?.trim() || `Section ${number}`;
+
+      const counts = {
+        crit: $$(".task--crit", chapter).length,
+        warn: $$(".task--warn", chapter).length,
+        ok: $$(".task--ok", chapter).length,
+        info: $$(".task--info", chapter).length,
+      };
+
+      // pill badges into chapter header
+      const meta = $(".chapter__meta", chapter);
+      if (meta){
+        meta.innerHTML = "";
+        for (const [type, count] of Object.entries(counts)){
+          if (!count) continue;
+          const pill = document.createElement("span");
+          pill.className = "pill";
+          pill.innerHTML = `<span class="legend__dot legend__dot--${type}" aria-hidden="true"></span>${count}`;
+          pill.title = `${labelFor(type)} tasks`;
+          meta.appendChild(pill);
+        }
+      }
+
+      const li = document.createElement("li");
+      li.className = "toc__item";
+      const a = document.createElement("a");
+      a.href = `#${id}`;
+      a.className = "toc__link";
+      a.innerHTML = `
+        <span class="toc__number">${escapeHTML(number)}</span>
+        <span class="toc__content">
+          <span class="toc__title">${escapeHTML(title)}</span>
+          <span class="toc__meta">
+            ${counts.crit ? `🔴 ${counts.crit} ` : ""}
+            ${counts.warn ? `🟡 ${counts.warn} ` : ""}
+            ${counts.ok ? `🟢 ${counts.ok} ` : ""}
+            ${counts.info ? `🔵 ${counts.info}` : ""}
+          </span>
+        </span>`;
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const target = document.getElementById(id);
+        if (target){
+          smoothScrollTo(target);
+          history.replaceState(null, "", `#${id}`);
+          closeSidebarOnMobile();
+        }
+      });
+      li.appendChild(a);
+      this.toc.appendChild(li);
+    });
+  }
+  toggleBodies(show){
+    $$(".chapter").forEach(ch => {
+      const body = $(".chapter__body", ch);
+      if (body) body.style.display = show ? "" : "none";
+    });
+  }
+}
+
+class CommandPaletteModule{
+  constructor(){
+    this.palette = $("#palette");
+    this.input = $("#palette-input");
+    this.list = $("#palette-list");
+  }
+  init(){
+    $("#open-palette")?.addEventListener("click", () => this.open());
+    $("#fab-command")?.addEventListener("click", () => this.open());
+    $("#mobile-palette")?.addEventListener("click", () => this.open());
+
+    this.input.addEventListener("input", () => this.render());
+    this.input.addEventListener("keydown", (e) => {
+      if (e.key === "Escape"){ e.preventDefault(); this.close(); }
+      else if (e.key === "Enter"){ e.preventDefault(); $(".command-item", this.list)?.click(); }
+      else if (e.key === "ArrowDown"){ e.preventDefault(); this.nav(1); }
+      else if (e.key === "ArrowUp"){ e.preventDefault(); this.nav(-1); }
+    });
+
+    this.palette.addEventListener("click", (e) => { if (e.target === this.palette) this.close(); });
+
+    document.addEventListener("keydown", (e) => {
+      const isMac = navigator.platform.toUpperCase().includes("MAC");
+      const mod = isMac ? e.metaKey : e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "k"){ e.preventDefault(); this.open(); }
+      if (e.key === "Escape" && this.palette.getAttribute("aria-hidden") === "false"){ e.preventDefault(); this.close(); }
+    });
+  }
+  commands(){
+    return [
+      { id:"today", icon:"📍", title:"Jump to Today", subtitle:"Auto-scroll to the most relevant section for today", shortcut:"T", action:()=>$("#jump-today")?.click() },
+      { id:"expand", icon:"↕️", title:"Expand all sections", subtitle:"Show all content bodies", shortcut:"E", action:()=>$("#expand-all")?.click() },
+      { id:"collapse", icon:"↕️", title:"Collapse all sections", subtitle:"Hide content bodies (skimming mode)", shortcut:"C", action:()=>$("#collapse-all")?.click() },
+      { id:"focus", icon:"🎯", title:"Toggle Focus Mode", subtitle:"Show tasks only", shortcut:"F", action:()=>{
+        const t = $("#focus-mode"); if (!t) return;
+        t.checked = !t.checked; t.dispatchEvent(new Event("change"));
+      }},
+      { id:"print", icon:"🖨️", title:"Print / Save PDF", subtitle:"Use browser print dialog", shortcut:"P", action:()=>window.print() },
+      { id:"theme", icon:"🌓", title:"Toggle Theme", subtitle:"Cycle auto → dark → light", shortcut:"M", action:()=>$("#toggle-theme")?.click() },
+      { id:"share", icon:"🔗", title:"Copy share link", subtitle:"Copy URL (includes section hash)", shortcut:"L", action:()=>$("#copy-link")?.click() },
+      { id:"reset", icon:"♻", title:"Reset view", subtitle:"Clear search + show all", shortcut:"R", action:()=>$("#reset")?.click() },
+    ];
+  }
+  chapterCommands(){
+    return $$(".chapter").map(ch => {
+      const id = ch.id;
+      const num = ch.dataset.chapter || "?";
+      const title = $(".chapter__title", ch)?.textContent?.trim() || "Section";
+      return { id:`chapter-${id}`, icon:(num === "X" ? "✦" : "§"), title:`${num} · ${title}`, subtitle:"Jump to section", shortcut:"#", action:()=>smoothScrollTo(ch) };
+    });
+  }
+  open(){
+    this.palette.setAttribute("aria-hidden","false");
+    this.input.value = "";
+    this.render();
+    setTimeout(()=>{ this.input.focus(); this.input.select(); },0);
+  }
+  close(){
+    this.palette.setAttribute("aria-hidden","true");
+    this.input.blur();
+  }
+  render(){
+    const q = this.input.value.trim().toLowerCase();
+    const all = [...this.commands(), ...this.chapterCommands()];
+    const filtered = all.filter(c => !q || c.title.toLowerCase().includes(q) || c.subtitle.toLowerCase().includes(q) || c.id.toLowerCase().includes(q));
+    this.list.innerHTML = "";
+    if (!filtered.length){
+      const d = document.createElement("div");
+      d.className = "palette__empty";
+      d.textContent = "No commands found";
+      this.list.appendChild(d);
+      return;
+    }
+    filtered.forEach((c, idx) => {
+      const li = document.createElement("li");
+      li.className = "command-item";
+      li.tabIndex = 0;
+      li.setAttribute("role","option");
+      li.setAttribute("aria-selected", idx === 0 ? "true" : "false");
+      li.innerHTML = `
+        <div class="command-item__content">
+          <span class="command-item__icon" aria-hidden="true">${escapeHTML(c.icon)}</span>
+          <div class="command-item__text">
+            <div class="command-item__title">${escapeHTML(c.title)}</div>
+            <div class="command-item__subtitle">${escapeHTML(c.subtitle)}</div>
+          </div>
+        </div>
+        <div class="command-item__shortcut">${escapeHTML(c.shortcut)}</div>`;
+      li.addEventListener("click", () => { this.close(); c.action(); });
+      li.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " "){ e.preventDefault(); this.close(); c.action(); }
+      });
+      this.list.appendChild(li);
+    });
+  }
+  nav(dir){
+    const items = $$(".command-item", this.list);
+    if (!items.length) return;
+    const cur = items.findIndex(x => x.getAttribute("aria-selected") === "true");
+    let next = cur + dir;
+    if (next < 0) next = items.length - 1;
+    if (next >= items.length) next = 0;
+    items.forEach((x,i) => {
+      x.setAttribute("aria-selected", i === next ? "true" : "false");
+      x.tabIndex = i === next ? 0 : -1;
+    });
+    items[next]?.focus();
+  }
+}
+
+class ScrollProgressModule{
+  init(){
+    this.bar = $("#progress");
+    window.addEventListener("scroll", () => this.update(), {passive:true});
+    this.update();
+  }
+  update(){
+    const doc = document.documentElement;
+    const top = window.scrollY || doc.scrollTop;
+    const h = doc.scrollHeight - doc.clientHeight;
+    if (h <= 0) return;
+    this.bar.style.width = `${clamp((top / h) * 100, 0, 100)}%`;
+  }
+}
+
+/* =========================
+   Other behavior
+   ========================= */
+function getTodayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function parseDate(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  return new Date(y, m-1, d);
+}
+function labelFor(type){
+  return ({crit:"Critical", warn:"Recommended", ok:"Informational", info:"Secondary"})[type] || type;
+}
+
+function scrollToDay(dayNumber){
+  // Map trip days to handbook sections. Adjust if you add per-day chapters later.
+  const map = {1:"#embarkation", 2:"#sea-days", 3:"#port-days", 4:"#port-days", 5:"#sea-days", 6:"#port-days", 7:"#disembarkation"};
+  const id = map[dayNumber] || "#top";
+  const el = $(id);
+  if (el){
+    smoothScrollTo(el);
+    history.replaceState(null, "", id);
+  }
+}
+
+function toast(msg){
+  const d = document.createElement("div");
+  d.style.cssText = `
+    position:fixed;left:20px;bottom:20px;
+    background:rgba(0,0,0,.55);
+    color:var(--color-text-primary);
+    padding:10px 12px;border:1px solid var(--color-border);
+    border-radius:12px;backdrop-filter:blur(10px);
+    z-index:9999;max-width:min(520px, calc(100vw - 40px));
+    box-shadow:var(--shadow);
+  `;
+  d.textContent = msg;
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(), 1800);
+}
+
+function closeSidebarOnMobile(){
+  if (window.matchMedia("(max-width: 1020px)").matches){
+    $("#sidebar")?.setAttribute("aria-hidden","true");
+    $("#sidebar-scrim")?.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  }
+}
+
+/* =========================
+   Boot
+   ========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  // Render content first (so TOC + palette sees chapters)
+  $("#ship-name").textContent = DATA.ship;
+  $("#sail-dates").textContent = DATA.sail;
+  renderBadges();
+  renderKPI();
+  renderItinerary();
+  renderDayStrip();
+  renderChapters();
+
+  // Modules
+  const modules = [
+    new SearchModule(),
+    new FilterModule(),
+    new ThemeModule(),
+    new ItineraryModule(),
+    new TOCModule(),
+    new CommandPaletteModule(),
+    new ScrollProgressModule(),
+  ];
+  modules.forEach(m => m.init?.());
+
+  // Print
+  $("#print-btn")?.addEventListener("click", () => window.print());
+
+  // Back to top
+  $("#fab-top")?.addEventListener("click", () => smoothScrollTo($("#top")));
+
+  // Share
+  $("#copy-link")?.addEventListener("click", async () => {
+    const url = window.location.href;
+    try{
+      await navigator.clipboard.writeText(url);
+      toast("Link copied");
+    }catch{
+      toast("Copy failed (clipboard blocked).");
+    }
+  });
+
+  // Reset
+  $("#reset")?.addEventListener("click", () => {
+    // clear search
+    const si = $("#search-input");
+    if (si){ si.value = ""; si.dispatchEvent(new Event("input")); }
+    // show everything
+    $("#filter-crit").checked = true;
+    $("#filter-warn").checked = true;
+    $("#filter-ok").checked = true;
+    $("#filter-info").checked = true;
+    $("#focus-mode").checked = false;
+    $("#focus-mode").dispatchEvent(new Event("change"));
+    // expand chapters
+    $("#expand-all")?.click();
+    // go top
+    smoothScrollTo($("#top"));
+    toast("Reset complete");
+  });
+
+  // Sidebar drawer on mobile
+  const sidebar = $("#sidebar");
+  const scrim = $("#sidebar-scrim");
+  const openSidebar = () => {
+    sidebar.setAttribute("aria-hidden","false");
+    scrim.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+  };
+  const closeSidebar = () => {
+    sidebar.setAttribute("aria-hidden","true");
+    scrim.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  };
+  $("#hamburger")?.addEventListener("click", openSidebar);
+  scrim?.addEventListener("click", closeSidebar);
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && sidebar.getAttribute("aria-hidden") === "false") closeSidebar();
+  });
+
+  // Mobile palette button already wired in palette module
+
+  // Hash navigation
+  if (window.location.hash){
+    const t = $(window.location.hash);
+    if (t) setTimeout(()=>smoothScrollTo(t), 100);
+  }
+  window.addEventListener("hashchange", () => {
+    const t = $(window.location.hash);
+    if (t) smoothScrollTo(t);
+  });
+});
+  </script>
+</body>
+</html>
