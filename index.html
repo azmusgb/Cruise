@@ -1,782 +1,1149 @@
 <!DOCTYPE html>
-<html lang="en" class="theme--dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="color-scheme" content="dark light" />
-  <title>🚢 Cruise Companion — Mission Control 3.0</title>
-  
-  <!-- Font Awesome for icons -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#0f172a">
+  <title>🚢 Cruise Companion</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts for better typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --secondary: #8b5cf6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #0f172a;
+      --bg-alt: #1e293b;
+      --bg-card: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow: rgba(0, 0, 0, 0.3);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Mobile-First Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-alt);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      background: rgba(30, 41, 59, 0.95);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      gap: 12px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      font-size: 24px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    .icon-btn:hover {
+      background: var(--primary);
+    }
+
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--danger);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* Tabs Navigation */
+    .tabs {
+      display: flex;
+      overflow-x: auto;
+      padding: 0 16px;
+      gap: 8px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      flex-shrink: 0;
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab:active {
+      transform: scale(0.97);
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Info Cards */
+    .info-cards {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .info-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .info-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Stats Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Timeline */
+    .timeline {
+      margin-bottom: 24px;
+    }
+
+    .timeline-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .timeline-item.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .timeline-day {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .day-badge {
+      background: var(--primary);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .timeline-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+    }
+
+    .timeline-port {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .timeline-time {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* Tasks */
+    .tasks {
+      margin-bottom: 24px;
+    }
+
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .task-checkbox {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .task-card.done .task-checkbox {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .task-checkbox i {
+      color: white;
+      font-size: 12px;
+      opacity: 0;
+    }
+
+    .task-card.done .task-checkbox i {
+      opacity: 1;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .task-card.done .task-title {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .task-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .task-tag {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .task-tag.critical {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .task-tag.warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .task-tag.info {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .action-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .action-btn:active {
+      transform: scale(0.97);
+    }
+
+    .action-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .action-label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-alt);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-item i {
+      font-size: 20px;
+    }
+
+    .nav-label {
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* FAB */
+    .fab {
+      position: fixed;
+      bottom: 80px;
+      right: 16px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 90;
+      transition: all 0.3s;
+    }
+
+    .fab:active {
+      transform: scale(0.95);
+    }
+
+    /* Drawer */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .drawer-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 85%;
+      max-width: 400px;
+      height: 100%;
+      background: var(--bg-alt);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.3s;
+      overflow-y: auto;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .drawer.active {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .drawer-content {
+      padding: 20px;
+    }
+
+    .filter-group {
+      margin-bottom: 24px;
+    }
+
+    .filter-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      cursor: pointer;
+    }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .filter-option input:checked + .checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .filter-option input {
+      display: none;
+    }
+
+    .checkbox i {
+      color: white;
+      font-size: 12px;
+      opacity: 0;
+    }
+
+    .filter-option input:checked + .checkbox i {
+      opacity: 1;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 12px var(--shadow);
+      z-index: 300;
+      transition: transform 0.3s;
+      max-width: calc(100% - 32px);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Responsive */
+    @media (min-width: 640px) {
+      .stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .quick-actions {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .info-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 24px;
+      }
+
+      .bottom-nav {
+        display: none;
+      }
+
+      .fab {
+        bottom: 24px;
+      }
+    }
+
+    /* Loading */
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 1000;
+      transition: opacity 0.3s;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+  </style>
 </head>
-
 <body>
-  <!-- Loading Screen with Progress -->
+  <!-- Loading Screen -->
   <div class="loading" id="loading">
-    <div class="loading__content">
-      <div class="loading__ship" aria-hidden="true">🚢</div>
-      <div class="loading__title">Cruise Companion</div>
-      <div class="loading__subtitle">Initializing Mission Control 3.0</div>
-      <div class="loading__progress">
-        <div class="loading__progress-bar" id="loading-progress"></div>
+    <div class="spinner"></div>
+    <div>Loading your cruise...</div>
+  </div>
+
+  <!-- Header -->
+
+  <header class="header">
+    <div class="header-top">
+      <div class="logo">
+        <span class="logo-icon">🚢</span>
+        <span>Cruise Companion</span>
       </div>
-      <div class="loading__hint">Preparing immersive experience...</div>
+      <div class="header-actions">
+        <button class="icon-btn" id="search-btn" aria-label="Search">
+          <i class="fas fa-search"></i>
+        </button>
+        <button class="icon-btn" id="filter-btn" aria-label="Filters">
+          <i class="fas fa-filter"></i>
+          <span class="badge" id="filter-badge">3</span>
+        </button>
+        <button class="icon-btn" id="menu-btn" aria-label="Menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
     </div>
-  </div>
-  
-  <!-- Enhanced Background Elements -->
-  <div class="stars" aria-hidden="true"></div>
-  <div class="stars stars--twinkling" aria-hidden="true"></div>
-  <div class="ocean-waves" aria-hidden="true"></div>
-  <div class="ocean-waves ocean-waves--deep" aria-hidden="true"></div>
-  <div class="progress" id="progress"></div>
+    <div class="tabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="timeline">Timeline</button>
+      <button class="tab" data-tab="tasks">Tasks</button>
+      <button class="tab" data-tab="actions">Actions</button>
+    </div>
+  </header>
 
-  <div class="app">
-    <!-- Sidebar with Resize Handle -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar__resize" id="sidebar-resize"></div>
-      <header class="sidebar__header">
-        <div class="logo" aria-hidden="true">
-          <span class="logo__ship">🚢</span>
-          <div class="logo__pulse"></div>
-        </div>
-        <div>
-          <div class="sidebar__title text-gradient">Family & Friends Cruise Companion</div>
-          <div class="sidebar__subtitle">Mission Control 3.0 · AI Enhanced</div>
-          <div class="sidebar__status" id="sidebar-status">
-            <span class="status-indicator status-indicator--online"></span>
-            <span>Last sync: Just now</span>
+  <!-- Main Content -->
+
+  <div class="container">
+    <!-- Overview Tab -->
+    <div class="tab-content" id="overview-content">
+      <!-- Info Cards -->
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-icon">🚢</div>
+            <div class="info-title">Your Ship</div>
           </div>
-        </div>
-      </header>
-
-      <section class="sidebar__section" aria-labelledby="actions-section">
-        <div class="sidebar__section-header">
-          <h2 id="actions-section"><i class="fas fa-bolt"></i> Quick Actions</h2>
-          <kbd>Ctrl/⌘K</kbd>
-        </div>
-        <div class="sidebar__section-body">
-          <div class="button-row">
-            <button id="open-palette" class="button button--primary" type="button">
-              <span class="button__icon"><i class="fas fa-terminal"></i></span> Command Palette
-            </button>
-            <button id="print-btn" class="button" type="button">
-              <span class="button__icon"><i class="fas fa-file-pdf"></i></span> Export PDF
-            </button>
-          </div>
-          <div class="button-row">
-            <button id="jump-today" class="button button--today" type="button">
-              <span class="button__icon"><i class="fas fa-calendar-day"></i></span> Jump to Today
-            </button>
-            <button id="toggle-theme" class="button" type="button">
-              <span class="button__icon"><i class="fas fa-palette"></i></span> Theme
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section class="sidebar__section" aria-labelledby="filters-section">
-        <div class="sidebar__section-header">
-          <h2 id="filters-section"><i class="fas fa-filter"></i> Smart Filters</h2>
-          <kbd>Enter</kbd>
-        </div>
-        <div class="sidebar__section-body">
-          <div class="filters">
-            <label class="filter filter--critical">
-              <input type="checkbox" id="filter-crit" checked>
-              <span class="filter__indicator"></span>
-              <span class="filter__emoji" aria-hidden="true">🔴</span>
-              <span class="filter__label">Critical</span>
-              <span class="filter__count" id="filter-crit-count">0</span>
-            </label>
-            <label class="filter filter--warning">
-              <input type="checkbox" id="filter-warn" checked>
-              <span class="filter__indicator"></span>
-              <span class="filter__emoji" aria-hidden="true">🟡</span>
-              <span class="filter__label">Recommended</span>
-              <span class="filter__count" id="filter-warn-count">0</span>
-            </label>
-            <label class="filter filter--ok">
-              <input type="checkbox" id="filter-ok" checked>
-              <span class="filter__indicator"></span>
-              <span class="filter__emoji" aria-hidden="true">🟢</span>
-              <span class="filter__label">Info</span>
-              <span class="filter__count" id="filter-ok-count">0</span>
-            </label>
-            <label class="filter filter--info">
-              <input type="checkbox" id="filter-info" checked>
-              <span class="filter__indicator"></span>
-              <span class="filter__emoji" aria-hidden="true">🔵</span>
-              <span class="filter__label">Secondary</span>
-              <span class="filter__count" id="filter-info-count">0</span>
-            </label>
-          </div>
-
-          <div class="filter-presets">
-            <button class="filter-preset" data-preset="all">Show All</button>
-            <button class="filter-preset" data-preset="tasks">Tasks Only</button>
-            <button class="filter-preset" data-preset="today">Today's Items</button>
-          </div>
-
-          <label class="toggle">
-            <input type="checkbox" id="focus-mode">
-            <span class="toggle__slider"></span>
-            <span class="toggle__label">Focus mode <span class="toggle__hint">(hide completed)</span></span>
-          </label>
-          <label class="toggle">
-            <input type="checkbox" id="effects-mode">
-            <span class="toggle__slider"></span>
-            <span class="toggle__label">Performance mode <span class="toggle__hint">(reduce effects)</span></span>
-          </label>
-
-          <div class="button-row">
-            <button id="expand-all" class="button" type="button">
-              <span class="button__icon"><i class="fas fa-expand-alt"></i></span> Expand All
-            </button>
-            <button id="collapse-all" class="button" type="button">
-              <span class="button__icon"><i class="fas fa-compress-alt"></i></span> Collapse All
-            </button>
-            <button id="mark-all-done" class="button" type="button">
-              <span class="button__icon"><i class="fas fa-check-double"></i></span> Mark All
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <nav class="sidebar__section" aria-labelledby="toc-section">
-        <div class="sidebar__section-header">
-          <h2 id="toc-section"><i class="fas fa-list"></i> Smart Contents</h2>
-          <kbd>click</kbd>
-        </div>
-        <div class="sidebar__section-body">
-          <ul class="toc" id="toc" aria-label="Table of contents"></ul>
-          <div class="toc-stats">
-            <div class="toc-stat">
-              <i class="fas fa-file-alt"></i>
-              <span><span id="toc-chapter-count">0</span> chapters</span>
-            </div>
-            <div class="toc-stat">
-              <i class="fas fa-tasks"></i>
-              <span><span id="toc-task-count">0</span> tasks</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <section class="sidebar__section" aria-labelledby="legend-section">
-        <div class="sidebar__section-header">
-          <h2 id="legend-section"><i class="fas fa-key"></i> Legend & Status</h2>
-          <kbd>tap</kbd>
-        </div>
-        <div class="sidebar__section-body">
-          <div class="legend-grid">
-            <div class="legend-item legend-item--critical">
-              <span class="legend__dot"></span>
-              <span class="legend__label">Critical</span>
-            </div>
-            <div class="legend-item legend-item--warning">
-              <span class="legend__dot"></span>
-              <span class="legend__label">Recommended</span>
-            </div>
-            <div class="legend-item legend-item--ok">
-              <span class="legend__dot"></span>
-              <span class="legend__label">Info</span>
-            </div>
-            <div class="legend-item legend-item--info">
-              <span class="legend__dot"></span>
-              <span class="legend__label">Secondary</span>
-            </div>
-            <div class="legend-item legend-item--done">
-              <span class="legend__dot"></span>
-              <span class="legend__label">Completed</span>
-            </div>
-            <div class="legend-item legend-item--current">
-              <span class="legend__dot"></span>
-              <span class="legend__label">Active Now</span>
-            </div>
-          </div>
-          
-          <div class="kv-grid">
-            <div class="kv">
-              <div class="k"><i class="fas fa-sync-alt"></i> Auto-save</div>
-              <div class="v">Every 30s</div>
-            </div>
-            <div class="kv">
-              <div class="k"><i class="fas fa-cloud"></i> Sync</div>
-              <div class="v" id="sync-status">Online</div>
-            </div>
-            <div class="kv">
-              <div class="k"><i class="fas fa-database"></i> Storage</div>
-              <div class="v" id="storage-status">Local</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <footer class="sidebar__footer">
-        <div class="version">v3.0.1</div>
-        <div class="sidebar__actions">
-          <button class="icon-btn icon-btn--small" aria-label="Settings" title="Settings">
-            <i class="fas fa-cog"></i>
-          </button>
-          <button class="icon-btn icon-btn--small" aria-label="Help" title="Help">
-            <i class="fas fa-question-circle"></i>
-          </button>
-          <button class="icon-btn icon-btn--small" id="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-        </div>
-      </footer>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="main" id="main">
-      <!-- Enhanced Topbar with More Controls -->
-      <header class="topbar" id="topbar">
-        <div class="topbar__inner">
-          <button class="topbar__menu" id="topbar-menu" aria-label="Toggle sidebar">
-            <i class="fas fa-bars"></i>
-          </button>
-          
-          <div class="chips">
-            <span class="chip chip--ship">
-              <strong><i class="fas fa-ship"></i> Ship</strong>
-              <span class="mono">Adventure of the Seas</span>
-              <span class="chip__badge">Royal Caribbean</span>
-            </span>
-            <span class="chip chip--date">
-              <strong><i class="fas fa-calendar-alt"></i> Sail</strong>
-              <span class="mono">Feb 14–20, 2026</span>
-              <span class="chip__badge" id="countdown-badge">7 days</span>
-            </span>
-            <span class="chip chip--status" id="today-banner">
-              <strong><i class="fas fa-info-circle"></i> Status</strong>
-              <span class="mono">Pre-cruise</span>
-              <span class="chip__pulse"></span>
-            </span>
-            <span class="chip chip--room">
-              <strong><i class="fas fa-door-open"></i> Stateroom</strong>
-              <span class="mono">6650 · Deck 6 · Aft</span>
-              <span class="chip__badge">Ocean View</span>
-            </span>
-            <span class="chip chip--party">
-              <strong><i class="fas fa-users"></i> Party</strong>
-              <span class="mono">4 (2 adults, 2 kids)</span>
-              <span class="chip__badge">Family</span>
-            </span>
-            <span class="chip chip--packages">
-              <strong><i class="fas fa-glass-whiskey"></i> Packages</strong>
-              <span class="mono">Refreshment + 3‑night Dining</span>
-              <span class="chip__badge">Active</span>
-            </span>
-          </div>
-          
-          <div class="topbar__actions">
-            <div class="topbar__quick-actions">
-              <button class="icon-btn" id="quick-add" aria-label="Quick add task" title="Add task">
-                <i class="fas fa-plus"></i>
-              </button>
-              <button class="icon-btn" id="quick-notes" aria-label="Open notes" title="Notes">
-                <i class="fas fa-sticky-note"></i>
-              </button>
-              <button class="icon-btn" id="quick-alarm" aria-label="Set alarm" title="Set alarm">
-                <i class="fas fa-bell"></i>
-              </button>
-            </div>
-            <div class="topbar__shortcuts">
-              <kbd><i class="fas fa-keyboard"></i> Ctrl/⌘K</kbd>
-              <kbd><i class="fas fa-times"></i> Esc</kbd>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Enhanced Daystrip with Progress -->
-        <nav class="daystrip" id="daystrip" aria-label="Trip days">
-          <div class="daystrip__progress" id="daystrip-progress"></div>
-        </nav>
-      </header>
-
-      <!-- Enhanced Hero Section -->
-      <section class="hero" id="top">
-        <div class="hero__background" aria-hidden="true"></div>
-        <div class="hero__content">
-          <div class="hero__text">
-            <div class="hero__badge">MISSION CONTROL 3.0</div>
-            <h1 class="hero__title">
-              Cruise Companion · 
-              <span class="text-gradient">AI Enhanced Experience</span>
-            </h1>
-            <p class="hero__desc">
-              <strong>Next-generation cruise management.</strong> Real-time synchronization, AI-powered suggestions, 
-              predictive alerts, and immersive navigation. Your entire journey, optimized and accessible.
-            </p>
-            
-            <div class="hero__features">
-              <div class="feature">
-                <i class="feature__icon fas fa-bolt"></i>
-                <span class="feature__text">Real-time Sync</span>
-              </div>
-              <div class="feature">
-                <i class="feature__icon fas fa-robot"></i>
-                <span class="feature__text">AI Assistant</span>
-              </div>
-              <div class="feature">
-                <i class="feature__icon fas fa-bell"></i>
-                <span class="feature__text">Smart Alerts</span>
-              </div>
-              <div class="feature">
-                <i class="feature__icon fas fa-chart-line"></i>
-                <span class="feature__text">Analytics</span>
-              </div>
-              <div class="feature">
-                <i class="feature__icon fas fa-mobile-alt"></i>
-                <span class="feature__text">Offline Mode</span>
-              </div>
-            </div>
-
-            <div class="hero__badges" aria-label="Key identifiers">
-              <span class="badge badge--reservation">
-                <strong><i class="fas fa-tag"></i> Reservation</strong>
-                <span class="mono">#4519230</span>
-              </span>
-              <span class="badge badge--room">
-                <strong><i class="fas fa-door-open"></i> Stateroom</strong>
-                <span class="mono">6650 (Deck 6, aft)</span>
-              </span>
-              <span class="badge badge--party">
-                <strong><i class="fas fa-user-friends"></i> Party</strong>
-                <span class="mono">2 adults · 2 kids</span>
-              </span>
-              <span class="badge badge--dining">
-                <strong><i class="fas fa-utensils"></i> Dining</strong>
-                <span class="mono">3-night specialty</span>
-              </span>
-              <span class="badge badge--drinks">
-                <strong><i class="fas fa-cocktail"></i> Drinks</strong>
-                <span class="mono">Refreshment package</span>
-              </span>
-            </div>
-          </div>
-
-          <div class="hero__art" aria-label="Interactive ship dashboard">
-            <div class="ship-dashboard">
-              <div class="ship-dashboard__header">
-                <div class="ship-dashboard__title">Live Status</div>
-                <div class="ship-dashboard__status">
-                  <span class="status-dot status-dot--online"></span>
-                  Connected
-                </div>
-              </div>
-              <div class="ship-dashboard__metrics">
-                <div class="metric">
-                  <div class="metric__value" id="metric-tasks">0</div>
-                  <div class="metric__label">Active Tasks</div>
-                </div>
-                <div class="metric">
-                  <div class="metric__value" id="metric-time">00:00</div>
-                  <div class="metric__label">Ship Time</div>
-                </div>
-                <div class="metric">
-                  <div class="metric__value" id="metric-weather">--°</div>
-                  <div class="metric__label">Weather</div>
-                </div>
-                <div class="metric">
-                  <div class="metric__value" id="metric-progress">0%</div>
-                  <div class="metric__label">Completed</div>
-                </div>
-              </div>
-              <div class="ship-dashboard__visual">
-                <!-- Interactive ship visualization -->
-                <div class="ship-visual">
-                  <div class="ship-visual__deck ship-visual__deck--upper"></div>
-                  <div class="ship-visual__deck ship-visual__deck--main"></div>
-                  <div class="ship-visual__deck ship-visual__deck--lower"></div>
-                  <div class="ship-visual__cabin ship-visual__cabin--ours" title="Your Cabin: 6650"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Enhanced Dashboard -->
-      <section class="dashboard" aria-label="Smart panels">
-        <div class="panel panel--command">
-          <header class="panel__header">
-            <div>
-              <h3 class="panel__title">
-                <i class="fas fa-tachometer-alt"></i> Command Center
-              </h3>
-              <div class="panel__sub">Real-time analytics & predictive insights</div>
-            </div>
-            <div class="panel__actions">
-              <span class="pill pill--progress" id="overall-progress">0%</span>
-              <button class="icon-btn icon-btn--small" id="refresh-analytics" aria-label="Refresh analytics">
-                <i class="fas fa-sync-alt"></i>
-              </button>
-            </div>
-          </header>
-          <div class="panel__body">
-            <div class="kpi-grid">
-              <div class="kpi kpi--urgent">
-                <div class="kpi__icon"><i class="fas fa-exclamation-circle"></i></div>
-                <div class="kpi__content">
-                  <div class="kpi__label">Next Critical</div>
-                  <div class="kpi__value" id="kpi-next">—</div>
-                  <div class="kpi__sub" id="kpi-next-time">—</div>
-                </div>
-              </div>
-              <div class="kpi kpi--time">
-                <div class="kpi__icon"><i class="fas fa-clock"></i></div>
-                <div class="kpi__content">
-                  <div class="kpi__label">Countdown</div>
-                  <div class="kpi__value" id="kpi-countdown">—</div>
-                  <div class="kpi__sub">Until embarkation</div>
-                </div>
-              </div>
-              <div class="kpi kpi--today">
-                <div class="kpi__icon"><i class="fas fa-calendar-day"></i></div>
-                <div class="kpi__content">
-                  <div class="kpi__label">Today</div>
-                  <div class="kpi__value" id="kpi-today">—</div>
-                  <div class="kpi__sub" id="kpi-today-date">—</div>
-                </div>
-              </div>
-              <div class="kpi kpi--tasks">
-                <div class="kpi__icon"><i class="fas fa-tasks"></i></div>
-                <div class="kpi__content">
-                  <div class="kpi__label">Tasks</div>
-                  <div class="kpi__value" id="kpi-visible">—</div>
-                  <div class="kpi__sub">Visible / Total</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel__insight">
-              <div class="insight">
-                <i class="insight__icon fas fa-lightbulb"></i>
-                <div class="insight__content">
-                  <div class="insight__title">AI Insight</div>
-                  <div class="insight__text" id="ai-insight">
-                    Complete critical tasks early. One meeting point reduces confusion. 
-                    Keep snacks accessible. The system adapts to real-time changes.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="info-value">Adventure of the Seas</div>
+          <div class="info-subtitle">Royal Caribbean • Stateroom 6650</div>
         </div>
 
-        <div class="panel panel--itinerary">
-          <header class="panel__header">
-            <div>
-              <h3 class="panel__title">
-                <i class="fas fa-map-marked-alt"></i> Smart Itinerary
-              </h3>
-              <div class="panel__sub">Interactive timeline with real-time updates</div>
-            </div>
-            <div class="panel__actions">
-              <button class="icon-btn" id="copy-itin" aria-label="Copy itinerary" title="Copy">
-                <i class="fas fa-copy"></i>
-              </button>
-              <button class="icon-btn" id="share-itin" aria-label="Share itinerary" title="Share">
-                <i class="fas fa-share-alt"></i>
-              </button>
-              <button class="icon-btn" id="expand-itin" aria-label="Expand view" title="Expand">
-                <i class="fas fa-expand"></i>
-              </button>
-            </div>
-          </header>
-          <div class="panel__body">
-            <div class="timeline">
-              <div class="timeline__header">
-                <div class="timeline__day">Day</div>
-                <div class="timeline__port">Port / Activity</div>
-                <div class="timeline__time">Time</div>
-                <div class="timeline__status">Status</div>
-                <div class="timeline__actions">Actions</div>
-              </div>
-              <div class="timeline__body" id="itinerary-body">
-                <!-- Dynamic itinerary items -->
-              </div>
-            </div>
-            <div class="timeline__today-marker" id="today-marker">
-              <div class="today-marker__line"></div>
-              <div class="today-marker__label">Today</div>
-            </div>
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-icon">📅</div>
+            <div class="info-title">Sailing Dates</div>
           </div>
+          <div class="info-value">Feb 14-20, 2026</div>
+          <div class="info-subtitle">7-day Caribbean cruise</div>
         </div>
+      </div>
 
-        <!-- New Panel: Quick Actions -->
-        <div class="panel panel--quick">
-          <header class="panel__header">
-            <h3 class="panel__title">
-              <i class="fas fa-bolt"></i> Quick Actions
-            </h3>
-            <div class="panel__sub">Frequently used functions</div>
-          </header>
-          <div class="panel__body">
-            <div class="quick-actions-grid">
-              <button class="quick-action" data-action="muster">
-                <i class="quick-action__icon fas fa-life-ring"></i>
-                <span class="quick-action__label">Muster Check</span>
-              </button>
-              <button class="quick-action" data-action="dining">
-                <i class="quick-action__icon fas fa-utensils"></i>
-                <span class="quick-action__label">Dining Reservations</span>
-              </button>
-              <button class="quick-action" data-action="excursions">
-                <i class="quick-action__icon fas fa-hiking"></i>
-                <span class="quick-action__label">Excursions</span>
-              </button>
-              <button class="quick-action" data-action="packing">
-                <i class="quick-action__icon fas fa-suitcase"></i>
-                <span class="quick-action__label">Packing List</span>
-              </button>
-              <button class="quick-action" data-action="expenses">
-                <i class="quick-action__icon fas fa-receipt"></i>
-                <span class="quick-action__label">Expense Tracker</span>
-              </button>
-              <button class="quick-action" data-action="weather">
-                <i class="quick-action__icon fas fa-cloud-sun"></i>
-                <span class="quick-action__label">Weather Forecast</span>
-              </button>
-              <button class="quick-action" data-action="notes">
-                <i class="quick-action__icon fas fa-sticky-note"></i>
-                <span class="quick-action__label">Quick Notes</span>
-              </button>
-              <button class="quick-action" data-action="emergency">
-                <i class="quick-action__icon fas fa-phone-alt"></i>
-                <span class="quick-action__label">Emergency Info</span>
-              </button>
-            </div>
-          </div>
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="days-until">14</div>
+          <div class="stat-label">Days Until Cruise</div>
         </div>
-      </section>
+        <div class="stat-card">
+          <div class="stat-value" id="tasks-total">24</div>
+          <div class="stat-label">Total Tasks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="tasks-done">8</div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="progress-pct">33%</div>
+          <div class="stat-label">Progress</div>
+        </div>
+      </div>
 
-      <!-- Chapters Container with Loading States -->
-      <section class="chapters" id="chapters">
-        <div class="chapters__loading" id="chapters-loading">
-          <div class="loading-spinner"></div>
-          <div>Loading chapters...</div>
-        </div>
-        <!-- Chapters will be dynamically generated by JavaScript -->
-      </section>
+      <h2 class="section-title">
+        <i class="fas fa-exclamation-circle"></i>
+        Critical Tasks
+      </h2>
+      <div class="tasks" id="critical-tasks"></div>
 
-      <!-- Enhanced Footer -->
-      <footer class="footer">
-        <div class="footer__content">
-          <div class="footer__section">
-            <div class="footer__title">
-              <i class="fas fa-lightbulb"></i> Pro Tips
-            </div>
-            <div class="footer__tips">
-              <div class="tip">Reduce decisions by using defaults</div>
-              <div class="tip">Execute critical tasks early each day</div>
-              <div class="tip">Set one rendezvous point for family</div>
-              <div class="tip">Enable notifications for time-sensitive items</div>
-            </div>
-          </div>
-          <div class="footer__section">
-            <div class="footer__title">
-              <i class="fas fa-shield-alt"></i> Safety & Support
-            </div>
-            <div class="footer__links">
-              <a href="#" class="footer__link">Emergency Procedures</a>
-              <a href="#" class="footer__link">Medical Services</a>
-              <a href="#" class="footer__link">Guest Services</a>
-              <a href="#" class="footer__link">Wi-Fi Information</a>
-            </div>
-          </div>
-          <div class="footer__section">
-            <div class="footer__title">
-              <i class="fas fa-info-circle"></i> System Status
-            </div>
-            <div class="footer__status">
-              <div class="status-item">
-                <span class="status-dot status-dot--online"></span>
-                <span>Auto-save: Active</span>
-              </div>
-              <div class="status-item">
-                <span class="status-dot status-dot--online"></span>
-                <span>Offline Mode: Ready</span>
-              </div>
-              <div class="status-item">
-                <span class="status-dot status-dot--online"></span>
-                <span>Last Updated: <span id="last-updated">Just now</span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="footer__bottom">
-          <div class="footer__copyright">
-            © 2026 Cruise Companion · Mission Control 3.0 · 
-            <span id="app-version">v3.0.1</span>
-          </div>
-          <div class="footer__actions">
-            <button class="footer__btn" id="feedback-btn">
-              <i class="fas fa-comment-alt"></i> Feedback
-            </button>
-            <button class="footer__btn" id="export-btn">
-              <i class="fas fa-download"></i> Export All
-            </button>
-            <button class="footer__btn" id="reset-btn">
-              <i class="fas fa-redo"></i> Reset Demo
-            </button>
-          </div>
-        </div>
-      </footer>
-    </main>
-  </div>
-
-  <!-- Enhanced FAB with More Actions -->
-  <div class="fab" id="fab">
-    <div class="fab__menu">
-      <button class="fab__btn fab__btn--main" id="fab-main" aria-label="Main menu">
-        <i class="fas fa-plus"></i>
-      </button>
-      <div class="fab__items">
-        <button class="fab__btn" id="fab-top" aria-label="Back to top" title="Top">
-          <i class="fas fa-arrow-up"></i>
+      <h2 class="section-title">
+        <i class="fas fa-bolt"></i>
+        Quick Actions
+      </h2>
+      <div class="quick-actions">
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-life-ring"></i></div>
+          <div class="action-label">Muster</div>
         </button>
-        <button class="fab__btn" id="fab-command" aria-label="Command palette" title="Commands">
-          <i class="fas fa-terminal"></i>
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-utensils"></i></div>
+          <div class="action-label">Dining</div>
         </button>
-        <button class="fab__btn" id="fab-help" aria-label="Help" title="Help">
-          <i class="fas fa-question"></i>
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-suitcase"></i></div>
+          <div class="action-label">Packing</div>
         </button>
-        <button class="fab__btn" id="fab-settings" aria-label="Settings" title="Settings">
-          <i class="fas fa-cog"></i>
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-map"></i></div>
+          <div class="action-label">Ports</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Timeline Tab -->
+    <div class="tab-content" id="timeline-content" style="display: none;">
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <!-- Tasks Tab -->
+    <div class="tab-content" id="tasks-content" style="display: none;">
+      <div class="tasks" id="all-tasks"></div>
+    </div>
+
+    <!-- Actions Tab -->
+    <div class="tab-content" id="actions-content" style="display: none;">
+      <div class="quick-actions">
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-file-pdf"></i></div>
+          <div class="action-label">Export PDF</div>
+        </button>
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-share-alt"></i></div>
+          <div class="action-label">Share</div>
+        </button>
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-download"></i></div>
+          <div class="action-label">Download</div>
+        </button>
+        <button class="action-btn">
+          <div class="action-icon"><i class="fas fa-sync"></i></div>
+          <div class="action-label">Sync</div>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Enhanced Command Palette -->
-  <div id="palette" class="palette" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Command palette">
-    <div class="palette__overlay" id="palette-overlay"></div>
-    <div class="palette__content">
-      <div class="palette__header">
-        <div class="palette__icon" aria-hidden="true">
-          <i class="fas fa-terminal"></i>
-        </div>
-        <input id="palette-input" class="palette__input" type="text"
-               placeholder="Type a command: today, muster, packing, coco…"
-               aria-label="Command palette input">
-        <div class="palette__controls">
-          <kbd>↑↓</kbd>
-          <kbd>Enter</kbd>
-          <kbd>Esc</kbd>
-        </div>
-      </div>
-      <div class="palette__body">
-        <div class="palette__suggestions" id="palette-suggestions" aria-live="polite"></div>
-        <ul id="palette-list" class="palette__list" role="listbox"></ul>
-      </div>
-      <div class="palette__footer">
-        <div class="palette__category">
-          <span class="palette__category-label">Navigation</span>
-          <span class="palette__category-keys">↑↓, Enter</span>
-        </div>
-        <div class="palette__category">
-          <span class="palette__category-label">Selection</span>
-          <span class="palette__category-keys">Tab, Space</span>
-        </div>
-        <div class="palette__category">
-          <span class="palette__category-label">Close</span>
-          <span class="palette__category-keys">Esc, Click outside</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Bottom Navigation -->
 
-  <!-- Enhanced Toast System -->
-  <div class="toast-container" id="toast-container">
-    <div class="toast toast--success" id="toast" aria-hidden="true" role="status" aria-live="polite">
-      <div class="toast__icon">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <div class="toast__content">
-        <div class="toast__title" id="toast-title">Success</div>
-        <div class="toast__message" id="toast-message">Operation completed</div>
-      </div>
-      <button class="toast__close" aria-label="Close notification">
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-nav="overview">
+      <i class="fas fa-home"></i>
+      <span class="nav-label">Overview</span>
+    </button>
+    <button class="nav-item" data-nav="timeline">
+      <i class="fas fa-calendar"></i>
+      <span class="nav-label">Timeline</span>
+    </button>
+    <button class="nav-item" data-nav="tasks">
+      <i class="fas fa-check-circle"></i>
+      <span class="nav-label">Tasks</span>
+    </button>
+    <button class="nav-item" data-nav="actions">
+      <i class="fas fa-ellipsis-h"></i>
+      <span class="nav-label">More</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+
+  <button class="fab" id="fab" aria-label="Add">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- Filter Drawer -->
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <div class="drawer" id="filter-drawer">
+    <div class="drawer-header">
+      <h2 class="drawer-title">Filters</h2>
+      <button class="icon-btn" id="close-drawer" aria-label="Close filters">
         <i class="fas fa-times"></i>
       </button>
     </div>
-  </div>
-
-  <!-- Modal System -->
-  <div class="modal" id="modal" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal__overlay" id="modal-overlay"></div>
-    <div class="modal__content" id="modal-content">
-      <div class="modal__header">
-        <h2 class="modal__title" id="modal-title">Modal Title</h2>
-        <button class="modal__close" id="modal-close" aria-label="Close modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="modal__body" id="modal-body">
-        <!-- Modal content will be inserted here -->
-      </div>
-      <div class="modal__footer" id="modal-footer">
-        <!-- Modal buttons will be inserted here -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Offline Indicator -->
-  <div class="offline-indicator" id="offline-indicator" aria-hidden="true">
-    <div class="offline-indicator__content">
-      <i class="offline-indicator__icon fas fa-wifi-slash"></i>
-      <span class="offline-indicator__text">You are currently offline</span>
-      <button class="offline-indicator__btn" id="offline-retry">Retry Connection</button>
-    </div>
-  </div>
-
-  <!-- AI Assistant Chat (Collapsed by default) -->
-  <div class="ai-assistant" id="ai-assistant">
-    <button class="ai-assistant__toggle" id="ai-toggle" aria-label="Toggle AI assistant">
-      <i class="fas fa-robot"></i>
-      <span class="ai-assistant__badge" id="ai-badge">0</span>
-    </button>
-    <div class="ai-assistant__panel" id="ai-panel" aria-hidden="true">
-      <div class="ai-assistant__header">
-        <div class="ai-assistant__title">
-          <i class="fas fa-robot"></i>
-          Cruise AI Assistant
-        </div>
-        <button class="ai-assistant__close" id="ai-close" aria-label="Close AI assistant">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="ai-assistant__body" id="ai-messages">
-        <!-- AI messages will appear here -->
-      </div>
-      <div class="ai-assistant__input">
-        <input type="text" class="ai-assistant__input-field" 
-               placeholder="Ask me anything about your cruise..." 
-               id="ai-input">
-        <button class="ai-assistant__send" id="ai-send" aria-label="Send message">
-          <i class="fas fa-paper-plane"></i>
-        </button>
+    <div class="drawer-content">
+      <div class="filter-group">
+        <label class="filter-label">Priority</label>
+        <label class="filter-option">
+          <input type="checkbox" checked>
+          <div class="checkbox"><i class="fas fa-check"></i></div>
+          <span>🔴 Critical</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" checked>
+          <div class="checkbox"><i class="fas fa-check"></i></div>
+          <span>🟡 Recommended</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" checked>
+          <div class="checkbox"><i class="fas fa-check"></i></div>
+          <span>🟢 Info</span>
+        </label>
       </div>
     </div>
   </div>
 
-  <script src="app.js" defer></script>
-  <!-- Optional: Service Worker for offline functionality -->
+  <!-- Toast -->
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Task completed!</span>
+  </div>
+
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js');
+    // Sample data
+    const cruiseData = {
+      sailDate: '2026-02-14',
+      days: [
+        { day: 1, port: 'Fort Lauderdale', arrive: '—', depart: '16:00', status: 'Embarkation' },
+        { day: 2, port: 'At Sea', arrive: '—', depart: '—', status: 'Sailing' },
+        { day: 3, port: 'Cozumel, Mexico', arrive: '08:00', depart: '18:00', status: 'Port' },
+        { day: 4, port: 'Grand Cayman', arrive: '07:00', depart: '16:00', status: 'Port' },
+        { day: 5, port: 'Jamaica', arrive: '10:00', depart: '19:00', status: 'Port' },
+        { day: 6, port: 'At Sea', arrive: '—', depart: '—', status: 'Sailing' },
+        { day: 7, port: 'Fort Lauderdale', arrive: '06:00', depart: '—', status: 'Disembarkation' }
+      ],
+      tasks: [
+        { id: 1, title: 'Complete online check-in', priority: 'critical', done: false, day: 'Pre-cruise' },
+        { id: 2, title: 'Book muster station time', priority: 'critical', done: false, day: 'Day 1' },
+        { id: 3, title: 'Reserve specialty dining', priority: 'warning', done: false, day: 'Pre-cruise' },
+        { id: 4, title: 'Pack carry-on essentials', priority: 'critical', done: true, day: 'Pre-cruise' },
+        { id: 5, title: 'Print boarding documents', priority: 'warning', done: false, day: 'Pre-cruise' },
+        { id: 6, title: 'Book Cozumel excursion', priority: 'info', done: false, day: 'Day 3' }
+      ]
+    };
+
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+
+    function showToast(message) {
+      toastMessage.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // Calculate days until cruise
+    function updateCountdown() {
+      const today = new Date();
+      const sail = new Date(cruiseData.sailDate);
+      const diff = Math.ceil((sail - today) / (1000 * 60 * 60 * 24));
+      document.getElementById('days-until').textContent = diff > 0 ? diff : '0';
+    }
+
+    function updateStats() {
+      const total = cruiseData.tasks.length;
+      const done = cruiseData.tasks.filter(task => task.done).length;
+      const progress = total ? Math.round((done / total) * 100) : 0;
+
+      document.getElementById('tasks-total').textContent = total;
+      document.getElementById('tasks-done').textContent = done;
+      document.getElementById('progress-pct').textContent = `${progress}%`;
+    }
+
+    function taskTag(priority) {
+      if (priority === 'critical') return 'Critical';
+      if (priority === 'warning') return 'Recommended';
+      return 'Info';
+    }
+
+    // Render tasks
+    function renderTasks() {
+      const criticalContainer = document.getElementById('critical-tasks');
+      const allContainer = document.getElementById('all-tasks');
+
+      const critical = cruiseData.tasks.filter(task => task.priority === 'critical' && !task.done);
+      const all = cruiseData.tasks;
+
+      criticalContainer.innerHTML = critical.length
+        ? critical.map(task => `
+          <div class="task-card ${task.done ? 'done' : ''}" data-id="${task.id}">
+            <div class="task-checkbox"><i class="fas fa-check"></i></div>
+            <div class="task-content">
+              <div class="task-title">${task.title}</div>
+              <div class="task-meta">
+                <span class="task-tag ${task.priority}">${taskTag(task.priority)}</span>
+                <span>${task.day}</span>
+              </div>
+            </div>
+          </div>
+        `).join('')
+        : `
+          <div class="empty-state">
+            <div class="empty-icon">🎉</div>
+            <div>All critical tasks are complete.</div>
+          </div>
+        `;
+
+      allContainer.innerHTML = all.length
+        ? all.map(task => `
+          <div class="task-card ${task.done ? 'done' : ''}" data-id="${task.id}">
+            <div class="task-checkbox"><i class="fas fa-check"></i></div>
+            <div class="task-content">
+              <div class="task-title">${task.title}</div>
+              <div class="task-meta">
+                <span class="task-tag ${task.priority}">${taskTag(task.priority)}</span>
+                <span>${task.day}</span>
+              </div>
+            </div>
+          </div>
+        `).join('')
+        : `
+          <div class="empty-state">
+            <div class="empty-icon">🧳</div>
+            <div>No tasks yet.</div>
+          </div>
+        `;
+    }
+
+    function renderTimeline() {
+      const timeline = document.getElementById('timeline');
+      const activeDay = cruiseData.days[0]?.day ?? 1;
+
+      timeline.innerHTML = cruiseData.days.map(day => `
+        <div class="timeline-item ${day.day === activeDay ? 'active' : ''}">
+          <div class="timeline-header">
+            <div class="timeline-day">
+              <span class="day-badge">${day.day}</span>
+              Day ${day.day}
+            </div>
+            <span class="timeline-status">${day.status}</span>
+          </div>
+          <div class="timeline-port">${day.port}</div>
+          <div class="timeline-time">
+            <i class="fas fa-clock"></i>
+            ${day.arrive} - ${day.depart}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateFilterBadge() {
+      const checked = Array.from(document.querySelectorAll('.filter-option input'))
+        .filter(input => input.checked).length;
+      document.getElementById('filter-badge').textContent = checked;
+    }
+
+    function handleTaskToggle(event) {
+      const card = event.target.closest('.task-card');
+      if (!card) return;
+
+      const id = Number(card.dataset.id);
+      const task = cruiseData.tasks.find(item => item.id === id);
+      if (!task) return;
+
+      task.done = !task.done;
+      renderTasks();
+      updateStats();
+      showToast(task.done ? 'Task completed!' : 'Task marked as incomplete.');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabName);
+      });
+
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.nav === tabName);
+      });
+
+      document.querySelectorAll('.tab-content').forEach(section => {
+        section.style.display = section.id === `${tabName}-content` ? 'block' : 'none';
       });
     }
+
+    function initTabs() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+      });
+
+      document.querySelectorAll('.nav-item').forEach(nav => {
+        nav.addEventListener('click', () => switchTab(nav.dataset.nav));
+      });
+    }
+
+    function initDrawer() {
+      const overlay = document.getElementById('drawer-overlay');
+      const drawer = document.getElementById('filter-drawer');
+
+      function openDrawer() {
+        overlay.classList.add('active');
+        drawer.classList.add('active');
+      }
+
+      function closeDrawer() {
+        overlay.classList.remove('active');
+        drawer.classList.remove('active');
+      }
+
+      document.getElementById('filter-btn').addEventListener('click', openDrawer);
+      document.getElementById('close-drawer').addEventListener('click', closeDrawer);
+      overlay.addEventListener('click', closeDrawer);
+
+      document.querySelectorAll('.filter-option input').forEach(input => {
+        input.addEventListener('change', updateFilterBadge);
+      });
+    }
+
+    function initLoading() {
+      const loading = document.getElementById('loading');
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          loading.classList.add('hidden');
+        }, 700);
+      });
+    }
+
+    function init() {
+      updateCountdown();
+      updateStats();
+      renderTasks();
+      renderTimeline();
+      updateFilterBadge();
+      initTabs();
+      initDrawer();
+      initLoading();
+
+      document.getElementById('critical-tasks').addEventListener('click', handleTaskToggle);
+      document.getElementById('all-tasks').addEventListener('click', handleTaskToggle);
+    }
+
+    init();
   </script>
 </body>
 </html>
