@@ -4,6 +4,10 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+const on = (el, event, handler) => {
+  if (!el) return;
+  el.addEventListener(event, handler);
+};
 
 // Enhanced utilities
 function toast(msg, type = 'info') {
@@ -28,7 +32,8 @@ function toast(msg, type = 'info') {
 function applyReducedEffects() {
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const smallScreen = window.matchMedia('(max-width: 900px)').matches;
-  const saveData = navigator.connection?.saveData ?? false;
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const saveData = Boolean(connection && connection.saveData);
   if (prefersReduced || smallScreen || saveData) {
     document.documentElement.classList.add('reduced-effects');
   }
@@ -334,7 +339,7 @@ class Theme {
   }
   
   init() {
-    $('#toggle-theme')?.addEventListener('click', () => this.cycle());
+    on($('#toggle-theme'), 'click', () => this.cycle());
     this.apply(this.store.get('theme', 'auto'));
   }
   
@@ -361,7 +366,7 @@ class Effects {
 
   init() {
     this.toggle = $('#effects-mode');
-    this.toggle?.addEventListener('change', () => this.apply(this.toggle.checked));
+    on(this.toggle, 'change', () => this.apply(this.toggle.checked));
     const reduced = !!this.store.get('reduced', false);
     this.apply(reduced);
     if (this.toggle) this.toggle.checked = reduced;
@@ -385,8 +390,8 @@ class Itinerary {
     this.renderDaystrip();
     this.renderTable();
     this.updateBanner();
-    $('#jump-today')?.addEventListener('click', () => this.jumpToToday());
-    $('#copy-itin')?.addEventListener('click', () => this.copyItin());
+    on($('#jump-today'), 'click', () => this.jumpToToday());
+    on($('#copy-itin'), 'click', () => this.copyItin());
   }
 
   renderDaystrip() {
@@ -411,7 +416,9 @@ class Itinerary {
     });
 
     const cur = this.daystrip.querySelector('.daychip--today');
-    cur?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    if (cur) {
+      cur.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
   }
 
   renderTable() {
@@ -477,9 +484,13 @@ class Itinerary {
 
   copyItin() {
     const lines = this.state.itinerary.map(d => `Day ${d.day} (${d.label}): ${d.port} — ${d.time}`);
-    navigator.clipboard?.writeText(lines.join('\n'))
-      .then(() => toast('Itinerary copied to clipboard', 'success'))
-      .catch(() => toast('Copy failed', 'error'));
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(lines.join('\n'))
+        .then(() => toast('Itinerary copied to clipboard', 'success'))
+        .catch(() => toast('Copy failed', 'error'));
+    } else {
+      toast('Copy unavailable on this browser', 'warning');
+    }
   }
 }
 
@@ -554,7 +565,10 @@ class Tasks {
       if (id && this.store.get(id, false)) done++;
     });
     const pct = total ? Math.round((done / total) * 100) : 100;
-    $('#overall-progress')?.textContent = `${pct}%`;
+    const overallProgress = $('#overall-progress');
+    if (overallProgress) {
+      overallProgress.textContent = `${pct}%`;
+    }
   }
 
   nextMustDo() {
@@ -580,21 +594,21 @@ class Filters {
     };
     this.focus = $('#focus-mode');
 
-    Object.values(this.filters).forEach(cb => cb?.addEventListener('change', () => this.apply()));
-    this.focus?.addEventListener('change', () => this.apply());
+    Object.values(this.filters).forEach(cb => on(cb, 'change', () => this.apply()));
+    on(this.focus, 'change', () => this.apply());
 
-    $('#expand-all')?.addEventListener('click', () => this.expandAll(true));
-    $('#collapse-all')?.addEventListener('click', () => this.expandAll(false));
+    on($('#expand-all'), 'click', () => this.expandAll(true));
+    on($('#collapse-all'), 'click', () => this.expandAll(false));
 
     this.apply();
   }
 
   apply() {
     const allow = {
-      crit: this.filters.crit?.checked ?? true,
-      warn: this.filters.warn?.checked ?? true,
-      ok: this.filters.ok?.checked ?? true,
-      info: this.filters.info?.checked ?? true,
+      crit: this.filters.crit ? this.filters.crit.checked : true,
+      warn: this.filters.warn ? this.filters.warn.checked : true,
+      ok: this.filters.ok ? this.filters.ok.checked : true,
+      info: this.filters.info ? this.filters.info.checked : true,
     };
 
     $$('.task').forEach(t => {
@@ -606,7 +620,7 @@ class Filters {
       t.style.display = (level && allow[level]) ? '' : 'none';
     });
 
-    const focus = this.focus?.checked ?? false;
+    const focus = this.focus ? this.focus.checked : false;
     $$('.p, .kv, ul.list, .h').forEach(el => el.style.display = focus ? 'none' : '');
 
     document.dispatchEvent(new CustomEvent('filters:applied'));
@@ -642,7 +656,9 @@ class TOC {
     $$('.chapter').forEach((ch, idx) => {
       const id = ch.id;
       const num = ch.dataset.chapter || String(idx + 1);
-      const title = $('.chapter__title', ch)?.textContent?.trim() || `Section ${num}`;
+      const titleEl = $('.chapter__title', ch);
+      const title = titleEl && titleEl.textContent ? titleEl.textContent.trim() : '';
+      const safeTitle = title || `Section ${num}`;
 
       const counts = {
         crit: $$('.task--crit', ch).length,
@@ -663,7 +679,7 @@ class TOC {
         <a class="toc__link" href="#${id}">
           <span class="toc__num">${num}</span>
           <span class="toc__content">
-            <div class="toc__title">${title}</div>
+            <div class="toc__title">${safeTitle}</div>
             <div class="toc__meta">${metaBits.map(x => `<span class="pill">${x}</span>`).join('')}</div>
           </span>
         </a>
@@ -672,7 +688,7 @@ class TOC {
         e.preventDefault();
         smoothTo(document.getElementById(id));
         history.replaceState(null, '', `#${id}`);
-        toast(`Jumped to ${title}`, 'info');
+        toast(`Jumped to ${safeTitle}`, 'info');
       });
 
       this.toc.appendChild(li);
@@ -819,8 +835,8 @@ class Palette {
     this.list = $('#palette-list');
     if (!this.el || !this.input || !this.list) return;
 
-    $('#open-palette')?.addEventListener('click', () => this.open());
-    $('#fab-command')?.addEventListener('click', () => this.open());
+    on($('#open-palette'), 'click', () => this.open());
+    on($('#fab-command'), 'click', () => this.open());
 
     this.input.addEventListener('input', () => this.render());
     this.input.addEventListener('keydown', (e) => this.onKey(e));
@@ -839,19 +855,20 @@ class Palette {
 
   buildCommands() {
     const base = [
-      { id: 'today', icon: '📍', title: 'Jump to Today', sub: 'Auto-scroll to today\'s relevant section', k: 'T', run: () => $('#jump-today')?.click() },
+      { id: 'today', icon: '📍', title: 'Jump to Today', sub: 'Auto-scroll to today\'s relevant section', k: 'T', run: () => { const btn = $('#jump-today'); if (btn) btn.click(); } },
       { id: 'focus', icon: '🎯', title: 'Toggle Focus Mode', sub: 'Show tasks only', k: 'F', run: () => { const t = $('#focus-mode'); if (t) { t.checked = !t.checked; t.dispatchEvent(new Event('change')); } } },
-      { id: 'expand', icon: '↕️', title: 'Expand everything', sub: 'Open all sections and bodies', k: 'E', run: () => $('#expand-all')?.click() },
-      { id: 'collapse', icon: '↕️', title: 'Collapse everything', sub: 'Hide bodies and close sections', k: 'C', run: () => $('#collapse-all')?.click() },
+      { id: 'expand', icon: '↕️', title: 'Expand everything', sub: 'Open all sections and bodies', k: 'E', run: () => { const btn = $('#expand-all'); if (btn) btn.click(); } },
+      { id: 'collapse', icon: '↕️', title: 'Collapse everything', sub: 'Hide bodies and close sections', k: 'C', run: () => { const btn = $('#collapse-all'); if (btn) btn.click(); } },
       { id: 'print', icon: '🖨️', title: 'Print / Save PDF', sub: 'Open print dialog', k: 'P', run: () => window.print() },
-      { id: 'theme', icon: '🌓', title: 'Cycle theme', sub: 'auto → dark → light', k: 'M', run: () => $('#toggle-theme')?.click() },
+      { id: 'theme', icon: '🌓', title: 'Cycle theme', sub: 'auto → dark → light', k: 'M', run: () => { const btn = $('#toggle-theme'); if (btn) btn.click(); } },
       { id: 'confetti', icon: '🎉', title: 'Celebrate!', sub: 'Trigger celebration effect', k: '🎊', run: () => { createConfetti(); toast('Celebration!', 'success'); } },
     ];
 
     const chapters = $$('.chapter').map(ch => {
       const id = ch.id;
       const num = ch.dataset.chapter || '?';
-      const title = $('.chapter__title', ch)?.textContent?.trim() || 'Section';
+      const titleEl = $('.chapter__title', ch);
+      const title = titleEl && titleEl.textContent ? titleEl.textContent.trim() : 'Section';
       return { id: `ch-${id}`, icon: '§', title: `${num} · ${title}`, sub: 'Jump to section', k: '#', run: () => smoothTo(ch) };
     });
 
@@ -912,7 +929,12 @@ class Palette {
 
   onKey(e) {
     if (e.key === 'Escape') { e.preventDefault(); this.close(); return; }
-    if (e.key === 'Enter') { e.preventDefault(); $('.cmd[aria-selected="true"]', this.list)?.click(); return; }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const selected = $('.cmd[aria-selected="true"]', this.list);
+      if (selected) selected.click();
+      return;
+    }
     if (e.key === 'ArrowDown') { e.preventDefault(); this.nav(1); return; }
     if (e.key === 'ArrowUp') { e.preventDefault(); this.nav(-1); return; }
   }
@@ -1106,19 +1128,19 @@ function bindChapterToggles() {
 
 /* ------------------------------ FAB -------------------------------------- */
 function bindFab() {
-  $('#fab-top')?.addEventListener('click', () => {
+  on($('#fab-top'), 'click', () => {
     smoothTo($('#top'));
     toast('Back to top', 'info');
   });
   
-  $('#fab-help')?.addEventListener('click', () => {
+  on($('#fab-help'), 'click', () => {
     toast('Press Ctrl/⌘K for commands, Enter to cycle search results', 'info');
   });
 }
 
 /* ------------------------------ Print ------------------------------------ */
 function bindPrint() {
-  $('#print-btn')?.addEventListener('click', () => {
+  on($('#print-btn'), 'click', () => {
     toast('Opening print dialog...', 'info');
     setTimeout(() => window.print(), 300);
   });
