@@ -770,68 +770,15 @@
         </div>
       </div>
 
-      <div class="overview-grid">
+      <div class="overview-grid" id="overview-actions" aria-live="polite"></div>
+
+      <template id="overview-action-template">
         <div class="action-card">
-          <h3>Today’s Focus</h3>
-          <p>Keep the high-impact items visible so nothing critical slips.</p>
-          <div class="checklist">
-            <div class="check-item">
-              <span class="check-icon">1</span>
-              <div class="check-text">
-                Link all bookings in the Royal App.
-                <small>Use booking IDs 4519230, 6788946, 4352113.</small>
-              </div>
-            </div>
-            <div class="check-item">
-              <span class="check-icon">2</span>
-              <div class="check-text">
-                Confirm passports are valid through Aug 2026.
-                <small>Print SetSail passes and luggage tags.</small>
-              </div>
-            </div>
-          </div>
+          <h3></h3>
+          <p></p>
+          <div class="checklist"></div>
         </div>
-        <div class="action-card">
-          <h3>Embarkation Flow</h3>
-          <p>Follow the Golden Hour protocol for a calm first hour onboard.</p>
-          <div class="checklist">
-            <div class="check-item">
-              <span class="check-icon">10:30</span>
-              <div class="check-text">
-                Arrive at the terminal with docs in hand.
-                <small>Use porters + keep carry-ons light.</small>
-              </div>
-            </div>
-            <div class="check-item">
-              <span class="check-icon">12:10</span>
-              <div class="check-text">
-                Book priority dining & shows immediately.
-                <small>Concierge handles app + confirmations.</small>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="action-card">
-          <h3>Helpful Shortcuts</h3>
-          <p>Jump directly to the sections you’ll use the most.</p>
-          <div class="checklist">
-            <div class="check-item" data-action="manual">
-              <span class="check-icon">📘</span>
-              <div class="check-text">
-                Pre-cruise command center.
-                <small>Guests, tasks, and bookings.</small>
-              </div>
-            </div>
-            <div class="check-item" data-action="itinerary">
-              <span class="check-icon">🧭</span>
-              <div class="check-text">
-                Daily itinerary timeline.
-                <small>Ports, arrivals, and departures.</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </template>
 
       <h2 class="section-title"><i class="fas fa-compass"></i> Table of Contents</h2>
       <div class="toc-list">
@@ -1214,6 +1161,59 @@
   </div>
 
   <script>
+    const overviewActions = [
+      {
+        title: 'Today’s Focus',
+        description: 'Keep the high-impact items visible so nothing critical slips.',
+        items: [
+          {
+            icon: '1',
+            text: 'Link all bookings in the Royal App.',
+            detail: 'Use booking IDs 4519230, 6788946, 4352113.'
+          },
+          {
+            icon: '2',
+            text: 'Confirm passports are valid through Aug 2026.',
+            detail: 'Print SetSail passes and luggage tags.'
+          }
+        ]
+      },
+      {
+        title: 'Embarkation Flow',
+        description: 'Follow the Golden Hour protocol for a calm first hour onboard.',
+        items: [
+          {
+            icon: '10:30',
+            text: 'Arrive at the terminal with docs in hand.',
+            detail: 'Use porters + keep carry-ons light.'
+          },
+          {
+            icon: '12:10',
+            text: 'Book priority dining & shows immediately.',
+            detail: 'Concierge handles app + confirmations.'
+          }
+        ]
+      },
+      {
+        title: 'Helpful Shortcuts',
+        description: 'Jump directly to the sections you’ll use the most.',
+        items: [
+          {
+            icon: '📘',
+            text: 'Pre-cruise command center.',
+            detail: 'Guests, tasks, and bookings.',
+            action: 'manual'
+          },
+          {
+            icon: '🧭',
+            text: 'Daily itinerary timeline.',
+            detail: 'Ports, arrivals, and departures.',
+            action: 'itinerary'
+          }
+        ]
+      }
+    ];
+
     const cruiseData = {
       sailDate: '2026-02-14',
       days: [
@@ -1254,6 +1254,52 @@
           </div>
         </div>
       `).join('');
+    }
+
+    function renderOverviewActions() {
+      const grid = document.getElementById('overview-actions');
+      const template = document.getElementById('overview-action-template');
+      if (!grid || !template) return;
+
+      grid.innerHTML = '';
+
+      overviewActions.forEach((section) => {
+        const cardFragment = template.content.cloneNode(true);
+        const title = cardFragment.querySelector('h3');
+        const description = cardFragment.querySelector('p');
+        const checklist = cardFragment.querySelector('.checklist');
+
+        title.textContent = section.title;
+        description.textContent = section.description;
+
+        section.items.forEach((item) => {
+          const checkItem = document.createElement('div');
+          checkItem.className = 'check-item';
+          if (item.action) {
+            checkItem.dataset.action = item.action;
+          }
+
+          const icon = document.createElement('span');
+          icon.className = 'check-icon';
+          icon.textContent = item.icon;
+
+          const text = document.createElement('div');
+          text.className = 'check-text';
+          text.textContent = item.text;
+
+          if (item.detail) {
+            const detail = document.createElement('small');
+            detail.textContent = item.detail;
+            text.appendChild(detail);
+          }
+
+          checkItem.appendChild(icon);
+          checkItem.appendChild(text);
+          checklist.appendChild(checkItem);
+        });
+
+        grid.appendChild(cardFragment);
+      });
     }
 
     function switchTab(tabName) {
@@ -1322,6 +1368,7 @@
 
     function init() {
       updateCountdown();
+      renderOverviewActions();
       renderTimeline();
       initTabs();
       initQuickActions();
