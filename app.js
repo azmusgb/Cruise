@@ -157,17 +157,18 @@ class AppState {
         ]
       },
       // Additional chapters would follow the same pattern...
-    ,
       {
-        id: "manual",
-        chapter: "X",
-        title: "Full Operations Manual (Integrated)",
-        blurb: "Everything from the PDF, cleanly formatted and searchable — no external files needed.",
+        id: 'manual',
+        num: 'X',
+        title: 'Full Operations Manual (Integrated)',
+        blurb: 'Everything from the PDF, cleanly formatted and searchable — no external files needed.',
         sections: [
           {
-            id: "manual-full",
-            title: "The Family & Friends Cruise Companion — Unabridged Operations Manual",
-            body: `<p class="p">The Family and Friends Cruise Companion: Unabridged Operations Manual Adventure of the Seas | February 14–20, 2026 | Western Caribbean &amp; Perfect Day — Table of Contents 1. Pre-Cruise Command Center 2. Embarkation Day: The Golden Hour Protocol 3. Ship Fundamentals &amp; Daily Rhythm 4. The Daily Navigator: A Flexible Itinerary 5. Port Playbook: Grand Cayman, Falmouth &amp; CocoCay 6. Dining &amp; Speciality Restaurant Strategy 7. Finance, Communication &amp; Logistics 8. Debarkation &amp; Return to Reality --- Pre-Cruise Command Center</p>
+            id: 'manual-full',
+            title: 'The Family & Friends Cruise Companion — Unabridged Operations Manual',
+            type: 'Manual',
+            icon: '📘',
+            content: `<p class="p">The Family and Friends Cruise Companion: Unabridged Operations Manual Adventure of the Seas | February 14–20, 2026 | Western Caribbean &amp; Perfect Day — Table of Contents 1. Pre-Cruise Command Center 2. Embarkation Day: The Golden Hour Protocol 3. Ship Fundamentals &amp; Daily Rhythm 4. The Daily Navigator: A Flexible Itinerary 5. Port Playbook: Grand Cayman, Falmouth &amp; CocoCay 6. Dining &amp; Speciality Restaurant Strategy 7. Finance, Communication &amp; Logistics 8. Debarkation &amp; Return to Reality --- Pre-Cruise Command Center</p>
 <h2>1.1 Guest Manifest &amp; Core Data</h2>
 <p class="p">–</p>
 <h2>Primary Booking (4519230):</h2>
@@ -457,8 +458,10 @@ class Itinerary {
       5: '#sea-days', 6: '#port-days', 7: '#disembarkation'
     };
     const id = map[day] || '#top';
-    smoothTo($(id));
-    history.replaceState(null, '', id);
+    const target = $(id) || $('#manual') || $('#top');
+    if (!target) return;
+    smoothTo(target);
+    if (target.id) history.replaceState(null, '', `#${target.id}`);
   }
 
   copyItin() {
@@ -1054,7 +1057,7 @@ class ChapterRenderer {
       chapterEl.innerHTML = `
         <header class="chapter__header">
           <div class="chapter__left">
-            <div class="chapter__num">${chapter.num.toString().padStart(2, '0')}</div>
+            <div class="chapter__num">${/^\d+$/.test(String(chapter.num)) ? String(chapter.num).padStart(2, '0') : String(chapter.num)}</div>
             <h3 class="chapter__title">${chapter.title}</h3>
           </div>
           <div class="chapter__right">
