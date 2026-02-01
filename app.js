@@ -79,6 +79,134 @@ function createConfetti() {
 }
 
 /* ----------------------------- App State -------------------------------- */
+const MANUAL_CONTENT = [
+  `<p class="p">The Family and Friends Cruise Companion: Unabridged Operations Manual</p>`,
+  `<p class="p">Adventure of the Seas | February 14–20, 2026 | Western Caribbean &amp; Perfect Day</p>`,
+  `<p class="p">—</p>`,
+  `<h2>Table of Contents</h2>`,
+  `<p class="p">Pre-Cruise Command Center<br>Embarkation Day: The Golden Hour Protocol<br>Ship Fundamentals &amp; Daily Rhythm<br>The Daily Navigator: A Flexible Itinerary<br>Port Playbook: Grand Cayman, Falmouth &amp; CocoCay<br>Dining &amp; Speciality Restaurant Strategy<br>Finance, Communication &amp; Logistics<br>Debarkation &amp; Return to Reality</p>`,
+  `<p class="p">---</p>`,
+  `<h2>Pre-Cruise Command Center</h2>`,
+  `<h3>1.1 Guest Manifest &amp; Core Data</h3>`,
+  `<p class="p">Primary Booking (4519230):<br>Stateroom: 6650 (Deck 6, Aft)<br>Guests: William, Melissa, Declan, Owen<br>Muster Station: D22<br>Secondary Booking (6788946):<br>Stateroom: 6651 (Deck 6, Aft)<br>Guest: Amy Abel<br>Muster Station: D22<br>Tertiary Booking (4352113):<br>Stateroom: 8528 (Deck 8, Forward-Mid)<br>Guest: Karin Aimee<br>Muster Station: A2</p>`,
+  `<h3>1.2 Official Itinerary</h3>`,
+  `<p class="p">Day 1 (Sat, Feb 14): Port Canaveral | Depart 4:00 PM<br>Day 2 (Sun, Feb 15): AT SEA<br>Day 3 (Mon, Feb 16): George Town, Grand Cayman | 10:30 AM - 6:00 PM (Tender Port)<br>Day 4 (Tue, Feb 17): Falmouth, Jamaica | 8:00 AM - 5:00 PM<br>Day 5 (Wed, Feb 18): AT SEA<br>Day 6 (Thu, Feb 19): Perfect Day at CocoCay | 7:00 AM - 5:00 PM<br>Day 7 (Fri, Feb 20): Port Canaveral | Arrive 7:00 AM</p>`,
+  `<h3>1.3 Mandatory Pre-Departure Tasks (Complete by Feb 13)</h3>`,
+  `<p class="p">Royal App: Download and ensure all adults have access.<br>Online Check-In: Complete via app as soon as it opens (≈45 days prior). Upload photos, select earliest arrival time (10:30 AM target).<br>Linking Bookings: The designated “Concierge” (likely William/Melissa) must link all three booking numbers in the Royal app.<br>Documentation: Ensure passports are valid. Print SetSail passes and luggage tags as backup.<br>Communication: Establish a WhatsApp group as the primary external channel. Designate the “Concierge’s” device as the holder of the 1-device VOOM internet plan for shore-based comms.</p>`,
+  `<p class="p">—</p>`,
+  `<h2>2. Embarkation Day: The Golden Hour Protocol</h2>`,
+  `<p class="p">Objective: Transition from land-based chaos to onboard control within the first 60 minutes.</p>`,
+  `<p class="p"><strong>Time Block</strong><br>Action Item<br>Location<br>Responsible Party<br>Notes</p>`,
+  `<p class="p">10:30 AM — Arrive at Terminal — Port Canaveral — All — SetSail Pass &amp; Passport ready. Check bags with porters.</p>`,
+  `<p class="p">12:00 PM — STEP 1: The Huddle — Deck 4/5 Promenade — All — Do not disperse. Find a wall or quiet seating.</p>`,
+  `<p class="p">12:05 PM — STEP 2: Digital Activation — Onboard — Concierge 1 — 1. Connect to ROYAL-WIFI. 2. Open Royal app, verify linked bookings.</p>`,
+  `<p class="p">12:10 PM — STEP 3: Priority Booking Via Royal App — Concierge 1 — Concierge 1 — 1. Dining: Modify auto-booked specialty. Secure Nights 1, 3, 4 at chosen venues for 6 people. 2. Shows: Book any reservable shows (if offered).</p>`,
+  `<p class="p">12:30 PM — STEP 4: Muster &amp; Verify — Muster Stations / Dining — All — 1. eMuster: Disperse to stations D22 &amp; A2, scan in, watch video. 2. Regroup: Meet at Pool Bar. 3. Physical Link: Visit Specialty Dining podium &amp; MDR maître d’ to confirm linked tables.</p>`,
+  `<p class="p">1:00 PM — Mission Complete — Windjammer / Café — All — Have lunch. The operational heavy lifting is done. Cabins ready ≈1:30 PM.</p>`,
+  `<p class="p">---</p>`,
+  `<h2>3. Ship Fundamentals &amp; Daily Rhythm</h2>`,
+  `<h3>3.1 Your Ship Geography</h3>`,
+  `<p class="p">Deck 6 Aft (6650, 6651): “The Quiet Zone.”<br>Optimal for quick elevator access to Dining Rooms (Decks 3-5) and Windjammer (Deck 11). Use aft stairwell/elevators as your primary vertical artery.</p>`,
+  `<p class="p">Deck 8 Forward-Mid (8528): “The Central Hub.”<br>Closer to forward entertainment (Theater, Spa). Use forward stairwell/elevators. Ideal meeting point: R Bar on Deck 5 Promenade.</p>`,
+  `<h3>3.2 The Non-Negotiable Daily Beat</h3>`,
+  `<p class="p">Morning (7:30-9:00 AM):<br>Light breakfast (Café Promenade) or full buffet (Windjammer). Confirm day’s plan via group chat.</p>`,
+  `<p class="p">Late Morning (10:00 AM):<br>Execute the chosen “Path” for the day (Adventure, Culture, or Chill).</p>`,
+  `<p class="p">Afternoon (1:00-4:00 PM):<br>Lunch, followed by flexible time (pool, trivia, nap, return from port).</p>`,
+  `<p class="p">Pre-Dinner (6:45 PM):<br>Mandatory Group Meet-Up at R Bar. Dress for dinner, coordinate evening plans.</p>`,
+  `<p class="p">Evening (7:30 PM+):<br>Dinner, followed by show, music, or leisure.</p>`,
+  `<p class="p">Night (10:00 PM+):<br>Optional late-night activities (comedy, dancing, snacks).</p>`,
+  `<h3>3.3 Entertainment &amp; Booking Truths</h3>`,
+  `<p class="p">Myth: Shows must be booked months in advance.<br>Reality on Adventure of the Seas: Main theater and ice shows are first-come, first-served.<br>Strategy: The Ice Show in Studio B is the priority. Check the app for performance days (typically sea days). Arrive 30 minutes early for the best group seating. For main theater shows, arriving 15-20 minutes early is sufficient.</p>`,
+  `<p class="p">---</p>`,
+  `<h2>4. The Daily Navigator: A Flexible Itinerary</h2>`,
+  `<p class="p">Each day offers curated “Paths” (A/B/C) tailored to different energy levels and interests.</p>`,
+  `<p class="p">📅 Day 2: Sun, Feb 15 — At Sea (Formal Night #1)</p>`,
+  `<p class="p">Path A | Thrill-Seeker: Morning FlowRider clinic (book onboard). Afternoon rock climbing or waterslides. Pre-dinner group photos in formal attire.<br>Path B | Culturist: Morning art auction or trivia. Afternoon ice skating show. Relax in the Solarium before formal dinner.<br>Path C | Family Anchor: Morning pool games and mini-golf. Afternoon Adventure Ocean for kids, spa for adults. Casual early dinner before the show.<br>Dinner: Formal Night in Main Dining Room.</p>`,
+  `<p class="p">📅 Day 3: Mon, Feb 16 — George Town, Grand Cayman</p>`,
+  `<p class="p">Path A | Aquatic Adventure: Ship-sponsored Stingray City &amp; snorkel tour. Return for late lunch onboard.<br>Path B | Beach Club Relaxation: Taxi to Seven Mile Beach (Calico Jack’s or Public Beach). Rent chairs, enjoy calm water.<br>Path C | Historic &amp; Culinary: Explore George Town, visit the National Museum. Lunch at a local eatery like “Paradise Grill.”<br>Dinner: Specialty Dining #1 (e.g., Giovanni’s Table).</p>`,
+  `<p class="p">📅 Day 4: Tue, Feb 17 — Falmouth, Jamaica</p>`,
+  `<p class="p">Path A | Iconic Excursion: Pre-booked tour to Dunn’s River Falls and/or Blue Hole. Requires water shoes, sense of adventure.<br>Path B | Curated Culture: Historic Falmouth walking tour, then resort day at nearby “Royalton” property (day pass).<br>Path C | Ship Day Savvy: Enjoy a quieter ship. Pool, spa, and onboard activities without crowds.<br>Dinner: Specialty Dining #2 (e.g., Chops Grille).</p>`,
+  `<p class="p">📅 Day 5: Wed, Feb 18 — At Sea (Formal Night #2)</p>`,
+  `<p class="p">Path A | Final Challenges: Last sessions on FlowRider, rock wall, or zip line (if available). Afternoon packing session.<br>Path B | Enrichment &amp; Leisure: Attend a guest lecture or cooking demo. Afternoon farewell ice show or trivia tournament.<br>Path C | Ultimate Relaxation: Extended spa treatment, leisurely reading on the helipad, final swim.<br>Dinner: Formal Night in Main Dining Room (Lobster Tail night).</p>`,
+  `<p class="p">📅 Day 6: Thu, Feb 19 — Perfect Day at CocoCay</p>`,
+  `<p class="p">Path A | Thrill Island: Early access to Thrill Waterpark slides (if pre-booked). Afternoon at the Oasis Lagoon pool.<br>Path B | Chill Island: Secure loungers at Chill Island for snorkeling and swimming. Rent a floating mat. Lunch at Chill Grill.<br>Path C | Explorer: Walk the nature trail, visit the observation tower, try the Up, Up &amp; Away balloon (weather/$$), shop at the straw market.<br>Dinner: Specialty Dining #3 or Main Dining Room Farewell.</p>`,
+  `<p class="p">---</p>`,
+  `<h2>5. Port Playbook: Tactical Briefs</h2>`,
+  `<h3>5.1 Grand Cayman (Tender Port)</h3>`,
+  `<p class="p">Tender Process: Tenders begin ≈10:45 AM. Go early (10:15 AM) or expect tickets/lines. Ship excursions meet first.<br>Return: Last tender is at 5:15 PM. Aim to queue by 4:30 PM.<br>Currency: USD widely accepted. Many places take credit cards.</p>`,
+  `<h3>5.2 Falmouth, Jamaica</h3>`,
+  `<p class="p">Docking: Ship docks. Easy walk-off.<br>Advice: For independent tours, only use licensed operators inside the port gate. Set a clear price and return time.<br>Must-Try: Jerk chicken from “Scotchies” (located just outside port).</p>`,
+  `<h3>5.3 Perfect Day at CocoCay</h3>`,
+  `<p class="p">#1 Rule: Disembark by 8:00 AM to claim prime lounge chairs.<br>Included: All beaches, the massive Oasis Lagoon pool, multiple buffets (Chill Grill, Skipper’s Grill), Snack Shacks.<br>Drinks: Your Refreshment Package works here.<br>Return: All aboard 4:30 PM. Tram available for transport from farther beaches.</p>`,
+  `<p class="p">—</p>`,
+  `<h2>6. Dining &amp; Speciality Restaurant Strategy</h2>`,
+  `<h3>6.1 The 3-Night Package Execution</h3>`,
+  `<p class="p">Bookings: Made and linked on Embarkation Day.<br>Recommended Nights: Day 1 (avoid MDR chaos), Day 3 (post-Grand Cayman), Day 6 (CocoCay celebration).<br>Venue Guide:<br>Chops Grille: Classic steakhouse. Order the filet and shareable sides.<br>Giovanni’s Table: Italian family-style. Perfect for groups.<br>Izumi: Hibachi experience (entertaining) or à la carte sushi. Credit from package applies.</p>`,
+  `<h3>6.2 Main Dining Room &amp; other Venues</h3>`,
+  `<p class="p">My Time Dining: You have reservations. Show up at your set time each night.<br>Windjammer (Buffet): Best for breakfast variety and casual lunches. Avoid peak times (8:30 AM, 12:30 PM).<br>Café Promenade: 24/7 included snacks (pizza, sandwiches, cookies). Your late-night savior.</p>`,
+  `<p class="p">---</p>`,
+  `<h2>7. Finance, Communication &amp; Logistics</h2>`,
+  `<h3>7.1 The Financial Control Panel</h3>`,
+  `<p class="p">SeaPass: Your onboard credit card. All spending is charged to your cabin account.<br>Tracking: Use the “Onboard Account” feature in the Royal app daily to monitor charges.<br>Gratuities: Standard daily gratuity ($18.50+/person/day) will be auto-charged. You pre-paid or will see this on your final bill.<br>Settling Up: Final bill is charged to the card on file early on debarkation day. Review paper statement left at your cabin.</p>`,
+  `<h3>7.2 The Communication Matrix</h3>`,
+  `<p class="p">Onboard (Primary): Royal App’s free in-app chat. Works over ship Wi-Fi without an internet package. Create a group for all 6 guests.<br>Onboard (Secondary - External): The 1-device VOOM internet plan. Use for WhatsApp, email, social media. Log in/out as needed on shared devices.<br>In Port: Local cell service may work (check your plan). Use WhatsApp if connected. Always set a clear physical meet-up time and place.</p>`,
+  `<h3>7.3 Luggage &amp; Packing</h3>`,
+  `<p class="p">Embarkation: Attach tags. Check large bags with porters; keep essentials, meds, swimwear, and documents in carry-on.<br>Debarkation: Place large bags outside your cabin by 11:00 PM on final night. Keep debarkation day clothes and toiletries in carry-on.</p>`,
+  `<p class="p">—</p>`,
+  `<h2>8. Debarkation &amp; Return to Reality</h2>`,
+  `<h3>8.1 The Night Before (Day 6)</h3>`,
+  `<p class="p">Pack checked luggage.<br>Settle onboard account (visit Guest Services if discrepancies).<br>Place luggage in hallway by 11:00 PM.</p>`,
+  `<h3>8.2 Debarkation Morning (Day 7)</h3>`,
+  `<p class="p">Early Breakfast: Windjammer or Café Promenade opens early.<br>Two Disembarkation Options:<br>Self-Assist (Recommended for Control): Keep all luggage, walk off once ship clears (≈7:15 AM). Best for those with early travel.<br>Checked Luggage: Wait in a designated lounge for your luggage tag number/color to be called. Disembark, find bags in terminal.<br>Customs: Use facial recognition or present passport. Proceed to transportation.</p>`,
+  `<h3>8.3 Post-Cruise</h3>`,
+  `<p class="p">Survey: You may receive a guest satisfaction survey via email. Your feedback matters.<br>Memories: Your SeaPass cards are souvenirs. Photos can be purchased or downloaded if you used the ship’s photographers.</p>`,
+  `<p class="p">—</p>`,
+  `<h2>Final Transmission</h2>`,
+  `<p class="p">This manual is your blueprint. You have mastered the logistics. The only task left is to enjoy the fluid reality of your family’s adventure. Trust the plan, then live beyond it.</p>`,
+  `<p class="p">Bon Voyage, family and friends.</p>`,
+  `<p class="p">⸻</p>`,
+  `<h2>ADDENDUM X — FAILURE MODES, CONTINGENCIES &amp; FORCE MULTIPLIERS</h2>`,
+  `<p class="p">Companion to The Family and Friends Cruise Companion: Unabridged Operations Manual</p>`,
+  `<h3>Purpose:</h3>`,
+  `<p class="p">This addendum exists for the moments between the plan and reality. It covers health, weather, kids, fatigue, human error, and ship quirks — the things that actually cause stress if they aren’t pre-decided.</p>`,
+  `<p class="p">Read once. Use rarely. Appreciate silently.</p>`,
+  `<p class="p">⸻</p>`,
+  `<h3>X1) MEDICAL &amp; HEALTH CONTINGENCY PROTOCOL</h3>`,
+  `<p class="p"><strong>Medical Center (Know Before You Need It)</strong><br>Location: Deck 4 (forward)<br>Hours: Posted daily in app; 24-hour emergency availability<br>Cost reality: Care is not free. Charges go to SeaPass.</p>`,
+  `<p class="p"><strong>Decision Tree</strong><br>Minor issue (headache, nausea, scrape):<br>→ Treat in cabin first → reassess in 30–60 minutes<br><br>Moderate issue (fever, persistent vomiting, allergic reaction):<br>→ One adult escorts to Medical<br>→ One adult remains with kids<br>→ Concierge notified<br><br>Serious issue (injury, breathing trouble):<br>→ Call ship emergency number immediately (posted on cabin phone)</p>`,
+  `<p class="p"><strong>Medication Safeguard</strong><br>• All critical meds must be split across two carry-ons, not one bag.<br>• Never leave all meds in one cabin.</p>`,
+  `<p class="p">⸻</p>`,
+  `<h3>X2) WEATHER &amp; SEA-STATE ADAPTATION LOGIC</h3>`,
+  `<p class="p"><strong>If CocoCay Is Windy or Overcast</strong><br>• Shade &gt; chairs &gt; water<br>• Poolside + Snack Shack beats beach frustration<br>• Accept “half-day win” and leave early if conditions turn</p>`,
+  `<p class="p"><strong>If Tendering Is Delayed (Grand Cayman)</strong><br>• Ship excursions go first — this is intentional<br>• Independent plans should not rush<br>• Convert morning plan → afternoon plan without negotiation</p>`,
+  `<h2>The Family and Friends Cruise Companion: Unabridged Operations Manual</h2>`,
+  `<p class="p">Adventure of the Seas | February 14–20, 2026 | Western Caribbean &amp; Perfect Day</p>`,
+  `<p class="p">---</p>`,
+  `<h2>📌 Emoji Legend (Quick Reference Box)</h2>`,
+  `<p class="p"><strong>Emoji</strong><br>Meaning<br>🔴<br>Critical Task – Must be on time / affects safety or major plans<br>🟡<br>Optional / Recommended – Enhances experience but not mandatory<br>🟢<br>Informational / Flexible – Helpful notes, tips, or reminders<br>(Legend repeats in footer of each page for quick scanning)</p>`,
+  `<p class="p">---</p>`,
+  `<h2>🔴🟡🟢 1. Pre-Cruise Command Center</h2>`,
+  `<h3>1.1 Guest Manifest &amp; Core Data</h3>`,
+  `<p class="p">🔴 Primary Booking (4519230)<br>• Stateroom: 6650 (Deck 6, Aft)<br>• Guests: William, Melissa, Declan, Owen<br>• Muster Station: D22</p>`,
+  `<p class="p">🔵 Secondary Booking (6788946)<br>• Stateroom: 6651 (Deck 6, Aft)<br>• Guest: Amy Abel<br>• Muster Station: D22</p>`,
+  `<p class="p">🔵 Tertiary Booking (4352113)<br>• Stateroom: 8528 (Deck 8, Forward-Mid)<br>• Guest: Karin Aimee<br>• Muster Station: A2</p>`,
+  `<p class="p">---</p>`,
+  `<h3>1.2 Official Itinerary (Visual Timeline)</h3>`,
+  `<p class="p">Day<br>Port/Activity<br>Time<br>Emoji<br>Feb 14 (Sat)<br>Port Canaveral – Depart<br>4:00 PM<br>🔴<br>Feb 15 (Sun)<br>At Sea<br>All Day<br>🟡<br>Feb 16 (Mon)<br>Grand Cayman (Tender)<br>10:30 AM–6 PM<br>🔴<br>Feb 17 (Tue)<br>Falmouth, Jamaica<br>8 AM–5 PM<br>🔴<br>Feb 18 (Wed)<br>At Sea<br>All Day<br>🟡<br>Feb 19 (Thu)<br>Perfect Day at CocoCay<br>7 AM–5 PM<br>🔴<br>Feb 20 (Fri)<br>Port Canaveral – Arrive<br>7 AM<br>🔴</p>`,
+  `<p class="p">---</p>`,
+  `<h3>1.3 🔴 Mandatory Pre-Departure Tasks (By Feb 13)</h3>`,
+  `<p class="p">🔴 Royal App<br>• Download and confirm access for all adults</p>`,
+  `<p class="p">🔴 Online Check-In<br>• Complete as soon as available (~45 days prior)<br>• Upload photos and select earliest arrival (10:30 AM)</p>`,
+  `<p class="p">🔴 Link Bookings<br>• Concierge (William/Melissa) must link all three bookings in the app</p>`,
+  `<p class="p">🟡 Documentation<br>• Verify passports<br>• Print SetSail passes and luggage tags</p>`,
+  `<p class="p">🟢 Communication Setup<br>• Create WhatsApp group<br>• Concierge device holds VOOM internet</p>`,
+  `<p class="p">---</p>`,
+  `<h2>🔴🟡 2. Embarkation Day: The Golden Hour Protocol</h2>`,
+  `<p class="p">Objective: ✅ Achieve full onboard readiness within the first 60 minutes</p>`,
+  `<p class="p">⏰ Time<br>🔹 Action<br>📍 Location<br>👤 Lead<br>📝 Notes<br>10:30 AM<br>🔴 Arrive at Terminal<br>Port Canaveral<br>All<br>SetSail &amp; passport ready; check bags with porters<br>12:00 PM<br>🔴 Step 1: The Huddle<br>Deck 4/5 Promenade<br>All<br>Gather before dispersing<br>12:05 PM<br>🔴 Step 2: Digital Activation<br>Onboard<br>Concierge 1<br>Connect to Wi-Fi; verify bookings in app<br>12:10 PM<br>🔴 Step 3: Priority Bookings<br>Royal App
+  ...
+
+
 class AppState {
   constructor() {
     this.itinerary = [
@@ -168,125 +296,8 @@ class AppState {
             title: 'The Family & Friends Cruise Companion — Unabridged Operations Manual',
             type: 'Manual',
             icon: '📘',
-            content: `<p class="p">The Family and Friends Cruise Companion: Unabridged Operations Manual Adventure of the Seas | February 14–20, 2026 | Western Caribbean &amp; Perfect Day — Table of Contents 1. Pre-Cruise Command Center 2. Embarkation Day: The Golden Hour Protocol 3. Ship Fundamentals &amp; Daily Rhythm 4. The Daily Navigator: A Flexible Itinerary 5. Port Playbook: Grand Cayman, Falmouth &amp; CocoCay 6. Dining &amp; Speciality Restaurant Strategy 7. Finance, Communication &amp; Logistics 8. Debarkation &amp; Return to Reality --- Pre-Cruise Command Center</p>
-<h2>1.1 Guest Manifest &amp; Core Data</h2>
-<p class="p">–</p>
-<h2>Primary Booking (4519230):</h2>
-<p class="p">– Stateroom: 6650 (Deck 6, Aft) – Guests: William, Melissa, Declan, Owen – Muster Station: D22 –</p>
-<h2>Secondary Booking (6788946):</h2>
-<p class="p">– Stateroom: 6651 (Deck 6, Aft) – Guest: Amy Abel – Muster Station: D22 –</p>
-<h2>Tertiary Booking (4352113):</h2>
-<p class="p">– Stateroom: 8528 (Deck 8, Forward-Mid) – Guest: Karin Aimee – Muster Station: A2</p>
-<h2>1.2 Official Itinerary</h2>
-<p class="p">– Day 1 (Sat, Feb 14): Port Canaveral | Depart 4:00 PM – Day 2 (Sun, Feb 15): AT SEA – Day 3 (Mon, Feb 16): George Town, Grand Cayman | 10:30 AM - 6:00 PM (Tender Port) – Day 4 (Tue, Feb 17): Falmouth, Jamaica | 8:00 AM - 5:00 PM – Day 5 (Wed, Feb 18): AT SEA – Day 6 (Thu, Feb 19): Perfect Day at CocoCay | 7:00 AM - 5:00 PM – Day 7 (Fri, Feb 20): Port Canaveral | Arrive 7:00 AM</p>
-<h2>1.3 Mandatory Pre-Departure Tasks (Complete by Feb 13)</h2>
-<p class="p">– Royal App: Download and ensure all adults have access. – Online Check-In: Complete via app as soon as it opens (≈45 days prior). Upload photos, select earliest arrival time (10:30 AM target). – Linking Bookings: The designated “Concierge” (likely William/Melissa) must link all three booking numbers in the Royal app. – Documentation: Ensure passports are valid. Print SetSail passes and luggage tags as backup. – Communication: Establish a WhatsApp group as the primary external channel. Designate the “Concierge’s” device as the holder of the 1-device VOOM internet plan for shore-based comms. — 2. Embarkation Day: The Golden Hour Protocol Objective: Transition from land-based chaos to onboard control within the first 60 minutes. Time Action Location Responsi- Notes Block Item ble Party 10:30 AM Arrive at Port All SetSail Terminal Canaveral Pass &amp; Passport ready. Check bags with porters. 12:00 PM STEP 1: Deck 4/5 ADlol not The Prome- disperse. Huddle nade Find a wall or quiet seating. 12:05 PM STEP 2: Onboard Concierge 1. Connect Digital 1 to ROYAL- Activation WIFI. 2. Open Royal app, verify linked bookings.</p>
-<h2>12:10 PM STEP 3: Concierge Concierge 1. Dining:</h2>
-<p class="p">Priority 1 1 Modify Booking auto- Via Royal booked App specialty. Secure Nights 1, 3,</p>
-<h2>4 at</h2>
-<p class="p">chosen venues for venues for</p>
-<h2>6 people.</h2>
-<h2>2. Shows:</h2>
-<p class="p">Book any reservable shows (if offered).</p>
-<h2>12:30 PM STEP 4: Muster All 1. eMuster:</h2>
-<p class="p">Muster &amp; Stations / Disperse Verify Dining to stations</p>
-<h2>D22 &amp; A2,</h2>
-<p class="p">scan in, watch video. 2.</p>
-<h2>Regroup:</h2>
-<p class="p">Meet at Pool Bar. 3. Physical Link: Visit Specialty Dining podium &amp; MDR maître d’ maître d’ to confirm linked tables. 1:00 PM Mission Windjam- AHlalve Complete mer / Café lunch. The opera- tional heavy lifting is done. Cabins ready</p>
-<h2>≈1:30 Pm.</h2>
-<p class="p">--- 3. Ship Fundamentals &amp; Daily Rhythm</p>
-<h2>3.1 Your Ship Geography</h2>
-<p class="p">– Deck 6 Aft (6650, 6651): “The Quiet Zone.” Optimal for quick elevator access to Dining Rooms (Decks 3-5) and Windjammer (Deck 11). Use aft stairwell/elevators as your primary vertical artery. – Deck 8 Forward-Mid (8528): “The Central Hub.” Closer to forward entertainment (Theater, Spa). Use forward stairwell/elevators. Ideal meeting point: R Bar on Deck 5 Promenade.</p>
-<h2>3.2 The Non-Negotiable Daily Beat</h2>
-<p class="p">–</p>
-<h2>Morning (7:30-9:00 AM):</h2>
-<p class="p">–</p>
-<h2>Morning (7:30-9:00 AM):</h2>
-<p class="p">Light breakfast (Café Promenade) or full buffet (Windjammer). Confirm day’s plan via group chat. –</p>
-<h2>Late Morning (10:00 AM):</h2>
-<p class="p">Execute the chosen “Path” for the day (Adventure, Culture, or Chill). –</p>
-<h2>Afternoon (1:00-4:00 PM):</h2>
-<p class="p">Lunch, followed by flexible time (pool, trivia, nap, return from port). –</p>
-<h2>Pre-Dinner (6:45 PM):</h2>
-<p class="p">Mandatory Group Meet-Up at R Bar. Dress for dinner, coordinate evening plans. –</p>
-<h2>Evening (7:30 PM+):</h2>
-<p class="p">Dinner, followed by show, music, or leisure. –</p>
-<h2>Night (10:00 PM+):</h2>
-<p class="p">Optional late-night activities (comedy, dancing, snacks).</p>
-<h2>3.3 Entertainment &amp; Booking Truths</h2>
-<p class="p">– Myth: Shows must be booked months in advance. – Reality on Adventure of the Seas: Main theater and ice shows are first-come, first-served. – Strategy: The Ice Show in Studio B is the priority. Check the app for performance days (typically sea days). Arrive 30 minutes early for the best group seating. For main theater shows, arriving 15-20 minutes early is sufficient. --- 4. The Daily Navigator: A Flexible Itinerary Each day offers curated “Paths” (A/B/C) tailored to different energy levels and interests. – – – – 📅 Day 2: Sun, Feb 15 — At Sea (Formal Night #1) Path A | Thrill-Seeker: Morning FlowRider clinic (book onboard). Afternoon rock climbing or waterslides. Pre-dinner group photos in formal attire. Path B | Culturist: Morning art auction or trivia. Afternoon ice skating show. Relax in the Solarium before formal dinner. Path C | Family Anchor: Morning pool games and mini-golf. Afternoon Adventure Ocean for kids, spa for adults. Casual early dinner before the show. Dinner: Formal Night in Main Dining Room. – – – – – – – – – – – – – – – – 📅 Day 3: Mon, Feb 16 — George Town, Grand Cayman Path A | Aquatic Adventure: Ship-sponsored Stingray City &amp; snorkel tour. Return for late lunch onboard. Path B | Beach Club Relaxation: Taxi to Seven Mile Beach (Calico Jack’s or Public Beach). Rent chairs, enjoy calm water. Path C | Historic &amp; Culinary: Explore George Town, visit the National Museum. Lunch at a local eatery like “Paradise Grill.” Dinner: Specialty Dining #1 (e.g., Giovanni’s Table). 📅 Day 4: Tue, Feb 17 — Falmouth, Jamaica Path A | Iconic Excursion: Pre-booked tour to Dunn’s River Falls and/or Blue Hole. Requires water shoes, sense of adventure. Path B | Curated Culture: Historic Falmouth walking tour, then resort day at nearby “Royalton” property (day pass). Path C | Ship Day Savvy: Enjoy a quieter ship. Pool, spa, and onboard activities without crowds. Dinner: Specialty Dining #2 (e.g., Chops Grille). 📅 Day 5: Wed, Feb 18 — At Sea (Formal Night #2) Path A | Final Challenges: Last sessions on FlowRider, rock wall, or zip line (if available). Afternoon packing session. Path B | Enrichment &amp; Leisure: Attend a guest lecture or cooking demo. Afternoon farewell ice show or trivia tournament. Path C | Ultimate Relaxation: Extended spa treatment, leisurely reading on the helipad, final swim. Dinner: Formal Night in Main Dining Room (Lobster Tail night). 📅 Day 6: Thu, Feb 19 — Perfect Day at CocoCay Path A | Thrill Island: Early access to Thrill Waterpark slides (if pre-booked). Afternoon at the Oasis Lagoon pool. Path B | Chill Island: Secure loungers at Chill Island for snorkeling and swimming. Rent a floating mat. Lunch at Chill Grill. Path C | Explorer: Walk the nature trail, visit the observation tower, try the Up, Up &amp; Away balloon (weather/$$), shop at the straw market. Dinner: Specialty Dining #3 or Main Dining Room Farewell. --- 5. Port Playbook: Tactical Briefs</p>
-<h2>5.1 Grand Cayman (Tender Port)</h2>
-<p class="p">– Tender Process: Tenders begin ≈10:45 AM. Go early (10:15 AM) or expect tickets/lines. Ship excursions meet first. – Return: Last tender is at 5:15 PM. Aim to queue by 4:30 PM. – Currency: USD widely accepted. Many places take credit cards.</p>
-<h2>5.2 Falmouth, Jamaica</h2>
-<p class="p">– Docking: Ship docks. Easy walk-off. – Advice: For independent tours, only use licensed operators inside the port gate. Set a clear price and return time. – Must-Try: Jerk chicken from “Scotchies” (located just outside port).</p>
-<h2>5.3 Perfect Day at CocoCay</h2>
-<p class="p">– #1 Rule: Disembark by 8:00 AM to claim prime lounge chairs. – Included: All beaches, the massive Oasis Lagoon pool, multiple buffets (Chill Grill, Skipper’s Grill), Snack Shacks. – Drinks: Your Refreshment Package works here. – Return: All aboard 4:30 PM. Tram available for transport from farther beaches. — 6. Dining &amp; Speciality Restaurant Strategy</p>
-<h2>6.1 The 3-Night Package Execution</h2>
-<p class="p">– Bookings: Made and linked on Embarkation Day. – Recommended Nights: Day 1 (avoid MDR chaos), Day 3 (post-Grand Cayman), Day 6 (CocoCay celebration). –</p>
-<h2>Venue Guide:</h2>
-<p class="p">– Chops Grille: Classic steakhouse. Order the filet and shareable sides. – Giovanni’s Table: Italian family-style. Perfect for groups. – Izumi: Hibachi experience (entertaining) or à la carte sushi. Credit from package – applies.</p>
-<h2>6.2 Main Dining Room &amp; other Venues</h2>
-<p class="p">– My Time Dining: You have reservations. Show up at your set time each night. – Windjammer (Buffet): Best for breakfast variety and casual lunches. Avoid peak times (8:30</p>
-<h2>Am, 12:30 Pm).</h2>
-<p class="p">– Café Promenade: 24/7 included snacks (pizza, sandwiches, cookies). Your late-night savior. --- 7. Finance, Communication &amp; Logistics</p>
-<h2>7.1 The Financial Control Panel</h2>
-<p class="p">– SeaPass: Your onboard credit card. All spending is charged to your cabin account. – Tracking: Use the “Onboard Account” feature in the Royal app daily to monitor charges. – Gratuities: Standard daily gratuity ($18.50+/person/day) will be auto-charged. You pre-paid or will see this on your final bill. – Settling Up: Final bill is charged to the card on file early on debarkation day. Review paper statement left at your cabin.</p>
-<h2>7.2 The Communication Matrix</h2>
-<p class="p">– Onboard (Primary): Royal App’s free in-app chat. Works over ship Wi-Fi without an internet package. Create a group for all 6 guests. – Onboard (Secondary - External): The 1-device VOOM internet plan. Use for WhatsApp, email, social media. Log in/out as needed on shared devices. – In Port: Local cell service may work (check your plan). Use WhatsApp if connected. Always set a clear physical meet-up time and place.</p>
-<h2>7.3 Luggage &amp; Packing</h2>
-<p class="p">– Embarkation: Attach tags. Check large bags with porters; keep essentials, meds, swimwear, and documents in carry-on. – Debarkation: Place large bags outside your cabin by 11:00 PM on final night. Keep debarkation day clothes and toiletries in carry-on. — 8. Debarkation &amp; Return to Reality</p>
-<h2>8.1 The Night Before (Day 6)</h2>
-<p class="p">– Pack checked luggage. – Settle onboard account (visit Guest Services if discrepancies). – Place luggage in hallway by 11:00 PM.</p>
-<h2>8.2 Debarkation Morning (Day 7)</h2>
-<p class="p">– Early Breakfast: Windjammer or Café Promenade opens early. –</p>
-<h2>Two Disembarkation Options:</h2>
-<p class="p">1. Self-Assist (Recommended for Control): Keep all luggage, walk off once ship clears (≈7:15 AM). Best for those with early travel. 2. Checked Luggage: Wait in a designated lounge for your luggage tag number/color to be called. Disembark, find bags in terminal. – Customs: Use facial recognition or present passport. Proceed to transportation.</p>
-<h2>8.3 Post-Cruise</h2>
-<p class="p">– Survey: You may receive a guest satisfaction survey via email. Your feedback matters. – Memories: Your SeaPass cards are souvenirs. Photos can be purchased or downloaded if you used the ship’s photographers. — Final Transmission This manual is your blueprint. You have mastered the logistics. The only task left is to enjoy the fluid reality of your family’s adventure. Trust the plan, then live beyond it. Bon Voyage, family and friends. ⸻</p>
-<h2>Addendum X — Failure Modes, Contingencies &amp;</h2>
-<h2>Force Multipliers</h2>
-<p class="p">Companion to The Family and Friends Cruise Companion: Unabridged Operations Manual</p>
-<h2>Purpose:</h2>
-<p class="p">This addendum exists for the moments between the plan and reality. It covers health, weather, kids, fatigue, human error, and ship quirks — the things that actually cause stress if they aren’t pre- decided. Read once. Use rarely. Appreciate silently. ⸻</p>
-<h2>X1) Medical &amp; Health Contingency Protocol</h2>
-<p class="p">Medical Center (Know Before You Need It) Location: Deck 4 (forward) Hours: Posted daily in app; 24-hour emergency availability Cost reality: Care is not free. Charges go to SeaPass. Decision Tree</p>
-<h2>Minor issue (headache, nausea, scrape):</h2>
-<p class="p">→ Treat in cabin first → reassess in 30–60 minutes</p>
-<h2>Moderate issue (fever, persistent vomiting, allergic reaction):</h2>
-<p class="p">→ One adult escorts to Medical → One adult remains with kids → Concierge notified</p>
-<h2>Serious issue (injury, breathing trouble):</h2>
-<p class="p">→ Call ship emergency number immediately (posted on cabin phone) Medication Safeguard • All critical meds must be split across two carry-ons, not one bag. • Never leave all meds in one cabin. ⸻</p>
-<h2>X2) Weather &amp; Sea-State Adaptation Logic</h2>
-<p class="p">If CocoCay Is Windy or Overcast • Shade &gt; chairs &gt; water • Poolside + Snack Shack beats beach frustration • Accept “half-day win” and leave early if conditions turn If Tendering Is Delayed (Grand Cayman) • Ship excursions go first — this is intentional • Independent plans should not rush • Convert morning plan → afternoon plan without negotiation The Family and Friends Cruise Companion: Unabridged Operations Manual Adventure of the Seas | February 14–20, 2026 | Western Caribbean &amp; Perfect Day --- 📌 Emoji Legend (Quick Reference Box) Emoji Meaning 🔴 Critical Task – Must be on time / affects safety or major plans 🟡 Optional / Recommended – Enhances experience but not mandatory 🟢 Informational / Flexible – Helpful notes, tips, or reminders ● (Legend repeats in footer of each page for quick scanning) --- – ● ● ● ● – ● ● ● ● – ● ● ● ● ● ● ● ● 🔴 🟡 🟢 1. Pre-Cruise Command Center</p>
-<h2>1.1 Guest Manifest &amp; Core Data</h2>
-<p class="p">🔴 Primary Booking (4519230) • Stateroom: 6650 (Deck 6, Aft) • Guests: William, Melissa, Declan, Owen • Muster Station: D22 🔵 Secondary Booking (6788946) • Stateroom: 6651 (Deck 6, Aft) • Guest: Amy Abel • Muster Station: D22 🔵 Tertiary Booking (4352113) • Stateroom: 8528 (Deck 8, Forward-Mid) • Guest: Karin Aimee • Muster Station: A2 ---</p>
-<h2>1.2 Official Itinerary (Visual Timeline)</h2>
-<p class="p">Day Port/Activity Time Emoji Feb 14 (Sat) Port 4:00 PM Canaveral – Depart 🔴 Feb 15 (Sun) At Sea All Day 🟡 Feb 16 (Mon) Grand 10:30 AM–6 Cayman PM (Tender) 🔴</p>
-<h2>10:30 Am–6</h2>
-<p class="p">Cayman PM (Tender) ● ● – ● ● – ● ● ● – ● ● – ● ● ● – ● ● ● ● ● 🔴 Feb 17 (Tue) Falmouth, 8 AM–5 PM Jamaica 🔴 Feb 18 (Wed) At Sea All Day 🟡 Feb 19 (Thu) Perfect Day at 7 AM–5 PM CocoCay 🔴 Feb 20 (Fri) Port 7 AM Canaveral – Arrive 🔴 --- 1.3 🔴 Mandatory Pre-Departure Tasks (By Feb 13) 🔴 Royal App • Download and confirm access for all adults 🔴 Online Check-In • Complete as soon as available (~45 days prior) • Upload photos and select earliest arrival (10:30 AM) 🔴 Link Bookings • Concierge (William/Melissa) must link all three bookings in the app 🟡 Documentation • Verify passports • Print SetSail passes and luggage tags 🟢 Communication Setup • Create WhatsApp group • Concierge device holds VOOM internet --- 🔴 🟡 2. Embarkation Day: The Golden Hour Protocol</p>
-<h2>Objective:</h2>
-<p class="p">✅ Achieve full onboard readiness within the first 60 minutes ⏰ Time 🔹 Action 📍 Location 👤 Lead 📝 Notes</p>
-<h2>10:30 Am</h2>
-<p class="p">🔴 Arrive Port All SetSail &amp; at Terminal Canaveral passport ready; check bags with porters</p>
-<h2>12:00 Pm</h2>
-<p class="p">🔴 Step 1: Deck 4/5 AGlalther The Prome- before Huddle nade dispersing</p>
-<h2>12:05 Pm</h2>
-<p class="p">🔴 Step 2: Onboard Concierge Connect to Digital 1 Wi-Fi; Activation verify bookings in app</p>
-<h2>12:10 Pm</h2>
-<p class="p">🔴 Step 3: Royal App Concierge Reserve Priority 1 dining Bookings (Nights 1,3,4) &amp; shows</p>
-<h2>12:30 Pm</h2>
-<p class="p">🔴 Step 4: Muster/ All eMuster, Muster &amp; Dining Verify Muster/ All eMuster, Muster &amp; Dining regroup, Verify confirm linked tables</p>
-<h2>1:00 Pm</h2>
-<p class="p">– – ● ● ● 🟢 Mission Windjam- ALullnch; Complete mer / Café cabins ready</p>
-<h2>~1:30 Pm</h2>
-<p class="p">--- 🟡 🟢 3. Ship Fundamentals &amp; Daily Rhythm</p>
-<h2>3.1 Ship Geography</h2>
-<p class="p">🟢 Deck 6 Aft (6650, 6651) • Quiet Zone; easy dining access via aft elevators 🟢 Deck 8 Forward-Mid (8528) • Central Hub near theater and spa • Meeting spot: R Bar, Deck 5 ---</p>
-<h2>3.2 Daily Schedule (Visual Flow)</h2>
-<p class="p">Time Activity Emoji 7:30–9:00 AM Breakfast &amp; group plan confirmation 🟡 10:00 AM Begin chosen Path (Adventure/ Culture) 🟡 Culture) ● 🟡 1:00–4:00 PM Lunch + flexible activity/rest 🟡 6:45 PM Group meet at R Bar 🟡 7:30 PM+ Dinner + Evening Show 🟡 10:00 PM+ Optional late-night fun 🟢 --- 🔴 🟡 4. The Daily Navigator: Flexible Itineraries (Reformatted with daily tables or timelines with emoji-coded tasks for clarity.) --- 🔴 🟡 5. Port Playbook (Tactical Tables) Grand Cayman Task Time Emoji Tender Start 10:45 AM 🔴 Early Queue 10:15 AM 🔴 Last Tender 5:15 PM 🔴 All Aboard 4:30 PM 🔴 Falmouth Task Time Emoji Docking 8:00 AM ● ● ● ● ● 🟡 Port Close 5:00 PM 🟡 CocoCay Task Time Emoji Arrive Early 8:00 AM 🔴 All Aboard 4:30 PM 🔴 --- 🔴 Quick-Reference: Critical Tasks Task Time/Date Page Arrive at Terminal Feb 14, 10:30 AM 2 Muster Drill Feb 14, 12:30 PM 2 Complete Link Bookings in By Feb 13 1 App Grand Cayman Feb 16, 5:15 PM 5 Last Tender CocoCay All Feb 19, 4:30 PM 5 Aboard Luggage in Feb 19, 11:00 PM 8 Hallway --- 🟡 Addendum X — Contingencies &amp; Force Multipliers (Reorganized with color-coded tasks, tables for medical, weather, and kid safety protocols.) --- 🔚 Final Command Note With this manual, you are fully prepared. Enjoy the cruise. Trust the plan. Live beyond it. 🚢 Bon Voyage! ---</p>
-<h2>Footer:</h2>
-<p class="p">🔴 Critical | 🟡 Recommended | 🟢 Informational</p>`
+            content: MANUAL_CONTENT,
+
           }
         ]
       }];
