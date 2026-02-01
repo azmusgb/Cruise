@@ -540,8 +540,7 @@ class Tasks {
       if (id && this.store.get(id, false)) done++;
     });
     const pct = total ? Math.round((done / total) * 100) : 100;
-    const overallProgress = $('#overall-progress');
-    if (overallProgress) overallProgress.textContent = `${pct}%`;
+    $('#overall-progress')?.textContent = `${pct}%`;
   }
 
   nextMustDo() {
