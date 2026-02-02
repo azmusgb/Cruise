@@ -3232,35 +3232,1682 @@
       </footer>
       <!-- Complete JavaScript -->
       <script>
-         /* Tab content visibility */
-         .tab-content {
-         display: none;
-         }
-         
-         .tab-content.active {
-         display: block;
-         }
-         
-         /* Smooth transitions for tab switching */
-         section[id] {
-         transition: opacity 0.3s ease, transform 0.3s ease;
-         }
-         
-         /* Ensure smooth tab switching */
-         .main-content {
-         position: relative;
-         min-height: 500px;
-         }
-         
-         /* Highlight for current tab */
-         .nav-link.active,
-         .sidebar-link.active,
-         .drawer-nav-item.active,
-         .bottom-nav .nav-item.active {
-         background: linear-gradient(135deg, rgba(242,193,78,.22), rgba(23,182,199,.12));
-         border-color: rgba(242,193,78,.35);
-         color: #fff;
-         }
+     // ========== CRUISE COMPANION APPLICATION ==========
+class CruiseCompanion {
+    constructor() {
+        this.searchIndex = [];
+        this.userPreferences = {};
+        this.currentSection = 'overview';
+        this.currentDay = 'all';
+        this.currentTravelerView = 'all';
+        this.observers = [];
+        this.isLoading = false;
+        this.isSearching = false;
+        this.searchTimeout = null;
+        this.toastTimeout = null;
+        this.topBarTimeout = null;
+        this.drawerOpen = false;
+        this.lastTapTime = 0;
+        this.touchStart = null;
+        this.tabButtons = [];
+        this.tabContents = [];
+        this.availableTabs = [];
+        this.prePrintScroll = null;
+        this.drawerSwipeStartX = null;
+        
+        // Initialize everything
+        this.init();
+    }
+    
+    // Initialize application
+    init() {
+        console.log('🚢 Cruise Companion Hub Initializing...');
+        
+        // Initialize components
+        this.setupLoading();
+        this.setupMobileMenu();
+        this.setupSearch();
+        this.setupAccordions();
+        this.setupCountdown();
+        this.setupWeather();
+        this.setupTabNavigation();
+        this.setupEventListeners();
+        this.setupPrint();
+        this.setupOffline();
+        this.setupIntersectionObserver();
+        this.setupDayNavigation();
+        this.setupTravelerSelector();
+        this.setupBottomNavigation();
+        this.setupTopBarHint();
+        this.setupCriticalFilter();
+        this.setupCompactMode();
+        this.setupJumpToCritical();
+        this.setupTouchGestures();
+        this.setupDaySelectorVisibility();
+        this.updateStickyOffsets();
+        this.handleResize();
+        this.updateCriticalFabVisibility();
+        
+        // Build search index
+        this.buildSearchIndex();
+        
+        // Load user preferences
+        this.loadPreferences();
+        
+        // Hide loading after everything is ready
+        setTimeout(() => {
+            this.hideLoading();
+            
+            // Handle initial URL hash
+            const hash = window.location.hash.substring(1);
+            if (hash && this.availableTabs.includes(hash)) {
+                this.switchToTab(hash);
+            } else {
+                // Default to first tab
+                const initialTab = this.availableTabs[0] || 'overview';
+                this.switchToTab(initialTab);
+            }
+            
+            this.showToast('Welcome to your Cruise Companion Hub! 🚢', 3000);
+        }, 1500);
+    }
+    
+    // ========== LOADING MANAGEMENT ==========
+    setupLoading() {
+        this.loadingOverlay = document.getElementById('loadingOverlay');
+        
+        // Simulate loading
+        setTimeout(() => {
+            if (this.loadingOverlay && !this.loadingOverlay.classList.contains('hidden')) {
+                this.hideLoading();
+            }
+        }, 2000);
+    }
+    
+    showLoading(message = 'Loading...') {
+        if (this.loadingOverlay) {
+            const loadingText = this.loadingOverlay.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
+            this.loadingOverlay.classList.remove('hidden');
+            this.isLoading = true;
+        }
+    }
+    
+    hideLoading() {
+        if (this.loadingOverlay) {
+            this.loadingOverlay.classList.add('hidden');
+            this.isLoading = false;
+        }
+    }
+    
+    // ========== TAB NAVIGATION ==========
+    setupTabNavigation() {
+        // Get all tab/button elements that control content
+        this.tabButtons = document.querySelectorAll(
+            '.nav-link, .sidebar-link, .drawer-nav-item, .bottom-nav .nav-item, .quick-start__link'
+        );
+        
+        // Get all tab content sections
+        this.tabContents = document.querySelectorAll('section[id]');
+        
+        // Store the available tabs/sections
+        this.availableTabs = Array.from(this.tabContents).map(section => section.id);
+        
+        // Set up click handlers for all tab buttons
+        this.tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = button.dataset.section;
+                if (sectionId && this.availableTabs.includes(sectionId)) {
+                    this.switchToTab(sectionId);
+                }
+            });
+        });
+    }
+    
+    switchToTab(tabId) {
+        // Remove active class from all tabs
+        this.tabContents.forEach(content => {
+            content.classList.remove('active');
+            content.setAttribute('hidden', 'true');
+        });
+        
+        // Hide all timeline items if they exist
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        timelineItems.forEach(item => {
+            item.style.display = 'none';
+        });
+        
+        // Show selected tab content
+        const selectedContent = document.getElementById(tabId);
+        if (selectedContent) {
+            selectedContent.classList.add('active');
+            selectedContent.removeAttribute('hidden');
+            
+            // If it's the itinerary tab, show day-specific content
+            if (tabId === 'itinerary') {
+                this.filterByDay(this.currentDay);
+            }
+            
+            // Update current section
+            this.currentSection = tabId;
+            
+            // Update navigation active states
+            this.updateActiveNavForSection(tabId);
+            
+            // Scroll to the section
+            this.scrollToSection(tabId);
+            
+            // Update URL hash without page reload
+            history.replaceState(null, null, `#${tabId}`);
+            
+            // Show toast for tab change
+            const tabNames = {
+                'overview': 'Start Here',
+                'operations': 'Operations Manual',
+                'rooms': 'Your Staterooms',
+                'itinerary': '7-Day Itinerary',
+                'dining': 'Dining & Restaurants',
+                'communication': 'Communication & Budget',
+                'tips': 'Pro Tips',
+                'integrate': 'VIP Upgrades'
+            };
+            
+            const tabName = tabNames[tabId] || tabId.replace(/-/g, ' ');
+            this.showToast(`Now viewing: ${tabName}`, 1500);
+            
+            // Update critical FAB visibility
+            this.updateCriticalFabVisibility();
+        }
+    }
+    
+    updateActiveNavForSection(sectionId) {
+        // Update header navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.toggle('active', link.dataset.section === sectionId);
+        });
+        
+        // Update sidebar navigation
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.classList.toggle('active', link.dataset.section === sectionId);
+        });
+        
+        // Update bottom navigation
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.section === sectionId);
+        });
+
+        // Update drawer navigation
+        document.querySelectorAll('.drawer-nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.section === sectionId);
+        });
+    }
+    
+    scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+        
+        const offset = this.getStickyOffset();
+        const sectionTop = section.offsetTop - offset;
+        
+        window.scrollTo({
+            top: sectionTop,
+            behavior: 'smooth'
+        });
+    }
+    
+    navigateToSection(sectionId) {
+        if (this.availableTabs && this.availableTabs.includes(sectionId)) {
+            this.switchToTab(sectionId);
+        }
+    }
+    
+    // ========== MOBILE MENU ==========
+    setupMobileMenu() {
+        const mobileToggle = document.getElementById('mobileMenuBtn');
+        const drawer = document.getElementById('sectionDrawer');
+        const overlay = document.getElementById('sectionDrawerOverlay');
+        const drawerClose = document.getElementById('sectionDrawerClose');
+        
+        if (!mobileToggle || !drawer || !overlay) return;
+        
+        mobileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleSectionDrawer();
+        });
+
+        if (drawerClose) {
+            drawerClose.addEventListener('click', () => this.closeSectionDrawer());
+        }
+
+        overlay.addEventListener('click', () => this.closeSectionDrawer());
+
+        drawer.addEventListener('click', (e) => {
+            const navItem = e.target.closest('.drawer-nav-item');
+            if (navItem) {
+                const section = navItem.dataset.section;
+                this.navigateToSection(section);
+                this.closeSectionDrawer();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.drawerOpen) {
+                this.closeSectionDrawer();
+            }
+        });
+    }
+
+    openSectionDrawer() {
+        const drawer = document.getElementById('sectionDrawer');
+        const overlay = document.getElementById('sectionDrawerOverlay');
+        const mobileToggle = document.getElementById('mobileMenuBtn');
+        if (!drawer || !overlay) return;
+
+        drawer.classList.add('active');
+        overlay.classList.add('active');
+        drawer.setAttribute('aria-hidden', 'false');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        this.drawerOpen = true;
+
+        if (mobileToggle) {
+            mobileToggle.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    closeSectionDrawer() {
+        const drawer = document.getElementById('sectionDrawer');
+        const overlay = document.getElementById('sectionDrawerOverlay');
+        const mobileToggle = document.getElementById('mobileMenuBtn');
+        if (!drawer || !overlay) return;
+
+        drawer.classList.remove('active');
+        overlay.classList.remove('active');
+        drawer.setAttribute('aria-hidden', 'true');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        this.drawerOpen = false;
+
+        if (mobileToggle) {
+            mobileToggle.setAttribute('aria-expanded', 'false');
+        }
+    }
+
+    toggleSectionDrawer() {
+        if (this.drawerOpen) {
+            this.closeSectionDrawer();
+        } else {
+            this.openSectionDrawer();
+        }
+    }
+    
+    // ========== SEARCH FUNCTIONALITY ==========
+    setupSearch() {
+        const searchBtn = document.getElementById('searchBtn');
+        const searchOverlay = document.getElementById('searchOverlay');
+        const searchClose = document.getElementById('searchClose');
+        const searchForm = document.getElementById('searchForm');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const searchChips = document.querySelectorAll('.search-chip');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        
+        if (!searchBtn || !searchOverlay) return;
+
+        this.suggestedSearches = [
+            'What time do I board?',
+            'Where is my room?',
+            'eMuster Station F6',
+            'Dining reservations',
+            'Shore excursions'
+        ];
+        this.searchHistory = this.loadSearchHistory();
+        this.renderSearchSuggestions();
+        
+        // Open search
+        searchBtn.addEventListener('click', () => {
+            searchOverlay.classList.add('active');
+            setTimeout(() => searchInput.focus(), 100);
+        });
+        
+        // Close search
+        searchClose.addEventListener('click', () => {
+            this.closeSearch();
+        });
+        
+        // Close on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && searchOverlay.classList.contains('active')) {
+                this.closeSearch();
+            }
+        });
+        
+        // Handle search form submission
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                this.performSearch(query);
+            }
+        });
+        
+        // Handle real-time search
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            // Clear previous timeout
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
+            }
+            
+            // Set new timeout for search
+            this.searchTimeout = setTimeout(() => {
+                if (query.length >= 2) {
+                    this.performSearch(query);
+                } else {
+                    this.clearSearchResults();
+                }
+            }, 300);
+        });
+        
+        // Close when clicking outside
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                this.closeSearch();
+            }
+        });
+
+        // Quick search chips
+        searchChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const query = chip.dataset.query || chip.textContent.trim();
+                searchInput.value = query;
+                this.performSearch(query);
+            });
+        });
+
+        if (searchSuggestions) {
+            searchSuggestions.addEventListener('click', (event) => {
+                const chip = event.target.closest('.search-chip');
+                if (!chip) return;
+                const query = chip.dataset.query || chip.textContent.trim();
+                searchInput.value = query;
+                this.performSearch(query);
+            });
+        }
+    }
+    
+    closeSearch() {
+        const searchOverlay = document.getElementById('searchOverlay');
+        const searchInput = document.getElementById('searchInput');
+        
+        searchOverlay.classList.remove('active');
+        searchInput.value = '';
+        this.clearSearchResults();
+    }
+
+    loadSearchHistory() {
+        try {
+            const stored = localStorage.getItem('cruiseSearchHistory');
+            return stored ? JSON.parse(stored) : [];
+        } catch (e) {
+            console.error('Failed to load search history', e);
+            return [];
+        }
+    }
+
+    saveSearchHistory(query) {
+        const normalized = query.trim();
+        if (!normalized) return;
+
+        const history = this.searchHistory || [];
+        const updated = [normalized, ...history.filter(item => item.toLowerCase() !== normalized.toLowerCase())]
+            .slice(0, 5);
+        this.searchHistory = updated;
+        try {
+            localStorage.setItem('cruiseSearchHistory', JSON.stringify(updated));
+        } catch (e) {
+            console.error('Failed to save search history', e);
+        }
+        this.renderSearchSuggestions();
+    }
+
+    renderSearchSuggestions() {
+        const suggestedContainer = document.getElementById('suggestedSearchChips');
+        const recentContainer = document.getElementById('recentSearchChips');
+        const recentGroup = document.getElementById('recentSearchesGroup');
+
+        if (suggestedContainer) {
+            suggestedContainer.innerHTML = this.suggestedSearches
+                .map(term => `<button type="button" class="search-chip" data-query="${term}">${term}</button>`)
+                .join('');
+        }
+
+        if (recentContainer && recentGroup) {
+            const history = this.searchHistory || [];
+            recentGroup.style.display = history.length ? 'block' : 'none';
+            recentContainer.innerHTML = history
+                .map(term => `<button type="button" class="search-chip" data-query="${term}">${term}</button>`)
+                .join('');
+        }
+    }
+
+    buildSearchIndex() {
+        // Collect all searchable content from sections
+        const sections = [
+            { id: 'quick-start', title: 'Quick Start Guide', keywords: ['quick', 'start', 'checklist', 'critical'], priority: 4, critical: true },
+            { id: 'overview', title: 'Start Here', keywords: ['overview', 'start', 'begin', 'essential'], priority: 2 },
+            { id: 'operations', title: 'Operations Manual', keywords: ['operations', 'manual', 'protocol', 'checklist', 'emergency'], priority: 4, critical: true },
+            { id: 'rooms', title: 'Your Staterooms', keywords: ['rooms', 'staterooms', 'cabins', 'guests', 'accommodation'], priority: 2, critical: true },
+            { id: 'itinerary', title: '7-Day Itinerary', keywords: ['itinerary', 'schedule', 'day', 'port', 'sea day'], priority: 3, critical: true },
+            { id: 'dining', title: 'Dining & Restaurants', keywords: ['dining', 'restaurants', 'food', 'chops', 'izumi', 'giovanni'], priority: 2 },
+            { id: 'communication', title: 'Communication & Budget', keywords: ['communication', 'budget', 'wifi', 'cost', 'expenses'], priority: 2 },
+            { id: 'tips', title: 'Pro Tips', keywords: ['tips', 'advice', 'recommendation', 'hack', 'suggestion'], priority: 1 },
+            { id: 'integrate', title: 'VIP Upgrades', keywords: ['integrate', 'platinum', 'upgrade', 'vip', 'enhance'], priority: 1 }
+        ];
+        
+        // Add content from each section
+        sections.forEach(section => {
+            const sectionElement = document.getElementById(section.id);
+            if (sectionElement) {
+                const content = sectionElement.textContent || '';
+                    this.searchIndex.push({
+                        id: section.id,
+                        title: section.title,
+                        category: section.title,
+                        content: content.substring(0, 1000),
+                        keywords: section.keywords,
+                        element: sectionElement,
+                        priority: section.priority || 1,
+                        critical: section.critical || false
+                });
+            }
+        });
+        
+        // Add specific items
+        this.addSpecificSearchItems();
+    }
+    
+    addSpecificSearchItems() {
+        // Add specific important items to search index
+        const specificItems = [
+            { id: 'countdown', title: 'Countdown Timer', category: 'Hero', content: 'Days until cruise departure', keywords: ['countdown', 'timer', 'departure', 'days'], priority: 1 },
+            { id: 'cococay', title: 'Perfect Day at CocoCay', category: 'Itinerary', content: 'Thrill Waterpark, Oasis Lagoon, Daredevils Peak', keywords: ['cococay', 'perfect day', 'waterpark', 'beach'], priority: 3 },
+            { id: 'dunnsriver', title: 'Dunns River Falls', category: 'Itinerary', content: 'Jamaica waterfall climb, water shoes required', keywords: ['dunns', 'river', 'falls', 'jamaica', 'waterfall'], priority: 3 },
+            { id: 'dragonsbreath', title: 'Dragons Breath Zipline', category: 'Itinerary', content: 'Labadee Haiti zipline, longest over water', keywords: ['dragon', 'breath', 'zipline', 'labadee', 'haiti'], priority: 3 },
+            { id: 'flowrider', title: 'FlowRider', category: 'Onboard Activities', content: 'Surf simulator on Adventure of the Seas', keywords: ['flowrider', 'surf', 'simulator', 'activity'], priority: 2 },
+            { id: 'formalnight', title: 'Formal Nights', category: 'Dining & Events', content: 'Two formal nights during the cruise', keywords: ['formal', 'night', 'dress', 'code', 'captain'], priority: 2 },
+            { id: 'emuster', title: 'eMuster Station F6', category: 'Operations Manual', content: 'Safety briefing location on Deck 4', keywords: ['emuster', 'safety', 'drill', 'station', 'f6'], priority: 4, critical: true },
+            { id: 'royalapp', title: 'Royal Caribbean App', category: 'Operations Manual', content: 'Essential app for schedules, chat, and bookings', keywords: ['royal', 'app', 'mobile', 'download', 'chat'], priority: 2 },
+            { id: 'wifi', title: 'Wi-Fi & Connectivity', category: 'Communication & Budget', content: 'VOOM Surf + Stream, Royal-WIFI, internet packages', keywords: ['wifi', 'internet', 'connectivity', 'vroom', 'online'], priority: 2 }
+        ];
+        
+        specificItems.forEach(item => {
+            this.searchIndex.push(item);
+        });
+    }
+    
+    performSearch(query) {
+        if (!query || this.searchIndex.length === 0 || this.isSearching) return;
+
+        this.isSearching = true;
+        const searchResults = document.getElementById('searchResults');
+
+        this.saveSearchHistory(query);
+        
+        // Show searching indicator
+        searchResults.innerHTML = `
+            <div class="no-results">
+                <p>Searching for "${query}"...</p>
+            </div>
+        `;
+        
+        // Simulate search delay for UX
+        setTimeout(() => {
+            const normalizedQuery = query.toLowerCase();
+            const results = this.searchIndex.filter(item => {
+                // Search in title, content, and keywords
+                const searchText = (item.title + ' ' + item.content + ' ' + (item.keywords || []).join(' ')).toLowerCase();
+                return searchText.includes(normalizedQuery);
+            });
+            
+            this.displaySearchResults(results, query);
+            this.isSearching = false;
+        }, 300);
+    }
+    
+    displaySearchResults(results, query) {
+        const searchResults = document.getElementById('searchResults');
+        
+        if (results.length === 0) {
+            searchResults.innerHTML = `
+                <div class="no-results">
+                    <p>No results found for "${query}"</p>
+                    <p class="text-sm mt-2">Try different keywords or browse the sections above</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Sort by priority (critical first), then title matches
+        results.sort((a, b) => {
+            const aPriority = a.priority || 1;
+            const bPriority = b.priority || 1;
+            if (aPriority !== bPriority) return bPriority - aPriority;
+            if (a.critical && !b.critical) return -1;
+            if (!a.critical && b.critical) return 1;
+            const aTitleMatch = a.title.toLowerCase().includes(query.toLowerCase());
+            const bTitleMatch = b.title.toLowerCase().includes(query.toLowerCase());
+            if (aTitleMatch && !bTitleMatch) return -1;
+            if (!aTitleMatch && bTitleMatch) return 1;
+            return 0;
+        });
+        
+        const resultsHTML = results.slice(0, 10).map(result => {
+            // Create snippet with highlighted text
+            let snippet = result.content.substring(0, 150);
+            const queryIndex = snippet.toLowerCase().indexOf(query.toLowerCase());
+            if (queryIndex > -1 && queryIndex < 100) {
+                snippet = '...' + snippet.substring(Math.max(0, queryIndex - 30));
+            }
+            snippet = this.highlightText(snippet + '...', query);
+            
+            return `
+                <div class="search-result-item ${result.critical ? 'critical' : ''}" data-result-id="${result.id}">
+                    <div class="search-result-link">
+                        <div class="search-result-category">
+                            <i class="fas fa-folder-open" aria-hidden="true"></i>
+                            ${result.category || 'Section'}
+                        </div>
+                        <h4 class="search-result-title">${this.highlightText(result.title, query)}</h4>
+                        <p class="search-result-snippet">${snippet}</p>
+                        <div class="text-xs text-light mt-2">
+                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                            ${result.id.replace(/-/g, ' ').toUpperCase()}
+                        </div>
+                        ${result.critical ? '<div class="search-result-badge"><i class="fas fa-exclamation-circle" aria-hidden="true"></i>Critical</div>' : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        searchResults.innerHTML = resultsHTML;
+        
+        // Add click handlers
+        document.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                const resultId = item.getAttribute('data-result-id');
+                this.handleSearchResultClick(resultId);
+            });
+        });
+    }
+    
+    highlightText(text, query) {
+        if (!query) return text;
+        
+        const regex = new RegExp(`(${this.escapeRegExp(query)})`, 'gi');
+        return text.replace(regex, '<span class="search-result-highlight">$1</span>');
+    }
+    
+    escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    clearSearchResults() {
+        const searchResults = document.getElementById('searchResults');
+        if (searchResults) {
+            searchResults.innerHTML = `
+                <div class="no-results">
+                    <p>Type to search for cruise information...</p>
+                    <p class="text-sm mt-2">Try: "CocoCay", "dining", "formal night", "wifi"</p>
+                </div>
+            `;
+        }
+    }
+    
+    handleSearchResultClick(resultId) {
+        // Close search overlay
+        this.closeSearch();
+        
+        const item = this.searchIndex.find(item => item.id === resultId);
+        if (item && item.critical) {
+            this.jumpToCriticalChecklist();
+            return;
+        }
+
+        // Navigate to section
+        if (resultId.includes('-')) {
+            this.navigateToSection(resultId);
+        } else {
+            // For specific items, find related section
+            if (item && item.element) {
+                const section = item.element.closest('section[id]');
+                if (section) {
+                    this.navigateToSection(section.id);
+                }
+            }
+        }
+        
+        // Highlight the section
+        this.highlightSection(resultId);
+    }
+    
+    highlightSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (!section) return;
+        
+        const card = section.querySelector('.card');
+        if (card) {
+            // Add highlight animation
+            card.style.animation = 'none';
+            setTimeout(() => {
+                card.style.animation = 'pulse 2s ease';
+            }, 10);
+            
+            // Scroll into view with offset for header
+            const headerHeight = document.querySelector('.header').offsetHeight;
+            const sectionTop = section.offsetTop - headerHeight - 20;
+            
+            window.scrollTo({
+                top: sectionTop,
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    // ========== ACCORDIONS ==========
+    setupAccordions() {
+        const toggles = document.querySelectorAll('.card__toggle');
+        
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                const contentId = toggle.getAttribute('aria-controls');
+                const content = document.getElementById(contentId);
+                
+                if (!content) return;
+                
+                // Toggle state
+                toggle.setAttribute('aria-expanded', !isExpanded);
+                
+                // Toggle content with smooth animation
+                if (isExpanded) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    setTimeout(() => {
+                        content.classList.remove('expanded');
+                        content.classList.add('collapsed');
+                        content.style.maxHeight = '';
+                    }, 10);
+                } else {
+                    content.classList.remove('collapsed');
+                    content.classList.add('expanded');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    setTimeout(() => {
+                        content.style.maxHeight = 'none';
+                    }, 300);
+                }
+            });
+            
+            // Open first section by default
+            if (toggle.getAttribute('aria-controls') === 'overviewContent') {
+                toggle.click();
+            }
+        });
+    }
+    
+    // ========== COUNTDOWN TIMER ==========
+    setupCountdown() {
+        // Set cruise date: February 14, 2026, 10:30 AM EST
+        const cruiseDate = new Date('2026-02-14T10:30:00-05:00');
+        
+        const updateCountdown = () => {
+            const now = new Date();
+            const timeLeft = cruiseDate - now;
+            
+            if (timeLeft > 0) {
+                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                
+                // Update display with animation
+                const updateWithAnimation = (element, newValue, label) => {
+                    const oldValue = parseInt(element.textContent) || 0;
+                    if (oldValue !== newValue) {
+                        element.style.transform = 'scale(1.2)';
+                        element.style.color = 'var(--accent-light)';
+                        setTimeout(() => {
+                            element.textContent = newValue;
+                            element.setAttribute('aria-label', `${newValue} ${label} remaining`);
+                            element.style.transform = 'scale(1)';
+                            element.style.color = '';
+                        }, 150);
+                    } else {
+                        element.textContent = newValue;
+                        element.setAttribute('aria-label', `${newValue} ${label} remaining`);
+                    }
+                };
+                
+                updateWithAnimation(document.getElementById('days'), days, 'days');
+                updateWithAnimation(document.getElementById('hours'), hours, 'hours');
+                updateWithAnimation(document.getElementById('minutes'), minutes, 'minutes');
+            } else {
+                // Cruise has started or passed
+                document.getElementById('days').textContent = '0';
+                document.getElementById('hours').textContent = '0';
+                document.getElementById('minutes').textContent = '0';
+                document.getElementById('days').setAttribute('aria-label', '0 days remaining');
+                document.getElementById('hours').setAttribute('aria-label', '0 hours remaining');
+                document.getElementById('minutes').setAttribute('aria-label', '0 minutes remaining');
+                
+                // Update message if cruise has started
+                if (timeLeft < -86400000) { // More than 1 day past
+                    const heroTitle = document.getElementById('heroTitle');
+                    if (heroTitle) {
+                        heroTitle.textContent = 'Cruise Memories 🚢';
+                    }
+                }
+            }
+        };
+        
+        // Initial update
+        updateCountdown();
+        
+        // Update every minute
+        setInterval(updateCountdown, 60000);
+    }
+    
+    // ========== WEATHER WIDGET ==========
+    setupWeather() {
+        const weatherConditions = [
+            { temp: '84°F', condition: 'Sunny', icon: '☀️', description: 'Perfect beach weather' },
+            { temp: '82°F', condition: 'Partly Cloudy', icon: '🌤️', description: 'Ideal for outdoor activities' },
+            { temp: '81°F', condition: 'Mostly Sunny', icon: '⛅', description: 'Warm with light breeze' },
+            { temp: '80°F', condition: 'Light Showers', icon: '🌦️', description: 'Brief rain, mostly sunny' },
+            { temp: '83°F', condition: 'Clear Skies', icon: '✨', description: 'Beautiful stargazing tonight' }
+        ];
+        
+        let currentIndex = 0;
+        
+        const updateWeather = () => {
+            const weather = weatherConditions[currentIndex];
+            const tempElement = document.getElementById('weatherTemp');
+            const conditionElement = document.getElementById('weatherCondition');
+            const iconElement = document.querySelector('.weather-icon');
+            
+            // Animate weather change
+            if (tempElement && conditionElement && iconElement) {
+                // Fade out
+                tempElement.style.opacity = '0.5';
+                conditionElement.style.opacity = '0.5';
+                iconElement.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    // Update values
+                    tempElement.textContent = weather.temp;
+                    conditionElement.textContent = weather.condition;
+                    iconElement.textContent = weather.icon;
+                    iconElement.setAttribute('aria-label', weather.condition);
+                    
+                    // Update forecast text
+                    const forecastElement = document.querySelector('.weather-forecast');
+                    if (forecastElement) {
+                        forecastElement.innerHTML = `
+                            Typical February weather: 75-82°F days, 68°F nights. ${weather.description}. Light breeze from the east.
+                        `;
+                    }
+                    
+                    // Fade in
+                    tempElement.style.opacity = '1';
+                    conditionElement.style.opacity = '1';
+                    iconElement.style.opacity = '1';
+                }, 200);
+            }
+            
+            currentIndex = (currentIndex + 1) % weatherConditions.length;
+        };
+        
+        // Initial update
+        updateWeather();
+        
+        // Rotate every 15 seconds
+        setInterval(updateWeather, 15000);
+    }
+    
+    // ========== TOP BAR HINT ==========
+    setupTopBarHint() {
+        this.dayHints = {
+            all: {
+                title: 'Today: Cruise Prep',
+                detail: 'Tap a day to see port highlights and all-aboard times.'
+            },
+            1: {
+                title: 'Today: Embarkation Day',
+                detail: 'Arrive 11:00 AM • Muster Station F6 • All Aboard 4:30 PM.'
+            },
+            2: {
+                title: 'Today: Perfect Day at CocoCay',
+                detail: 'Thrill Waterpark early • Oasis Lagoon lunch • All Aboard 4:30 PM.'
+            },
+            3: {
+                title: 'Today: Sea Day',
+                detail: 'Pool deck by 10 AM • R Bar meetup 6:45 PM.'
+            },
+            4: {
+                title: 'Today: Falmouth, Jamaica',
+                detail: 'Dunn\'s River Falls first • Return to ship by 4:00 PM.'
+            },
+            5: {
+                title: 'Today: Labadee, Haiti',
+                detail: 'Dragon\'s Breath zipline AM • All Aboard 4:30 PM.'
+            },
+            6: {
+                title: 'Today: Sea Day',
+                detail: 'Pack bags early • Final dinner and group photo.'
+            }
+        };
+
+        const closeBtn = document.getElementById('topBarHintClose');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.dismissTopBarHint();
+            });
+        }
+
+        this.updateTopBarHint(this.currentDay);
+    }
+
+    updateTopBarHint(day) {
+        const hint = this.dayHints?.[day] || this.dayHints?.all;
+        if (!hint) return;
+
+        const titleEl = document.getElementById('topBarHintTitle');
+        const detailEl = document.getElementById('topBarHintDetail');
+
+        if (titleEl) titleEl.textContent = hint.title;
+        if (detailEl) detailEl.textContent = hint.detail;
+
+        this.showTopBarHint();
+    }
+
+    showTopBarHint(force = false) {
+        const hintEl = document.getElementById('topBarHint');
+        if (!hintEl) return;
+
+        const dismissedKey = this.getHintDismissKey();
+        if (!force && dismissedKey) {
+            return;
+        }
+
+        hintEl.classList.remove('is-hidden');
+        this.updateStickyOffsets();
+
+        if (this.topBarTimeout) {
+            clearTimeout(this.topBarTimeout);
+        }
+
+        this.topBarTimeout = setTimeout(() => {
+            this.hideTopBarHint();
+        }, 10000);
+    }
+
+    hideTopBarHint() {
+        const hintEl = document.getElementById('topBarHint');
+        if (hintEl) {
+            hintEl.classList.add('is-hidden');
+            this.updateStickyOffsets();
+        }
+    }
+
+    dismissTopBarHint() {
+        try {
+            localStorage.setItem('cruiseHintDismissedDate', this.getTodayKey());
+        } catch (e) {
+            console.error('Failed to store hint dismissal', e);
+        }
+        this.hideTopBarHint();
+    }
+
+    getHintDismissKey() {
+        try {
+            const dismissed = localStorage.getItem('cruiseHintDismissedDate');
+            return dismissed === this.getTodayKey();
+        } catch (e) {
+            return false;
+        }
+    }
+
+    getTodayKey() {
+        return new Date().toISOString().split('T')[0];
+    }
+    
+    // ========== DAY NAVIGATION ==========
+    setupDayNavigation() {
+        const dayBtns = document.querySelectorAll('.day-btn');
+        
+        dayBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active state
+                dayBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                this.currentDay = btn.dataset.day;
+                
+                // Filter content by day if needed
+                this.filterByDay(this.currentDay);
+
+                // Update top bar hint
+                this.updateTopBarHint(this.currentDay);
+            });
+        });
+    }
+
+    setupDaySelectorVisibility() {
+        const daySelector = document.getElementById('daySelector');
+        const itinerarySection = document.getElementById('itinerary');
+        if (!daySelector || !itinerarySection) return;
+
+        const setVisibility = (isVisible) => {
+            daySelector.classList.toggle('day-selector--hidden', !isVisible);
+            this.updateStickyOffsets();
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                setVisibility(entry.isIntersecting);
+            });
+        }, { threshold: 0.15 });
+
+        observer.observe(itinerarySection);
+        this.observers.push(observer);
+
+        setVisibility(this.currentSection === 'itinerary');
+    }
+    
+    filterByDay(day) {
+        const timelineItems = document.querySelectorAll('.timeline-item');
+
+        timelineItems.forEach(item => {
+            const itemDay = item.dataset.day;
+            const shouldShow = day === 'all' || itemDay === day;
+            item.style.display = shouldShow ? 'block' : 'none';
+        });
+
+        // Only filter sections if we're in the itinerary tab
+        if (this.currentSection === 'itinerary') {
+            const sections = document.querySelectorAll('.main .section');
+            sections.forEach(section => {
+                const isItinerary = section.id === 'itinerary';
+                const shouldShow = day === 'all' || isItinerary;
+                section.classList.toggle('active', shouldShow);
+                if (!shouldShow) {
+                    section.setAttribute('hidden', 'true');
+                } else {
+                    section.removeAttribute('hidden');
+                }
+            });
+        }
+    }
+    
+    // ========== TRAVELER SELECTOR ==========
+    setupTravelerSelector() {
+        const travelerSelect = document.getElementById('travelerSelect');
+        
+        if (travelerSelect) {
+            travelerSelect.addEventListener('change', (e) => {
+                this.currentTravelerView = e.target.value;
+                this.filterByTravelerView(this.currentTravelerView);
+            });
+        }
+    }
+    
+    filterByTravelerView(view) {
+        // This is a simplified version - in a full implementation,
+        // you would filter content by traveler view
+        const sections = document.querySelectorAll('.section');
+        
+        sections.forEach(section => {
+            // Show all sections for "all" view
+            if (view === 'all') {
+                section.style.display = '';
+            } else {
+                // In a real implementation, you would filter based on content
+                section.style.display = '';
+            }
+        });
+    }
+
+    // ========== COMPACT MODE ==========
+    setupCompactMode() {
+        const compactToggleBtn = document.getElementById('compactToggleBtn');
+        try {
+            const storedMode = localStorage.getItem('cruiseCompactMode');
+            if (storedMode === 'true') {
+                document.body.classList.add('compact-mode');
+                if (compactToggleBtn) {
+                    compactToggleBtn.classList.add('active');
+                    compactToggleBtn.setAttribute('aria-pressed', 'true');
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load compact mode preference', e);
+        }
+
+        if (compactToggleBtn) {
+            compactToggleBtn.addEventListener('click', () => this.toggleCompactMode());
+        }
+    }
+
+    toggleCompactMode() {
+        const compactToggleBtn = document.getElementById('compactToggleBtn');
+        const isActive = document.body.classList.toggle('compact-mode');
+
+        if (compactToggleBtn) {
+            compactToggleBtn.classList.toggle('active', isActive);
+            compactToggleBtn.setAttribute('aria-pressed', String(isActive));
+        }
+
+        try {
+            localStorage.setItem('cruiseCompactMode', String(isActive));
+        } catch (e) {
+            console.error('Failed to save compact mode preference', e);
+        }
+    }
+
+    // ========== JUMP TO CRITICAL ==========
+    setupJumpToCritical() {
+        const jumpBtn = document.getElementById('jumpToCriticalBtn');
+        if (jumpBtn) {
+            jumpBtn.addEventListener('click', () => this.jumpToCriticalChecklist());
+        }
+
+        this.updateCriticalBadge();
+    }
+
+    updateCriticalBadge() {
+        const badge = document.getElementById('criticalCountBadge');
+        const criticalItems = document.querySelectorAll('.critical-item');
+        const count = criticalItems.length;
+
+        if (badge) {
+            badge.textContent = count;
+            badge.style.display = count ? 'inline-flex' : 'none';
+        }
+    }
+
+    updateCriticalFabVisibility() {
+        const jumpBtn = document.getElementById('jumpToCriticalBtn');
+        if (!jumpBtn) return;
+        const hide = this.currentSection === 'operations';
+        jumpBtn.classList.toggle('fab--hidden', hide);
+    }
+
+    // ========== CRITICAL INFO FILTER ==========
+    setupCriticalFilter() {
+        const toggleBtn = document.getElementById('criticalToggleBtn');
+        if (!toggleBtn) return;
+
+        let isCriticalOnly = false;
+        try {
+            isCriticalOnly = localStorage.getItem('cruiseCriticalOnly') === 'true';
+        } catch (e) {
+            console.error('Failed to load critical-only preference', e);
+        }
+
+        this.applyCriticalFilter(isCriticalOnly);
+
+        toggleBtn.addEventListener('click', () => {
+            const newState = !document.body.classList.contains('critical-only');
+            this.applyCriticalFilter(newState);
+            try {
+                localStorage.setItem('cruiseCriticalOnly', String(newState));
+            } catch (e) {
+                console.error('Failed to save critical-only preference', e);
+            }
+        });
+    }
+
+    applyCriticalFilter(isCriticalOnly) {
+        const toggleBtn = document.getElementById('criticalToggleBtn');
+        const statusText = document.getElementById('criticalToggleStatus');
+
+        document.body.classList.toggle('critical-only', isCriticalOnly);
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-pressed', String(isCriticalOnly));
+        }
+        if (statusText) {
+            statusText.textContent = isCriticalOnly ? 'Showing critical sections only' : 'Showing all sections';
+        }
+
+        this.updateStickyOffsets();
+    }
+
+    jumpToCriticalChecklist() {
+        this.navigateToSection('operations');
+        this.updateCriticalFabVisibility();
+        const operationsToggle = document.querySelector('[aria-controls="operationsContent"]');
+        if (operationsToggle && operationsToggle.getAttribute('aria-expanded') === 'false') {
+            operationsToggle.click();
+        }
+
+        setTimeout(() => {
+            const checklist = document.getElementById('criticalChecklist');
+            if (checklist) {
+                const offset = this.getStickyOffset();
+                const checklistTop = checklist.getBoundingClientRect().top + window.pageYOffset - offset;
+                window.scrollTo({ top: checklistTop, behavior: 'smooth' });
+                this.highlightCriticalItems();
+            }
+        }, 250);
+    }
+
+    highlightCriticalItems() {
+        const items = document.querySelectorAll('.critical-item');
+        items.forEach(item => item.classList.add('critical-highlight'));
+        setTimeout(() => {
+            items.forEach(item => item.classList.remove('critical-highlight'));
+        }, 2000);
+    }
+    
+    // ========== BOTTOM NAVIGATION ==========
+    setupBottomNavigation() {
+        const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
+        const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+        
+        bottomNavItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = item.dataset.section;
+                
+                if (section) {
+                    this.navigateToSection(section);
+                    // Update active state
+                    bottomNavItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                }
+            });
+        });
+        
+        // Mobile more button
+        if (mobileMoreBtn) {
+            mobileMoreBtn.addEventListener('click', () => {
+                this.openSectionDrawer();
+            });
+        }
+    }
+
+    // ========== TOUCH GESTURES ==========
+    setupTouchGestures() {
+        document.addEventListener('touchstart', (event) => {
+            if (event.touches.length !== 1) return;
+            const touch = event.touches[0];
+            this.touchStart = {
+                x: touch.clientX,
+                y: touch.clientY,
+                time: Date.now()
+            };
+        }, { passive: true });
+
+        document.addEventListener('touchend', (event) => {
+            if (!this.touchStart) return;
+            const touch = event.changedTouches[0];
+            const deltaX = touch.clientX - this.touchStart.x;
+            const deltaY = touch.clientY - this.touchStart.y;
+            const elapsed = Date.now() - this.touchStart.time;
+
+            // Swipe down from top to reveal hint
+            if (this.touchStart.y < 60 && deltaY > 80) {
+                this.showTopBarHint(true);
+            }
+
+            // Double tap to toggle compact mode
+            if (elapsed < 250) {
+                const now = Date.now();
+                if (now - this.lastTapTime < 300) {
+                    this.toggleCompactMode();
+                    this.lastTapTime = 0;
+                } else {
+                    this.lastTapTime = now;
+                }
+            }
+
+            this.touchStart = null;
+        }, { passive: true });
+
+        const drawer = document.getElementById('sectionDrawer');
+        if (drawer) {
+            drawer.addEventListener('touchstart', (event) => {
+                const touch = event.touches[0];
+                this.drawerSwipeStartX = touch.clientX;
+            }, { passive: true });
+
+            drawer.addEventListener('touchend', (event) => {
+                const touch = event.changedTouches[0];
+                const deltaX = touch.clientX - (this.drawerSwipeStartX || 0);
+                if (deltaX > 80) {
+                    this.closeSectionDrawer();
+                }
+            }, { passive: true });
+        }
+    }
+    
+    // ========== EVENT LISTENERS ==========
+    setupEventListeners() {
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                const href = anchor.getAttribute('href');
+                if (href === '#' || href === '#!') return;
+                
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    this.scrollToSection(target.id);
+                    
+                    // Update active navigation
+                    this.updateActiveNav(anchor);
+                }
+            });
+        });
+        
+        // Print button
+        const printBtn = document.getElementById('printBtn');
+        if (printBtn) printBtn.addEventListener('click', () => this.printPage());
+        
+        // Offline button
+        const offlineBtn = document.getElementById('offlineBtn');
+        if (offlineBtn) offlineBtn.addEventListener('click', () => this.saveOffline());
+        
+        // Share button
+        const shareBtn = document.getElementById('shareBtn');
+        if (shareBtn) shareBtn.addEventListener('click', () => this.sharePage());
+        
+        // Toast close button
+        const toastClose = document.getElementById('toastClose');
+        if (toastClose) {
+            toastClose.addEventListener('click', () => this.hideToast());
+        }
+        
+        // Auto-hide toast on click
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.addEventListener('click', (e) => {
+                if (e.target === toast || e.target.closest('.toast__close')) {
+                    this.hideToast();
+                }
+            });
+        }
+        
+        // Window resize handling
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => this.handleResize(), 250);
+        });
+        
+        // Online/offline detection
+        window.addEventListener('online', () => this.handleOnline());
+        window.addEventListener('offline', () => this.handleOffline());
+        
+        // Beforeunload for cleanup
+        window.addEventListener('beforeunload', () => this.cleanup());
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + F for search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                const searchBtn = document.getElementById('searchBtn');
+                if (searchBtn) searchBtn.click();
+            }
+            
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                this.closeAllModals();
+            }
+        });
+        
+        // Click outside to close modals
+        document.addEventListener('click', (e) => {
+            if (this.drawerOpen) {
+                const drawer = document.getElementById('sectionDrawer');
+                const mobileToggle = document.getElementById('mobileMenuBtn');
+                if (drawer && mobileToggle &&
+                    !drawer.contains(e.target) &&
+                    !mobileToggle.contains(e.target)) {
+                    this.closeSectionDrawer();
+                }
+            }
+        });
+    }
+    
+    // ========== INTERSECTION OBSERVER ==========
+    setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionId = entry.target.id;
+                    
+                    // Only update URL hash, don't switch tabs automatically
+                    if (sectionId === this.currentSection) {
+                        history.replaceState(null, null, `#${sectionId}`);
+                    }
+                }
+            });
+        }, {
+            root: null,
+            rootMargin: '-100px 0px -50% 0px',
+            threshold: 0.1
+        });
+        
+        // Observe all sections but they won't auto-switch tabs
+        this.tabContents.forEach(section => observer.observe(section));
+        this.observers.push(observer);
+    }
+    
+    // ========== PRINT FUNCTIONALITY ==========
+    setupPrint() {
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia('print');
+            mediaQuery.addEventListener('change', (mq) => {
+                if (mq.matches) {
+                    this.beforePrint();
+                } else {
+                    this.afterPrint();
+                }
+            });
+        }
+    }
+    
+    beforePrint() {
+        // Store scroll position
+        this.prePrintScroll = window.pageYOffset;
+        
+        // Expand all accordions for printing
+        document.querySelectorAll('.card__toggle[aria-expanded="false"]').forEach(toggle => {
+            toggle.click();
+        });
+        
+        // Show all sections for printing
+        this.tabContents.forEach(content => {
+            content.classList.add('active');
+            content.removeAttribute('hidden');
+        });
+        
+        this.showToast('Preparing for printing...', 1000);
+    }
+    
+    afterPrint() {
+        // Restore scroll position
+        if (this.prePrintScroll !== undefined) {
+            window.scrollTo(0, this.prePrintScroll);
+            delete this.prePrintScroll;
+        }
+        
+        // Restore tab view
+        const currentTab = document.getElementById(this.currentSection);
+        if (currentTab) {
+            this.tabContents.forEach(content => {
+                if (content.id !== this.currentSection) {
+                    content.classList.remove('active');
+                    content.setAttribute('hidden', 'true');
+                }
+            });
+            currentTab.classList.add('active');
+            currentTab.removeAttribute('hidden');
+        }
+        
+        this.showToast('Print complete!', 2000);
+    }
+    
+    printPage() {
+        this.showToast('Opening print dialog...', 1000);
+        setTimeout(() => window.print(), 100);
+    }
+    
+    // ========== OFFLINE FUNCTIONALITY ==========
+    setupOffline() {
+        // Check if service worker is supported
+        if ('serviceWorker' in navigator) {
+            console.log('Service Worker support detected');
+        }
+        
+        // Check initial connectivity
+        if (!navigator.onLine) {
+            this.handleOffline();
+        }
+    }
+    
+    saveOffline() {
+        this.showToast('💾 Saving for offline access...', 2000);
+        
+        // In a real app, this would save data to IndexedDB or use a service worker
+        setTimeout(() => {
+            this.showToast('✅ Cruise hub saved for offline access!', 3000);
+            
+            // Update button text
+            const offlineBtn = document.getElementById('offlineBtn');
+            if (offlineBtn) offlineBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Saved Offline';
+            
+            // Store in localStorage
+            try {
+                localStorage.setItem('cruiseHubLastSaved', new Date().toISOString());
+                localStorage.setItem('cruiseHubOffline', 'true');
+            } catch (e) {
+                console.error('Failed to save offline status:', e);
+            }
+        }, 1500);
+    }
+    
+    // ========== UTILITY METHODS ==========
+    updateStickyOffsets() {
+        const header = document.querySelector('.header');
+        const daySelector = document.querySelector('.day-selector');
+        const topBar = document.getElementById('topBarHint');
+        const headerHeight = header ? header.offsetHeight : 0;
+        const topBarHeight = topBar && !topBar.classList.contains('is-hidden') ? topBar.offsetHeight : 0;
+        const daySelectorOffset = headerHeight + topBarHeight;
+
+        document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+        document.documentElement.style.setProperty('--day-selector-offset', `${daySelectorOffset}px`);
+
+        const daySelectorHeight = daySelector && !daySelector.classList.contains('day-selector--hidden')
+            ? daySelector.offsetHeight
+            : 0;
+        const scrollPadding = headerHeight + topBarHeight + daySelectorHeight + 20;
+        document.documentElement.style.setProperty('--scroll-padding', `${scrollPadding}px`);
+    }
+
+    getStickyOffset() {
+        const header = document.querySelector('.header');
+        const daySelector = document.querySelector('.day-selecter');
+        const topBar = document.getElementById('topBarHint');
+        const headerHeight = header ? header.offsetHeight : 0;
+        const topBarHeight = topBar && !topBar.classList.contains('is-hidden') ? topBar.offsetHeight : 0;
+        const daySelectorHeight = daySelector && !daySelector.classList.contains('day-selector--hidden')
+            ? daySelector.offsetHeight
+            : 0;
+        return headerHeight + topBarHeight + daySelectorHeight + 20;
+    }
+
+    updateActiveNav(clickedLink) {
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        clickedLink.classList.add('active');
+    }
+    
+    showToast(message, duration = 3000) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        
+        if (!toast || !toastMessage) return;
+        
+        // Clear any existing timeout
+        if (this.toastTimeout) {
+            clearTimeout(this.toastTimeout);
+        }
+        
+        toastMessage.textContent = message;
+        toast.classList.add('show');
+        
+        // Auto-hide
+        this.toastTimeout = setTimeout(() => {
+            this.hideToast();
+        }, duration);
+    }
+    
+    hideToast() {
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.classList.remove('show');
+        }
+    }
+    
+    sharePage() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Cruise Companion Hub - Adventure of the Seas',
+                text: 'Check out our cruise itinerary for the Rahe Family & Friends Adventure!',
+                url: window.location.href
+            }).then(() => {
+                this.showToast('Thanks for sharing! 🚢', 2000);
+            }).catch(err => {
+                console.log('Share failed:', err);
+                this.showToast('Share feature not available', 2000);
+            });
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                this.showToast('📋 Link copied to clipboard!', 2000);
+            }).catch(err => {
+                console.log('Copy failed:', err);
+                this.showToast('Share feature not supported', 2000);
+            });
+        }
+    }
+    
+    loadPreferences() {
+        try {
+            const saved = localStorage.getItem('cruiseCompanionPreferences');
+            if (saved) {
+                this.userPreferences = JSON.parse(saved);
+                
+                // Apply preferences
+                this.applyPreferences();
+            }
+        } catch (e) {
+            console.error('Failed to load preferences:', e);
+        }
+    }
+    
+    applyPreferences() {
+        // Apply any saved user preferences
+        if (this.userPreferences.theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+        
+        // Restore accordion states if saved
+        if (this.userPreferences.accordionStates) {
+            Object.entries(this.userPreferences.accordionStates).forEach(([sectionId, isExpanded]) => {
+                const toggle = document.querySelector(`[aria-controls="${sectionId}Content"]`);
+                if (toggle && toggle.getAttribute('aria-expanded') !== String(isExpanded)) {
+                    toggle.click();
+                }
+            });
+        }
+    }
+    
+    savePreferences() {
+        try {
+            // Save accordion states
+            const accordionStates = {};
+            document.querySelectorAll('.card__toggle').forEach(toggle => {
+                const contentId = toggle.getAttribute('aria-controls');
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                accordionStates[contentId] = isExpanded;
+            });
+            
+            this.userPreferences.accordionStates = accordionStates;
+            localStorage.setItem('cruiseCompanionPreferences', JSON.stringify(this.userPreferences));
+        } catch (e) {
+            console.error('Failed to save preferences:', e);
+        }
+    }
+    
+    handleResize() {
+        // Handle responsive adjustments
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            // Mobile-specific adjustments
+            document.body.classList.add('mobile-view');
+        } else {
+            document.body.classList.remove('mobile-view');
+            this.closeSectionDrawer();
+        }
+
+        this.updateStickyOffsets();
+    }
+    
+    handleOnline() {
+        this.showToast('Back online! Syncing updates...', 2000);
+    }
+    
+    handleOffline() {
+        this.showToast('You are offline. Some features may be limited.', 3000);
+    }
+    
+    closeAllModals() {
+        // Close search overlay
+        const searchOverlay = document.getElementById('searchOverlay');
+        if (searchOverlay && searchOverlay.classList.contains('active')) {
+            this.closeSearch();
+        }
+        
+        // Close section drawer
+        if (this.drawerOpen) {
+            this.closeSectionDrawer();
+        }
+        
+        // Hide toast
+        this.hideToast();
+    }
+    
+    cleanup() {
+        // Clean up observers
+        this.observers.forEach(observer => observer.disconnect());
+        
+        // Save preferences
+        this.savePreferences();
+    }
+}
+
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.cruiseApp = new CruiseCompanion();
+    
+    // Add error handling
+    window.addEventListener('error', (event) => {
+        console.error('Application error:', event.error);
+        if (window.cruiseApp) {
+            window.cruiseApp.showToast('An error occurred. Please refresh the page.');
+        }
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+    });
+});
+
+// Service Worker Registration (simplified)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        console.log('Service Worker support available');
+    });
+}
       </script>
    </body>
 </html>
