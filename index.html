@@ -6620,1543 +6620,1376 @@
           }
           
           updateDisplay() {
-              if (!this.currentWeather) return;
-              
-              // Animate changes
-              this.animateWeatherChange();
-              
-              // Update DOM after animation
-              setTimeout(() => {
-                  if (this.tempElement) {
-                      this.tempElement.textContent = this.currentWeather.temp;
-                      this.tempElement.setAttribute('aria-label', `Temperature: ${this.currentWeather.temp}`);
-                  }
-                  
-                  if (this.conditionElement) {
-                      this.conditionElement.textContent = this.currentWeather.condition;
-                  }
-                  
-                  if (this.iconElement) {
-                      this.iconElement.textContent = this.currentWeather.icon;
-                      this.iconElement.setAttribute('aria-label', this.currentWeather.condition);
-                  }
-                  
-                  if (this.forecastElement) {
-                      this.forecastElement.innerHTML = `
-                          <p>Typical February weather: 75-82°F days, 68°F nights. ${this.currentWeather.description}.</p>
-                          <p class="weather-details">
-                              <span>Humidity: ${this.currentWeather.humidity || '65%'}</span> • 
-                              <span>Wind: ${this.currentWeather.wind || '10 mph'}</span>
-                          </p>
-                      `;
-                  }
-                  
-                  // Update last updated time
-                  const lastUpdatedElement = document.getElementById('weatherLastUpdated');
-                  if (lastUpdatedElement) {
-                      const now = new Date();
-                      lastUpdatedElement.textContent = `Updated: ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-                  }
-              }, 200);
-          }
-          
-          animateWeatherChange() {
-              // Fade out current values
-              if (this.tempElement) this.tempElement.style.opacity = '0.5';
-              if (this.conditionElement) this.conditionElement.style.opacity = '0.5';
-              if (this.iconElement) this.iconElement.style.opacity = '0.5';
-              
-              // Fade in new values
-              setTimeout(() => {
-                  if (this.tempElement) this.tempElement.style.opacity = '1';
-                  if (this.conditionElement) this.conditionElement.style.opacity = '1';
-                  if (this.iconElement) this.iconElement.style.opacity = '1';
-              }, 200);
-          }
-          
-          getCurrentWeather() {
-              return this.currentWeather;
-          }
-          
-          getForecast() {
-              return this.forecast;
-          }
-          
-          addObserver(observer) {
-              this.observers.add(observer);
-          }
-          
-          removeObserver(observer) {
-              this.observers.delete(observer);
-          }
-          
-          notifyObservers(data) {
-              this.observers.forEach(observer => {
-                  try {
-                      if (typeof observer === 'function') {
-                          observer(data);
-                      } else if (observer && typeof observer.update === 'function') {
-                          observer.update(data);
-                      }
-                  } catch (error) {
-                      this.errorHandler.log(error, 'WeatherManager.notifyObservers');
-                  }
-              });
-          }
-          
-          destroy() {
-              if (this.intervalId) {
-                  clearInterval(this.intervalId);
-                  this.intervalId = null;
-              }
-              
-              this.observers.clear();
-              
-              // Clean up DOM references
-              this.tempElement = null;
-              this.conditionElement = null;
-              this.iconElement = null;
-              this.forecastElement = null;
-          }
-         }
-         
-               // ============================================================================
-      // MAIN APPLICATION INITIALIZATION
-      // ============================================================================
-      
-      class CruiseCompanionApp {
-          constructor() {
-              this.errorHandler = new ErrorHandler();
-              this.storage = new StorageManager();
-              this.searchManager = new SearchManager();
-              this.navigation = new NavigationManager();
-              this.uiComponents = new UIComponentsManager();
-              this.countdown = new CountdownManager(CONFIG.CRUISE_DATE);
-              this.weatherManager = new WeatherManager();
-              
-              // Check environment
-              this.isProduction = window.location.hostname !== 'localhost' && 
-                                 !window.location.hostname.includes('127.0.0.1');
-              this.isDevelopment = !this.isProduction;
-              
-              // State
-              this.isInitialized = false;
-              this.isLoading = false;
-              this.appState = {
-                  compactMode: false,
-                  criticalFilter: false,
-                  offlineMode: false,
-                  searchOpen: false,
-                  drawerOpen: false
-              };
-              
-              // Performance tracking
-              this.loadStartTime = performance.now();
-              this.performanceMetrics = {
-                  domReady: null,
-                  appReady: null,
-                  searchIndexBuilt: null
-              };
-          }
-          
-          async initialize() {
-              if (this.isInitialized) {
-                  console.warn('App is already initialized');
-                  return false;
-              }
-              
-              this.isLoading = true;
-              
-              try {
-                  console.log('🚢 Cruise Companion App Initializing...');
-                  
-                  // Show loading overlay
-                  this.showLoadingOverlay('Loading Your Cruise Adventure');
-                  
-                  // Load user preferences
-                  await this.loadPreferences();
-                  
-                  // Initialize UI components
-                  await this.uiManager.initialize();
-                  
-                  // Build search index
-                  await this.searchManager.buildIndex();
-                  
-                  // Initialize weather
-                  await this.weatherManager.initialize();
-                  
-                  // Set up event listeners
-                  this.setupEventListeners();
-                  
-                  // Set up navigation from URL hash
-                  await this.setupInitialNavigation();
-                  
-                  // Initialize countdown
-                  this.countdownManager.start();
-                  
-                  // Update sticky offsets
-                  this.updateStickyOffsets();
-                  
-                  // Set app as initialized
-                  this.isInitialized = true;
-                  this.isLoading = false;
-                  
-                  // Hide loading overlay
-                  this.hideLoadingOverlay();
-                  
-                  // Show welcome toast
-                  this.showWelcomeMessage();
-                  
-                  // Log initialization time
-                  const initTime = Date.now() - this.appStartTime;
-                  console.log(`✅ App initialized in ${initTime}ms`);
-                  
-                  // Send analytics
-                  this.trackEvent('app_initialized', { init_time: initTime });
-                  
-                  return true;
-              } catch (error) {
-                  this.errorHandler.log(error, 'CruiseCompanionApp.initialize');
-                  this.isLoading = false;
-                  
-                  // Show error to user
-                  this.uiManager.showToast(
-                      'Failed to initialize app. Please refresh the page.',
-                      { type: 'error', duration: 5000 }
-                  );
-                  
-                  return false;
-              }
-          }
-          
-          async loadPreferences() {
-              try {
-                  this.userPreferences = this.storage.loadPreferences();
-                  
-                  // Apply preferences
-                  this.applyPreferences();
-                  
-                  return this.userPreferences;
-              } catch (error) {
-                  this.errorHandler.log(error, 'CruiseCompanionApp.loadPreferences');
-                  return {};
-              }
-          }
-          
-          applyPreferences() {
-              // Compact mode
-              if (this.userPreferences.compactMode) {
-                  this.toggleCompactMode(true);
-              }
-              
-              // Critical filter
-              if (this.userPreferences.criticalFilter) {
-                  this.toggleCriticalFilter(true);
-              }
-              
-              // Theme
-              if (this.userPreferences.theme === 'dark') {
-                  document.body.classList.add('dark-theme');
-              }
-              
-              // Font size
-              if (this.userPreferences.fontSize) {
-                  document.documentElement.style.setProperty('--font-size', this.userPreferences.fontSize);
-              }
-          }
-          
-          async setupInitialNavigation() {
-              // Check URL hash
-              const hash = window.location.hash.substring(1);
-              
-              if (hash && this.navigationManager.availableSections.includes(hash)) {
-                  await this.navigationManager.navigateToSection(hash, { scroll: false });
-              } else {
-                  // Default to overview
-                  await this.navigationManager.navigateToSection('overview', { scroll: false });
-              }
-              
-              // Check for day parameter
-              const urlParams = new URLSearchParams(window.location.search);
-              const day = urlParams.get('day');
-              if (day && this.navigationManager.availableDays.includes(day)) {
-                  this.navigationManager.setCurrentDay(day);
-              }
-          }
-          
-          setupEventListeners() {
-              // Window events
-              window.addEventListener('resize', this.handleResize);
-              window.addEventListener('online', this.handleOnline);
-              window.addEventListener('offline', this.handleOffline);
-              window.addEventListener('beforeunload', this.handleBeforeUnload);
-              document.addEventListener('keydown', this.handleKeyDown);
-              
-              // Search
-              this.setupSearchListeners();
-              
-              // Navigation
-              this.setupNavigationListeners();
-              
-              // Actions
-              this.setupActionListeners();
-              
-              // Touch gestures
-              this.setupTouchListeners();
-          }
-          
-          setupSearchListeners() {
-              const searchBtn = document.getElementById('searchBtn');
-              const searchOverlay = document.getElementById('searchOverlay');
-              const searchInput = document.getElementById('searchInput');
-              const searchForm = document.getElementById('searchForm');
-              const searchClose = document.getElementById('searchClose');
-              
-              if (!searchBtn || !searchOverlay) return;
-              
-              // Open search
-              searchBtn.addEventListener('click', () => {
-                  this.openSearch();
-              });
-              
-              // Close search
-              if (searchClose) {
-                  searchClose.addEventListener('click', () => {
-                      this.closeSearch();
-                  });
-              }
-              
-              // Handle search form submission
-              if (searchForm) {
-                  searchForm.addEventListener('submit', async (e) => {
-                      e.preventDefault();
-                      const query = searchInput?.value?.trim();
-                      if (query) {
-                          await this.performSearch(query);
-                      }
-                  });
-              }
-              
-              // Handle real-time search
-              if (searchInput) {
-                  searchInput.addEventListener('input', PerformanceUtils.debounce(async (e) => {
-                      const query = e.target.value.trim();
-                      if (query.length >= 2) {
-                          await this.performSearch(query);
-                      } else {
-                          this.clearSearchResults();
-                      }
-                  }, CONFIG.DEBOUNCE_DELAY));
-              }
-              
-              // Close overlay when clicking outside
-              if (searchOverlay) {
-                  searchOverlay.addEventListener('click', (e) => {
-                      if (e.target === searchOverlay) {
-                          this.closeSearch();
-                      }
-                  });
-              }
-              
-              // Quick search chips
-              document.querySelectorAll('.search-chip').forEach(chip => {
-                  chip.addEventListener('click', async () => {
-                      const query = chip.dataset.query || chip.textContent.trim();
-                      if (searchInput) {
-                          searchInput.value = query;
-                          searchInput.focus();
-                      }
-                      await this.performSearch(query);
-                  });
-              });
-          }
-          
-          setupNavigationListeners() {
-              // Section navigation
-              document.querySelectorAll('[data-section]').forEach(element => {
-                  element.addEventListener('click', async (e) => {
-                      e.preventDefault();
-                      const sectionId = element.dataset.section;
-                      await this.navigationManager.navigateToSection(sectionId);
-                  });
-              });
-              
-              // Day navigation
-              document.querySelectorAll('.day-btn').forEach(btn => {
-                  btn.addEventListener('click', () => {
-                      const day = btn.dataset.day;
-                      this.navigationManager.setCurrentDay(day);
-                  });
-              });
-              
-              // Traveler selector
-              const travelerSelect = document.getElementById('travelerSelect');
-              if (travelerSelect) {
-                  travelerSelect.addEventListener('change', (e) => {
-                      const view = e.target.value;
-                      this.navigationManager.setTravelerView(view);
-                  });
-              }
-              
-              // Mobile menu
-              const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-              if (mobileMenuBtn) {
-                  mobileMenuBtn.addEventListener('click', () => {
-                      this.toggleMobileMenu();
-                  });
-              }
-              
-              // Mobile drawer close
-              const drawerClose = document.getElementById('sectionDrawerClose');
-              if (drawerClose) {
-                  drawerClose.addEventListener('click', () => {
-                      this.closeMobileMenu();
-                  });
-              }
-              
-              // Bottom navigation
-              document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
-                  item.addEventListener('click', (e) => {
-                      if (!item.dataset.section) {
-                          // "More" button
-                          this.toggleMobileMenu();
-                      }
-                  });
-              });
-          }
-          
-          setupActionListeners() {
-              // Print button
-              const printBtn = document.getElementById('printBtn');
-              if (printBtn) {
-                  printBtn.addEventListener('click', () => {
-                      this.printItinerary();
-                  });
-              }
-              
-              // Offline button
-              const offlineBtn = document.getElementById('offlineBtn');
-              if (offlineBtn) {
-                  offlineBtn.addEventListener('click', () => {
-                      this.saveForOffline();
-                  });
-              }
-              
-              // Share button
-              const shareBtn = document.getElementById('shareBtn');
-              if (shareBtn) {
-                  shareBtn.addEventListener('click', () => {
-                      this.shareCruisePlan();
-                  });
-              }
-              
-              // Compact mode toggle
-              const compactToggleBtn = document.getElementById('compactToggleBtn');
-              if (compactToggleBtn) {
-                  compactToggleBtn.addEventListener('click', () => {
-                      this.toggleCompactMode();
-                  });
-              }
-              
-              // Critical filter toggle
-              const criticalToggleBtn = document.getElementById('criticalToggleBtn');
-              if (criticalToggleBtn) {
-                  criticalToggleBtn.addEventListener('click', () => {
-                      this.toggleCriticalFilter();
-                  });
-              }
-              
-              // Jump to critical
-              const jumpToCriticalBtn = document.getElementById('jumpToCriticalBtn');
-              if (jumpToCriticalBtn) {
-                  jumpToCriticalBtn.addEventListener('click', () => {
-                      this.jumpToCriticalChecklist();
-                  });
-              }
-              
-              // Top bar hint close
-              const topBarHintClose = document.getElementById('topBarHintClose');
-              if (topBarHintClose) {
-                  topBarHintClose.addEventListener('click', () => {
-                      this.dismissTopBarHint();
-                  });
-              }
-          }
-          
-          setupTouchListeners() {
-              let touchStart = null;
-              let lastTap = 0;
-              
-              document.addEventListener('touchstart', (e) => {
-                  if (e.touches.length === 1) {
-                      touchStart = {
-                          x: e.touches[0].clientX,
-                          y: e.touches[0].clientY,
-                          time: Date.now()
-                      };
-                  }
-              }, { passive: true });
-              
-              document.addEventListener('touchend', (e) => {
-                  if (!touchStart) return;
-                  
-                  const touch = e.changedTouches[0];
-                  const deltaX = touch.clientX - touchStart.x;
-                  const deltaY = touch.clientY - touchStart.y;
-                  const elapsed = Date.now() - touchStart.time;
-                  
-                  // Swipe down from top to show hint
-                  if (touchStart.y < 100 && deltaY > 80 && elapsed < 300) {
-                      this.showTopBarHint(true);
-                  }
-                  
-                  // Double tap to toggle compact mode
-                  if (elapsed < 250) {
-                      const now = Date.now();
-                      if (now - lastTap < 300) {
-                          this.toggleCompactMode();
-                          lastTap = 0;
-                      } else {
-                          lastTap = now;
-                      }
-                  }
-                  
-                  touchStart = null;
-              }, { passive: true });
-              
-              // Drawer swipe to close
-              const drawer = document.getElementById('sectionDrawer');
-              if (drawer) {
-                  let drawerSwipeStart = null;
-                  
-                  drawer.addEventListener('touchstart', (e) => {
-                      if (e.touches.length === 1) {
-                          drawerSwipeStart = e.touches[0].clientX;
-                      }
-                  }, { passive: true });
-                  
-                  drawer.addEventListener('touchend', (e) => {
-                      if (!drawerSwipeStart) return;
-                      
-                      const touch = e.changedTouches[0];
-                      const deltaX = touch.clientX - drawerSwipeStart;
-                      
-                      if (deltaX > 80) {
-                          this.closeMobileMenu();
-                      }
-                      
-                      drawerSwipeStart = null;
-                  }, { passive: true });
-              }
-          }
-          
-          async openSearch() {
-              const searchOverlay = document.getElementById('searchOverlay');
-              const searchInput = document.getElementById('searchInput');
-              
-              if (!searchOverlay || !searchInput) return;
-              
-              // Open overlay
-              searchOverlay.classList.add('active');
-              searchOverlay.setAttribute('aria-hidden', 'false');
-              
-              // Focus input after animation
-              setTimeout(() => {
-                  searchInput.focus();
-                  searchInput.select();
-              }, 100);
-              
-              // Load search suggestions
-              this.updateSearchSuggestions();
-              
-              // Track event
-              this.trackEvent('search_opened');
-          }
-          
-          closeSearch() {
-              const searchOverlay = document.getElementById('searchOverlay');
-              const searchInput = document.getElementById('searchInput');
-              
-              if (!searchOverlay || !searchInput) return;
-              
-              // Clear input
-              searchInput.value = '';
-              
-              // Clear results
-              this.clearSearchResults();
-              
-              // Close overlay
-              searchOverlay.classList.remove('active');
-              searchOverlay.setAttribute('aria-hidden', 'true');
-              
-              // Return focus to search button
-              const searchBtn = document.getElementById('searchBtn');
-              if (searchBtn) {
-                  searchBtn.focus();
-              }
-          }
-          
-          updateSearchSuggestions() {
-              const recentContainer = document.getElementById('recentSearchChips');
-              const recentGroup = document.getElementById('recentSearchesGroup');
-              
-              if (!recentContainer || !recentGroup) return;
-              
-              const history = this.searchManager.history;
-              
-              if (history.length > 0) {
-                  recentGroup.style.display = 'block';
-                  recentContainer.innerHTML = history
-                      .map(term => `
-                          <button type="button" class="search-chip" data-query="${term}">
-                              <i class="fas fa-history" aria-hidden="true"></i>
-                              ${term}
-                          </button>
-                      `)
-                      .join('');
-              } else {
-                  recentGroup.style.display = 'none';
-              }
-              
-              // Add click handlers to new chips
-              recentContainer.querySelectorAll('.search-chip').forEach(chip => {
-                  chip.addEventListener('click', async () => {
-                      const query = chip.dataset.query;
-                      const searchInput = document.getElementById('searchInput');
-                      if (searchInput) {
-                          searchInput.value = query;
-                          searchInput.focus();
-                      }
-                      await this.performSearch(query);
-                  });
-              });
-          }
-          
-          async performSearch(query) {
-              if (!query || query.trim() === '') return;
-              
-              const searchResults = document.getElementById('searchResults');
-              if (!searchResults) return;
-              
-              // Show loading state
-              searchResults.innerHTML = `
-                  <div class="search-loading">
-                      <div class="loading-spinner"></div>
-                      <p>Searching for "${query}"...</p>
-                  </div>
-              `;
-              
-              try {
-                  const result = await this.searchManager.search(query);
-                  
-                  if (result.results.length === 0) {
-                      searchResults.innerHTML = `
-                          <div class="no-results">
-                              <i class="fas fa-search" aria-hidden="true"></i>
-                              <h3>No results found for "${query}"</h3>
-                              <p>Try different keywords or browse the sections above</p>
-                          </div>
-                      `;
-                      return;
-                  }
-                  
-                  // Display results
-                  const resultsHTML = result.results.map(item => `
-                      <div class="search-result ${item.critical ? 'critical' : ''}" 
-                           data-result-id="${item.id}"
-                           data-result-type="${item.type}">
-                          <div class="search-result-header">
-                              <div class="search-result-category">
-                                  <i class="fas fa-${this.getResultIcon(item.type)}" aria-hidden="true"></i>
-                                  ${item.category || item.type.toUpperCase()}
-                              </div>
-                              ${item.critical ? '<span class="search-result-badge">Critical</span>' : ''}
-                          </div>
-                          <h4 class="search-result-title">${this.searchManager.highlightText(item.title, query)}</h4>
-                          <p class="search-result-snippet">${this.searchManager.highlightText(
-                              item.content.substring(0, 150) + '...', 
-                              query
-                          )}</p>
-                          <div class="search-result-footer">
-                              <span class="search-result-priority">
-                                  <i class="fas fa-star" aria-hidden="true"></i>
-                                  Priority ${item.priority}/5
-                              </span>
-                              <button class="search-result-action" data-action="navigate">
-                                  Go to section <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                              </button>
-                          </div>
-                      </div>
-                  `).join('');
-                  
-                  searchResults.innerHTML = resultsHTML;
-                  
-                  // Add click handlers
-                  searchResults.querySelectorAll('.search-result').forEach(resultElement => {
-                      resultElement.addEventListener('click', (e) => {
-                          if (!e.target.closest('.search-result-action')) {
-                              const resultId = resultElement.dataset.resultId;
-                              this.handleSearchResultClick(resultId);
-                          }
-                      });
-                      
-                      const actionBtn = resultElement.querySelector('.search-result-action');
-                      if (actionBtn) {
-                          actionBtn.addEventListener('click', (e) => {
-                              e.stopPropagation();
-                              const resultId = resultElement.dataset.resultId;
-                              this.handleSearchResultClick(resultId);
-                          });
-                      }
-                  });
-                  
-                  // Track search event
-                  this.trackEvent('search_performed', {
-                      query: query,
-                      result_count: result.results.length
-                  });
-                  
-              } catch (error) {
-                  this.errorHandler.log(error, 'CruiseCompanionApp.performSearch');
-                  
-                  searchResults.innerHTML = `
-                      <div class="no-results">
-                          <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-                          <h3>Search Error</h3>
-                          <p>Unable to perform search. Please try again.</p>
-                      </div>
-                  `;
-              }
-          }
-          
-          getResultIcon(type) {
-              const icons = {
-                  section: 'file-alt',
-                  feature: 'star',
-                  port: 'umbrella-beach',
-                  excursion: 'hiking',
-                  activity: 'swimmer',
-                  safety: 'life-ring',
-                  tool: 'mobile-alt',
-                  service: 'wifi'
-              };
-              return icons[type] || 'search';
-          }
-          
-          clearSearchResults() {
-              const searchResults = document.getElementById('searchResults');
-              if (searchResults) {
-                  searchResults.innerHTML = `
-                      <div class="no-results">
-                          <p>Type to search for cruise information...</p>
-                          <p class="text-sm mt-2">Try: "CocoCay", "dining", "formal night", "wifi"</p>
-                      </div>
-                  `;
-              }
-          }
-          
-          handleSearchResultClick(resultId) {
-              // Close search
-              this.closeSearch();
-              
-              // Find the item
-              const item = this.searchManager.index.find(item => item.id === resultId);
-              if (!item) return;
-              
-              // If it's a critical safety item, jump to critical checklist
-              if (item.critical && (item.type === 'safety' || item.id.includes('emuster'))) {
-                  this.jumpToCriticalChecklist();
-                  return;
-              }
-              
-              // If it has an element, navigate to its section
-              if (item.element) {
-                  const section = item.element.closest('section[id]');
-                  if (section) {
-                      this.navigationManager.navigateToSection(section.id);
-                      
-                      // Highlight the specific element
-                      this.highlightElement(item.element);
-                  }
-              } else if (item.type === 'section') {
-                  // Navigate to the section
-                  this.navigationManager.navigateToSection(resultId);
-              }
-              
-              // Track result click
-              this.trackEvent('search_result_clicked', {
-                  result_id: resultId,
-                  result_type: item.type,
-                  is_critical: item.critical
-              });
-          }
-          
-          highlightElement(element) {
-              if (!element) return;
-              
-              // Add highlight class
-              element.classList.add('search-result-highlight');
-              
-              // Remove after animation
-              setTimeout(() => {
-                  element.classList.remove('search-result-highlight');
-              }, 2000);
-          }
-          
-          toggleMobileMenu() {
-              const drawer = document.getElementById('sectionDrawer');
-              const overlay = document.getElementById('sectionDrawerOverlay');
-              
-              if (!drawer || !overlay) return;
-              
-              const isOpen = drawer.classList.contains('open');
-              
-              if (isOpen) {
-                  this.closeMobileMenu();
-              } else {
-                  this.openMobileMenu();
-              }
-          }
-          
-          openMobileMenu() {
-         const drawer = document.getElementById('sectionDrawer');
-         const overlay = document.getElementById('sectionDrawerOverlay');
-         
-         if (!drawer || !overlay) return;
-         
-         drawer.classList.add('open');
-         overlay.classList.add('open');
-         drawer.setAttribute('aria-hidden', 'false');
-         overlay.setAttribute('aria-hidden', 'false');
-         drawer.setAttribute('aria-modal', 'true');
-         }
-         
-         closeMobileMenu() {
-         const drawer = document.getElementById('sectionDrawer');
-         const overlay = document.getElementById('sectionDrawerOverlay');
-         
-         if (!drawer || !overlay) return;
-         
-         drawer.classList.remove('open');
-         overlay.classList.remove('open');
-         drawer.setAttribute('aria-hidden', 'true');
-         overlay.setAttribute('aria-hidden', 'true');
-         drawer.removeAttribute('aria-modal');
-         }
-          
-          toggleCompactMode(force) {
-              const compactToggleBtn = document.getElementById('compactToggleBtn');
-              const isActive = force !== undefined ? force : !document.body.classList.contains('compact-mode');
-              
-              // Update body class
-              document.body.classList.toggle('compact-mode', isActive);
-              
-              // Update button state
-              if (compactToggleBtn) {
-                  compactToggleBtn.classList.toggle('active', isActive);
-                  compactToggleBtn.setAttribute('aria-pressed', isActive.toString());
-              }
-              
-              // Update preferences
-              this.userPreferences.compactMode = isActive;
-              this.storage.savePreferences(this.userPreferences);
-              
-              // Update sticky offsets
-              this.updateStickyOffsets();
-              
-              // Show toast
-              this.uiManager.showToast(
-                  isActive ? 'Compact mode enabled' : 'Compact mode disabled',
-                  { type: 'info', duration: 2000 }
-              );
-              
-              // Track event
-              this.trackEvent('compact_mode_toggled', { enabled: isActive });
-          }
-          
-          toggleCriticalFilter(force) {
-              const criticalToggleBtn = document.getElementById('criticalToggleBtn');
-              const statusText = document.getElementById('criticalToggleStatus');
-              
-              const isActive = force !== undefined ? force : !document.body.classList.contains('critical-only');
-              
-              // Update body class
-              document.body.classList.toggle('critical-only', isActive);
-              
-              // Update button state
-              if (criticalToggleBtn) {
-                  criticalToggleBtn.classList.toggle('active', isActive);
-                  criticalToggleBtn.setAttribute('aria-pressed', isActive.toString());
-              }
-              
-              // Update status text
-              if (statusText) {
-                  statusText.textContent = isActive ? 
-                      'Showing critical sections only' : 
-                      'Showing all sections';
-              }
-              
-              // Update preferences
-              this.userPreferences.criticalFilter = isActive;
-              this.storage.savePreferences(this.userPreferences);
-              
-              // Update sticky offsets
-              this.updateStickyOffsets();
-              
-              // Show/hide critical badge
-              this.updateCriticalBadgeVisibility();
-              
-              // Track event
-              this.trackEvent('critical_filter_toggled', { enabled: isActive });
-          }
-          
-          jumpToCriticalChecklist() {
-              // Navigate to operations section
-              this.navigationManager.navigateToSection('operations');
-              
-              // Expand the operations accordion
-              const operationsToggle = document.querySelector('[aria-controls="operationsContent"]');
-              if (operationsToggle && operationsToggle.getAttribute('aria-expanded') === 'false') {
-                  operationsToggle.click();
-              }
-              
-              // Scroll to critical checklist
-              setTimeout(() => {
-                  const checklist = document.getElementById('criticalChecklist');
-                  if (checklist) {
-                      DOMUtils.scrollToElement(checklist, this.navigationManager.calculateScrollOffset());
-                      
-                      // Highlight critical items
-                      this.highlightCriticalItems();
-                  }
-              }, 300);
-              
-              // Track event
-              this.trackEvent('jump_to_critical');
-          }
-          
-          highlightCriticalItems() {
-              const criticalItems = document.querySelectorAll('.critical-item');
-              
-              criticalItems.forEach(item => {
-                  item.classList.add('critical-highlight');
-              });
-              
-              // Remove highlight after animation
-              setTimeout(() => {
-                  criticalItems.forEach(item => {
-                      item.classList.remove('critical-highlight');
-                  });
-              }, 2000);
-          }
-          
-          updateCriticalBadgeVisibility() {
-              const badge = document.getElementById('criticalCountBadge');
-              if (!badge) return;
-              
-              const isCriticalOnly = document.body.classList.contains('critical-only');
-              badge.style.display = isCriticalOnly ? 'none' : 'inline-flex';
-          }
-          
-          showTopBarHint(force = false) {
-              const hintEl = document.getElementById('topBarHint');
-              if (!hintEl) return;
-              
-              // Check if user has dismissed today's hint
-              const todayKey = new Date().toISOString().split('T')[0];
-              const dismissedKey = this.storage.get(CONFIG.STORAGE_KEYS.HINT_DISMISSED);
-              
-              if (!force && dismissedKey === todayKey) {
-                  return;
-              }
-              
-              // Show hint
-              hintEl.classList.remove('is-hidden');
-              this.appState.topBarHintVisible = true;
-              
-              // Update sticky offsets
-              this.updateStickyOffsets();
-              
-              // Auto-hide after 10 seconds
-              setTimeout(() => {
-                  this.hideTopBarHint();
-              }, 10000);
-          }
-          
-          hideTopBarHint() {
-              const hintEl = document.getElementById('topBarHint');
-              if (hintEl) {
-                  hintEl.classList.add('is-hidden');
-                  this.appState.topBarHintVisible = false;
-                  this.updateStickyOffsets();
-              }
-          }
-          
-          dismissTopBarHint() {
-              // Store dismissal date
-              const todayKey = new Date().toISOString().split('T')[0];
-              this.storage.set(CONFIG.STORAGE_KEYS.HINT_DISMISSED, todayKey);
-              
-              // Hide hint
-              this.hideTopBarHint();
-              
-              // Track event
-              this.trackEvent('top_bar_hint_dismissed');
-          }
-          
-          updateStickyOffsets() {
-              const header = document.querySelector('.header');
-              const topBar = document.getElementById('topBarHint');
-              const daySelector = document.querySelector('.day-selector');
-              
-              let headerHeight = 0;
-              let topBarHeight = 0;
-              let daySelectorHeight = 0;
-              
-              if (header) headerHeight = header.offsetHeight;
-              if (topBar && !topBar.classList.contains('is-hidden')) {
-                  topBarHeight = topBar.offsetHeight;
-              }
-              if (daySelector && !daySelector.classList.contains('day-selector--hidden')) {
-                  daySelectorHeight = daySelector.offsetHeight;
-              }
-              
-              // Calculate total offset
-              const totalOffset = headerHeight + topBarHeight + daySelectorHeight;
-              
-              // Update CSS custom properties
-              document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
-              document.documentElement.style.setProperty('--top-bar-height', `${topBarHeight}px`);
-              document.documentElement.style.setProperty('--day-selector-height', `${daySelectorHeight}px`);
-              document.documentElement.style.setProperty('--sticky-offset', `${totalOffset}px`);
-              document.documentElement.style.setProperty('--scroll-padding', `${totalOffset + 20}px`);
-          }
-          
-          async printItinerary() {
-              // Show preparing message
-              this.uiManager.showToast('Preparing itinerary for printing...', {
-                  type: 'info',
-                  duration: 1500
-              });
-              
-              // Store current state
-              const currentSection = this.navigationManager.currentSection;
-              const scrollPosition = window.scrollY;
-              
-              // Expand all accordions for printing
-              document.querySelectorAll('.card__toggle[aria-expanded="false"]').forEach(toggle => {
-                  toggle.click();
-              });
-              
-              // Wait for accordions to expand
-              await PerformanceUtils.sleep(500);
-              
-              // Trigger print
-              window.print();
-              
-              // Restore state after print
-              setTimeout(() => {
-                  // Collapse accordions (except current section)
-                  document.querySelectorAll('.card__toggle[aria-expanded="true"]').forEach(toggle => {
-                      const contentId = toggle.getAttribute('aria-controls');
-                      const sectionId = contentId.replace('Content', '');
-                      if (sectionId !== currentSection) {
-                          toggle.click();
-                      }
-                  });
-                  
-                  // Restore scroll position
-                  window.scrollTo(0, scrollPosition);
-                  
-                  // Show completion message
-                  this.uiManager.showToast('Print complete!', {
-                      type: 'success',
-                      duration: 2000
-                  });
-              }, 500);
-              
-              // Track event
-              this.trackEvent('itinerary_printed');
-          }
-          
-          async saveForOffline() {
-              // Show saving message
-              this.uiManager.showToast('💾 Saving for offline access...', {
-                  type: 'info',
-                  duration: 2000
-              });
-              
-              try {
-                  // Save current state
-                  const appState = {
-                      timestamp: Date.now(),
-                      sections: {},
-                      searchIndex: this.searchManager.index,
-                      preferences: this.userPreferences
-                  };
-                  
-                  // Save each section's content
-                  this.navigationManager.availableSections.forEach(sectionId => {
-                      const section = document.getElementById(sectionId);
-                      if (section) {
-                          appState.sections[sectionId] = section.innerHTML;
-                      }
-                  });
-                  
-                  // Save to storage
-                  this.storage.set('cruise_offline_data', appState);
-                  
-                  // Update offline status
-                  this.storage.set('cruise_is_offline', true);
-                  this.storage.set('cruise_last_saved', new Date().toISOString());
-                  
-                  // Update button
-                  const offlineBtn = document.getElementById('offlineBtn');
-                  if (offlineBtn) {
-                      offlineBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Saved Offline';
-                      offlineBtn.disabled = true;
-                      
-                      // Re-enable after 10 seconds
-                      setTimeout(() => {
-                          offlineBtn.disabled = false;
-                      }, 10000);
-                  }
-                  
-                  // Show success message
-                  this.uiManager.showToast('✅ Cruise hub saved for offline access!', {
-                      type: 'success',
-                      duration: 3000
-                  });
-                  
-                  // Track event
-                  this.trackEvent('offline_saved');
-                  
-              } catch (error) {
-                  this.errorHandler.log(error, 'CruiseCompanionApp.saveForOffline');
-                  
-                  this.uiManager.showToast('Failed to save offline. Please try again.', {
-                      type: 'error',
-                      duration: 3000
-                  });
-              }
-          }
-          
-          async shareCruisePlan() {
-              if (navigator.share) {
-                  try {
-                      await navigator.share({
-                          title: 'Royal Caribbean Cruise Planner',
-                          text: `Check out our cruise itinerary for ${CONFIG.SHIP_NAME}!`,
-                          url: window.location.href
-                      });
-                      
-                      this.uiManager.showToast('Thanks for sharing! 🚢', {
-                          type: 'success',
-                          duration: 2000
-                      });
-                      
-                      // Track event
-                      this.trackEvent('cruise_shared', { method: 'native_share' });
-                      
-                  } catch (error) {
-                      if (error.name !== 'AbortError') {
-                          console.error('Share failed:', error);
-                          this.fallbackShare();
-                      }
-                  }
-              } else {
-                  this.fallbackShare();
-              }
-          }
-          
-          fallbackShare() {
-              // Copy URL to clipboard
-              navigator.clipboard.writeText(window.location.href).then(() => {
-                  this.uiManager.showToast('📋 Link copied to clipboard!', {
-                      type: 'success',
-                      duration: 2000
-                  });
-                  
-                  // Track event
-                  this.trackEvent('cruise_shared', { method: 'clipboard' });
-                  
-              }).catch(err => {
-                  console.error('Copy failed:', err);
-                  this.uiManager.showToast('Share feature not supported', {
-                      type: 'error',
-                      duration: 2000
-                  });
-              });
-          }
-          
-          showWelcomeMessage() {
-              // Check if first visit
-              const firstVisit = !this.storage.get('cruise_first_visit');
-              
-              if (firstVisit) {
-                  this.uiManager.showToast(
-                      '🚢 Welcome to your Cruise Companion Hub! Explore your itinerary, rooms, and tips.',
-                      { type: 'success', duration: 5000 }
-                  );
-                  
-                  // Mark as visited
-                  this.storage.set('cruise_first_visit', true);
-              } else {
-                  this.uiManager.showToast(
-                      `Welcome back! ${this.countdownManager.formatTimeRemaining('verbose')} until departure.`,
-                      { type: 'info', duration: 4000 }
-                  );
-              }
-          }
-          
-          showLoadingOverlay(message = 'Loading...') {
-              let overlay = document.getElementById('loadingOverlay');
-              
-              if (!overlay) {
-                  overlay = DOMUtils.createElement('div', ['loading-overlay'], {
-                      id: 'loadingOverlay'
-                  }, `
-                      <div class="loading-content">
-                          <div class="loading-spinner"></div>
-                          <div class="loading-text">${message}</div>
-                          <div class="loading-dots">
-                              <span></span>
-                              <span></span>
-                              <span></span>
-                          </div>
-                      </div>
-                  `);
-                  
-                  document.body.appendChild(overlay);
-              }
-              
-              overlay.classList.remove('hidden');
-          }
-          
-          hideLoadingOverlay() {
-              const overlay = document.getElementById('loadingOverlay');
-              if (overlay) {
-                  overlay.classList.add('hidden');
-              }
-          }
-          
-          handleResize() {
-              this.updateStickyOffsets();
-              
-              // Update mobile/desktop classes
-              const isMobile = window.innerWidth <= CONFIG.BREAKPOINTS.MOBILE;
-              document.body.classList.toggle('mobile-view', isMobile);
-              document.body.classList.toggle('desktop-view', !isMobile);
-              
-              // Close mobile menu on resize to desktop
-              if (!isMobile) {
-                  this.closeMobileMenu();
-              }
-              
-              // Track resize event
-              this.interactionCount++;
-          }
-          
-          handleOnline() {
-              this.isOffline = false;
-              
-              this.uiManager.showToast('Back online! Syncing updates...', {
-                  type: 'success',
-                  duration: 2000
-              });
-              
-              // Refresh weather data
-              this.weatherManager.fetchWeather();
-              
-              // Track event
-              this.trackEvent('app_went_online');
-          }
-          
-          handleOffline() {
-              this.isOffline = true;
-              
-              this.uiManager.showToast('You are offline. Some features may be limited.', {
-                  type: 'warning',
-                  duration: 3000
-              });
-              
-              // Track event
-              this.trackEvent('app_went_offline');
-          }
-          
-          handleKeyDown(event) {
-              // Global keyboard shortcuts
-              switch (event.key) {
-                  case 'Escape':
-                      // Close all modals and overlays
-                      this.closeSearch();
-                      this.closeMobileMenu();
-                      break;
-                      
-                  case '/':
-                      // Focus search when pressing /
-                      if (!event.target.matches('input, textarea, select')) {
-                          event.preventDefault();
-                          this.openSearch();
-                      }
-                      break;
-                      
-                  case '?':
-                      // Show keyboard shortcuts help
-                      if (event.shiftKey && !event.target.matches('input, textarea, select')) {
-                          event.preventDefault();
-                          this.showKeyboardShortcuts();
-                      }
-                      break;
-                      
-                  case 'c':
-                      // Toggle compact mode with Ctrl/Cmd + C
-                      if ((event.ctrlKey || event.metaKey) && !event.shiftKey) {
-                          event.preventDefault();
-                          this.toggleCompactMode();
-                      }
-                      break;
-                      
-                  case 'f':
-                      // Toggle critical filter with Ctrl/Cmd + F
-                      if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
-                          event.preventDefault();
-                          this.toggleCriticalFilter();
-                      }
-                      break;
-              }
-              
-              this.interactionCount++;
-          }
-          
-          showKeyboardShortcuts() {
-              const shortcuts = [
-                  { key: '/', description: 'Focus search' },
-                  { key: 'Escape', description: 'Close modals/overlays' },
-                  { key: 'Ctrl/Cmd + C', description: 'Toggle compact mode' },
-                  { key: 'Ctrl/Cmd + Shift + F', description: 'Toggle critical filter' },
-                  { key: 'Shift + ?', description: 'Show this help' }
-              ];
-              
-              const shortcutsHTML = shortcuts.map(shortcut => `
-                  <div class="shortcut-item">
-                      <kbd>${shortcut.key}</kbd>
-                      <span>${shortcut.description}</span>
-                  </div>
-              `).join('');
-              
-              this.uiManager.showToast(`
-                  <div class="keyboard-shortcuts">
-                      <h4>Keyboard Shortcuts</h4>
-                      ${shortcutsHTML}
-                  </div>
-              `, {
-                  type: 'info',
-                  duration: 5000
-              });
-          }
-          
-          handleBeforeUnload(event) {
-              // Save preferences
-              this.storage.savePreferences(this.userPreferences);
-              
-              // Save search history
-              this.searchManager.saveHistory();
-              
-              // Track session end
-              this.trackEvent('session_ended', {
-                  duration: Date.now() - this.appStartTime,
-                  interactions: this.interactionCount,
-                  sections_visited: this.navigationManager.sectionHistory.length
-              });
-              
-              // Clean up
-              this.cleanup();
-              
-              // Modern browsers require returnValue to be set
-              event.preventDefault();
-              event.returnValue = '';
-          }
-          
-         trackEvent(eventName, eventData = {}) {
-         try {
-         // Basic event tracking - in production, this would connect to analytics
-         const event = {
-            name: eventName,
-            data: eventData,
-            timestamp: Date.now(),
-            userAgent: navigator.userAgent,
-            path: window.location.pathname,
-            // Remove process.env.NODE_ENV reference
-            environment: 'production' // Default to production
-         };
-         
-         // Log to console in development
-         console.log(`[Analytics] ${eventName}:`, event);
-         
-         // Send to Google Analytics if available
-         if (typeof gtag === 'function') {
-            gtag('event', eventName, eventData);
-         }
-         
-         // Send to custom endpoint if configured
-         if (CONFIG.API_ENDPOINTS.ANALYTICS) {
-            // This would be an actual fetch call in production
-            console.log('Analytics event would be sent:', event);
-         }
-         
-         return true;
-         } catch (error) {
-         this.errorHandler.log(error, `CruiseCompanionApp.trackEvent(${eventName})`);
-         return false;
-         }
-         }
-          
-          async sendToAnalytics(eventName, eventData) {
-              try {
-                  await fetch(CONFIG.API_ENDPOINTS.ANALYTICS, {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({
-                          event: eventName,
-                          data: eventData,
-                          timestamp: Date.now(),
-                          userAgent: navigator.userAgent,
-                          screenResolution: `${window.screen.width}x${window.screen.height}`,
-                          language: navigator.language
-                      })
-                  });
-              } catch (error) {
-                  // Silent fail for analytics
-                  console.error('Analytics error:', error);
-              }
-          }
-          
-          cleanup() {
-              // Stop intervals
-              this.countdownManager.stop();
-              this.weatherManager.destroy();
-              
-              // Clean up UI components
-              this.uiManager.destroyAllComponents();
-              
-              // Clear observers
-              this.navigationManager.observers.clear();
-              this.countdownManager.observers.clear();
-              this.weatherManager.observers.clear();
-              
-              // Remove event listeners
-              window.removeEventListener('resize', this.handleResize);
-              window.removeEventListener('online', this.handleOnline);
-              window.removeEventListener('offline', this.handleOffline);
-              window.removeEventListener('beforeunload', this.handleBeforeUnload);
-              document.removeEventListener('keydown', this.handleKeyDown);
-          }
-          
-          getAppState() {
-              return {
-                  isInitialized: this.isInitialized,
-                  isLoading: this.isLoading,
-                  isOffline: this.isOffline,
-                  currentSection: this.navigationManager.currentSection,
-                  currentDay: this.navigationManager.currentDay,
-                  currentTravelerView: this.navigationManager.currentTravelerView,
-                  compactMode: this.appState.compactMode,
-                  criticalFilter: this.appState.criticalFilter,
-                  timeRemaining: this.countdownManager.getTimeRemaining(),
-                  weather: this.weatherManager.getCurrentWeather(),
-                  searchIndexSize: this.searchManager.index.length,
-                  searchHistorySize: this.searchManager.history.length,
-                  uptime: Date.now() - this.appStartTime,
-                  interactionCount: this.interactionCount
-              };
-          }
-          
-          debug() {
-              const state = this.getAppState();
-              console.group('🚢 Cruise Companion App Debug');
-              console.table(state);
-              console.groupEnd();
-              return state;
-          }
-         }
-         
-         // ============================================================================
-         // APPLICATION BOOTSTRAP
-         // ============================================================================
-         
-         // Wait for DOM to be fully loaded
-         document.addEventListener('DOMContentLoaded', async () => {
-          // Create global app instance
-          window.CruiseCompanion = new CruiseCompanionApp();
-          
-          // Initialize the app
-          try {
-              await window.CruiseCompanion.initialize();
-              
-              // Add debug method to window for development
-              if (process.env.NODE_ENV === 'development') {
-                  window.debugCruiseApp = () => window.CruiseCompanion.debug();
-                  console.log('🔧 Debug mode: Use window.debugCruiseApp() for app state');
-              }
-              
-              // Register service worker for PWA capabilities
-              if ('serviceWorker' in navigator) {
-                  navigator.serviceWorker.register('/service-worker.js').catch(error => {
-                      console.log('Service Worker registration failed:', error);
-                  });
-              }
-              
-          } catch (error) {
-              console.error('Failed to initialize Cruise Companion:', error);
-              
-              // Show error to user
-              document.body.innerHTML = `
-                  <div class="error-screen">
-                      <div class="error-content">
-                          <h1>🚢 Cruise Companion Error</h1>
-                          <p>We're unable to load the cruise planner at this time.</p>
-                          <p>Please try refreshing the page or contact support if the problem persists.</p>
-                          <button onclick="window.location.reload()" class="btn btn--primary">
-                              Refresh Page
-                          </button>
-                      </div>
-                  </div>
-              `;
-          }
-         });
-         
-         // Handle errors globally
-         window.addEventListener('error', (event) => {
-          if (window.CruiseCompanion && window.CruiseCompanion.errorHandler) {
-              window.CruiseCompanion.errorHandler.log(event.error, 'GlobalError');
-          }
-         });
-         
-         window.addEventListener('unhandledrejection', (event) => {
-          if (window.CruiseCompanion && window.CruiseCompanion.errorHandler) {
-              window.CruiseCompanion.errorHandler.log(event.reason, 'UnhandledPromiseRejection');
-          }
-         });
-         
-         // Export for module usage (if needed)
-         if (typeof module !== 'undefined' && module.exports) {
-          module.exports = {
-              CruiseCompanionApp,
-              ErrorHandler,
-              StorageManager,
-              SearchManager,
-              NavigationManager,
-              UIComponentsManager,
-              CountdownManager,
-              WeatherManager,
-              PerformanceUtils,
-              DOMUtils,
-              CONFIG
-          };
-         }
+    if (!this.currentWeather) return;
+    
+    // Animate changes
+    this.animateWeatherChange();
+    
+    // Update DOM after animation
+    setTimeout(() => {
+        if (this.tempElement) {
+            this.tempElement.textContent = this.currentWeather.temp;
+            this.tempElement.setAttribute('aria-label', `Temperature: ${this.currentWeather.temp}`);
+        }
+        
+        if (this.conditionElement) {
+            this.conditionElement.textContent = this.currentWeather.condition;
+            this.conditionElement.setAttribute('aria-label', `Conditions: ${this.currentWeather.condition}`);
+        }
+        
+        if (this.iconElement) {
+            this.iconElement.textContent = this.currentWeather.icon;
+            this.iconElement.setAttribute('aria-label', this.currentWeather.description);
+        }
+        
+        if (this.forecastElement) {
+            this.forecastElement.textContent = this.currentWeather.description || 
+                'Typical February weather: 75-82°F days, 68°F nights. Ideal for outdoor activities. Light breeze from the east.';
+        }
+    }, 300);
+}
+
+animateWeatherChange() {
+    if (this.tempElement) {
+        this.tempElement.style.opacity = '0.3';
+        this.tempElement.style.transform = 'scale(0.9)';
+    }
+    
+    if (this.conditionElement) {
+        this.conditionElement.style.opacity = '0.3';
+    }
+    
+    if (this.iconElement) {
+        this.iconElement.style.opacity = '0.3';
+        this.iconElement.style.transform = 'rotate(-10deg)';
+    }
+    
+    setTimeout(() => {
+        if (this.tempElement) {
+            this.tempElement.style.opacity = '1';
+            this.tempElement.style.transform = 'scale(1)';
+        }
+        
+        if (this.conditionElement) {
+            this.conditionElement.style.opacity = '1';
+        }
+        
+        if (this.iconElement) {
+            this.iconElement.style.opacity = '1';
+            this.iconElement.style.transform = 'rotate(0deg)';
+        }
+    }, 300);
+}
+
+addObserver(observer) {
+    this.observers.add(observer);
+}
+
+removeObserver(observer) {
+    this.observers.delete(observer);
+}
+
+notifyObservers(data) {
+    this.observers.forEach(observer => {
+        try {
+            if (typeof observer === 'function') {
+                observer(data);
+            } else if (observer && typeof observer.update === 'function') {
+                observer.update(data);
+            }
+        } catch (error) {
+            this.errorHandler.log(error, 'WeatherManager.notifyObservers');
+        }
+    });
+}
+
+destroy() {
+    if (this.intervalId) {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+    }
+    
+    this.observers.clear();
+    
+    // Clean up DOM references
+    this.tempElement = null;
+    this.conditionElement = null;
+    this.iconElement = null;
+    this.forecastElement = null;
+}
+}
+
+// ============================================================================
+// APPLICATION MAIN
+// ============================================================================
+
+class CruiseCompanionApp {
+constructor() {
+    this.errorHandler = new ErrorHandler();
+    this.storage = new StorageManager();
+    this.navigation = new NavigationManager();
+    this.search = new SearchManager();
+    this.ui = new UIComponentsManager();
+    this.countdown = new CountdownManager(CONFIG.CRUISE_DATE);
+    this.weather = new WeatherManager();
+    
+    this.isInitialized = false;
+    this.isLoading = false;
+    
+    // Bind methods
+    this.initialize = this.initialize.bind(this);
+    this.handleError = this.handleError.bind(this);
+    this.handleOnlineStatus = this.handleOnlineStatus.bind(this);
+}
+
+async initialize() {
+    if (this.isInitialized) {
+        console.warn('App is already initialized');
+        return true;
+    }
+    
+    if (this.isLoading) {
+        console.warn('App is already loading');
+        return false;
+    }
+    
+    this.isLoading = true;
+    
+    try {
+        // Show loading overlay
+        this.showLoadingOverlay();
+        
+        // 1. Initialize error handling
+        window.addEventListener('error', this.handleError);
+        window.addEventListener('unhandledrejection', this.handleError);
+        
+        // 2. Initialize storage
+        await this.initializeStorage();
+        
+        // 3. Initialize navigation
+        await this.initializeNavigation();
+        
+        // 4. Initialize UI components
+        await this.ui.initialize();
+        
+        // 5. Initialize search
+        await this.search.buildIndex();
+        
+        // 6. Initialize countdown
+        await this.initializeCountdown();
+        
+        // 7. Initialize weather
+        await this.weather.initialize();
+        
+        // 8. Initialize event listeners
+        await this.initializeEventListeners();
+        
+        // 9. Initialize service worker (if available)
+        await this.initializeServiceWorker();
+        
+        // 10. Finalize initialization
+        await this.finalizeInitialization();
+        
+        this.isInitialized = true;
+        
+        // Hide loading overlay
+        setTimeout(() => {
+            this.hideLoadingOverlay();
+        }, CONFIG.LOADING_DELAY);
+        
+        // Show welcome message
+        setTimeout(() => {
+            this.ui.showToast('Welcome to your Cruise Companion! 🚢', {
+                type: 'success',
+                duration: 3000
+            });
+        }, CONFIG.LOADING_DELAY + 500);
+        
+        console.log(`${CONFIG.APP_NAME} v${CONFIG.APP_VERSION} initialized successfully`);
+        return true;
+        
+    } catch (error) {
+        this.errorHandler.log(error, 'CruiseCompanionApp.initialize');
+        
+        // Show error screen
+        this.showErrorScreen('Failed to initialize the app. Please refresh the page.');
+        
+        return false;
+    } finally {
+        this.isLoading = false;
+    }
+}
+
+showLoadingOverlay() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.setAttribute('aria-busy', 'true');
+        loadingOverlay.setAttribute('aria-label', 'Loading cruise companion');
+    }
+}
+
+hideLoadingOverlay() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden');
+        loadingOverlay.setAttribute('aria-busy', 'false');
+    }
+}
+
+async initializeStorage() {
+    // Load saved preferences
+    const preferences = this.storage.loadPreferences();
+    
+    // Apply preferences
+    if (preferences.compactMode) {
+        this.toggleCompactMode(true);
+    }
+    
+    if (preferences.criticalFilter) {
+        this.toggleCriticalFilter(true);
+    }
+    
+    // Check if hint was dismissed
+    const hintDismissed = this.storage.get(CONFIG.STORAGE_KEYS.HINT_DISMISSED, false);
+    if (hintDismissed) {
+        this.hideTopBarHint();
+    }
+}
+
+async initializeNavigation() {
+    // Handle initial hash
+    const hash = window.location.hash.replace('#', '');
+    const initialSection = this.navigation.availableSections.includes(hash) ? hash : 'overview';
+    
+    await this.navigation.navigateToSection(initialSection, {
+        scroll: false
+    });
+    
+    // Handle hash changes
+    window.addEventListener('hashchange', () => {
+        const newHash = window.location.hash.replace('#', '');
+        if (this.navigation.availableSections.includes(newHash)) {
+            this.navigation.navigateToSection(newHash);
+        }
+    });
+    
+    // Add navigation observers
+    this.navigation.addObserver((data) => {
+        if (data.type === 'sectionChange') {
+            // Update day selector visibility
+            this.updateDaySelectorVisibility(data.section);
+            
+            // Update critical count badge
+            this.updateCriticalCountBadge();
+            
+            // Announce to screen reader
+            this.ui.announceToScreenReader(`Navigated to ${data.section} section`);
+        }
+    });
+}
+
+async initializeCountdown() {
+    // Start countdown
+    this.countdown.start();
+    
+    // Add observer for countdown updates
+    this.countdown.addObserver((data) => {
+        if (data.type === 'countdownComplete') {
+            this.ui.showToast('Bon Voyage! Your cruise has begun! 🚢', {
+                type: 'success',
+                duration: 5000
+            });
+            
+            // Update hero title
+            const heroTitle = document.getElementById('heroTitle');
+            if (heroTitle) {
+                heroTitle.textContent = 'Bon Voyage! 🚢';
+            }
+        }
+    });
+}
+
+async initializeEventListeners() {
+    // Navigation buttons
+    document.querySelectorAll('[data-section]').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = button.dataset.section;
+            this.navigation.navigateToSection(section);
+        });
+    });
+    
+    // Day selector buttons
+    document.querySelectorAll('.day-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const day = button.dataset.day;
+            this.navigation.setCurrentDay(day);
+            
+            // Update top bar hint
+            this.updateTopBarHintForDay(day);
+        });
+    });
+    
+    // Traveler selector
+    const travelerSelect = document.getElementById('travelerSelect');
+    if (travelerSelect) {
+        travelerSelect.addEventListener('change', (e) => {
+            this.navigation.setTravelerView(e.target.value);
+        });
+    }
+    
+    // Search functionality
+    this.initializeSearchListeners();
+    
+    // Card toggles
+    document.querySelectorAll('.card__toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const card = toggle.closest('.card');
+            const content = card.querySelector('.card__content');
+            
+            if (content.classList.contains('collapsed')) {
+                // Expand
+                content.classList.remove('collapsed');
+                content.classList.add('expanded');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.querySelector('i').className = 'fas fa-chevron-up';
+                
+                // After transition, set to auto
+                setTimeout(() => {
+                    if (content.classList.contains('expanded')) {
+                        content.style.maxHeight = 'none';
+                    }
+                }, 300);
+            } else {
+                // Collapse
+                content.classList.remove('expanded');
+                content.classList.add('collapsed');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                
+                // Trigger reflow
+                content.offsetHeight;
+                
+                // Animate collapse
+                content.style.maxHeight = '0';
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.querySelector('i').className = 'fas fa-chevron-down';
+            }
+        });
+    });
+    
+    // Critical filter toggle
+    const criticalToggleBtn = document.getElementById('criticalToggleBtn');
+    if (criticalToggleBtn) {
+        criticalToggleBtn.addEventListener('click', () => {
+            const isActive = criticalToggleBtn.getAttribute('aria-pressed') === 'true';
+            this.toggleCriticalFilter(!isActive);
+        });
+    }
+    
+    // Compact mode toggle
+    const compactToggleBtn = document.getElementById('compactToggleBtn');
+    if (compactToggleBtn) {
+        compactToggleBtn.addEventListener('click', () => {
+            const isActive = compactToggleBtn.getAttribute('aria-pressed') === 'true';
+            this.toggleCompactMode(!isActive);
+        });
+    }
+    
+    // Jump to critical button
+    const jumpToCriticalBtn = document.getElementById('jumpToCriticalBtn');
+    if (jumpToCriticalBtn) {
+        jumpToCriticalBtn.addEventListener('click', () => {
+            this.navigation.navigateToSection('operations');
+        });
+    }
+    
+    // Top bar hint close
+    const topBarHintClose = document.getElementById('topBarHintClose');
+    if (topBarHintClose) {
+        topBarHintClose.addEventListener('click', () => {
+            this.hideTopBarHint();
+            this.storage.set(CONFIG.STORAGE_KEYS.HINT_DISMISSED, true);
+        });
+    }
+    
+    // Quick action buttons
+    const printBtn = document.getElementById('printBtn');
+    if (printBtn) {
+        printBtn.addEventListener('click', () => {
+            this.printItinerary();
+        });
+    }
+    
+    const offlineBtn = document.getElementById('offlineBtn');
+    if (offlineBtn) {
+        offlineBtn.addEventListener('click', () => {
+            this.saveOffline();
+        });
+    }
+    
+    const shareBtn = document.getElementById('shareBtn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            this.shareItinerary();
+        });
+    }
+    
+    // Mobile menu
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+    const sectionDrawerClose = document.getElementById('sectionDrawerClose');
+    const sectionDrawerOverlay = document.getElementById('sectionDrawerOverlay');
+    
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            this.openSectionDrawer();
+        });
+    }
+    
+    if (mobileMoreBtn) {
+        mobileMoreBtn.addEventListener('click', () => {
+            this.openSectionDrawer();
+        });
+    }
+    
+    if (sectionDrawerClose) {
+        sectionDrawerClose.addEventListener('click', () => {
+            this.closeSectionDrawer();
+        });
+    }
+    
+    if (sectionDrawerOverlay) {
+        sectionDrawerOverlay.addEventListener('click', () => {
+            this.closeSectionDrawer();
+        });
+    }
+    
+    // Online/offline detection
+    window.addEventListener('online', this.handleOnlineStatus);
+    window.addEventListener('offline', this.handleOnlineStatus);
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        this.handleKeyboardShortcuts(e);
+    });
+}
+
+initializeSearchListeners() {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchClose = document.getElementById('searchClose');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const searchChips = document.querySelectorAll('.search-chip');
+    
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            this.openSearch();
+        });
+    }
+    
+    if (searchClose) {
+        searchClose.addEventListener('click', () => {
+            this.closeSearch();
+        });
+    }
+    
+    if (searchOverlay) {
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                this.closeSearch();
+            }
+        });
+    }
+    
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                this.performSearch(query);
+            }
+        });
+    }
+    
+    // Search chips
+    searchChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const query = chip.dataset.query;
+            if (query) {
+                searchInput.value = query;
+                this.performSearch(query);
+            }
+        });
+    });
+    
+    // Search input events
+    if (searchInput) {
+        // Clear results when input is cleared
+        searchInput.addEventListener('input', PerformanceUtils.debounce(() => {
+            if (!searchInput.value.trim()) {
+                this.clearSearchResults();
+            }
+        }, 300));
+        
+        // Handle Escape key
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (searchInput.value) {
+                    searchInput.value = '';
+                    this.clearSearchResults();
+                } else {
+                    this.closeSearch();
+                }
+            }
+        });
+    }
+}
+
+async initializeServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('ServiceWorker registration successful with scope:', registration.scope);
+        } catch (error) {
+            console.warn('ServiceWorker registration failed:', error);
+        }
+    }
+}
+
+async finalizeInitialization() {
+    // Update critical count badge
+    this.updateCriticalCountBadge();
+    
+    // Update day selector visibility
+    this.updateDaySelectorVisibility(this.navigation.currentSection);
+    
+    // Update top bar hint
+    this.updateTopBarHint();
+    
+    // Check online status
+    this.handleOnlineStatus();
+    
+    // Announce to screen readers
+    this.ui.announceToScreenReader('Cruise Companion loaded successfully');
+}
+
+updateDaySelectorVisibility(section) {
+    const daySelector = document.getElementById('daySelector');
+    if (!daySelector) return;
+    
+    if (section === 'itinerary') {
+        daySelector.classList.remove('day-selector--hidden');
+        daySelector.removeAttribute('aria-hidden');
+    } else {
+        daySelector.classList.add('day-selector--hidden');
+        daySelector.setAttribute('aria-hidden', 'true');
+    }
+}
+
+updateCriticalCountBadge() {
+    const criticalCount = document.querySelectorAll('.critical-item').length;
+    const criticalCountBadge = document.getElementById('criticalCountBadge');
+    
+    if (criticalCountBadge) {
+        criticalCountBadge.textContent = criticalCount.toString();
+        
+        if (criticalCount > 0) {
+            criticalCountBadge.style.display = 'flex';
+        } else {
+            criticalCountBadge.style.display = 'none';
+        }
+    }
+}
+
+updateTopBarHint(day = null) {
+    const topBarHint = document.getElementById('topBarHint');
+    const topBarHintTitle = document.getElementById('topBarHintTitle');
+    const topBarHintDetail = document.getElementById('topBarHintDetail');
+    const topBarHintBadge = document.getElementById('topBarHintBadge');
+    
+    if (!topBarHint || !topBarHintTitle || !topBarHintDetail) return;
+    
+    const currentDay = day || this.navigation.currentDay;
+    let title = 'Today: Preparation';
+    let detail = 'Tap a day to see port highlights and all-aboard times.';
+    let badge = 'LIVE';
+    
+    if (currentDay !== 'all') {
+        const dayNumber = parseInt(currentDay);
+        const dayNames = [
+            '', // Index 0 not used
+            'Day 1: Embarkation',
+            'Day 2: CocoCay',
+            'Day 3: Sea Day',
+            'Day 4: Jamaica',
+            'Day 5: Labadee',
+            'Day 6: Sea Day',
+            'Day 7: Return'
+        ];
+        
+        if (dayNumber >= 1 && dayNumber <= 7) {
+            title = dayNames[dayNumber];
+            
+            // Add specific details for each day
+            const dayDetails = {
+                1: 'Embark at 11:00 AM, all aboard by 3:30 PM',
+                2: 'Perfect Day at CocoCay, all aboard by 4:30 PM',
+                3: 'Sea Day - FlowRider clinic, ice show "Cool Art"',
+                4: 'Falmouth Jamaica, all aboard by 3:30 PM',
+                5: 'Labadee Haiti, all aboard by 4:30 PM',
+                6: 'Sea Day - Formal Night #2, Captain\'s Gala',
+                7: 'Disembarkation begins at 6:30 AM'
+            };
+            
+            detail = dayDetails[dayNumber] || detail;
+            badge = 'DAY ' + dayNumber;
+        }
+    }
+    
+    topBarHintTitle.textContent = title;
+    topBarHintDetail.textContent = detail;
+    
+    if (topBarHintBadge) {
+        topBarHintBadge.textContent = badge;
+    }
+    
+    // Show hint if not dismissed
+    const hintDismissed = this.storage.get(CONFIG.STORAGE_KEYS.HINT_DISMISSED, false);
+    if (!hintDismissed) {
+        topBarHint.classList.remove('is-hidden');
+    }
+}
+
+updateTopBarHintForDay(day) {
+    this.updateTopBarHint(day);
+}
+
+hideTopBarHint() {
+    const topBarHint = document.getElementById('topBarHint');
+    if (topBarHint) {
+        topBarHint.classList.add('is-hidden');
+    }
+}
+
+toggleCriticalFilter(enable) {
+    const criticalToggleBtn = document.getElementById('criticalToggleBtn');
+    const criticalToggleStatus = document.getElementById('criticalToggleStatus');
+    
+    if (!criticalToggleBtn || !criticalToggleStatus) return;
+    
+    // Update button state
+    criticalToggleBtn.setAttribute('aria-pressed', enable.toString());
+    
+    // Update status text
+    criticalToggleStatus.textContent = enable ? 
+        'Showing critical sections only' : 
+        'Showing all sections';
+    
+    // Show/hide non-critical sections
+    const nonCriticalSections = document.querySelectorAll('section:not(.section--critical)');
+    nonCriticalSections.forEach(section => {
+        if (enable) {
+            section.style.display = 'none';
+            section.setAttribute('aria-hidden', 'true');
+        } else {
+            section.style.display = 'block';
+            section.removeAttribute('aria-hidden');
+        }
+    });
+    
+    // Save preference
+    this.storage.set(CONFIG.STORAGE_KEYS.CRITICAL_FILTER, enable);
+}
+
+toggleCompactMode(enable) {
+    const compactToggleBtn = document.getElementById('compactToggleBtn');
+    const body = document.body;
+    
+    if (!compactToggleBtn) return;
+    
+    // Update button state
+    compactToggleBtn.setAttribute('aria-pressed', enable.toString());
+    
+    // Toggle class on body
+    body.classList.toggle('compact-mode', enable);
+    
+    // Save preference
+    this.storage.set(CONFIG.STORAGE_KEYS.COMPACT_MODE, enable);
+}
+
+async openSearch() {
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (!searchOverlay || !searchInput) return;
+    
+    // Open overlay
+    searchOverlay.classList.add('open');
+    searchOverlay.setAttribute('aria-hidden', 'false');
+    
+    // Focus input
+    setTimeout(() => {
+        searchInput.focus();
+        searchInput.select();
+    }, 100);
+    
+    // Load recent searches
+    this.loadRecentSearches();
+    
+    // Update search results with popular searches
+    this.clearSearchResults();
+    
+    this.ui.announceToScreenReader('Search opened. Type to search cruise information.');
+}
+
+async closeSearch() {
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (!searchOverlay || !searchInput) return;
+    
+    // Clear input
+    searchInput.value = '';
+    
+    // Clear results
+    this.clearSearchResults();
+    
+    // Close overlay
+    searchOverlay.classList.remove('open');
+    searchOverlay.setAttribute('aria-hidden', 'true');
+    
+    // Return focus to search button
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) {
+        searchBtn.focus();
+    }
+    
+    this.ui.announceToScreenReader('Search closed');
+}
+
+async performSearch(query) {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (!searchInput || !searchResults) return;
+    
+    // Show loading state
+    this.showSearchLoading();
+    
+    try {
+        // Perform search
+        const searchResult = await this.search.search(query);
+        
+        // Display results
+        this.displaySearchResults(searchResult);
+        
+        // Add to history
+        this.search.addToHistory(query);
+        
+        // Update recent searches display
+        this.loadRecentSearches();
+        
+    } catch (error) {
+        this.errorHandler.log(error, 'CruiseCompanionApp.performSearch');
+        this.showSearchError('Failed to perform search');
+    }
+}
+
+showSearchLoading() {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+    
+    searchResults.innerHTML = `
+        <div class="search-loading">
+            <div class="loading-spinner"></div>
+            <p>Searching cruise information...</p>
+        </div>
+    `;
+}
+
+showSearchError(message) {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+    
+    searchResults.innerHTML = `
+        <div class="no-results">
+            <p><i class="fas fa-exclamation-circle"></i> ${message}</p>
+            <p>Please try again or check your connection.</p>
+        </div>
+    `;
+}
+
+displaySearchResults(searchResult) {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+    
+    if (searchResult.count === 0) {
+        searchResults.innerHTML = `
+            <div class="no-results">
+                <p>No results found for "${searchResult.query}"</p>
+                <p>Try different keywords or check the quick search chips above.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let resultsHTML = '';
+    
+    searchResult.results.forEach((result, index) => {
+        const highlightedTitle = this.search.highlightText(result.title, searchResult.query);
+        const highlightedContent = this.search.highlightText(
+            result.content.substring(0, 200) + '...', 
+            searchResult.query
+        );
+        
+        resultsHTML += `
+            <div class="search-result ${result.critical ? 'critical' : ''}" 
+                 data-result-index="${index}"
+                 data-target="${result.id}">
+                <div class="search-result-header">
+                    <div class="search-result-category">
+                        <i class="fas fa-${this.getResultIcon(result.type)}"></i>
+                        ${result.category || result.type}
+                    </div>
+                    ${result.critical ? '<span class="search-result-badge">Critical</span>' : ''}
+                </div>
+                <h3 class="search-result-title">${highlightedTitle}</h3>
+                <p class="search-result-snippet">${highlightedContent}</p>
+                <div class="search-result-footer">
+                    <div class="search-result-priority">
+                        <i class="fas fa-star"></i>
+                        Priority: ${result.priority}/5
+                    </div>
+                    <button class="search-result-action" data-target="${result.id}">
+                        <i class="fas fa-arrow-right"></i>
+                        Go to ${result.type}
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    searchResults.innerHTML = resultsHTML;
+    
+    // Add click handlers to result items
+    searchResults.querySelectorAll('.search-result').forEach(result => {
+        result.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-result-action')) {
+                const target = result.dataset.target;
+                this.navigateToSearchResult(target);
+                this.closeSearch();
+            }
+        });
+    });
+    
+    // Add click handlers to action buttons
+    searchResults.querySelectorAll('.search-result-action').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const target = button.dataset.target;
+            this.navigateToSearchResult(target);
+            this.closeSearch();
+        });
+    });
+}
+
+getResultIcon(type) {
+    const iconMap = {
+        'section': 'file-alt',
+        'feature': 'star',
+        'port': 'umbrella-beach',
+        'excursion': 'hiking',
+        'activity': 'gamepad',
+        'safety': 'shield-alt',
+        'tool': 'mobile-alt',
+        'service': 'wifi'
+    };
+    
+    return iconMap[type] || 'search';
+}
+
+navigateToSearchResult(target) {
+    // Try to find the target element
+    const targetElement = document.getElementById(target);
+    
+    if (targetElement) {
+        // Navigate to the section containing this element
+        const section = targetElement.closest('section[id]');
+        if (section) {
+            this.navigation.navigateToSection(section.id);
+            
+            // Scroll to the specific element
+            setTimeout(() => {
+                DOMUtils.scrollToElement(targetElement, 100);
+                
+                // Highlight the element
+                targetElement.classList.add('search-result-highlight');
+                setTimeout(() => {
+                    targetElement.classList.remove('search-result-highlight');
+                }, 2000);
+            }, 300);
+        }
+    } else {
+        // Fallback: search in sections
+        const sections = document.querySelectorAll('section[id]');
+        for (const section of sections) {
+            if (section.textContent.includes(target)) {
+                this.navigation.navigateToSection(section.id);
+                break;
+            }
+        }
+    }
+}
+
+loadRecentSearches() {
+    const recentSearchesGroup = document.getElementById('recentSearchesGroup');
+    const recentSearchChips = document.getElementById('recentSearchChips');
+    
+    if (!recentSearchesGroup || !recentSearchChips) return;
+    
+    const history = this.search.history;
+    
+    if (history.length === 0) {
+        recentSearchesGroup.setAttribute('hidden', 'true');
+        return;
+    }
+    
+    recentSearchesGroup.removeAttribute('hidden');
+    
+    let chipsHTML = '';
+    history.slice(0, 5).forEach(query => {
+        chipsHTML += `
+            <button type="button" class="search-chip" data-query="${query}">
+                <i class="fas fa-history"></i>
+                ${query}
+            </button>
+        `;
+    });
+    
+    recentSearchChips.innerHTML = chipsHTML;
+    
+    // Add click handlers to recent search chips
+    recentSearchChips.querySelectorAll('.search-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const query = chip.dataset.query;
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && query) {
+                searchInput.value = query;
+                this.performSearch(query);
+            }
+        });
+    });
+}
+
+clearSearchResults() {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+    
+    searchResults.innerHTML = `
+        <div class="no-results">
+            <p>Type to search for cruise information…</p>
+            <p>Try: "eMuster", "dining", "excursions", or "Wi-Fi"</p>
+        </div>
+    `;
+}
+
+openSectionDrawer() {
+    const sectionDrawer = document.getElementById('sectionDrawer');
+    const sectionDrawerOverlay = document.getElementById('sectionDrawerOverlay');
+    
+    if (!sectionDrawer || !sectionDrawerOverlay) return;
+    
+    sectionDrawer.classList.add('open');
+    sectionDrawerOverlay.classList.add('open');
+    sectionDrawer.setAttribute('aria-hidden', 'false');
+    sectionDrawerOverlay.setAttribute('aria-hidden', 'false');
+    
+    // Trap focus in drawer
+    setTimeout(() => {
+        const firstFocusable = sectionDrawer.querySelector(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (firstFocusable) {
+            firstFocusable.focus();
+        }
+    }, 100);
+}
+
+closeSectionDrawer() {
+    const sectionDrawer = document.getElementById('sectionDrawer');
+    const sectionDrawerOverlay = document.getElementById('sectionDrawerOverlay');
+    
+    if (!sectionDrawer || !sectionDrawerOverlay) return;
+    
+    sectionDrawer.classList.remove('open');
+    sectionDrawerOverlay.classList.remove('open');
+    sectionDrawer.setAttribute('aria-hidden', 'true');
+    sectionDrawerOverlay.setAttribute('aria-hidden', 'true');
+    
+    // Return focus to menu button
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+    const lastFocused = mobileMenuBtn || mobileMoreBtn;
+    if (lastFocused) {
+        lastFocused.focus();
+    }
+}
+
+printItinerary() {
+    this.ui.showToast('Preparing itinerary for printing...', {
+        type: 'info',
+        duration: 2000
+    });
+    
+    setTimeout(() => {
+        window.print();
+    }, 500);
+}
+
+async saveOffline() {
+    this.ui.showToast('Saving for offline access...', {
+        type: 'info',
+        duration: 3000
+    });
+    
+    // In a real app, this would trigger service worker caching
+    // For now, just show a confirmation
+    setTimeout(() => {
+        this.ui.showToast('Cruise guide saved for offline access!', {
+            type: 'success',
+            duration: 3000
+        });
+    }, 1000);
+}
+
+async shareItinerary() {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'My Caribbean Cruise Itinerary',
+                text: 'Check out my cruise itinerary for Adventure of the Seas!',
+                url: window.location.href
+            });
+            
+            this.ui.showToast('Itinerary shared successfully!', {
+                type: 'success',
+                duration: 3000
+            });
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Error sharing:', error);
+                this.ui.showToast('Could not share itinerary', {
+                    type: 'error',
+                    duration: 3000
+                });
+            }
+        }
+    } else {
+        // Fallback: copy to clipboard
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            this.ui.showToast('Link copied to clipboard!', {
+                type: 'success',
+                duration: 3000
+            });
+        } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            this.ui.showToast('Could not copy link', {
+                type: 'error',
+                duration: 3000
+            });
+        }
+    }
+}
+
+handleError(error) {
+    const errorObj = this.errorHandler.log(error, 'GlobalErrorHandler');
+    
+    // Show user-friendly error
+    this.ui.showToast('An error occurred. The app may not function correctly.', {
+        type: 'error',
+        duration: 5000
+    });
+    
+    // Log to console in development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.error('Application error:', errorObj);
+    }
+    
+    return false;
+}
+
+handleOnlineStatus() {
+    const isOnline = navigator.onLine;
+    
+    if (isOnline) {
+        this.ui.showToast('Back online! Syncing updates...', {
+            type: 'success',
+            duration: 3000
+        });
+        
+        // Refresh data that may have changed
+        setTimeout(() => {
+            this.weather.fetchWeather();
+        }, 1000);
+    } else {
+        this.ui.showToast('You are offline. Some features may be limited.', {
+            type: 'warning',
+            duration: 5000
+        });
+    }
+}
+
+handleKeyboardShortcuts(e) {
+    // Don't trigger shortcuts when typing in inputs
+    if (e.target.tagName === 'INPUT' || 
+        e.target.tagName === 'TEXTAREA' || 
+        e.target.isContentEditable) {
+        return;
+    }
+    
+    // Check for modifier keys
+    const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
+    
+    // Global shortcuts (with modifier)
+    if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.openSearch();
+        return;
+    }
+    
+    if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.printItinerary();
+        return;
+    }
+    
+    // Navigation shortcuts (without modifier)
+    if (!hasModifier) {
+        switch (e.key) {
+            case '1':
+                e.preventDefault();
+                this.navigation.navigateToSection('overview');
+                break;
+            case '2':
+                e.preventDefault();
+                this.navigation.navigateToSection('operations');
+                break;
+            case '3':
+                e.preventDefault();
+                this.navigation.navigateToSection('itinerary');
+                break;
+            case '4':
+                e.preventDefault();
+                this.navigation.navigateToSection('rooms');
+                break;
+            case '5':
+                e.preventDefault();
+                this.navigation.navigateToSection('dining');
+                break;
+            case '6':
+                e.preventDefault();
+                this.navigation.navigateToSection('communication');
+                break;
+            case '7':
+                e.preventDefault();
+                this.navigation.navigateToSection('tips');
+                break;
+            case '8':
+                e.preventDefault();
+                this.navigation.navigateToSection('integrate');
+                break;
+            case '?':
+                e.preventDefault();
+                this.showKeyboardShortcutsHelp();
+                break;
+            case 'Escape':
+                // Close any open modals or drawers
+                this.closeSearch();
+                this.closeSectionDrawer();
+                break;
+        }
+    }
+    
+    // Day navigation (when on itinerary)
+    if (this.navigation.currentSection === 'itinerary' && !hasModifier) {
+        switch (e.key) {
+            case 'ArrowLeft':
+                e.preventDefault();
+                const currentDayIndex = this.navigation.availableDays.indexOf(this.navigation.currentDay);
+                const prevDay = currentDayIndex > 0 ? 
+                    this.navigation.availableDays[currentDayIndex - 1] : 
+                    this.navigation.availableDays[this.navigation.availableDays.length - 1];
+                this.navigation.setCurrentDay(prevDay);
+                break;
+                
+            case 'ArrowRight':
+                e.preventDefault();
+                const currentDayIndex2 = this.navigation.availableDays.indexOf(this.navigation.currentDay);
+                const nextDay = currentDayIndex2 < this.navigation.availableDays.length - 1 ? 
+                    this.navigation.availableDays[currentDayIndex2 + 1] : 
+                    this.navigation.availableDays[0];
+                this.navigation.setCurrentDay(nextDay);
+                break;
+        }
+    }
+}
+
+showKeyboardShortcutsHelp() {
+    const shortcuts = [
+        { key: 'Ctrl/Cmd + K', action: 'Open search' },
+        { key: 'Ctrl/Cmd + P', action: 'Print itinerary' },
+        { key: '1-8', action: 'Jump to sections 1-8' },
+        { key: '?', action: 'Show this help' },
+        { key: 'Escape', action: 'Close modals/search' },
+        { key: '← →', action: 'Navigate days (on itinerary)' }
+    ];
+    
+    let helpHTML = '<div class="keyboard-shortcuts">';
+    helpHTML += '<h4>Keyboard Shortcuts</h4>';
+    
+    shortcuts.forEach(shortcut => {
+        helpHTML += `
+            <div class="shortcut-item">
+                <span>${shortcut.action}</span>
+                <kbd>${shortcut.key}</kbd>
+            </div>
+        `;
+    });
+    
+    helpHTML += '</div>';
+    
+    this.ui.showToast(helpHTML, {
+        type: 'info',
+        duration: 8000,
+        position: 'bottom-right'
+    });
+}
+
+showErrorScreen(message) {
+    const errorScreen = document.createElement('div');
+    errorScreen.className = 'error-screen';
+    errorScreen.innerHTML = `
+        <div class="error-content">
+            <h1>⚠️ Oops!</h1>
+            <p>${message}</p>
+            <p>Please try refreshing the page or contact support if the problem persists.</p>
+            <button id="refreshBtn" class="rc-btn">
+                <i class="fas fa-redo"></i> Refresh Page
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(errorScreen);
+    
+    // Add refresh button handler
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            window.location.reload();
+        });
+    }
+}
+
+destroy() {
+    // Stop all managers
+    this.countdown?.stop();
+    this.countdown?.destroy();
+    this.weather?.destroy();
+    
+    // Clean up UI components
+    this.ui?.destroyAllComponents();
+    
+    // Remove event listeners
+    window.removeEventListener('error', this.handleError);
+    window.removeEventListener('unhandledrejection', this.handleError);
+    window.removeEventListener('online', this.handleOnlineStatus);
+    window.removeEventListener('offline', this.handleOnlineStatus);
+    
+    // Clear all intervals and timeouts
+    // Note: This is a brute-force approach. In production, you'd track all timeouts.
+    const highestTimeoutId = setTimeout(() => {}, 0);
+    for (let i = 0; i < highestTimeoutId; i++) {
+        clearTimeout(i);
+    }
+    
+    this.isInitialized = false;
+    console.log(`${CONFIG.APP_NAME} destroyed`);
+}
+}
+
+// ============================================================================
+// APPLICATION INITIALIZATION
+// ============================================================================
+
+// Create and initialize the application
+document.addEventListener('DOMContentLoaded', async () => {
+try {
+    // Create app instance
+    const app = new CruiseCompanionApp();
+    
+    // Make app globally available for debugging
+    window.cruiseApp = app;
+    
+    // Initialize app
+    await app.initialize();
+    
+    // Add beforeunload handler for cleanup
+    window.addEventListener('beforeunload', () => {
+        app.destroy();
+    });
+    
+} catch (error) {
+    console.error('Failed to initialize Cruise Companion:', error);
+    
+    // Show error screen
+    const errorScreen = document.createElement('div');
+    errorScreen.className = 'error-screen';
+    errorScreen.innerHTML = `
+        <div class="error-content">
+            <h1>🚨 Critical Error</h1>
+            <p>Failed to initialize the Cruise Companion application.</p>
+            <p>Error: ${error.message}</p>
+            <button onclick="window.location.reload()" class="rc-btn">
+                <i class="fas fa-redo"></i> Reload Application
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(errorScreen);
+}
+});
+
+// Service Worker registration (simplified)
+if ('serviceWorker' in navigator) {
+window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(error => {
+        console.log('ServiceWorker registration failed:', error);
+    });
+});
+}
+
+// Add polyfills for older browsers
+if (!window.Promise) {
+console.warn('Promises not supported - loading polyfill');
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js';
+document.head.appendChild(script);
+}
+
+// Console welcome message
+console.log(`
+╔══════════════════════════════════════════════════════════╗
+║                CRUISE COMPANION v2.0.0                   ║
+║          Adventure of the Seas • Feb 14-20, 2026         ║
+║                                                          ║
+║   Type 'cruiseApp' in console for debugging controls.    ║
+║   Press '?' to view keyboard shortcuts.                  ║
+╚══════════════════════════════════════════════════════════╝
+`);
             
       </script>
    </body>
