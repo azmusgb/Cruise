@@ -120,6 +120,7 @@ body{
 img{max-width:100%;display:block}
 a{color:inherit}
 button,input{font:inherit}
+section[hidden]{display:none !important}
 :focus-visible{
   outline:3px solid rgba(242,193,78,.55);
   outline-offset:2px;
@@ -2372,7 +2373,7 @@ h2, .rc-headline{
                             <div id="itineraryContent" class="card__content collapsed">
                                 <div class="timeline">
                                     <!-- Day 1 -->
-                                    <div class="timeline-item">
+                                    <div class="timeline-item" data-day="1">
                                         <span class="timeline-day">Day 1 • Feb 14</span>
                                         <div class="timeline-content">
                                             <h3>Port Canaveral - Embarkation Day</h3>
@@ -2407,7 +2408,7 @@ h2, .rc-headline{
                                     </div>
 
                                     <!-- Day 2 -->
-                                    <div class="timeline-item">
+                                    <div class="timeline-item" data-day="2">
                                         <span class="timeline-day">Day 2 • Feb 15</span>
                                         <div class="timeline-content">
                                             <h3>Perfect Day at CocoCay</h3>
@@ -2421,7 +2422,7 @@ h2, .rc-headline{
                                     </div>
 
                                     <!-- Day 3 -->
-                                    <div class="timeline-item">
+                                    <div class="timeline-item" data-day="3">
                                         <span class="timeline-day">Day 3 • Feb 16</span>
                                         <div class="timeline-content">
                                             <h3>At Sea</h3>
@@ -2436,7 +2437,7 @@ h2, .rc-headline{
                                     </div>
 
                                     <!-- Day 4 -->
-                                    <div class="timeline-item">
+                                    <div class="timeline-item" data-day="4">
                                         <span class="timeline-day">Day 4 • Feb 17</span>
                                         <div class="timeline-content">
                                             <h3>Falmouth, Jamaica</h3>
@@ -2451,7 +2452,7 @@ h2, .rc-headline{
                                     </div>
 
                                     <!-- Day 5 -->
-                                    <div class="timeline-item">
+                                    <div class="timeline-item" data-day="5">
                                         <span class="timeline-day">Day 5 • Feb 18</span>
                                         <div class="timeline-content">
                                             <h3>Labadee, Haiti</h3>
@@ -2466,7 +2467,7 @@ h2, .rc-headline{
                                     </div>
 
                                     <!-- Day 6 -->
-                                    <div class="timeline-item">
+                                    <div class="timeline-item" data-day="6">
                                         <span class="timeline-day">Day 6 • Feb 19</span>
                                         <div class="timeline-content">
                                             <h3>At Sea</h3>
@@ -2480,7 +2481,7 @@ h2, .rc-headline{
                                     </div>
 
                                     <!-- Day 7 -->
-                                    <div class="timeline-item">
+                                    <div class="timeline-item" data-day="7">
                                         <span class="timeline-day">Day 7 • Feb 20</span>
                                         <div class="timeline-content">
                                             <h3>Port Canaveral - Return</h3>
@@ -3435,6 +3436,7 @@ h2, .rc-headline{
                 this.updateStickyOffsets();
                 this.handleResize();
                 this.updateCriticalFabVisibility();
+                this.filterByDay(this.currentDay);
                 
                 // Build search index
                 this.buildSearchIndex();
@@ -4242,17 +4244,19 @@ h2, .rc-headline{
             }
             
             filterByDay(day) {
-                // This is a simplified version - in a full implementation,
-                // you would filter timeline items and other content by day
                 const timelineItems = document.querySelectorAll('.timeline-item');
-                
+
                 timelineItems.forEach(item => {
-                    const dayText = item.querySelector('.timeline-day')?.textContent || '';
-                    if (day === 'all' || dayText.includes(`Day ${day}`)) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
+                    const itemDay = item.dataset.day;
+                    const shouldShow = day === 'all' || itemDay === day;
+                    item.style.display = shouldShow ? 'block' : 'none';
+                });
+
+                const sections = document.querySelectorAll('.main .section');
+                sections.forEach(section => {
+                    const isItinerary = section.id === 'itinerary';
+                    const shouldShow = day === 'all' || isItinerary;
+                    section.toggleAttribute('hidden', !shouldShow);
                 });
             }
             
