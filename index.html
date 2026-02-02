@@ -2,7 +2,9 @@
 <html lang="en" style="--header-height: 100px; --day-selector-offset: 100px; --scroll-padding: 120px;">
    <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
       <title>Your Caribbean Cruise Guide | Adventure of the Seas | Feb 14-20, 2026</title>
       <meta name="description" content="Complete cruise planning guide for the Rahe Family Caribbean adventure aboard Adventure of the Seas. Room details, daily itinerary, dining, tips, and everything you need for an amazing vacation.">
       <!-- Preconnect for fonts -->
@@ -222,7 +224,17 @@
          /* =============== Day & Traveler Selectors =============== */
          .day-selector{position:sticky;top:70px;z-index:35;background:rgba(6,24,43,0.92);border-bottom:1px solid var(--border);padding:8px 0;}
          .day-selector--hidden{display:none;}
-         .day-nav{display:flex;gap:var(--gap-sm);overflow-x:auto;padding-bottom:2px;}
+         .day-nav{
+         display:flex;gap:var(--gap-sm);overflow-x:auto;padding-bottom:2px;
+         -webkit-overflow-scrolling:touch;scroll-behavior:smooth;scrollbar-width:none;position:relative;
+         -ms-overflow-style:none;
+         }
+         .day-nav::-webkit-scrollbar{display:none;}
+         .day-nav::after{
+         content:"← swipe →";display:block;text-align:center;color:var(--muted);font-size:0.8rem;
+         padding:4px 0;flex:0 0 100%;
+         }
+         .day-nav.scrolled::after{display:none;}
          .day-btn{
          border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);
          border-radius:999px;padding:8px 12px;white-space:nowrap;cursor:pointer;
@@ -438,7 +450,7 @@
          .header__inner{padding:0 var(--gap-md);gap:var(--gap-sm);}
          .brand__title{font-size:0.85rem;}
          .header__actions{gap:8px;}
-         .header__search-btn,.header__mobile-toggle{width:36px;height:36px;border-radius:8px;}
+         .header__search-btn,.header__mobile-toggle{border-radius:8px;}
          .top-bar-hint__content{flex-direction:column;align-items:flex-start;}
          .hero__badge-row{gap:var(--gap-xs);}
          .hero__badge{font-size:0.85rem;padding:6px 10px;}
@@ -458,15 +470,70 @@
          .rc-footer-main{gap:var(--gap-md);}
          }
          @media(max-width:480px){
+         :root{--gap-sm:8px;--gap-md:12px;--gap-lg:16px;}
          .hero__title{font-size:clamp(1.8rem,9vw,2.3rem);}
+         .hero__actions{flex-direction:column;}
+         .hero__actions .btn{width:100%;margin-bottom:8px;}
          .countdown-item{min-width:100%;}
+         .timeline-item{padding:12px;margin-bottom:8px;}
+         .card{padding:16px;margin-bottom:16px;}
          .card__icon{width:36px;height:36px;border-radius:10px;}
          .card__title{font-size:1.1rem;}
          .nav-badge{font-size:0.7rem;}
+         body{font-size:16px;}
+         input,select,textarea{font-size:16px!important;}
+         .bottom-nav{height:60px;}
+         .bottom-nav .nav-item{padding:8px 4px;font-size:0.75rem;}
+         .bottom-nav .emoji{font-size:1.2rem;}
          }
          /* =============== Touch Targets =============== */
-         @media(hover:none){
-         button,.nav-link,.nav-item,.drawer-nav-item,.sidebar-link{min-height:48px;min-width:48px;}
+         @media(max-width:768px){
+         .day-btn{
+         padding:14px 16px;min-height:44px;min-width:44px;
+         }
+         .nav-link,.sidebar-link,.drawer-nav-item{min-height:44px;}
+         .header__search-btn,.header__mobile-toggle{width:44px;height:44px;}
+         .touch-target{min-height:44px;min-width:44px;}
+         input,select,textarea{font-size:16px!important;}
+         }
+         @supports (padding: max(0px)) {
+         .header,.bottom-nav,.floating-actions{
+         padding-left:max(16px, env(safe-area-inset-left));
+         padding-right:max(16px, env(safe-area-inset-right));
+         }
+         .bottom-nav{padding-bottom:env(safe-area-inset-bottom);}
+         }
+         @media (hover: none) and (pointer: coarse){
+         .activity-card:hover,
+         .dining-card:hover,
+         .tip-card:hover,
+         .room-card:hover{transform:none;}
+         .activity-card:active,
+         .dining-card:active,
+         .tip-card:active,
+         .room-card:active{
+         transform:scale(0.98);transition:transform 0.1s;
+         }
+         .btn:active{transform:scale(0.96);opacity:0.9;}
+         button,[role="button"],.nav-link,.day-btn{cursor:default;}
+         }
+         .nav-link,
+         .day-btn,
+         .card__toggle,
+         .btn,
+         .sidebar-link,
+         .drawer-nav-item{
+         -webkit-tap-highlight-color:rgba(0,0,0,0.1);
+         -webkit-touch-callout:none;
+         -webkit-user-select:none;
+         user-select:none;
+         }
+         .card__content,
+         .timeline-content,
+         p,
+         li{
+         -webkit-user-select:text;
+         user-select:text;
          }
       </style>
    </head>
@@ -558,11 +625,11 @@
                <!-- Header Actions -->
                <div class="header__actions">
                   <!-- Mobile drawer toggle -->
-                  <button class="header__mobile-toggle" id="mobileMenuBtn" type="button" aria-label="Open navigation drawer">
+                  <button class="header__mobile-toggle touch-target" id="mobileMenuBtn" type="button" aria-label="Open navigation drawer">
                   <span class="header__mobile-icon" aria-hidden="true"></span>
                   </button>
                   <!-- Search -->
-                  <button class="header__search-btn" id="searchBtn" type="button" aria-label="Open search">
+                  <button class="header__search-btn touch-target" id="searchBtn" type="button" aria-label="Open search">
                   <i class="fas fa-search" aria-hidden="true"></i>
                   </button>
                </div>
@@ -621,10 +688,10 @@
                   inputmode="search"
                   enterkeyhint="search"
                   >
-               <button type="submit" class="search-submit" aria-label="Search">
+               <button type="submit" class="search-submit touch-target" aria-label="Search">
                <i class="fas fa-search" aria-hidden="true"></i>
                </button>
-               <button type="button" class="search-close" id="searchClose" aria-label="Close search">
+               <button type="button" class="search-close touch-target" id="searchClose" aria-label="Close search">
                <i class="fas fa-times" aria-hidden="true"></i>
                </button>
             </form>
@@ -2490,24 +2557,24 @@
       </div>
       <!-- Bottom Navigation for Mobile -->
       <nav class="bottom-nav" aria-label="Mobile navigation">
-         <button class="nav-item" data-section="overview">
+         <button class="nav-item touch-target" data-section="overview">
          <span class="emoji" aria-hidden="true">🚢</span>
          <span>Start Here</span>
          </button>
-         <button class="nav-item" data-section="operations">
+         <button class="nav-item touch-target" data-section="operations">
          <span class="emoji" aria-hidden="true">⚓</span>
          <span>Ops</span>
          <span class="nav-badge" id="criticalCountBadge" style="display: inline-flex;">5</span>
          </button>
-         <button class="nav-item" data-section="itinerary">
+         <button class="nav-item touch-target" data-section="itinerary">
          <span class="emoji" aria-hidden="true">🌴</span>
          <span>Schedule</span>
          </button>
-         <button class="nav-item" data-section="tips">
+         <button class="nav-item touch-target" data-section="tips">
          <span class="emoji" aria-hidden="true">🌊</span>
          <span>Tips</span>
          </button>
-         <button class="nav-item" id="mobileMoreBtn">
+         <button class="nav-item touch-target" id="mobileMoreBtn">
          <span class="emoji" aria-hidden="true">🚢</span>
          <span>More</span>
          </button>
@@ -3505,6 +3572,43 @@
          const section = document.getElementById(sectionId);
          if (!section) return false;
          
+         if (window.innerWidth <= 768) {
+         if (this.currentSection && this.currentSection !== sectionId) {
+            const currentSection = document.getElementById(this.currentSection);
+            const currentToggle = currentSection?.querySelector('.card__toggle');
+            const currentContent = currentSection?.querySelector('.card__content');
+            
+            if (currentToggle && currentContent && !currentContent.classList.contains('collapsed')) {
+                currentContent.classList.add('collapsed');
+                currentContent.classList.remove('expanded');
+                currentToggle.setAttribute('aria-expanded', 'false');
+                const currentIcon = currentToggle.querySelector('i');
+                if (currentIcon) {
+                    currentIcon.className = 'fas fa-chevron-down';
+                }
+            }
+         }
+         
+         const targetToggle = section.querySelector('.card__toggle');
+         const targetContent = section.querySelector('.card__content');
+         if (targetToggle && targetContent && targetContent.classList.contains('collapsed')) {
+            targetContent.classList.remove('collapsed');
+            targetContent.classList.add('expanded');
+            targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+            targetToggle.setAttribute('aria-expanded', 'true');
+            const targetIcon = targetToggle.querySelector('i');
+            if (targetIcon) {
+                targetIcon.className = 'fas fa-chevron-up';
+            }
+            
+            setTimeout(() => {
+                if (targetContent.classList.contains('expanded')) {
+                    targetContent.style.maxHeight = 'none';
+                }
+            }, 300);
+         }
+         }
+         
          const defaultOptions = {
          behavior: 'smooth',
          offset: this.calculateScrollOffset()
@@ -3722,12 +3826,90 @@
                   availableDays: [...this.availableDays]
               };
           }
+        }
+        
+        // ============================================================================
+        // MOBILE ENHANCEMENTS
+        // ============================================================================
+        
+        class MobileKeyboardHandler {
+         constructor() {
+             this.inputs = document.querySelectorAll('input[type="search"], input[type="text"], textarea');
+             this.attachListeners();
+             this.preventKeyboardHiding();
          }
          
-         // ============================================================================
-         // UI COMPONENTS MANAGER
-         // ============================================================================
+         attachListeners() {
+             this.inputs.forEach(input => {
+                 input.addEventListener('focus', () => {
+                     setTimeout(() => {
+                         input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                     }, 300);
+                 });
+             });
+         }
          
+         preventKeyboardHiding() {
+             document.addEventListener('focusin', () => {
+                 window.scrollTo(0, 0);
+                 document.body.scrollTop = 0;
+             });
+         }
+        }
+        
+        class MobilePerformance {
+         static optimizeForMobile(app) {
+             const images = document.querySelectorAll('img[data-src]');
+             
+             if ('IntersectionObserver' in window) {
+                 const imageObserver = new IntersectionObserver(entries => {
+                     entries.forEach(entry => {
+                         if (entry.isIntersecting) {
+                             const img = entry.target;
+                             img.src = img.dataset.src;
+                             imageObserver.unobserve(img);
+                         }
+                     });
+                 });
+                 
+                 images.forEach(img => imageObserver.observe(img));
+             } else {
+                 images.forEach(img => {
+                     img.src = img.dataset.src;
+                 });
+             }
+             
+             if (window.innerWidth <= 768 && app?.countdown) {
+                 const countdown = document.querySelector('.countdown');
+                 if (!countdown) return;
+                 
+                 const visibilityHandler = () => {
+                     if (document.hidden) {
+                         app.countdown.stop();
+                         if (app.mobileCountdownIntervalId) {
+                             clearInterval(app.mobileCountdownIntervalId);
+                         }
+                         app.mobileCountdownIntervalId = setInterval(() => {
+                             app.countdown.update();
+                         }, 30000);
+                     } else {
+                         if (app.mobileCountdownIntervalId) {
+                             clearInterval(app.mobileCountdownIntervalId);
+                             app.mobileCountdownIntervalId = null;
+                         }
+                         app.countdown.start();
+                     }
+                 };
+                 
+                 document.addEventListener('visibilitychange', visibilityHandler);
+             }
+         }
+        }
+        
+        // ============================================================================
+        // UI COMPONENTS MANAGER
+        // ============================================================================
+        
          class UIComponentsManager {
           constructor() {
               this.errorHandler = new ErrorHandler();
@@ -4901,6 +5083,9 @@
          this.ui = new UIComponentsManager();
          this.countdown = new CountdownManager(CONFIG.CRUISE_DATE);
          this.weather = new WeatherManager();
+         this.mobileKeyboardHandler = null;
+         this.mobileCountdownIntervalId = null;
+         this.mobileEnhancementsInitialized = false;
          
          this.isInitialized = false;
          this.isLoading = false;
@@ -4953,10 +5138,13 @@
          // 8. Initialize event listeners
          await this.initializeEventListeners();
          
-         // 9. Initialize service worker (if available)
+         // 9. Initialize mobile enhancements
+         this.initializeMobileEnhancements();
+         
+         // 10. Initialize service worker (if available)
          await this.initializeServiceWorker();
          
-         // 10. Finalize initialization
+         // 11. Finalize initialization
          await this.finalizeInitialization();
          
          this.isInitialized = true;
@@ -5243,6 +5431,115 @@
          document.addEventListener('keydown', (e) => {
          this.handleKeyboardShortcuts(e);
          });
+         }
+         
+         initializeMobileEnhancements() {
+         if (this.mobileEnhancementsInitialized) return;
+         
+         const isMobile = window.matchMedia('(max-width: 768px)').matches;
+         if (!isMobile) return;
+         
+         this.mobileKeyboardHandler = new MobileKeyboardHandler();
+         MobilePerformance.optimizeForMobile(this);
+         this.addMobileUXEnhancements();
+         this.setupDayNavScrollHint();
+         
+         this.mobileEnhancementsInitialized = true;
+         }
+         
+         setupDayNavScrollHint() {
+         const dayNav = document.querySelector('.day-nav');
+         if (!dayNav) return;
+         
+         const hideHint = () => {
+             if (dayNav.scrollLeft > 4) {
+                 dayNav.classList.add('scrolled');
+             }
+         };
+         
+         dayNav.addEventListener('scroll', hideHint, { passive: true });
+         
+         dayNav.addEventListener('touchstart', hideHint, { passive: true });
+         
+         document.querySelectorAll('.day-btn').forEach(btn => {
+             btn.addEventListener('click', () => {
+                 dayNav.classList.add('scrolled');
+             });
+         });
+         }
+         
+         addMobileUXEnhancements() {
+         let touchStartX = 0;
+         let touchStartY = 0;
+         let lastTouchEnd = 0;
+         
+         document.addEventListener('touchstart', (e) => {
+             if (e.changedTouches.length > 0) {
+                 touchStartX = e.changedTouches[0].screenX;
+                 touchStartY = e.changedTouches[0].screenY;
+             }
+         }, { passive: true });
+         
+         document.addEventListener('touchend', (e) => {
+             if (e.changedTouches.length > 0) {
+                 const touchEndX = e.changedTouches[0].screenX;
+                 const touchEndY = e.changedTouches[0].screenY;
+                 this.handleSwipe(touchStartX, touchEndX, touchStartY, touchEndY, e.target);
+             }
+             
+             if (e.target.closest('input, textarea, select, [contenteditable="true"]')) {
+                 return;
+             }
+             
+             const now = Date.now();
+             if (now - lastTouchEnd <= 300) {
+                 e.preventDefault();
+             }
+             lastTouchEnd = now;
+         }, false);
+         
+         document.addEventListener('touchmove', (e) => {
+             if (e.touches.length === 0) return;
+             
+             if (e.target.closest('input, textarea, select, [contenteditable="true"]')) {
+                 return;
+             }
+             
+             const touchY = e.touches[0].clientY;
+             if (touchY < 50 && window.scrollY === 0) {
+                 e.preventDefault();
+             }
+         }, { passive: false });
+         
+         document.addEventListener('touchstart', () => {}, { passive: true });
+         }
+         
+         handleSwipe(startX, endX, startY, endY, target) {
+         const minSwipeDistance = 50;
+         const distanceX = startX - endX;
+         const distanceY = startY - endY;
+         
+         if (Math.abs(distanceX) < minSwipeDistance || Math.abs(distanceX) < Math.abs(distanceY)) {
+             return;
+         }
+         
+         if (target?.closest('.day-nav')) {
+             return;
+         }
+         
+         if (this.navigation.currentSection === 'itinerary') {
+             const currentDayIndex = this.navigation.availableDays.indexOf(this.navigation.currentDay);
+             
+             if (distanceX > 0) {
+                 const nextIndex = (currentDayIndex + 1) % this.navigation.availableDays.length;
+                 this.navigation.setCurrentDay(this.navigation.availableDays[nextIndex]);
+             } else {
+                 const prevIndex = currentDayIndex > 0 ?
+                     currentDayIndex - 1 :
+                     this.navigation.availableDays.length - 1;
+                 this.navigation.setCurrentDay(this.navigation.availableDays[prevIndex]);
+             }
+         }
          }
          
          initializeSearchListeners() {
@@ -6133,15 +6430,26 @@
          });
          
          // Service Worker registration (simplified)
-         if ('serviceWorker' in navigator) {
-         window.addEventListener('load', () => {
-         navigator.serviceWorker.register('/sw.js').catch(error => {
-         console.log('ServiceWorker registration failed:', error);
-         });
-         });
-         }
-         
-         // Add polyfills for older browsers
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(error => {
+        console.log('ServiceWorker registration failed:', error);
+        });
+        });
+        }
+        
+        if (window.navigator.standalone) {
+        document.body.classList.add('standalone-ios');
+        
+        const fixViewportHeight = () => {
+        document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        };
+        
+        window.addEventListener('resize', fixViewportHeight);
+        fixViewportHeight();
+        }
+        
+        // Add polyfills for older browsers
          if (!window.Promise) {
          console.warn('Promises not supported - loading polyfill');
          const script = document.createElement('script');
