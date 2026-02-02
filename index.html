@@ -4671,22 +4671,32 @@
          }
           
           calculateScrollOffset() {
-              const header = document.querySelector('.header');
-              const topBar = document.getElementById('topBarHint');
-              const daySelector = document.querySelector('.day-selector');
-              
-              let offset = 0;
-              
-              if (header) offset += header.offsetHeight;
-              if (topBar && !topBar.classList.contains('is-hidden')) {
-                  offset += topBar.offsetHeight;
-              }
-              if (daySelector && !daySelector.classList.contains('day-selector--hidden')) {
-                  offset += daySelector.offsetHeight;
-              }
-              
-              return offset + 20; // Add 20px padding
-          }
+         const elements = [
+         document.querySelector('.header'),
+         document.getElementById('topBarHint'),
+         document.querySelector('.day-selector')
+         ];
+         
+         let offset = 0;
+         
+         for (const el of elements) {
+         if (!el) continue;
+         
+         const style = window.getComputedStyle(el);
+         const isVisible =
+         style.display !== 'none' &&
+         style.visibility !== 'hidden' &&
+         el.getBoundingClientRect().height > 0 &&
+         !el.hasAttribute('aria-hidden');
+         
+         if (isVisible) {
+         offset += el.getBoundingClientRect().height;
+         }
+         }
+         
+         // Add breathing room only when there is chrome to clear
+         return offset > 0 ? offset + 16 : 0;
+         }
           
           setCurrentDay(day) {
               if (!this.availableDays.includes(day)) {
@@ -4944,217 +4954,233 @@
               }
           }
           
-          async initializeModals() {
-              const modals = document.querySelectorAll('[data-modal]');
-              
-              modals.forEach(modal => {
-                  const openButtons = document.querySelectorAll(`[data-modal-open="${modal.id}"]`);
-                  const closeButtons = modal.querySelectorAll('[data-modal-close]');
-                  const overlay = modal.querySelector('[data-modal-overlay]');
-                  
-                  // Set initial state
-                  modal.setAttribute('aria-hidden', 'true');
-                  modal.setAttribute('aria-modal', 'true');
-                  
-                  // Add open handlers
-                  openButtons.forEach(button => {
-                      button.addEventListener('click', () => {
-                          this.openModal(modal.id);
-                      });
-                  });
-                  
-                  // Add close handlers
-                  closeButtons.forEach(button => {
-                      button.addEventListener('click', () => {
-                          this.closeModal(modal.id);
-                      });
-                  });
-                  
-                  // Close on overlay click
-                  if (overlay) {
-                      overlay.addEventListener('click', () => {
-                          this.closeModal(modal.id);
-                      });
-                  }
-                  
-                  // Close on escape
-                  modal.addEventListener('keydown', (e) => {
-                      if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
-                          this.closeModal(modal.id);
-                      }
-                  });
-                  
-                  this.components.set(`modal-${modal.id}`, {
-                      type: 'modal',
-                      element: modal,
-                      openButtons: openButtons,
-                      closeButtons: closeButtons
-                  });
-              });
-          }
+         async initializeModals() {
+         const modals = document.querySelectorAll('[data-modal]');
+         
+         modals.forEach(modal => {
+         if (!modal.id) return;
+         
+         const openButtons = document.querySelectorAll(
+         `[data-modal-open="${modal.id}"]`
+         );
+         const closeButtons = modal.querySelectorAll('[data-modal-close]');
+         const overlay = modal.querySelector('[data-modal-overlay]');
+         
+         // Initial state
+         modal.setAttribute('aria-hidden', 'true');
+         modal.removeAttribute('aria-modal');
+         
+         // Prevent double-binding
+         if (modal.dataset.initialized) return;
+         modal.dataset.initialized = 'true';
+         
+         // Open handlers
+         openButtons.forEach(button => {
+         button.addEventListener('click', () => {
+         this.openModal(modal.id, button);
+         });
+         });
+         
+         // Close handlers
+         closeButtons.forEach(button => {
+         button.addEventListener('click', () => {
+         this.closeModal(modal.id);
+         });
+         });
+         
+         // Overlay click (only if actual overlay)
+         if (overlay) {
+         overlay.addEventListener('click', e => {
+         if (e.target === overlay) {
+          this.closeModal(modal.id);
+         }
+         });
+         }
+         
+         // Global Escape handling (reliable)
+         document.addEventListener('keydown', e => {
+         if (
+         e.key === 'Escape' &&
+         modal.getAttribute('aria-hidden') === 'false'
+         ) {
+         this.closeModal(modal.id);
+         }
+         });
+         
+         this.components.set(`modal-${modal.id}`, {
+         type: 'modal',
+         element: modal,
+         openButtons,
+         closeButtons,
+         overlay
+         });
+         });
+         }
+         openModal(modalId, opener = null) {
+         const modal = document.getElementById(modalId);
+         if (!modal) return false;
+         
+         // Store opener for correct focus restore
+         modal.__opener = opener || document.activeElement;
+         
+         // ARIA state
+         modal.setAttribute('aria-hidden', 'false');
+         modal.setAttribute('aria-modal', 'true');
+         modal.classList.add('active');
+         
+         // Lock scroll (iOS-safe)
+         this._scrollY = window.scrollY;
+         document.body.style.position = 'fixed';
+         document.body.style.top = `-${this._scrollY}px`;
+         document.body.style.width = '100%';
+         
+         // Trap focus once
+         this.trapFocus(modal);
+         
+         // Move focus inside modal
+         const focusTarget =
+         modal.querySelector('[autofocus]') ||
+         modal.querySelector(
+         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+         );
+         
+         focusTarget?.focus();
+         
+         this.announceToScreenReader('Modal opened');
+         return true;
+         }
+         
+         closeModal(modalId) {
+         const modal = document.getElementById(modalId);
+         if (!modal) return false;
+         
+         // ARIA state
+         modal.setAttribute('aria-hidden', 'true');
+         modal.removeAttribute('aria-modal');
+         modal.classList.remove('active');
+         
+         // Restore scroll
+         document.body.style.position = '';
+         document.body.style.top = '';
+         document.body.style.width = '';
+         window.scrollTo(0, this._scrollY || 0);
+         
+         // Restore focus
+         modal.__opener?.focus?.();
+         delete modal.__opener;
+         
+         this.announceToScreenReader('Modal closed');
+         return true;
+         }
+         
+         trapFocus(element) {
+         if (element.__focusTrapAttached) return;
+         element.__focusTrapAttached = true;
+         
+         const focusableSelector =
+         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+         
+         element.addEventListener('keydown', e => {
+         if (e.key !== 'Tab') return;
+         
+         const focusables = Array.from(
+         element.querySelectorAll(focusableSelector)
+         ).filter(el => !el.disabled && el.offsetParent !== null);
+         
+         if (focusables.length === 0) return;
+         
+         const first = focusables[0];
+         const last = focusables[focusables.length - 1];
+         
+         if (e.shiftKey && document.activeElement === first) {
+         e.preventDefault();
+         last.focus();
+         } else if (!e.shiftKey && document.activeElement === last) {
+         e.preventDefault();
+         first.focus();
+         }
+         });
+         }
           
-          openModal(modalId) {
-              const modal = document.getElementById(modalId);
-              if (!modal) return false;
-              
-              // Set state
-              modal.setAttribute('aria-hidden', 'false');
-              modal.classList.add('active');
-              
-              // Trap focus
-              this.trapFocus(modal);
-              
-              // Prevent body scroll
-              document.body.style.overflow = 'hidden';
-              
-              // Announce to screen readers
-              this.announceToScreenReader('Modal opened');
-              
-              return true;
-          }
+         async initializeToasts() {
+         let toastContainer = document.getElementById('toast-container');
+         if (!toastContainer) {
+         toastContainer = DOMUtils.createElement('div', ['toast-container'], {
+         id: 'toast-container',
+         'aria-live': 'polite',
+         'aria-atomic': 'true'
+         });
+         document.body.appendChild(toastContainer);
+         }
+         
+         this.components.set('toast-container', {
+         type: 'toast-container',
+         element: toastContainer
+         });
+         }
           
-          closeModal(modalId) {
-              const modal = document.getElementById(modalId);
-              if (!modal) return false;
-              
-              // Set state
-              modal.setAttribute('aria-hidden', 'true');
-              modal.classList.remove('active');
-              
-              // Restore body scroll
-              document.body.style.overflow = '';
-              
-              // Return focus to opening element
-              const component = this.components.get(`modal-${modalId}`);
-              if (component && component.openButtons.length > 0) {
-                  component.openButtons[0].focus();
-              }
-              
-              // Announce to screen readers
-              this.announceToScreenReader('Modal closed');
-              
-              return true;
-          }
-          
-          trapFocus(element) {
-              const focusableElements = element.querySelectorAll(
-                  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-              );
-              
-              if (focusableElements.length === 0) return;
-              
-              const firstElement = focusableElements[0];
-              const lastElement = focusableElements[focusableElements.length - 1];
-              
-              element.addEventListener('keydown', function trapHandler(e) {
-                  if (e.key !== 'Tab') return;
-                  
-                  if (e.shiftKey) {
-                      // Shift + Tab
-                      if (document.activeElement === firstElement) {
-                          e.preventDefault();
-                          lastElement.focus();
-                      }
-                  } else {
-                      // Tab
-                      if (document.activeElement === lastElement) {
-                          e.preventDefault();
-                          firstElement.focus();
-                      }
-                  }
-              });
-          }
-          
-          async initializeToasts() {
-              // Create toast container if it doesn't exist
-              let toastContainer = document.getElementById('toast-container');
-              if (!toastContainer) {
-                  toastContainer = DOMUtils.createElement('div', ['toast-container'], {
-                      id: 'toast-container',
-                      'aria-live': 'polite',
-                      'aria-atomic': 'true'
-                  });
-                  document.body.appendChild(toastContainer);
-              }
-              
-              this.components.set('toast-container', {
-                  type: 'toast-container',
-                  element: toastContainer
-              });
-          }
-          
-          showToast(message, options = {}) {
-              const container = this.components.get('toast-container')?.element;
-              if (!container) return null;
-              
-              const toastId = `toast-${Date.now()}`;
-              const {
-                  type = 'info',
-                  duration = CONFIG.TOAST_DURATION,
-                  icon = this.getToastIcon(type),
-                  action = null,
-                  position = 'bottom-center'
-              } = options;
-              
-              const toast = DOMUtils.createElement('div', ['toast', `toast-${type}`], {
-                  id: toastId,
-                  role: 'alert',
-                  'aria-live': 'assertive',
-                  'aria-atomic': 'true'
-              }, `
-                  <div class="toast-content">
-                      <div class="toast-icon">${icon}</div>
-                      <div class="toast-message">${message}</div>
-                      ${action ? `<button class="toast-action">${action.label}</button>` : ''}
-                      <button class="toast-close" aria-label="Close notification">
-                          <i class="fas fa-times"></i>
-                      </button>
-                  </div>
-              `);
-              
-              // Position the toast
-              toast.classList.add(`toast-${position}`);
-              
-              container.appendChild(toast);
-              
-              // Trigger animation
-              setTimeout(() => {
-                  toast.classList.add('show');
-              }, 10);
-              
-              // Set up close button
-              const closeBtn = toast.querySelector('.toast-close');
-              closeBtn.addEventListener('click', () => {
-                  this.hideToast(toastId);
-              });
-              
-              // Set up action button
-              if (action) {
-                  const actionBtn = toast.querySelector('.toast-action');
-                  actionBtn.addEventListener('click', () => {
-                      if (action.callback) {
-                          action.callback();
-                      }
-                      this.hideToast(toastId);
-                  });
-              }
-              
-              // Auto-dismiss
-              if (duration > 0) {
-                  setTimeout(() => {
-                      this.hideToast(toastId);
-                  }, duration);
-              }
-              
-              // Store reference
-              this.components.set(toastId, {
-                  type: 'toast',
-                  element: toast,
-                  timeoutId: duration > 0 ? setTimeout(() => this.hideToast(toastId), duration) : null
-              });
-              
-              return toastId;
-          }
+         showToast(message, options = {}) {
+         const container = this.components.get('toast-container')?.element;
+         if (!container) return null;
+         
+         const toastId = `toast-${crypto.randomUUID?.() || Date.now() + Math.random()}`;
+         
+         const {
+         type = 'info',
+         duration = CONFIG.TOAST_DURATION,
+         icon = this.getToastIcon(type),
+         action = null,
+         position = 'bottom-center'
+         } = options;
+         
+         const toast = DOMUtils.createElement(
+         'div',
+         ['toast', `toast-${type}`, `toast-${position}`],
+         {
+         id: toastId,
+         role: 'status',
+         'aria-atomic': 'true'
+         },
+         `
+         <div class="toast-content">
+         <div class="toast-icon">${icon}</div>
+         <div class="toast-message">${message}</div>
+         ${action ? `<button class="toast-action">${action.label}</button>` : ''}
+         <button class="toast-close" aria-label="Close notification">
+          <i class="fas fa-times"></i>
+         </button>
+         </div>
+         `
+         );
+         
+         container.appendChild(toast);
+         
+         requestAnimationFrame(() => {
+         toast.classList.add('show');
+         });
+         
+         const hide = () => this.hideToast(toastId);
+         
+         toast.querySelector('.toast-close')?.addEventListener('click', hide);
+         
+         if (action) {
+         toast.querySelector('.toast-action')?.addEventListener('click', () => {
+         action.callback?.();
+         hide();
+         });
+         }
+         
+         const timeoutId =
+         duration > 0 ? setTimeout(hide, duration) : null;
+         
+         this.components.set(toastId, {
+         type: 'toast',
+         element: toast,
+         timeoutId
+         });
+         
+         return toastId;
+         }
           
           hideToast(toastId) {
               const component = this.components.get(toastId);
