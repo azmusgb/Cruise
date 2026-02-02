@@ -140,7 +140,7 @@
 
         html {
             scroll-behavior: smooth;
-            scroll-padding-top: 100px;
+            scroll-padding-top: var(--scroll-padding, 100px);
         }
 
         body {
@@ -527,6 +527,10 @@
             -webkit-text-fill-color: transparent;
             color: transparent;
             font-weight: 800;
+        }
+
+        .header__logo-text--short {
+            display: none;
         }
 
         /* Mobile Menu Button */
@@ -2679,7 +2683,7 @@
             border-bottom: 1px solid var(--border);
             padding: var(--space-3) 0;
             position: sticky;
-            top: 72px;
+            top: var(--day-selector-offset, 72px);
             z-index: 98;
             backdrop-filter: blur(10px);
         }
@@ -2752,13 +2756,14 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--royal-white);
+            background: rgba(255, 255, 255, 0.92);
             display: flex;
             justify-content: space-around;
-            padding: var(--space-3) 0;
-            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
-            z-index: 99;
+            padding: var(--space-3) 0 calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+            box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.12);
+            z-index: var(--z-fixed);
             display: none;
+            backdrop-filter: blur(18px);
         }
 
         .nav-item {
@@ -2777,19 +2782,345 @@
             background: transparent;
             cursor: pointer;
             font-family: inherit;
+            position: relative;
         }
 
         .nav-item.active {
             color: var(--primary);
             background: var(--light);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
         }
 
         .nav-item i {
             font-size: 1.2rem;
         }
 
+        .nav-badge {
+            position: absolute;
+            top: 2px;
+            right: 6px;
+            background: var(--danger);
+            color: var(--royal-white);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 999px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* ========== TOP BAR HINT ========== */
+        .top-bar-hint {
+            position: sticky;
+            top: var(--header-height, 88px);
+            z-index: var(--z-sticky);
+            background: rgba(1, 46, 77, 0.92);
+            color: var(--royal-white);
+            padding: var(--space-3) 0;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(12px);
+            animation: slideDown 0.4s ease;
+        }
+
+        .top-bar-hint.is-hidden {
+            display: none;
+        }
+
+        .top-bar-hint__content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+            font-size: var(--text-sm);
+        }
+
+        .top-bar-hint__title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .top-bar-hint__detail {
+            font-size: var(--text-sm);
+            opacity: 0.9;
+        }
+
+        .top-bar-hint__close {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: var(--royal-white);
+            padding: var(--space-2);
+            border-radius: 999px;
+            min-width: 40px;
+            min-height: 40px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .top-bar-hint__close:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ========== SECTION DRAWER ========== */
+        .section-drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(6, 18, 38, 0.45);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition), visibility var(--transition);
+            z-index: var(--z-modal);
+        }
+
+        .section-drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .section-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: min(85vw, 320px);
+            height: 100%;
+            background: var(--bg-surface);
+            box-shadow: var(--shadow-xl);
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: calc(var(--z-modal) + 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-drawer.active {
+            transform: translateX(0);
+        }
+
+        .section-drawer__header {
+            padding: var(--space-6) var(--space-5);
+            background: var(--gradient-primary);
+            color: var(--royal-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-drawer__title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: var(--text-lg);
+            font-weight: 700;
+        }
+
+        .section-drawer__close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--royal-white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .section-drawer__list {
+            padding: var(--space-5);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            overflow-y: auto;
+        }
+
+        .drawer-nav-item {
+            width: 100%;
+            border: none;
+            background: var(--bg-surface-alt);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 44px;
+            transition: var(--transition);
+            text-align: left;
+        }
+
+        .drawer-nav-item .drawer-label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .drawer-nav-item:hover {
+            background: var(--light);
+            transform: translateX(6px);
+        }
+
+        .drawer-nav-item.active {
+            border: 2px solid var(--primary);
+            background: var(--light);
+        }
+
+        .drawer-badge {
+            font-size: var(--text-xs);
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .drawer-badge--critical {
+            background: rgba(198, 40, 40, 0.12);
+            color: var(--danger);
+        }
+
+        .drawer-badge--vip {
+            background: rgba(227, 160, 18, 0.2);
+            color: var(--accent);
+        }
+
+        /* ========== FLOATING ACTIONS ========== */
+        .floating-actions {
+            position: fixed;
+            right: var(--space-4);
+            bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+            display: none;
+            flex-direction: column;
+            gap: var(--space-3);
+            z-index: var(--z-fixed);
+        }
+
+        .fab {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: none;
+            color: var(--royal-white);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            min-height: 44px;
+            min-width: 44px;
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .fab--critical {
+            background: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .fab--compact {
+            background: var(--primary);
+        }
+
+        .fab--compact.active {
+            transform: rotate(20deg);
+            background: var(--secondary);
+        }
+
+        .fab--hidden {
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 rgba(198, 40, 40, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 18px rgba(198, 40, 40, 0.35); }
+            100% { transform: scale(1); box-shadow: 0 0 0 rgba(198, 40, 40, 0); }
+        }
+
+        /* ========== COMPACT MODE ========== */
+        body.compact-mode {
+            font-size: 0.95rem;
+        }
+
+        body.compact-mode .card,
+        body.compact-mode .overview-block,
+        body.compact-mode .activity-card,
+        body.compact-mode .room-card,
+        body.compact-mode .dining-card,
+        body.compact-mode .tip-card {
+            padding: var(--space-4);
+        }
+
+        body.compact-mode .card__subtitle {
+            font-size: var(--text-sm);
+        }
+
+        body.compact-mode .section {
+            margin-bottom: var(--space-8);
+        }
+
+        body.compact-mode .timeline-item {
+            padding: var(--space-4);
+        }
+
+        /* ========== SEARCH CHIPS & CRITICAL RESULTS ========== */
+        .search-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+
+        .search-chip {
+            border: 1px solid var(--border);
+            background: var(--bg-surface-alt);
+            padding: var(--space-2) var(--space-3);
+            border-radius: 999px;
+            font-size: var(--text-xs);
+            font-weight: 600;
+            cursor: pointer;
+            min-height: 44px;
+        }
+
+        .search-result-item.critical {
+            border-left: 4px solid var(--danger);
+            background: rgba(198, 40, 40, 0.08);
+        }
+
+        .search-result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--danger);
+            margin-top: var(--space-2);
+        }
+
+        .critical-item {
+            border-left: 4px solid transparent;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .critical-item.critical-highlight {
+            border-left-color: var(--danger);
+            box-shadow: 0 0 0 2px rgba(198, 40, 40, 0.2);
+        }
+
         /* ========== RESPONSIVE DESIGN ========== */
         @media (max-width: 768px) {
+            .floating-actions {
+                display: flex;
+            }
+
             .header__mobile-toggle {
                 display: flex;
                 align-items: center;
@@ -2797,46 +3128,7 @@
             }
 
             .header__nav {
-                position: fixed;
-                top: 88px;
-                left: 0;
-                right: 0;
-                background: var(--bg-gradient-dark);
-                padding: var(--space-6);
-                box-shadow: var(--shadow-xl);
-                z-index: var(--z-fixed);
-                transform: translateY(-100%);
-                opacity: 0;
-                visibility: hidden;
-                transition: all var(--transition);
-                border-top: 4px solid var(--accent);
-                border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-                max-height: calc(100vh - 88px);
-                overflow-y: auto;
-            }
-
-            .header__nav.active {
-                transform: translateY(0);
-                opacity: 1;
-                visibility: visible;
-            }
-
-            .header__nav-list {
-                flex-direction: column;
-                gap: var(--space-2);
-            }
-
-            .header__nav-link {
-                padding: var(--space-4) var(--space-6);
-                justify-content: flex-start;
-                font-size: var(--text-lg);
-            }
-
-            .header__nav-link.active::after {
-                bottom: -2px;
-                width: 100%;
-                left: 0;
-                transform: none;
+                display: none;
             }
 
             .header__logo-text {
@@ -2846,6 +3138,18 @@
                 -webkit-text-fill-color: currentColor;
                 color: var(--royal-white);
                 font-size: var(--text-base);
+            }
+
+            .header__logo-text--full {
+                display: none;
+            }
+
+            .header__logo-text--short {
+                display: inline-flex;
+            }
+
+            .header__nav-list li:nth-child(n + 5) {
+                display: none;
             }
 
             .hero {
@@ -2941,7 +3245,7 @@
             }
 
             .day-selector {
-                top: 72px;
+                top: var(--day-selector-offset, 72px);
             }
 
             .sidebar {
@@ -3148,6 +3452,26 @@
                 background: var(--bg-surface);
             }
 
+            .top-bar-hint {
+                background: rgba(15, 23, 42, 0.92);
+            }
+
+            .section-drawer {
+                background: var(--bg-surface);
+            }
+
+            .drawer-nav-item {
+                background: var(--bg-surface-alt);
+            }
+
+            .search-chip {
+                background: var(--bg-surface-alt);
+            }
+
+            .search-result-item.critical {
+                background: rgba(198, 40, 40, 0.2);
+            }
+
             .traveler-selector {
                 background: var(--dark);
             }
@@ -3169,7 +3493,11 @@
             .tag,
             .day-selector,
             .traveler-selector,
-            .bottom-nav {
+            .bottom-nav,
+            .top-bar-hint,
+            .section-drawer,
+            .section-drawer-overlay,
+            .floating-actions {
                 display: none !important;
             }
 
@@ -3297,8 +3625,8 @@
                 <!-- Mobile Menu Button -->
                 <button class="header__mobile-toggle" id="mobileMenuBtn"
                         aria-expanded="false"
-                        aria-controls="mainNav"
-                        aria-label="Toggle navigation menu">
+                        aria-controls="sectionDrawer"
+                        aria-label="Open section drawer">
                     <span class="header__mobile-icon"></span>
                     <span class="sr-only">Menu</span>
                 </button>
@@ -3306,7 +3634,8 @@
                 <!-- Logo -->
                 <a href="#" class="header__logo">
                     <span class="header__logo-icon" role="img" aria-label="Cruise ship">🚢</span>
-                    <span class="header__logo-text">Cruise Companion Hub</span>
+                    <span class="header__logo-text header__logo-text--full">Cruise Companion Hub</span>
+                    <span class="header__logo-text header__logo-text--short">Cruise Hub</span>
                 </a>
 
                 <!-- Navigation -->
@@ -3371,6 +3700,26 @@
         </div>
     </header>
 
+    <!-- Sticky Top Bar Hint -->
+    <div class="top-bar-hint is-hidden" id="topBarHint" role="status" aria-live="polite">
+        <div class="container">
+            <div class="top-bar-hint__content">
+                <div>
+                    <div class="top-bar-hint__title">
+                        <i class="fas fa-sun" aria-hidden="true"></i>
+                        <span id="topBarHintTitle">Today: Cruise Prep</span>
+                    </div>
+                    <div class="top-bar-hint__detail" id="topBarHintDetail">
+                        Tap a day to see port highlights and all-aboard times.
+                    </div>
+                </div>
+                <button class="top-bar-hint__close" id="topBarHintClose" aria-label="Hide today hint">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Search Overlay -->
     <div class="search-overlay" id="searchOverlay">
         <div class="search-container">
@@ -3388,6 +3737,11 @@
                     <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
             </form>
+            <div class="search-chips" aria-label="Quick search shortcuts">
+                <button type="button" class="search-chip" data-query="critical info">Critical Info</button>
+                <button type="button" class="search-chip" data-query="today plan">Today's Plan</button>
+                <button type="button" class="search-chip" data-query="emergency">Emergency</button>
+            </div>
             <div class="search-results" id="searchResults">
                 <div class="no-results">
                     <p>Type to search for cruise information...</p>
@@ -3395,6 +3749,45 @@
             </div>
         </div>
     </div>
+
+    <!-- Section Drawer -->
+    <div class="section-drawer-overlay" id="sectionDrawerOverlay" aria-hidden="true"></div>
+    <aside class="section-drawer" id="sectionDrawer" aria-hidden="true" aria-label="Section drawer">
+        <div class="section-drawer__header">
+            <span class="section-drawer__title">Navigate</span>
+            <button class="section-drawer__close" id="sectionDrawerClose" aria-label="Close navigation drawer">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="section-drawer__list">
+            <button class="drawer-nav-item" data-section="overview">
+                <span class="drawer-label"><i class="fas fa-home" aria-hidden="true"></i>Start Here</span>
+            </button>
+            <button class="drawer-nav-item" data-section="operations">
+                <span class="drawer-label"><i class="fas fa-compass" aria-hidden="true"></i>Operations Manual</span>
+                <span class="drawer-badge drawer-badge--critical">Critical</span>
+            </button>
+            <button class="drawer-nav-item" data-section="itinerary">
+                <span class="drawer-label"><i class="fas fa-calendar-alt" aria-hidden="true"></i>Itinerary</span>
+            </button>
+            <button class="drawer-nav-item" data-section="rooms">
+                <span class="drawer-label"><i class="fas fa-bed" aria-hidden="true"></i>Rooms</span>
+            </button>
+            <button class="drawer-nav-item" data-section="dining">
+                <span class="drawer-label"><i class="fas fa-utensils" aria-hidden="true"></i>Dining</span>
+            </button>
+            <button class="drawer-nav-item" data-section="communication">
+                <span class="drawer-label"><i class="fas fa-comments-dollar" aria-hidden="true"></i>Comms & Budget</span>
+            </button>
+            <button class="drawer-nav-item" data-section="tips">
+                <span class="drawer-label"><i class="fas fa-lightbulb" aria-hidden="true"></i>Pro Tips</span>
+            </button>
+            <button class="drawer-nav-item" data-section="integrate">
+                <span class="drawer-label"><i class="fas fa-star" aria-hidden="true"></i>Integrate</span>
+                <span class="drawer-badge drawer-badge--vip">VIP</span>
+            </button>
+        </div>
+    </aside>
 
     <!-- Hero Section -->
     <section class="hero" aria-labelledby="heroTitle">
@@ -3718,8 +4111,8 @@
                                 
                                 <div class="card mt-8">
                                     <h3 class="text-2xl font-bold mb-6">Embarkation Day Must-Dos (In Order)</h3>
-                                    <div class="checklist">
-                                        <div class="checklist-item">
+                                    <div class="checklist" id="criticalChecklist">
+                                        <div class="checklist-item critical-item">
                                             <span class="checklist-icon" aria-hidden="true">
                                                 <i class="fas fa-life-ring"></i>
                                             </span>
@@ -3728,7 +4121,7 @@
                                                 <p class="checklist-description">Watch safety video, then scan SeaPass at Station F6</p>
                                             </div>
                                         </div>
-                                        <div class="checklist-item">
+                                        <div class="checklist-item critical-item">
                                             <span class="checklist-icon" aria-hidden="true">
                                                 <i class="fas fa-wifi"></i>
                                             </span>
@@ -3737,7 +4130,7 @@
                                                 <p class="checklist-description">Create the family group chat; app messaging is free onboard</p>
                                             </div>
                                         </div>
-                                        <div class="checklist-item">
+                                        <div class="checklist-item critical-item">
                                             <span class="checklist-icon" aria-hidden="true">
                                                 <i class="fas fa-utensils"></i>
                                             </span>
@@ -3746,7 +4139,7 @@
                                                 <p class="checklist-description">Link all bookings; book 3 specialty dinners at the Promenade dining desk</p>
                                             </div>
                                         </div>
-                                        <div class="checklist-item">
+                                        <div class="checklist-item critical-item">
                                             <span class="checklist-icon" aria-hidden="true">
                                                 <i class="fas fa-child"></i>
                                             </span>
@@ -3755,7 +4148,7 @@
                                                 <p class="checklist-description">Register kids early for faster drop-offs later</p>
                                             </div>
                                         </div>
-                                        <div class="checklist-item">
+                                        <div class="checklist-item critical-item">
                                             <span class="checklist-icon" aria-hidden="true">
                                                 <i class="fas fa-users"></i>
                                             </span>
@@ -5059,19 +5452,30 @@
         </div>
     </main>
 
+    <!-- Floating Actions -->
+    <div class="floating-actions" aria-label="Quick actions">
+        <button class="fab fab--critical" id="jumpToCriticalBtn" aria-label="Jump to critical checklist">
+            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+        </button>
+        <button class="fab fab--compact" id="compactToggleBtn" aria-pressed="false" aria-label="Toggle compact mode">
+            <i class="fas fa-compress-alt" aria-hidden="true"></i>
+        </button>
+    </div>
+
     <!-- Bottom Navigation for Mobile -->
     <nav class="bottom-nav" aria-label="Mobile navigation">
         <button class="nav-item active" data-section="overview">
             <i class="fas fa-home" aria-hidden="true"></i>
             <span>Start Here</span>
         </button>
+        <button class="nav-item" data-section="operations">
+            <i class="fas fa-compass" aria-hidden="true"></i>
+            <span>Ops</span>
+            <span class="nav-badge" id="criticalCountBadge">0</span>
+        </button>
         <button class="nav-item" data-section="itinerary">
             <i class="fas fa-calendar-alt" aria-hidden="true"></i>
             <span>Schedule</span>
-        </button>
-        <button class="nav-item" data-section="rooms">
-            <i class="fas fa-bed" aria-hidden="true"></i>
-            <span>Rooms</span>
         </button>
         <button class="nav-item" data-section="tips">
             <i class="fas fa-lightbulb" aria-hidden="true"></i>
@@ -5195,6 +5599,10 @@
                 this.isSearching = false;
                 this.searchTimeout = null;
                 this.toastTimeout = null;
+                this.topBarTimeout = null;
+                this.drawerOpen = false;
+                this.lastTapTime = 0;
+                this.touchStart = null;
                 
                 // Initialize everything
                 this.init();
@@ -5218,6 +5626,13 @@
                 this.setupDayNavigation();
                 this.setupTravelerSelector();
                 this.setupBottomNavigation();
+                this.setupTopBarHint();
+                this.setupCompactMode();
+                this.setupJumpToCritical();
+                this.setupTouchGestures();
+                this.updateStickyOffsets();
+                this.handleResize();
+                this.updateCriticalFabVisibility();
                 
                 // Build search index
                 this.buildSearchIndex();
@@ -5265,50 +5680,81 @@
             // ========== MOBILE MENU ==========
             setupMobileMenu() {
                 const mobileToggle = document.getElementById('mobileMenuBtn');
-                const nav = document.getElementById('mainNav');
+                const drawer = document.getElementById('sectionDrawer');
+                const overlay = document.getElementById('sectionDrawerOverlay');
+                const drawerClose = document.getElementById('sectionDrawerClose');
                 
-                if (!mobileToggle || !nav) return;
+                if (!mobileToggle || !drawer || !overlay) return;
                 
                 mobileToggle.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
-                    
-                    // Update button state
-                    mobileToggle.setAttribute('aria-expanded', !isExpanded);
-                    
-                    // Toggle navigation
-                    nav.classList.toggle('active');
-                    
-                    // Toggle body scroll
-                    document.body.style.overflow = !isExpanded ? 'hidden' : '';
+                    this.toggleSectionDrawer();
                 });
-                
-                // Close menu when clicking on a link
-                nav.addEventListener('click', (e) => {
-                    if (e.target.closest('.header__nav-link')) {
-                        mobileToggle.setAttribute('aria-expanded', 'false');
-                        nav.classList.remove('active');
-                        document.body.style.overflow = '';
-                        
-                        // Navigate to section
-                        const section = e.target.closest('.header__nav-link').dataset.section;
+
+                if (drawerClose) {
+                    drawerClose.addEventListener('click', () => this.closeSectionDrawer());
+                }
+
+                overlay.addEventListener('click', () => this.closeSectionDrawer());
+
+                drawer.addEventListener('click', (e) => {
+                    const navItem = e.target.closest('.drawer-nav-item');
+                    if (navItem) {
+                        const section = navItem.dataset.section;
                         this.navigateToSection(section);
+                        this.closeSectionDrawer();
                     }
                 });
-                
-                // Close on escape key
+
                 document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && mobileToggle.getAttribute('aria-expanded') === 'true') {
-                        mobileToggle.click();
+                    if (e.key === 'Escape' && this.drawerOpen) {
+                        this.closeSectionDrawer();
                     }
                 });
-                
-                // Close when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!nav.contains(e.target) && !mobileToggle.contains(e.target) && nav.classList.contains('active')) {
-                        mobileToggle.click();
-                    }
-                });
+            }
+
+            openSectionDrawer() {
+                const drawer = document.getElementById('sectionDrawer');
+                const overlay = document.getElementById('sectionDrawerOverlay');
+                const mobileToggle = document.getElementById('mobileMenuBtn');
+                if (!drawer || !overlay) return;
+
+                drawer.classList.add('active');
+                overlay.classList.add('active');
+                drawer.setAttribute('aria-hidden', 'false');
+                overlay.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                this.drawerOpen = true;
+
+                if (mobileToggle) {
+                    mobileToggle.setAttribute('aria-expanded', 'true');
+                }
+            }
+
+            closeSectionDrawer() {
+                const drawer = document.getElementById('sectionDrawer');
+                const overlay = document.getElementById('sectionDrawerOverlay');
+                const mobileToggle = document.getElementById('mobileMenuBtn');
+                if (!drawer || !overlay) return;
+
+                drawer.classList.remove('active');
+                overlay.classList.remove('active');
+                drawer.setAttribute('aria-hidden', 'true');
+                overlay.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                this.drawerOpen = false;
+
+                if (mobileToggle) {
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            toggleSectionDrawer() {
+                if (this.drawerOpen) {
+                    this.closeSectionDrawer();
+                } else {
+                    this.openSectionDrawer();
+                }
             }
             
             // ========== SEARCH FUNCTIONALITY ==========
@@ -5319,6 +5765,7 @@
                 const searchForm = document.getElementById('searchForm');
                 const searchInput = document.getElementById('searchInput');
                 const searchResults = document.getElementById('searchResults');
+                const searchChips = document.querySelectorAll('.search-chip');
                 
                 if (!searchBtn || !searchOverlay) return;
                 
@@ -5374,6 +5821,15 @@
                         this.closeSearch();
                     }
                 });
+
+                // Quick search chips
+                searchChips.forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        const query = chip.dataset.query || chip.textContent.trim();
+                        searchInput.value = query;
+                        this.performSearch(query);
+                    });
+                });
             }
             
             closeSearch() {
@@ -5384,18 +5840,125 @@
                 searchInput.value = '';
                 this.clearSearchResults();
             }
+
+            // ========== TOP BAR HINT ==========
+            setupTopBarHint() {
+                this.dayHints = {
+                    all: {
+                        title: 'Today: Cruise Prep',
+                        detail: 'Tap a day to see port highlights and all-aboard times.'
+                    },
+                    1: {
+                        title: 'Today: Embarkation Day',
+                        detail: 'Arrive 11:00 AM • Muster Station F6 • All Aboard 4:30 PM.'
+                    },
+                    2: {
+                        title: 'Today: Perfect Day at CocoCay',
+                        detail: 'Thrill Waterpark early • Oasis Lagoon lunch • All Aboard 4:30 PM.'
+                    },
+                    3: {
+                        title: 'Today: Sea Day',
+                        detail: 'Pool deck by 10 AM • R Bar meetup 6:45 PM.'
+                    },
+                    4: {
+                        title: 'Today: Falmouth, Jamaica',
+                        detail: 'Dunn’s River Falls first • Return to ship by 4:00 PM.'
+                    },
+                    5: {
+                        title: 'Today: Labadee, Haiti',
+                        detail: 'Dragon’s Breath zipline AM • All Aboard 4:30 PM.'
+                    },
+                    6: {
+                        title: 'Today: Sea Day',
+                        detail: 'Pack bags early • Final dinner and group photo.'
+                    }
+                };
+
+                const closeBtn = document.getElementById('topBarHintClose');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        this.dismissTopBarHint();
+                    });
+                }
+
+                this.updateTopBarHint(this.currentDay);
+            }
+
+            updateTopBarHint(day) {
+                const hint = this.dayHints?.[day] || this.dayHints?.all;
+                if (!hint) return;
+
+                const titleEl = document.getElementById('topBarHintTitle');
+                const detailEl = document.getElementById('topBarHintDetail');
+
+                if (titleEl) titleEl.textContent = hint.title;
+                if (detailEl) detailEl.textContent = hint.detail;
+
+                this.showTopBarHint();
+            }
+
+            showTopBarHint(force = false) {
+                const hintEl = document.getElementById('topBarHint');
+                if (!hintEl) return;
+
+                const dismissedKey = this.getHintDismissKey();
+                if (!force && dismissedKey) {
+                    return;
+                }
+
+                hintEl.classList.remove('is-hidden');
+                this.updateStickyOffsets();
+
+                if (this.topBarTimeout) {
+                    clearTimeout(this.topBarTimeout);
+                }
+
+                this.topBarTimeout = setTimeout(() => {
+                    this.hideTopBarHint();
+                }, 10000);
+            }
+
+            hideTopBarHint() {
+                const hintEl = document.getElementById('topBarHint');
+                if (hintEl) {
+                    hintEl.classList.add('is-hidden');
+                    this.updateStickyOffsets();
+                }
+            }
+
+            dismissTopBarHint() {
+                try {
+                    localStorage.setItem('cruiseHintDismissedDate', this.getTodayKey());
+                } catch (e) {
+                    console.error('Failed to store hint dismissal', e);
+                }
+                this.hideTopBarHint();
+            }
+
+            getHintDismissKey() {
+                try {
+                    const dismissed = localStorage.getItem('cruiseHintDismissedDate');
+                    return dismissed === this.getTodayKey();
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            getTodayKey() {
+                return new Date().toISOString().split('T')[0];
+            }
             
             buildSearchIndex() {
                 // Collect all searchable content from sections
                 const sections = [
-                    { id: 'overview', title: 'Start Here', keywords: ['overview', 'start', 'begin', 'essential'] },
-                    { id: 'operations', title: 'Operations Manual', keywords: ['operations', 'manual', 'protocol', 'checklist', 'emergency'] },
-                    { id: 'rooms', title: 'Your Staterooms', keywords: ['rooms', 'staterooms', 'cabins', 'guests', 'accommodation'] },
-                    { id: 'itinerary', title: '7-Day Itinerary', keywords: ['itinerary', 'schedule', 'day', 'port', 'sea day'] },
-                    { id: 'dining', title: 'Dining & Restaurants', keywords: ['dining', 'restaurants', 'food', 'chops', 'izumi', 'giovanni'] },
-                    { id: 'communication', title: 'Communication & Budget', keywords: ['communication', 'budget', 'wifi', 'cost', 'expenses'] },
-                    { id: 'tips', title: 'Pro Tips', keywords: ['tips', 'advice', 'recommendation', 'hack', 'suggestion'] },
-                    { id: 'integrate', title: 'Integrate', keywords: ['integrate', 'platinum', 'upgrade', 'vip', 'enhance'] }
+                    { id: 'overview', title: 'Start Here', keywords: ['overview', 'start', 'begin', 'essential'], priority: 2 },
+                    { id: 'operations', title: 'Operations Manual', keywords: ['operations', 'manual', 'protocol', 'checklist', 'emergency'], priority: 4, critical: true },
+                    { id: 'rooms', title: 'Your Staterooms', keywords: ['rooms', 'staterooms', 'cabins', 'guests', 'accommodation'], priority: 1 },
+                    { id: 'itinerary', title: '7-Day Itinerary', keywords: ['itinerary', 'schedule', 'day', 'port', 'sea day'], priority: 3 },
+                    { id: 'dining', title: 'Dining & Restaurants', keywords: ['dining', 'restaurants', 'food', 'chops', 'izumi', 'giovanni'], priority: 2 },
+                    { id: 'communication', title: 'Communication & Budget', keywords: ['communication', 'budget', 'wifi', 'cost', 'expenses'], priority: 2 },
+                    { id: 'tips', title: 'Pro Tips', keywords: ['tips', 'advice', 'recommendation', 'hack', 'suggestion'], priority: 1 },
+                    { id: 'integrate', title: 'Integrate', keywords: ['integrate', 'platinum', 'upgrade', 'vip', 'enhance'], priority: 1 }
                 ];
                 
                 // Add content from each section
@@ -5408,7 +5971,9 @@
                             title: section.title,
                             content: content.substring(0, 1000),
                             keywords: section.keywords,
-                            element: sectionElement
+                            element: sectionElement,
+                            priority: section.priority || 1,
+                            critical: section.critical || false
                         });
                     }
                 });
@@ -5420,15 +5985,15 @@
             addSpecificSearchItems() {
                 // Add specific important items to search index
                 const specificItems = [
-                    { id: 'countdown', title: 'Countdown Timer', content: 'Days until cruise departure', keywords: ['countdown', 'timer', 'departure', 'days'] },
-                    { id: 'cococay', title: 'Perfect Day at CocoCay', content: 'Thrill Waterpark, Oasis Lagoon, Daredevils Peak', keywords: ['cococay', 'perfect day', 'waterpark', 'beach'] },
-                    { id: 'dunnsriver', title: 'Dunns River Falls', content: 'Jamaica waterfall climb, water shoes required', keywords: ['dunns', 'river', 'falls', 'jamaica', 'waterfall'] },
-                    { id: 'dragonsbreath', title: 'Dragons Breath Zipline', content: 'Labadee Haiti zipline, longest over water', keywords: ['dragon', 'breath', 'zipline', 'labadee', 'haiti'] },
-                    { id: 'flowrider', title: 'FlowRider', content: 'Surf simulator on Adventure of the Seas', keywords: ['flowrider', 'surf', 'simulator', 'activity'] },
-                    { id: 'formalnight', title: 'Formal Nights', content: 'Two formal nights during the cruise', keywords: ['formal', 'night', 'dress', 'code', 'captain'] },
-                    { id: 'emuster', title: 'eMuster Station F6', content: 'Safety briefing location on Deck 4', keywords: ['emuster', 'safety', 'drill', 'station', 'f6'] },
-                    { id: 'royalapp', title: 'Royal Caribbean App', content: 'Essential app for schedules, chat, and bookings', keywords: ['royal', 'app', 'mobile', 'download', 'chat'] },
-                    { id: 'wifi', title: 'Wi-Fi & Connectivity', content: 'VOOM Surf + Stream, Royal-WIFI, internet packages', keywords: ['wifi', 'internet', 'connectivity', 'vroom', 'online'] }
+                    { id: 'countdown', title: 'Countdown Timer', content: 'Days until cruise departure', keywords: ['countdown', 'timer', 'departure', 'days'], priority: 1 },
+                    { id: 'cococay', title: 'Perfect Day at CocoCay', content: 'Thrill Waterpark, Oasis Lagoon, Daredevils Peak', keywords: ['cococay', 'perfect day', 'waterpark', 'beach'], priority: 3 },
+                    { id: 'dunnsriver', title: 'Dunns River Falls', content: 'Jamaica waterfall climb, water shoes required', keywords: ['dunns', 'river', 'falls', 'jamaica', 'waterfall'], priority: 3 },
+                    { id: 'dragonsbreath', title: 'Dragons Breath Zipline', content: 'Labadee Haiti zipline, longest over water', keywords: ['dragon', 'breath', 'zipline', 'labadee', 'haiti'], priority: 3 },
+                    { id: 'flowrider', title: 'FlowRider', content: 'Surf simulator on Adventure of the Seas', keywords: ['flowrider', 'surf', 'simulator', 'activity'], priority: 2 },
+                    { id: 'formalnight', title: 'Formal Nights', content: 'Two formal nights during the cruise', keywords: ['formal', 'night', 'dress', 'code', 'captain'], priority: 2 },
+                    { id: 'emuster', title: 'eMuster Station F6', content: 'Safety briefing location on Deck 4', keywords: ['emuster', 'safety', 'drill', 'station', 'f6'], priority: 4, critical: true },
+                    { id: 'royalapp', title: 'Royal Caribbean App', content: 'Essential app for schedules, chat, and bookings', keywords: ['royal', 'app', 'mobile', 'download', 'chat'], priority: 2 },
+                    { id: 'wifi', title: 'Wi-Fi & Connectivity', content: 'VOOM Surf + Stream, Royal-WIFI, internet packages', keywords: ['wifi', 'internet', 'connectivity', 'vroom', 'online'], priority: 2 }
                 ];
                 
                 specificItems.forEach(item => {
@@ -5476,8 +6041,13 @@
                     return;
                 }
                 
-                // Sort by relevance (title matches first)
+                // Sort by priority (critical first), then title matches
                 results.sort((a, b) => {
+                    const aPriority = a.priority || 1;
+                    const bPriority = b.priority || 1;
+                    if (aPriority !== bPriority) return bPriority - aPriority;
+                    if (a.critical && !b.critical) return -1;
+                    if (!a.critical && b.critical) return 1;
                     const aTitleMatch = a.title.toLowerCase().includes(query.toLowerCase());
                     const bTitleMatch = b.title.toLowerCase().includes(query.toLowerCase());
                     if (aTitleMatch && !bTitleMatch) return -1;
@@ -5495,7 +6065,7 @@
                     snippet = this.highlightText(snippet + '...', query);
                     
                     return `
-                        <div class="search-result-item" data-result-id="${result.id}">
+                        <div class="search-result-item ${result.critical ? 'critical' : ''}" data-result-id="${result.id}">
                             <div class="search-result-link">
                                 <h4 class="search-result-title">${this.highlightText(result.title, query)}</h4>
                                 <p class="search-result-snippet">${snippet}</p>
@@ -5503,6 +6073,7 @@
                                     <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
                                     ${result.id.replace(/-/g, ' ').toUpperCase()}
                                 </div>
+                                ${result.critical ? '<div class="search-result-badge"><i class="fas fa-exclamation-circle" aria-hidden="true"></i>Critical</div>' : ''}
                             </div>
                         </div>
                     `;
@@ -5546,12 +6117,17 @@
                 // Close search overlay
                 this.closeSearch();
                 
+                const item = this.searchIndex.find(item => item.id === resultId);
+                if (item && item.critical) {
+                    this.jumpToCriticalChecklist();
+                    return;
+                }
+
                 // Navigate to section
                 if (resultId.includes('-')) {
                     this.navigateToSection(resultId);
                 } else {
                     // For specific items, find related section
-                    const item = this.searchIndex.find(item => item.id === resultId);
                     if (item && item.element) {
                         const section = item.element.closest('section[id]');
                         if (section) {
@@ -5754,6 +6330,9 @@
                         
                         // Filter content by day if needed
                         this.filterByDay(this.currentDay);
+
+                        // Update top bar hint
+                        this.updateTopBarHint(this.currentDay);
                     });
                 });
             }
@@ -5800,6 +6379,98 @@
                     }
                 });
             }
+
+            // ========== COMPACT MODE ==========
+            setupCompactMode() {
+                const compactToggleBtn = document.getElementById('compactToggleBtn');
+                try {
+                    const storedMode = localStorage.getItem('cruiseCompactMode');
+                    if (storedMode === 'true') {
+                        document.body.classList.add('compact-mode');
+                        if (compactToggleBtn) {
+                            compactToggleBtn.classList.add('active');
+                            compactToggleBtn.setAttribute('aria-pressed', 'true');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load compact mode preference', e);
+                }
+
+                if (compactToggleBtn) {
+                    compactToggleBtn.addEventListener('click', () => this.toggleCompactMode());
+                }
+            }
+
+            toggleCompactMode() {
+                const compactToggleBtn = document.getElementById('compactToggleBtn');
+                const isActive = document.body.classList.toggle('compact-mode');
+
+                if (compactToggleBtn) {
+                    compactToggleBtn.classList.toggle('active', isActive);
+                    compactToggleBtn.setAttribute('aria-pressed', String(isActive));
+                }
+
+                try {
+                    localStorage.setItem('cruiseCompactMode', String(isActive));
+                } catch (e) {
+                    console.error('Failed to save compact mode preference', e);
+                }
+            }
+
+            // ========== JUMP TO CRITICAL ==========
+            setupJumpToCritical() {
+                const jumpBtn = document.getElementById('jumpToCriticalBtn');
+                if (jumpBtn) {
+                    jumpBtn.addEventListener('click', () => this.jumpToCriticalChecklist());
+                }
+
+                this.updateCriticalBadge();
+            }
+
+            updateCriticalBadge() {
+                const badge = document.getElementById('criticalCountBadge');
+                const criticalItems = document.querySelectorAll('.critical-item');
+                const count = criticalItems.length;
+
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count ? 'inline-flex' : 'none';
+                }
+            }
+
+            updateCriticalFabVisibility() {
+                const jumpBtn = document.getElementById('jumpToCriticalBtn');
+                if (!jumpBtn) return;
+                const hide = this.currentSection === 'operations';
+                jumpBtn.classList.toggle('fab--hidden', hide);
+            }
+
+            jumpToCriticalChecklist() {
+                this.navigateToSection('operations');
+                this.updateCriticalFabVisibility();
+                const operationsToggle = document.querySelector('[aria-controls="operationsContent"]');
+                if (operationsToggle && operationsToggle.getAttribute('aria-expanded') === 'false') {
+                    operationsToggle.click();
+                }
+
+                setTimeout(() => {
+                    const checklist = document.getElementById('criticalChecklist');
+                    if (checklist) {
+                        const offset = this.getStickyOffset();
+                        const checklistTop = checklist.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({ top: checklistTop, behavior: 'smooth' });
+                        this.highlightCriticalItems();
+                    }
+                }, 250);
+            }
+
+            highlightCriticalItems() {
+                const items = document.querySelectorAll('.critical-item');
+                items.forEach(item => item.classList.add('critical-highlight'));
+                setTimeout(() => {
+                    items.forEach(item => item.classList.remove('critical-highlight'));
+                }, 2000);
+            }
             
             // ========== BOTTOM NAVIGATION ==========
             setupBottomNavigation() {
@@ -5813,22 +6484,73 @@
                         
                         if (section) {
                             this.navigateToSection(section);
+                            // Update active state
+                            bottomNavItems.forEach(i => i.classList.remove('active'));
+                            item.classList.add('active');
                         }
-                        
-                        // Update active state
-                        bottomNavItems.forEach(i => i.classList.remove('active'));
-                        item.classList.add('active');
                     });
                 });
                 
                 // Mobile more button
                 if (mobileMoreBtn) {
                     mobileMoreBtn.addEventListener('click', () => {
-                        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-                        if (mobileMenuBtn) {
-                            mobileMenuBtn.click();
-                        }
+                        this.openSectionDrawer();
                     });
+                }
+            }
+
+            // ========== TOUCH GESTURES ==========
+            setupTouchGestures() {
+                document.addEventListener('touchstart', (event) => {
+                    if (event.touches.length !== 1) return;
+                    const touch = event.touches[0];
+                    this.touchStart = {
+                        x: touch.clientX,
+                        y: touch.clientY,
+                        time: Date.now()
+                    };
+                }, { passive: true });
+
+                document.addEventListener('touchend', (event) => {
+                    if (!this.touchStart) return;
+                    const touch = event.changedTouches[0];
+                    const deltaX = touch.clientX - this.touchStart.x;
+                    const deltaY = touch.clientY - this.touchStart.y;
+                    const elapsed = Date.now() - this.touchStart.time;
+
+                    // Swipe down from top to reveal hint
+                    if (this.touchStart.y < 60 && deltaY > 80) {
+                        this.showTopBarHint(true);
+                    }
+
+                    // Double tap to toggle compact mode
+                    if (elapsed < 250) {
+                        const now = Date.now();
+                        if (now - this.lastTapTime < 300) {
+                            this.toggleCompactMode();
+                            this.lastTapTime = 0;
+                        } else {
+                            this.lastTapTime = now;
+                        }
+                    }
+
+                    this.touchStart = null;
+                }, { passive: true });
+
+                const drawer = document.getElementById('sectionDrawer');
+                if (drawer) {
+                    drawer.addEventListener('touchstart', (event) => {
+                        const touch = event.touches[0];
+                        this.drawerSwipeStartX = touch.clientX;
+                    }, { passive: true });
+
+                    drawer.addEventListener('touchend', (event) => {
+                        const touch = event.changedTouches[0];
+                        const deltaX = touch.clientX - (this.drawerSwipeStartX || 0);
+                        if (deltaX > 80) {
+                            this.closeSectionDrawer();
+                        }
+                    }, { passive: true });
                 }
             }
             
@@ -5931,13 +6653,14 @@
                 
                 // Click outside to close modals
                 document.addEventListener('click', (e) => {
-                    // Close mobile menu if clicking outside
-                    const mobileToggle = document.getElementById('mobileMenuBtn');
-                    const nav = document.getElementById('mainNav');
-                    if (nav && nav.classList.contains('active') && 
-                        !nav.contains(e.target) && 
-                        !mobileToggle.contains(e.target)) {
-                        mobileToggle.click();
+                    if (this.drawerOpen) {
+                        const drawer = document.getElementById('sectionDrawer');
+                        const mobileToggle = document.getElementById('mobileMenuBtn');
+                        if (drawer && mobileToggle &&
+                            !drawer.contains(e.target) &&
+                            !mobileToggle.contains(e.target)) {
+                            this.closeSectionDrawer();
+                        }
                     }
                 });
             }
@@ -5966,9 +6689,7 @@
                 const section = document.getElementById(sectionId);
                 if (!section) return;
                 
-                const headerHeight = document.querySelector('.header').offsetHeight;
-                const daySelectorHeight = document.querySelector('.day-selector').offsetHeight;
-                const sectionTop = section.offsetTop - headerHeight - daySelectorHeight - 20;
+                const sectionTop = section.offsetTop - this.getStickyOffset();
                 
                 window.scrollTo({
                     top: sectionTop,
@@ -5991,6 +6712,13 @@
                 document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
                     item.classList.toggle('active', item.dataset.section === sectionId);
                 });
+
+                // Update drawer navigation
+                document.querySelectorAll('.drawer-nav-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.section === sectionId);
+                });
+
+                this.updateCriticalFabVisibility();
             }
             
             closeAllModals() {
@@ -6000,10 +6728,9 @@
                     this.closeSearch();
                 }
                 
-                // Close mobile menu
-                const mobileToggle = document.getElementById('mobileMenuBtn');
-                if (mobileToggle && mobileToggle.getAttribute('aria-expanded') === 'true') {
-                    mobileToggle.click();
+                // Close section drawer
+                if (this.drawerOpen) {
+                    this.closeSectionDrawer();
                 }
                 
                 // Hide toast
@@ -6110,6 +6837,8 @@
                                     link.classList.remove('active');
                                 }
                             });
+
+                            this.updateActiveNavForSection(sectionId);
                             
                             // Update URL hash without scrolling
                             history.replaceState(null, null, `#${sectionId}`);
@@ -6126,6 +6855,31 @@
             }
             
             // ========== UTILITY METHODS ==========
+            updateStickyOffsets() {
+                const header = document.querySelector('.header');
+                const daySelector = document.querySelector('.day-selector');
+                const topBar = document.getElementById('topBarHint');
+                const headerHeight = header ? header.offsetHeight : 0;
+                const topBarHeight = topBar && !topBar.classList.contains('is-hidden') ? topBar.offsetHeight : 0;
+                const daySelectorOffset = headerHeight + topBarHeight;
+
+                document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+                document.documentElement.style.setProperty('--day-selector-offset', `${daySelectorOffset}px`);
+
+                const scrollPadding = headerHeight + topBarHeight + (daySelector ? daySelector.offsetHeight : 0) + 20;
+                document.documentElement.style.setProperty('--scroll-padding', `${scrollPadding}px`);
+            }
+
+            getStickyOffset() {
+                const header = document.querySelector('.header');
+                const daySelector = document.querySelector('.day-selector');
+                const topBar = document.getElementById('topBarHint');
+                const headerHeight = header ? header.offsetHeight : 0;
+                const topBarHeight = topBar && !topBar.classList.contains('is-hidden') ? topBar.offsetHeight : 0;
+                const daySelectorHeight = daySelector ? daySelector.offsetHeight : 0;
+                return headerHeight + topBarHeight + daySelectorHeight + 20;
+            }
+
             updateActiveNav(clickedLink) {
                 document.querySelectorAll('.header__nav-link').forEach(link => {
                     link.classList.remove('active');
@@ -6240,17 +6994,10 @@
                     document.body.classList.add('mobile-view');
                 } else {
                     document.body.classList.remove('mobile-view');
-                    
-                    // Ensure mobile menu is closed on desktop
-                    const mobileToggle = document.getElementById('mobileMenuBtn');
-                    const nav = document.getElementById('mainNav');
-                    
-                    if (mobileToggle && nav) {
-                        mobileToggle.setAttribute('aria-expanded', 'false');
-                        nav.classList.remove('active');
-                        document.body.style.overflow = '';
-                    }
+                    this.closeSectionDrawer();
                 }
+
+                this.updateStickyOffsets();
             }
             
             handleOnline() {
