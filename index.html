@@ -3399,22 +3399,42 @@
           }
           
           updateSectionVisibility(sectionId) {
-              // Show all sections first (remove hidden attribute)
               document.querySelectorAll('section[id]').forEach(section => {
-                  section.removeAttribute('hidden');
-                  section.classList.remove('active');
+                  const isActive = section.id === sectionId;
+                  
+                  if (isActive) {
+                      section.removeAttribute('hidden');
+                      section.setAttribute('aria-hidden', 'false');
+                      section.classList.add('active');
+                  } else {
+                      section.setAttribute('hidden', 'true');
+                      section.setAttribute('aria-hidden', 'true');
+                      section.classList.remove('active');
+                  }
               });
               
-              // Add active class to current section
               const currentSection = document.getElementById(sectionId);
               if (currentSection) {
-                  currentSection.classList.add('active');
+                  this.expandSectionCard(currentSection);
                   
                   // If it's itinerary, apply day filter
                   if (sectionId === 'itinerary') {
                       this.applyDayFilter(this.currentDay);
                   }
               }
+          }
+          
+          expandSectionCard(section) {
+              const toggle = section.querySelector('.card__toggle');
+              const content = section.querySelector('.card__content');
+              
+              if (!toggle || !content) return;
+              
+              toggle.setAttribute('aria-expanded', 'true');
+              content.classList.remove('collapsed');
+              content.classList.add('expanded');
+              content.setAttribute('aria-hidden', 'false');
+              content.style.maxHeight = 'none';
           }
           
           updateNavigationHighlights(sectionId) {
