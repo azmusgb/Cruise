@@ -6720,43 +6720,43 @@
           }
          }
          
-         // ============================================================================
-         // MAIN APPLICATION
-         // ============================================================================
-         
-         class CruiseCompanionApp {
+               // ============================================================================
+      // MAIN APPLICATION INITIALIZATION
+      // ============================================================================
+      
+      class CruiseCompanionApp {
           constructor() {
-              // Initialize managers
               this.errorHandler = new ErrorHandler();
               this.storage = new StorageManager();
               this.searchManager = new SearchManager();
-              this.navigationManager = new NavigationManager();
-              this.uiManager = new UIComponentsManager();
-              this.countdownManager = new CountdownManager(CONFIG.CRUISE_DATE);
+              this.navigation = new NavigationManager();
+              this.uiComponents = new UIComponentsManager();
+              this.countdown = new CountdownManager(CONFIG.CRUISE_DATE);
               this.weatherManager = new WeatherManager();
               
-              // App state
+              // Check environment
+              this.isProduction = window.location.hostname !== 'localhost' && 
+                                 !window.location.hostname.includes('127.0.0.1');
+              this.isDevelopment = !this.isProduction;
+              
+              // State
               this.isInitialized = false;
               this.isLoading = false;
-              this.isOffline = !navigator.onLine;
-              this.userPreferences = {};
               this.appState = {
                   compactMode: false,
                   criticalFilter: false,
-                  daySelectorVisible: false,
-                  topBarHintVisible: true
+                  offlineMode: false,
+                  searchOpen: false,
+                  drawerOpen: false
               };
               
               // Performance tracking
-              this.appStartTime = Date.now();
-              this.interactionCount = 0;
-              
-              // Bind methods
-              this.handleResize = PerformanceUtils.debounce(this.handleResize.bind(this), 250);
-              this.handleOnline = this.handleOnline.bind(this);
-              this.handleOffline = this.handleOffline.bind(this);
-              this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
-              this.handleKeyDown = this.handleKeyDown.bind(this);
+              this.loadStartTime = performance.now();
+              this.performanceMetrics = {
+                  domReady: null,
+                  appReady: null,
+                  searchIndexBuilt: null
+              };
           }
           
           async initialize() {
