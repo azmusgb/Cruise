@@ -4617,40 +4617,58 @@
           }
           
           async scrollToSection(sectionId, options = {}) {
-              const section = document.getElementById(sectionId);
-              if (!section) return false;
-              
-              const defaultOptions = {
-                  behavior: 'smooth',
-                  block: 'start',
-                  inline: 'nearest',
-                  offset: this.calculateScrollOffset()
-              };
-              
-              const scrollOptions = { ...defaultOptions, ...options };
-              
-              try {
-                  section.scrollIntoView(scrollOptions);
-                  
-                  // Wait for scroll to complete
-                  await new Promise(resolve => {
-                      const checkScroll = () => {
-                          const rect = section.getBoundingClientRect();
-                          if (Math.abs(rect.top - scrollOptions.offset) < 10) {
-                              resolve();
-                          } else {
-                              requestAnimationFrame(checkScroll);
-                          }
-                      };
-                      requestAnimationFrame(checkScroll);
-                  });
-                  
-                  return true;
-              } catch (error) {
-                  this.errorHandler.log(error, 'NavigationManager.scrollToSection');
-                  return false;
-              }
+         const section = document.getElementById(sectionId);
+         if (!section) return false;
+         
+         const defaultOptions = {
+         behavior: 'smooth',
+         offset: this.calculateScrollOffset()
+         };
+         
+         const { behavior, offset } = { ...defaultOptions, ...options };
+         
+         try {
+         // Compute absolute scroll target with offset
+         const rect = section.getBoundingClientRect();
+         const targetTop = window.pageYOffset + rect.top - offset;
+         
+         // Perform scroll
+         window.scrollTo({
+         top: targetTop,
+         behavior
+         });
+         
+         // Wait for scroll to settle
+         await new Promise(resolve => {
+         let lastY = null;
+         let stableFrames = 0;
+         
+         const checkScroll = () => {
+         const currentY = window.pageYOffset;
+         
+         if (lastY !== null && Math.abs(currentY - lastY) < 1) {
+          stableFrames++;
+          if (stableFrames >= 3) {
+            resolve();
+            return;
           }
+         } else {
+          stableFrames = 0;
+         }
+         
+         lastY = currentY;
+         requestAnimationFrame(checkScroll);
+         };
+         
+         requestAnimationFrame(checkScroll);
+         });
+         
+         return true;
+         } catch (error) {
+         this.errorHandler.log(error, 'NavigationManager.scrollToSection');
+         return false;
+         }
+         }
           
           calculateScrollOffset() {
               const header = document.querySelector('.header');
