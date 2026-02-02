@@ -819,6 +819,17 @@
             text-decoration: none;
         }
 
+        .search-result-category {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-light);
+            margin-bottom: var(--space-2);
+        }
+
         .search-result-title {
             color: var(--primary);
             font-weight: 700;
@@ -1071,6 +1082,22 @@
             box-shadow: var(--shadow);
         }
 
+        /* Ensure minimum touch targets */
+        .chip,
+        .tag,
+        .search-chip,
+        .day-btn,
+        .nav-item,
+        .header__nav-link,
+        .drawer-nav-item,
+        .sidebar-link,
+        .header__mobile-toggle,
+        .header__search-btn,
+        .top-bar-hint__close {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -1146,6 +1173,70 @@
 
         .card:hover::after {
             left: 100%;
+        }
+
+        /* ========== QUICK START & CRITICAL MODE ========== */
+        .quick-start {
+            border: 2px solid rgba(1, 46, 77, 0.08);
+            background: linear-gradient(135deg, rgba(1, 46, 77, 0.04), rgba(230, 160, 0, 0.05));
+        }
+
+        .quick-start__list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 var(--space-6);
+            display: grid;
+            gap: var(--space-4);
+        }
+
+        .quick-start__item {
+            display: flex;
+            gap: var(--space-4);
+            align-items: flex-start;
+        }
+
+        .quick-start__item-showcase {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .quick-start__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+
+        .critical-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--text-light);
+        }
+
+        .critical-toggle__status {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        body.critical-only .section:not(.section--critical) {
+            display: none;
+        }
+
+        body.critical-only .sidebar {
+            display: none;
+        }
+
+        body.critical-only .main-layout {
+            grid-template-columns: 1fr;
         }
 
         .card__header {
@@ -2686,6 +2777,13 @@
             top: var(--day-selector-offset, 72px);
             z-index: 98;
             backdrop-filter: blur(10px);
+            transition: transform var(--transition), opacity var(--transition);
+        }
+
+        .day-selector.day-selector--hidden {
+            transform: translateY(-110%);
+            opacity: 0;
+            pointer-events: none;
         }
 
         .day-nav {
@@ -3097,6 +3195,26 @@
             font-weight: 600;
             cursor: pointer;
             min-height: 44px;
+        }
+
+        .search-suggestions {
+            display: grid;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .search-suggestions__title {
+            font-size: var(--text-sm);
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .search-suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
         }
 
         .search-result-item.critical {
@@ -3712,7 +3830,7 @@
                         <li>
                             <button class="header__nav-link" data-section="integrate">
                                 <i class="fas fa-star" aria-hidden="true"></i>
-                                <span>Integrate</span>
+                                <span>VIP Upgrades</span>
                             </button>
                         </li>
                     </ul>
@@ -3768,6 +3886,16 @@
                 <button type="button" class="search-chip" data-query="today plan">Today's Plan</button>
                 <button type="button" class="search-chip" data-query="emergency">Emergency</button>
             </div>
+            <div class="search-suggestions" id="searchSuggestions" aria-live="polite">
+                <div class="search-suggestions__group">
+                    <div class="search-suggestions__title">Suggested</div>
+                    <div class="search-suggestion-chips" id="suggestedSearchChips"></div>
+                </div>
+                <div class="search-suggestions__group" id="recentSearchesGroup">
+                    <div class="search-suggestions__title">Recent</div>
+                    <div class="search-suggestion-chips" id="recentSearchChips"></div>
+                </div>
+            </div>
             <div class="search-results" id="searchResults">
                 <div class="no-results">
                     <p>Type to search for cruise information...</p>
@@ -3809,7 +3937,7 @@
                 <span class="drawer-label"><i class="fas fa-lightbulb" aria-hidden="true"></i>Pro Tips</span>
             </button>
             <button class="drawer-nav-item" data-section="integrate">
-                <span class="drawer-label"><i class="fas fa-star" aria-hidden="true"></i>Integrate</span>
+                <span class="drawer-label"><i class="fas fa-star" aria-hidden="true"></i>VIP Upgrades</span>
                 <span class="drawer-badge drawer-badge--vip">VIP</span>
             </button>
         </div>
@@ -3825,17 +3953,17 @@
                 </p>
                 
                 <!-- Countdown Timer -->
-                <div class="countdown" aria-live="polite">
+                <div class="countdown" role="timer" aria-live="polite" aria-label="Countdown to cruise departure">
                     <div class="countdown-item">
-                        <span class="countdown-number" id="days">0</span>
+                        <span class="countdown-number" id="days" aria-label="0 days remaining">0</span>
                         <span class="countdown-label">Days</span>
                     </div>
                     <div class="countdown-item">
-                        <span class="countdown-number" id="hours">0</span>
+                        <span class="countdown-number" id="hours" aria-label="0 hours remaining">0</span>
                         <span class="countdown-label">Hours</span>
                     </div>
                     <div class="countdown-item">
-                        <span class="countdown-number" id="minutes">0</span>
+                        <span class="countdown-number" id="minutes" aria-label="0 minutes remaining">0</span>
                         <span class="countdown-label">Minutes</span>
                     </div>
                 </div>
@@ -3860,7 +3988,7 @@
     </section>
 
     <!-- Day Selector -->
-    <div class="day-selector" id="daySelector">
+    <div class="day-selector day-selector--hidden" id="daySelector">
         <div class="container">
             <nav class="day-nav" aria-label="Day navigation">
                 <button class="day-btn active" data-day="all">All Days</button>
@@ -3901,8 +4029,81 @@
                         </button>
                     </div>
 
+                    <!-- Quick Start Guide -->
+                    <section id="quick-start" class="section section--critical" aria-labelledby="quickStartTitle">
+                        <div class="card quick-start">
+                            <div class="card__header">
+                                <div class="card__icon" aria-hidden="true">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div>
+                                    <h2 id="quickStartTitle" class="card__title">Quick Start Guide</h2>
+                                    <p class="card__subtitle">Five essentials to handle first, with fewer clicks</p>
+                                </div>
+                            </div>
+                            <ul class="quick-start__list">
+                                <li class="quick-start__item">
+                                    <span class="quick-start__item-showcase" aria-hidden="true">🧭</span>
+                                    <div>
+                                        <strong>Confirm embarkation timeline.</strong>
+                                        <p class="text-sm mb-0">Arrive at 11:00 AM, regroup by 3:00 PM, all aboard by 4:30 PM.</p>
+                                    </div>
+                                </li>
+                                <li class="quick-start__item">
+                                    <span class="quick-start__item-showcase" aria-hidden="true">🛟</span>
+                                    <div>
+                                        <strong>Complete eMuster & safety checklist.</strong>
+                                        <p class="text-sm mb-0">Finish the critical checklist in Operations Manual highlights.</p>
+                                    </div>
+                                </li>
+                                <li class="quick-start__item">
+                                    <span class="quick-start__item-showcase" aria-hidden="true">🏷️</span>
+                                    <div>
+                                        <strong>Verify rooms and muster stations.</strong>
+                                        <p class="text-sm mb-0">Confirm stateroom assignments and station F6 in the Rooms section.</p>
+                                    </div>
+                                </li>
+                                <li class="quick-start__item">
+                                    <span class="quick-start__item-showcase" aria-hidden="true">🗓️</span>
+                                    <div>
+                                        <strong>Scan the day-by-day itinerary.</strong>
+                                        <p class="text-sm mb-0">Check port plans and all-aboard times for each day.</p>
+                                    </div>
+                                </li>
+                                <li class="quick-start__item">
+                                    <span class="quick-start__item-showcase" aria-hidden="true">📶</span>
+                                    <div>
+                                        <strong>Get connected fast.</strong>
+                                        <p class="text-sm mb-0">Join the Royal app chat + connect to Royal-WiFi.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="quick-start__actions">
+                                <button class="btn btn--primary quick-start__link" data-section="operations">
+                                    <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+                                    Open Critical Checklist
+                                </button>
+                                <button class="btn btn--outline quick-start__link" data-section="itinerary">
+                                    <i class="fas fa-route" aria-hidden="true"></i>
+                                    View Itinerary
+                                </button>
+                                <button class="btn btn--outline quick-start__link" data-section="rooms">
+                                    <i class="fas fa-bed" aria-hidden="true"></i>
+                                    Rooms & Muster
+                                </button>
+                                <div class="critical-toggle" aria-live="polite">
+                                    <button class="btn btn--outline" id="criticalToggleBtn" aria-pressed="false">
+                                        <i class="fas fa-filter" aria-hidden="true"></i>
+                                        Critical Info Only
+                                    </button>
+                                    <span class="critical-toggle__status" id="criticalToggleStatus">Showing all sections</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- Overview Section -->
-                    <section id="overview" class="section" aria-labelledby="overviewTitle">
+                    <section id="overview" class="section section--critical" aria-labelledby="overviewTitle">
                         <div class="card">
                             <div class="card__header">
                                 <div class="card__icon" aria-hidden="true">
@@ -4040,7 +4241,7 @@
                     </section>
 
                     <!-- Operations Manual Section -->
-                    <section id="operations" class="section" aria-labelledby="operationsTitle">
+                    <section id="operations" class="section section--critical" aria-labelledby="operationsTitle">
                         <div class="card card--featured">
                             <div class="card__header">
                                 <div class="card__icon" aria-hidden="true">
@@ -4321,7 +4522,7 @@
                     </section>
 
                     <!-- Rooms Section -->
-                    <section id="rooms" class="section" aria-labelledby="roomsTitle">
+                    <section id="rooms" class="section section--critical" aria-labelledby="roomsTitle">
                         <div class="card">
                             <div class="card__header">
                                 <div class="card__icon" aria-hidden="true">
@@ -4513,7 +4714,7 @@
                     </section>
 
                     <!-- Itinerary Section -->
-                    <section id="itinerary" class="section" aria-labelledby="itineraryTitle">
+                    <section id="itinerary" class="section section--critical" aria-labelledby="itineraryTitle">
                         <div class="card">
                             <div class="card__header">
                                 <div class="card__icon" aria-hidden="true">
@@ -5141,7 +5342,7 @@
                         </div>
                     </section>
 
-                    <!-- Integrate Section -->
+                    <!-- VIP Upgrades Section -->
                     <section id="integrate" class="section" aria-labelledby="integrateTitle">
                         <div class="card card--highlight">
                             <div class="card__header">
@@ -5149,8 +5350,8 @@
                                     <i class="fas fa-star"></i>
                                 </div>
                                 <div>
-                                    <h2 id="integrateTitle" class="card__title">Integrate: Platinum Edition Highlights</h2>
-                                    <p class="card__subtitle">Recommended upgrades inspired by the Rahe Family Ultimate Caribbean Cruise Companion</p>
+                                    <h2 id="integrateTitle" class="card__title">VIP Upgrades: Platinum Edition Highlights</h2>
+                                    <p class="card__subtitle">Premium experiences with clear value props for the Rahe Family Ultimate Caribbean Cruise Companion</p>
                                 </div>
                                 <button class="card__toggle" aria-expanded="false" aria-controls="integrateContent">
                                     <i class="fas fa-chevron-down" aria-hidden="true"></i>
@@ -5361,7 +5562,7 @@
                                 <li>
                                     <button class="sidebar-link" data-section="integrate">
                                         <i class="fas fa-rocket" aria-hidden="true"></i>
-                                        <span>Integrate</span>
+                                        <span>VIP Upgrades</span>
                                     </button>
                                 </li>
                             </ul>
@@ -5653,9 +5854,11 @@
                 this.setupTravelerSelector();
                 this.setupBottomNavigation();
                 this.setupTopBarHint();
+                this.setupCriticalFilter();
                 this.setupCompactMode();
                 this.setupJumpToCritical();
                 this.setupTouchGestures();
+                this.setupDaySelectorVisibility();
                 this.updateStickyOffsets();
                 this.handleResize();
                 this.updateCriticalFabVisibility();
@@ -5792,8 +5995,19 @@
                 const searchInput = document.getElementById('searchInput');
                 const searchResults = document.getElementById('searchResults');
                 const searchChips = document.querySelectorAll('.search-chip');
+                const searchSuggestions = document.getElementById('searchSuggestions');
                 
                 if (!searchBtn || !searchOverlay) return;
+
+                this.suggestedSearches = [
+                    'What time do I board?',
+                    'Where is my room?',
+                    'eMuster Station F6',
+                    'Dining reservations',
+                    'Shore excursions'
+                ];
+                this.searchHistory = this.loadSearchHistory();
+                this.renderSearchSuggestions();
                 
                 // Open search
                 searchBtn.addEventListener('click', () => {
@@ -5856,6 +6070,16 @@
                         this.performSearch(query);
                     });
                 });
+
+                if (searchSuggestions) {
+                    searchSuggestions.addEventListener('click', (event) => {
+                        const chip = event.target.closest('.search-chip');
+                        if (!chip) return;
+                        const query = chip.dataset.query || chip.textContent.trim();
+                        searchInput.value = query;
+                        this.performSearch(query);
+                    });
+                }
             }
             
             closeSearch() {
@@ -5865,6 +6089,52 @@
                 searchOverlay.classList.remove('active');
                 searchInput.value = '';
                 this.clearSearchResults();
+            }
+
+            loadSearchHistory() {
+                try {
+                    const stored = localStorage.getItem('cruiseSearchHistory');
+                    return stored ? JSON.parse(stored) : [];
+                } catch (e) {
+                    console.error('Failed to load search history', e);
+                    return [];
+                }
+            }
+
+            saveSearchHistory(query) {
+                const normalized = query.trim();
+                if (!normalized) return;
+
+                const history = this.searchHistory || [];
+                const updated = [normalized, ...history.filter(item => item.toLowerCase() !== normalized.toLowerCase())]
+                    .slice(0, 5);
+                this.searchHistory = updated;
+                try {
+                    localStorage.setItem('cruiseSearchHistory', JSON.stringify(updated));
+                } catch (e) {
+                    console.error('Failed to save search history', e);
+                }
+                this.renderSearchSuggestions();
+            }
+
+            renderSearchSuggestions() {
+                const suggestedContainer = document.getElementById('suggestedSearchChips');
+                const recentContainer = document.getElementById('recentSearchChips');
+                const recentGroup = document.getElementById('recentSearchesGroup');
+
+                if (suggestedContainer) {
+                    suggestedContainer.innerHTML = this.suggestedSearches
+                        .map(term => `<button type="button" class="search-chip" data-query="${term}">${term}</button>`)
+                        .join('');
+                }
+
+                if (recentContainer && recentGroup) {
+                    const history = this.searchHistory || [];
+                    recentGroup.style.display = history.length ? 'block' : 'none';
+                    recentContainer.innerHTML = history
+                        .map(term => `<button type="button" class="search-chip" data-query="${term}">${term}</button>`)
+                        .join('');
+                }
             }
 
             // ========== TOP BAR HINT ==========
@@ -5977,14 +6247,15 @@
             buildSearchIndex() {
                 // Collect all searchable content from sections
                 const sections = [
+                    { id: 'quick-start', title: 'Quick Start Guide', keywords: ['quick', 'start', 'checklist', 'critical'], priority: 4, critical: true },
                     { id: 'overview', title: 'Start Here', keywords: ['overview', 'start', 'begin', 'essential'], priority: 2 },
                     { id: 'operations', title: 'Operations Manual', keywords: ['operations', 'manual', 'protocol', 'checklist', 'emergency'], priority: 4, critical: true },
-                    { id: 'rooms', title: 'Your Staterooms', keywords: ['rooms', 'staterooms', 'cabins', 'guests', 'accommodation'], priority: 1 },
-                    { id: 'itinerary', title: '7-Day Itinerary', keywords: ['itinerary', 'schedule', 'day', 'port', 'sea day'], priority: 3 },
+                    { id: 'rooms', title: 'Your Staterooms', keywords: ['rooms', 'staterooms', 'cabins', 'guests', 'accommodation'], priority: 2, critical: true },
+                    { id: 'itinerary', title: '7-Day Itinerary', keywords: ['itinerary', 'schedule', 'day', 'port', 'sea day'], priority: 3, critical: true },
                     { id: 'dining', title: 'Dining & Restaurants', keywords: ['dining', 'restaurants', 'food', 'chops', 'izumi', 'giovanni'], priority: 2 },
                     { id: 'communication', title: 'Communication & Budget', keywords: ['communication', 'budget', 'wifi', 'cost', 'expenses'], priority: 2 },
                     { id: 'tips', title: 'Pro Tips', keywords: ['tips', 'advice', 'recommendation', 'hack', 'suggestion'], priority: 1 },
-                    { id: 'integrate', title: 'Integrate', keywords: ['integrate', 'platinum', 'upgrade', 'vip', 'enhance'], priority: 1 }
+                    { id: 'integrate', title: 'VIP Upgrades', keywords: ['integrate', 'platinum', 'upgrade', 'vip', 'enhance'], priority: 1 }
                 ];
                 
                 // Add content from each section
@@ -5992,14 +6263,15 @@
                     const sectionElement = document.getElementById(section.id);
                     if (sectionElement) {
                         const content = sectionElement.textContent || '';
-                        this.searchIndex.push({
-                            id: section.id,
-                            title: section.title,
-                            content: content.substring(0, 1000),
-                            keywords: section.keywords,
-                            element: sectionElement,
-                            priority: section.priority || 1,
-                            critical: section.critical || false
+                            this.searchIndex.push({
+                                id: section.id,
+                                title: section.title,
+                                category: section.title,
+                                content: content.substring(0, 1000),
+                                keywords: section.keywords,
+                                element: sectionElement,
+                                priority: section.priority || 1,
+                                critical: section.critical || false
                         });
                     }
                 });
@@ -6011,15 +6283,15 @@
             addSpecificSearchItems() {
                 // Add specific important items to search index
                 const specificItems = [
-                    { id: 'countdown', title: 'Countdown Timer', content: 'Days until cruise departure', keywords: ['countdown', 'timer', 'departure', 'days'], priority: 1 },
-                    { id: 'cococay', title: 'Perfect Day at CocoCay', content: 'Thrill Waterpark, Oasis Lagoon, Daredevils Peak', keywords: ['cococay', 'perfect day', 'waterpark', 'beach'], priority: 3 },
-                    { id: 'dunnsriver', title: 'Dunns River Falls', content: 'Jamaica waterfall climb, water shoes required', keywords: ['dunns', 'river', 'falls', 'jamaica', 'waterfall'], priority: 3 },
-                    { id: 'dragonsbreath', title: 'Dragons Breath Zipline', content: 'Labadee Haiti zipline, longest over water', keywords: ['dragon', 'breath', 'zipline', 'labadee', 'haiti'], priority: 3 },
-                    { id: 'flowrider', title: 'FlowRider', content: 'Surf simulator on Adventure of the Seas', keywords: ['flowrider', 'surf', 'simulator', 'activity'], priority: 2 },
-                    { id: 'formalnight', title: 'Formal Nights', content: 'Two formal nights during the cruise', keywords: ['formal', 'night', 'dress', 'code', 'captain'], priority: 2 },
-                    { id: 'emuster', title: 'eMuster Station F6', content: 'Safety briefing location on Deck 4', keywords: ['emuster', 'safety', 'drill', 'station', 'f6'], priority: 4, critical: true },
-                    { id: 'royalapp', title: 'Royal Caribbean App', content: 'Essential app for schedules, chat, and bookings', keywords: ['royal', 'app', 'mobile', 'download', 'chat'], priority: 2 },
-                    { id: 'wifi', title: 'Wi-Fi & Connectivity', content: 'VOOM Surf + Stream, Royal-WIFI, internet packages', keywords: ['wifi', 'internet', 'connectivity', 'vroom', 'online'], priority: 2 }
+                    { id: 'countdown', title: 'Countdown Timer', category: 'Hero', content: 'Days until cruise departure', keywords: ['countdown', 'timer', 'departure', 'days'], priority: 1 },
+                    { id: 'cococay', title: 'Perfect Day at CocoCay', category: 'Itinerary', content: 'Thrill Waterpark, Oasis Lagoon, Daredevils Peak', keywords: ['cococay', 'perfect day', 'waterpark', 'beach'], priority: 3 },
+                    { id: 'dunnsriver', title: 'Dunns River Falls', category: 'Itinerary', content: 'Jamaica waterfall climb, water shoes required', keywords: ['dunns', 'river', 'falls', 'jamaica', 'waterfall'], priority: 3 },
+                    { id: 'dragonsbreath', title: 'Dragons Breath Zipline', category: 'Itinerary', content: 'Labadee Haiti zipline, longest over water', keywords: ['dragon', 'breath', 'zipline', 'labadee', 'haiti'], priority: 3 },
+                    { id: 'flowrider', title: 'FlowRider', category: 'Onboard Activities', content: 'Surf simulator on Adventure of the Seas', keywords: ['flowrider', 'surf', 'simulator', 'activity'], priority: 2 },
+                    { id: 'formalnight', title: 'Formal Nights', category: 'Dining & Events', content: 'Two formal nights during the cruise', keywords: ['formal', 'night', 'dress', 'code', 'captain'], priority: 2 },
+                    { id: 'emuster', title: 'eMuster Station F6', category: 'Operations Manual', content: 'Safety briefing location on Deck 4', keywords: ['emuster', 'safety', 'drill', 'station', 'f6'], priority: 4, critical: true },
+                    { id: 'royalapp', title: 'Royal Caribbean App', category: 'Operations Manual', content: 'Essential app for schedules, chat, and bookings', keywords: ['royal', 'app', 'mobile', 'download', 'chat'], priority: 2 },
+                    { id: 'wifi', title: 'Wi-Fi & Connectivity', category: 'Communication & Budget', content: 'VOOM Surf + Stream, Royal-WIFI, internet packages', keywords: ['wifi', 'internet', 'connectivity', 'vroom', 'online'], priority: 2 }
                 ];
                 
                 specificItems.forEach(item => {
@@ -6029,9 +6301,11 @@
             
             performSearch(query) {
                 if (!query || this.searchIndex.length === 0 || this.isSearching) return;
-                
+
                 this.isSearching = true;
                 const searchResults = document.getElementById('searchResults');
+
+                this.saveSearchHistory(query);
                 
                 // Show searching indicator
                 searchResults.innerHTML = `
@@ -6093,6 +6367,10 @@
                     return `
                         <div class="search-result-item ${result.critical ? 'critical' : ''}" data-result-id="${result.id}">
                             <div class="search-result-link">
+                                <div class="search-result-category">
+                                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                                    ${result.category || 'Section'}
+                                </div>
                                 <h4 class="search-result-title">${this.highlightText(result.title, query)}</h4>
                                 <p class="search-result-snippet">${snippet}</p>
                                 <div class="text-xs text-light mt-2">
@@ -6244,29 +6522,34 @@
                         const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                         
                         // Update display with animation
-                        const updateWithAnimation = (element, newValue) => {
+                        const updateWithAnimation = (element, newValue, label) => {
                             const oldValue = parseInt(element.textContent) || 0;
                             if (oldValue !== newValue) {
                                 element.style.transform = 'scale(1.2)';
                                 element.style.color = 'var(--accent-light)';
                                 setTimeout(() => {
                                     element.textContent = newValue;
+                                    element.setAttribute('aria-label', `${newValue} ${label} remaining`);
                                     element.style.transform = 'scale(1)';
                                     element.style.color = '';
                                 }, 150);
                             } else {
                                 element.textContent = newValue;
+                                element.setAttribute('aria-label', `${newValue} ${label} remaining`);
                             }
                         };
                         
-                        updateWithAnimation(document.getElementById('days'), days);
-                        updateWithAnimation(document.getElementById('hours'), hours);
-                        updateWithAnimation(document.getElementById('minutes'), minutes);
+                        updateWithAnimation(document.getElementById('days'), days, 'days');
+                        updateWithAnimation(document.getElementById('hours'), hours, 'hours');
+                        updateWithAnimation(document.getElementById('minutes'), minutes, 'minutes');
                     } else {
                         // Cruise has started or passed
                         document.getElementById('days').textContent = '0';
                         document.getElementById('hours').textContent = '0';
                         document.getElementById('minutes').textContent = '0';
+                        document.getElementById('days').setAttribute('aria-label', '0 days remaining');
+                        document.getElementById('hours').setAttribute('aria-label', '0 hours remaining');
+                        document.getElementById('minutes').setAttribute('aria-label', '0 minutes remaining');
                         
                         // Update message if cruise has started
                         if (timeLeft < -86400000) { // More than 1 day past
@@ -6362,6 +6645,28 @@
                     });
                 });
             }
+
+            setupDaySelectorVisibility() {
+                const daySelector = document.getElementById('daySelector');
+                const itinerarySection = document.getElementById('itinerary');
+                if (!daySelector || !itinerarySection) return;
+
+                const setVisibility = (isVisible) => {
+                    daySelector.classList.toggle('day-selector--hidden', !isVisible);
+                    this.updateStickyOffsets();
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        setVisibility(entry.isIntersecting);
+                    });
+                }, { threshold: 0.15 });
+
+                observer.observe(itinerarySection);
+                this.observers.push(observer);
+
+                setVisibility(this.currentSection === 'itinerary');
+            }
             
             filterByDay(day) {
                 // This is a simplified version - in a full implementation,
@@ -6398,10 +6703,10 @@
                 sections.forEach(section => {
                     // Show all sections for "all" view
                     if (view === 'all') {
-                        section.style.display = 'block';
+                        section.style.display = '';
                     } else {
                         // In a real implementation, you would filter based on content
-                        section.style.display = 'block';
+                        section.style.display = '';
                     }
                 });
             }
@@ -6469,6 +6774,46 @@
                 if (!jumpBtn) return;
                 const hide = this.currentSection === 'operations';
                 jumpBtn.classList.toggle('fab--hidden', hide);
+            }
+
+            // ========== CRITICAL INFO FILTER ==========
+            setupCriticalFilter() {
+                const toggleBtn = document.getElementById('criticalToggleBtn');
+                if (!toggleBtn) return;
+
+                let isCriticalOnly = false;
+                try {
+                    isCriticalOnly = localStorage.getItem('cruiseCriticalOnly') === 'true';
+                } catch (e) {
+                    console.error('Failed to load critical-only preference', e);
+                }
+
+                this.applyCriticalFilter(isCriticalOnly);
+
+                toggleBtn.addEventListener('click', () => {
+                    const newState = !document.body.classList.contains('critical-only');
+                    this.applyCriticalFilter(newState);
+                    try {
+                        localStorage.setItem('cruiseCriticalOnly', String(newState));
+                    } catch (e) {
+                        console.error('Failed to save critical-only preference', e);
+                    }
+                });
+            }
+
+            applyCriticalFilter(isCriticalOnly) {
+                const toggleBtn = document.getElementById('criticalToggleBtn');
+                const statusText = document.getElementById('criticalToggleStatus');
+
+                document.body.classList.toggle('critical-only', isCriticalOnly);
+                if (toggleBtn) {
+                    toggleBtn.setAttribute('aria-pressed', String(isCriticalOnly));
+                }
+                if (statusText) {
+                    statusText.textContent = isCriticalOnly ? 'Showing critical sections only' : 'Showing all sections';
+                }
+
+                this.updateStickyOffsets();
             }
 
             jumpToCriticalChecklist() {
@@ -6600,7 +6945,7 @@
                 });
                 
                 // Navigation links
-                document.querySelectorAll('.header__nav-link, .sidebar-link').forEach(link => {
+                document.querySelectorAll('.header__nav-link, .sidebar-link, .quick-start__link').forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         const section = link.dataset.section;
@@ -6892,7 +7237,10 @@
                 document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
                 document.documentElement.style.setProperty('--day-selector-offset', `${daySelectorOffset}px`);
 
-                const scrollPadding = headerHeight + topBarHeight + (daySelector ? daySelector.offsetHeight : 0) + 20;
+                const daySelectorHeight = daySelector && !daySelector.classList.contains('day-selector--hidden')
+                    ? daySelector.offsetHeight
+                    : 0;
+                const scrollPadding = headerHeight + topBarHeight + daySelectorHeight + 20;
                 document.documentElement.style.setProperty('--scroll-padding', `${scrollPadding}px`);
             }
 
@@ -6902,7 +7250,9 @@
                 const topBar = document.getElementById('topBarHint');
                 const headerHeight = header ? header.offsetHeight : 0;
                 const topBarHeight = topBar && !topBar.classList.contains('is-hidden') ? topBar.offsetHeight : 0;
-                const daySelectorHeight = daySelector ? daySelector.offsetHeight : 0;
+                const daySelectorHeight = daySelector && !daySelector.classList.contains('day-selector--hidden')
+                    ? daySelector.offsetHeight
+                    : 0;
                 return headerHeight + topBarHeight + daySelectorHeight + 20;
             }
 
