@@ -1077,17 +1077,17 @@
          }
          .nav-view-toggle {
          display: flex;
-         gap: 4px;
-         padding: 6px;
-         background: rgba(255,255,255,0.03);
-         border: 1px solid var(--border);
-         border-radius: 10px;
+         gap: 0;
+         padding: 0;
+         background: transparent;
+         border-bottom: 1px solid var(--border);
          }
          .nav-view-btn {
-         padding: 6px 12px;
-         border-radius: 8px;
+         padding: 8px 14px;
+         border-radius: 10px 10px 0 0;
          background: transparent;
-         border: none;
+         border: 1px solid transparent;
+         border-bottom: 2px solid transparent;
          color: var(--muted);
          font-family: var(--font-heading);
          font-weight: 600;
@@ -1104,6 +1104,8 @@
          }
          .nav-view-btn.active {
          background: rgba(54,194,255,0.15);
+         border-color: var(--border);
+         border-bottom-color: var(--accent);
          color: var(--accent);
          }
          .nav-day-selector {
@@ -1912,16 +1914,16 @@
                            </h2>
                         </div>
                         <div class="nav-tools">
-                           <div class="nav-view-toggle" role="radiogroup" aria-label="View mode">
-                              <button class="nav-view-btn active" data-view="today" role="radio" aria-checked="true" type="button">
+                           <div class="nav-view-toggle" role="tablist" aria-label="View tabs">
+                              <button class="nav-view-btn active" data-view="today" role="tab" aria-selected="true" aria-controls="main-content" tabindex="0" type="button">
                                  <i class="fas fa-calendar-day" aria-hidden="true"></i>
                                  <span>Today</span>
                               </button>
-                              <button class="nav-view-btn" data-view="first-timer" role="radio" aria-checked="false" type="button">
+                              <button class="nav-view-btn" data-view="first-timer" role="tab" aria-selected="false" aria-controls="main-content" tabindex="-1" type="button">
                                  <i class="fas fa-route" aria-hidden="true"></i>
                                  <span>First-Timer</span>
                               </button>
-                              <button class="nav-view-btn" data-view="veteran" role="radio" aria-checked="false" type="button">
+                              <button class="nav-view-btn" data-view="veteran" role="tab" aria-selected="false" aria-controls="main-content" tabindex="-1" type="button">
                                  <i class="fas fa-list" aria-hidden="true"></i>
                                  <span>All Details</span>
                               </button>
@@ -6210,14 +6212,20 @@
             button.addEventListener('click', () => {
                 modeButtons.forEach(btn => {
                     btn.classList.remove('active');
-                    btn.setAttribute('aria-checked', 'false');
+                    btn.setAttribute('aria-selected', 'false');
+                    btn.setAttribute('tabindex', '-1');
                 });
                 button.classList.add('active');
-                button.setAttribute('aria-checked', 'true');
+                button.setAttribute('aria-selected', 'true');
+                button.setAttribute('tabindex', '0');
                 applyViewMode(button.dataset.view);
             });
          });
          const initialModeButton = document.querySelector('.nav-view-btn.active');
+         if (initialModeButton) {
+         initialModeButton.setAttribute('aria-selected', 'true');
+         initialModeButton.setAttribute('tabindex', '0');
+         }
          applyViewMode(initialModeButton?.dataset.view);
          }
          
