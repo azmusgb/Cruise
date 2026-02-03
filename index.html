@@ -46,6 +46,7 @@
          --text-xl: 1.2rem;
          --text-2xl: 1.4rem;
          --text-hero: clamp(2rem, 3.6vw, 2.8rem);
+         --mode-toggle-height: 56px;
          color-scheme: dark;
          }
          /* =============== Base & Utilities =============== */
@@ -172,7 +173,7 @@
          }
          /* =============== Top Bar Hint =============== */
          .top-bar-hint{
-         position:sticky;top:70px;z-index:40;
+         position:sticky;top:calc(70px + var(--mode-toggle-height));z-index:40;
          background:rgba(17,50,74,0.95);border-bottom:1px solid var(--border);
          padding:10px 0;
          }
@@ -180,7 +181,45 @@
          .top-bar-hint__title{display:flex;align-items:center;gap:8px;font-weight:700;font-family:var(--font-heading);}
          .top-bar-hint__badge{padding:4px 8px;border-radius:999px;background:rgba(255,107,107,0.2);color:#ffdede;font-size:var(--text-xs);}
          .top-bar-hint__close{background:none;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:6px 8px;cursor:pointer;}
-         @media(max-width:768px){.top-bar-hint{top:64px;padding:8px 0;}}
+         @media(max-width:768px){
+         :root{--mode-toggle-height: 64px;}
+         .top-bar-hint{top:calc(64px + var(--mode-toggle-height));padding:8px 0;}
+         }
+         /* =============== Mode Toggle Bar =============== */
+         .mode-toggle-bar{
+         position:sticky;top:70px;z-index:45;
+         background:rgba(8,32,56,0.94);
+         border-bottom:1px solid var(--border);
+         }
+         .mode-toggle-content{
+         display:flex;align-items:center;justify-content:space-between;
+         gap:var(--gap-md);padding:10px 0;
+         }
+         .mode-label{font-size:var(--text-sm);color:var(--muted);font-family:var(--font-heading);font-weight:600;}
+         .mode-buttons{display:flex;gap:var(--gap-sm);flex-wrap:wrap;}
+         .mode-btn{
+         border:1px solid var(--border);
+         background:rgba(255,255,255,0.04);
+         color:var(--text);
+         border-radius:999px;
+         padding:8px 12px;
+         font-size:var(--text-sm);
+         font-family:var(--font-heading);
+         font-weight:600;
+         display:inline-flex;
+         align-items:center;
+         gap:8px;
+         cursor:pointer;
+         }
+         .mode-btn.active{
+         background:rgba(54,194,255,0.18);
+         border-color:rgba(54,194,255,0.4);
+         color:#d7f1ff;
+         }
+         @media(max-width:768px){
+         .mode-toggle-bar{top:64px;}
+         .mode-toggle-content{flex-direction:column;align-items:flex-start;}
+         }
          /* =============== Search Overlay (modal) =============== */
          .search-overlay{
          position:fixed;inset:0;z-index:120;display:none;
@@ -253,12 +292,25 @@
          .countdown-item{min-width:90px;padding:10px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);text-align:center;}
          .countdown-number{font-size:var(--text-2xl);font-weight:700;display:block;}
          .hero__actions{display:flex;flex-wrap:wrap;gap:var(--gap-sm);margin-top:var(--gap-md);}
+         .hero__stats{display:flex;flex-wrap:wrap;gap:var(--gap-sm);margin-top:var(--gap-md);color:var(--muted);}
+         .hero__stats .stat{
+         padding:6px 10px;border-radius:999px;
+         background:rgba(255,255,255,0.05);color:var(--text);
+         font-size:var(--text-sm);font-family:var(--font-heading);font-weight:600;
+         }
          .rc-key-benefits{display:flex;flex-wrap:wrap;gap:var(--gap-sm);margin-top:var(--gap-sm);}
          .key-benefit{display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(255,255,255,0.05);border-radius:var(--radius-sm);}
          .rc-wave-bg{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 80% 10%,rgba(54,194,255,0.12),transparent 45%);}
          @media(max-width:768px){.hero{padding:var(--gap-lg) 0 var(--gap-md);}}
          /* =============== Day & Traveler Selectors =============== */
-         .day-selector{position:sticky;top:70px;z-index:35;background:rgba(6,24,43,0.92);border-bottom:1px solid var(--border);padding:8px 0;}
+         .day-selector{
+         position:sticky;
+         top:calc(70px + var(--mode-toggle-height));
+         z-index:35;
+         background:rgba(6,24,43,0.92);
+         border-bottom:1px solid var(--border);
+         padding:8px 0;
+         }
          .day-selector--hidden{display:none;}
          .day-nav{display:flex;gap:var(--gap-sm);overflow-x:auto;padding-bottom:2px;}
          .day-btn{
@@ -282,6 +334,10 @@
          @media(max-width:1024px){.sidebar{position:static;}}
          /* =============== Cards & Sections =============== */
          .section{scroll-margin-top:90px;}
+         .section--pinned{
+         border-left:3px solid rgba(54,194,255,0.6);
+         padding-left:var(--gap-sm);
+         }
          .card{
          background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
          padding:var(--gap-lg);box-shadow:var(--shadow);
@@ -313,6 +369,7 @@
          .btn--ghost:hover,.btn--outline:hover{background:rgba(255,255,255,0.12);}
          .btn--outline{border-style:dashed;}
          .btn--critical{background:linear-gradient(135deg,#ff6b6b,#e94c4c);color:#fff;}
+         .btn--sm{padding:8px 12px;font-size:var(--text-sm);border-radius:10px;}
          /* legacy mapping */
          .btn--primary,.btn-primary{background:linear-gradient(135deg,var(--accent),#1b9ad7);color:#041222;}
          .btn--ghost,.btn-tertiary{background:transparent;border:1px dashed var(--border);color:var(--muted);}
@@ -327,6 +384,7 @@
          .tag--essential{background:rgba(255,107,107,0.2);color:#ffdede;}
          .tag--recommended{background:rgba(54,194,255,0.18);color:#d8f1ff;}
          .tag--info{background:rgba(255,255,255,0.1);}
+         .tag--time{background:rgba(255,206,107,0.2);color:#ffe7b3;}
          .chip--primary{background:rgba(54,194,255,0.2);}
          .chip--accent{background:rgba(255,206,107,0.2);}
          .chip--teal{background:rgba(59,212,167,0.2);}
@@ -344,6 +402,8 @@
          .checklist{display:grid;gap:var(--gap-sm);}
          .checklist-item{display:flex;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,0.04);}
          .checklist-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,0.06);}
+         .checklist-time{font-size:var(--text-xs);color:var(--accent-2);font-weight:700;}
+         .checklist-timeline{display:grid;gap:var(--gap-md);}
          .tracker-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:rgba(255,255,255,0.04);}
          .progress-track{height:6px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;}
          .progress-bar{height:100%;background:var(--accent);width:var(--progress,75%);}
@@ -379,6 +439,115 @@
          .dining-card.featured{border-color:rgba(255,206,107,0.35);}
          .tip-header{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
          .tip-icon{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.07);display:grid;place-items:center;}
+         .tips-priority{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--gap-lg);}
+         .tip-card--large{padding:20px;border-radius:18px;}
+         /* =============== Today Timeline =============== */
+         .today-timeline{display:grid;gap:var(--gap-md);}
+         .today-task{
+         display:grid;gap:var(--gap-sm);
+         padding:16px;border-radius:16px;
+         background:rgba(255,255,255,0.04);
+         border:1px solid var(--border);
+         }
+         .today-task--critical{border-color:rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);}
+         .today-task--important{border-color:rgba(255,206,107,0.4);background:rgba(255,206,107,0.08);}
+         .task-time{font-size:var(--text-xs);font-weight:700;color:var(--accent-2);text-transform:uppercase;letter-spacing:0.08em;}
+         .task-content h3{margin:0 0 6px;font-size:var(--text-lg);}
+         .task-checklist{display:grid;gap:6px;font-size:var(--text-sm);color:var(--muted);}
+         .task-checklist input{margin-right:8px;}
+         .comm-block{
+         margin-top:var(--gap-lg);
+         padding:16px;border-radius:16px;border:1px solid var(--border);
+         background:rgba(255,255,255,0.04);
+         }
+         /* =============== Itinerary =============== */
+         .day-tabs{display:flex;flex-wrap:wrap;gap:var(--gap-xs);margin-bottom:var(--gap-md);}
+         .day-tab{
+         border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);
+         border-radius:999px;padding:8px 12px;font-size:var(--text-sm);font-family:var(--font-heading);font-weight:600;
+         cursor:pointer;
+         }
+         .day-tab.active{background:rgba(54,194,255,0.18);border-color:rgba(54,194,255,0.4);color:#d7f1ff;}
+         .timeline-vertical{display:grid;gap:var(--gap-lg);}
+         .timeline-step{display:grid;grid-template-columns:120px 1fr;gap:var(--gap-md);align-items:start;}
+         .step-indicator{
+         padding:12px;border-radius:14px;text-align:center;border:1px solid var(--border);
+         background:rgba(255,255,255,0.04);
+         display:grid;gap:4px;font-family:var(--font-heading);font-weight:700;
+         }
+         .step-indicator--port{border-color:rgba(54,194,255,0.45);}
+         .step-indicator--sea{border-color:rgba(255,206,107,0.45);}
+         .step-indicator--return{border-color:rgba(255,255,255,0.25);}
+         .step-indicator--featured{box-shadow:0 0 0 2px rgba(54,194,255,0.25);}
+         .step-day{font-size:var(--text-sm);}
+         .step-date{font-size:var(--text-xs);color:var(--muted);}
+         .step-content{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;padding:16px;display:grid;gap:var(--gap-sm);}
+         .step-header{display:flex;flex-wrap:wrap;gap:var(--gap-sm);align-items:center;justify-content:space-between;}
+         .step-header h3{margin:0;font-size:var(--text-lg);}
+         .step-badge{
+         padding:4px 10px;border-radius:999px;font-size:var(--text-xs);font-weight:700;
+         background:rgba(255,255,255,0.08);color:var(--text);
+         }
+         .step-badge--departure{background:rgba(54,194,255,0.2);color:#d7f1ff;}
+         .step-badge--all-aboard{background:rgba(255,206,107,0.2);color:#ffe7b3;}
+         .step-badge--sea{background:rgba(255,255,255,0.12);}
+         .step-badge--formal{background:rgba(255,107,107,0.2);color:#ffdede;}
+         .step-details{display:grid;gap:var(--gap-sm);}
+         .step-highlight{background:rgba(255,255,255,0.05);border-radius:12px;padding:10px;}
+         .step-tasks h4,.step-excursions h4{margin:0 0 6px;font-size:var(--text-sm);}
+         .step-details .step-tasks,
+         .step-details .step-excursions,
+         .step-details > ul{display:none;}
+         .step-details.is-expanded .step-tasks,
+         .step-details.is-expanded .step-excursions,
+         .step-details.is-expanded > ul{display:block;}
+         @media(max-width:768px){
+         .timeline-step{grid-template-columns:1fr;}
+         .step-indicator{justify-self:start;width:max-content;}
+         }
+         /* =============== Rooms =============== */
+         .view-toggle{display:flex;gap:var(--gap-sm);flex-wrap:wrap;margin-bottom:var(--gap-md);}
+         .view-toggle__btn{
+         border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);
+         border-radius:999px;padding:8px 12px;font-size:var(--text-sm);font-family:var(--font-heading);font-weight:600;
+         cursor:pointer;
+         }
+         .view-toggle__btn.active{background:rgba(54,194,255,0.18);border-color:rgba(54,194,255,0.4);color:#d7f1ff;}
+         .room-view{display:none;}
+         .room-view.active{display:block;}
+         .room-card{display:grid;gap:var(--gap-sm);}
+         .room-card--featured{border-color:rgba(54,194,255,0.4);background:rgba(54,194,255,0.08);}
+         .room-header{display:flex;justify-content:space-between;gap:var(--gap-sm);}
+         .room-number{font-size:1.5rem;font-weight:700;font-family:var(--font-heading);}
+         .room-location{font-size:var(--text-sm);color:var(--muted);display:flex;gap:6px;align-items:center;}
+         .room-label{margin:0 0 6px;font-size:var(--text-sm);color:var(--muted);}
+         .room-tip{margin:0;color:var(--muted);font-size:var(--text-sm);}
+         /* =============== Operations Manual =============== */
+         .operations-block{padding:16px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,0.04);}
+         .operations-block__title{margin:0 0 var(--gap-sm);font-size:var(--text-lg);font-family:var(--font-heading);}
+         .critical-checklist{display:grid;gap:var(--gap-md);}
+         .port-cards-horizontal{display:grid;gap:var(--gap-md);}
+         .port-card{
+         display:grid;grid-template-columns:120px 1fr;gap:var(--gap-md);
+         border:1px solid var(--border);border-radius:16px;overflow:hidden;
+         background:rgba(255,255,255,0.04);
+         }
+         .port-card__image{display:grid;place-items:center;min-height:120px;}
+         .port-card__icon{font-size:2rem;}
+         .port-card__content{padding:16px;display:grid;gap:var(--gap-sm);}
+         .port-card__tags{display:flex;flex-wrap:wrap;gap:var(--gap-xs);}
+         /* =============== VIP Upgrades =============== */
+         .vip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--gap-lg);}
+         .vip-card{
+         padding:18px;border-radius:16px;border:1px solid var(--border);
+         background:rgba(255,255,255,0.04);display:grid;gap:var(--gap-sm);
+         }
+         .vip-header{display:flex;gap:10px;align-items:center;}
+         .vip-icon{
+         width:36px;height:36px;border-radius:10px;
+         background:rgba(255,255,255,0.07);display:grid;place-items:center;
+         }
+         .vip-price{margin:0;color:var(--accent-2);font-weight:700;font-size:var(--text-sm);}
          /* =============== Royal Caribbean Highlights =============== */
          .rc-card,
          .perfect-day-card,
@@ -456,6 +625,7 @@
          padding:var(--gap-md);box-shadow:var(--shadow);
          }
          .sidebar-card--highlight{border-color:rgba(54,194,255,0.3);}
+         .sidebar-card--critical{border-color:rgba(255,107,107,0.4);background:rgba(255,107,107,0.08);}
          .sidebar-card__title{margin:0 0 var(--gap-sm);display:flex;align-items:center;gap:8px;}
          .sidebar-links{list-style:none;padding:0;margin:0;display:grid;gap:var(--gap-xs);}
          .sidebar-link{
@@ -607,7 +777,7 @@
          .countdown-item{min-width:calc(50% - var(--gap-sm));}
          .rc-app-integration{grid-template-columns:1fr;justify-items:center;text-align:left;}
          .app-qr-code{width:180px;}
-         .day-selector{top:64px;}
+         .day-selector{top:calc(64px + var(--mode-toggle-height));}
          .day-nav{gap:8px;}
          .card{padding:var(--gap-md);}
          .card__header{flex-wrap:wrap;}
@@ -746,6 +916,9 @@
       <a href="#main-content" class="skip-link">
       Skip to main content
       </a>
+      <a href="#critical-checklist" class="skip-link">
+      Skip to critical checklist
+      </a>
       <!-- Official Royal Caribbean Banner -->
       <div class="rc-official-banner" role="status">
          <div class="container">
@@ -839,6 +1012,28 @@
             </div>
          </div>
       </header>
+      <!-- Mode Toggle Bar -->
+      <div class="mode-toggle-bar" role="toolbar" aria-label="View mode selection">
+         <div class="container">
+            <div class="mode-toggle-content">
+               <span class="mode-label">View Mode:</span>
+               <div class="mode-buttons" role="radiogroup" aria-label="Select view mode">
+                  <button class="mode-btn active" data-mode="today" role="radio" aria-checked="true" type="button">
+                     <i class="fas fa-calendar-day" aria-hidden="true"></i>
+                     <span>Today</span>
+                  </button>
+                  <button class="mode-btn" data-mode="first-timer" role="radio" aria-checked="false" type="button">
+                     <i class="fas fa-route" aria-hidden="true"></i>
+                     <span>First-Timer</span>
+                  </button>
+                  <button class="mode-btn" data-mode="veteran" role="radio" aria-checked="false" type="button">
+                     <i class="fas fa-list" aria-hidden="true"></i>
+                     <span>All Details</span>
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
       <!-- Sticky Top Bar Hint -->
       <div class="top-bar-hint is-hidden" id="topBarHint" role="status" aria-live="polite" aria-atomic="true">
          <div class="container">
@@ -1039,6 +1234,10 @@
                </div>
                <!-- Quick Actions -->
                <div class="hero__actions" role="group" aria-label="Quick actions">
+                  <button class="btn btn--primary" id="criticalChecklistBtn" type="button">
+                  <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+                  Complete Pre-Cruise Checklist
+                  </button>
                   <button class="btn btn--primary" id="printBtn" type="button">
                   <i class="fas fa-print" aria-hidden="true"></i>
                   Print Itinerary
@@ -1051,6 +1250,12 @@
                   <i class="fas fa-share-alt" aria-hidden="true"></i>
                   Share
                   </button>
+               </div>
+               <div class="hero__stats" aria-label="Cruise summary">
+                  <span class="stat"><strong>14</strong> Travelers</span>
+                  <span class="stat"><strong>5</strong> Staterooms</span>
+                  <span class="stat"><strong>3</strong> Ports</span>
+                  <span class="stat"><strong>6</strong> Nights</span>
                </div>
                <div class="rc-key-benefits" aria-label="Royal Caribbean The Key benefits">
                   <div class="key-benefit">
@@ -1106,6 +1311,87 @@
                      <i class="fas fa-times" aria-hidden="true"></i>
                      </button>
                   </div>
+                  <!-- TODAY SECTION (Dynamic - Changes based on current date) -->
+                  <section id="today" class="section section--pinned section--critical" aria-labelledby="todayTitle">
+                     <div class="card card--featured">
+                        <div class="card__header">
+                           <div class="card__icon" aria-hidden="true">
+                              <i class="fas fa-calendar-day"></i>
+                           </div>
+                           <div>
+                              <h2 id="todayTitle" class="card__title">Today: Preparation Mode</h2>
+                              <p class="card__subtitle">12 days until embarkation • Focus on these essentials</p>
+                           </div>
+                        </div>
+                        <div class="card__content">
+                           <div class="today-timeline">
+                              <div class="today-task today-task--critical">
+                                 <div class="task-time">This Week</div>
+                                 <div class="task-content">
+                                    <h3>Complete Online Check-in</h3>
+                                    <p>Opens ~Dec 31. Upload photos, select 11:00 AM arrival time</p>
+                                    <button class="btn btn--outline btn--sm">
+                                       <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                                       Open Check-in
+                                    </button>
+                                 </div>
+                              </div>
+                              <div class="today-task today-task--important">
+                                 <div class="task-time">This Week</div>
+                                 <div class="task-content">
+                                    <h3>Link All Bookings in Royal App</h3>
+                                    <p>Ensure all 5 staterooms appear. Enable notifications.</p>
+                                    <div class="task-checklist">
+                                       <label><input type="checkbox"> Downloaded Royal Caribbean app</label>
+                                       <label><input type="checkbox"> Linked booking #12345678</label>
+                                       <label><input type="checkbox"> Created family chat group</label>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="today-task">
+                                 <div class="task-time">Before Feb 1</div>
+                                 <div class="task-content">
+                                    <h3>Reserve Shore Excursions</h3>
+                                    <p>Priority: Dunn's River Falls + Dragon's Breath zip-line</p>
+                                    <button class="btn btn--outline btn--sm" data-section="itinerary" type="button">
+                                       View Port Details
+                                    </button>
+                                 </div>
+                              </div>
+                              <div class="today-task">
+                                 <div class="task-time">Before Feb 1</div>
+                                 <div class="task-content">
+                                    <h3>Book Specialty Dining</h3>
+                                    <p>Chops Grille, Izumi, Giovanni's • 2 formal nights</p>
+                                    <button class="btn btn--outline btn--sm" data-section="dining" type="button">
+                                       See Dining Options
+                                    </button>
+                                 </div>
+                              </div>
+                              <div class="comm-block">
+                                 <h3>🧾 Policies &amp; Gratuities</h3>
+                                 <ul class="list list--icon">
+                                    <li>
+                                       <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+                                       <span><strong>Gratuities:</strong> $18.50 pp/day ($21 suites)</span>
+                                    </li>
+                                    <li>
+                                       <i class="fas fa-wine-bottle" aria-hidden="true"></i>
+                                       <span><strong>Alcohol:</strong> 1 sealed 750ml wine per adult</span>
+                                    </li>
+                                    <li>
+                                       <i class="fas fa-smoking" aria-hidden="true"></i>
+                                       <span><strong>Smoking:</strong> Port side Deck 11 + Casino</span>
+                                    </li>
+                                 </ul>
+                              </div>
+                           </div>
+                           <div class="note note--info mt-8">
+                              <strong>Budget Tip:</strong> Review SeaPass charges nightly via app or cabin TV. Use shared Google Sheet for real-time expense tracking.
+                           </div>
+                        </div>
+                     </div>
+                  </section>
                   <!-- Quick Start Guide -->
                   <section id="quick-start" class="section section--critical" aria-labelledby="quickStartTitle">
                      <div class="card quick-start">
@@ -1179,23 +1465,22 @@
                      </div>
                   </section>
                   <!-- Overview Section -->
-                  <section id="overview" class="section section--critical" aria-labelledby="overviewTitle">
+                  <section id="overview" class="section" aria-labelledby="overviewTitle">
                      <div class="card">
                         <div class="card__header">
                            <div class="card__icon" aria-hidden="true">
-                              <i class="fas fa-ship"></i>
+                              <i class="fas fa-info-circle"></i>
                            </div>
                            <div>
-                              <h2 id="overviewTitle" class="card__title">Start Here: Your Cruise Adventure</h2>
-                              <p class="card__subtitle">Everything you need to know, organized for quick decisions</p>
+                              <h2 id="overviewTitle" class="card__title">Cruise Overview &amp; Details</h2>
+                              <p class="card__subtitle">Complete trip information and booking details</p>
                            </div>
                            <button class="card__toggle" aria-expanded="false" aria-controls="overviewContent">
-                           <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                           <span class="sr-only">Toggle section</span>
+                              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                              <span class="sr-only">Toggle section</span>
                            </button>
                         </div>
-                        <div id="overviewContent" class="card__content collapsed" style="">
-                           <p class="mb-6">Welcome to your comprehensive travel hub for the Rahe Family &amp; Friends Adventure aboard <strong>Adventure of the Seas</strong>. Use this overview to orient the group, then explore the sections below to plan rooms, daily flow, dining, and top tips.</p>
+                        <div id="overviewContent" class="card__content collapsed">
                            <div class="grid-2">
                               <div class="rc-card">
                                  <span class="rc-badge">Royal Amplified™ • Voyager Class</span>
@@ -1210,42 +1495,76 @@
                                  </div>
                               </div>
                            </div>
-                           <div class="grid-2" style="margin-top:24px;">
-                              <div class="rc-app-integration">
-                                 <div class="app-qr-code">
-                                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%230b2c4a'/><stop offset='100%25' stop-color='%23144a7a'/></linearGradient><linearGradient id='screen' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%232a6ea6'/><stop offset='100%25' stop-color='%230b2c4a'/></linearGradient></defs><rect width='160' height='160' rx='24' fill='url(%23bg)'/><rect x='46' y='18' width='68' height='124' rx='18' fill='%2306192b' stroke='rgba(255,255,255,0.35)' stroke-width='2'/><rect x='56' y='34' width='48' height='76' rx='12' fill='url(%23screen)'/><circle cx='80' cy='118' r='8' fill='%2336c2ff'/><path d='M60 78c8-10 28-10 36 0' stroke='%23ffffff' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.8'/><path d='M60 90c8-10 28-10 36 0' stroke='%23ffce6b' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.9'/><text x='80' y='148' font-family='Montserrat, Arial, sans-serif' font-size='12' fill='%23d9f3ff' text-anchor='middle'>Royal Caribbean App</text></svg>" alt="Royal Caribbean App preview">
-                                 </div>
-                                 <div class="app-features">
-                                    <h3><span class="emoji" aria-hidden="true">📱</span> Royal Caribbean App</h3>
-                                    <ul>
-                                       <li><span class="emoji" aria-hidden="true">✅</span> Linked to your booking</li>
-                                       <li><span class="emoji" aria-hidden="true">💬</span> Free onboard messaging</li>
-                                       <li><span class="emoji" aria-hidden="true">🗓️</span> Daily schedule updates</li>
-                                       <li><span class="emoji" aria-hidden="true">🗺️</span> Interactive deck plans</li>
-                                    </ul>
-                                    <button class="rc-btn" type="button">
-                                    <span class="emoji" aria-hidden="true">🔗</span> Open in Royal App
-                                    </button>
-                                 </div>
+                           <div class="grid-2 mt-8">
+                              <div class="overview-block">
+                                 <h3 class="overview-block__title">Trip Essentials</h3>
+                                 <ul class="list list--icon">
+                                    <li>
+                                       <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
+                                       <span>Ports: George Town, Grand Cayman • Falmouth, Jamaica • Perfect Day at CocoCay</span>
+                                    </li>
+                                    <li>
+                                       <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                                       <span>Feb 14-20, 2026 • 6 nights • Round-trip Port Canaveral</span>
+                                    </li>
+                                    <li>
+                                       <i class="fas fa-ship" aria-hidden="true"></i>
+                                       <span>Adventure of the Seas • Voyager Class • 137,276 GT • Amplified 2018</span>
+                                    </li>
+                                 </ul>
                               </div>
-                              <div class="official-muster-info">
-                                 <div class="muster-header">
-                                    <h3><span class="emoji" aria-hidden="true">⚓</span> Official Muster Station</h3>
-                                    <div class="muster-badge">F6</div>
-                                 </div>
-                                 <div class="muster-details">
-                                    <p><strong>Deck 4 • Starboard Side</strong></p>
-                                    <p>Complete eMuster® in Royal App before 4:00 PM.</p>
-                                    <div class="muster-progress">
-                                       <div class="progress-track">
-                                          <div class="progress-bar" style="width: 75%"></div>
-                                       </div>
-                                       <span>3/4 Guests Complete</span>
+                              <div class="overview-block">
+                                 <h3 class="overview-block__title">Why This Sailing?</h3>
+                                 <ul class="list list--icon">
+                                    <li>
+                                       <i class="fas fa-umbrella-beach" aria-hidden="true"></i>
+                                       <span>Perfect Day thrills: Thrill Waterpark + Oasis Lagoon</span>
+                                    </li>
+                                    <li>
+                                       <i class="fas fa-hiking" aria-hidden="true"></i>
+                                       <span>Bucket-list: Dunn's River Falls + Dragon's Breath zip-line</span>
+                                    </li>
+                                    <li>
+                                       <i class="fas fa-bolt" aria-hidden="true"></i>
+                                       <span>Amplified ship: Typhoon &amp; Cyclone racers, FlowRider, laser-tag</span>
+                                    </li>
+                                 </ul>
+                              </div>
+                           </div>
+                           <div class="rc-app-integration mt-8">
+                              <div class="app-qr-code">
+                                 <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%230b2c4a'/><stop offset='100%25' stop-color='%23144a7a'/></linearGradient><linearGradient id='screen' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%232a6ea6'/><stop offset='100%25' stop-color='%230b2c4a'/></linearGradient></defs><rect width='160' height='160' rx='24' fill='url(%23bg)'/><rect x='46' y='18' width='68' height='124' rx='18' fill='%2306192b' stroke='rgba(255,255,255,0.35)' stroke-width='2'/><rect x='56' y='34' width='48' height='76' rx='12' fill='url(%23screen)'/><circle cx='80' cy='118' r='8' fill='%2336c2ff'/><path d='M60 78c8-10 28-10 36 0' stroke='%23ffffff' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.8'/><path d='M60 90c8-10 28-10 36 0' stroke='%23ffce6b' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.9'/><text x='80' y='148' font-family='Montserrat, Arial, sans-serif' font-size='12' fill='%23d9f3ff' text-anchor='middle'>Royal Caribbean App</text></svg>" alt="Royal Caribbean App">
+                              </div>
+                              <div class="app-features">
+                                 <h3><span class="emoji" aria-hidden="true">📱</span> Royal Caribbean App</h3>
+                                 <ul>
+                                    <li><span class="emoji" aria-hidden="true">✅</span> Linked to your booking</li>
+                                    <li><span class="emoji" aria-hidden="true">💬</span> Free onboard messaging</li>
+                                    <li><span class="emoji" aria-hidden="true">🗓️</span> Daily schedule updates</li>
+                                    <li><span class="emoji" aria-hidden="true">🗺️</span> Interactive deck plans</li>
+                                 </ul>
+                                 <button class="rc-btn" type="button">
+                                    <span class="emoji" aria-hidden="true">🔗</span> Open in Royal App
+                                 </button>
+                              </div>
+                           </div>
+                           <div class="official-muster-info mt-8">
+                              <div class="muster-header">
+                                 <h3><span class="emoji" aria-hidden="true">⚓</span> Official Muster Station</h3>
+                                 <div class="muster-badge">F6</div>
+                              </div>
+                              <div class="muster-details">
+                                 <p><strong>Deck 4 • Starboard Side</strong></p>
+                                 <p>Complete eMuster® in Royal App before 4:00 PM on embarkation day.</p>
+                                 <div class="muster-progress">
+                                    <div class="progress-track">
+                                       <div class="progress-bar" style="width: 75%"></div>
                                     </div>
+                                    <span>3/4 Guests Complete</span>
                                  </div>
                               </div>
                            </div>
-                           <div class="rc-progress-tracker" style="margin-top:24px;">
+                           <div class="rc-progress-tracker mt-8">
                               <h4><span class="emoji" aria-hidden="true">✅</span> Cruise Checklist</h4>
                               <div class="tracker-item">
                                  <span>Online Check-in</span>
@@ -1267,116 +1586,6 @@
                                  </div>
                               </div>
                            </div>
-                           <div class="grid-2">
-                              <!-- Trip Essentials -->
-                              <div class="overview-block">
-                                 <h3 class="overview-block__title">Trip Essentials</h3>
-                                 <ul class="list list--icon">
-                                    <li>
-                                       <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                                       <span>Ports: George Town, Grand Cayman • Falmouth, Jamaica • Perfect Day at CocoCay</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                                       <span>Feb 14-20, 2026 • 6 nights • Round-trip Port Canaveral</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-ship" aria-hidden="true"></i>
-                                       <span>Adventure of the Seas • Voyager Class • 137,276 GT • Amplified 2018</span>
-                                    </li>
-                                 </ul>
-                              </div>
-                              <!-- Why Book -->
-                              <div class="overview-block">
-                                 <h3 class="overview-block__title">Why Book This Sailing?</h3>
-                                 <ul class="list list--icon">
-                                    <li>
-                                       <i class="fas fa-umbrella-beach" aria-hidden="true"></i>
-                                       <span>Perfect Day thrills: docked access to Thrill Waterpark + Oasis Lagoon</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-hiking" aria-hidden="true"></i>
-                                       <span>Bucket-list ports: Dunn's River Falls + Dragon's Breath zip-line</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-bolt" aria-hidden="true"></i>
-                                       <span>Amplified ship: Typhoon &amp; Cyclone racers, FlowRider, laser-tag</span>
-                                    </li>
-                                 </ul>
-                              </div>
-                              <!-- People & Rooms -->
-                              <div class="overview-block">
-                                 <h3 class="overview-block__title">People &amp; Rooms</h3>
-                                 <div class="chips">
-                                    <span class="chip chip--primary">
-                                    <i class="fas fa-users" aria-hidden="true"></i>
-                                    <span>Rahe Family &amp; Friends</span>
-                                    </span>
-                                    <span class="chip chip--accent">
-                                    <i class="fas fa-door-closed" aria-hidden="true"></i>
-                                    <span>5 Staterooms</span>
-                                    </span>
-                                    <span class="chip chip--teal">
-                                    <i class="fas fa-layer-group" aria-hidden="true"></i>
-                                    <span>Decks 6-8</span>
-                                    </span>
-                                 </div>
-                                 <p class="note mt-4">Use the rooms section below for detailed guest lists and muster stations.</p>
-                              </div>
-                              <!-- Book Next -->
-                              <div class="overview-block">
-                                 <h3 class="overview-block__title">Book Next</h3>
-                                 <div class="checklist">
-                                    <div class="checklist-item">
-                                       <span class="checklist-icon" aria-hidden="true">
-                                       <i class="fas fa-check-circle"></i>
-                                       </span>
-                                       <div class="checklist-content">
-                                          <div class="checklist-title">Online Check-in</div>
-                                          <p class="checklist-description">Opens ~Dec 31, 2025 • Pick 11:00 AM arrival</p>
-                                       </div>
-                                    </div>
-                                    <div class="checklist-item">
-                                       <span class="checklist-icon" aria-hidden="true">
-                                       <i class="fas fa-utensils"></i>
-                                       </span>
-                                       <div class="checklist-content">
-                                          <div class="checklist-title">Lock Dining Reservations</div>
-                                          <p class="checklist-description">Chops, Izumi, Giovanni's • 2 formal nights</p>
-                                       </div>
-                                    </div>
-                                    <div class="checklist-item">
-                                       <span class="checklist-icon" aria-hidden="true">
-                                       <i class="fas fa-ticket-alt"></i>
-                                       </span>
-                                       <div class="checklist-content">
-                                          <div class="checklist-title">Reserve Shows &amp; Excursions</div>
-                                          <p class="checklist-description">Prioritize Dunn's River Falls + Dragon's Breath</p>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="note note--info mt-8">
-                              <strong>Concierge Default:</strong> Link all bookings in the Royal app, hold the 1-device VOOM plan for shore communications, and keep the WhatsApp group active for off-ship coordination.
-                           </div>
-                           <div class="activity-grid mt-8">
-                              <div class="activity-card">
-                                 <div class="activity-card__icon" role="img" aria-label="Island">🏝️</div>
-                                 <h3 class="activity-card__title">3 Amazing Ports</h3>
-                                 <p class="activity-card__description">George Town, Grand Cayman; Falmouth, Jamaica; and Perfect Day at CocoCay with exclusive family experiences</p>
-                              </div>
-                              <div class="activity-card">
-                                 <div class="activity-card__icon" role="img" aria-label="Family">👨‍👩‍👧‍👦</div>
-                                 <h3 class="activity-card__title">Family Adventure</h3>
-                                 <p class="activity-card__description">Five staterooms across Decks 6-8 with connecting options for family convenience</p>
-                              </div>
-                              <div class="activity-card">
-                                 <div class="activity-card__icon" role="img" aria-label="Thrills">🎭</div>
-                                 <h3 class="activity-card__title">Hero Thrills</h3>
-                                 <p class="activity-card__description">Daredevil's Peak, Dunn's River Falls, Dragon's Breath Flight Line - adrenaline-packed adventures</p>
-                              </div>
-                           </div>
                         </div>
                      </div>
                   </section>
@@ -1389,307 +1598,207 @@
                            </div>
                            <div>
                               <h2 id="deckPlansTitle" class="card__title">Deck Plans &amp; Ship Maps</h2>
-                              <p class="card__subtitle">Use the Royal Caribbean app (recommended) or save images here for quick access.</p>
+                              <p class="card__subtitle">Interactive maps and offline reference</p>
                            </div>
                            <button class="card__toggle" aria-expanded="false" aria-controls="deckPlansContent">
-                           <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                           <span class="sr-only">Toggle section</span>
+                              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                              <span class="sr-only">Toggle section</span>
                            </button>
                         </div>
                         <div id="deckPlansContent" class="card__content collapsed">
-                           <p class="mb-4">Recommended access: open the Royal Caribbean app and tap <strong>Deck Plans</strong> for interactive zoom, venue search, and real-time navigation.</p>
+                           <p class="mb-4">Recommended: Open the Royal Caribbean app and tap <strong>Deck Plans</strong> for interactive zoom, venue search, and real-time navigation.</p>
                            <div class="deck-plan-actions">
                               <a class="btn btn--primary" href="https://apps.apple.com/us/app/royal-caribbean-international/id1260728016" target="_blank" rel="noopener noreferrer">
-                              <i class="fas fa-mobile-alt" aria-hidden="true"></i>
-                              Open Royal App
+                                 <i class="fas fa-mobile-alt" aria-hidden="true"></i>
+                                 Open Royal App
                               </a>
                               <button class="btn btn--outline" id="deckPlanClearBtn" type="button">
-                              <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                              Clear Saved Deck Plans
+                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                 Clear Saved Plans
                               </button>
                            </div>
-                           <div class="deck-plan-upload" role="group" aria-labelledby="deckPlanUploadTitle">
-                              <strong id="deckPlanUploadTitle">Add deck plan images for offline reference</strong>
-                              <p class="text-sm mb-0">Upload the provided deck plan images and they will be saved on this device for quick access in the guide.</p>
+                           <div class="deck-plan-upload mt-6">
+                              <strong>Add deck plan images for offline reference</strong>
+                              <p class="text-sm mb-4">Upload deck plan images and they will be saved on this device for quick access.</p>
                               <input type="file" id="deckPlanUpload" accept="image/*" multiple>
-                              <p class="deck-plan-meta">Tip: Upload smaller images for faster loading. Tap any plan to open full size in a new tab.</p>
+                              <p class="deck-plan-meta">Tip: Upload smaller images for faster loading.</p>
                            </div>
                            <div class="deck-plans-grid" id="deckPlansGrid" aria-live="polite">
                               <div class="deck-plan-card deck-plan-card--placeholder">
                                  <strong>No deck plans saved yet.</strong>
-                                 <p class="mb-0">Upload the deck plan images above, or use the Royal Caribbean app for the official interactive map.</p>
+                                 <p class="mb-0">Upload images above, or use the Royal Caribbean app for the official interactive map.</p>
                               </div>
                            </div>
                         </div>
                      </div>
                   </section>
                   <!-- Guide Section -->
-                  <section id="operations" class="section section--critical" aria-labelledby="operationsTitle">
+                  <section id="operations" class="section section--critical print-section" data-print-title="Critical Operations Guide" aria-labelledby="operationsTitle">
                      <div class="card card--featured">
                         <div class="card__header">
                            <div class="card__icon" aria-hidden="true">
                               <i class="fas fa-compass"></i>
                            </div>
                            <div>
-                              <h2 id="operationsTitle" class="card__title">Operations Manual Highlights</h2>
-                              <p class="card__subtitle">Important checkpoints from the family playbook</p>
+                              <h2 id="operationsTitle" class="card__title">Operations Manual</h2>
+                              <p class="card__subtitle">Essential protocols and checklists</p>
                            </div>
-                           <button class="card__toggle" aria-expanded="false" aria-controls="operationsContent">
-                           <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                           <span class="sr-only">Toggle section</span>
-                           </button>
                         </div>
-                        <div id="operationsContent" class="card__content collapsed">
-                           <p class="mb-6">This guide contains essential protocols, checklists, and procedures to ensure a smooth and successful cruise experience for the entire group.</p>
-                           <div class="grid-2">
-                              <!-- Pre-Cruise Command Center -->
-                              <div class="overview-block">
-                                 <h3 class="overview-block__title">Pre-Cruise Hub</h3>
-                                 <div class="checklist">
-                                    <div class="checklist-item">
-                                       <span class="checklist-icon" aria-hidden="true">
+                        <div class="card__content">
+                           <div class="critical-checklist" id="critical-checklist">
+                              <h3 class="text-2xl font-bold mb-6">
+                                 <i class="fas fa-exclamation-triangle text-warning" aria-hidden="true"></i>
+                                 Embarkation Day Must-Dos (In Order)
+                              </h3>
+                              <div class="checklist-timeline">
+                                 <div class="checklist-item critical-item">
+                                    <span class="checklist-time">11:00 AM</span>
+                                    <span class="checklist-icon" aria-hidden="true">
+                                       <i class="fas fa-ship"></i>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Arrive at Terminal</div>
+                                       <p class="checklist-description">SetSail pass + passport ready. The Key® allows 11:00 AM arrival.</p>
+                                    </div>
+                                 </div>
+                                 <div class="checklist-item critical-item">
+                                    <span class="checklist-time">12:00 PM</span>
+                                    <span class="checklist-icon" aria-hidden="true">
+                                       <i class="fas fa-users"></i>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">The Huddle - Deck 4/5 Promenade</div>
+                                       <p class="checklist-description">Group meetup. No dispersing until all tasks complete.</p>
+                                    </div>
+                                 </div>
+                                 <div class="checklist-item critical-item">
+                                    <span class="checklist-time">12:05 PM</span>
+                                    <span class="checklist-icon" aria-hidden="true">
+                                       <i class="fas fa-wifi"></i>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Connect to ROYAL-WIFI + App Chat</div>
+                                       <p class="checklist-description">Create family group chat; confirm all bookings linked</p>
+                                    </div>
+                                 </div>
+                                 <div class="checklist-item critical-item">
+                                    <span class="checklist-time">12:10 PM</span>
+                                    <span class="checklist-icon" aria-hidden="true">
+                                       <i class="fas fa-utensils"></i>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Priority Dining Reservations</div>
+                                       <p class="checklist-description">Book specialty dining + any reservable shows at Promenade desk</p>
+                                    </div>
+                                 </div>
+                                 <div class="checklist-item critical-item">
+                                    <span class="checklist-time">12:30 PM</span>
+                                    <span class="checklist-icon" aria-hidden="true">
+                                       <i class="fas fa-life-ring"></i>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Complete eMuster 2.0</div>
+                                       <p class="checklist-description">Watch safety video in app, then scan SeaPass at Station F6 (Deck 4). Due by 4:00 PM.</p>
+                                    </div>
+                                 </div>
+                                 <div class="checklist-item critical-item">
+                                    <span class="checklist-time">1:00 PM</span>
+                                    <span class="checklist-icon" aria-hidden="true">
                                        <i class="fas fa-check-circle"></i>
-                                       </span>
-                                       <div class="checklist-content">
-                                          <div class="checklist-title">Royal App Access</div>
-                                          <p class="checklist-description">All adults downloaded + linked to booking</p>
-                                       </div>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Golden Hour Complete</div>
+                                       <p class="checklist-description">Lunch + explore. Cabins ready ~1:30 PM. Regroup at 3:00 PM.</p>
                                     </div>
-                                    <div class="checklist-item">
-                                       <span class="checklist-icon" aria-hidden="true">
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="operations-block mt-8">
+                              <h3 class="operations-block__title">Pre-Cruise Checklist</h3>
+                              <div class="checklist">
+                                 <div class="checklist-item">
+                                    <span class="checklist-icon" aria-hidden="true">
+                                       <i class="fas fa-check-circle"></i>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Royal App Access</div>
+                                       <p class="checklist-description">All adults downloaded + linked to booking</p>
+                                    </div>
+                                 </div>
+                                 <div class="checklist-item">
+                                    <span class="checklist-icon" aria-hidden="true">
                                        <i class="fas fa-id-card"></i>
-                                       </span>
-                                       <div class="checklist-content">
-                                          <div class="checklist-title">Online Check-in</div>
-                                          <p class="checklist-description">Upload photos + select 11:00 AM arrival</p>
-                                       </div>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Online Check-in</div>
+                                       <p class="checklist-description">Upload photos + select 11:00 AM arrival</p>
                                     </div>
-                                    <div class="checklist-item">
-                                       <span class="checklist-icon" aria-hidden="true">
+                                 </div>
+                                 <div class="checklist-item">
+                                    <span class="checklist-icon" aria-hidden="true">
                                        <i class="fas fa-link"></i>
-                                       </span>
-                                       <div class="checklist-content">
-                                          <div class="checklist-title">Link Bookings</div>
-                                          <p class="checklist-description">Confirm all staterooms appear in the app</p>
-                                       </div>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Link Bookings</div>
+                                       <p class="checklist-description">Confirm all staterooms appear in the app</p>
                                     </div>
-                                    <div class="checklist-item">
-                                       <span class="checklist-icon" aria-hidden="true">
+                                 </div>
+                                 <div class="checklist-item">
+                                    <span class="checklist-icon" aria-hidden="true">
                                        <i class="fas fa-passport"></i>
-                                       </span>
-                                       <div class="checklist-content">
-                                          <div class="checklist-title">Docs &amp; Backup</div>
-                                          <p class="checklist-description">Passports valid past Aug 2026. Print SetSail + tags</p>
+                                    </span>
+                                    <div class="checklist-content">
+                                       <div class="checklist-title">Documents &amp; Backup</div>
+                                       <p class="checklist-description">Passports valid past Aug 2026. Print SetSail + luggage tags</p>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="operations-block mt-8">
+                              <h3 class="operations-block__title">Daily Rhythm</h3>
+                              <ul class="list list--icon">
+                                 <li>
+                                    <i class="fas fa-coffee" aria-hidden="true"></i>
+                                    <span><strong>7:30–9:00 AM</strong> Breakfast + plan review</span>
+                                 </li>
+                                 <li>
+                                    <i class="fas fa-route" aria-hidden="true"></i>
+                                    <span><strong>10:00 AM</strong> Choose Path (Adventure/Culture/Chill)</span>
+                                 </li>
+                                 <li>
+                                    <i class="fas fa-sun" aria-hidden="true"></i>
+                                    <span><strong>1:00–4:00 PM</strong> Lunch + flex time</span>
+                                 </li>
+                                 <li>
+                                    <i class="fas fa-glass-martini-alt" aria-hidden="true"></i>
+                                    <span><strong>6:45 PM</strong> R Bar meetup (mandatory)</span>
+                                 </li>
+                                 <li>
+                                    <i class="fas fa-moon" aria-hidden="true"></i>
+                                    <span><strong>7:30 PM+</strong> Dinner, show, or music</span>
+                                 </li>
+                              </ul>
+                           </div>
+                           <div class="operations-block mt-8">
+                              <h3 class="operations-block__title">Port Strategy</h3>
+                              <div class="port-cards-horizontal">
+                                 <div class="port-card">
+                                    <div class="port-card__image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                       <div class="port-card__icon">🪂</div>
+                                    </div>
+                                    <div class="port-card__content">
+                                       <h4>Perfect Day at CocoCay</h4>
+                                       <p>Thrill Waterpark early, beach afternoon. All-day access included.</p>
+                                       <div class="port-card__tags">
+                                          <span class="tag tag--essential">All-Day Access</span>
+                                          <span class="tag tag--time">7:30 AM - 4:30 PM</span>
                                        </div>
                                     </div>
                                  </div>
                               </div>
-                              <!-- Golden Hour Protocol -->
-                              <div class="overview-block">
-                                 <h3 class="overview-block__title">Golden Hour Protocol</h3>
-                                 <p class="mb-4"><strong>Goal:</strong> Onboard control within 60 minutes</p>
-                                 <div class="protocol-grid">
-                                    <div class="protocol-step">
-                                       <div class="protocol-time">11:00 AM 🔴</div>
-                                       <p><strong>Arrive at terminal</strong> with SetSail + passport ready</p>
-                                    </div>
-                                    <div class="protocol-step">
-                                       <div class="protocol-time">12:00 PM 🔴</div>
-                                       <p><strong>The huddle</strong> on Deck 4/5 Promenade. No dispersing yet</p>
-                                    </div>
-                                    <div class="protocol-step">
-                                       <div class="protocol-time">12:05 PM 🔴</div>
-                                       <p><strong>Digital activation</strong> on ROYAL-WIFI; confirm linked bookings</p>
-                                    </div>
-                                    <div class="protocol-step">
-                                       <div class="protocol-time">12:10 PM 🔴</div>
-                                       <p><strong>Priority bookings</strong> for dining + any reservable shows</p>
-                                    </div>
-                                    <div class="protocol-step">
-                                       <div class="protocol-time">12:30 PM 🔴</div>
-                                       <p><strong>eMuster 2.0</strong> watch video, then tap SeaPass at Station F6</p>
-                                    </div>
-                                    <div class="protocol-step">
-                                       <div class="protocol-time">1:00 PM 🟢</div>
-                                       <p><strong>Complete</strong> lunch + cabins ready ~1:30 PM</p>
-                                    </div>
-                                 </div>
-                              </div>
                            </div>
-                           <div class="card mt-8">
-                              <h3 class="text-2xl font-bold mb-6">Embarkation Day Must-Dos (In Order)</h3>
-                              <div class="checklist" id="criticalChecklist">
-                                 <div class="checklist-item critical-item">
-                                    <span class="checklist-icon" aria-hidden="true">
-                                    <i class="fas fa-life-ring"></i>
-                                    </span>
-                                    <div class="checklist-content">
-                                       <div class="checklist-title">Complete eMuster</div>
-                                       <p class="checklist-description">Watch safety video, then scan SeaPass at Station F6</p>
-                                    </div>
-                                 </div>
-                                 <div class="checklist-item critical-item">
-                                    <span class="checklist-icon" aria-hidden="true">
-                                    <i class="fas fa-wifi"></i>
-                                    </span>
-                                    <div class="checklist-content">
-                                       <div class="checklist-title">Connect to Royal-WiFi + App Chat</div>
-                                       <p class="checklist-description">Create the family group chat; app messaging is free onboard</p>
-                                    </div>
-                                 </div>
-                                 <div class="checklist-item critical-item">
-                                    <span class="checklist-icon" aria-hidden="true">
-                                    <i class="fas fa-utensils"></i>
-                                    </span>
-                                    <div class="checklist-content">
-                                       <div class="checklist-title">Confirm Dining</div>
-                                       <p class="checklist-description">Link all bookings; book 3 specialty dinners at the Promenade dining desk</p>
-                                    </div>
-                                 </div>
-                                 <div class="checklist-item critical-item">
-                                    <span class="checklist-icon" aria-hidden="true">
-                                    <i class="fas fa-child"></i>
-                                    </span>
-                                    <div class="checklist-content">
-                                       <div class="checklist-title">Adventure Ocean Open House</div>
-                                       <p class="checklist-description">Register kids early for faster drop-offs later</p>
-                                    </div>
-                                 </div>
-                                 <div class="checklist-item critical-item">
-                                    <span class="checklist-icon" aria-hidden="true">
-                                    <i class="fas fa-users"></i>
-                                    </span>
-                                    <div class="checklist-content">
-                                       <div class="checklist-title">3:00 PM Regroup</div>
-                                       <p class="checklist-description">Confirm everyone completed muster, dining bookings, and app access</p>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="grid-2 mt-8">
-                              <!-- Daily Rhythm -->
-                              <div class="card">
-                                 <h3 class="text-xl font-bold mb-6">Daily Rhythm</h3>
-                                 <ul class="list list--icon">
-                                    <li>
-                                       <i class="fas fa-coffee" aria-hidden="true"></i>
-                                       <span><strong>7:30–9:00 AM</strong> Breakfast + plan review</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-route" aria-hidden="true"></i>
-                                       <span><strong>10:00 AM</strong> Choose Path (Adventure/Culture/Chill)</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-sun" aria-hidden="true"></i>
-                                       <span><strong>1:00–4:00 PM</strong> Lunch + flex time</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-glass-martini-alt" aria-hidden="true"></i>
-                                       <span><strong>6:45 PM</strong> R Bar meetup (mandatory)</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-moon" aria-hidden="true"></i>
-                                       <span><strong>7:30 PM+</strong> Dinner, show, or music</span>
-                                    </li>
-                                 </ul>
-                              </div>
-                              <!-- Entertainment Truths -->
-                              <div class="card">
-                                 <h3 class="text-xl font-bold mb-6">Entertainment Truths</h3>
-                                 <ul class="list list--icon">
-                                    <li>
-                                       <i class="fas fa-water" aria-hidden="true"></i>
-                                       <span><strong>Pool Deck:</strong> Perfect Storm slides, FlowRider surf, Rock-Climbing Wall</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-snowflake" aria-hidden="true"></i>
-                                       <span><strong>Studio B:</strong> Ice shows + glow-in-the-dark laser-tag</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-store" aria-hidden="true"></i>
-                                       <span><strong>Royal Promenade:</strong> Parades, duty-free, Café Promenade 24/7 snacks</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-spa" aria-hidden="true"></i>
-                                       <span><strong>Vitality Spa &amp; Fitness:</strong> Hot-stone massage + free-weight zone</span>
-                                    </li>
-                                 </ul>
-                              </div>
-                           </div>
-                           <div class="card mt-8">
-                              <h3 class="text-2xl font-bold mb-6">Port Playbook</h3>
-                              <div class="activity-grid mt-6">
-                                 <div class="activity-card">
-                                    <div class="activity-card__icon" role="img" aria-label="Beach">🏖️</div>
-                                    <h3 class="activity-card__title">George Town, Grand Cayman</h3>
-                                    <p class="activity-card__description">Tender port. Plan for Stingray City or Seven Mile Beach and allow extra time for tenders.</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">Tender Port</span>
-                                       <span class="tag tag--recommended">Early Tender</span>
-                                    </div>
-                                 </div>
-                                 <div class="activity-card">
-                                    <div class="activity-card__icon" role="img" aria-label="Palm tree">🌴</div>
-                                    <h3 class="activity-card__title">Falmouth, Jamaica</h3>
-                                    <p class="activity-card__description">Combine Dunn's River Falls with Blue Hole. Bring water shoes and quick-dry gear</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">Water Shoes</span>
-                                       <span class="tag tag--recommended">Combo Tour</span>
-                                    </div>
-                                 </div>
-                                 <div class="activity-card">
-                                    <div class="activity-card__icon" role="img" aria-label="Parachute">🪂</div>
-                                    <h3 class="activity-card__title">Perfect Day at CocoCay</h3>
-                                    <p class="activity-card__description">Thrill Waterpark or Oasis Lagoon in the cooler morning; save beach time for the afternoon.</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">All-Day Access</span>
-                                       <span class="tag tag--recommended">Morning Thrills</span>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                           <div class="grid-2 mt-8">
-                              <!-- Medical Contingencies -->
-                              <div class="card">
-                                 <h3 class="text-xl font-bold mb-6">Medical Contingencies</h3>
-                                 <ul class="list list--icon">
-                                    <li>
-                                       <i class="fas fa-briefcase-medical" aria-hidden="true"></i>
-                                       <span><strong>Medical Center:</strong> Deck 1 (24h emergencies)</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-pills" aria-hidden="true"></i>
-                                       <span><strong>Split critical meds</strong> across two carry-ons</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-user-friends" aria-hidden="true"></i>
-                                       <span><strong>One adult escorts</strong> to Medical, one stays with kids</span>
-                                    </li>
-                                 </ul>
-                              </div>
-                              <!-- Weather & Tender Backup -->
-                              <div class="card">
-                                 <h3 class="text-xl font-bold mb-6">Weather &amp; Tender Backup</h3>
-                                 <ul class="list list--icon">
-                                    <li>
-                                       <i class="fas fa-wind" aria-hidden="true"></i>
-                                       <span><strong>If winds spike:</strong> Pivot to Oasis Lagoon or onboard pools</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-sun" aria-hidden="true"></i>
-                                       <span><strong>Schedule outdoor thrills</strong> early for cooler temps</span>
-                                    </li>
-                                    <li>
-                                       <i class="fas fa-umbrella" aria-hidden="true"></i>
-                                       <span><strong>Accept half-day wins</strong> if weather turns</span>
-                                    </li>
-                                 </ul>
-                              </div>
-                           </div>
-                           <div class="legend-bar mt-8">
-                              <span class="legend-chip critical">🔴 Critical</span>
-                              <span class="legend-chip optional">🟡 Recommended</span>
-                              <span class="legend-chip info">🟢 Informational</span>
+                           <div class="note note--info mt-8">
+                              <strong>Golden Hour Protocol:</strong> Onboard control within 60 minutes of boarding. Follow the timeline above to maximize Day 1.
                            </div>
                         </div>
                      </div>
@@ -1860,7 +1969,7 @@
                         </div>
                      </div>
                   </section>
-                  <!-- Itinerary Section -->
+                  <!-- ITINERARY SECTION -->
                   <section id="itinerary" class="section section--critical" aria-labelledby="itineraryTitle">
                      <div class="card">
                         <div class="card__header">
@@ -1868,127 +1977,201 @@
                               <i class="fas fa-calendar-alt"></i>
                            </div>
                            <div>
-                              <h2 id="itineraryTitle" class="card__title">7-Day Itinerary (6 Nights)</h2>
+                              <h2 id="itineraryTitle" class="card__title">7-Day Itinerary</h2>
                               <p class="card__subtitle">Day-by-day adventure schedule</p>
                            </div>
-                           <button class="card__toggle" aria-expanded="false" aria-controls="itineraryContent">
-                           <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                           <span class="sr-only">Toggle section</span>
-                           </button>
                         </div>
-                        <div id="itineraryContent" class="card__content collapsed">
-                           <div class="timeline">
-                              <!-- Day 1 -->
-                              <div class="timeline-item" data-day="1">
-                                 <span class="timeline-day">Day 1 • Feb 14</span>
-                                 <div class="timeline-content">
-                                    <h3>Orlando (Port Canaveral), FL</h3>
-                                    <p><strong>Departure:</strong> 2:00 PM</p>
-                                    <div class="activity-grid mt-6">
-                                       <div class="activity-card">
-                                          <div class="activity-card__icon" role="img" aria-label="Target">🎯</div>
-                                          <h4 class="activity-card__title">Embarkation Tips</h4>
-                                          <p class="activity-card__description">Arrive by 10:30 AM for the smoothest boarding</p>
+                        <div class="card__content">
+                           <div class="day-tabs" role="tablist" aria-label="Day selection">
+                              <button class="day-tab active" role="tab" aria-selected="true" aria-controls="day-all-panel" data-day="all">All Days</button>
+                              <button class="day-tab" role="tab" aria-selected="false" aria-controls="day-1-panel" data-day="1">Day 1</button>
+                              <button class="day-tab" role="tab" aria-selected="false" aria-controls="day-2-panel" data-day="2">Day 2</button>
+                              <button class="day-tab" role="tab" aria-selected="false" aria-controls="day-3-panel" data-day="3">Day 3</button>
+                              <button class="day-tab" role="tab" aria-selected="false" aria-controls="day-4-panel" data-day="4">Day 4</button>
+                              <button class="day-tab" role="tab" aria-selected="false" aria-controls="day-5-panel" data-day="5">Day 5</button>
+                              <button class="day-tab" role="tab" aria-selected="false" aria-controls="day-6-panel" data-day="6">Day 6</button>
+                              <button class="day-tab" role="tab" aria-selected="false" aria-controls="day-7-panel" data-day="7">Day 7</button>
+                           </div>
+                           <div class="timeline-vertical">
+                              <div class="timeline-step" data-day="1">
+                                 <div class="step-indicator step-indicator--port">
+                                    <span class="step-day">Day 1</span>
+                                    <span class="step-date">Feb 14</span>
+                                 </div>
+                                 <div class="step-content">
+                                    <div class="step-header">
+                                       <h3>Orlando (Port Canaveral), FL</h3>
+                                       <span class="step-badge step-badge--departure">Departure 2:00 PM</span>
+                                    </div>
+                                    <div class="step-details">
+                                       <div class="step-highlight">
+                                          <strong>Embarkation Tips:</strong> Arrive by 10:30 AM for smoothest boarding
                                        </div>
-                                       <div class="activity-card">
-                                          <div class="activity-card__icon" role="img" aria-label="Phone">📱</div>
-                                          <h4 class="activity-card__title">First Hour Tasks</h4>
-                                          <p class="activity-card__description">eMuster 2.0, app chat setup, book specialty dinners</p>
+                                       <div class="step-tasks">
+                                          <h4>First Hour Tasks</h4>
+                                          <ul>
+                                             <li>Complete eMuster 2.0 before 4:00 PM</li>
+                                             <li>Set up app chat with family group</li>
+                                             <li>Book specialty dining at Promenade desk</li>
+                                             <li>Grab lunch at Solarium Bistro (skip Windjammer crowds)</li>
+                                          </ul>
                                        </div>
-                                       <div class="activity-card">
-                                          <div class="activity-card__icon" role="img" aria-label="Map">🗺️</div>
-                                          <h4 class="activity-card__title">Sail Away @ 2:00 PM</h4>
-                                          <p class="activity-card__description">Claim a top-deck spot and keep cameras ready for sail away</p>
+                                       <button class="btn btn--outline btn--sm step-expand" type="button">
+                                          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                          Show More Details
+                                       </button>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="timeline-step" data-day="2">
+                                 <div class="step-indicator step-indicator--sea">
+                                    <span class="step-day">Day 2</span>
+                                    <span class="step-date">Feb 15</span>
+                                 </div>
+                                 <div class="step-content">
+                                    <div class="step-header">
+                                       <h3>Cruising</h3>
+                                       <span class="step-badge step-badge--sea">Sea Day</span>
+                                    </div>
+                                    <div class="step-details">
+                                       <div class="step-highlight">
+                                          <strong>Today's Signature:</strong> FlowRider clinic, Ice show "Cool Art", Cupcake decorating 3:00 PM
                                        </div>
-                                       <div class="activity-card">
-                                          <div class="activity-card__icon" role="img" aria-label="Salad">🥗</div>
-                                          <h4 class="activity-card__title">Lunch Strategy</h4>
-                                          <p class="activity-card__description">Skip Windjammer crowds and grab Solarium Bistro (Deck 11 aft)</p>
+                                       <button class="btn btn--outline btn--sm step-expand" type="button">
+                                          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                          Show Activities
+                                       </button>
+                                    </div>
+                                 </div>
+                              </div>
+                              <div class="timeline-step" data-day="3">
+                                 <div class="step-indicator step-indicator--port">
+                                    <span class="step-day">Day 3</span>
+                                    <span class="step-date">Feb 16</span>
+                                 </div>
+                                 <div class="step-content">
+                                    <div class="step-header">
+                                       <h3>George Town, Grand Cayman</h3>
+                                       <span class="step-badge step-badge--all-aboard">All Aboard 5:15 PM</span>
+                                    </div>
+                                    <div class="step-details">
+                                       <div class="step-highlight">
+                                          <strong>⚠️ Tender Port:</strong> Gangway 11:00 AM - 5:15 PM. Early tender recommended.
                                        </div>
-                                    </div>
-                                    <div class="chips mt-6">
-                                       <span class="tag tag--essential">Departure 2:00 PM</span>
-                                       <span class="tag tag--recommended">Early Arrival</span>
-                                    </div>
-                                 </div>
-                              </div>
-                              <!-- Day 2 -->
-                              <div class="timeline-item" data-day="2">
-                                 <span class="timeline-day">Day 2 • Feb 15</span>
-                                 <div class="timeline-content">
-                                    <h3>Cruising</h3>
-                                    <p><strong>Signature:</strong> FlowRider clinic, ice show "Cool Art"</p>
-                                    <p><strong>Family Fun:</strong> Cupcake decorating at 3:00 PM, splash time at Splashaway Bay</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--recommended">Sea Day Reset</span>
-                                       <span class="tag tag--info">Pool Deck Favorites</span>
+                                       <div class="step-excursions">
+                                          <h4>Top Excursions</h4>
+                                          <ul>
+                                             <li>Stingray City (3 hours)</li>
+                                             <li>Seven Mile Beach (all day)</li>
+                                             <li>Georgetown waterfront shopping</li>
+                                          </ul>
+                                       </div>
+                                       <button class="btn btn--outline btn--sm step-expand" type="button">
+                                          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                          Port Details
+                                       </button>
                                     </div>
                                  </div>
                               </div>
-                              <!-- Day 3 -->
-                              <div class="timeline-item" data-day="3">
-                                 <span class="timeline-day">Day 3 • Feb 16</span>
-                                 <div class="timeline-content">
-                                    <h3>George Town, Grand Cayman</h3>
-                                    <p><strong>Gangway:</strong> 11:00 AM - 5:15 PM</p>
-                                    <p><strong>Signature:</strong> Stingray City, Seven Mile Beach, Georgetown waterfront</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">Tender Port</span>
-                                       <span class="tag tag--recommended">Early Tender</span>
+                              <div class="timeline-step" data-day="4">
+                                 <div class="step-indicator step-indicator--port">
+                                    <span class="step-day">Day 4</span>
+                                    <span class="step-date">Feb 17</span>
+                                 </div>
+                                 <div class="step-content">
+                                    <div class="step-header">
+                                       <h3>Falmouth, Jamaica</h3>
+                                       <span class="step-badge step-badge--all-aboard">All Aboard 4:30 PM</span>
+                                    </div>
+                                    <div class="step-details">
+                                       <div class="step-highlight">
+                                          <strong>Must Pack:</strong> Water shoes, quick-dry gear. Gangway 8:30 AM - 4:30 PM
+                                       </div>
+                                       <div class="step-excursions">
+                                          <h4>Recommended Combo</h4>
+                                          <ul>
+                                             <li>Dunn's River Falls + Blue Hole (6 hours)</li>
+                                             <li>Dragon's Breath Flight Line</li>
+                                             <li>Local cuisine at port area</li>
+                                          </ul>
+                                       </div>
+                                       <button class="btn btn--outline btn--sm step-expand" type="button">
+                                          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                          Port Details
+                                       </button>
                                     </div>
                                  </div>
                               </div>
-                              <!-- Day 4 -->
-                              <div class="timeline-item" data-day="4">
-                                 <span class="timeline-day">Day 4 • Feb 17</span>
-                                 <div class="timeline-content">
-                                    <h3>Falmouth, Jamaica</h3>
-                                    <p><strong>Gangway:</strong> 8:30 AM - 4:30 PM</p>
-                                    <p><strong>Signature:</strong> Dunn's River Falls + Blue Hole combo</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">All Aboard 4:30 PM</span>
-                                       <span class="tag tag--recommended">Water Shoes Required</span>
-                                       <span class="tag tag--info">Local Cuisine</span>
+                              <div class="timeline-step" data-day="5">
+                                 <div class="step-indicator step-indicator--sea">
+                                    <span class="step-day">Day 5</span>
+                                    <span class="step-date">Feb 18</span>
+                                 </div>
+                                 <div class="step-content">
+                                    <div class="step-header">
+                                       <h3>Cruising</h3>
+                                       <span class="step-badge step-badge--formal">Formal Night #2</span>
+                                    </div>
+                                    <div class="step-details">
+                                       <div class="step-highlight">
+                                          <strong>Tonight:</strong> Captain's Gala, formal portraits, farewell events
+                                       </div>
+                                       <button class="btn btn--outline btn--sm step-expand" type="button">
+                                          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                          Show Activities
+                                       </button>
                                     </div>
                                  </div>
                               </div>
-                              <!-- Day 5 -->
-                              <div class="timeline-item" data-day="5">
-                                 <span class="timeline-day">Day 5 • Feb 18</span>
-                                 <div class="timeline-content">
-                                    <h3>Cruising</h3>
-                                    <p><strong>Signature:</strong> Captain's Gala, formal night portraits</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">Formal Night #2</span>
-                                       <span class="tag tag--recommended">Portrait Sessions</span>
-                                       <span class="tag tag--info">Farewell Events</span>
+                              <div class="timeline-step" data-day="6">
+                                 <div class="step-indicator step-indicator--port step-indicator--featured">
+                                    <span class="step-day">Day 6</span>
+                                    <span class="step-date">Feb 19</span>
+                                 </div>
+                                 <div class="step-content">
+                                    <div class="step-header">
+                                       <h3>Perfect Day at CocoCay</h3>
+                                       <span class="step-badge step-badge--all-aboard">All Aboard 4:30 PM</span>
+                                    </div>
+                                    <div class="step-details">
+                                       <div class="step-highlight">
+                                          <strong>Strategy:</strong> Thrill Waterpark early morning, beach in afternoon. Gangway 7:30 AM - 4:30 PM
+                                       </div>
+                                       <div class="step-excursions">
+                                          <h4>Included Experiences</h4>
+                                          <ul>
+                                             <li>Thrill Waterpark (Daredevil's Peak, slides)</li>
+                                             <li>Oasis Lagoon (wave pool, swim-up bar)</li>
+                                             <li>Chill Island beach access</li>
+                                             <li>Complimentary lunch options</li>
+                                          </ul>
+                                       </div>
+                                       <button class="btn btn--outline btn--sm step-expand" type="button">
+                                          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                          CocoCay Guide
+                                       </button>
                                     </div>
                                  </div>
                               </div>
-                              <!-- Day 6 -->
-                              <div class="timeline-item" data-day="6">
-                                 <span class="timeline-day">Day 6 • Feb 19</span>
-                                 <div class="timeline-content">
-                                    <h3>Perfect Day at CocoCay</h3>
-                                    <p><strong>Gangway:</strong> 7:30 AM - 4:30 PM</p>
-                                    <p><strong>Signature:</strong> Thrill Waterpark, Oasis Lagoon, Chill Island</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">All Aboard 4:30 PM</span>
-                                       <span class="tag tag--recommended">Morning Thrills</span>
-                                       <span class="tag tag--info">Beach Afternoon</span>
-                                    </div>
+                              <div class="timeline-step" data-day="7">
+                                 <div class="step-indicator step-indicator--return">
+                                    <span class="step-day">Day 7</span>
+                                    <span class="step-date">Feb 20</span>
                                  </div>
-                              </div>
-                              <!-- Day 7 -->
-                              <div class="timeline-item" data-day="7">
-                                 <span class="timeline-day">Day 7 • Feb 20</span>
-                                 <div class="timeline-content">
-                                    <h3>Orlando (Port Canaveral), FL</h3>
-                                    <p><strong>Departure:</strong> 7:30 AM</p>
-                                    <p><strong>Disembarkation:</strong> Facial-recognition customs (~10 minutes)</p>
-                                    <div class="chips mt-4">
-                                       <span class="tag tag--essential">Bags Out by Midnight</span>
-                                       <span class="tag tag--info">Early Breakfast Available</span>
+                                 <div class="step-content">
+                                    <div class="step-header">
+                                       <h3>Orlando (Port Canaveral), FL</h3>
+                                       <span class="step-badge step-badge--departure">Disembark 7:30 AM</span>
+                                    </div>
+                                    <div class="step-details">
+                                       <div class="step-highlight">
+                                          <strong>Reminder:</strong> Luggage outside cabin by midnight. Facial-recognition customs (~10 min).
+                                       </div>
+                                       <ul>
+                                          <li>Early breakfast available in dining room</li>
+                                          <li>Keep carry-on for medications & valuables</li>
+                                          <li>Check out via Royal app or TV</li>
+                                       </ul>
                                     </div>
                                  </div>
                               </div>
@@ -1996,7 +2179,174 @@
                         </div>
                      </div>
                   </section>
-                  <!-- Dining Section -->
+
+                  <!-- ROOMS SECTION -->
+                  <section id="rooms" class="section section--critical" aria-labelledby="roomsTitle">
+                     <div class="card">
+                        <div class="card__header">
+                           <div class="card__icon" aria-hidden="true">
+                              <i class="fas fa-door-closed"></i>
+                           </div>
+                           <div>
+                              <h2 id="roomsTitle" class="card__title">Your Staterooms</h2>
+                              <p class="card__subtitle">Where everyone will stay during the cruise</p>
+                           </div>
+                        </div>
+                        <div class="card__content">
+                           <div class="view-toggle" role="tablist" aria-label="Room view selection">
+                              <button class="view-toggle__btn active" role="tab" aria-selected="true" data-view="cards">
+                                 <i class="fas fa-th-large" aria-hidden="true"></i> Card View
+                              </button>
+                              <button class="view-toggle__btn" role="tab" aria-selected="false" data-view="table">
+                                 <i class="fas fa-table" aria-hidden="true"></i> Table View
+                              </button>
+                           </div>
+                           <div class="room-view room-view--cards active" id="roomCardsView">
+                              <div class="room-grid">
+                                 <div class="room-card room-card--featured">
+                                    <div class="room-header">
+                                       <div>
+                                          <div class="room-number">6650</div>
+                                          <div class="room-location">
+                                             <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                             Deck 6 • Connecting to 6652
+                                          </div>
+                                       </div>
+                                       <span class="tag tag--info">Primary</span>
+                                    </div>
+                                    <div class="room-guests">
+                                       <p class="room-label">Guests:</p>
+                                       <ul class="guest-list">
+                                          <li>Bill</li>
+                                          <li>Melissa</li>
+                                          <li>Owen</li>
+                                          <li>Declan</li>
+                                       </ul>
+                                    </div>
+                                    <p><strong>Type:</strong> Balcony • 198 sq ft + 46 sq ft deck</p>
+                                    <p class="room-tip"><strong>Muster:</strong> Station F6 (Deck 4)</p>
+                                    <p class="room-tip"><strong>Tip:</strong> Easy access to aft elevators for dinner runs</p>
+                                 </div>
+                                 <div class="room-card">
+                                    <div class="room-header">
+                                       <div>
+                                          <div class="room-number">6443</div>
+                                          <div class="room-location">
+                                             <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                             Deck 6 • Opposite laundry
+                                          </div>
+                                       </div>
+                                       <span class="tag tag--info">Interior</span>
+                                    </div>
+                                    <div class="room-guests">
+                                       <p class="room-label">Guests:</p>
+                                       <ul class="guest-list">
+                                          <li>Abel</li>
+                                          <li>Amy</li>
+                                       </ul>
+                                    </div>
+                                    <p><strong>Type:</strong> Interior • 160 sq ft</p>
+                                    <p class="room-tip"><strong>Muster:</strong> Station F6 (Deck 4)</p>
+                                    <p class="room-tip"><strong>Tip:</strong> Quick laundry access</p>
+                                 </div>
+                                 <div class="room-card">
+                                    <div class="room-header">
+                                       <div>
+                                          <div class="room-number">4B 8528</div>
+                                          <div class="room-location">
+                                             <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                             Deck 8 • Midship
+                                          </div>
+                                       </div>
+                                       <span class="tag tag--info">Balcony</span>
+                                    </div>
+                                    <div class="room-guests">
+                                       <p class="room-label">Guests:</p>
+                                       <ul class="guest-list">
+                                          <li>Aimee</li>
+                                          <li>Karin</li>
+                                       </ul>
+                                    </div>
+                                    <p><strong>Type:</strong> Balcony</p>
+                                    <p class="room-tip"><strong>Muster:</strong> Station F6 (Deck 4)</p>
+                                    <p class="room-tip"><strong>Tip:</strong> Quick walk to Royal Promenade</p>
+                                 </div>
+                                 <div class="room-card">
+                                    <div class="room-header">
+                                       <div>
+                                          <div class="room-number">2D 8612</div>
+                                          <div class="room-location">
+                                             <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                             Deck 8 • Aft
+                                          </div>
+                                       </div>
+                                       <span class="tag tag--info">Ocean View</span>
+                                    </div>
+                                    <div class="room-guests">
+                                       <p class="room-label">Guests:</p>
+                                       <ul class="guest-list">
+                                          <li>Bella</li>
+                                          <li>TJ</li>
+                                       </ul>
+                                    </div>
+                                    <p><strong>Type:</strong> Ocean View Balcony</p>
+                                    <p class="room-tip"><strong>Muster:</strong> Station F6 (Deck 4)</p>
+                                    <p class="room-tip"><strong>Tip:</strong> Quiet corridor away from traffic</p>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="room-view room-view--table" id="roomTableView">
+                              <div class="table-responsive">
+                                 <table class="info-table">
+                                    <thead>
+                                       <tr>
+                                          <th>Stateroom</th>
+                                          <th>Type &amp; Size</th>
+                                          <th>Deck &amp; Location</th>
+                                          <th>Guests</th>
+                                          <th>Muster</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>
+                                       <tr>
+                                          <td><strong>6650</strong></td>
+                                          <td>Balcony • 198 sq ft + 46 sq ft deck</td>
+                                          <td>Deck 6 • Connecting to 6652</td>
+                                          <td>Bill, Melissa, Owen, Declan</td>
+                                          <td>F6</td>
+                                       </tr>
+                                       <tr>
+                                          <td><strong>6443</strong></td>
+                                          <td>Interior • 160 sq ft</td>
+                                          <td>Deck 6 • Opposite laundry</td>
+                                          <td>Abel, Amy</td>
+                                          <td>F6</td>
+                                       </tr>
+                                       <tr>
+                                          <td><strong>4B 8528</strong></td>
+                                          <td>Balcony</td>
+                                          <td>Deck 8 • Midship access</td>
+                                          <td>Aimee, Karin</td>
+                                          <td>F6</td>
+                                       </tr>
+                                       <tr>
+                                          <td><strong>2D 8612</strong></td>
+                                          <td>Ocean View Balcony</td>
+                                          <td>Deck 8 • Quiet aft corridor</td>
+                                          <td>Bella, TJ</td>
+                                          <td>F6</td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                              </div>
+                           </div>
+                           <div class="note note--info mt-8">
+                              <strong>Muster Station F6:</strong> All staterooms assigned to Station F6 on Deck 4, Starboard Side. Complete eMuster® in Royal App before 4:00 PM on embarkation day.
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+<!-- Dining Section -->
                   <section id="dining" class="section" aria-labelledby="diningTitle">
                      <div class="card">
                         <div class="card__header">
@@ -2140,17 +2490,16 @@
                               <p class="card__subtitle">Expert advice for the perfect cruise</p>
                            </div>
                            <button class="card__toggle" aria-expanded="false" aria-controls="tipsContent">
-                           <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                           <span class="sr-only">Toggle section</span>
+                              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                              <span class="sr-only">Toggle section</span>
                            </button>
                         </div>
                         <div id="tipsContent" class="card__content collapsed">
-                           <div class="tips-grid">
-                              <!-- Tip 1 -->
-                              <div class="tip-card">
+                           <div class="tips-priority">
+                              <div class="tip-card tip-card--large">
                                  <div class="tip-header">
                                     <div class="tip-icon">📱</div>
-                                    <h4>Royal App is Essential</h4>
+                                    <h3>Royal App is Essential</h3>
                                  </div>
                                  <p>Download before you sail. Use for daily schedules, onboard chat, and account monitoring. Enable notifications for important announcements.</p>
                                  <div class="chips mt-4">
@@ -2158,303 +2507,106 @@
                                     <span class="tag tag--info">Free Onboard</span>
                                  </div>
                               </div>
-                              <!-- Tip 2 -->
-                              <div class="tip-card">
+                              <div class="tip-card tip-card--large">
                                  <div class="tip-header">
                                     <div class="tip-icon">👕</div>
-                                    <h4>Packing Checklist</h4>
+                                    <h3>Packing Essentials</h3>
                                  </div>
                                  <p>Mid-Feb temps: 75-82°F days, 68°F nights. Pack light layers, reef-safe SPF 50, quick-dry swimwear, water shoes, and two formal outfits.</p>
                                  <ul class="guest-list mt-2">
                                     <li>Passports valid beyond Aug 2026</li>
-                                    <li>Excursions booked in Cruise Planner</li>
                                     <li>Magnetic hooks, USB-C hub, night-light</li>
                                     <li>Motion sickness remedies</li>
+                                    <li>Non-surge power strip</li>
                                  </ul>
                                  <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Ready-to-Print</span>
+                                    <span class="tag tag--recommended">Print This</span>
                                  </div>
                               </div>
-                              <!-- Tip 3 -->
+                           </div>
+                           <div class="tips-grid mt-8">
                               <div class="tip-card">
                                  <div class="tip-header">
                                     <div class="tip-icon">👨‍👩‍👧‍👦</div>
                                     <h4>Family Programs</h4>
                                  </div>
-                                 <p>Adventure Ocean (3-12), Teen Lounge (13-17), Royal Babies &amp; Tots (6-36 mo, reservation-only), and Splashaway Bay for littles.</p>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--info">All Ages</span>
-                                    <span class="tag tag--recommended">Early Registration</span>
-                                 </div>
+                                 <p>Adventure Ocean (3-12), Teen Lounge (13-17), Royal Babies &amp; Tots (6-36 mo, reservation-only), Splashaway Bay for littles.</p>
                               </div>
-                              <!-- Tip 4 -->
                               <div class="tip-card">
                                  <div class="tip-header">
                                     <div class="tip-icon">🕐</div>
-                                    <h4>Ship Time vs. Local Time</h4>
+                                    <h4>Ship Time Critical</h4>
                                  </div>
-                                 <p>Always follow ship time, not local port time, to avoid missing departure. Set watches to ship time and double-check before leaving ship.</p>
+                                 <p>Always follow ship time, not local port time. Set watches to ship time before leaving ship to avoid missing departure.</p>
                                  <div class="chips mt-4">
                                     <span class="tag tag--essential">Critical</span>
                                  </div>
                               </div>
-                              <!-- Tip 5 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🏝️</div>
-                                    <h4>Ports Playbook</h4>
-                                 </div>
-                                 <p>George Town: plan Stingray City or Seven Mile Beach. Falmouth: pair Dunn's River Falls with Blue Hole. Perfect Day at CocoCay: hit Thrill Waterpark early.</p>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Insider Tips</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 6 -->
                               <div class="tip-card">
                                  <div class="tip-header">
                                     <div class="tip-icon">📸</div>
-                                    <h4>Photo &amp; Video</h4>
+                                    <h4>Photo Packages</h4>
                                  </div>
-                                 <p>Unlimited Digital Package $249 (formal + gangway + FlowRider shots). Video recap $149 if pre-ordered. Best photos on formal nights.</p>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--info">Keepsakes</span>
-                                    <span class="tag tag--recommended">Pre-Cruise Discount</span>
-                                 </div>
+                                 <p>Unlimited Digital Package $249. Video recap $149 if pre-ordered. Best photos on formal nights.</p>
                               </div>
-                              <!-- Tip 7 -->
                               <div class="tip-card">
                                  <div class="tip-header">
                                     <div class="tip-icon">👑</div>
                                     <h4>Crown &amp; Anchor</h4>
                                  </div>
-                                 <p>Earn 1 point per night (2 in suites). Gold at 3+ points, Platinum at 30, Diamond at 80. Benefits include priority check-in and exclusive events.</p>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--info">Loyalty</span>
-                                 </div>
+                                 <p>Earn 1 point per night (2 in suites). Benefits include priority check-in and exclusive events at higher tiers.</p>
                               </div>
-                              <!-- Tip 8 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🩺</div>
-                                    <h4>Accessibility &amp; Health</h4>
-                                 </div>
-                                 <p>26 accessible cabins, pool lifts, captioned TVs, service-animal friendly. Medical Center Deck 1 (~$150 visit). Bring prescription copies.</p>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--essential">Plan Ahead</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 9 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">❓</div>
-                                    <h4>FAQ Quick Hits</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li>Two formal nights on a 6-night sailing</li>
-                                    <li>Streaming works with VOOM Surf + Stream</li>
-                                    <li>Refill water bottles at Windjammer + Café Promenade</li>
-                                    <li>Towels provided ashore (scan SeaPass)</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--info">Good to Know</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 10 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🧭</div>
-                                    <h4>Cruise Lingo &amp; Loyalty Perks</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li><strong>Muster Drill:</strong> Safety briefing (now electronic)</li>
-                                    <li><strong>Port vs. Starboard:</strong> Left vs. right (facing the bow)</li>
-                                    <li><strong>SeaPass:</strong> Onboard ID + payment card</li>
-                                    <li><strong>Tender:</strong> Small boat to shore (used in George Town)</li>
-                                    <li><strong>Diamond:</strong> Free drinks 5-8 PM in Suite Lounge</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">First-Timers + Veterans</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 11 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🛳️</div>
-                                    <h4>Ship Overview Highlights</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li><strong>Thrills:</strong> Typhoon &amp; Cyclone waterslides + glow-in-the-dark laser tag</li>
-                                    <li><strong>Dining:</strong> Izumi Hibachi + Windjammer global street food stations</li>
-                                    <li><strong>Tech:</strong> Starlink Wi-Fi + RFID luggage tracking in the app</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--info">Amplified 2018+</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 12 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🗺️</div>
-                                    <h4>Deck Cheat Sheet</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li><strong>Deck 11:</strong> Pools + Windjammer. Climb to Deck 12 for quiet seating</li>
-                                    <li><strong>Deck 5:</strong> Royal Promenade. Café Promenade snacks 24/7 (choco croissants @ 3 AM)</li>
-                                    <li><strong>Deck 13:</strong> FlowRider®. Early AM = no lines</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Know the Shortcuts</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 13 -->
                               <div class="tip-card">
                                  <div class="tip-header">
                                     <div class="tip-icon">🛌</div>
                                     <h4>Cabin Hacks</h4>
                                  </div>
                                  <ul class="guest-list">
-                                    <li><strong>Magnetic walls:</strong> Use 10 lb+ hooks for schedules</li>
-                                    <li><strong>Nightlight:</strong> USB stick-on light for late-night walks</li>
-                                    <li><strong>Balcony etiquette:</strong> Close curtains at night for privacy</li>
-                                    <li><strong>Interior cabins:</strong> Use the bridge cam TV for a virtual "window"</li>
+                                    <li>Magnetic hooks for schedules</li>
+                                    <li>USB nightlight for late walks</li>
+                                    <li>Close balcony curtains at night</li>
+                                    <li>Interior: use bridge cam TV</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Sleep Smarter</span>
-                                 </div>
                               </div>
-                              <!-- Tip 14 -->
                               <div class="tip-card">
                                  <div class="tip-header">
-                                    <div class="tip-icon">🎪</div>
-                                    <h4>Activities for Everyone</h4>
+                                    <div class="tip-icon">🗺️</div>
+                                    <h4>Deck Shortcuts</h4>
                                  </div>
                                  <ul class="guest-list">
-                                    <li><strong>Families:</strong> Adventure Ocean Late Night (after 10 PM, $7/hr)</li>
-                                    <li><strong>Families:</strong> Laser Tag Tournament — loser buys milkshakes</li>
-                                    <li><strong>Couples:</strong> Helipad stargazing 10-11 PM on sea days</li>
-                                    <li><strong>Couples:</strong> Couples massage 30% off on port days</li>
+                                    <li><strong>Deck 11:</strong> Pools + Windjammer</li>
+                                    <li><strong>Deck 5:</strong> Royal Promenade 24/7 snacks</li>
+                                    <li><strong>Deck 13:</strong> FlowRider® (early AM = no lines)</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--info">Something for Every Crew</span>
-                                 </div>
                               </div>
-                              <!-- Tip 15 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🌴</div>
-                                    <h4>Port Guides: George Town, Falmouth &amp; Perfect Day at CocoCay</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li><strong>George Town tender:</strong> Expect tender lines; book early excursions for priority</li>
-                                    <li><strong>Falmouth safety:</strong> Stay in gated port area unless on a tour</li>
-                                    <li><strong>Blue Hole tour:</strong> "Rasta Dave" WhatsApp <a href="tel:+1 876-555-0123">+1 876-555-0123</a> ($40/person)</li>
-                                    <li><strong>Perfect Day at CocoCay:</strong> Thrill Waterpark early entry sells out</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Local Flavor</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 16 -->
                               <div class="tip-card">
                                  <div class="tip-header">
                                     <div class="tip-icon">💰</div>
-                                    <h4>Budget Tips &amp; Splurges</h4>
+                                    <h4>Budget Hacks</h4>
                                  </div>
                                  <ul class="guest-list">
-                                    <li><strong>Wi-Fi:</strong> $18/day (first-timers) vs. $14/day (Diamond)</li>
-                                    <li><strong>Photos:</strong> $199 unlimited vs. $99 Platinum deal</li>
-                                    <li><strong>Freebies:</strong> Champagne at art auction + Captain's Toast</li>
-                                    <li><strong>Deals:</strong> Shop clearance on Day 6</li>
-                                    <li><strong>Splurges:</strong> The Key ($25/day) + Vintage Wine Trio ($120)</li>
+                                    <li>Free champagne at art auction</li>
+                                    <li>Shop clearance on Day 6</li>
+                                    <li>Half-price specialty lunch on port days</li>
+                                    <li>Diamond: free drinks 5-8 PM</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Stretch the Spend</span>
-                                 </div>
                               </div>
-                              <!-- Tip 17 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🧳</div>
-                                    <h4>Packing Checklist</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li><strong>First-timer essentials:</strong> Over-door organizer, highlighter</li>
-                                    <li><strong>Veteran upgrades:</strong> Non-surge power strip, portable laundry line</li>
-                                    <li><strong>Weather prep:</strong> UPF rash guards, cooling towels, pashmina</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--essential">Pack Smart</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 18 -->
                               <div class="tip-card">
                                  <div class="tip-header">
                                     <div class="tip-icon">🚨</div>
-                                    <h4>Safety &amp; Prep</h4>
+                                    <h4>Safety Prep</h4>
                                  </div>
                                  <ul class="guest-list">
-                                    <li>Store passports in cabin safe, not checked bags</li>
-                                    <li>Closed-toe shoes for rock climbing and active excursions</li>
-                                    <li>Upload vaccine cards/scripts pre-cruise</li>
-                                    <li>Carry $200 in small bills for ports + tipping</li>
+                                    <li>Passports in cabin safe</li>
+                                    <li>Closed-toe shoes for excursions</li>
+                                    <li>Carry $200 in small bills</li>
+                                    <li>Upload vaccine cards pre-cruise</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--essential">Must-Do</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 19 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">📶</div>
-                                    <h4>Tech &amp; Connectivity</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li>Download the Royal Caribbean app before travel</li>
-                                    <li>Use the AR tour in-app to explore suites</li>
-                                    <li>Set airplane mode before sailaway to avoid roaming</li>
-                                    <li>Bring portable charger for shore days</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--info">Stay Connected</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 20 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🗂️</div>
-                                    <h4>Organize Like a Pro</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li><strong>Binder tabs:</strong> Daily plans, port maps, budget tracker</li>
-                                    <li><strong>Digital:</strong> Shared Google Sheet + WhatsApp group</li>
-                                    <li><strong>Color coding:</strong> Assign colors to family members</li>
-                                    <li><strong>Checklists:</strong> Pre-cruise, embarkation, disembarkation</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Smooth Coordination</span>
-                                 </div>
-                              </div>
-                              <!-- Tip 21 -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🆘</div>
-                                    <h4>Emergency Contacts</h4>
-                                 </div>
-                                 <ul class="guest-list">
-                                    <li><strong>Ship Infirmary:</strong> Deck 1 — Dial 911 onboard</li>
-                                    <li><strong>Cruise Admin:</strong> Melissa — +1 (XXX) XXX-XXXX</li>
-                                    <li><strong>Jamaica U.S. Embassy:</strong> <a href="tel:+1 876-702-6000">+1 876-702-6000</a></li>
-                                    <li><strong>Royal Caribbean Help Desk:</strong> via the app</li>
-                                 </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--essential">Print This</span>
-                                 </div>
                               </div>
                            </div>
                         </div>
                      </div>
                   </section>
-                  <!-- VIP Upgrades Section -->
                   <section id="integrate" class="section" aria-labelledby="integrateTitle">
                      <div class="card card--highlight">
                         <div class="card__header">
@@ -2462,128 +2614,130 @@
                               <i class="fas fa-star"></i>
                            </div>
                            <div>
-                              <h2 id="integrateTitle" class="card__title">VIP Upgrades: Platinum Edition Highlights</h2>
-                              <p class="card__subtitle">Premium experiences with clear value props for the Rahe Family Ultimate Caribbean Cruise Companion</p>
+                              <h2 id="integrateTitle" class="card__title">VIP Upgrades &amp; Premium Experiences</h2>
+                              <p class="card__subtitle">Enhance your cruise with exclusive options</p>
                            </div>
                            <button class="card__toggle" aria-expanded="false" aria-controls="integrateContent">
-                           <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                           <span class="sr-only">Toggle section</span>
+                              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                              <span class="sr-only">Toggle section</span>
                            </button>
                         </div>
                         <div id="integrateContent" class="card__content collapsed">
-                           <div class="tips-grid">
-                              <!-- VIP Voyage Add-ons -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">⚓</div>
-                                    <h4>VIP Voyage Add-ons</h4>
+                           <div class="vip-grid">
+                              <div class="vip-card">
+                                 <div class="vip-header">
+                                    <div class="vip-icon">⚓</div>
+                                    <h3>The Key® Benefits</h3>
                                  </div>
                                  <ul class="guest-list">
-                                    <li><strong>First-to-dock priority:</strong> secure early entry to Thrill Waterpark at CocoCay</li>
-                                    <li><strong>Suite-only immersion:</strong> private artisan market guide in Perfect Day at CocoCay</li>
-                                    <li><strong>Speakeasy alert:</strong> ask for the "Frosted Mule" behind the ice rink</li>
-                                    <li><strong>Bridge tour:</strong> exclusive behind-the-scenes access</li>
-                                    <li><strong>Personal concierge:</strong> dedicated staff for special requests</li>
+                                    <li>Priority boarding at 11:00 AM</li>
+                                    <li>Reserved seating at shows</li>
+                                    <li>Exclusive lounge access</li>
+                                    <li>Complimentary VOOM for 1 device</li>
+                                    <li>Priority departure</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">VIP Experience</span>
-                                 </div>
+                                 <p class="vip-price">~$25/person/day</p>
                               </div>
-                              <!-- Hero Moments & Signature Wins -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🗺️</div>
-                                    <h4>Hero Moments &amp; Signature Wins</h4>
+                              <div class="vip-card">
+                                 <div class="vip-header">
+                                    <div class="vip-icon">🗺️</div>
+                                    <h3>Hero Moments</h3>
                                  </div>
                                  <ul class="guest-list">
-                                    <li>Sunrise zip line in Perfect Day at CocoCay + helipad stargazing at sea</li>
-                                    <li>Blue Hole secret lagoon in Jamaica with waterproof LED lights</li>
-                                    <li>Floating cabana at CocoCay (6 total) with butler service</li>
-                                    <li>Private FlowRider lesson with champion surfer</li>
-                                    <li>Behind-the-scenes kitchen tour with executive chef</li>
+                                    <li>Sunrise zip line at CocoCay</li>
+                                    <li>Blue Hole secret lagoon with LED lights</li>
+                                    <li>Floating cabana with butler service</li>
+                                    <li>Private FlowRider lesson</li>
+                                    <li>Behind-the-scenes kitchen tour</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Unforgettable Memories</span>
-                                 </div>
                               </div>
-                              <!-- Stateroom Strategy -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🛌</div>
-                                    <h4>Stateroom Strategy</h4>
+                              <div class="vip-card">
+                                 <div class="vip-header">
+                                    <div class="vip-icon">🍷</div>
+                                    <h3>Dining Upgrades</h3>
                                  </div>
                                  <ul class="guest-list">
-                                    <li>Balcony 6650: pre-order pillow menu (memory foam, lavender, cooling gel)</li>
-                                    <li>Interior 6443: pack a mini projector for a cinema night</li>
-                                    <li>Deck 7/8 balcony: schedule sunrise yoga via the app</li>
-                                    <li>Suite amenities: complimentary pressing, priority boarding</li>
-                                    <li>Connecting rooms: coordinate schedules with magnetic boards</li>
+                                    <li>Chef's Table wine pairing</li>
+                                    <li>Chops Grille truffle mac off-menu</li>
+                                    <li>Giovanni's limoncello experience</li>
+                                    <li>Windjammer 6:30 AM cronuts</li>
+                                    <li>Suite room service extended hours</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Enhanced Comfort</span>
-                                 </div>
                               </div>
-                              <!-- Dining & Toast Hacks -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🍷</div>
-                                    <h4>Dining &amp; Toast Hacks</h4>
+                              <div class="vip-card">
+                                 <div class="vip-header">
+                                    <div class="vip-icon">👨‍👩‍👧‍👦</div>
+                                    <h3>Family Experiences</h3>
                                  </div>
                                  <ul class="guest-list">
-                                    <li>Chops Grille: request truffle mac off-menu + dessert flight</li>
-                                    <li>Giovanni's Table: port-day lunch for half-price + limoncello</li>
-                                    <li>Windjammer: 6:30 AM cronuts + made-to-order pho station</li>
-                                    <li>Chef's Table: wine pairing with each course</li>
-                                    <li>Room service: extended hours for suite guests</li>
+                                    <li>Themed character night for tots</li>
+                                    <li>Junior mixology mocktail class</li>
+                                    <li>Teen Instagram scavenger hunt</li>
+                                    <li>Adult mixology with master bartender</li>
+                                    <li>Family talent show night</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Culinary Excellence</span>
-                                 </div>
                               </div>
-                              <!-- Family Playbook -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">👨‍👩‍👧‍👦</div>
-                                    <h4>Family Playbook</h4>
+                              <div class="vip-card">
+                                 <div class="vip-header">
+                                    <div class="vip-icon">🛌</div>
+                                    <h3>Stateroom Enhancements</h3>
                                  </div>
                                  <ul class="guest-list">
-                                    <li>Tots: themed character night + cookie decorating</li>
-                                    <li>Kids: junior mixology mocktail class</li>
-                                    <li>Teens: Instagram scavenger hunt with FlowRider prize</li>
-                                    <li>Adults: mixology class with master bartender</li>
-                                    <li>Multi-generational: family talent show night</li>
+                                    <li>Premium pillow menu</li>
+                                    <li>Complimentary pressing service</li>
+                                    <li>Sunrise yoga sessions</li>
+                                    <li>Mini projector cinema night</li>
+                                    <li>Espresso maker (suites)</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">All Ages Fun</span>
-                                 </div>
                               </div>
-                              <!-- Legacy & Sustainability -->
-                              <div class="tip-card">
-                                 <div class="tip-header">
-                                    <div class="tip-icon">🌍</div>
-                                    <h4>Legacy &amp; Sustainability</h4>
+                              <div class="vip-card">
+                                 <div class="vip-header">
+                                    <div class="vip-icon">🌍</div>
+                                    <h3>Sustainability</h3>
                                  </div>
                                  <ul class="guest-list">
-                                    <li>Enable Journey Mode in the Royal Caribbean app for AI itinerary tuning</li>
-                                    <li>Book Memory Maker for 4K drone footage at Dunn's River Falls</li>
-                                    <li>Join Green Anchor: recycle 5 bottles for a free cocktail</li>
-                                    <li>Carbon offset: optional contribution to ocean conservation</li>
-                                    <li>Local sourcing: support artisan markets in port</li>
+                                    <li>Journey Mode AI itinerary tuning</li>
+                                    <li>Memory Maker 4K drone footage</li>
+                                    <li>Green Anchor recycling rewards</li>
+                                    <li>Carbon offset contributions</li>
+                                    <li>Support local artisan markets</li>
                                  </ul>
-                                 <div class="chips mt-4">
-                                    <span class="tag tag--recommended">Responsible Travel</span>
-                                 </div>
                               </div>
                            </div>
                            <div class="note note--accent mt-8">
-                              <strong>VIP Digital Passport:</strong> Add a QR code placeholder for captain's videos, crew secrets, and a live countdown clock. Access exclusive content via the Royal app.
+                              <strong>VIP Digital Passport:</strong> Access exclusive content, captain's videos, and crew secrets via the Royal app.
                            </div>
                         </div>
                      </div>
                   </section>
-               </div>
+
                <!-- Right Column - Sidebar -->
                <aside class="sidebar" aria-label="Supplementary information">
+                  <!-- Emergency Info (Always Visible) -->
+                  <div class="sidebar-card sidebar-card--critical">
+                     <h3 class="sidebar-card__title">
+                        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                        Emergency Info
+                     </h3>
+                     <ul class="list list--icon">
+                        <li>
+                           <i class="fas fa-hospital" aria-hidden="true"></i>
+                           <span>Medical Center: Deck 1 (24/7)</span>
+                        </li>
+                        <li>
+                           <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                           <span>Emergency: Dial 911 from cabin</span>
+                        </li>
+                        <li>
+                           <i class="fas fa-user-friends" aria-hidden="true"></i>
+                           <span>eMuster Station: F6 (Deck 4)</span>
+                        </li>
+                        <li>
+                           <i class="fas fa-life-ring" aria-hidden="true"></i>
+                           <span>Life Jackets: Under bed storage</span>
+                        </li>
+                     </ul>
+                  </div>
                   <!-- Focus This Week -->
                   <div class="sidebar-card sidebar-card--highlight">
                      <h3 class="sidebar-card__title">
@@ -2613,72 +2767,7 @@
                         </li>
                      </ul>
                   </div>
-                  <!-- Quick Links -->
-                  <div class="sidebar-card">
-                     <h3 class="sidebar-card__title">
-                        <i class="fas fa-link" aria-hidden="true"></i>
-                        Quick Navigation
-                     </h3>
-                     <nav aria-label="Page sections">
-                        <ul class="sidebar-links">
-                           <li>
-                              <button class="sidebar-link" data-section="overview">
-                              <i class="fas fa-anchor" aria-hidden="true"></i>
-                              <span>Start Here</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="operations">
-                              <i class="fas fa-compass" aria-hidden="true"></i>
-                              <span>Manual</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="rooms">
-                              <i class="fas fa-bed" aria-hidden="true"></i>
-                              <span>Room Details</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="deck-plans">
-                              <i class="fas fa-map" aria-hidden="true"></i>
-                              <span>Deck Plans</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="itinerary">
-                              <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                              <span>Daily Schedule</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="dining">
-                              <i class="fas fa-concierge-bell" aria-hidden="true"></i>
-                              <span>Dining Options</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="communication">
-                              <i class="fas fa-comments-dollar" aria-hidden="true"></i>
-                              <span>Comms &amp; Budget</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="tips">
-                              <i class="fas fa-star" aria-hidden="true"></i>
-                              <span>Pro Tips</span>
-                              </button>
-                           </li>
-                           <li>
-                              <button class="sidebar-link" data-section="integrate">
-                              <i class="fas fa-rocket" aria-hidden="true"></i>
-                              <span>VIP Upgrades</span>
-                              </button>
-                           </li>
-                        </ul>
-                     </nav>
-                  </div>
-                  <!-- Important Dates -->
+                  <!-- Key Dates -->
                   <div class="sidebar-card">
                      <h3 class="sidebar-card__title">
                         <i class="fas fa-calendar-check" aria-hidden="true"></i>
@@ -2694,7 +2783,7 @@
                            <span class="date-value">Feb 14, 2026</span>
                         </li>
                         <li class="date-item">
-                           <span class="date-label">First Port (George Town)</span>
+                           <span class="date-label">George Town</span>
                            <span class="date-value">Feb 16, 2026</span>
                         </li>
                         <li class="date-item">
@@ -2718,67 +2807,13 @@
                         Caribbean Weather
                      </h3>
                      <div class="weather-widget">
-                        <div class="weather-icon" role="img" aria-label="Partly Cloudy" style="opacity: 1;">🌤️</div>
-                        <div class="weather-temp" id="weatherTemp" style="opacity: 1;">82°F</div>
-                        <div class="weather-condition" id="weatherCondition" style="opacity: 1;">Partly Cloudy</div>
+                        <div class="weather-icon" role="img" aria-label="Partly Cloudy">🌤️</div>
+                        <div class="weather-temp" id="weatherTemp">82°F</div>
+                        <div class="weather-condition" id="weatherCondition">Partly Cloudy</div>
                         <p class="weather-summary" id="weatherSummary">
                            Loading the latest port-by-port forecast...
                         </p>
                         <ul class="weather-forecast-list" id="weatherForecastList" aria-live="polite"></ul>
-                     </div>
-                  </div>
-                  <!-- Emergency Info -->
-                  <div class="sidebar-card">
-                     <h3 class="sidebar-card__title">
-                        <i class="fas fa-first-aid" aria-hidden="true"></i>
-                        Emergency Info
-                     </h3>
-                     <ul class="list list--icon">
-                        <li>
-                           <i class="fas fa-hospital" aria-hidden="true"></i>
-                           <span>Medical Center: Deck 1 (24/7)</span>
-                        </li>
-                        <li>
-                           <i class="fas fa-phone-alt" aria-hidden="true"></i>
-                           <span>Emergency: Dial 911 from cabin phone</span>
-                        </li>
-                        <li>
-                           <i class="fas fa-user-friends" aria-hidden="true"></i>
-                           <span>eMuster Station: F6 (Deck 4)</span>
-                        </li>
-                        <li>
-                           <i class="fas fa-life-ring" aria-hidden="true"></i>
-                           <span>Life Jackets: Under bed storage</span>
-                        </li>
-                        <li>
-                           <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                           <span>Security: Deck 2 (24/7 patrol)</span>
-                        </li>
-                     </ul>
-                  </div>
-                  <!-- Traveler Count -->
-                  <div class="sidebar-card">
-                     <h3 class="sidebar-card__title">
-                        <i class="fas fa-users" aria-hidden="true"></i>
-                        Traveler Summary
-                     </h3>
-                     <div class="grid grid-cols-2 gap-4 mt-4">
-                        <div class="text-center p-4 bg-light rounded-lg">
-                           <div class="text-3xl font-bold text-primary">14</div>
-                           <div class="text-sm text-light">Travelers</div>
-                        </div>
-                        <div class="text-center p-4 bg-light rounded-lg">
-                           <div class="text-3xl font-bold text-accent">5</div>
-                           <div class="text-sm text-light">Staterooms</div>
-                        </div>
-                        <div class="text-center p-4 bg-light rounded-lg">
-                           <div class="text-3xl font-bold text-teal">3</div>
-                           <div class="text-sm text-light">Ports</div>
-                        </div>
-                        <div class="text-center p-4 bg-light rounded-lg">
-                           <div class="text-3xl font-bold text-success">6</div>
-                           <div class="text-sm text-light">Nights</div>
-                        </div>
                      </div>
                   </div>
                </aside>
@@ -5556,6 +5591,30 @@
             this.updateTopBarHintForDay(day);
          });
          });
+
+         // Itinerary day tabs
+         const dayTabs = document.querySelectorAll('.day-tab');
+         const timelineSteps = document.querySelectorAll('.timeline-step');
+         if (dayTabs.length) {
+         dayTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                dayTabs.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-selected', 'false');
+                });
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+                
+                const day = tab.dataset.day || 'all';
+                this.navigation.setCurrentDay(day);
+                this.updateTopBarHintForDay(day);
+                
+                timelineSteps.forEach(step => {
+                    step.style.display = (day === 'all' || step.dataset.day === day) ? 'grid' : 'none';
+                });
+            });
+         });
+         }
          
          // Traveler selector
          const travelerSelect = document.getElementById('travelerSelect');
@@ -5564,6 +5623,47 @@
             this.navigation.setTravelerView(e.target.value);
          });
          }
+
+         // Room view toggle
+         const viewToggleButtons = document.querySelectorAll('.view-toggle__btn');
+         const roomCardsView = document.getElementById('roomCardsView');
+         const roomTableView = document.getElementById('roomTableView');
+         if (viewToggleButtons.length && roomCardsView && roomTableView) {
+         viewToggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const view = button.dataset.view || 'cards';
+                viewToggleButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-selected', 'false');
+                });
+                button.classList.add('active');
+                button.setAttribute('aria-selected', 'true');
+                
+                if (view === 'table') {
+                    roomCardsView.classList.remove('active');
+                    roomTableView.classList.add('active');
+                } else {
+                    roomTableView.classList.remove('active');
+                    roomCardsView.classList.add('active');
+                }
+            });
+         });
+         }
+
+         // Itinerary detail toggles
+         document.querySelectorAll('.step-expand').forEach(button => {
+         button.setAttribute('aria-expanded', 'false');
+         button.addEventListener('click', () => {
+            const details = button.closest('.step-details');
+            if (!details) return;
+            const expanded = details.classList.toggle('is-expanded');
+            button.setAttribute('aria-expanded', expanded.toString());
+            const icon = button.querySelector('i');
+            if (icon) {
+                icon.className = expanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+            }
+         });
+         });
          
          // Search functionality
          this.initializeSearchListeners();
@@ -5613,6 +5713,22 @@
             this.toggleCriticalFilter(!isActive);
          });
          }
+
+         // View mode toggle
+         const modeButtons = document.querySelectorAll('.mode-btn');
+         if (modeButtons.length) {
+         modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modeButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.setAttribute('aria-checked', 'false');
+                });
+                button.classList.add('active');
+                button.setAttribute('aria-checked', 'true');
+                document.body.dataset.viewMode = button.dataset.mode || 'today';
+            });
+         });
+         }
          
          // Compact mode toggle
          const compactToggleBtn = document.getElementById('compactToggleBtn');
@@ -5628,6 +5744,21 @@
          if (jumpToCriticalBtn) {
          jumpToCriticalBtn.addEventListener('click', () => {
             this.navigation.navigateToSection('operations');
+         });
+         }
+
+         // Hero critical checklist button
+         const criticalChecklistBtn = document.getElementById('criticalChecklistBtn');
+         if (criticalChecklistBtn) {
+         criticalChecklistBtn.addEventListener('click', () => {
+            this.navigation.navigateToSection('operations');
+            const checklistAnchor = document.getElementById('critical-checklist') || document.getElementById('criticalChecklist');
+            if (checklistAnchor) {
+                setTimeout(() => {
+                    checklistAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    checklistAnchor.focus({ preventScroll: true });
+                }, 350);
+            }
          });
          }
          
@@ -5882,7 +6013,7 @@
          async initializeServiceWorker() {
          if ('serviceWorker' in navigator) {
          try {
-            const registration = await navigator.serviceWorker.register('/sw.js');
+            const registration = await navigator.serviceWorker.register('sw.js');
             console.log('ServiceWorker registration successful with scope:', registration.scope);
          } catch (error) {
             console.warn('ServiceWorker registration failed:', error);
@@ -6904,7 +7035,7 @@
          // Service Worker registration (simplified)
          if ('serviceWorker' in navigator) {
          window.addEventListener('load', () => {
-         navigator.serviceWorker.register('/sw.js').catch(error => {
+        navigator.serviceWorker.register('sw.js').catch(error => {
          console.log('ServiceWorker registration failed:', error);
          });
          });
