@@ -2755,15 +2755,19 @@
           TOAST_DURATION: 3000,
           LOADING_DELAY: 1000,
           
-          // Storage Keys
-          STORAGE_KEYS: {
+         // Offline Caching
+         OFFLINE_CACHE_NAME: 'cruise_companion_offline_v1',
+         
+         // Storage Keys
+         STORAGE_KEYS: {
               PREFERENCES: 'cruise_preferences_v2',
               SEARCH_HISTORY: 'cruise_search_history_v2',
               COMPACT_MODE: 'cruise_compact_mode',
               CRITICAL_FILTER: 'cruise_critical_filter',
               HINT_DISMISSED: 'cruise_hint_dismissed',
-              DECK_PLANS: 'cruise_deck_plans_v1'
-          },
+              DECK_PLANS: 'cruise_deck_plans_v1',
+              OFFLINE_READY: 'cruise_offline_ready_v1'
+         },
           
           // API Endpoints (Placeholders for future expansion)
           API_ENDPOINTS: {
@@ -5098,6 +5102,7 @@
          
          this.isInitialized = false;
          this.isLoading = false;
+         this.offlineSaveInProgress = false;
          
          // Bind methods
          this.initialize = this.initialize.bind(this);
@@ -5643,6 +5648,9 @@
          // Check online status
          this.handleOnlineStatus();
          
+         // Update offline button state
+         this.updateOfflineButtonState();
+         
          // Announce to screen readers
          this.ui.announceToScreenReader('Cruise Companion loaded successfully');
          }
@@ -6120,20 +6128,179 @@
          }, 500);
          }
          
-         async saveOffline() {
-         this.ui.showToast('Saving for offline access...', {
-         type: 'info',
-         duration: 3000
+         updateOfflineButtonState() {
+         if (this.offlineSaveInProgress) return;
+         
+         const isOfflineReady = this.storage.get(CONFIG.STORAGE_KEYS.OFFLINE_READY, false);
+         if (isOfflineReady) {
+         this.setOfflineButtonState('saved');
+         } else {
+         this.setOfflineButtonState('default');
+         }
+         }
+         
+         setOfflineButtonState(state, { progress = 0, total = 0 } = {}) {
+         const offlineBtn = document.getElementById('offlineBtn');
+         if (!offlineBtn) return;
+         
+         if (!offlineBtn.dataset.defaultLabel) {
+         offlineBtn.dataset.defaultLabel = offlineBtn.innerHTML;
+         }
+         
+         switch (state) {
+            case 'saving': {
+                const progressLabel = total > 0 ? ` (${progress}/${total})` : '';
+                offlineBtn.innerHTML = `<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Saving${progressLabel}`;
+                offlineBtn.setAttribute('aria-busy', 'true');
+                offlineBtn.setAttribute('aria-pressed', 'false');
+                offlineBtn.disabled = true;
+                break;
+            }
+            case 'saved':
+                offlineBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Offline Ready';
+                offlineBtn.removeAttribute('aria-busy');
+                offlineBtn.setAttribute('aria-pressed', 'true');
+                offlineBtn.disabled = false;
+                break;
+            case 'default':
+            default:
+                offlineBtn.innerHTML = offlineBtn.dataset.defaultLabel;
+                offlineBtn.removeAttribute('aria-busy');
+                offlineBtn.setAttribute('aria-pressed', 'false');
+                offlineBtn.disabled = false;
+                break;
+         }
+         }
+         
+         getOfflineAssetUrls() {
+         const urls = new Set();
+         const baseUrl = new URL('/', window.location.href);
+         const currentUrl = new URL(window.location.href);
+         currentUrl.hash = '';
+         currentUrl.search = '';
+         
+         urls.add(currentUrl.href);
+         urls.add(new URL('index.html', baseUrl).href);
+         urls.add(new URL('sw.js', baseUrl).href);
+         
+         document.querySelectorAll('link[rel="stylesheet"], link[rel="icon"], script[src], img[src], source[src]').forEach((el) => {
+         const attr = el.getAttribute('href') || el.getAttribute('src');
+         if (!attr || attr.startsWith('data:')) return;
+         urls.add(new URL(attr, window.location.href).href);
          });
          
-         // In a real app, this would trigger service worker caching
-         // For now, just show a confirmation
-         setTimeout(() => {
-         this.ui.showToast('Cruise guide saved for offline access!', {
-            type: 'success',
-            duration: 3000
+         return Array.from(urls);
+         }
+         
+         async cacheOfflineAssets(urls, onProgress) {
+         const cache = await caches.open(CONFIG.OFFLINE_CACHE_NAME);
+         let completed = 0;
+         let cachedCount = 0;
+         const failed = [];
+         
+         for (const url of urls) {
+         try {
+            const resolvedUrl = new URL(url, window.location.href);
+            const isSameOrigin = resolvedUrl.origin === window.location.origin;
+            const response = await fetch(resolvedUrl.href, {
+                mode: isSameOrigin ? 'cors' : 'no-cors',
+                cache: 'reload'
+            });
+            
+            if (response.ok || response.type === 'opaque') {
+                await cache.put(resolvedUrl.href, response.clone());
+                cachedCount += 1;
+            } else {
+                failed.push(resolvedUrl.href);
+            }
+         } catch (error) {
+            failed.push(url);
+         }
+         
+         completed += 1;
+         onProgress?.(completed, urls.length);
+         }
+         
+         return { cachedCount, failed };
+         }
+         
+         async saveOffline() {
+         if (this.offlineSaveInProgress) return;
+         
+         if (!('serviceWorker' in navigator) || !('caches' in window)) {
+         this.ui.showToast('Offline saving is not supported in this browser.', {
+            type: 'error',
+            duration: 4000
          });
-         }, 1000);
+         return;
+         }
+         
+         const wasOfflineReady = this.storage.get(CONFIG.STORAGE_KEYS.OFFLINE_READY, false);
+         if (!navigator.onLine && !wasOfflineReady) {
+         this.ui.showToast('Connect to the internet to save for offline use.', {
+            type: 'warning',
+            duration: 4000
+         });
+         return;
+         }
+         
+         const toastId = this.ui.showToast('Saving for offline access...', {
+         type: 'info',
+         duration: 0
+         });
+         
+         this.offlineSaveInProgress = true;
+         const assets = this.getOfflineAssetUrls();
+         this.setOfflineButtonState('saving', { progress: 0, total: assets.length });
+         
+         try {
+         await this.initializeServiceWorker();
+         await navigator.serviceWorker.ready;
+         
+         const { cachedCount, failed } = await this.cacheOfflineAssets(
+            assets,
+            (completed, total) => {
+                this.setOfflineButtonState('saving', { progress: completed, total });
+            }
+         );
+         
+         const isOfflineReady = cachedCount > 0;
+         this.storage.set(CONFIG.STORAGE_KEYS.OFFLINE_READY, isOfflineReady);
+         
+         this.ui.hideToast(toastId);
+         
+         if (failed.length > 0) {
+            this.ui.showToast(
+                `Saved ${cachedCount} items for offline use. ${failed.length} file(s) could not be cached.`,
+                {
+                    type: 'warning',
+                    duration: 5000
+                }
+            );
+         } else {
+            this.ui.showToast('Cruise guide saved for offline access!', {
+                type: 'success',
+                duration: 3000
+            });
+         }
+         
+         if (isOfflineReady) {
+            this.setOfflineButtonState('saved');
+         } else {
+            this.setOfflineButtonState('default');
+         }
+         } catch (error) {
+         console.error('Offline save failed:', error);
+         this.storage.set(CONFIG.STORAGE_KEYS.OFFLINE_READY, false);
+         this.ui.hideToast(toastId);
+         this.ui.showToast('Unable to save offline. Please try again.', {
+            type: 'error',
+            duration: 4000
+         });
+         this.setOfflineButtonState('default');
+         } finally {
+         this.offlineSaveInProgress = false;
+         }
          }
          
          async shareItinerary() {
