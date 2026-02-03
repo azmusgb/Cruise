@@ -468,6 +468,12 @@
          .date-item{display:flex;justify-content:space-between;padding:10px;border-radius:10px;background:rgba(255,255,255,0.04);}
          .weather-widget{text-align:center;padding:var(--gap-sm);border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);}
          .weather-temp{font-size:1.6rem;font-weight:700;}
+         .weather-summary{margin-bottom:var(--gap-sm);color:var(--muted);font-size:var(--text-sm);}
+         .weather-forecast-list{display:grid;gap:var(--gap-xs);text-align:left;margin:0;padding:0;list-style:none;}
+         .weather-forecast-item{display:grid;grid-template-columns:auto 1fr auto;gap:var(--gap-sm);align-items:center;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);}
+         .weather-forecast-item strong{font-family:var(--font-heading);font-size:var(--text-sm);}
+         .weather-forecast-meta{font-size:var(--text-xs);color:var(--muted);}
+         .weather-forecast-temp{font-size:var(--text-sm);font-weight:600;}
          .nav-badge,.drawer-badge,.tag{font-weight:700;}
          /* =============== Toast =============== */
          .toast{
@@ -2715,9 +2721,10 @@
                         <div class="weather-icon" role="img" aria-label="Partly Cloudy" style="opacity: 1;">🌤️</div>
                         <div class="weather-temp" id="weatherTemp" style="opacity: 1;">82°F</div>
                         <div class="weather-condition" id="weatherCondition" style="opacity: 1;">Partly Cloudy</div>
-                        <p class="weather-forecast">
-                           Typical February weather: 75-82°F days, 68°F nights. Ideal for outdoor activities. Light breeze from the east.
+                        <p class="weather-summary" id="weatherSummary">
+                           Loading the latest port-by-port forecast...
                         </p>
+                        <ul class="weather-forecast-list" id="weatherForecastList" aria-live="polite"></ul>
                      </div>
                   </div>
                   <!-- Emergency Info -->
@@ -2890,9 +2897,9 @@
           
           // Ports
           PORTS: [
-              { id: 'georgetown', name: 'George Town, Grand Cayman', day: 3, arrival: '11:00 AM', departure: '5:15 PM' },
-              { id: 'falmouth', name: 'Falmouth, Jamaica', day: 4, arrival: '8:30 AM', departure: '4:30 PM' },
-              { id: 'cococay', name: 'Perfect Day at CocoCay', day: 6, arrival: '7:30 AM', departure: '4:30 PM' }
+              { id: 'georgetown', name: 'George Town, Grand Cayman', day: 3, arrival: '11:00 AM', departure: '5:15 PM', latitude: 19.2866, longitude: -81.3744 },
+              { id: 'falmouth', name: 'Falmouth, Jamaica', day: 4, arrival: '8:30 AM', departure: '4:30 PM', latitude: 18.4937, longitude: -77.6559 },
+              { id: 'cococay', name: 'Perfect Day at CocoCay', day: 6, arrival: '7:30 AM', departure: '4:30 PM', latitude: 25.8186, longitude: -77.9520 }
           ],
           
           // Styling
@@ -4964,13 +4971,14 @@
               this.isFetching = false;
               this.errorHandler = new ErrorHandler();
               this.observers = new Set();
-              this.useMockData = true; // Set to false when real API is available
+              this.useMockData = false; // Uses Open-Meteo when available; falls back to mock data
               
               // DOM elements
               this.tempElement = document.getElementById('weatherTemp');
               this.conditionElement = document.getElementById('weatherCondition');
               this.iconElement = document.querySelector('.weather-icon');
-              this.forecastElement = document.querySelector('.weather-forecast');
+              this.summaryElement = document.getElementById('weatherSummary');
+              this.forecastListElement = document.getElementById('weatherForecastList');
               
               // Mock weather data for Caribbean in February
               this.mockWeatherConditions = [
@@ -5036,7 +5044,7 @@
                   this.errorHandler.log(error, 'WeatherManager.fetchWeather');
                   
                   // Fallback to mock data
-                  const fallbackData = this.getRandomWeather();
+                  const fallbackData = await this.fetchMockWeather();
                   this.currentWeather = fallbackData;
                   this.updateDisplay();
                   
@@ -5053,27 +5061,33 @@
               // Get random or sequential weather
               const weather = this.getRandomWeather();
               
-              // Simulate forecast
+              // Simulate forecast aligned to ports
               this.forecast = [];
-              for (let i = 1; i <= 5; i++) {
-                  const forecastDay = new Date();
-                  forecastDay.setDate(forecastDay.getDate() + i);
+              const cruiseStart = new Date(CONFIG.CRUISE_DATE);
+              (CONFIG.PORTS || []).forEach(port => {
+                  const forecastDay = new Date(cruiseStart);
+                  forecastDay.setDate(cruiseStart.getDate() + (port.day - 1));
+                  const mockCondition = this.mockWeatherConditions[Math.floor(Math.random() * this.mockWeatherConditions.length)];
+                  const high = Math.floor(Math.random() * 10) + 78;
+                  const low = Math.floor(Math.random() * 8) + 68;
                   
                   this.forecast.push({
                       date: forecastDay.toISOString().split('T')[0],
-                      high: Math.floor(Math.random() * 10) + 78,
-                      low: Math.floor(Math.random() * 10) + 68,
-                      condition: this.mockWeatherConditions[Math.floor(Math.random() * this.mockWeatherConditions.length)].condition,
-                      icon: this.mockWeatherConditions[Math.floor(Math.random() * this.mockWeatherConditions.length)].icon,
-                      precipitation: Math.floor(Math.random() * 40) + '%'
+                      dayLabel: `Day ${port.day}`,
+                      location: port.name,
+                      high: `${high}°F`,
+                      low: `${low}°F`,
+                      condition: mockCondition.condition,
+                      icon: mockCondition.icon,
+                      precipitation: `${Math.floor(Math.random() * 40) + 10}%`
                   });
-              }
+              });
               
               return {
                   ...weather,
                   forecast: this.forecast,
                   lastUpdated: new Date().toISOString(),
-                  location: 'Caribbean Sea',
+                  location: this.forecast[0]?.location || 'Caribbean Sea',
                   sunrise: '6:45 AM',
                   sunset: '6:15 PM',
                   uvIndex: '8 (Very High)',
@@ -5082,37 +5096,71 @@
           }
           
           async fetchApiWeather() {
-              // This would be the real API implementation
-              try {
-                  const response = await fetch(CONFIG.API_ENDPOINTS.WEATHER, {
-                      method: 'GET',
-                      headers: {
-                          'Content-Type': 'application/json'
-                      }
-                  });
-                  
-                  if (!response.ok) {
-                      throw new Error(`Weather API error: ${response.status}`);
-                  }
-                  
-                  const data = await response.json();
-                  return this.transformApiData(data);
-              } catch (error) {
-                  throw error;
+              const ports = CONFIG.PORTS || [];
+              if (!ports.length) {
+                  throw new Error('No ports configured for weather lookup.');
               }
+              
+              const cruiseStart = new Date(CONFIG.CRUISE_DATE);
+              const forecastRequests = ports.map(port => {
+                  const portDate = new Date(cruiseStart);
+                  portDate.setDate(cruiseStart.getDate() + (port.day - 1));
+                  
+                  const url = new URL('https://api.open-meteo.com/v1/forecast');
+                  url.searchParams.set('latitude', port.latitude);
+                  url.searchParams.set('longitude', port.longitude);
+                  url.searchParams.set('daily', 'weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max');
+                  url.searchParams.set('forecast_days', '16');
+                  url.searchParams.set('timezone', 'auto');
+                  
+                  return this.fetchPortForecast(url.toString(), port, portDate);
+              });
+              
+              const results = await Promise.all(forecastRequests);
+              const validResults = results.filter(Boolean);
+              
+              if (!validResults.length) {
+                  throw new Error('No port forecasts returned.');
+              }
+              
+              const currentWeather = validResults[0];
+              return {
+                  ...currentWeather,
+                  forecast: validResults,
+                  lastUpdated: new Date().toISOString(),
+                  location: currentWeather.location
+              };
           }
           
-          transformApiData(apiData) {
-              // Transform API response to our format
+          async fetchPortForecast(url, port, portDate) {
+              const response = await fetch(url, { method: 'GET' });
+              
+              if (!response.ok) {
+                  throw new Error(`Weather API error: ${response.status}`);
+              }
+              
+              const data = await response.json();
+              const targetDate = portDate.toISOString().split('T')[0];
+              const dayIndex = data?.daily?.time?.indexOf(targetDate);
+              
+              if (dayIndex === -1 || dayIndex == null) {
+                  return null;
+              }
+              
+              const weatherCode = data.daily.weathercode[dayIndex];
+              const mapping = this.getWeatherFromCode(weatherCode);
+              
               return {
-                  temp: `${Math.round(apiData.main.temp)}°F`,
-                  condition: apiData.weather[0].main,
-                  icon: this.getWeatherIcon(apiData.weather[0].icon),
-                  description: apiData.weather[0].description,
-                  humidity: `${apiData.main.humidity}%`,
-                  wind: `${Math.round(apiData.wind.speed)} mph`,
-                  location: apiData.name,
-                  lastUpdated: new Date().toISOString()
+                  date: targetDate,
+                  dayLabel: `Day ${port.day}`,
+                  location: port.name,
+                  temp: `${Math.round(this.cToF(data.daily.temperature_2m_max[dayIndex]))}°F`,
+                  low: `${Math.round(this.cToF(data.daily.temperature_2m_min[dayIndex]))}°F`,
+                  high: `${Math.round(this.cToF(data.daily.temperature_2m_max[dayIndex]))}°F`,
+                  condition: mapping.label,
+                  icon: mapping.icon,
+                  precipitation: `${data.daily.precipitation_probability_max[dayIndex]}%`,
+                  description: mapping.description
               };
           }
           
@@ -5138,6 +5186,36 @@
               return iconMap[iconCode] || '🌡️';
           }
           
+          getWeatherFromCode(code) {
+              const mappings = {
+                  0: { label: 'Clear', icon: '☀️', description: 'Clear skies' },
+                  1: { label: 'Mainly Clear', icon: '🌤️', description: 'Mostly sunny' },
+                  2: { label: 'Partly Cloudy', icon: '⛅', description: 'Partly cloudy' },
+                  3: { label: 'Overcast', icon: '☁️', description: 'Cloudy skies' },
+                  45: { label: 'Fog', icon: '🌫️', description: 'Foggy conditions' },
+                  48: { label: 'Rime Fog', icon: '🌫️', description: 'Low visibility fog' },
+                  51: { label: 'Light Drizzle', icon: '🌦️', description: 'Light drizzle' },
+                  53: { label: 'Drizzle', icon: '🌦️', description: 'Scattered drizzle' },
+                  55: { label: 'Heavy Drizzle', icon: '🌧️', description: 'Steady drizzle' },
+                  61: { label: 'Light Rain', icon: '🌧️', description: 'Light rain showers' },
+                  63: { label: 'Rain', icon: '🌧️', description: 'Rainy conditions' },
+                  65: { label: 'Heavy Rain', icon: '🌧️', description: 'Heavy rain' },
+                  71: { label: 'Light Snow', icon: '❄️', description: 'Light snow' },
+                  73: { label: 'Snow', icon: '❄️', description: 'Snow showers' },
+                  75: { label: 'Heavy Snow', icon: '❄️', description: 'Heavy snow' },
+                  80: { label: 'Showers', icon: '🌦️', description: 'Scattered showers' },
+                  81: { label: 'Heavy Showers', icon: '🌧️', description: 'Heavy showers' },
+                  82: { label: 'Thunder Showers', icon: '⛈️', description: 'Thunderstorms possible' },
+                  95: { label: 'Thunderstorm', icon: '⛈️', description: 'Thunderstorms' }
+              };
+              
+              return mappings[code] || { label: 'Mixed', icon: '🌡️', description: 'Variable conditions' };
+          }
+          
+          cToF(celsius) {
+              return (celsius * 9) / 5 + 32;
+          }
+          
           updateDisplay() {
          if (!this.currentWeather) return;
          
@@ -5161,9 +5239,33 @@
             this.iconElement.setAttribute('aria-label', this.currentWeather.description);
          }
          
-         if (this.forecastElement) {
-            this.forecastElement.textContent = this.currentWeather.description || 
-                'Typical February weather: 75-82°F days, 68°F nights. Ideal for outdoor activities. Light breeze from the east.';
+         if (this.summaryElement) {
+            this.summaryElement.textContent = `Latest forecast for ${this.currentWeather.location}.`;
+         }
+         
+         if (this.forecastListElement) {
+            this.forecastListElement.innerHTML = '';
+            const forecastItems = this.currentWeather.forecast || [];
+            if (forecastItems.length) {
+                forecastItems.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'weather-forecast-item';
+                    listItem.innerHTML = `
+                        <span class="weather-forecast-icon" aria-hidden="true">${item.icon}</span>
+                        <div>
+                            <strong>${item.dayLabel}: ${item.location}</strong>
+                            <div class="weather-forecast-meta">${item.condition} • ${item.precipitation} precip</div>
+                        </div>
+                        <div class="weather-forecast-temp">${item.high}/${item.low}</div>
+                    `;
+                    this.forecastListElement.appendChild(listItem);
+                });
+            } else {
+                const fallback = document.createElement('li');
+                fallback.className = 'weather-forecast-item';
+                fallback.textContent = 'Forecast will appear closer to sailing.';
+                this.forecastListElement.appendChild(fallback);
+            }
          }
          }, 300);
          }
@@ -5234,7 +5336,8 @@
          this.tempElement = null;
          this.conditionElement = null;
          this.iconElement = null;
-         this.forecastElement = null;
+         this.summaryElement = null;
+         this.forecastListElement = null;
          }
          }
          
