@@ -6191,6 +6191,17 @@
          
          return Array.from(urls);
          }
+
+         async fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+         const controller = new AbortController();
+         const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+         try {
+            return await fetch(url, { ...options, signal: controller.signal });
+         } finally {
+            window.clearTimeout(timeoutId);
+         }
+         }
          
          async cacheOfflineAssets(urls, onProgress) {
          const cache = await caches.open(CONFIG.OFFLINE_CACHE_NAME);
@@ -6202,7 +6213,7 @@
          try {
             const resolvedUrl = new URL(url, window.location.href);
             const isSameOrigin = resolvedUrl.origin === window.location.origin;
-            const response = await fetch(resolvedUrl.href, {
+            const response = await this.fetchWithTimeout(resolvedUrl.href, {
                 mode: isSameOrigin ? 'cors' : 'no-cors',
                 cache: 'reload'
             });
