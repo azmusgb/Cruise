@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="--header-height: 100px; --day-selector-offset: 100px; --scroll-padding: 120px;">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,32 +7,1407 @@
     <meta name="description" content="Complete cruise planning guide for the Rahe Family Caribbean adventure aboard Adventure of the Seas. Room details, daily itinerary, dining, tips, and everything you need for an amazing vacation.">
     <!-- Preconnect for fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <!-- Fonts with performance optimization -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&amp;family=Source+Sans+Pro:wght@300;400;600&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🚢&lt;/text&gt;&lt;/svg&gt;">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚢</text></svg>">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2d7dd2;
+            --primary-dark: #0f2a52;
+            --secondary: #e53e3e;
+            --accent: #ed8936;
+            --accent-light: #fbd38d;
+            --success: #38a169;
+            --warning: #d69e2e;
+            --danger: #c53030;
+            --light: #f7fafc;
+            --dark: #2d3748;
+            --gray: #718096;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --radius: 8px;
+            --radius-lg: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e3e8f0 100%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+            flex-shrink: 0;
+        }
+
+        .nav-brand-badge {
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-brand-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .nav-brand-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn i {
+            font-size: 0.9em;
+        }
+
+        .btn--primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+        }
+
+        .btn--primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn--outline {
+            background: transparent;
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+        }
+
+        .btn--outline:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .btn--ghost {
+            background: transparent;
+            color: var(--gray);
+            border: 1px solid var(--border);
+        }
+
+        .btn--ghost:hover {
+            background: var(--light);
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+
+        .btn--sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn--xs {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
+
+        /* Main Content */
+        main {
+            padding: 20px 0 60px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #0f2a52 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #1a365d 100%);
+            color: white;
+            padding: 60px 0 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%23ffffff" opacity=".05"/></svg>');
+            background-size: 300% 100%;
+            animation: wave 20s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        .hero__content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero__badge-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .hero__badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hero__badge--gold {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+        }
+
+        .hero__title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .hero__subtitle {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Countdown */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .countdown-item {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .countdown-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
+        }
+
+        /* Hero Actions */
+        .hero__actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .hero__stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .hero__stats .stat {
+            text-align: center;
+        }
+
+        .hero__stats .stat strong {
+            display: block;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent-light);
+            line-height: 1;
+        }
+
+        .hero__stats .stat span {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
+        }
+
+        /* RC Key Benefits */
+        .rc-key-benefits {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .key-benefit {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Toast Notification */
+        .toast {
+            background: white;
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-light);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toast__message {
+            flex: 1;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .toast__close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 4px;
+            margin-left: 10px;
+        }
+
+        /* View Panel */
+        .view-panel {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .view-panel__title {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-secondary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-context {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-context-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-context-badge {
+            background: rgba(45, 125, 210, 0.1);
+            color: var(--primary-light);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-tools {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-view-toggle {
+            display: flex;
+            gap: 5px;
+            background: var(--light);
+            padding: 4px;
+            border-radius: var(--radius);
+        }
+
+        .nav-view-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-view-btn:hover {
+            background: rgba(45, 125, 210, 0.1);
+            color: var(--primary-light);
+        }
+
+        .nav-view-btn.active {
+            background: var(--primary-light);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        /* Card Styling */
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card--featured {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.1);
+        }
+
+        .card--highlight {
+            border-left: 4px solid var(--accent);
+        }
+
+        .card__header {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .card__header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .card__icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .card__title {
+            font-size: 1.5rem;
+            margin: 0 0 4px 0;
+            color: white;
+        }
+
+        .card__subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .card__toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card__toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .card__toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .card__toggle[aria-expanded="true"] i {
+            transform: rotate(180deg);
+        }
+
+        .card__content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .card__content.expanded {
+            max-height: none;
+            padding: 30px;
+        }
+
+        /* Section Styling */
+        .section {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mt-8 { margin-top: 32px; }
+        .mb-8 { margin-bottom: 32px; }
+        .text-sm { font-size: 0.875rem; }
+        .text-light { color: var(--gray); }
+
+        /* RC Card */
+        .rc-card {
+            background: linear-gradient(135deg, #0f2a52 0%, #1a365d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rc-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><path d="M0,0 L100,100 M100,0 L0,100" stroke="white" stroke-width="2"/></svg>');
+            background-size: 20px 20px;
+        }
+
+        .rc-badge {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .rc-headline {
+            color: white;
+            margin: 14px 0 8px;
+            font-size: 1.25rem;
+        }
+
+        .rc-body {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .rc-caption {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin: 8px 0 0;
+        }
+
+        /* Perfect Day Card */
+        .perfect-day-card {
+            background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
+            color: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .perfect-day-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="2"/><path d="M20,20 L80,80 M80,20 L20,80" stroke="white" stroke-width="2"/></svg>');
+            background-size: 30px 30px;
+        }
+
+        /* Overview Block */
+        .overview-block {
+            background: var(--light);
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .overview-block__title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* List Styles */
+        .list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .list--icon li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .list--icon li i {
+            color: var(--primary-light);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* RC App Integration */
+        .rc-app-integration {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 30px;
+            align-items: center;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 30px;
+            border-radius: var(--radius);
+        }
+
+        @media (max-width: 768px) {
+            .rc-app-integration {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .app-qr-code img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .app-features h3 {
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .app-features ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .app-features li {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .rc-btn {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rc-btn:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Official Muster Info */
+        .official-muster-info {
+            background: linear-gradient(135deg, #fef2f2 0%, #fed7d7 100%);
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .muster-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .muster-header h3 {
+            color: var(--secondary);
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        .muster-badge {
+            background: var(--secondary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+        }
+
+        .muster-details p {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .muster-progress {
+            margin-top: 15px;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--primary-light));
+            border-radius: 4px;
+        }
+
+        /* RC Progress Tracker */
+        .rc-progress-tracker {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .rc-progress-tracker h4 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .tracker-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tracker-item:last-child {
+            border-bottom: none;
+        }
+
+        .tracker-status {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tracker-status.completed {
+            background: rgba(56, 161, 105, 0.1);
+            color: var(--success);
+        }
+
+        .tracker-status.in-progress {
+            background: rgba(45, 125, 210, 0.1);
+            color: var(--primary-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tracker-status.in-progress .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            border-radius: 20px;
+        }
+
+        .tracker-status.pending {
+            background: rgba(160, 174, 192, 0.1);
+            color: var(--gray);
+        }
+
+        /* Quick Start Guide */
+        .quick-start__list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .quick-start__item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .quick-start__item:last-child {
+            border-bottom: none;
+        }
+
+        .quick-start__item-showcase {
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            background: var(--light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .quick-start__item div {
+            flex: 1;
+        }
+
+        .quick-start__item strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--primary);
+        }
+
+        .quick-start__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quick-start__link {
+            flex: 1;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .critical-toggle {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .critical-toggle__status {
+            display: block;
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Sidebar */
+        .sidebar-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-card--critical {
+            border-left: 4px solid var(--secondary);
+        }
+
+        .sidebar-card--highlight {
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-card__title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Date List */
+        .date-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .date-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .date-item:last-child {
+            border-bottom: none;
+        }
+
+        .date-label {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .date-value {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            text-align: center;
+        }
+
+        .weather-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .weather-temp {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .weather-condition {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .weather-summary {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .weather-forecast-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .weather-forecast-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .weather-forecast-item:last-child {
+            border-bottom: none;
+        }
+
+        .weather-forecast-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .weather-forecast-item div {
+            flex: 1;
+        }
+
+        .weather-forecast-item strong {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--primary);
+        }
+
+        .weather-forecast-meta {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .weather-forecast-temp {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.875rem;
+        }
+
+        /* Floating Actions */
+        .floating-actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-light);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .fab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(45, 125, 210, 0.3);
+        }
+
+        .fab--critical {
+            background: var(--secondary);
+        }
+
+        .fab--critical:hover {
+            box-shadow: 0 8px 25px rgba(229, 62, 62, 0.3);
+        }
+
+        .fab--compact {
+            background: var(--gray);
+        }
+
+        /* Footer */
+        .rc-official-footer {
+            background: linear-gradient(135deg, #0f2a52 0%, #1a365d 100%);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .rc-footer-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .rc-footer-main {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .rc-footer-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .rc-logo-section img {
+            height: 40px;
+            margin-bottom: 15px;
+        }
+
+        .rc-tagline {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .rc-footer-cta {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .rc-footer-cta:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+
+        .rc-footer-column {
+            margin-bottom: 20px;
+        }
+
+        .rc-footer-heading {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--accent-light);
+        }
+
+        .rc-footer-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rc-footer-list li {
+            margin-bottom: 8px;
+        }
+
+        .rc-footer-list a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .rc-footer-list a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .rc-contact-info {
+            margin-bottom: 20px;
+        }
+
+        .rc-contact-info p {
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .rc-contact-info a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .rc-contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .rc-footer-disclaimer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .rc-legal-links {
+            margin-bottom: 10px;
+        }
+
+        .rc-legal-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .rc-legal-links a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .rc-copyright {
+            margin-top: 10px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-main {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .hero__title {
+                font-size: 2rem;
+            }
+
+            .hero__actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .hero__actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .countdown {
+                gap: 10px;
+            }
+
+            .countdown-item {
+                min-width: 60px;
+            }
+
+            .countdown-number {
+                font-size: 2rem;
+            }
+
+            .floating-actions {
+                bottom: 80px;
+                right: 10px;
+            }
+
+            .quick-start__link {
+                min-width: 100%;
+            }
+        }
+    </style>
 </head>
-<body class="compact-mode mobile-view" data-view-mode="veteran" style="">
+<body>
     <!-- Loading Overlay -->
-    <div class="loading-overlay hidden" id="loadingOverlay" aria-busy="false" aria-label="Loading cruise companion">
+    <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
         <div class="loading-text">
             Loading Your Cruise Adventure<span class="loading-dots"></span>
         </div>
     </div>
-    
-    <!-- Skip Link -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    <a href="#critical-checklist" class="skip-link">Skip to critical checklist</a>
-    
-    <!-- Navigation Overlay -->
-    <div class="nav-overlay" id="navOverlay"></div>
-    
-    <!-- Desktop Navigation -->
+
+    <!-- Navigation -->
     <nav class="nav-container" aria-label="Main navigation">
         <div class="nav-main">
             <a href="index.html" class="nav-brand" aria-label="Cruise Companion Home">
@@ -42,336 +1417,55 @@
                     <span class="nav-brand-subtitle">Adventure of the Seas · Feb 14-20</span>
                 </div>
             </a>
-            <div class="nav-desktop">
-                <ul class="nav-primary" role="menubar" aria-label="Primary sections">
-                    <li class="nav-primary-item" role="none">
-                        <a href="index.html" class="nav-primary-link active" role="menuitem" aria-current="page">
-                            <span class="nav-icon" aria-hidden="true">🏠</span>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-primary-item" role="none">
-                        <a href="itinerary.html" class="nav-primary-link" role="menuitem">
-                            <span class="nav-icon" aria-hidden="true">🗓️</span>
-                            <span>Itinerary</span>
-                        </a>
-                    </li>
-                    <li class="nav-primary-item" role="none">
-                        <a href="operations.html" class="nav-primary-link" role="menuitem">
-                            <span class="nav-icon" aria-hidden="true">📋</span>
-                            <span>Checklist</span>
-                            <span class="nav-bottom-badge" data-critical-badge="" aria-label="6 critical items" style="display: grid;">6</span>
-                        </a>
-                    </li>
-                    <li class="nav-primary-item" role="none">
-                        <a href="rooms.html" class="nav-primary-link" role="menuitem">
-                            <span class="nav-icon" aria-hidden="true">🛌</span>
-                            <span>Rooms</span>
-                        </a>
-                    </li>
-                    <li class="nav-primary-item" role="none">
-                        <a href="dining.html" class="nav-primary-link" role="menuitem">
-                            <span class="nav-icon" aria-hidden="true">🍽️</span>
-                            <span>Dining</span>
-                        </a>
-                    </li>
-                    <li class="nav-primary-item" role="none">
-                        <a href="tips.html" class="nav-primary-link" role="menuitem">
-                            <span class="nav-icon" aria-hidden="true">💡</span>
-                            <span>Tips</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="nav-quick-actions">
-                <span class="nav-chip">
-                    <i class="fas fa-anchor" aria-hidden="true"></i>
-                    <span>Board: 11:00 AM</span>
-                </span>
-                <span class="nav-chip">
-                    <i class="fas fa-compass" aria-hidden="true"></i>
-                    <span>Muster: F6</span>
-                </span>
-                <button class="nav-search-toggle" id="searchBtn" aria-label="Search cruise information" type="button">
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                </button>
-                <button class="nav-mobile-toggle" id="mobileMenuBtn" aria-label="Open mobile menu" aria-expanded="false" type="button">
-                    <span aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Mobile Menu -->
-    <div class="nav-mobile-menu" id="navMobileMenu" aria-hidden="true">
-        <div class="nav-mobile-header">
-            <div class="nav-brand">
-                <span class="nav-brand-badge" aria-hidden="true">⛵</span>
-                <div class="nav-brand-text">
-                    <span class="nav-brand-title">Cruise Companion</span>
-                    <span class="nav-brand-subtitle">Adventure of the Seas</span>
-                </div>
-            </div>
-            <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu" type="button">
-                <i class="fas fa-times" aria-hidden="true"></i>
+            <button class="btn btn--outline" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i> Back
             </button>
         </div>
-        <div class="nav-mobile-content">
-            <div class="nav-mobile-section">
-                <h3 class="nav-mobile-section-title">Main Sections</h3>
-                <ul class="nav-mobile-list" role="menu">
-                    <li class="nav-mobile-item" role="none">
-                        <a href="index.html" class="nav-mobile-link active" role="menuitem" aria-current="page">
-                            <span class="nav-mobile-icon" aria-hidden="true">🏠</span>
-                            <span class="nav-mobile-label">Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-mobile-item" role="none">
-                        <a href="itinerary.html" class="nav-mobile-link" role="menuitem">
-                            <span class="nav-mobile-icon" aria-hidden="true">🗓️</span>
-                            <span class="nav-mobile-label">Itinerary</span>
-                        </a>
-                    </li>
-                    <li class="nav-mobile-item" role="none">
-                        <a href="operations.html" class="nav-mobile-link" role="menuitem">
-                            <span class="nav-mobile-icon" aria-hidden="true">📋</span>
-                            <span class="nav-mobile-label">Checklist</span>
-                        </a>
-                    </li>
-                    <li class="nav-mobile-item" role="none">
-                        <a href="rooms.html" class="nav-mobile-link" role="menuitem">
-                            <span class="nav-mobile-icon" aria-hidden="true">🛌</span>
-                            <span class="nav-mobile-label">Rooms & Muster</span>
-                        </a>
-                    </li>
-                    <li class="nav-mobile-item" role="none">
-                        <a href="dining.html" class="nav-mobile-link" role="menuitem">
-                            <span class="nav-mobile-icon" aria-hidden="true">🍽️</span>
-                            <span class="nav-mobile-label">Dining</span>
-                        </a>
-                    </li>
-                    <li class="nav-mobile-item" role="none">
-                        <a href="tips.html" class="nav-mobile-link" role="menuitem">
-                            <span class="nav-mobile-icon" aria-hidden="true">💡</span>
-                            <span class="nav-mobile-label">Tips</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="nav-mobile-section">
-                <h3 class="nav-mobile-section-title">More Features</h3>
-                <ul class="nav-mobile-list" role="menu">
-                    <li class="nav-mobile-item" role="none">
-                        <button class="nav-mobile-link" data-section="deck-plans" role="menuitem" type="button" aria-current="false" aria-pressed="false">
-                            <span class="nav-mobile-icon" aria-hidden="true">🗺️</span>
-                            <span class="nav-mobile-label">Deck Plans</span>
-                        </button>
-                    </li>
-                    <li class="nav-mobile-item" role="none">
-                        <button class="nav-mobile-link" data-section="communication" role="menuitem" type="button" aria-current="false" aria-pressed="false">
-                            <span class="nav-mobile-icon" aria-hidden="true">💬</span>
-                            <span class="nav-mobile-label">Comms & Budget</span>
-                        </button>
-                    </li>
-                    <li class="nav-mobile-item" role="none">
-                        <button class="nav-mobile-link" data-section="integrate" role="menuitem" type="button" aria-current="false" aria-pressed="false">
-                            <span class="nav-mobile-icon" aria-hidden="true">⭐</span>
-                            <span class="nav-mobile-label">VIP Upgrades</span>
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <div class="nav-mobile-section">
-                <h3 class="nav-mobile-section-title">Quick Info</h3>
-                <div class="nav-mobile-quick-actions">
-                    <div class="nav-mobile-chip">
-                        <i class="fas fa-anchor" aria-hidden="true"></i>
-                        <span>Board: 11:00 AM</span>
-                    </div>
-                    <div class="nav-mobile-chip">
-                        <i class="fas fa-compass" aria-hidden="true"></i>
-                        <span>Muster: F6</span>
-                    </div>
-                    <div class="nav-mobile-chip">
-                        <i class="fas fa-ship" aria-hidden="true"></i>
-                        <span>Adventure OTS</span>
-                    </div>
-                    <div class="nav-mobile-chip">
-                        <i class="fas fa-users" aria-hidden="true"></i>
-                        <span>14 Travelers</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="nav-mobile-footer">
-            <div class="nav-mobile-footer-copy">
-                <p>Tap any section to jump instantly</p>
-                <div class="nav-mobile-footer-meta">
-                    <i class="fas fa-ship" aria-hidden="true"></i>
-                    <span>Feb 14–20, 2026</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Bottom Navigation (Mobile Only) -->
-    <nav class="nav-bottom" aria-label="Mobile bottom navigation">
-        <a href="index.html" class="nav-bottom-item active" aria-label="Go to Dashboard" aria-current="page">
-            <span class="nav-bottom-icon" aria-hidden="true">🏠</span>
-            <span>Home</span>
-        </a>
-        <a href="itinerary.html" class="nav-bottom-item" aria-label="Go to Itinerary">
-            <span class="nav-bottom-icon" aria-hidden="true">🗓️</span>
-            <span>Schedule</span>
-        </a>
-        <a href="operations.html" class="nav-bottom-item" aria-label="Go to Checklist">
-            <span class="nav-bottom-icon" aria-hidden="true">📋</span>
-            <span>Checklist</span>
-            <span class="nav-bottom-badge" data-critical-badge="" aria-label="6 critical items">6</span>
-        </a>
-        <a href="tips.html" class="nav-bottom-item" aria-label="Go to Tips">
-            <span class="nav-bottom-icon" aria-hidden="true">💡</span>
-            <span>Tips</span>
-        </a>
-        <button class="nav-bottom-item" id="mobileMoreBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="navMobileMenu" aria-label="Open more options menu">
-            <span class="nav-bottom-icon" aria-hidden="true">⋯</span>
-            <span>More</span>
-        </button>
     </nav>
-    
-    <!-- Sticky Top Bar Hint -->
-    <div class="top-bar-hint is-hidden" id="topBarHint" role="status" aria-live="polite" aria-atomic="true">
-        <div class="container">
-            <div class="top-bar-hint__content">
-                <div class="top-bar-hint__left">
-                    <div class="top-bar-hint__title" id="topBarHintTitleWrap">
-                        <i class="fas fa-sun" aria-hidden="true"></i>
-                        <span id="topBarHintTitle">Day 4: Falmouth</span>
-                        <span class="top-bar-hint__badge" id="topBarHintBadge" aria-hidden="true">DAY 4</span>
-                    </div>
-                    <div class="top-bar-hint__detail" id="topBarHintDetail">Falmouth, Jamaica gangway 8:30 AM - 4:30 PM</div>
-                    <div class="top-bar-hint__meta" aria-hidden="true">
-                        <span class="top-bar-hint__meta-item">
-                            <i class="fas fa-mouse-pointer" aria-hidden="true"></i> Tap
-                        </span>
-                        <span class="top-bar-hint__meta-dot">•</span>
-                        <span class="top-bar-hint__meta-item">
-                            <i class="fas fa-keyboard" aria-hidden="true"></i> Use ← →
-                        </span>
-                    </div>
-                </div>
-                <button class="top-bar-hint__close" id="topBarHintClose" type="button" aria-label="Hide today hint">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Search Overlay -->
-    <div class="search-overlay" id="searchOverlay" role="dialog" aria-modal="true" aria-labelledby="searchTitle" aria-hidden="true">
-        <div class="search-container" role="document">
-            <div class="search-header">
-                <div class="search-header__title">
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                    <span id="searchTitle">Search Cruise Guide</span>
-                </div>
-                <div class="search-header__hint" aria-hidden="true">
-                    <kbd>Esc</kbd> to close
-                </div>
-            </div>
-            <form class="search-form" id="searchForm" role="search" aria-label="Search the cruise guide">
-                <input type="search" class="search-input" id="searchInput" placeholder="Search ports, dining, rooms, eMuster, budget…" aria-label="Search cruise information" autocomplete="off" inputmode="search" enterkeyhint="search">
-                <button type="submit" class="search-submit" aria-label="Search">
-                    <i class="fas fa-search" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="search-close" id="searchClose" aria-label="Close search">
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
-            </form>
-            <div class="search-chips" aria-label="Quick search shortcuts">
-                <div class="search-suggestions__title">Quick</div>
-                <div class="search-suggestion-chips">
-                    <button type="button" class="search-chip" data-query="critical info">
-                        <i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Critical Info
-                    </button>
-                    <button type="button" class="search-chip" data-query="today plan">
-                        <i class="fas fa-calendar-day" aria-hidden="true"></i> Today's Plan
-                    </button>
-                    <button type="button" class="search-chip" data-query="emergency">
-                        <i class="fas fa-phone" aria-hidden="true"></i> Emergency
-                    </button>
-                </div>
-            </div>
-            <div class="search-suggestions" id="searchSuggestions" aria-live="polite" aria-atomic="false">
-                <div class="search-suggestions__group">
-                    <div class="search-suggestions__title">Suggested</div>
-                    <div class="search-suggestion-chips" id="suggestedSearchChips">
-                        <button type="button" class="search-chip" data-query="What time do I board?">What time do I board?</button>
-                        <button type="button" class="search-chip" data-query="Where is my room?">Where is my room?</button>
-                        <button type="button" class="search-chip" data-query="eMuster Station F6">eMuster Station F6</button>
-                        <button type="button" class="search-chip" data-query="Dining reservations">Dining reservations</button>
-                        <button type="button" class="search-chip" data-query="Shore excursions">Shore excursions</button>
-                    </div>
-                </div>
-                <div class="search-suggestions__group" id="recentSearchesGroup" hidden="">
-                    <div class="search-suggestions__title">Recent</div>
-                    <div class="search-suggestion-chips" id="recentSearchChips"></div>
-                </div>
-            </div>
-            <div class="search-results" id="searchResults" aria-live="polite">
-                <div class="no-results">
-                    <p>Type to search for cruise information…</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+
     <!-- Hero Section -->
     <section class="hero" aria-labelledby="heroTitle">
         <div class="container">
             <div class="hero__content">
                 <div class="hero__badge-row" aria-hidden="true">
-                    <span class="hero__badge"><span class="emoji" aria-hidden="true">🚢</span> Adventure of the Seas</span>
-                    <span class="hero__badge"><span class="emoji" aria-hidden="true">🌴</span> Western Caribbean</span>
-                    <span class="hero__badge hero__badge--gold"><span class="emoji" aria-hidden="true">🗓️</span> Feb 14–20, 2026</span>
+                    <span class="hero__badge"><span aria-hidden="true">🚢</span> Adventure of the Seas</span>
+                    <span class="hero__badge"><span aria-hidden="true">🌴</span> Western Caribbean</span>
+                    <span class="hero__badge hero__badge--gold"><span aria-hidden="true">🗓️</span> Feb 14–20, 2026</span>
                 </div>
                 <h1 id="heroTitle" class="hero__title">Your Caribbean Cruise Adventure</h1>
                 <p class="hero__subtitle">
-                    Rahe Family &amp; Friends • Adventure of the Seas • February 14–20, 2026
+                    Rahe Family & Friends • Adventure of the Seas • February 14–20, 2026
                 </p>
                 <!-- Countdown Timer -->
                 <div class="countdown" role="timer" aria-live="polite" aria-label="Countdown to cruise departure">
                     <div class="countdown-item">
-                        <span class="countdown-number" id="days" aria-label="10 days remaining">10</span>
+                        <span class="countdown-number" id="days">12</span>
                         <span class="countdown-label">Days</span>
                     </div>
                     <div class="countdown-item">
-                        <span class="countdown-number" id="hours" aria-label="19 hours remaining">19</span>
+                        <span class="countdown-number" id="hours">19</span>
                         <span class="countdown-label">Hours</span>
                     </div>
                     <div class="countdown-item">
-                        <span class="countdown-number" id="minutes" aria-label="37 minutes remaining">37</span>
+                        <span class="countdown-number" id="minutes">37</span>
                         <span class="countdown-label">Minutes</span>
                     </div>
                 </div>
                 <!-- Quick Actions -->
                 <div class="hero__actions" role="group" aria-label="Quick actions">
-                    <a href="operations.html" class="btn btn--primary" id="criticalChecklistBtn">
+                    <a href="operations.html" class="btn btn--primary">
                         <i class="fas fa-clipboard-check" aria-hidden="true"></i>
                         Complete Pre-Cruise Checklist
                     </a>
-                    <a href="itinerary.html" class="btn btn--primary" id="printBtn">
+                    <a href="itinerary.html" class="btn btn--primary">
                         <i class="fas fa-print" aria-hidden="true"></i>
                         View Itinerary
                     </a>
-                    <button class="btn btn--ghost" id="offlineBtn" type="button" data-default-label="
-                        &lt;i class=&quot;fas fa-download&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;
-                        Save Offline
-                        " aria-pressed="false">
+                    <button class="btn btn--ghost" id="offlineBtn">
                         <i class="fas fa-download" aria-hidden="true"></i>
                         Save Offline
                     </button>
-                    <button class="btn btn--ghost" id="shareBtn" type="button">
+                    <button class="btn btn--ghost" id="shareBtn">
                         <i class="fas fa-share-alt" aria-hidden="true"></i>
                         Share
                     </button>
@@ -384,19 +1478,18 @@
                 </div>
                 <div class="rc-key-benefits" aria-label="Royal Caribbean The Key benefits">
                     <div class="key-benefit">
-                        <span class="emoji" aria-hidden="true">🔑</span>
+                        <span aria-hidden="true">🔑</span>
                         <span>The Key® • Priority Boarding • 11:00 AM</span>
                     </div>
                     <div class="key-benefit">
-                        <span class="emoji" aria-hidden="true">📶</span>
+                        <span aria-hidden="true">📶</span>
                         <span>VOOM® Surf + Stream • 1 Device</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="rc-wave-bg" aria-hidden="true"></div>
     </section>
-    
+
     <!-- Main Content -->
     <main id="main-content" class="main" role="main">
         <div class="container">
@@ -410,130 +1503,35 @@
                             <i class="fas fa-times" aria-hidden="true"></i>
                         </button>
                     </div>
-                    
+
+                    <!-- View Panel -->
                     <section class="view-panel" aria-labelledby="viewPanelTitle">
-                        <h2 class="view-panel__title" id="viewPanelTitle">View &amp; Filters</h2>
-                        <div class="nav-secondary nav-secondary--panel" id="navSecondary">
+                        <h2 class="view-panel__title" id="viewPanelTitle">View & Filters</h2>
+                        <div class="nav-secondary">
                             <div class="nav-context">
                                 <h2 class="nav-context-title" id="navContextTitle">
                                     <span>Dashboard</span>
-                                    <span class="nav-context-badge" id="navContextBadge" aria-hidden="true" style="background: rgba(54, 194, 255, 0.2); color: rgb(215, 241, 255);">Overview</span>
+                                    <span class="nav-context-badge">Overview</span>
                                 </h2>
                             </div>
                             <div class="nav-tools">
-                                <div class="nav-view-toggle" role="tablist" aria-label="View tabs" style="display: flex;">
-                                    <button class="nav-view-btn" data-view="today" role="tab" aria-selected="false" aria-controls="main-content" tabindex="-1" type="button" hidden="">
-                                        <i class="fas fa-calendar-day" aria-hidden="true"></i>
-                                        <span>Today</span>
-                                    </button>
-                                    <button class="nav-view-btn" data-view="first-timer" role="tab" aria-selected="false" aria-controls="main-content" tabindex="-1" type="button" hidden="">
+                                <div class="nav-view-toggle" role="tablist" aria-label="View tabs">
+                                    <button class="nav-view-btn" data-view="first-timer" role="tab" aria-selected="false" aria-controls="main-content" tabindex="-1">
                                         <i class="fas fa-route" aria-hidden="true"></i>
                                         <span>First-Timer</span>
                                     </button>
-                                    <button class="nav-view-btn active" data-view="veteran" role="tab" aria-selected="true" aria-controls="main-content" tabindex="0" type="button">
+                                    <button class="nav-view-btn active" data-view="veteran" role="tab" aria-selected="true" aria-controls="main-content" tabindex="0">
                                         <i class="fas fa-list" aria-hidden="true"></i>
                                         <span>All Details</span>
                                     </button>
                                 </div>
-                                <div class="nav-day-selector" id="navDaySelector" aria-hidden="true" style="display: none;">
-                                    <button class="nav-day-btn" data-day="all" type="button" aria-pressed="false">All Days</button>
-                                    <button class="nav-day-btn" data-day="1" type="button" aria-pressed="false">Day 1</button>
-                                    <button class="nav-day-btn" data-day="2" type="button" aria-pressed="false">Day 2</button>
-                                    <button class="nav-day-btn" data-day="3" type="button" aria-pressed="false">Day 3</button>
-                                    <button class="nav-day-btn active" data-day="4" type="button" aria-pressed="true">Day 4</button>
-                                    <button class="nav-day-btn" data-day="5" type="button" aria-pressed="false">Day 5</button>
-                                    <button class="nav-day-btn" data-day="6" type="button" aria-pressed="false">Day 6</button>
-                                    <button class="nav-day-btn" data-day="7" type="button" aria-pressed="false">Day 7</button>
-                                </div>
                             </div>
                         </div>
                     </section>
-                    
-                    <!-- TODAY SECTION (Dynamic - Changes based on current date) -->
-                    <section id="today" class="section section--pinned section--critical" data-view="today first-timer veteran" aria-labelledby="todayTitle" aria-hidden="true" hidden="true">
-                        <div class="card card--featured">
-                            <div class="card__header">
-                                <div class="card__icon" aria-hidden="true">
-                                    <i class="fas fa-calendar-day"></i>
-                                </div>
-                                <div>
-                                    <h2 id="todayTitle" class="card__title">Today: Preparation Mode</h2>
-                                    <p class="card__subtitle">12 days until embarkation • Focus on these essentials</p>
-                                </div>
-                            </div>
-                            <div class="card__content">
-                                <div class="today-timeline">
-                                    <div class="today-task today-task--critical">
-                                        <div class="task-time">This Week</div>
-                                        <div class="task-content">
-                                            <h3>Complete Online Check-in</h3>
-                                            <p>Opens ~Dec 31. Upload photos, select 11:00 AM arrival time</p>
-                                            <button class="btn btn--outline btn--sm">
-                                                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                                                Open Check-in
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="today-task today-task--important">
-                                        <div class="task-time">This Week</div>
-                                        <div class="task-content">
-                                            <h3>Link All Bookings in Royal App</h3>
-                                            <p>Ensure all 5 staterooms appear. Enable notifications.</p>
-                                            <div class="task-checklist">
-                                                <label><input type="checkbox"> Downloaded Royal Caribbean app</label>
-                                                <label><input type="checkbox"> Linked booking #12345678</label>
-                                                <label><input type="checkbox"> Created family chat group</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="today-task">
-                                        <div class="task-time">Before Feb 1</div>
-                                        <div class="task-content">
-                                            <h3>Reserve Shore Excursions</h3>
-                                            <p>Priority: Dunn's River Falls + Dragon's Breath zip-line</p>
-                                            <a href="itinerary.html" class="btn btn--outline btn--sm">
-                                                View Port Details
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="today-task">
-                                        <div class="task-time">Before Feb 1</div>
-                                        <div class="task-content">
-                                            <h3>Book Specialty Dining</h3>
-                                            <p>Chops Grille, Izumi, Giovanni's • 2 formal nights</p>
-                                            <a href="dining.html" class="btn btn--outline btn--sm">
-                                                See Dining Options
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="comm-block">
-                                        <h3>🧾 Policies &amp; Gratuities</h3>
-                                        <ul class="list list--icon">
-                                            <li>
-                                                <i class="fas fa-dollar-sign" aria-hidden="true"></i>
-                                                <span><strong>Gratuities:</strong> $18.50 pp/day ($21 suites)</span>
-                                            </li>
-                                            <li>
-                                                <i class="fas fa-wine-bottle" aria-hidden="true"></i>
-                                                <span><strong>Alcohol:</strong> 1 sealed 750ml wine per adult</span>
-                                            </li>
-                                            <li>
-                                                <i class="fas fa-smoking" aria-hidden="true"></i>
-                                                <span><strong>Smoking:</strong> Port side Deck 11 + Casino</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="note note--info mt-8">
-                                    <strong>Budget Tip:</strong> Review SeaPass charges nightly via app or cabin TV. Use shared Google Sheet for real-time expense tracking.
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    
+
                     <!-- Quick Start Guide -->
-                    <section id="quick-start" class="section section--critical" data-view="today first-timer veteran" aria-labelledby="quickStartTitle" aria-hidden="true" hidden="true">
-                        <div class="card quick-start">
+                    <section id="quick-start" class="section" data-view="first-timer veteran" aria-labelledby="quickStartTitle">
+                        <div class="card">
                             <div class="card__header">
                                 <div class="card__icon" aria-hidden="true">
                                     <i class="fas fa-bolt"></i>
@@ -542,77 +1540,76 @@
                                     <h2 id="quickStartTitle" class="card__title">Quick Start Guide</h2>
                                     <p class="card__subtitle">Five essentials to handle first, with fewer clicks</p>
                                 </div>
+                                <button class="card__toggle" aria-expanded="true" aria-controls="quickStartContent">
+                                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                    <span class="sr-only">Toggle section</span>
+                                </button>
                             </div>
-                            <ul class="quick-start__list">
-                                <li class="quick-start__item">
-                                    <span class="quick-start__item-showcase" aria-hidden="true">🧭</span>
-                                    <div>
-                                        <strong>Confirm embarkation timeline.</strong>
-                                        <p class="text-sm mb-0">Arrive early, regroup before lunch, departure at 2:00 PM.</p>
-                                    </div>
-                                </li>
-                                <li class="quick-start__item">
-                                    <span class="quick-start__item-showcase" aria-hidden="true">🛟</span>
-                                    <div>
-                                        <strong>Complete eMuster &amp; safety checklist.</strong>
-                                        <p class="text-sm mb-0">Finish the important checklist in the Guide highlights.</p>
-                                    </div>
-                                </li>
-                                <li class="quick-start__item">
-                                    <span class="quick-start__item-showcase" aria-hidden="true">🏷️</span>
-                                    <div>
-                                        <strong>Verify rooms and muster stations.</strong>
-                                        <p class="text-sm mb-0">Confirm stateroom assignments and station F6 in the Rooms section.</p>
-                                    </div>
-                                </li>
-                                <li class="quick-start__item">
-                                    <span class="quick-start__item-showcase" aria-hidden="true">🗓️</span>
-                                    <div>
-                                        <strong>Scan the day-by-day itinerary.</strong>
-                                        <p class="text-sm mb-0">Check port plans and all-aboard times for each day.</p>
-                                    </div>
-                                </li>
-                                <li class="quick-start__item">
-                                    <span class="quick-start__item-showcase" aria-hidden="true">📶</span>
-                                    <div>
-                                        <strong>Get connected fast.</strong>
-                                        <p class="text-sm mb-0">Join the Royal app chat + connect to Royal-WiFi.</p>
-                                    </div>
-                                </li>
-                            </ul>
-                            <div class="quick-start__actions">
-                                <a href="operations.html" class="btn btn--primary quick-start__link">
-                                    <i class="fas fa-clipboard-check" aria-hidden="true"></i>
-                                    Open Important Checklist
-                                </a>
-                                <a href="itinerary.html" class="btn btn--outline quick-start__link">
-                                    <i class="fas fa-route" aria-hidden="true"></i>
-                                    View Itinerary
-                                </a>
-                                <a href="rooms.html" class="btn btn--outline quick-start__link">
-                                    <i class="fas fa-bed" aria-hidden="true"></i>
-                                    Rooms & Muster
-                                </a>
-                                <div class="critical-toggle" aria-live="polite">
-                                    <button class="btn btn--outline" id="criticalToggleBtn" aria-pressed="false">
-                                        <i class="fas fa-filter" aria-hidden="true"></i>
-                                        Important Info Only
-                                    </button>
-                                    <span class="critical-toggle__status" id="criticalToggleStatus">Showing all sections</span>
+                            <div id="quickStartContent" class="card__content expanded">
+                                <ul class="quick-start__list">
+                                    <li class="quick-start__item">
+                                        <span class="quick-start__item-showcase" aria-hidden="true">🧭</span>
+                                        <div>
+                                            <strong>Confirm embarkation timeline.</strong>
+                                            <p class="text-sm mb-0">Arrive early, regroup before lunch, departure at 2:00 PM.</p>
+                                        </div>
+                                    </li>
+                                    <li class="quick-start__item">
+                                        <span class="quick-start__item-showcase" aria-hidden="true">🛟</span>
+                                        <div>
+                                            <strong>Complete eMuster & safety checklist.</strong>
+                                            <p class="text-sm mb-0">Finish the important checklist in the Guide highlights.</p>
+                                        </div>
+                                    </li>
+                                    <li class="quick-start__item">
+                                        <span class="quick-start__item-showcase" aria-hidden="true">🏷️</span>
+                                        <div>
+                                            <strong>Verify rooms and muster stations.</strong>
+                                            <p class="text-sm mb-0">Confirm stateroom assignments and station F6 in the Rooms section.</p>
+                                        </div>
+                                    </li>
+                                    <li class="quick-start__item">
+                                        <span class="quick-start__item-showcase" aria-hidden="true">🗓️</span>
+                                        <div>
+                                            <strong>Scan the day-by-day itinerary.</strong>
+                                            <p class="text-sm mb-0">Check port plans and all-aboard times for each day.</p>
+                                        </div>
+                                    </li>
+                                    <li class="quick-start__item">
+                                        <span class="quick-start__item-showcase" aria-hidden="true">📶</span>
+                                        <div>
+                                            <strong>Get connected fast.</strong>
+                                            <p class="text-sm mb-0">Join the Royal app chat + connect to Royal-WiFi.</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div class="quick-start__actions">
+                                    <a href="operations.html" class="btn btn--primary quick-start__link">
+                                        <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+                                        Open Important Checklist
+                                    </a>
+                                    <a href="itinerary.html" class="btn btn--outline quick-start__link">
+                                        <i class="fas fa-route" aria-hidden="true"></i>
+                                        View Itinerary
+                                    </a>
+                                    <a href="rooms.html" class="btn btn--outline quick-start__link">
+                                        <i class="fas fa-bed" aria-hidden="true"></i>
+                                        Rooms & Muster
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </section>
-                    
+
                     <!-- Overview Section -->
-                    <section id="overview" class="section active" data-view="first-timer veteran" aria-labelledby="overviewTitle" aria-hidden="false">
+                    <section id="overview" class="section" data-view="first-timer veteran" aria-labelledby="overviewTitle">
                         <div class="card">
                             <div class="card__header">
                                 <div class="card__icon" aria-hidden="true">
                                     <i class="fas fa-info-circle"></i>
                                 </div>
                                 <div>
-                                    <h2 id="overviewTitle" class="card__title">Cruise Overview &amp; Details</h2>
+                                    <h2 id="overviewTitle" class="card__title">Cruise Overview & Details</h2>
                                     <p class="card__subtitle">Complete trip information and booking details</p>
                                 </div>
                                 <button class="card__toggle" aria-expanded="true" aria-controls="overviewContent">
@@ -620,16 +1617,16 @@
                                     <span class="sr-only">Toggle section</span>
                                 </button>
                             </div>
-                            <div id="overviewContent" class="card__content expanded" aria-hidden="false" style="max-height: none;">
+                            <div id="overviewContent" class="card__content expanded">
                                 <div class="grid-2">
                                     <div class="rc-card">
                                         <span class="rc-badge">Royal Amplified™ • Voyager Class</span>
-                                        <h3 class="rc-headline" style="margin:14px 0 8px;">Official Booking Snapshot</h3>
+                                        <h3 class="rc-headline">Official Booking Snapshot</h3>
                                         <p class="rc-body mb-0">SeaPass® linked • Adventure of the Seas • Booking #: 12345678</p>
-                                        <p class="rc-caption" style="margin:8px 0 0;">Health &amp; Safety • eMuster® required by 4:00 PM</p>
+                                        <p class="rc-caption">Health & Safety • eMuster® required by 4:00 PM</p>
                                     </div>
                                     <div class="perfect-day-card">
-                                        <div style="position:relative;z-index:1;margin-top:40px;">
+                                        <div style="position:relative;z-index:1;">
                                             <p class="rc-body" style="color:rgba(255,255,255,.9);margin:0 0 12px;">Thrill Waterpark + Oasis Lagoon access included for Day 6.</p>
                                             <span class="rc-badge">Perfect Day at CocoCay®</span>
                                         </div>
@@ -666,31 +1663,31 @@
                                             </li>
                                             <li>
                                                 <i class="fas fa-bolt" aria-hidden="true"></i>
-                                                <span>Amplified ship: Typhoon &amp; Cyclone racers, FlowRider, laser-tag</span>
+                                                <span>Amplified ship: Typhoon & Cyclone racers, FlowRider, laser-tag</span>
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="rc-app-integration mt-8">
                                     <div class="app-qr-code">
-                                        <img src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'&gt;&lt;defs&gt;&lt;linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'&gt;&lt;stop offset='0%25' stop-color='%230b2c4a'/&gt;&lt;stop offset='100%25' stop-color='%23144a7a'/&gt;&lt;/linearGradient&gt;&lt;linearGradient id='screen' x1='0' y1='0' x2='0' y2='1'&gt;&lt;stop offset='0%25' stop-color='%232a6ea6'/&gt;&lt;stop offset='100%25' stop-color='%230b2c4a'/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect width='160' height='160' rx='24' fill='url(%23bg)'/&gt;&lt;rect x='46' y='18' width='68' height='124' rx='18' fill='%2306192b' stroke='rgba(255,255,255,0.35)' stroke-width='2'/&gt;&lt;rect x='56' y='34' width='48' height='76' rx='12' fill='url(%23screen)'/&gt;&lt;circle cx='80' cy='118' r='8' fill='%2336c2ff'/&gt;&lt;path d='M60 78c8-10 28-10 36 0' stroke='%23ffffff' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.8'/&gt;&lt;path d='M60 90c8-10 28-10 36 0' stroke='%23ffce6b' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.9'/&gt;&lt;text x='80' y='148' font-family='Montserrat, Arial, sans-serif' font-size='12' fill='%23d9f3ff' text-anchor='middle'&gt;Royal Caribbean App&lt;/text&gt;&lt;/svg&gt;" alt="Royal Caribbean App">
+                                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%230b2c4a'/><stop offset='100%' stop-color='%23144a7a'/></linearGradient><linearGradient id='screen' x1='0' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='%232a6ea6'/><stop offset='100%' stop-color='%230b2c4a'/></linearGradient></defs><rect width='160' height='160' rx='24' fill='url(%23bg)'/><rect x='46' y='18' width='68' height='124' rx='18' fill='%2306192b' stroke='rgba(255,255,255,0.35)' stroke-width='2'/><rect x='56' y='34' width='48' height='76' rx='12' fill='url(%23screen)'/><circle cx='80' cy='118' r='8' fill='%2336c2ff'/><path d='M60 78c8-10 28-10 36 0' stroke='%23ffffff' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.8'/><path d='M60 90c8-10 28-10 36 0' stroke='%23ffce6b' stroke-width='3' fill='none' stroke-linecap='round' opacity='0.9'/><text x='80' y='148' font-family='Montserrat, Arial, sans-serif' font-size='12' fill='%23d9f3ff' text-anchor='middle'>Royal Caribbean App</text></svg>" alt="Royal Caribbean App">
                                     </div>
                                     <div class="app-features">
-                                        <h3><span class="emoji" aria-hidden="true">📱</span> Royal Caribbean App</h3>
+                                        <h3><span aria-hidden="true">📱</span> Royal Caribbean App</h3>
                                         <ul>
-                                            <li><span class="emoji" aria-hidden="true">✅</span> Linked to your booking</li>
-                                            <li><span class="emoji" aria-hidden="true">💬</span> Free onboard messaging</li>
-                                            <li><span class="emoji" aria-hidden="true">🗓️</span> Daily schedule updates</li>
-                                            <li><span class="emoji" aria-hidden="true">🗺️</span> Interactive deck plans</li>
+                                            <li><span aria-hidden="true">✅</span> Linked to your booking</li>
+                                            <li><span aria-hidden="true">💬</span> Free onboard messaging</li>
+                                            <li><span aria-hidden="true">🗓️</span> Daily schedule updates</li>
+                                            <li><span aria-hidden="true">🗺️</span> Interactive deck plans</li>
                                         </ul>
-                                        <button class="rc-btn" type="button">
-                                            <span class="emoji" aria-hidden="true">🔗</span> Open in Royal App
+                                        <button class="rc-btn" type="button" onclick="alert('Opening Royal Caribbean app...')">
+                                            <span aria-hidden="true">🔗</span> Open in Royal App
                                         </button>
                                     </div>
                                 </div>
                                 <div class="official-muster-info mt-8">
                                     <div class="muster-header">
-                                        <h3><span class="emoji" aria-hidden="true">⚓</span> Official Muster Station</h3>
+                                        <h3><span aria-hidden="true">⚓</span> Official Muster Station</h3>
                                         <div class="muster-badge">F6</div>
                                     </div>
                                     <div class="muster-details">
@@ -705,11 +1702,11 @@
                                     </div>
                                 </div>
                                 <div class="rc-progress-tracker mt-8">
-                                    <h4><span class="emoji" aria-hidden="true">✅</span> Cruise Checklist</h4>
+                                    <h4><span aria-hidden="true">✅</span> Cruise Checklist</h4>
                                     <div class="tracker-item">
                                         <span>Online Check-in</span>
                                         <div class="tracker-status completed">
-                                            <span class="emoji" aria-hidden="true">✅</span> Complete
+                                            <span aria-hidden="true">✅</span> Complete
                                         </div>
                                     </div>
                                     <div class="tracker-item">
@@ -722,100 +1719,23 @@
                                     <div class="tracker-item">
                                         <span>Dining Reservations</span>
                                         <div class="tracker-status pending">
-                                            <span class="emoji" aria-hidden="true">⏳</span> Opens Dec 31
+                                            <span aria-hidden="true">⏳</span> Opens Dec 31
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </section>
-                    
-                    <!-- Communication & Budget Section -->
-                    <section id="communication" class="section" data-view="first-timer veteran" aria-labelledby="communicationTitle" aria-hidden="true" hidden="true">
-                        <div class="card">
-                            <div class="card__header">
-                                <div class="card__icon" aria-hidden="true">
-                                    <i class="fas fa-comments-dollar"></i>
-                                </div>
-                                <div>
-                                    <h2 id="communicationTitle" class="card__title">Communication &amp; Budget Plan</h2>
-                                    <p class="card__subtitle">Stay connected and manage expenses</p>
-                                </div>
-                                <button class="card__toggle" aria-expanded="false" aria-controls="communicationContent">
-                                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                                    <span class="sr-only">Toggle section</span>
-                                </button>
-                            </div>
-                            <div id="communicationContent" class="card__content collapsed">
-                                <div class="tips-grid">
-                                    <!-- Connectivity Plan -->
-                                    <div class="tip-card">
-                                        <div class="tip-header">
-                                            <div class="tip-icon">📱</div>
-                                            <h4>Connectivity Plan</h4>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li><strong>Royal app chat:</strong> Free on ship Wi-Fi for group updates</li>
-                                            <li><strong>VOOM Surf + Stream:</strong> From ~$16 pp/day (pre-cruise)</li>
-                                            <li><strong>In port:</strong> WhatsApp if on cellular or local Wi-Fi</li>
-                                            <li><strong>Best Wi-Fi signal:</strong> Deck 4 library zones</li>
-                                            <li><strong>Before sailaway:</strong> Set airplane mode to avoid roaming fees</li>
-                                        </ul>
-                                        <div class="chips mt-4">
-                                            <span class="tag tag--info">110V/220V Outlets + USB</span>
-                                            <span class="tag tag--recommended">WhatsApp: RaheCruise2026</span>
-                                        </div>
-                                    </div>
-                                    <!-- Policies & Gratuities -->
-                                    <div class="tip-card">
-                                        <div class="tip-header">
-                                            <div class="tip-icon">🧾</div>
-                                            <h4>Policies &amp; Gratuities</h4>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li><strong>Daily gratuities:</strong> $18.50 pp/day ($21 suites) auto-charge or pre-pay</li>
-                                            <li><strong>Alcohol policy:</strong> 1 sealed 750 ml wine/champagne per adult at embarkation</li>
-                                            <li><strong>Smoking areas:</strong> Port side Deck 11 + Casino Royale designated zone</li>
-                                            <li><strong>Dress code:</strong> 2 formal nights, smart casual other nights</li>
-                                            <li><strong>Age restrictions:</strong> Must be 21 to drink, 18 to gamble</li>
-                                        </ul>
-                                        <div class="chips mt-4">
-                                            <span class="tag tag--recommended">Review SeaPass Charges Nightly</span>
-                                        </div>
-                                    </div>
-                                    <!-- Budget Dashboard -->
-                                    <div class="tip-card">
-                                        <div class="tip-header">
-                                            <div class="tip-icon">💳</div>
-                                            <h4>Budget Dashboard</h4>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li><strong>Excursions:</strong> $800 (Stingray City, Dunn's River Falls, CocoCay)</li>
-                                            <li><strong>Specialty Dining:</strong> $300 (3 restaurants for 2 people)</li>
-                                            <li><strong>Drinks Package:</strong> $400 (Deluxe Beverage for 2)</li>
-                                            <li><strong>VOOM Wi-Fi:</strong> $150 (2 devices for 6 nights)</li>
-                                            <li><strong>Souvenirs:</strong> $300 (gifts, photos, keepsakes)</li>
-                                            <li><strong>Onboard Credits:</strong> $200 (applied to SeaPass)</li>
-                                        </ul>
-                                        <p class="text-sm text-light mt-4">Use a shared Google Sheet for real-time expense tracking</p>
-                                        <div class="chips mt-4">
-                                            <span class="tag tag--essential">Track Totals Nightly</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    
+
                     <!-- VIP Upgrades Section -->
-                    <section id="integrate" class="section" data-view="first-timer veteran" aria-labelledby="integrateTitle" aria-hidden="true" hidden="true">
+                    <section id="integrate" class="section" data-view="first-timer veteran" aria-labelledby="integrateTitle">
                         <div class="card card--highlight">
                             <div class="card__header">
                                 <div class="card__icon" aria-hidden="true">
                                     <i class="fas fa-star"></i>
                                 </div>
                                 <div>
-                                    <h2 id="integrateTitle" class="card__title">VIP Upgrades &amp; Premium Experiences</h2>
+                                    <h2 id="integrateTitle" class="card__title">VIP Upgrades & Premium Experiences</h2>
                                     <p class="card__subtitle">Enhance your cruise with exclusive options</p>
                                 </div>
                                 <button class="card__toggle" aria-expanded="false" aria-controls="integrateContent">
@@ -824,89 +1744,31 @@
                                 </button>
                             </div>
                             <div id="integrateContent" class="card__content collapsed">
-                                <div class="vip-grid">
-                                    <div class="vip-card">
-                                        <div class="vip-header">
-                                            <div class="vip-icon">⚓</div>
-                                            <h3>The Key® Benefits</h3>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li>Priority boarding at 11:00 AM</li>
-                                            <li>Reserved seating at shows</li>
-                                            <li>Exclusive lounge access</li>
-                                            <li>Complimentary VOOM for 1 device</li>
-                                            <li>Priority departure</li>
+                                <div class="grid-2">
+                                    <div class="overview-block">
+                                        <h3 class="overview-block__title">The Key® Benefits</h3>
+                                        <ul class="list list--icon">
+                                            <li><i class="fas fa-check" aria-hidden="true"></i>Priority boarding at 11:00 AM</li>
+                                            <li><i class="fas fa-check" aria-hidden="true"></i>Reserved seating at shows</li>
+                                            <li><i class="fas fa-check" aria-hidden="true"></i>Exclusive lounge access</li>
+                                            <li><i class="fas fa-check" aria-hidden="true"></i>Complimentary VOOM for 1 device</li>
+                                            <li><i class="fas fa-check" aria-hidden="true"></i>Priority departure</li>
                                         </ul>
-                                        <p class="vip-price">~$25/person/day</p>
+                                        <p class="text-sm text-light mt-4">~$25/person/day</p>
                                     </div>
-                                    <div class="vip-card">
-                                        <div class="vip-header">
-                                            <div class="vip-icon">🗺️</div>
-                                            <h3>Hero Moments</h3>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li>Sunrise zip line at CocoCay</li>
-                                            <li>Blue Hole secret lagoon with LED lights</li>
-                                            <li>Floating cabana with butler service</li>
-                                            <li>Private FlowRider lesson</li>
-                                            <li>Behind-the-scenes kitchen tour</li>
-                                        </ul>
-                                    </div>
-                                    <div class="vip-card">
-                                        <div class="vip-header">
-                                            <div class="vip-icon">🍷</div>
-                                            <h3>Dining Upgrades</h3>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li>Chef's Table wine pairing</li>
-                                            <li>Chops Grille truffle mac off-menu</li>
-                                            <li>Giovanni's limoncello experience</li>
-                                            <li>Windjammer 6:30 AM cronuts</li>
-                                            <li>Suite room service extended hours</li>
-                                        </ul>
-                                    </div>
-                                    <div class="vip-card">
-                                        <div class="vip-header">
-                                            <div class="vip-icon">👨‍👩‍👧‍👦</div>
-                                            <h3>Family Experiences</h3>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li>Themed character night for tots</li>
-                                            <li>Junior mixology mocktail class</li>
-                                            <li>Teen Instagram scavenger hunt</li>
-                                            <li>Adult mixology with master bartender</li>
-                                            <li>Family talent show night</li>
-                                        </ul>
-                                    </div>
-                                    <div class="vip-card">
-                                        <div class="vip-header">
-                                            <div class="vip-icon">🛌</div>
-                                            <h3>Stateroom Enhancements</h3>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li>Premium pillow menu</li>
-                                            <li>Complimentary pressing service</li>
-                                            <li>Sunrise yoga sessions</li>
-                                            <li>Mini projector cinema night</li>
-                                            <li>Espresso maker (suites)</li>
-                                        </ul>
-                                    </div>
-                                    <div class="vip-card">
-                                        <div class="vip-header">
-                                            <div class="vip-icon">🌍</div>
-                                            <h3>Sustainability</h3>
-                                        </div>
-                                        <ul class="guest-list">
-                                            <li>Journey Mode AI itinerary tuning</li>
-                                            <li>Memory Maker 4K drone footage</li>
-                                            <li>Green Anchor recycling rewards</li>
-                                            <li>Carbon offset contributions</li>
-                                            <li>Support local artisan markets</li>
+                                    <div class="overview-block">
+                                        <h3 class="overview-block__title">Hero Moments</h3>
+                                        <ul class="list list--icon">
+                                            <li><i class="fas fa-star" aria-hidden="true"></i>Sunrise zip line at CocoCay</li>
+                                            <li><i class="fas fa-star" aria-hidden="true"></i>Blue Hole secret lagoon with LED lights</li>
+                                            <li><i class="fas fa-star" aria-hidden="true"></i>Floating cabana with butler service</li>
+                                            <li><i class="fas fa-star" aria-hidden="true"></i>Private FlowRider lesson</li>
+                                            <li><i class="fas fa-star" aria-hidden="true"></i>Behind-the-scenes kitchen tour</li>
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="note note--accent mt-8">
-                                    <strong>VIP Digital Passport:</strong> Access exclusive content, captain's videos, and crew secrets via the Royal app.
+                                <div class="note mt-8" style="background: #fff8e1; border-left-color: #f6ad55; padding: 15px;">
+                                    <strong><i class="fas fa-lightbulb" aria-hidden="true"></i> VIP Digital Passport:</strong> Access exclusive content, captain's videos, and crew secrets via the Royal app.
                                 </div>
                             </div>
                         </div>
@@ -949,23 +1811,23 @@
                         </h3>
                         <ul class="list list--icon">
                             <li>
-                                <i class="fas fa-check-circle text-success" aria-hidden="true"></i>
+                                <i class="fas fa-check-circle" style="color: #38a169;" aria-hidden="true"></i>
                                 <span>Finalize 11:00 AM check-in</span>
                             </li>
                             <li>
-                                <i class="fas fa-link text-primary" aria-hidden="true"></i>
+                                <i class="fas fa-link" style="color: #2d7dd2;" aria-hidden="true"></i>
                                 <span>Link bookings in Royal app</span>
                             </li>
                             <li>
-                                <i class="fas fa-calendar text-accent" aria-hidden="true"></i>
+                                <i class="fas fa-calendar" style="color: #ed8936;" aria-hidden="true"></i>
                                 <span>Reserve Dunn's River + Dragon's Breath</span>
                             </li>
                             <li>
-                                <i class="fas fa-utensils text-warning" aria-hidden="true"></i>
+                                <i class="fas fa-utensils" style="color: #d69e2e;" aria-hidden="true"></i>
                                 <span>Lock dining plans</span>
                             </li>
                             <li>
-                                <i class="fas fa-passport text-info" aria-hidden="true"></i>
+                                <i class="fas fa-passport" style="color: #2d7dd2;" aria-hidden="true"></i>
                                 <span>Check passport expiration</span>
                             </li>
                         </ul>
@@ -1012,9 +1874,9 @@
                             Caribbean Weather
                         </h3>
                         <div class="weather-widget">
-                            <div class="weather-icon" role="img" aria-label="Clear skies" style="opacity: 1; transform: rotate(0deg);">☀️</div>
-                            <div class="weather-temp" id="weatherTemp" aria-label="Temperature: 76°F" style="opacity: 1; transform: scale(1);">76°F</div>
-                            <div class="weather-condition" id="weatherCondition" aria-label="Conditions: Clear" style="opacity: 1;">Clear</div>
+                            <div class="weather-icon" role="img" aria-label="Clear skies">☀️</div>
+                            <div class="weather-temp" id="weatherTemp" aria-label="Temperature: 76°F">76°F</div>
+                            <div class="weather-condition" id="weatherCondition" aria-label="Conditions: Clear">Clear</div>
                             <p class="weather-summary" id="weatherSummary">Latest forecast for George Town, Grand Cayman.</p>
                             <ul class="weather-forecast-list" id="weatherForecastList" aria-live="polite">
                                 <li class="weather-forecast-item">
@@ -1056,7 +1918,7 @@
         <div class="container">
             <div class="rc-footer-main">
                 <div class="rc-logo-section">
-                    <img src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 60'&gt;&lt;rect width='220' height='60' fill='%230054a4'/&gt;&lt;text x='12' y='34' font-family='Montserrat, Arial, sans-serif' font-size='20' fill='white'&gt;Royal Caribbean&lt;/text&gt;&lt;text x='12' y='52' font-family='Source Sans Pro, Arial, sans-serif' font-size='12' fill='white'&gt;International&lt;/text&gt;&lt;/svg&gt;" alt="Royal Caribbean International" height="40">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 60'><rect width='220' height='60' fill='%230054a4'/><text x='12' y='34' font-family='Montserrat, Arial, sans-serif' font-size='20' fill='white'>Royal Caribbean</text><text x='12' y='52' font-family='Source Sans Pro, Arial, sans-serif' font-size='12' fill='white'>International</text></svg>" alt="Royal Caribbean International" height="40">
                     <p class="rc-tagline">World's Best Cruise Line<br>14 Years Running</p>
                     <a class="rc-footer-cta" href="#" aria-label="Open the Royal Caribbean app">Open the App</a>
                 </div>
@@ -1072,7 +1934,7 @@
                 <div class="rc-footer-column">
                     <p class="rc-footer-heading">Onboard Essentials</p>
                     <ul class="rc-footer-list">
-                        <li><a href="operations.html">Check-in &amp; Documents</a></li>
+                        <li><a href="operations.html">Check-in & Documents</a></li>
                         <li><a href="rooms.html">Room Details</a></li>
                         <li><a href="tips.html">Packing Tips</a></li>
                         <li><a href="#integrate">VIP Upgrades</a></li>
@@ -1080,15 +1942,15 @@
                 </div>
                 <div class="rc-contact-info">
                     <p><strong>Need Help?</strong></p>
-                    <p><span class="emoji" aria-hidden="true">📞</span> <a href="tel:1-866-562-7625">1-866-562-7625</a></p>
-                    <p><span class="emoji" aria-hidden="true">✉️</span> guestservices@royalcaribbean.com</p>
+                    <p><span aria-hidden="true">📞</span> <a href="tel:1-866-562-7625">1-866-562-7625</a></p>
+                    <p><span aria-hidden="true">✉️</span> guestservices@royalcaribbean.com</p>
                 </div>
             </div>
             <div class="rc-footer-disclaimer">
                 <div class="rc-legal-links">
                     <a href="#">Privacy Policy</a> •
                     <a href="#">Terms of Use</a> •
-                    <a href="#">Health &amp; Safety</a> •
+                    <a href="#">Health & Safety</a> •
                     <a href="#">Accessibility</a>
                 </div>
                 <p>© 2026 Royal Caribbean International. Ships' Registry: The Bahamas. All dining, entertainment, and shore excursions are subject to change. Refer to the Royal Caribbean app for the most current information.</p>
@@ -1096,8 +1958,174 @@
             </div>
         </div>
     </footer>
-    
-    <script src="script.js" defer></script>
-    <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading overlay
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            setTimeout(() => {
+                loadingOverlay.style.display = 'none';
+            }, 500);
+
+            // Toast notification
+            const toast = document.getElementById('toast');
+            const toastClose = document.getElementById('toastClose');
+            
+            toastClose.addEventListener('click', function() {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 300);
+            });
+
+            // Auto-hide toast after 10 seconds
+            setTimeout(() => {
+                if (toast.style.display !== 'none') {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, 300);
+                }
+            }, 10000);
+
+            // Card toggle functionality
+            const cardToggles = document.querySelectorAll('.card__toggle');
+            cardToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !isExpanded);
+                    const content = this.closest('.card').querySelector('.card__content');
+                    content.classList.toggle('expanded');
+                    
+                    // Toggle icon
+                    const icon = this.querySelector('i');
+                    icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+                });
+            });
+
+            // View toggle functionality
+            const viewButtons = document.querySelectorAll('.nav-view-btn');
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    viewButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                        btn.setAttribute('tabindex', '-1');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                    this.setAttribute('tabindex', '0');
+                    
+                    // Show/hide sections based on view
+                    const view = this.getAttribute('data-view');
+                    const sections = document.querySelectorAll('.section[data-view]');
+                    
+                    sections.forEach(section => {
+                        const sectionViews = section.getAttribute('data-view').split(' ');
+                        if (sectionViews.includes(view)) {
+                            section.style.display = 'block';
+                            section.setAttribute('aria-hidden', 'false');
+                        } else {
+                            section.style.display = 'none';
+                            section.setAttribute('aria-hidden', 'true');
+                        }
+                    });
+                });
+            });
+
+            // Countdown timer
+            function updateCountdown() {
+                const cruiseDate = new Date('2026-02-14T11:00:00');
+                const now = new Date();
+                const diff = cruiseDate - now;
+                
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                } else {
+                    document.getElementById('days').textContent = '00';
+                    document.getElementById('hours').textContent = '00';
+                    document.getElementById('minutes').textContent = '00';
+                }
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 60000); // Update every minute
+
+            // Save offline functionality
+            const offlineBtn = document.getElementById('offlineBtn');
+            offlineBtn.addEventListener('click', function() {
+                alert('Saving page for offline access...\n\nIn a real implementation, this would use the Web Storage API to cache important data.');
+            });
+
+            // Share functionality
+            const shareBtn = document.getElementById('shareBtn');
+            shareBtn.addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Our Caribbean Cruise Adventure',
+                        text: 'Check out our cruise planning guide for Adventure of the Seas!',
+                        url: window.location.href
+                    });
+                } else {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        alert('Link copied to clipboard! Share this with your group.');
+                    });
+                }
+            });
+
+            // Compact mode toggle
+            const compactToggleBtn = document.getElementById('compactToggleBtn');
+            compactToggleBtn.addEventListener('click', function() {
+                const isPressed = this.getAttribute('aria-pressed') === 'true';
+                this.setAttribute('aria-pressed', !isPressed);
+                this.classList.toggle('active');
+                
+                if (isPressed) {
+                    document.body.classList.remove('compact-mode');
+                    this.innerHTML = '<i class="fas fa-compress-alt" aria-hidden="true"></i>';
+                } else {
+                    document.body.classList.add('compact-mode');
+                    this.innerHTML = '<i class="fas fa-expand-alt" aria-hidden="true"></i>';
+                }
+            });
+
+            // Weather animation
+            function animateWeather() {
+                const temp = document.getElementById('weatherTemp');
+                const condition = document.getElementById('weatherCondition');
+                const icon = document.querySelector('.weather-icon');
+                
+                // Simple animation for temperature
+                setInterval(() => {
+                    temp.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        temp.style.transform = 'scale(1)';
+                    }, 300);
+                }, 5000);
+                
+                // Rotate weather icon
+                setInterval(() => {
+                    icon.style.transform = 'rotate(5deg)';
+                    setTimeout(() => {
+                        icon.style.transform = 'rotate(-5deg)';
+                    }, 500);
+                    setTimeout(() => {
+                        icon.style.transform = 'rotate(0deg)';
+                    }, 1000);
+                }, 8000);
+            }
+            
+            animateWeather();
+
+            // Initialize with veteran view active
+            viewButtons[1].click();
+        });
+    </script>
 </body>
 </html>
