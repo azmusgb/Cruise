@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" style="--header-height: 100px; --day-selector-offset: 100px; --scroll-padding: 120px;">
+<html lang="en" style="--header-height: 100px; --scroll-padding: 120px;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staterooms & Muster Stations | Adventure of the Seas | Feb 14-20, 2026</title>
-    <meta name="description" content="Stateroom assignments, deck plans, and muster station information for the Rahe Family cruise.">
+    <title>Staterooms | Adventure of the Seas | Feb 14-20, 2026</title>
+    <meta name="description" content="Stateroom assignments, deck plans, and room details for your cruise group.">
     <!-- Preconnect for fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,10 +13,736 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚢</text></svg>">
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #3498db;
+            --secondary: #e74c3c;
+            --accent: #f39c12;
+            --success: #27ae60;
+            --info: #2980b9;
+            --warning: #e67e22;
+            --danger: #c0392b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #95a5a6;
+            --border: #e0e6ed;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-brand-badge {
+            font-size: 24px;
+            background: var(--primary-light);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-brand-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .nav-brand-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn i {
+            font-size: 0.9em;
+        }
+
+        .btn--primary {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .btn--primary:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn--outline {
+            background: transparent;
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+        }
+
+        .btn--outline:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        /* Main Content */
+        main {
+            padding: 20px 0 60px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Card Styling */
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card__header {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .card__header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .card__icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .card__title {
+            font-size: 1.75rem;
+            margin: 0 0 4px 0;
+            color: white;
+        }
+
+        .card__subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .card__toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card__toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .card__toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .card__toggle[aria-expanded="true"] i {
+            transform: rotate(180deg);
+        }
+
+        .card__content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .card__content.expanded {
+            max-height: none;
+            padding: 30px;
+        }
+
+        /* Room Overview */
+        .room-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 24px;
+            border-left: 4px solid var(--primary-light);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .overview-card__icon {
+            font-size: 32px;
+            color: var(--primary-light);
+            margin-bottom: 16px;
+        }
+
+        .overview-card__title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .overview-card__value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .overview-card__subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        /* Deck Navigation */
+        .deck-nav {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            scrollbar-width: thin;
+        }
+
+        .deck-nav::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .deck-nav::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .deck-nav::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 3px;
+        }
+
+        .deck-btn {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .deck-btn:hover {
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+
+        .deck-btn.active {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+        }
+
+        /* Room Grid */
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .room-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .room-card.featured {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+
+        .room-card.featured::before {
+            content: '⭐ Primary';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .room-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .room-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .room-location {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .room-location i {
+            font-size: 0.8em;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag--info {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-light);
+        }
+
+        .tag--success {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+        }
+
+        .tag--warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--accent);
+        }
+
+        .room-content {
+            padding: 20px;
+        }
+
+        .room-guests {
+            margin: 20px 0;
+        }
+
+        .room-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .guest-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .guest-list li {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .room-features {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+        }
+
+        .room-features h4 {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-list li {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .features-list li i {
+            color: var(--success);
+            font-size: 0.8em;
+        }
+
+        .room-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .room-footer strong {
+            color: var(--primary);
+        }
+
+        /* Deck Plan Visual */
+        .deck-plan {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            margin: 40px 0;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deck-plan::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-light), var(--accent));
+        }
+
+        .deck-plan__title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+
+        .deck-plan__visual {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 30px;
+            min-height: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .deck-plan__visual {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .deck-sidebar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--radius);
+        }
+
+        .deck-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .deck-list li {
+            padding: 12px;
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .deck-list li:hover {
+            background: white;
+            border-left-color: var(--primary-light);
+        }
+
+        .deck-list li.active {
+            background: white;
+            border-left-color: var(--primary-light);
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        .deck-diagram {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: var(--radius);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deck-diagram::before {
+            content: 'Deck Plan';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 0.875rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-color.primary {
+            background: var(--primary-light);
+        }
+
+        .legend-color.interior {
+            background: var(--gray);
+        }
+
+        .legend-color.ocean-view {
+            background: #3498db;
+        }
+
+        .legend-color.suite {
+            background: var(--accent);
+        }
+
+        /* Print Button */
+        .print-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-main {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .nav-brand {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .card__header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .card__header-left {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .deck-nav {
+                justify-content: flex-start;
+            }
+
+            .print-actions {
+                flex-direction: column;
+            }
+
+            .print-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card, .room-card, .overview-card {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Utility Classes */
+        .mt-2 { margin-top: 8px; }
+        .mt-4 { margin-top: 16px; }
+        .mt-8 { margin-top: 32px; }
+        .mb-4 { margin-bottom: 16px; }
+        .mb-6 { margin-bottom: 24px; }
+        .mb-8 { margin-bottom: 32px; }
+        .text-center { text-align: center; }
+        .text-muted { color: var(--gray); }
+    </style>
 </head>
-<body class="compact-mode mobile-view" data-view-mode="veteran">
-    <!-- Navigation (simplified) -->
+<body>
+    <!-- Navigation -->
     <nav class="nav-container" aria-label="Main navigation">
         <div class="nav-main">
             <a href="index.html" class="nav-brand" aria-label="Back to Cruise Companion">
@@ -34,287 +760,333 @@
 
     <main class="main" role="main">
         <div class="container">
-            <!-- Staterooms & Muster Section -->
-            <section id="rooms" class="section active" data-view="first-timer veteran" aria-labelledby="roomsTitle" aria-hidden="false">
+            <!-- Rooms Section -->
+            <section id="rooms" class="section" aria-labelledby="roomsTitle">
                 <div class="card">
                     <div class="card__header">
-                        <div class="card__icon" aria-hidden="true">
-                            <i class="fas fa-bed"></i>
+                        <div class="card__header-left">
+                            <div class="card__icon" aria-hidden="true">
+                                <i class="fas fa-door-closed"></i>
+                            </div>
+                            <div>
+                                <h2 id="roomsTitle">Your Staterooms</h2>
+                                <p class="card__subtitle">Where everyone will stay during the cruise</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 id="roomsTitle">Staterooms & Muster Stations</h2>
-                            <p class="card__subtitle">Room assignments, locations, and safety information</p>
-                        </div>
+                        <button class="card__toggle" aria-expanded="true" aria-controls="roomsContent">
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                            <span class="sr-only">Toggle section</span>
+                        </button>
                     </div>
-                    <div id="roomsContent" class="card__content expanded" aria-hidden="false" style="max-height: none;">
-                        
-                        <!-- Muster Station Banner -->
-                        <div class="muster-banner">
-                            <div class="muster-banner__icon">
-                                <i class="fas fa-life-ring"></i>
+                    <div id="roomsContent" class="card__content expanded" aria-hidden="false">
+                        <!-- Room Overview Cards -->
+                        <div class="room-overview">
+                            <div class="overview-card">
+                                <div class="overview-card__icon">
+                                    <i class="fas fa-hotel"></i>
+                                </div>
+                                <div class="overview-card__title">Total Rooms</div>
+                                <div class="overview-card__value">5</div>
+                                <div class="overview-card__subtitle">Staterooms assigned</div>
                             </div>
-                            <div class="muster-banner__content">
-                                <h3>Official Muster Station: <strong>F6</strong></h3>
-                                <p>Deck 4 • Starboard Side • Complete eMuster® in Royal App before 4:00 PM on embarkation day</p>
-                                <div class="muster-progress">
-                                    <div class="progress-track">
-                                        <div class="progress-bar" style="width: 75%"></div>
+                            <div class="overview-card">
+                                <div class="overview-card__icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="overview-card__title">Total Guests</div>
+                                <div class="overview-card__value">14</div>
+                                <div class="overview-card__subtitle">In your group</div>
+                            </div>
+                            <div class="overview-card">
+                                <div class="overview-card__icon">
+                                    <i class="fas fa-map"></i>
+                                </div>
+                                <div class="overview-card__title">Primary Decks</div>
+                                <div class="overview-card__value">6 & 8</div>
+                                <div class="overview-card__subtitle">Most rooms located here</div>
+                            </div>
+                            <div class="overview-card">
+                                <div class="overview-card__icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="overview-card__title">Room Types</div>
+                                <div class="overview-card__value">4 Types</div>
+                                <div class="overview-card__subtitle">Balcony, Interior, Ocean View</div>
+                            </div>
+                        </div>
+
+                        <!-- Deck Navigation -->
+                        <div class="deck-nav" aria-label="Select deck">
+                            <button class="deck-btn active" data-deck="all">All Decks</button>
+                            <button class="deck-btn" data-deck="6">Deck 6</button>
+                            <button class="deck-btn" data-deck="8">Deck 8</button>
+                            <button class="deck-btn" data-deck="plan">Deck Plan</button>
+                        </div>
+
+                        <!-- Introduction -->
+                        <div class="mb-8">
+                            <h3 class="mb-4">Welcome to Your Home at Sea</h3>
+                            <p>Here's where everyone will be staying during the cruise. All rooms include interactive TV, a mini-safe, and Royal Dream bedding. Suites add an espresso maker and concierge access.</p>
+                        </div>
+
+                        <!-- Room Grid -->
+                        <div class="room-grid" id="roomGrid">
+                            <!-- Room 1 - Primary Room -->
+                            <div class="room-card featured" data-deck="6">
+                                <div class="room-header">
+                                    <div>
+                                        <div class="room-number">6650</div>
+                                        <div class="room-location">
+                                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                            Deck 6 • Connecting to 6652
+                                        </div>
                                     </div>
-                                    <span>3/4 Guests Complete</span>
+                                    <span class="tag tag--info">Primary Room</span>
+                                </div>
+                                <div class="room-content">
+                                    <div class="room-guests">
+                                        <p class="room-label">Guests:</p>
+                                        <ul class="guest-list">
+                                            <li>Bill</li>
+                                            <li>Melissa</li>
+                                            <li>Owen</li>
+                                            <li>Declan</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-features">
+                                        <h4>Room Features</h4>
+                                        <ul class="features-list">
+                                            <li><i class="fas fa-check"></i> 198 sq ft + 46 sq ft balcony</li>
+                                            <li><i class="fas fa-check"></i> Connecting door to 6652</li>
+                                            <li><i class="fas fa-check"></i> Interactive TV system</li>
+                                            <li><i class="fas fa-check"></i> Mini-safe & refrigerator</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-footer">
+                                        <p><strong>Location Tip:</strong> Easy access to aft elevators for dinner runs</p>
+                                    </div>
                                 </div>
                             </div>
-                            <button class="btn btn--primary btn--sm">
-                                <i class="fas fa-external-link-alt"></i>
-                                Open eMuster
+
+                            <!-- Room 2 - Interior Room -->
+                            <div class="room-card" data-deck="6">
+                                <div class="room-header">
+                                    <div>
+                                        <div class="room-number">6443</div>
+                                        <div class="room-location">
+                                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                            Deck 6 • Opposite laundry
+                                        </div>
+                                    </div>
+                                    <span class="tag tag--warning">Interior</span>
+                                </div>
+                                <div class="room-content">
+                                    <div class="room-guests">
+                                        <p class="room-label">Guests:</p>
+                                        <ul class="guest-list">
+                                            <li>Cadance</li>
+                                            <li>Alexander</li>
+                                            <li>Abel</li>
+                                            <li>Amy</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-features">
+                                        <h4>Room Features</h4>
+                                        <ul class="features-list">
+                                            <li><i class="fas fa-check"></i> 160 sq ft interior space</li>
+                                            <li><i class="fas fa-check"></i> Perfect darkness for sleeping</li>
+                                            <li><i class="fas fa-check"></i> Quiet location</li>
+                                            <li><i class="fas fa-check"></i> Energy efficient</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-footer">
+                                        <p><strong>Note:</strong> Great for quick laundry swaps and mid-day breaks</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Room 3 - Pool Access -->
+                            <div class="room-card" data-deck="8">
+                                <div class="room-header">
+                                    <div>
+                                        <div class="room-number">4B 8528</div>
+                                        <div class="room-location">
+                                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                            Deck 8 • Midship access
+                                        </div>
+                                    </div>
+                                    <span class="tag tag--success">Balcony</span>
+                                </div>
+                                <div class="room-content">
+                                    <div class="room-guests">
+                                        <p class="room-label">Guests:</p>
+                                        <ul class="guest-list">
+                                            <li>Aimee</li>
+                                            <li>Reese</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-features">
+                                        <h4>Room Features</h4>
+                                        <ul class="features-list">
+                                            <li><i class="fas fa-check"></i> Private balcony</li>
+                                            <li><i class="fas fa-check"></i> Mid-ship location</li>
+                                            <li><i class="fas fa-check"></i> Less motion felt</li>
+                                            <li><i class="fas fa-check"></i> Quick elevator access</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-footer">
+                                        <p><strong>Location Tip:</strong> Quick walk to Royal Promenade elevators</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Room 4 - Ocean View -->
+                            <div class="room-card" data-deck="8">
+                                <div class="room-header">
+                                    <div>
+                                        <div class="room-number">8370</div>
+                                        <div class="room-location">
+                                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                            Deck 8 • Ocean view balcony
+                                        </div>
+                                    </div>
+                                    <span class="tag tag--success">Ocean View</span>
+                                </div>
+                                <div class="room-content">
+                                    <div class="room-guests">
+                                        <p class="room-label">Guests:</p>
+                                        <ul class="guest-list">
+                                            <li>Lea</li>
+                                            <li>Calab</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-features">
+                                        <h4>Room Features</h4>
+                                        <ul class="features-list">
+                                            <li><i class="fas fa-check"></i> Unobstructed ocean view</li>
+                                            <li><i class="fas fa-check"></i> Spacious balcony</li>
+                                            <li><i class="fas fa-check"></i> Fresh sea air</li>
+                                            <li><i class="fas fa-check"></i> Perfect sunset views</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-footer">
+                                        <p><strong>Location Tip:</strong> Sunset-friendly balcony with fresh sea air</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Room 5 - Ocean View -->
+                            <div class="room-card" data-deck="8">
+                                <div class="room-header">
+                                    <div>
+                                        <div class="room-number">2D 8612</div>
+                                        <div class="room-location">
+                                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                            Deck 8 • Quiet aft corridor
+                                        </div>
+                                    </div>
+                                    <span class="tag tag--success">Ocean View</span>
+                                </div>
+                                <div class="room-content">
+                                    <div class="room-guests">
+                                        <p class="room-label">Guests:</p>
+                                        <ul class="guest-list">
+                                            <li>Bella</li>
+                                            <li>TJ</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-features">
+                                        <h4>Room Features</h4>
+                                        <ul class="features-list">
+                                            <li><i class="fas fa-check"></i> Quiet location</li>
+                                            <li><i class="fas fa-check"></i> Aft ocean views</li>
+                                            <li><i class="fas fa-check"></i> Less foot traffic</li>
+                                            <li><i class="fas fa-check"></i> Peaceful evenings</li>
+                                        </ul>
+                                    </div>
+                                    <div class="room-footer">
+                                        <p><strong>Location Tip:</strong> Peaceful evenings away from promenade traffic</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="legend-color primary"></div>
+                                <span>Primary Room</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color ocean-view"></div>
+                                <span>Ocean View/Balcony</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color interior"></div>
+                                <span>Interior Room</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color suite"></div>
+                                <span>Special Features</span>
+                            </div>
+                        </div>
+
+                        <!-- Deck Plan Visual -->
+                        <div class="deck-plan" id="deckPlan" style="display: none;">
+                            <h3 class="deck-plan__title">Deck Plan Overview</h3>
+                            <div class="deck-plan__visual">
+                                <div class="deck-sidebar">
+                                    <h4>Decks Overview</h4>
+                                    <ul class="deck-list">
+                                        <li class="active" data-deck-view="6">Deck 6 - Staterooms</li>
+                                        <li data-deck-view="7">Deck 7 - Staterooms</li>
+                                        <li data-deck-view="8">Deck 8 - Staterooms</li>
+                                        <li data-deck-view="11">Deck 11 - Pool & Windjammer</li>
+                                        <li data-deck-view="12">Deck 12 - Sports & FlowRider</li>
+                                    </ul>
+                                </div>
+                                <div class="deck-diagram">
+                                    <!-- This would be replaced with an actual deck plan image -->
+                                    <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                                        <div style="text-align: center;">
+                                            <i class="fas fa-ship" style="font-size: 48px; color: var(--primary-light); margin-bottom: 20px;"></i>
+                                            <h4 style="color: var(--primary); margin-bottom: 10px;">Interactive Deck Plan</h4>
+                                            <p class="text-muted">Select a deck from the sidebar to view details</p>
+                                            <div style="margin-top: 30px; padding: 20px; background: white; border-radius: var(--radius);">
+                                                <p style="font-size: 0.875rem;"><strong>Your Rooms:</strong> 6650, 6443, 4B 8528, 8370, 2D 8612</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Important Notes -->
+                        <div class="note" style="background: #e8f4fd; border-left: 4px solid var(--primary-light); padding: 20px; border-radius: var(--radius); margin: 40px 0;">
+                            <h4 style="color: var(--primary); margin-bottom: 10px;"><i class="fas fa-info-circle"></i> Important Information</h4>
+                            <p><strong>Final stateroom numbers</strong> can be updated once assigned. Keep the Royal app current so all guests see onboard chat and daily schedules.</p>
+                            <p class="mt-4"><strong>Key Reminders:</strong></p>
+                            <ul style="margin-top: 10px; padding-left: 20px;">
+                                <li>Rooms are accessible starting at 1:00 PM on embarkation day</li>
+                                <li>Your SeaPass card opens your stateroom door</li>
+                                <li>Use the interactive TV to check account balances</li>
+                                <li>Contact Guest Services for any room issues</li>
+                            </ul>
+                        </div>
+
+                        <!-- Print/Share Actions -->
+                        <div class="print-actions">
+                            <button class="btn btn--primary" id="printRoomsBtn">
+                                <i class="fas fa-print" aria-hidden="true"></i>
+                                Print Room Assignments
                             </button>
-                        </div>
-
-                        <!-- Staterooms Grid -->
-                        <div class="staterooms-grid">
-                            <!-- Room 1 -->
-                            <div class="stateroom-card stateroom-card--featured">
-                                <div class="stateroom-card__header">
-                                    <h3>Suite 1260 • <span class="stateroom-type">Grand Suite</span></h3>
-                                    <div class="stateroom-badge">Primary</div>
-                                </div>
-                                <div class="stateroom-card__details">
-                                    <p><i class="fas fa-users"></i> <strong>Occupants:</strong> John & Sarah Rahe</p>
-                                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> Deck 12 • Forward • Starboard</p>
-                                    <p><i class="fas fa-door-closed"></i> <strong>Key:</strong> SeaPass #1260A & #1260B</p>
-                                    <p><i class="fas fa-life-ring"></i> <strong>Muster:</strong> F6 • Deck 4 Starboard</p>
-                                </div>
-                                <div class="stateroom-card__features">
-                                    <span class="feature-tag"><i class="fas fa-wifi"></i> VOOM Surf + Stream</span>
-                                    <span class="feature-tag"><i class="fas fa-concierge-bell"></i> Suite Concierge</span>
-                                    <span class="feature-tag"><i class="fas fa-umbrella-beach"></i> Private Balcony</span>
-                                </div>
-                            </div>
-
-                            <!-- Room 2 -->
-                            <div class="stateroom-card">
-                                <div class="stateroom-card__header">
-                                    <h3>Balcony 9654 • <span class="stateroom-type">Ocean View Balcony</span></h3>
-                                    <div class="stateroom-badge">Family</div>
-                                </div>
-                                <div class="stateroom-card__details">
-                                    <p><i class="fas fa-users"></i> <strong>Occupants:</strong> Mike, Lisa, & Emma Smith</p>
-                                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> Deck 9 • Aft • Port</p>
-                                    <p><i class="fas fa-door-closed"></i> <strong>Key:</strong> SeaPass #9654A, #9654B, #9654C</p>
-                                    <p><i class="fas fa-life-ring"></i> <strong>Muster:</strong> F6 • Deck 4 Starboard</p>
-                                </div>
-                                <div class="stateroom-card__features">
-                                    <span class="feature-tag"><i class="fas fa-utensils"></i> My Time Dining</span>
-                                    <span class="feature-tag"><i class="fas fa-sun"></i> Private Balcony</span>
-                                    <span class="feature-tag"><i class="fas fa-snowflake"></i> Connecting Room</span>
-                                </div>
-                            </div>
-
-                            <!-- Room 3 -->
-                            <div class="stateroom-card">
-                                <div class="stateroom-card__header">
-                                    <h3>Balcony 9656 • <span class="stateroom-type">Ocean View Balcony</span></h3>
-                                    <div class="stateroom-badge">Family</div>
-                                </div>
-                                <div class="stateroom-card__details">
-                                    <p><i class="fas fa-users"></i> <strong>Occupants:</strong> David, Maria, & Noah Smith</p>
-                                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> Deck 9 • Aft • Port (Connects to 9654)</p>
-                                    <p><i class="fas fa-door-closed"></i> <strong>Key:</strong> SeaPass #9656A, #9656B, #9656C</p>
-                                    <p><i class="fas fa-life-ring"></i> <strong>Muster:</strong> F6 • Deck 4 Starboard</p>
-                                </div>
-                                <div class="stateroom-card__features">
-                                    <span class="feature-tag"><i class="fas fa-door-open"></i> Connects to 9654</span>
-                                    <span class="feature-tag"><i class="fas fa-sun"></i> Private Balcony</span>
-                                    <span class="feature-tag"><i class="fas fa-utensils"></i> My Time Dining</span>
-                                </div>
-                            </div>
-
-                            <!-- Room 4 -->
-                            <div class="stateroom-card">
-                                <div class="stateroom-card__header">
-                                    <h3>Ocean View 2648 • <span class="stateroom-type">Ocean View</span></h3>
-                                    <div class="stateroom-badge">Couple</div>
-                                </div>
-                                <div class="stateroom-card__details">
-                                    <p><i class="fas fa-users"></i> <strong>Occupants:</strong> Robert & Susan Miller</p>
-                                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> Deck 2 • Midship • Port</p>
-                                    <p><i class="fas fa-door-closed"></i> <strong>Key:</strong> SeaPass #2648A & #2648B</p>
-                                    <p><i class="fas fa-life-ring"></i> <strong>Muster:</strong> F6 • Deck 4 Starboard</p>
-                                </div>
-                                <div class="stateroom-card__features">
-                                    <span class="feature-tag"><i class="fas fa-window-maximize"></i> Large Porthole</span>
-                                    <span class="feature-tag"><i class="fas fa-bed"></i> Queen Bed</span>
-                                    <span class="feature-tag"><i class="fas fa-utensils"></i> Main Dining 5:30 PM</span>
-                                </div>
-                            </div>
-
-                            <!-- Room 5 -->
-                            <div class="stateroom-card">
-                                <div class="stateroom-card__header">
-                                    <h3>Interior 7341 • <span class="stateroom-type">Interior</span></h3>
-                                    <div class="stateroom-badge">Friends</div>
-                                </div>
-                                <div class="stateroom-card__details">
-                                    <p><i class="fas fa-users"></i> <strong>Occupants:</strong> Alex Chen & Jordan Taylor</p>
-                                    <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> Deck 7 • Forward • Starboard</p>
-                                    <p><i class="fas fa-door-closed"></i> <strong>Key:</strong> SeaPass #7341A & #7341B</p>
-                                    <p><i class="fas fa-life-ring"></i> <strong>Muster:</strong> F6 • Deck 4 Starboard</p>
-                                </div>
-                                <div class="stateroom-card__features">
-                                    <span class="feature-tag"><i class="fas fa-tv"></i> Virtual Balcony</span>
-                                    <span class="feature-tag"><i class="fas fa-bed"></i> Twin Beds</span>
-                                    <span class="feature-tag"><i class="fas fa-utensils"></i> My Time Dining</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Deck Plan Reference -->
-                        <div class="deck-plan-reference mt-8">
-                            <h3><i class="fas fa-map"></i> Deck Plan Reference</h3>
-                            <div class="deck-plan-grid">
-                                <div class="deck-plan-item">
-                                    <h4>Deck 2 • Ocean View Rooms</h4>
-                                    <p>Rooms 2640-2690 • Port & Starboard • Near Guest Services</p>
-                                    <button class="btn btn--outline btn--sm">
-                                        <i class="fas fa-expand"></i>
-                                        View Deck 2
-                                    </button>
-                                </div>
-                                <div class="deck-plan-item">
-                                    <h4>Deck 7 • Interior Rooms</h4>
-                                    <p>Rooms 7300-7398 • Forward • Near Royal Theater</p>
-                                    <button class="btn btn--outline btn--sm">
-                                        <i class="fas fa-expand"></i>
-                                        View Deck 7
-                                    </button>
-                                </div>
-                                <div class="deck-plan-item">
-                                    <h4>Deck 9 • Balcony Rooms</h4>
-                                    <p>Rooms 9600-9698 • Aft • Near Windjammer & Pool</p>
-                                    <button class="btn btn--outline btn--sm">
-                                        <i class="fas fa-expand"></i>
-                                        View Deck 9
-                                    </button>
-                                </div>
-                                <div class="deck-plan-item">
-                                    <h4>Deck 12 • Suites</h4>
-                                    <p>Rooms 1250-1270 • Forward • Suite Lounge Access</p>
-                                    <button class="btn btn--outline btn--sm">
-                                        <i class="fas fa-expand"></i>
-                                        View Deck 12
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Room Tips -->
-                        <div class="room-tips mt-8">
-                            <h3><i class="fas fa-lightbulb"></i> Room Tips & Information</h3>
-                            <div class="tips-grid">
-                                <div class="tip-card">
-                                    <div class="tip-icon">
-                                        <i class="fas fa-key"></i>
-                                    </div>
-                                    <div>
-                                        <h4>SeaPass Cards</h4>
-                                        <p>Your SeaPass card is your room key, onboard payment method, and ID. Keep it with you at all times.</p>
-                                    </div>
-                                </div>
-                                <div class="tip-card">
-                                    <div class="tip-icon">
-                                        <i class="fas fa-plug"></i>
-                                    </div>
-                                    <div>
-                                        <h4>Power Outlets</h4>
-                                        <p>North American (110V) and European (220V) outlets available. Bring a non-surge power strip if needed.</p>
-                                    </div>
-                                </div>
-                                <div class="tip-card">
-                                    <div class="tip-icon">
-                                        <i class="fas fa-suitcase-rolling"></i>
-                                    </div>
-                                    <div>
-                                        <h4>Luggage Storage</h4>
-                                        <p>Store empty suitcases under beds. Closet space includes hangers and shelves.</p>
-                                    </div>
-                                </div>
-                                <div class="tip-card">
-                                    <div class="tip-icon">
-                                        <i class="fas fa-snowflake"></i>
-                                    </div>
-                                    <div>
-                                        <h4>Temperature Control</h4>
-                                        <p>Individual thermostat in each room. Can be adjusted for personal comfort.</p>
-                                    </div>
-                                </div>
-                                <div class="tip-card">
-                                    <div class="tip-icon">
-                                        <i class="fas fa-shower"></i>
-                                    </div>
-                                    <div>
-                                        <h4>Bathroom Amenities</h4>
-                                        <p>Shampoo, conditioner, and body wash provided. Bring your own toiletries if preferred.</p>
-                                    </div>
-                                </div>
-                                <div class="tip-card">
-                                    <div class="tip-icon">
-                                        <i class="fas fa-tv"></i>
-                                    </div>
-                                    <div>
-                                        <h4>In-Room TV</h4>
-                                        <p>Check your account, view activities, watch movies, and see ship location on channel 40.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Contact Information -->
-                        <div class="contact-info mt-8">
-                            <h3><i class="fas fa-phone-alt"></i> Important Contacts</h3>
-                            <div class="contact-grid">
-                                <div class="contact-item">
-                                    <i class="fas fa-concierge-bell"></i>
-                                    <div>
-                                        <strong>Suite Concierge</strong>
-                                        <p>Deck 12 • Ext. 7000 • 9:00 AM - 9:00 PM</p>
-                                    </div>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-user-headset"></i>
-                                    <div>
-                                        <strong>Guest Services</strong>
-                                        <p>Deck 5 • Ext. 7001 • 24/7</p>
-                                    </div>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-first-aid"></i>
-                                    <div>
-                                        <strong>Medical Center</strong>
-                                        <p>Deck 1 • Ext. 7002 • 8:00 AM - 8:00 PM</p>
-                                    </div>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-shield-alt"></i>
-                                    <div>
-                                        <strong>Security</strong>
-                                        <p>Ext. 7003 • Emergency: 911 from cabin phone</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="room-actions mt-8">
-                            <button class="btn btn--primary" id="viewDeckPlansBtn">
-                                <i class="fas fa-map-marked-alt"></i>
-                                Open Interactive Deck Plans
+                            <button class="btn btn--outline" id="shareRoomsBtn">
+                                <i class="fas fa-share-alt" aria-hidden="true"></i>
+                                Share with Group
                             </button>
-                            <button class="btn btn--outline" id="shareRoomInfoBtn">
-                                <i class="fas fa-share-alt"></i>
-                                Share Room Information
-                            </button>
-                            <button class="btn btn--outline" id="printRoomInfoBtn">
-                                <i class="fas fa-print"></i>
-                                Print This Page
+                            <button class="btn btn--outline" id="saveRoomsBtn">
+                                <i class="fas fa-download" aria-hidden="true"></i>
+                                Save Offline
                             </button>
                         </div>
                     </div>
@@ -323,41 +1095,109 @@
         </div>
     </main>
 
-    <!-- Include any shared JS files -->
     <script>
+        // Deck Filter Functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const deckButtons = document.querySelectorAll('.deck-btn');
+            const roomCards = document.querySelectorAll('.room-card');
+            const deckPlan = document.getElementById('deckPlan');
+            const roomGrid = document.getElementById('roomGrid');
+            
+            // Deck navigation
+            deckButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update button states
+                    deckButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const deck = this.getAttribute('data-deck');
+                    
+                    if (deck === 'all') {
+                        roomCards.forEach(card => {
+                            card.style.display = 'block';
+                            card.style.animation = 'fadeIn 0.6s ease-out';
+                        });
+                        deckPlan.style.display = 'none';
+                        roomGrid.style.display = 'grid';
+                    } else if (deck === 'plan') {
+                        roomCards.forEach(card => {
+                            card.style.display = 'none';
+                        });
+                        deckPlan.style.display = 'block';
+                        roomGrid.style.display = 'none';
+                        deckPlan.style.animation = 'fadeIn 0.6s ease-out';
+                    } else {
+                        roomCards.forEach(card => {
+                            if (card.getAttribute('data-deck') === deck) {
+                                card.style.display = 'block';
+                                card.style.animation = 'fadeIn 0.6s ease-out';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                        deckPlan.style.display = 'none';
+                        roomGrid.style.display = 'grid';
+                    }
+                });
+            });
+            
+            // Deck plan navigation
+            const deckListItems = document.querySelectorAll('.deck-list li');
+            deckListItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    deckListItems.forEach(li => li.classList.remove('active'));
+                    this.classList.add('active');
+                    // Here you would typically load the appropriate deck plan
+                });
+            });
+            
             // Print functionality
-            document.getElementById('printRoomInfoBtn').addEventListener('click', function() {
+            document.getElementById('printRoomsBtn').addEventListener('click', function() {
                 window.print();
             });
             
             // Share functionality
-            document.getElementById('shareRoomInfoBtn').addEventListener('click', function() {
+            document.getElementById('shareRoomsBtn').addEventListener('click', function() {
                 if (navigator.share) {
                     navigator.share({
-                        title: 'Our Cruise Stateroom Information',
-                        text: 'Check out our stateroom assignments for the Adventure of the Seas cruise!',
+                        title: 'Cruise Room Assignments',
+                        text: 'Check out our cruise room assignments for Adventure of the Seas',
                         url: window.location.href
                     });
                 } else {
-                    // Fallback: copy to clipboard
+                    // Fallback for browsers that don't support Web Share API
                     navigator.clipboard.writeText(window.location.href).then(() => {
                         alert('Link copied to clipboard!');
                     });
                 }
             });
             
-            // Deck plans button
-            document.getElementById('viewDeckPlansBtn').addEventListener('click', function() {
-                alert('Opening interactive deck plans in Royal Caribbean app...');
-                // In a real implementation, this would open the app or deep link
+            // Save offline functionality
+            document.getElementById('saveRoomsBtn').addEventListener('click', function() {
+                // This would typically save to local storage or trigger a download
+                alert('Room information saved for offline access!');
             });
             
-            // Muster button functionality
-            document.querySelector('.muster-banner button').addEventListener('click', function() {
-                alert('Opening eMuster in Royal Caribbean app...');
-                // In a real implementation, this would open the app
+            // Card toggle functionality
+            const cardToggle = document.querySelector('.card__toggle');
+            const cardContent = document.getElementById('roomsContent');
+            
+            cardToggle.addEventListener('click', function() {
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', !isExpanded);
+                cardContent.classList.toggle('expanded');
+                
+                // Toggle icon
+                const icon = this.querySelector('i');
+                icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
             });
+            
+            // Initialize animations
+            setTimeout(() => {
+                document.querySelectorAll('.room-card').forEach((card, index) => {
+                    card.style.animationDelay = `${index * 0.1}s`;
+                });
+            }, 100);
         });
     </script>
 </body>
