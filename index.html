@@ -1910,43 +1910,6 @@
                      <i class="fas fa-times" aria-hidden="true"></i>
                      </button>
                   </div>
-                  <section class="view-panel" aria-labelledby="viewPanelTitle">
-                     <h2 class="view-panel__title" id="viewPanelTitle">View &amp; Filters</h2>
-                     <div class="nav-secondary nav-secondary--panel" id="navSecondary">
-                        <div class="nav-context">
-                           <h2 class="nav-context-title" id="navContextTitle">
-                              <span>Dashboard</span>
-                              <span class="nav-context-badge" id="navContextBadge" aria-hidden="true">Overview</span>
-                           </h2>
-                        </div>
-                        <div class="nav-tools">
-                           <div class="nav-view-toggle" role="tablist" aria-label="View tabs">
-                              <button class="nav-view-btn active" data-view="today" role="tab" aria-selected="true" aria-controls="main-content" tabindex="0" type="button">
-                                 <i class="fas fa-calendar-day" aria-hidden="true"></i>
-                                 <span>Today</span>
-                              </button>
-                              <button class="nav-view-btn" data-view="first-timer" role="tab" aria-selected="false" aria-controls="main-content" tabindex="-1" type="button">
-                                 <i class="fas fa-route" aria-hidden="true"></i>
-                                 <span>First-Timer</span>
-                              </button>
-                              <button class="nav-view-btn" data-view="veteran" role="tab" aria-selected="false" aria-controls="main-content" tabindex="-1" type="button">
-                                 <i class="fas fa-list" aria-hidden="true"></i>
-                                 <span>All Details</span>
-                              </button>
-                           </div>
-                           <div class="nav-day-selector" id="navDaySelector">
-                              <button class="nav-day-btn active" data-day="all" type="button">All Days</button>
-                              <button class="nav-day-btn" data-day="1" type="button">Day 1</button>
-                              <button class="nav-day-btn" data-day="2" type="button">Day 2</button>
-                              <button class="nav-day-btn" data-day="3" type="button">Day 3</button>
-                              <button class="nav-day-btn" data-day="4" type="button">Day 4</button>
-                              <button class="nav-day-btn" data-day="5" type="button">Day 5</button>
-                              <button class="nav-day-btn" data-day="6" type="button">Day 6</button>
-                              <button class="nav-day-btn" data-day="7" type="button">Day 7</button>
-                           </div>
-                        </div>
-                     </div>
-                  </section>
                   <!-- =========================================================
                        TAB BAR (Top-level screens)
                   ========================================================= -->
@@ -2123,13 +2086,6 @@
                            <i class="fas fa-bed" aria-hidden="true"></i>
                            Rooms &amp; Muster
                            </button>
-                           <div class="critical-toggle" aria-live="polite">
-                              <button class="btn btn--outline" id="criticalToggleBtn" aria-pressed="false">
-                              <i class="fas fa-filter" aria-hidden="true"></i>
-                              Important Info Only
-                              </button>
-                              <span class="critical-toggle__status" id="criticalToggleStatus">Showing all sections</span>
-                           </div>
                         </div>
                      </div>
                   </section>
@@ -3480,8 +3436,7 @@
               PREFERENCES: 'cruise_preferences_v2',
               SEARCH_HISTORY: 'cruise_search_history_v2',
               COMPACT_MODE: 'cruise_compact_mode',
-              CRITICAL_FILTER: 'cruise_critical_filter',
-              HINT_DISMISSED: 'cruise_hint_dismissed',
+             HINT_DISMISSED: 'cruise_hint_dismissed',
               DECK_PLANS: 'cruise_deck_plans_v1',
               OFFLINE_READY: 'cruise_offline_ready_v1'
          },
@@ -3679,7 +3634,6 @@
           loadPreferences() {
               return this.get(CONFIG.STORAGE_KEYS.PREFERENCES, {
                   compactMode: false,
-                  criticalFilter: false,
                   theme: 'light',
                   fontSize: 'medium',
                   notifications: true
@@ -6031,10 +5985,6 @@
          this.toggleCompactMode(true);
          }
          
-         if (preferences.criticalFilter) {
-         this.toggleCriticalFilter(true);
-         }
-         
          // Check if hint was dismissed
          const hintDismissed = this.storage.get(CONFIG.STORAGE_KEYS.HINT_DISMISSED, false);
          if (hintDismissed) {
@@ -6236,15 +6186,6 @@
          });
          });
          
-         // Critical filter toggle
-         const criticalToggleBtn = document.getElementById('criticalToggleBtn');
-         if (criticalToggleBtn) {
-         criticalToggleBtn.addEventListener('click', () => {
-            const isActive = criticalToggleBtn.getAttribute('aria-pressed') === 'true';
-            this.toggleCriticalFilter(!isActive);
-         });
-         }
-
          // View mode toggle
          const modeButtons = document.querySelectorAll('.nav-view-btn');
          const viewTargets = document.querySelectorAll('[data-view]');
@@ -6735,36 +6676,6 @@
          if (topBarHint) {
          topBarHint.classList.add('is-hidden');
          }
-         }
-         
-         toggleCriticalFilter(enable) {
-         const criticalToggleBtn = document.getElementById('criticalToggleBtn');
-         const criticalToggleStatus = document.getElementById('criticalToggleStatus');
-         
-         if (!criticalToggleBtn || !criticalToggleStatus) return;
-         
-         // Update button state
-         criticalToggleBtn.setAttribute('aria-pressed', enable.toString());
-         
-         // Update status text
-         criticalToggleStatus.textContent = enable ? 
-         'Showing critical sections only' : 
-         'Showing all sections';
-         
-         // Show/hide non-critical sections
-         const nonCriticalSections = document.querySelectorAll('section:not(.section--critical)');
-         nonCriticalSections.forEach(section => {
-         if (enable) {
-            section.style.display = 'none';
-            section.setAttribute('aria-hidden', 'true');
-         } else {
-            section.style.display = 'block';
-            section.removeAttribute('aria-hidden');
-         }
-         });
-         
-         // Save preference
-         this.storage.set(CONFIG.STORAGE_KEYS.CRITICAL_FILTER, enable);
          }
          
          toggleCompactMode(enable) {
