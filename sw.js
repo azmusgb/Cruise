@@ -1,5 +1,5 @@
 const CACHE_NAME = 'cruise_companion_offline_v1';
-const CORE_ASSETS = ['/', '/index.html'];
+const CORE_ASSETS = ['/', '/index.html', '/manual.html'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
