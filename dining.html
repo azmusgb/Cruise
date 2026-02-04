@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="--header-height: 100px; --day-selector-offset: 100px; --scroll-padding: 120px;">
+<html lang="en" style="--header-height: 100px; --scroll-padding: 120px;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,14 +13,959 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚢</text></svg>">
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #3498db;
+            --secondary: #e74c3c;
+            --accent: #f39c12;
+            --accent-light: #f8c471;
+            --success: #27ae60;
+            --info: #2980b9;
+            --warning: #e67e22;
+            --danger: #c0392b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #95a5a6;
+            --border: #e0e6ed;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #f0f8ff 100%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .nav-brand-badge {
+            font-size: 24px;
+            background: linear-gradient(135deg, var(--accent) 0%, #e67e22 100%);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-brand-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .nav-brand-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn i {
+            font-size: 0.9em;
+        }
+
+        .btn--primary {
+            background: linear-gradient(135deg, var(--accent) 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .btn--primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn--outline {
+            background: transparent;
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+        }
+
+        .btn--outline:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .btn--sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn--xs {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            min-width: 32px;
+        }
+
+        /* Main Content */
+        main {
+            padding: 20px 0 60px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Card Styling */
+        .card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card__header {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, #2c5282 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .card__header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .card__icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .card__title {
+            font-size: 1.75rem;
+            margin: 0 0 4px 0;
+            color: white;
+        }
+
+        .card__subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .card__toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card__toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .card__toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .card__toggle[aria-expanded="true"] i {
+            transform: rotate(180deg);
+        }
+
+        .card__content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .card__content.expanded {
+            max-height: none;
+            padding: 30px;
+        }
+
+        /* Dining Banner */
+        .dining-banner {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--accent);
+            box-shadow: var(--shadow);
+        }
+
+        .dining-banner__icon {
+            background: var(--accent);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .dining-banner__content {
+            flex: 1;
+        }
+
+        .dining-banner__content h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .dining-banner__content p {
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .dining-banner__status {
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge--confirmed {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(39, 174, 96, 0.2);
+        }
+
+        .status-badge--pending {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-light);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .status-badge--waitlist {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(243, 156, 18, 0.2);
+        }
+
+        /* Dining Tabs */
+        .dining-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .dining-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .dining-tabs::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .dining-tabs::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 3px;
+        }
+
+        .dining-tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .dining-tab:hover {
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+
+        .dining-tab.active {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #2980b9 100%);
+            border-color: var(--primary-light);
+            color: white;
+        }
+
+        .dining-tab i {
+            font-size: 0.9em;
+        }
+
+        /* Dining Category */
+        .dining-category {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .dining-category__title {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .dining-category__subtitle {
+            color: var(--gray);
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* Restaurants Grid */
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .restaurants-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .restaurant-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .restaurant-card--featured {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+
+        .restaurant-card--exclusive {
+            border: 2px solid #9b59b6;
+            background: linear-gradient(135deg, #f9f9f9 0%, #f5f3ff 100%);
+        }
+
+        .restaurant-card--included {
+            border-left: 4px solid var(--success);
+        }
+
+        .restaurant-card__header {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .restaurant-card__header h4 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .restaurant-price {
+            background: var(--accent);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        .restaurant-badge {
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .restaurant-card__details {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .restaurant-card__details p {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .restaurant-card__details i {
+            color: var(--primary-light);
+            width: 16px;
+        }
+
+        .restaurant-card__description {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+            color: var(--dark);
+        }
+
+        .restaurant-card__tips {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            font-size: 0.875rem;
+            color: var(--gray);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .restaurant-card__reservations {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reservation-status p {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        /* Casual Dining Grid */
+        .casual-dining-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .casual-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .casual-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .casual-card__icon {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #2980b9 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .casual-card__content h5 {
+            color: var(--primary);
+            margin-bottom: 4px;
+            font-size: 1rem;
+        }
+
+        .casual-card__content p {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 2px;
+        }
+
+        /* Reservations Table */
+        .reservations-table {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .reservation-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 15px;
+            padding: 15px 20px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .reservation-row--header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .reservation-row:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .reservation-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 20px;
+            }
+            
+            .reservation-row > div {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .reservation-row > div::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--primary);
+                font-size: 0.875rem;
+            }
+        }
+
+        .reservation-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        /* Dining Packages */
+        .dining-packages {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin: 40px 0;
+        }
+
+        .dining-packages h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .package-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .package-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .package-card--featured {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+        }
+
+        .package-card h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .package-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .package-card p {
+            font-size: 0.9rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        /* Dietary Information */
+        .dietary-info {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin: 40px 0;
+        }
+
+        .dietary-info h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .dietary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .dietary-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+        }
+
+        .dietary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .dietary-icon {
+            background: var(--primary-light);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .dietary-card h4 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .dietary-card p {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Dress Code */
+        .dress-code {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin: 40px 0;
+        }
+
+        .dress-code h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .dress-code-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .dress-code-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+        }
+
+        .dress-code-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .dress-code-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .dress-code-badge.casual {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--primary-light);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+        }
+
+        .dress-code-badge.smart-casual {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+            border: 1px solid rgba(155, 89, 182, 0.2);
+        }
+
+        .dress-code-badge.formal {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--secondary);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .dress-code-item p {
+            font-size: 0.9rem;
+            color: var(--dark);
+            margin-top: 5px;
+        }
+
+        .dress-code-item strong {
+            color: var(--primary);
+        }
+
+        /* Dining Actions */
+        .dining-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Important Notes */
+        .note {
+            background: #e8f4fd;
+            border-left: 4px solid var(--primary-light);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin: 40px 0;
+        }
+
+        .note h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .note ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .note li {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card, .restaurant-card, .casual-card, .package-card {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-main {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .nav-brand {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .card__header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .card__header-left {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .dining-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .dining-tabs {
+                justify-content: flex-start;
+            }
+
+            .dining-tab {
+                min-width: 140px;
+            }
+
+            .reservation-actions {
+                flex-direction: column;
+            }
+
+            .reservation-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .dining-actions {
+                flex-direction: column;
+            }
+
+            .dining-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Utility Classes */
+        .mt-2 { margin-top: 8px; }
+        .mt-4 { margin-top: 16px; }
+        .mt-8 { margin-top: 32px; }
+        .mb-4 { margin-bottom: 16px; }
+        .mb-6 { margin-bottom: 24px; }
+        .mb-8 { margin-bottom: 32px; }
+        .text-center { text-align: center; }
+        .text-muted { color: var(--gray); }
+    </style>
 </head>
-<body class="compact-mode mobile-view" data-view-mode="veteran">
-    <!-- Navigation (simplified) -->
+<body>
+    <!-- Navigation -->
     <nav class="nav-container" aria-label="Main navigation">
         <div class="nav-main">
             <a href="index.html" class="nav-brand" aria-label="Back to Cruise Companion">
-                <span class="nav-brand-badge" aria-hidden="true">⛵</span>
+                <span class="nav-brand-badge" aria-hidden="true">🍽️</span>
                 <div class="nav-brand-text">
                     <span class="nav-brand-title">Cruise Companion</span>
                     <span class="nav-brand-subtitle">Adventure of the Seas · Feb 14-20</span>
@@ -35,21 +980,26 @@
     <main class="main" role="main">
         <div class="container">
             <!-- Dining Section -->
-            <section id="dining" class="section active" data-view="first-timer veteran" aria-labelledby="diningTitle" aria-hidden="false">
+            <section id="dining" class="section" aria-labelledby="diningTitle">
                 <div class="card">
                     <div class="card__header">
-                        <div class="card__icon" aria-hidden="true">
-                            <i class="fas fa-utensils"></i>
+                        <div class="card__header-left">
+                            <div class="card__icon" aria-hidden="true">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div>
+                                <h2 id="diningTitle">Dining & Reservations</h2>
+                                <p class="card__subtitle">Restaurants, dining times, and reservation management</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 id="diningTitle">Dining & Reservations</h2>
-                            <p class="card__subtitle">Restaurants, dining times, and reservation management</p>
-                        </div>
+                        <button class="card__toggle" aria-expanded="true" aria-controls="diningContent">
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                            <span class="sr-only">Toggle section</span>
+                        </button>
                     </div>
-                    <div id="diningContent" class="card__content expanded" aria-hidden="false" style="max-height: none;">
-                        
+                    <div id="diningContent" class="card__content expanded" aria-hidden="false">
                         <!-- Main Dining Room Banner -->
-                        <div class="dining-banner dining-banner--primary">
+                        <div class="dining-banner">
                             <div class="dining-banner__icon">
                                 <i class="fas fa-crown"></i>
                             </div>
@@ -98,14 +1048,14 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> Classic Steakhouse</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Premium steaks, seafood, and sides in an upscale setting. Perfect for formal nights.</p>
+                                        <p>Premium steaks, seafood, and sides in an upscale setting. Perfect for formal nights. Features dry-aged steaks and an extensive wine list.</p>
                                     </div>
                                     <div class="restaurant-card__reservations">
                                         <div class="reservation-status">
                                             <span class="status-badge status-badge--confirmed">Reserved</span>
                                             <p>Day 5 • 7:00 PM • 8 guests</p>
                                         </div>
-                                        <button class="btn btn--outline btn--sm">
+                                        <button class="btn btn--outline btn--sm" data-action="modify" data-restaurant="Chops Grille">
                                             <i class="fas fa-edit"></i> Modify
                                         </button>
                                     </div>
@@ -123,14 +1073,14 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> Japanese</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Teppanyaki tables and fresh sushi. Hibachi dinner includes chef's performance.</p>
+                                        <p>Teppanyaki tables and fresh sushi. Hibachi dinner includes chef's performance. Sake menu available.</p>
                                     </div>
                                     <div class="restaurant-card__reservations">
                                         <div class="reservation-status">
                                             <span class="status-badge status-badge--pending">Available</span>
                                             <p>Hibachi: $45 pp • Sushi: À la carte</p>
                                         </div>
-                                        <button class="btn btn--primary btn--sm">
+                                        <button class="btn btn--primary btn--sm" data-action="book" data-restaurant="Izumi Hibachi & Sushi">
                                             <i class="fas fa-plus"></i> Book Now
                                         </button>
                                     </div>
@@ -148,14 +1098,14 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> Italian</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Family-style Italian dining with pasta made fresh daily. Great for groups.</p>
+                                        <p>Family-style Italian dining with pasta made fresh daily. Great for groups. Features homemade pasta and Italian wines.</p>
                                     </div>
                                     <div class="restaurant-card__reservations">
                                         <div class="reservation-status">
                                             <span class="status-badge status-badge--pending">Available</span>
                                             <p>No reservations yet</p>
                                         </div>
-                                        <button class="btn btn--primary btn--sm">
+                                        <button class="btn btn--primary btn--sm" data-action="book" data-restaurant="Giovanni's Table">
                                             <i class="fas fa-plus"></i> Book Now
                                         </button>
                                     </div>
@@ -173,14 +1123,14 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> Multi-course Tasting</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Exclusive 5-course meal with wine pairings. Limited to 16 guests per seating.</p>
+                                        <p>Exclusive 5-course meal with wine pairings. Limited to 16 guests per seating. Executive chef presentation included.</p>
                                     </div>
                                     <div class="restaurant-card__reservations">
                                         <div class="reservation-status">
                                             <span class="status-badge status-badge--waitlist">Waitlist</span>
                                             <p>Day 3 & 6 • Fully booked</p>
                                         </div>
-                                        <button class="btn btn--outline btn--sm">
+                                        <button class="btn btn--outline btn--sm" data-action="waitlist" data-restaurant="Chef's Table">
                                             <i class="fas fa-user-plus"></i> Join Waitlist
                                         </button>
                                     </div>
@@ -206,7 +1156,7 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> International</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Casual buffet with stations for breakfast, lunch, and dinner. Great variety daily.</p>
+                                        <p>Casual buffet with stations for breakfast, lunch, and dinner. Great variety daily including made-to-order stations.</p>
                                     </div>
                                     <div class="restaurant-card__tips">
                                         <p><strong>Tip:</strong> Less crowded during port days. Open for embarkation lunch.</p>
@@ -225,10 +1175,10 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> Coffee & Pastries</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Complimentary coffee, tea, pastries, sandwiches, and cookies available anytime.</p>
+                                        <p>Complimentary coffee, tea, pastries, sandwiches, and cookies available anytime. Perfect for late-night snacks.</p>
                                     </div>
                                     <div class="restaurant-card__tips">
-                                        <p><strong>Tip:</strong> Free pizza slices available after 8 PM.</p>
+                                        <p><strong>Tip:</strong> Free pizza slices available after 8 PM. Try the signature cookies!</p>
                                     </div>
                                 </div>
 
@@ -244,10 +1194,10 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> Pizza</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Freshly made pizza by the slice. Custom pizzas available during peak hours.</p>
+                                        <p>Freshly made pizza by the slice. Custom pizzas available during peak hours. Gluten-free options upon request.</p>
                                     </div>
                                     <div class="restaurant-card__tips">
-                                        <p><strong>Tip:</strong> Try the create-your-own pizza station at lunch.</p>
+                                        <p><strong>Tip:</strong> Try the create-your-own pizza station at lunch. Pepperoni is most popular!</p>
                                     </div>
                                 </div>
 
@@ -263,10 +1213,10 @@
                                         <p><i class="fas fa-utensils"></i> <strong>Cuisine:</strong> Continental</p>
                                     </div>
                                     <div class="restaurant-card__description">
-                                        <p>Three-level formal dining room with assigned seating. Menu changes daily.</p>
+                                        <p>Three-level formal dining room with assigned seating. Menu changes daily featuring chef's specials.</p>
                                     </div>
                                     <div class="restaurant-card__tips">
-                                        <p><strong>Tip:</strong> Formal nights are Day 2 (at sea) and Day 5 (at sea).</p>
+                                        <p><strong>Tip:</strong> Formal nights are Day 2 (at sea) and Day 5 (at sea). Lobster served on second formal night!</p>
                                     </div>
                                 </div>
                             </div>
@@ -361,42 +1311,42 @@
                                 </div>
                                 
                                 <div class="reservation-row">
-                                    <div><strong>Chops Grille</strong></div>
-                                    <div>Day 5 (Feb 18)</div>
-                                    <div>7:00 PM</div>
-                                    <div>8 guests</div>
-                                    <div><span class="status-badge status-badge--confirmed">Confirmed</span></div>
-                                    <div>
-                                        <button class="btn btn--outline btn--xs">
+                                    <div data-label="Restaurant"><strong>Chops Grille</strong></div>
+                                    <div data-label="Date">Day 5 (Feb 18)</div>
+                                    <div data-label="Time">7:00 PM</div>
+                                    <div data-label="Guests">8 guests</div>
+                                    <div data-label="Status"><span class="status-badge status-badge--confirmed">Confirmed</span></div>
+                                    <div data-label="Actions">
+                                        <button class="btn btn--outline btn--xs" data-action="modify" data-reservation="chops">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn--outline btn--xs">
+                                        <button class="btn btn--outline btn--xs" data-action="cancel" data-reservation="chops">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
                                 </div>
                                 
                                 <div class="reservation-row">
-                                    <div><strong>Main Dining</strong></div>
-                                    <div>Every night</div>
-                                    <div>5:30 PM</div>
-                                    <div>14 guests</div>
-                                    <div><span class="status-badge status-badge--confirmed">Assigned</span></div>
-                                    <div>
-                                        <button class="btn btn--outline btn--xs">
+                                    <div data-label="Restaurant"><strong>Main Dining</strong></div>
+                                    <div data-label="Date">Every night</div>
+                                    <div data-label="Time">5:30 PM</div>
+                                    <div data-label="Guests">14 guests</div>
+                                    <div data-label="Status"><span class="status-badge status-badge--confirmed">Assigned</span></div>
+                                    <div data-label="Actions">
+                                        <button class="btn btn--outline btn--xs" data-action="info" data-reservation="main">
                                             <i class="fas fa-info-circle"></i>
                                         </button>
                                     </div>
                                 </div>
                                 
                                 <div class="reservation-row">
-                                    <div><strong>Chef's Table</strong></div>
-                                    <div>Day 3</div>
-                                    <div>7:00 PM</div>
-                                    <div>2 guests</div>
-                                    <div><span class="status-badge status-badge--waitlist">Waitlist</span></div>
-                                    <div>
-                                        <button class="btn btn--outline btn--xs">
+                                    <div data-label="Restaurant"><strong>Chef's Table</strong></div>
+                                    <div data-label="Date">Day 3</div>
+                                    <div data-label="Time">7:00 PM</div>
+                                    <div data-label="Guests">2 guests</div>
+                                    <div data-label="Status"><span class="status-badge status-badge--waitlist">Waitlist</span></div>
+                                    <div data-label="Actions">
+                                        <button class="btn btn--outline btn--xs" data-action="waitlist" data-reservation="chefs">
                                             <i class="fas fa-user-plus"></i>
                                         </button>
                                     </div>
@@ -404,42 +1354,42 @@
                             </div>
                             
                             <div class="reservation-actions">
-                                <button class="btn btn--primary">
+                                <button class="btn btn--primary" id="makeReservationBtn">
                                     <i class="fas fa-plus"></i> Make New Reservation
                                 </button>
-                                <button class="btn btn--outline">
+                                <button class="btn btn--outline" id="refreshReservationsBtn">
                                     <i class="fas fa-sync-alt"></i> Refresh Status
                                 </button>
                             </div>
                         </div>
 
                         <!-- Dining Packages -->
-                        <div class="dining-packages mt-8">
+                        <div class="dining-packages">
                             <h3><i class="fas fa-tags"></i> Dining Packages</h3>
                             <div class="packages-grid">
                                 <div class="package-card">
                                     <h4>3-Night Dining Package</h4>
                                     <p class="package-price">$109 pp</p>
-                                    <p>Any 3 specialty restaurants • Save 30%</p>
-                                    <button class="btn btn--outline btn--sm">View Details</button>
+                                    <p>Any 3 specialty restaurants • Save 30% compared to individual bookings</p>
+                                    <button class="btn btn--outline btn--sm" data-package="3-night">View Details</button>
                                 </div>
                                 <div class="package-card package-card--featured">
                                     <h4>Unlimited Dining Package</h4>
                                     <p class="package-price">$219 pp</p>
-                                    <p>Unlimited specialty dining • Includes lunch on sea days</p>
-                                    <button class="btn btn--primary btn--sm">Purchase Now</button>
+                                    <p>Unlimited specialty dining • Includes lunch on sea days • Best value</p>
+                                    <button class="btn btn--primary btn--sm" data-package="unlimited">Purchase Now</button>
                                 </div>
                                 <div class="package-card">
                                     <h4>Izumi Hibachi Experience</h4>
-                                    <p class="package-price">$45 pp</p>
-                                    <p>One hibachi dinner • Includes chef's performance</p>
-                                    <button class="btn btn--outline btn--sm">View Details</button>
+                                    <p class="package-price">$45 pp</div>
+                                    <p>One hibachi dinner • Includes chef's performance • Sake pairing available</p>
+                                    <button class="btn btn--outline btn--sm" data-package="izumi">View Details</button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Dietary Information -->
-                        <div class="dietary-info mt-8">
+                        <div class="dietary-info">
                             <h3><i class="fas fa-allergies"></i> Dietary Needs & Allergies</h3>
                             <div class="dietary-grid">
                                 <div class="dietary-card">
@@ -448,7 +1398,7 @@
                                     </div>
                                     <div>
                                         <h4>Vegetarian & Vegan</h4>
-                                        <p>Notify server for special menus. Available in all restaurants.</p>
+                                        <p>Notify server for special menus. Available in all restaurants. Plant-based options marked on menu.</p>
                                     </div>
                                 </div>
                                 <div class="dietary-card">
@@ -457,7 +1407,7 @@
                                     </div>
                                     <div>
                                         <h4>Gluten-Free</h4>
-                                        <p>Pre-order gluten-free meals 24 hours in advance.</p>
+                                        <p>Pre-order gluten-free meals 24 hours in advance. Dedicated preparation area available.</p>
                                     </div>
                                 </div>
                                 <div class="dietary-card">
@@ -466,7 +1416,7 @@
                                     </div>
                                     <div>
                                         <h4>Food Allergies</h4>
-                                        <p>Inform dining staff. Chefs can prepare separate meals.</p>
+                                        <p>Inform dining staff. Chefs can prepare separate meals. Medical team notified if severe.</p>
                                     </div>
                                 </div>
                                 <div class="dietary-card">
@@ -475,37 +1425,37 @@
                                     </div>
                                     <div>
                                         <h4>Special Requests</h4>
-                                        <p>Contact head waiter or visit Guest Services.</p>
+                                        <p>Contact head waiter or visit Guest Services. Kosher/Halal meals available with advance notice.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Dress Code -->
-                        <div class="dress-code mt-8">
+                        <div class="dress-code">
                             <h3><i class="fas fa-tshirt"></i> Dress Code Guide</h3>
                             <div class="dress-code-grid">
                                 <div class="dress-code-item">
                                     <div class="dress-code-badge casual">Casual</div>
                                     <p><strong>Most nights</strong></p>
-                                    <p>Resort wear, sundresses, polo shirts, khakis</p>
+                                    <p>Resort wear, sundresses, polo shirts, khakis, nice jeans</p>
                                 </div>
                                 <div class="dress-code-item">
                                     <div class="dress-code-badge smart-casual">Smart Casual</div>
                                     <p><strong>Specialty restaurants</strong></p>
-                                    <p>Dress pants, blouses, jackets (no tie required)</p>
+                                    <p>Dress pants, blouses, jackets (no tie required), cocktail dresses</p>
                                 </div>
                                 <div class="dress-code-item">
                                     <div class="dress-code-badge formal">Formal</div>
                                     <p><strong>Day 2 & 5</strong></p>
-                                    <p>Suits, tuxedos, cocktail dresses, gowns</p>
+                                    <p>Suits, tuxedos, cocktail dresses, gowns. Photographers available throughout ship.</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Quick Actions -->
-                        <div class="dining-actions mt-8">
-                            <button class="btn btn--primary" id="makeReservationBtn">
+                        <div class="dining-actions">
+                            <button class="btn btn--primary" id="makeReservationBtnMain">
                                 <i class="fas fa-calendar-plus"></i>
                                 Make Reservation
                             </button>
@@ -517,16 +1467,21 @@
                                 <i class="fas fa-print"></i>
                                 Print Dining Plan
                             </button>
+                            <button class="btn btn--outline" id="contactMaitreDBtn">
+                                <i class="fas fa-user-tie"></i>
+                                Contact Maître D'
+                            </button>
                         </div>
 
                         <!-- Important Notes -->
-                        <div class="note note--info mt-8">
-                            <strong>Important Notes:</strong>
+                        <div class="note">
+                            <h4><i class="fas fa-info-circle"></i> Important Dining Information</h4>
                             <ul>
-                                <li>Specialty dining reservations can be made via Royal app, cabin TV, or at restaurant</li>
-                                <li>24-hour cancellation policy for specialty restaurants</li>
-                                <li>Formal nights photography available throughout ship</li>
-                                <li>Gratuities included in specialty dining packages</li>
+                                <li><strong>Reservations:</strong> Specialty dining reservations can be made via Royal app, cabin TV, or at restaurant podium</li>
+                                <li><strong>Cancellation:</strong> 24-hour cancellation policy for specialty restaurants to avoid charges</li>
+                                <li><strong>Formal Nights:</strong> Professional photography available throughout ship on formal nights</li>
+                                <li><strong>Gratuities:</strong> Included in specialty dining packages, additional tipping at your discretion</li>
+                                <li><strong>Children:</strong> Kids' menus available in all restaurants. Under 5 eat free from kids' menu</li>
                             </ul>
                         </div>
                     </div>
@@ -535,7 +1490,6 @@
         </div>
     </main>
 
-    <!-- Include any shared JS files -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Tab functionality
@@ -557,56 +1511,124 @@
                     categories.forEach(category => {
                         if (category.id === `${tabId}-tab`) {
                             category.style.display = 'block';
-                            category.classList.add('active');
+                            category.style.animation = 'fadeIn 0.6s ease-out';
                         } else {
                             category.style.display = 'none';
-                            category.classList.remove('active');
                         }
                     });
                 });
             });
             
-            // Button functionality
-            document.getElementById('makeReservationBtn').addEventListener('click', function() {
-                alert('Opening reservation system in Royal Caribbean app...');
+            // Card toggle functionality
+            const cardToggle = document.querySelector('.card__toggle');
+            const cardContent = document.getElementById('diningContent');
+            
+            cardToggle.addEventListener('click', function() {
+                const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', !isExpanded);
+                cardContent.classList.toggle('expanded');
+                
+                // Toggle icon
+                const icon = this.querySelector('i');
+                icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+            
+            // Reservation actions
+            const showAlert = (message) => {
+                alert(message);
+            };
+            
+            // Book now buttons
+            document.querySelectorAll('[data-action="book"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const restaurant = this.getAttribute('data-restaurant');
+                    showAlert(`Opening reservation system for ${restaurant}...\n\nIn a real implementation, this would open the Royal Caribbean booking system or show a reservation modal.`);
+                });
+            });
+            
+            // Modify buttons
+            document.querySelectorAll('[data-action="modify"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const restaurant = this.getAttribute('data-restaurant') || 
+                                     this.closest('.reservation-row')?.querySelector('strong')?.textContent ||
+                                     'Unknown Restaurant';
+                    showAlert(`Opening modification for ${restaurant} reservation...\n\nYou can change time, date, or number of guests.`);
+                });
+            });
+            
+            // Waitlist buttons
+            document.querySelectorAll('[data-action="waitlist"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const restaurant = this.getAttribute('data-restaurant') || 'Chef\'s Table';
+                    showAlert(`Added to waitlist for ${restaurant}.\n\nYou will be notified via the Royal app if a spot becomes available.`);
+                });
+            });
+            
+            // Cancel buttons
+            document.querySelectorAll('[data-action="cancel"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to cancel this reservation?\n\nCancellations within 24 hours may incur charges.')) {
+                        showAlert('Reservation cancelled successfully.\n\nYou should receive confirmation via email.');
+                    }
+                });
+            });
+            
+            // Info buttons
+            document.querySelectorAll('[data-action="info"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    showAlert('Main Dining Room Information:\n\n• Table #423, Deck 4\n• Traditional seating: 5:30 PM\n• All 14 guests assigned\n• Formal nights: Day 2 & 5\n\nSee the maître d\' for seating changes.');
+                });
+            });
+            
+            // Main action buttons
+            document.getElementById('makeReservationBtnMain').addEventListener('click', function() {
+                showAlert('Opening dining reservation system...\n\nBrowse available restaurants, times, and make new reservations.');
             });
             
             document.getElementById('viewMenusBtn').addEventListener('click', function() {
-                alert('Opening sample menus...');
-                // In a real implementation, this would show modal with menus
+                showAlert('Opening sample menus...\n\nView menus from all restaurants including daily specials and chef\'s recommendations.');
             });
             
             document.getElementById('printDiningPlanBtn').addEventListener('click', function() {
                 window.print();
             });
             
-            // Modify reservation buttons
-            document.querySelectorAll('.reservation-row button').forEach(button => {
+            document.getElementById('contactMaitreDBtn').addEventListener('click', function() {
+                showAlert('Contact Maître D\' Information:\n\n• Visit: American Icon Grill, Deck 4\n• Hours: 5:00 PM - 6:00 PM daily\n• Phone: Ext. 7000 from cabin\n• Email: maitred@adventure.rccl.com');
+            });
+            
+            document.getElementById('refreshReservationsBtn').addEventListener('click', function() {
+                showAlert('Refreshing reservation status...\n\nSyncing with Royal Caribbean system to get latest updates.');
+            });
+            
+            // Package buttons
+            document.querySelectorAll('[data-package]').forEach(button => {
                 button.addEventListener('click', function() {
-                    const action = this.querySelector('i').className;
-                    if (action.includes('edit')) {
-                        alert('Opening reservation modification...');
-                    } else if (action.includes('times')) {
-                        if (confirm('Are you sure you want to cancel this reservation?')) {
-                            alert('Reservation cancelled.');
-                        }
-                    } else if (action.includes('info-circle')) {
-                        alert('Main dining assignment cannot be modified online. See maître d\' for changes.');
-                    } else if (action.includes('user-plus')) {
-                        alert('Added to waitlist for Chef\'s Table.');
+                    const package = this.getAttribute('data-package');
+                    let message = '';
+                    
+                    switch(package) {
+                        case '3-night':
+                            message = '3-Night Dining Package:\n\n• Any 3 specialty restaurants\n• Save 30% vs individual bookings\n• Can be used on any nights\n• Includes all restaurants except Chef\'s Table';
+                            break;
+                        case 'unlimited':
+                            message = 'Unlimited Dining Package:\n\n• All specialty restaurants\n• Lunch included on sea days\n• 40% savings\n• Best for food enthusiasts';
+                            break;
+                        case 'izumi':
+                            message = 'Izumi Hibachi Experience:\n\n• One hibachi dinner\n• Chef\'s performance included\n• Sake pairing available\n• Can upgrade to full Izumi experience';
+                            break;
                     }
+                    
+                    if (message) showAlert(message);
                 });
             });
             
-            // Book now buttons
-            document.querySelectorAll('.btn--primary.btn--sm').forEach(button => {
-                if (button.textContent.includes('Book Now')) {
-                    button.addEventListener('click', function() {
-                        const restaurant = this.closest('.restaurant-card').querySelector('h4').textContent;
-                        alert(`Opening booking for ${restaurant}...`);
-                    });
-                }
-            });
+            // Initialize animations
+            setTimeout(() => {
+                document.querySelectorAll('.restaurant-card, .casual-card, .package-card').forEach((card, index) => {
+                    card.style.animationDelay = `${index * 0.1}s`;
+                });
+            }, 100);
         });
     </script>
 </body>
