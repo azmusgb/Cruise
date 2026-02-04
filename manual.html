@@ -1564,6 +1564,9 @@
             </li>
           </ul>
         </div>
+        <button class="nav-mobile-toggle" id="mobileMenuBtn" aria-label="Open mobile menu" aria-expanded="false" type="button">
+          <span aria-hidden="true"></span>
+        </button>
         <div class="nav-quick-actions">
           <a class="nav-chip" href="index.html#overview">
             <i class="fas fa-arrow-left" aria-hidden="true"></i>
@@ -1573,6 +1576,107 @@
       </div>
     </nav>
   </header>
+  <div class="nav-overlay" id="navOverlay"></div>
+  <div class="nav-mobile-menu" id="navMobileMenu" aria-hidden="true">
+    <div class="nav-mobile-header">
+      <div class="nav-brand">
+        <span class="nav-brand-badge" aria-hidden="true">⛵</span>
+        <div class="nav-brand-text">
+          <span class="nav-brand-title">Cruise Companion</span>
+          <span class="nav-brand-subtitle">Adventure of the Seas</span>
+        </div>
+      </div>
+      <button class="nav-mobile-close" id="navMobileClose" aria-label="Close menu" type="button">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="nav-mobile-content">
+      <div class="nav-mobile-section">
+        <h3 class="nav-mobile-section-title">Manual Sections</h3>
+        <ul class="nav-mobile-list" role="menu">
+          <li class="nav-mobile-item" role="none">
+            <button class="nav-mobile-link active" data-section="operations" role="menuitem" type="button">
+              <span class="nav-mobile-icon" aria-hidden="true">🧭</span>
+              <span class="nav-mobile-label">Operations</span>
+              <span class="nav-mobile-badge" aria-hidden="true">Start</span>
+            </button>
+          </li>
+          <li class="nav-mobile-item" role="none">
+            <button class="nav-mobile-link" data-section="itinerary" role="menuitem" type="button">
+              <span class="nav-mobile-icon" aria-hidden="true">🗓️</span>
+              <span class="nav-mobile-label">Embarkation</span>
+            </button>
+          </li>
+          <li class="nav-mobile-item" role="none">
+            <button class="nav-mobile-link" data-section="rooms" role="menuitem" type="button">
+              <span class="nav-mobile-icon" aria-hidden="true">🛌</span>
+              <span class="nav-mobile-label">Rooms</span>
+            </button>
+          </li>
+          <li class="nav-mobile-item" role="none">
+            <button class="nav-mobile-link" data-section="deck-plans" role="menuitem" type="button">
+              <span class="nav-mobile-icon" aria-hidden="true">🗺️</span>
+              <span class="nav-mobile-label">Deck Plans</span>
+            </button>
+          </li>
+          <li class="nav-mobile-item" role="none">
+            <button class="nav-mobile-link" data-section="dining" role="menuitem" type="button">
+              <span class="nav-mobile-icon" aria-hidden="true">🍽️</span>
+              <span class="nav-mobile-label">Dining</span>
+            </button>
+          </li>
+          <li class="nav-mobile-item" role="none">
+            <button class="nav-mobile-link" data-section="communication" role="menuitem" type="button">
+              <span class="nav-mobile-icon" aria-hidden="true">💬</span>
+              <span class="nav-mobile-label">Comms &amp; Budget</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="nav-mobile-section">
+        <h3 class="nav-mobile-section-title">Planning</h3>
+        <ul class="nav-mobile-list" role="menu">
+          <li class="nav-mobile-item" role="none">
+            <a class="nav-mobile-link" href="index.html#overview" role="menuitem">
+              <span class="nav-mobile-icon" aria-hidden="true">🏠</span>
+              <span class="nav-mobile-label">Back to Dashboard</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="nav-mobile-footer">
+      <div class="nav-mobile-footer-copy">
+        <p>Tap a section to jump instantly</p>
+        <div class="nav-mobile-footer-meta">
+          <i class="fas fa-ship" aria-hidden="true"></i>
+          <span>Feb 14–20, 2026</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav-bottom" aria-label="Mobile bottom navigation">
+    <button class="nav-bottom-item active" data-section="operations" type="button">
+      <span class="nav-bottom-icon" aria-hidden="true">🧭</span>
+      <span>Ops</span>
+    </button>
+    <button class="nav-bottom-item" data-section="itinerary" type="button">
+      <span class="nav-bottom-icon" aria-hidden="true">🗓️</span>
+      <span>Timeline</span>
+    </button>
+    <button class="nav-bottom-item" data-section="rooms" type="button">
+      <span class="nav-bottom-icon" aria-hidden="true">🛌</span>
+      <span>Rooms</span>
+    </button>
+    <button class="nav-bottom-item" data-section="dining" type="button">
+      <span class="nav-bottom-icon" aria-hidden="true">🍽️</span>
+      <span>Dining</span>
+    </button>
+    <button class="nav-bottom-item" id="mobileMoreBtn" type="button">
+      <span class="nav-bottom-icon" aria-hidden="true">⋯</span>
+      <span>Menu</span>
+    </button>
+  </nav>
   <main id="main-content" class="main" role="main">
     <div class="container">
       <div class="main-layout">
@@ -2403,5 +2507,64 @@
       </div>
     </div>
   </footer>
+  <script>
+    (() => {
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileMenu = document.getElementById('navMobileMenu');
+      const mobileClose = document.getElementById('navMobileClose');
+      const overlay = document.getElementById('navOverlay');
+      const mobileMoreBtn = document.getElementById('mobileMoreBtn');
+
+      const openMenu = () => {
+        if (!mobileMenu || !overlay) return;
+        mobileMenu.classList.add('active');
+        overlay.classList.add('active');
+        mobileMenu.setAttribute('aria-hidden', 'false');
+        mobileMenuBtn?.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      };
+
+      const closeMenu = () => {
+        if (!mobileMenu || !overlay) return;
+        mobileMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        mobileMenuBtn?.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      };
+
+      const updateActive = (sectionId) => {
+        document.querySelectorAll('.nav-bottom-item, .nav-mobile-link').forEach((item) => {
+          const isMatch = item.getAttribute('data-section') === sectionId;
+          item.classList.toggle('active', isMatch);
+        });
+      };
+
+      const sectionButtons = document.querySelectorAll('[data-section]');
+      sectionButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const sectionId = button.getAttribute('data-section');
+          if (!sectionId) return;
+          const target = document.getElementById(sectionId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            updateActive(sectionId);
+          }
+          closeMenu();
+        });
+      });
+
+      mobileMenuBtn?.addEventListener('click', openMenu);
+      mobileMoreBtn?.addEventListener('click', openMenu);
+      mobileClose?.addEventListener('click', closeMenu);
+      overlay?.addEventListener('click', closeMenu);
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && mobileMenu?.classList.contains('active')) {
+          closeMenu();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
