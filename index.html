@@ -254,6 +254,43 @@
          }
          .mode-btn{justify-content:center;padding:6px 8px;font-size:var(--text-xs);}
          }
+         /* =======================
+            TABS: top-level screens
+         ======================= */
+         .tabbar{
+         position:sticky;
+         top:var(--header-height);
+         z-index:70;
+         background:rgba(6,24,43,0.96);
+         border-bottom:1px solid var(--border);
+         padding:10px var(--gap-md);
+         display:flex;
+         gap:8px;
+         overflow-x:auto;
+         -webkit-overflow-scrolling:touch;
+         }
+         .tabbar__btn{
+         border:1px solid var(--border);
+         background:rgba(255,255,255,0.04);
+         color:var(--muted);
+         border-radius:999px;
+         padding:10px 14px;
+         font-family:var(--font-heading);
+         font-weight:800;
+         white-space:nowrap;
+         cursor:pointer;
+         display:inline-flex;
+         align-items:center;
+         gap:8px;
+         }
+         .tabbar__btn.active{
+         background:rgba(54,194,255,0.18);
+         border-color:rgba(54,194,255,0.45);
+         color:var(--text);
+         }
+         .tabpanels{padding-top:var(--gap-md);}
+         .tabpanel{display:none;}
+         .tabpanel.active{display:block;}
          /* =============== Search Overlay (modal) =============== */
          .search-overlay{
          position:fixed;inset:0;z-index:120;display:none;
@@ -1910,6 +1947,37 @@
                         </div>
                      </div>
                   </section>
+                  <!-- =========================================================
+                       TAB BAR (Top-level screens)
+                  ========================================================= -->
+                  <nav class="tabbar" aria-label="Main tabs">
+                     <button class="tabbar__btn active" data-tab="today" aria-selected="true" type="button">
+                        <i class="fas fa-calendar-day" aria-hidden="true"></i> Today
+                     </button>
+                     <button class="tabbar__btn" data-tab="plan" aria-selected="false" type="button">
+                        <i class="fas fa-clipboard-list" aria-hidden="true"></i> Plan
+                     </button>
+                     <button class="tabbar__btn" data-tab="ports" aria-selected="false" type="button">
+                        <i class="fas fa-route" aria-hidden="true"></i> Ports
+                     </button>
+                     <button class="tabbar__btn" data-tab="ship" aria-selected="false" type="button">
+                        <i class="fas fa-ship" aria-hidden="true"></i> Ship
+                     </button>
+                     <button class="tabbar__btn" data-tab="food" aria-selected="false" type="button">
+                        <i class="fas fa-utensils" aria-hidden="true"></i> Food
+                     </button>
+                     <button class="tabbar__btn" data-tab="money" aria-selected="false" type="button">
+                        <i class="fas fa-wallet" aria-hidden="true"></i> Money
+                     </button>
+                     <button class="tabbar__btn" data-tab="extras" aria-selected="false" type="button">
+                        <i class="fas fa-star" aria-hidden="true"></i> Extras
+                     </button>
+                  </nav>
+                  <!-- =========================================================
+                       TAB PANELS WRAPPER (contains existing sections)
+                  ========================================================= -->
+                  <div class="tabpanels">
+                     <div class="tabpanel active" data-tabpanel="today">
                   <!-- TODAY SECTION (Dynamic - Changes based on current date) -->
                   <section id="today" class="section section--pinned section--critical" data-view="today first-timer veteran" aria-labelledby="todayTitle">
                      <div class="card card--featured">
@@ -1991,6 +2059,8 @@
                         </div>
                      </div>
                   </section>
+                     </div>
+                     <div class="tabpanel" data-tabpanel="plan">
                   <!-- Quick Start Guide -->
                   <section id="quick-start" class="section section--critical" data-view="today first-timer veteran" aria-labelledby="quickStartTitle">
                      <div class="card quick-start">
@@ -2188,49 +2258,6 @@
                         </div>
                      </div>
                   </section>
-                  <!-- Deck Plans Section -->
-                  <section id="deck-plans" class="section" data-view="first-timer veteran" aria-labelledby="deckPlansTitle">
-                     <div class="card">
-                        <div class="card__header">
-                           <div class="card__icon" aria-hidden="true">
-                              <i class="fas fa-map"></i>
-                           </div>
-                           <div>
-                              <h2 id="deckPlansTitle" class="card__title">Deck Plans &amp; Ship Maps</h2>
-                              <p class="card__subtitle">Interactive maps and offline reference</p>
-                           </div>
-                           <button class="card__toggle" aria-expanded="false" aria-controls="deckPlansContent">
-                              <i class="fas fa-chevron-down" aria-hidden="true"></i>
-                              <span class="sr-only">Toggle section</span>
-                           </button>
-                        </div>
-                        <div id="deckPlansContent" class="card__content collapsed">
-                           <p class="mb-4">Recommended: Open the Royal Caribbean app and tap <strong>Deck Plans</strong> for interactive zoom, venue search, and real-time navigation.</p>
-                           <div class="deck-plan-actions">
-                              <a class="btn btn--primary" href="https://apps.apple.com/us/app/royal-caribbean-international/id1260728016" target="_blank" rel="noopener noreferrer">
-                                 <i class="fas fa-mobile-alt" aria-hidden="true"></i>
-                                 Open Royal App
-                              </a>
-                              <button class="btn btn--outline" id="deckPlanClearBtn" type="button">
-                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                 Clear Saved Plans
-                              </button>
-                           </div>
-                           <div class="deck-plan-upload mt-6">
-                              <strong>Add deck plan images for offline reference</strong>
-                              <p class="text-sm mb-4">Upload deck plan images and they will be saved on this device for quick access.</p>
-                              <input type="file" id="deckPlanUpload" accept="image/*" multiple>
-                              <p class="deck-plan-meta">Tip: Upload smaller images for faster loading.</p>
-                           </div>
-                           <div class="deck-plans-grid" id="deckPlansGrid" aria-live="polite">
-                              <div class="deck-plan-card deck-plan-card--placeholder">
-                                 <strong>No deck plans saved yet.</strong>
-                                 <p class="mb-0">Upload images above, or use the Royal Caribbean app for the official interactive map.</p>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </section>
                   <!-- Guide Section -->
                   <section id="operations" class="section section--critical print-section" data-view="today first-timer veteran" data-print-title="Critical Operations Guide" aria-labelledby="operationsTitle">
                      <div class="card card--featured">
@@ -2408,6 +2435,8 @@
                         </div>
                      </div>
                   </section>
+                     </div>
+                     <div class="tabpanel" data-tabpanel="ports">
                   <section id="itinerary" class="section section--critical" data-view="today first-timer veteran" aria-labelledby="itineraryTitle">
                      <div class="card">
                         <div class="card__header">
@@ -2617,6 +2646,8 @@
                         </div>
                      </div>
                   </section>
+                     </div>
+                     <div class="tabpanel" data-tabpanel="ship">
 
                   <!-- ROOMS SECTION -->
                   <section id="rooms" class="section section--critical" data-view="first-timer veteran" aria-labelledby="roomsTitle">
@@ -2784,7 +2815,52 @@
                         </div>
                      </div>
                   </section>
-<!-- Dining Section -->
+                  <!-- Deck Plans Section -->
+                  <section id="deck-plans" class="section" data-view="first-timer veteran" aria-labelledby="deckPlansTitle">
+                     <div class="card">
+                        <div class="card__header">
+                           <div class="card__icon" aria-hidden="true">
+                              <i class="fas fa-map"></i>
+                           </div>
+                           <div>
+                              <h2 id="deckPlansTitle" class="card__title">Deck Plans &amp; Ship Maps</h2>
+                              <p class="card__subtitle">Interactive maps and offline reference</p>
+                           </div>
+                           <button class="card__toggle" aria-expanded="false" aria-controls="deckPlansContent">
+                              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                              <span class="sr-only">Toggle section</span>
+                           </button>
+                        </div>
+                        <div id="deckPlansContent" class="card__content collapsed">
+                           <p class="mb-4">Recommended: Open the Royal Caribbean app and tap <strong>Deck Plans</strong> for interactive zoom, venue search, and real-time navigation.</p>
+                           <div class="deck-plan-actions">
+                              <a class="btn btn--primary" href="https://apps.apple.com/us/app/royal-caribbean-international/id1260728016" target="_blank" rel="noopener noreferrer">
+                                 <i class="fas fa-mobile-alt" aria-hidden="true"></i>
+                                 Open Royal App
+                              </a>
+                              <button class="btn btn--outline" id="deckPlanClearBtn" type="button">
+                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                 Clear Saved Plans
+                              </button>
+                           </div>
+                           <div class="deck-plan-upload mt-6">
+                              <strong>Add deck plan images for offline reference</strong>
+                              <p class="text-sm mb-4">Upload deck plan images and they will be saved on this device for quick access.</p>
+                              <input type="file" id="deckPlanUpload" accept="image/*" multiple>
+                              <p class="deck-plan-meta">Tip: Upload smaller images for faster loading.</p>
+                           </div>
+                           <div class="deck-plans-grid" id="deckPlansGrid" aria-live="polite">
+                              <div class="deck-plan-card deck-plan-card--placeholder">
+                                 <strong>No deck plans saved yet.</strong>
+                                 <p class="mb-0">Upload images above, or use the Royal Caribbean app for the official interactive map.</p>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+                     </div>
+                     <div class="tabpanel" data-tabpanel="food">
+                  <!-- Dining Section -->
                   <section id="dining" class="section" data-view="first-timer veteran" aria-labelledby="diningTitle">
                      <div class="card">
                         <div class="card__header">
@@ -2872,6 +2948,8 @@
                         </div>
                      </div>
                   </section>
+                     </div>
+                     <div class="tabpanel" data-tabpanel="money">
                   <!-- Communication & Budget Section -->
                   <section id="communication" class="section" data-view="first-timer veteran" aria-labelledby="communicationTitle">
                      <div class="card">
@@ -3077,6 +3155,8 @@
                         </div>
                      </div>
                   </section>
+                     </div>
+                     <div class="tabpanel" data-tabpanel="extras">
                   <section id="integrate" class="section" data-view="first-timer veteran" aria-labelledby="integrateTitle">
                      <div class="card card--highlight">
                         <div class="card__header">
@@ -3180,6 +3260,8 @@
                         </div>
                      </div>
                   </section>
+                     </div>
+                  </div>
 
                <!-- Right Column - Sidebar -->
                <aside class="sidebar" aria-label="Supplementary information">
@@ -7501,6 +7583,69 @@
          }
          }
          }
+
+         // ============================================================================
+         // TAB BAR CONTROLLER
+         // ============================================================================
+
+         const initTabBar = () => {
+         const tabButtons = Array.from(document.querySelectorAll('.tabbar__btn'));
+         const panels = Array.from(document.querySelectorAll('.tabpanel'));
+         if (tabButtons.length === 0 || panels.length === 0) return;
+
+         const tabFromSection = (sectionId) => {
+         const map = {
+         today: 'today',
+         'quick-start': 'plan',
+         overview: 'plan',
+         operations: 'plan',
+         itinerary: 'ports',
+         rooms: 'ship',
+         'deck-plans': 'ship',
+         dining: 'food',
+         communication: 'money',
+         tips: 'money',
+         integrate: 'extras'
+         };
+         return map[sectionId] || 'plan';
+         };
+
+         const setTab = (tab, push = true) => {
+         tabButtons.forEach(button => {
+         const isActive = button.dataset.tab === tab;
+         button.classList.toggle('active', isActive);
+         button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+         });
+         panels.forEach(panel => panel.classList.toggle('active', panel.dataset.tabpanel === tab));
+         if (push) history.replaceState(null, '', `#tab=${encodeURIComponent(tab)}`);
+         window.scrollTo({ top: 0, behavior: 'instant' });
+         };
+
+         tabButtons.forEach(button => {
+         button.addEventListener('click', () => setTab(button.dataset.tab));
+         });
+
+         const handleHash = () => {
+         const hash = (location.hash || '').replace('#', '');
+         if (!hash) return;
+
+         const match = hash.match(/^tab=(.+)$/);
+         if (match) {
+         setTab(decodeURIComponent(match[1]), false);
+         return;
+         }
+
+         const section = document.getElementById(hash);
+         if (section) {
+         const tab = tabFromSection(hash);
+         setTab(tab, false);
+         setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+         }
+         };
+
+         window.addEventListener('hashchange', handleHash);
+         handleHash();
+         };
          
          // ============================================================================
          // APPLICATION INITIALIZATION
@@ -7519,6 +7664,7 @@
          await app.initialize();
          
          MobileUXEnhancements.init();
+         initTabBar();
          
          // Add beforeunload handler for cleanup
          window.addEventListener('beforeunload', () => {
