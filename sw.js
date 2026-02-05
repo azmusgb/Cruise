@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cruise_companion_offline_v3';
+const CACHE_NAME = 'cruise_companion_offline_v4';
 const CORE_ASSETS = [
   './',
   'index.html',
@@ -6,9 +6,11 @@ const CORE_ASSETS = [
   'operations.html',
   'rooms.html',
   'dining.html',
+  'decks.html',
   'tips.html',
   'styles.css',
   'script.js',
+  'service-worker-registration.js',
   'offline.html',
   'manifest.json',
   'deck-plans/index.json',
