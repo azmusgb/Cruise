@@ -1,18 +1,18 @@
-const CACHE_NAME = 'cruise_companion_offline_v3';
+const CACHE_NAME = 'cruise_companion_offline_v2';
 const CORE_ASSETS = [
-  './',
-  'index.html',
-  'itinerary.html',
-  'operations.html',
-  'rooms.html',
-  'dining.html',
-  'tips.html',
-  'styles.css',
-  'script.js',
-  'offline.html',
-  'manifest.json',
-  'icons/icon-192.svg',
-  'icons/icon-512.svg',
+  '/',
+  '/index.html',
+  '/itinerary.html',
+  '/operations.html',
+  '/rooms.html',
+  '/dining.html',
+  '/tips.html',
+  '/styles.css',
+  '/script.js',
+  '/offline.html',
+  '/manifest.json',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Source+Sans+Pro:wght@300;400;600&display=swap'
 ];
@@ -73,7 +73,7 @@ async function handleNavigationRequest(event) {
     const cachedPage = await cache.match(event.request, { ignoreSearch: true });
     if (cachedPage) return cachedPage;
 
-    const offlinePage = await cache.match('offline.html');
+    const offlinePage = await cache.match('/offline.html');
     if (offlinePage) return offlinePage;
 
     return new Response('<h1>Offline</h1><p>Please reconnect and try again.</p>', {
