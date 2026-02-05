@@ -1,0 +1,67 @@
+name: PWA CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate manifest JSON
+        run: python -m json.tool manifest.json > /dev/null
+
+      - name: JavaScript syntax checks
+        run: |
+          node --check sw.js
+          node --check service-worker-registration.js
+          node --check script.js
+
+      - name: Static PWA consistency checks
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          html_files = [
+              'index.html', 'itinerary.html', 'operations.html',
+              'rooms.html', 'dining.html', 'tips.html', 'offline.html'
+          ]
+
+          for file in html_files:
+              content = Path(file).read_text(encoding='utf-8')
+              assert 'rel="manifest" href="manifest.json"' in content, f"Missing manifest link in {file}"
+
+          for file in ['index.html', 'itinerary.html', 'operations.html', 'rooms.html', 'dining.html', 'tips.html']:
+              content = Path(file).read_text(encoding='utf-8')
+              assert 'service-worker-registration.js' in content, f"Missing SW registration script in {file}"
+
+          print('Static checks passed')
+          PY
+
+      - name: Serve and smoke test pages
+        run: |
+          python -m http.server 8080 >/tmp/http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID' EXIT
+
+          sleep 2
+          for page in index itinerary operations rooms dining tips offline; do
+            curl -fsS "http://127.0.0.1:8080/${page}.html" >/dev/null
+          done
+
+          curl -fsS http://127.0.0.1:8080/manifest.json >/dev/null
+          curl -fsS http://127.0.0.1:8080/sw.js >/dev/null
