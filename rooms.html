@@ -579,6 +579,48 @@
             min-height: 400px;
         }
 
+
+        .shared-deck-plans {
+            margin-top: 24px;
+            padding: 18px;
+            border: 1px solid #dce8f5;
+            border-radius: var(--radius);
+            background: #f7fbff;
+        }
+
+        .shared-deck-plans h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .shared-deck-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .shared-deck-card {
+            border: 1px solid #dce8f5;
+            border-radius: 10px;
+            background: #fff;
+            padding: 10px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .shared-deck-card img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e6eef7;
+        }
+
+        .shared-deck-card small {
+            color: #4f6782;
+        }
+
         @media (max-width: 768px) {
             .deck-plan__visual {
                 grid-template-columns: 1fr;
@@ -684,8 +726,8 @@
             padding-top: 30px;
             border-top: 1px solid var(--border);
         }
-
         /* Responsive Design */
+
         @media (max-width: 768px) {
             .nav-main {
                 flex-direction: column;
@@ -1064,6 +1106,17 @@
                                         </div>
                                     </div>
                                 </div>
+
+                            <div class="shared-deck-plans" aria-live="polite">
+                                <h4><i class="fas fa-images" aria-hidden="true"></i> Shared Deck Plans (GitHub Pages)</h4>
+                                <p class="text-muted" style="margin-bottom: 0;">These are the same deck images for everyone in the group.</p>
+                                <div id="sharedDeckPlansGrid" class="shared-deck-grid">
+                                    <div class="shared-deck-card">
+                                        <strong>Loading shared deck plans…</strong>
+                                        <small>If none are published yet, ask your trip admin to add files in <code>deck-plans/index.json</code>.</small>
+                                    </div>
+                                </div>
+                            </div>
                             </div>
                         </div>
 
@@ -1147,6 +1200,78 @@
                 });
             });
             
+            
+            async function loadSharedDeckPlans() {
+                const container = document.getElementById('sharedDeckPlansGrid');
+                if (!container) return;
+
+                const emptyState = '<div class="shared-deck-card"><strong>No shared deck plans published yet.</strong><small>Publish images in <code>deck-plans/index.json</code> to make them visible to everyone.</small></div>';
+
+                const manifestCandidates = [
+                    'deck-plans/index.json',
+                    './deck-plans/index.json',
+                    new URL('deck-plans/index.json', window.location.href).pathname
+                ];
+
+                const uniqueManifestCandidates = [...new Set(manifestCandidates)];
+
+                const resolvePlanSource = (src, manifestPath) => {
+                    if (!src || typeof src !== 'string') return '';
+
+                    const trimmed = src.trim();
+                    if (!trimmed) return '';
+
+                    try {
+                        return new URL(trimmed, window.location.origin + manifestPath).toString();
+                    } catch (_) {
+                        return encodeURI(trimmed.replace(/^\/+/, ''));
+                    }
+                };
+
+                try {
+                    let response = null;
+                    let loadedManifestPath = uniqueManifestCandidates[0];
+
+                    for (const candidate of uniqueManifestCandidates) {
+                        const candidateResponse = await fetch(candidate, { cache: 'no-store' });
+                        if (candidateResponse.ok) {
+                            response = candidateResponse;
+                            loadedManifestPath = candidate;
+                            break;
+                        }
+                    }
+
+                    if (!response) {
+                        container.innerHTML = emptyState;
+                        return;
+                    }
+
+                    const payload = await response.json();
+                    const plans = Array.isArray(payload?.plans) ? payload.plans : [];
+
+                    if (plans.length === 0) {
+                        container.innerHTML = emptyState;
+                        return;
+                    }
+
+                    container.innerHTML = plans.map((plan, index) => {
+                        const name = plan.name || `Deck Plan ${index + 1}`;
+                        const src = resolvePlanSource(plan.src, loadedManifestPath);
+                        const updated = plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString() : 'Unknown';
+                        return `
+<div class="shared-deck-card">
+  <a href="${src}" target="_blank" rel="noopener noreferrer">
+    <img src="${src}" alt="${name}" loading="lazy">
+  </a>
+  <strong>${name}</strong>
+  <small>Shared update: ${updated}</small>
+</div>`;
+                    }).join('');
+                } catch (error) {
+                    container.innerHTML = '<div class="shared-deck-card"><strong>Could not load shared deck plans.</strong><small>Please validate <code>deck-plans/index.json</code> format and image paths, then refresh.</small></div>';
+                }
+            }
+
             // Deck plan navigation
             const deckListItems = document.querySelectorAll('.deck-list li');
             deckListItems.forEach(item => {
@@ -1198,6 +1323,8 @@
                 icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
             });
             
+            loadSharedDeckPlans();
+
             // Initialize animations
             setTimeout(() => {
                 document.querySelectorAll('.room-card').forEach((card, index) => {

@@ -29,6 +29,14 @@ This app is configured to work from a project subpath (for example `https://<use
 - Then install from mobile browser (`Add to Home Screen`).
 
 
+
+## Shared deck plans on GitHub Pages
+
+Shared deck plans can be published via your own `deck-plans/index.json` and deck image files in the deployed GitHub Pages content.
+
+- Users can view shared deck plans on `rooms.html` by selecting **Deck Plan** in the deck filter, then opening the **Shared Deck Plans (GitHub Pages)** panel.
+- Device uploads in the app remain local-only and are not shared.
+
 ## GitHub Actions CI
 
 This repository now includes:
