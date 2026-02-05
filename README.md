@@ -40,6 +40,23 @@ Deck plans can now be shared with every user by committing images to the repo an
 
 Users can still upload device-only deck plans in the UI; those are local and not shared.
 
+## Merge inline CSS programmatically
+
+If you have styles spread across `<style>` blocks in multiple HTML files, use:
+
+```bash
+./merge-inline-styles.sh styles.css '*.html'
+```
+
+The script will:
+
+- scan matching HTML files for `<style>` blocks,
+- parse top-level CSS blocks from inline `<style>` tags,
+- de-duplicate identical selector blocks,
+- detect selector conflicts (same selector, different declaration body),
+- write only non-conflicting blocks to the output CSS file,
+- print conflicting selectors so they can be resolved manually.
+
 ## GitHub Actions CI
 
 This repository now includes:
