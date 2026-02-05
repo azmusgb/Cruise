@@ -11,6 +11,7 @@ const CORE_ASSETS = [
   'script.js',
   'offline.html',
   'manifest.json',
+  'deck-plans/index.json',
   'icons/icon-192.svg',
   'icons/icon-512.svg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',

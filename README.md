@@ -29,6 +29,17 @@ This app is configured to work from a project subpath (for example `https://<use
 - Then install from mobile browser (`Add to Home Screen`).
 
 
+
+## Shared deck plans on GitHub Pages
+
+Deck plans can now be shared with every user by committing images to the repo and listing them in `deck-plans/index.json`.
+
+- Put image files in `deck-plans/` (for example `deck-plans/deck-6-staterooms.png`).
+- Update `deck-plans/index.json` with each plan's `name`, `src`, and optional `updatedAt`.
+- Push to the branch that deploys GitHub Pages so everyone sees the same deck images.
+
+Users can still upload device-only deck plans in the UI; those are local and not shared.
+
 ## GitHub Actions CI
 
 This repository now includes:
