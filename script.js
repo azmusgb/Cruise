@@ -834,7 +834,7 @@
          
          class NavigationManager {
           constructor() {
-              this.currentSection = 'overview';
+              this.currentSection = document.querySelector('section[id]')?.id || null;
               this.currentDay = 'all';
               this.currentTravelerView = 'all';
               this.previousSection = null;
@@ -2617,7 +2617,10 @@
          async initializeNavigation() {
          // Handle initial hash
          const hash = window.location.hash.replace('#', '');
-         const initialSection = this.navigation.availableSections.includes(hash) ? hash : 'overview';
+        const initialSection =
+        this.navigation.availableSections.includes(hash)
+          ? hash
+          : this.navigation.availableSections[0] || null;
          
          await this.navigation.navigateToSection(initialSection, {
          scroll: false
@@ -4014,7 +4017,9 @@
          switch (e.key) {
             case '1':
                 e.preventDefault();
-                this.navigation.navigateToSection('overview');
+                if (this.navigation.availableSections.length) {
+                  this.navigation.navigateToSection(this.navigation.availableSections[0]);
+                }
                 break;
             case '2':
                 e.preventDefault();
