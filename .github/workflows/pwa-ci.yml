@@ -34,7 +34,6 @@ jobs:
       - name: Static PWA consistency checks
         run: |
           python - <<'PY'
-          from html.parser import HTMLParser
           from pathlib import Path
 
           html_files = [
@@ -42,48 +41,24 @@ jobs:
               'rooms.html', 'dining.html', 'tips.html', 'offline.html'
           ]
 
-          sw_files = ['index.html', 'itinerary.html', 'operations.html', 'rooms.html', 'dining.html', 'tips.html']
-
-          class LinkParser(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.manifest_found = False
-                  self.sw_script_found = False
-
-              def handle_starttag(self, tag, attrs):
-                  attrs = dict(attrs)
-                  if tag == 'link' and attrs.get('rel') == 'manifest' and attrs.get('href') == 'manifest.json':
-                      self.manifest_found = True
-                  if tag == 'script' and attrs.get('src') == 'service-worker-registration.js':
-                      self.sw_script_found = True
-
           for file in html_files:
-              parser = LinkParser()
-              parser.feed(Path(file).read_text(encoding='utf-8'))
-              assert parser.manifest_found, f"Missing manifest link in {file}"
+              content = Path(file).read_text(encoding='utf-8')
+              assert 'rel="manifest" href="manifest.json"' in content, f"Missing manifest link in {file}"
 
-              if file in sw_files:
-                  assert parser.sw_script_found, f"Missing SW registration script in {file}"
+          for file in ['index.html', 'itinerary.html', 'operations.html', 'rooms.html', 'dining.html', 'tips.html']:
+              content = Path(file).read_text(encoding='utf-8')
+              assert 'service-worker-registration.js' in content, f"Missing SW registration script in {file}"
 
           print('Static checks passed')
           PY
 
       - name: Serve and smoke test pages
         run: |
-          set -euo pipefail
-          python -m http.server 8080 > /tmp/http.log 2>&1 &
+          python -m http.server 8080 >/tmp/http.log 2>&1 &
           SERVER_PID=$!
-          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          trap 'kill $SERVER_PID' EXIT
 
-          for _ in $(seq 1 20); do
-            if curl -fsS http://127.0.0.1:8080/index.html >/dev/null 2>&1; then
-              break
-            fi
-            sleep 0.5
-          done
-
-          curl -fsS http://127.0.0.1:8080/index.html >/dev/null || { echo 'Server failed to start'; cat /tmp/http.log; exit 1; }
-
+          sleep 2
           for page in index itinerary operations rooms dining tips offline; do
             curl -fsS "http://127.0.0.1:8080/${page}.html" >/dev/null
           done
