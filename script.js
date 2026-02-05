@@ -44,6 +44,7 @@
           
          // Offline Caching
          OFFLINE_CACHE_NAME: 'cruise_companion_offline_v1',
+         SHARED_DECK_PLANS_MANIFEST: 'deck-plans/index.json',
          
          // Storage Keys
          STORAGE_KEYS: {
@@ -3032,7 +3033,9 @@
          
          if (!deckPlansGrid) return;
          
-         let currentPlans = this.storage.loadDeckPlans();
+         const sharedPlans = await this.fetchSharedDeckPlans();
+         let localPlans = this.storage.loadDeckPlans();
+         let currentPlans = this.mergeDeckPlanCollections(sharedPlans, localPlans);
          this.renderDeckPlans(currentPlans, deckPlansGrid);
          
          if (deckPlanUpload) {
@@ -3061,12 +3064,12 @@
                 });
             }
             
-            const mergedPlans = [...currentPlans, ...uploadedPlans].slice(0, 10);
-            this.storage.saveDeckPlans(mergedPlans);
-            this.renderDeckPlans(mergedPlans, deckPlansGrid);
-            currentPlans = mergedPlans;
+            localPlans = [...localPlans, ...uploadedPlans].slice(0, 10);
+            this.storage.saveDeckPlans(localPlans);
+            currentPlans = this.mergeDeckPlanCollections(sharedPlans, localPlans);
+            this.renderDeckPlans(currentPlans, deckPlansGrid);
             
-            this.ui.showToast(`${uploadedPlans.length} deck plan(s) saved.`, {
+            this.ui.showToast(`${uploadedPlans.length} deck plan(s) saved on this device. Add shared files to deck-plans/index.json for everyone.`, {
                 type: 'success',
                 duration: 3000
             });
@@ -3081,8 +3084,9 @@
             if (!confirmed) return;
             
             this.storage.clearDeckPlans();
-            this.renderDeckPlans([], deckPlansGrid);
-            currentPlans = [];
+            localPlans = [];
+            currentPlans = this.mergeDeckPlanCollections(sharedPlans, localPlans);
+            this.renderDeckPlans(currentPlans, deckPlansGrid);
             
             this.ui.showToast('Saved deck plans cleared.', {
                 type: 'info',
@@ -3090,6 +3094,41 @@
             });
          });
          }
+         }
+
+         async fetchSharedDeckPlans() {
+         try {
+            const response = await fetch(CONFIG.SHARED_DECK_PLANS_MANIFEST, {
+                cache: 'no-store'
+            });
+
+            if (!response.ok) {
+                if (response.status !== 404) {
+                    console.warn('Unable to load shared deck plans manifest:', response.status);
+                }
+                return [];
+            }
+
+            const manifest = await response.json();
+            const plans = Array.isArray(manifest?.plans) ? manifest.plans : [];
+
+            return plans
+                .filter(plan => typeof plan?.src === 'string')
+                .map((plan, index) => ({
+                    name: plan.name || `Deck Plan ${index + 1}`,
+                    dataUrl: encodeURI(plan.src),
+                    updatedAt: plan.updatedAt || new Date().toISOString(),
+                    source: 'shared'
+                }));
+         } catch (error) {
+            this.errorHandler.log(error, 'CruiseApp.fetchSharedDeckPlans');
+            return [];
+         }
+         }
+
+         mergeDeckPlanCollections(sharedPlans = [], localPlans = []) {
+         const mergedPlans = [...sharedPlans, ...localPlans].slice(0, 20);
+         return mergedPlans;
          }
          
          renderDeckPlans(plans, deckPlansGrid) {
@@ -3099,7 +3138,7 @@
          deckPlansGrid.innerHTML = `
             <div class="deck-plan-card deck-plan-card--placeholder">
                 <strong>No deck plans saved yet.</strong>
-                <p class="mb-0">Upload the deck plan images above, or use the Royal Caribbean app for the official interactive map.</p>
+                <p class="mb-0">Upload deck plans for this device, or publish shared files in <code>deck-plans/index.json</code> so everyone sees the same images.</p>
             </div>
          `;
          return;
@@ -3116,6 +3155,7 @@
             </a>
             <strong>${plan.name}</strong>
             <span class="deck-plan-meta">Saved ${new Date(plan.updatedAt).toLocaleDateString()}</span>
+            ${plan.source === 'shared' ? '<span class="deck-plan-meta">Shared via GitHub Pages</span>' : ''}
          `;
          deckPlansGrid.appendChild(card);
          });
