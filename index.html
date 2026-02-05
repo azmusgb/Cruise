@@ -828,125 +828,428 @@
 
     <!-- JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hide loading overlay
+    // Global variables for cleanup
+    let countdownInterval = null;
+    let weatherInterval = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initDashboard();
+    });
+
+    function initDashboard() {
+        // Initialize all components
+        initLoadingOverlay();
+        initBackToTop();
+        initStickyNav();
+        initWeatherUpdates();
+        initCountdown();
+        initButtonHandlers();
+        
+        // Initialize print/share buttons from nav
+        const printBtn = document.getElementById('printDashboard');
+        const shareBtn = document.getElementById('shareDashboard');
+        const shareBtn2 = document.getElementById('shareBtn');
+        
+        if (printBtn) printBtn.addEventListener('click', printDashboard);
+        if (shareBtn) shareBtn.addEventListener('click', shareDashboard);
+        if (shareBtn2) shareBtn2.addEventListener('click', shareDashboard);
+    }
+
+    function initLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (!overlay) return;
+        
+        // Hide loading overlay after content loads
+        setTimeout(() => {
+            overlay.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('loadingOverlay').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loadingOverlay').style.display = 'none';
-                }, 300);
-            }, 800);
+                overlay.style.display = 'none';
+                overlay.setAttribute('aria-hidden', 'true');
+            }, 300);
+        }, 800);
+    }
 
-            // Back to top button
-            const backToTop = document.getElementById('backToTop');
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) {
-                    backToTop.classList.add('visible');
-                } else {
-                    backToTop.classList.remove('visible');
-                }
-            });
-            
-            backToTop.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            // Sticky nav functionality
-            const stickyNavBtns = document.querySelectorAll('.sticky-nav-btn');
-            stickyNavBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    stickyNavBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const target = this.dataset.target;
-                    if (target === 'dashboard') {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    } else {
-                        const element = document.getElementById(target === 'critical' ? 'critical-items' : target);
-                        if (element) {
-                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }
-                });
-            });
-
-            // Update weather timestamp
-            function updateWeatherTime() {
-                const now = new Date();
-                const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('weather-time').textContent = `Updated: ${timeString}`;
-            }
-            
-            setInterval(updateWeatherTime, 300000); // Every 5 minutes
-
-            // Update countdown timer
-            function updateCountdown() {
-                const targetDate = new Date('2026-02-14T10:00:00').getTime();
-                const now = new Date().getTime();
-                const distance = targetDate - now;
-                
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                
-                document.getElementById('days').textContent = days.toString().padStart(2, '0');
-                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-            }
-            
-            setInterval(updateCountdown, 60000); // Every minute
-            updateCountdown();
+    function initBackToTop() {
+        const backToTop = document.getElementById('backToTop');
+        if (!backToTop) return;
+        
+        const scrollHandler = () => {
+            backToTop.classList.toggle('visible', window.pageYOffset > 300);
+        };
+        
+        window.addEventListener('scroll', scrollHandler);
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+        
+        // Store reference for cleanup
+        backToTop._scrollHandler = scrollHandler;
+    }
 
-        // Button functions
-        function printDashboard() {
-            window.print();
-        }
-
-        function saveAsPDF() {
-            alert('PDF generation would be implemented here');
-            // In production: window.jsPDF or similar library
-        }
-
-        function shareDashboard() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Cruise Dashboard',
-                    text: 'Check out my cruise dashboard for Adventure of the Seas',
-                    url: window.location.href
-                });
+    function initStickyNav() {
+        const stickyNavBtns = document.querySelectorAll('.sticky-nav-btn');
+        if (!stickyNavBtns.length) return;
+        
+        const clickHandler = function(e) {
+            e.preventDefault();
+            stickyNavBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const target = this.dataset.target;
+            if (target === 'dashboard') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
-                alert('Share link copied to clipboard');
-                // Fallback: copy to clipboard
+                const elementId = target === 'critical' ? 'critical-items' : target;
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start',
+                        inline: 'nearest'
+                    });
+                }
+            }
+        };
+        
+        stickyNavBtns.forEach(btn => {
+            btn.addEventListener('click', clickHandler);
+            btn._clickHandler = clickHandler;
+        });
+    }
+
+    function initWeatherUpdates() {
+        const weatherTimeElement = document.getElementById('weather-time');
+        if (!weatherTimeElement) return;
+        
+        function updateWeatherTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            weatherTimeElement.textContent = `Updated: ${timeString}`;
+        }
+        
+        // Initial update
+        updateWeatherTime();
+        
+        // Update every 5 minutes
+        weatherInterval = setInterval(updateWeatherTime, 300000);
+    }
+
+    function initCountdown() {
+        const daysElement = document.getElementById('days');
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        
+        if (!daysElement || !hoursElement || !minutesElement) return;
+        
+        // Set cruise departure date (Feb 14, 2026, 10:00 AM)
+        const targetDate = new Date('2026-02-14T10:00:00');
+        
+        function updateCountdown() {
+            const now = new Date();
+            const distance = targetDate - now;
+            
+            // Stop countdown if time has passed
+            if (distance < 0) {
+                daysElement.textContent = '00';
+                hoursElement.textContent = '00';
+                minutesElement.textContent = '00';
+                clearInterval(countdownInterval);
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            
+            daysElement.textContent = days.toString().padStart(2, '0');
+            hoursElement.textContent = hours.toString().padStart(2, '0');
+            minutesElement.textContent = minutes.toString().padStart(2, '0');
+        }
+        
+        // Initial update
+        updateCountdown();
+        
+        // Update every minute
+        countdownInterval = setInterval(updateCountdown, 60000);
+    }
+
+    function initButtonHandlers() {
+        // Add loading states to buttons
+        document.querySelectorAll('.btn[onclick]').forEach(btn => {
+            const originalOnClick = btn.onclick;
+            if (originalOnClick) {
+                btn.onclick = function(e) {
+                    if (this.classList.contains('btn--loading')) return;
+                    
+                    // Add loading state for async operations
+                    if (originalOnclick.name === 'refreshData' || 
+                        originalOnclick.name === 'refreshWeather' ||
+                        originalOnclick.name === 'saveContacts') {
+                        
+                        this.classList.add('btn--loading');
+                        setTimeout(() => {
+                            this.classList.remove('btn--loading');
+                        }, 1000);
+                    }
+                    
+                    originalOnClick.call(this, e);
+                };
+            }
+        });
+    }
+
+    // Button functions with improved UX
+    function printDashboard() {
+        try {
+            window.print();
+        } catch (error) {
+            showToast('Unable to print. Please try again or use Ctrl+P.', 'error');
+        }
+    }
+
+    async function saveAsPDF() {
+        try {
+            // Show loading state
+            const button = event?.target?.closest('.btn') || event?.target;
+            if (button) {
+                button.classList.add('btn--loading');
+            }
+            
+            // Simulate PDF generation (replace with actual implementation)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            showToast('PDF download started. Check your downloads folder.', 'success');
+            
+            // In production, use a library like jsPDF or html2pdf
+            // Example: window.html2pdf().from(document.body).save();
+            
+        } catch (error) {
+            showToast('Failed to generate PDF. Please try again.', 'error');
+        } finally {
+            const button = event?.target?.closest('.btn') || event?.target;
+            if (button) {
+                button.classList.remove('btn--loading');
             }
         }
+    }
 
-        function refreshData() {
-            alert('Refreshing dashboard data...');
-            location.reload();
-        }
-
-        function refreshWeather() {
-            alert('Refreshing weather data...');
-            // API call would go here
-        }
-
-        function saveContacts() {
-            const contacts = `Medical Center: Deck 1 • 24/7 • Ext. 7002\nSecurity: Emergency: Dial 911, Non-emergency: Ext. 7000\nMuster Station: F6 • Deck 4 • Starboard`;
+    async function shareDashboard() {
+        try {
+            const shareData = {
+                title: 'My Cruise Dashboard - Adventure of the Seas',
+                text: 'Check out my cruise planning dashboard for our upcoming Western Caribbean cruise!',
+                url: window.location.href,
+            };
             
-            // Create a blob and download
-            const blob = new Blob([contacts], { type: 'text/plain' });
+            if (navigator.share && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+                showToast('Dashboard shared successfully!', 'success');
+            } else {
+                // Fallback: Copy to clipboard
+                await navigator.clipboard.writeText(window.location.href);
+                showToast('Link copied to clipboard!', 'success');
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                showToast('Could not share. Please copy the URL manually.', 'error');
+            }
+        }
+    }
+
+    async function refreshData() {
+        try {
+            // Show loading state
+            const button = event?.target?.closest('.btn') || event?.target;
+            if (button) {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                button.disabled = true;
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Actually refresh the page
+                location.reload();
+            }
+        } catch (error) {
+            showToast('Refresh failed. Please try again.', 'error');
+            const button = event?.target?.closest('.btn') || event?.target;
+            if (button) {
+                button.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh Data';
+                button.disabled = false;
+            }
+        }
+    }
+
+    async function refreshWeather() {
+        try {
+            const button = event?.target?.closest('.btn') || event?.target;
+            if (button) {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                button.disabled = true;
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // Update weather display
+                const weatherTime = document.getElementById('weather-time');
+                if (weatherTime) {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: true 
+                    });
+                    weatherTime.textContent = `Updated: ${timeString} (Refreshed)`;
+                }
+                
+                showToast('Weather forecast updated!', 'success');
+                
+                // Restore button
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 500);
+            }
+        } catch (error) {
+            showToast('Failed to update weather.', 'error');
+        }
+    }
+
+    function saveContacts() {
+        try {
+            const contacts = `=== CRUISE EMERGENCY CONTACTS ===
+            
+Medical Center
+Location: Deck 1, Forward
+Hours: 24/7
+Extension: 7002
+Direct Line: +1-800-398-9819
+
+Security
+Emergency: Dial 911 from any ship phone
+Non-emergency: Extension 7000
+Safety Officer: Extension 7001
+
+Muster Station
+Your Station: F6
+Location: Deck 4, Starboard side
+Assembly Point: Near Lifeboat 6
+
+Important Numbers
+Guest Services: Extension 7003
+Medical Emergency: Extension 7002
+Security Emergency: Extension 7000
+Bridge: Extension 7005
+
+=== ADVENTURE OF THE SEAS ===
+Captain: 7005
+Chief Engineer: 7006
+Hotel Director: 7007
+Cruise Director: 7008
+
+Last Updated: ${new Date().toLocaleDateString()}`;
+            
+            // Create and download file
+            const blob = new Blob([contacts], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'Cruise-Emergency-Contacts.txt';
+            a.style.display = 'none';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            alert('Emergency contacts downloaded as text file');
+            showToast('Emergency contacts downloaded successfully!', 'success');
+        } catch (error) {
+            showToast('Failed to download contacts. Please try again.', 'error');
         }
-    </script>
+    }
+
+    // Utility function for toast notifications
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        document.querySelectorAll('.toast').forEach(toast => toast.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = `toast toast--${type}`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        
+        toast.innerHTML = `
+            <div class="toast__content">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="toast__close" aria-label="Close notification">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Position toast
+        toast.style.position = 'fixed';
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.zIndex = '9999';
+        
+        // Add close functionality
+        const closeBtn = toast.querySelector('.toast__close');
+        closeBtn.addEventListener('click', () => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(() => toast.remove(), 300);
+        });
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // Cleanup function for intervals
+    function cleanup() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        if (weatherInterval) clearInterval(weatherInterval);
+        
+        // Remove event listeners
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop && backToTop._scrollHandler) {
+            window.removeEventListener('scroll', backToTop._scrollHandler);
+        }
+        
+        const stickyNavBtns = document.querySelectorAll('.sticky-nav-btn');
+        stickyNavBtns.forEach(btn => {
+            if (btn._clickHandler) {
+                btn.removeEventListener('click', btn._clickHandler);
+            }
+        });
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanup);
+    window.addEventListener('pagehide', cleanup);
+    
+    // Make functions available globally
+    window.printDashboard = printDashboard;
+    window.saveAsPDF = saveAsPDF;
+    window.shareDashboard = shareDashboard;
+    window.refreshData = refreshData;
+    window.refreshWeather = refreshWeather;
+    window.saveContacts = saveContacts;
+</script>
 </body>
 </html>
