@@ -1,1489 +1,1839 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1a365d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192.svg">
-    <title>Royal Caribbean Dining & Reservations | Adventure of the Seas</title>
-    <meta name="description" content="Explore Royal Caribbean dining from Main Dining Room classics to specialty venues with reservation strategy and package tips.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        :root { --rc-blue: #003580; --rc-light-blue: #00a3e0; --rc-accent: #00a3e0; --rc-gold: #d4af37; --rc-warning: #ff6b35; --rc-success: #00b8a9; --rc-info: #00a3e0; --rc-purple: #7c3aed; --bg-primary: #ffffff; --bg-secondary: #f4f8ff; --bg-card: #ffffff; --bg-header: linear-gradient(135deg, #003580 0%, #0054a6 100%); --border-color: #e2e8f0; --border-light: #f1f5f9; --text-primary: #1e293b; --text-secondary: #64748b; --text-light: #94a3b8; --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08); --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05); --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06); --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
-        body { font-family: 'Open Sans', sans-serif; background-color: var(--bg-secondary); color: var(--text-primary); line-height: 1.6; font-size: 16px; overflow-x: hidden; }
-        .header { background: var(--bg-header); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-md); }
-        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: white; }
-        @media (min-width: 768px) { .main-nav { display: flex; } }
-        .nav-badge { background: var(--rc-gold); color: var(--rc-blue); font-size: 0.6875rem; padding: 0.125rem 0.375rem; border-radius: 10px; font-weight: 700; min-width: 18px; text-align: center; }
-        @media (max-width: 768px) { .hero-title { font-size: 2rem; } .header-content, .hero-content, .main-layout, .card-content { min-width: 0; } .dining-tabs { -webkit-overflow-scrolling: touch; } .restaurant-card__description { overflow-wrap: anywhere; } }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9375rem; text-decoration: none; cursor: pointer; border: none; transition: var(--transition); font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-primary { background: white; color: var(--rc-blue); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .btn-primary:hover { background: #f4f8ff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
-        .btn-secondary { background: var(--rc-gold); color: var(--rc-blue); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .btn-secondary:hover { background: #e0b830; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
-        .btn-outline { background: transparent; color: white; border: 2px solid rgba(255, 255, 255, 0.3); }
-        .btn-outline:hover { background: rgba(255, 255, 255, 0.1); border-color: white; }
-        @media (min-width: 1024px) { .main-layout { grid-template-columns: 2fr 1fr; } }
-        .card { background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); transition: var(--transition); overflow: hidden; margin-bottom: 1.5rem; }
-        .card:hover { box-shadow: var(--shadow-md); }
-        .card-header { padding: 1.5rem; background: var(--rc-blue); color: white; }
-        .card-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .sidebar-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
-        .quick-actions { display: flex; flex-direction: column; gap: 0.75rem; }
-        .note { padding: 1.25rem; border-radius: var(--radius-md); margin: 1.5rem 0; background: var(--bg-secondary); border-left: 4px solid var(--rc-info); }
-        .note ul { list-style: none; padding-left: 0; }
-        .note li { padding: 0.5rem 0; position: relative; padding-left: 1.5rem; color: var(--text-secondary); }
-        .footer { background: var(--rc-blue); color: white; padding: 3rem 0 2rem; margin-top: 3rem; }
-        .footer-disclaimer { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 2rem; text-align: center; font-size: 0.75rem; opacity: 0.8; }
-        .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; gap: 0.25rem; padding: 0.75rem 0.35rem; z-index: 1000; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05); overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-secondary); padding: 0.45rem 0.35rem; flex: 1 1 0; min-width: 0; border-radius: var(--radius-sm); transition: var(--transition); }
-        .mobile-nav-item.active { color: var(--rc-blue); background: var(--bg-secondary); }
-        .mobile-nav-icon { font-size: 1.125rem; margin-bottom: 0.2rem; }
-        .mobile-nav-item span:last-child { font-size: 0.75rem; line-height: 1.1; white-space: nowrap; }
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-
-        .deck-map-card { margin-bottom: 1.5rem; }
-        .deck-map-wrap { position: relative; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; }
-        .deck-map-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
-        .deck-map-title { font-size: 1.1rem; font-weight: 700; color: var(--rc-blue); }
-        .deck-map-legend { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.8125rem; color: var(--text-secondary); }
-        .deck-map-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
-        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-        .legend-dot--included { background: var(--rc-success); }
-        .legend-dot--specialty { background: var(--rc-warning); }
-        .legend-dot--main { background: var(--rc-gold); }
-        #diningMapSvg { width: 100%; height: auto; }
-        .map-hotspot { cursor: pointer; transition: transform .2s ease, filter .2s ease; }
-        .map-hotspot:hover, .map-hotspot:focus { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(0,0,0,.25)); outline: none; }
-        #mapTooltip { position: absolute; pointer-events: none; background: #111827; color: white; padding: 0.35rem 0.55rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; opacity: 0; transition: opacity .12s ease; transform: translate(-50%, calc(-100% - 12px)); z-index: 4; white-space: nowrap; }
-        #mapTooltip.visible { opacity: 1; }
-        @media print { .mobile-nav, .floating-actions, .fab, .toast, button, .deck-map-card { display: none !important; } .card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; } .hero { background: #f4f8ff !important; color: #1e293b !important; } .hero::after { display: none; } }
-        /* Mobile-First Responsive CSS */
-@media screen and (max-width: 768px) {
-  /* Base adjustments */
-  html, body {
-    font-size: 15px;
-    -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Header */
-  header {
-    padding: 1rem 0.8rem;
-  }
-
-  header h1 {
-    font-size: 1.5rem;
-    line-height: 1.3;
-  }
-
-  header p {
-    font-size: 0.95rem;
-    padding: 0 0.5rem;
-  }
-
-  /* Map Container */
-  #dining-map-container {
-    margin: 1rem 0;
-    padding: 1rem;
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  /* Legend - Move to top and make horizontal */
-  #dining-map-legend {
-    position: relative;
-    top: auto;
-    right: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-    padding: 0.8rem;
-    border-width: 1px;
-    font-size: 0.8rem;
-    justify-content: center;
-  }
-
-  #dining-map-legend span {
-    margin-bottom: 0;
-    white-space: nowrap;
-  }
-
-  /* SVG Map adjustments */
-  #dining-svg-map {
-    min-height: 400px;
-    touch-action: manipulation;
-  }
-
-  /* Make SVG hotspots larger for touch */
-  #dining-svg-map circle {
-    r: 14px !important; /* Larger touch targets */
-    cursor: pointer;
-  }
-
-  #dining-svg-map text {
-    font-size: 12px !important;
-  }
-
-  /* Deck labels */
-  #dining-svg-map text[x="15"] {
-    font-size: 16px !important;
-  }
-
-  /* Dining Grid - Single column on mobile */
-  .dining-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1rem;
-    padding: 0;
-    margin: 0;
-  }
-
-  .dining-card {
-    padding: 0.9rem;
-    border-radius: 6px;
-    margin: 0;
-  }
-
-  .dining-card img {
-    height: 140px;
-  }
-
-  .dining-card h3 {
-    font-size: 1.1rem;
-    margin: 0.5rem 0 0.2rem;
-  }
-
-  .dining-card p {
-    font-size: 0.85rem;
-    line-height: 1.4;
-  }
-
-  /* Modal adjustments */
-  .modal-content {
-    width: 85%;
-    max-width: 320px;
-    padding: 1.2rem;
-    margin: 1rem;
-  }
-
-  .modal .close {
-    font-size: 1.6rem;
-  }
-
-  /* Bottom Nav - Improved for mobile */
-  .footer-nav {
-    padding: 0.7rem 0;
-    font-size: 0.8rem;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-  }
-
-  .footer-nav a {
-    padding: 0.3rem 0.2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-  }
-
-}
-
-/* Extra small devices */
-@media screen and (max-width: 480px) {
-  header h1 {
-    font-size: 1.3rem;
-  }
-
-  header p {
-    font-size: 0.9rem;
-  }
-
-  #dining-map-container {
-    margin: 0.75rem 0;
-    padding: 0.6rem;
-  }
-
-  #dining-map-legend {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-start;
-    padding: 0.6rem;
-  }
-
-  #dining-svg-map {
-    min-height: 350px;
-  }
-
-  #dining-svg-map circle {
-    r: 12px !important;
-  }
-
-  #dining-svg-map text {
-    font-size: 11px !important;
-  }
-
-  #dining-svg-map text[x="15"] {
-    font-size: 14px !important;
-  }
-
-  .dining-grid {
-    padding: 0.8rem;
-  }
-
-  .dining-card {
-    margin: 0;
-    padding: 0.8rem;
-  }
-
-  .dining-card img {
-    height: 120px;
-  }
-
-  .footer-nav {
-    font-size: 0.75rem;
-    gap: 0.1rem;
-  }
-
-  .footer-nav a {
-    padding: 0.2rem 0;
-  }
-
-}
-
-/* Landscape orientation improvements */
-@media screen and (max-height: 500px) and (orientation: landscape) {
-  .footer-nav {
-    position: relative;
-    margin-top: 1rem;
-  }
-
-
-  #dining-svg-map {
-    min-height: 300px;
-  }
-
-  .dining-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-}
-
-/* Tablet adjustments */
-@media screen and (min-width: 769px) and (max-width: 1024px) {
-  .dining-grid {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 95%;
-  }
-
-  #dining-map-container {
-    max-width: 90%;
-  }
-
-  .footer-nav {
-    padding: 1rem 0;
-    font-size: 0.95rem;
-  }
-}
-
-/* Prevent text selection on interactive elements */
-#dining-svg-map circle,
-.footer-nav a {
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-/* Smooth transitions */
-.dining-card,
-#dining-svg-map circle,
-.modal {
-  transition: all 0.3s ease;
-}
-
-/* Enhanced touch feedback */
-.dining-card:active {
-  transform: scale(0.98);
-}
-
-#dining-svg-map circle:active {
-  transform: scale(1.1);
-}
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="theme-color" content="#1a365d">
+      <meta name="apple-mobile-web-app-capable" content="yes">
+      <meta name="apple-mobile-web-app-status-bar-style" content="default">
+      <link rel="manifest" href="manifest.json">
+      <link rel="apple-touch-icon" href="icons/icon-192.svg">
+      <title>Royal Caribbean Dining & Reservations | Adventure of the Seas</title>
+      <meta name="description" content="Explore Royal Caribbean dining from Main Dining Room classics to specialty venues with reservation strategy and package tips.">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="styles.css">
+      <style>
+         :root { --rc-blue: #003580; --rc-light-blue: #00a3e0; --rc-accent: #00a3e0; --rc-gold: #d4af37; --rc-warning: #ff6b35; --rc-success: #00b8a9; --rc-info: #00a3e0; --rc-purple: #7c3aed; --bg-primary: #ffffff; --bg-secondary: #f4f8ff; --bg-card: #ffffff; --bg-header: linear-gradient(135deg, #003580 0%, #0054a6 100%); --border-color: #e2e8f0; --border-light: #f1f5f9; --text-primary: #1e293b; --text-secondary: #64748b; --text-light: #94a3b8; --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08); --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05); --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06); --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
+         body { font-family: 'Open Sans', sans-serif; background-color: var(--bg-secondary); color: var(--text-primary); line-height: 1.6; font-size: 16px; overflow-x: hidden; }
+         .header { background: var(--bg-header); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-md); }
+         .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: white; }
+         @media (min-width: 768px) { .main-nav { display: flex; } }
+         .nav-badge { background: var(--rc-gold); color: var(--rc-blue); font-size: 0.6875rem; padding: 0.125rem 0.375rem; border-radius: 10px; font-weight: 700; min-width: 18px; text-align: center; }
+         @media (max-width: 768px) { .hero-title { font-size: 2rem; } .header-content, .hero-content, .main-layout, .card-content { min-width: 0; } .dining-tabs { -webkit-overflow-scrolling: touch; } .restaurant-card__description { overflow-wrap: anywhere; } }
+         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9375rem; text-decoration: none; cursor: pointer; border: none; transition: var(--transition); font-family: 'Montserrat', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
+         .btn-primary { background: white; color: var(--rc-blue); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+         .btn-primary:hover { background: #f4f8ff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
+         .btn-secondary { background: var(--rc-gold); color: var(--rc-blue); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+         .btn-secondary:hover { background: #e0b830; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
+         .btn-outline { background: transparent; color: white; border: 2px solid rgba(255, 255, 255, 0.3); }
+         .btn-outline:hover { background: rgba(255, 255, 255, 0.1); border-color: white; }
+         @media (min-width: 1024px) { .main-layout { grid-template-columns: 2fr 1fr; } }
+         .card { background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); transition: var(--transition); overflow: hidden; margin-bottom: 1.5rem; }
+         .card:hover { box-shadow: var(--shadow-md); }
+         .card-header { padding: 1.5rem; background: var(--rc-blue); color: white; }
+         .card-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
+         .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+         .sidebar-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
+         .quick-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+         .note { padding: 1.25rem; border-radius: var(--radius-md); margin: 1.5rem 0; background: var(--bg-secondary); border-left: 4px solid var(--rc-info); }
+         .note ul { list-style: none; padding-left: 0; }
+         .note li { padding: 0.5rem 0; position: relative; padding-left: 1.5rem; color: var(--text-secondary); }
+         .footer { background: var(--rc-blue); color: white; padding: 3rem 0 2rem; margin-top: 3rem; }
+         .footer-disclaimer { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 2rem; text-align: center; font-size: 0.75rem; opacity: 0.8; }
+         .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; gap: 0.25rem; padding: 0.75rem 0.35rem; z-index: 1000; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+         .mobile-nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-secondary); padding: 0.45rem 0.35rem; flex: 1 1 0; min-width: 0; border-radius: var(--radius-sm); transition: var(--transition); }
+         .mobile-nav-item.active { color: var(--rc-blue); background: var(--bg-secondary); }
+         .mobile-nav-icon { font-size: 1.125rem; margin-bottom: 0.2rem; }
+         .mobile-nav-item span:last-child { font-size: 0.75rem; line-height: 1.1; white-space: nowrap; }
+         .mt-2 { margin-top: 0.5rem; }
+         .mt-4 { margin-top: 1rem; }
+         .mb-2 { margin-bottom: 0.5rem; }
+         .mb-4 { margin-bottom: 1rem; }
+         .deck-map-card { margin-bottom: 1.5rem; }
+         .deck-map-wrap { position: relative; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; }
+         .deck-map-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+         .deck-map-title { font-size: 1.1rem; font-weight: 700; color: var(--rc-blue); }
+         .deck-map-legend { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.8125rem; color: var(--text-secondary); }
+         .deck-map-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+         .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+         .legend-dot--included { background: var(--rc-success); }
+         .legend-dot--specialty { background: var(--rc-warning); }
+         .legend-dot--main { background: var(--rc-gold); }
+         #diningMapSvg { width: 100%; height: auto; }
+         .map-hotspot { cursor: pointer; transition: transform .2s ease, filter .2s ease; }
+         .map-hotspot:hover, .map-hotspot:focus { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(0,0,0,.25)); outline: none; }
+         #mapTooltip { position: absolute; pointer-events: none; background: #111827; color: white; padding: 0.35rem 0.55rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; opacity: 0; transition: opacity .12s ease; transform: translate(-50%, calc(-100% - 12px)); z-index: 4; white-space: nowrap; }
+         #mapTooltip.visible { opacity: 1; }
+         @media print { .mobile-nav, .floating-actions, .fab, .toast, button, .deck-map-card { display: none !important; } .card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; } .hero { background: #f4f8ff !important; color: #1e293b !important; } .hero::after { display: none; } }
+         /* Mobile-First Responsive CSS */
+         @media screen and (max-width: 768px) {
+         /* Base adjustments */
+         html, body {
+         font-size: 15px;
+         -webkit-text-size-adjust: 100%;
+         -webkit-tap-highlight-color: transparent;
+         }
+         /* Header */
+         header {
+         padding: 1rem 0.8rem;
+         }
+         header h1 {
+         font-size: 1.5rem;
+         line-height: 1.3;
+         }
+         header p {
+         font-size: 0.95rem;
+         padding: 0 0.5rem;
+         }
+         /* Map Container */
+         #dining-map-container {
+         margin: 1rem 0;
+         padding: 1rem;
+         border-radius: 6px;
+         overflow: hidden;
+         }
+         /* Legend - Move to top and make horizontal */
+         #dining-map-legend {
+         position: relative;
+         top: auto;
+         right: auto;
+         display: flex;
+         flex-wrap: wrap;
+         gap: 0.8rem;
+         margin-bottom: 1rem;
+         padding: 0.8rem;
+         border-width: 1px;
+         font-size: 0.8rem;
+         justify-content: center;
+         }
+         #dining-map-legend span {
+         margin-bottom: 0;
+         white-space: nowrap;
+         }
+         /* SVG Map adjustments */
+         #dining-svg-map {
+         min-height: 400px;
+         touch-action: manipulation;
+         }
+         /* Make SVG hotspots larger for touch */
+         #dining-svg-map circle {
+         r: 14px !important; /* Larger touch targets */
+         cursor: pointer;
+         }
+         #dining-svg-map text {
+         font-size: 12px !important;
+         }
+         /* Deck labels */
+         #dining-svg-map text[x="15"] {
+         font-size: 16px !important;
+         }
+         /* Dining Grid - Single column on mobile */
+         .dining-grid {
+         grid-template-columns: 1fr !important;
+         gap: 1rem;
+         padding: 0;
+         margin: 0;
+         }
+         .dining-card {
+         padding: 0.9rem;
+         border-radius: 6px;
+         margin: 0;
+         }
+         .dining-card img {
+         height: 140px;
+         }
+         .dining-card h3 {
+         font-size: 1.1rem;
+         margin: 0.5rem 0 0.2rem;
+         }
+         .dining-card p {
+         font-size: 0.85rem;
+         line-height: 1.4;
+         }
+         /* Modal adjustments */
+         .modal-content {
+         width: 85%;
+         max-width: 320px;
+         padding: 1.2rem;
+         margin: 1rem;
+         }
+         .modal .close {
+         font-size: 1.6rem;
+         }
+         /* Bottom Nav - Improved for mobile */
+         .footer-nav {
+         padding: 0.7rem 0;
+         font-size: 0.8rem;
+         position: fixed;
+         bottom: 0;
+         left: 0;
+         right: 0;
+         backdrop-filter: blur(10px);
+         background: rgba(255, 255, 255, 0.95);
+         border-top: 1px solid rgba(0, 0, 0, 0.1);
+         }
+         .footer-nav a {
+         padding: 0.3rem 0.2rem;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         gap: 0.2rem;
+         }
+         }
+         /* Extra small devices */
+         @media screen and (max-width: 480px) {
+         header h1 {
+         font-size: 1.3rem;
+         }
+         header p {
+         font-size: 0.9rem;
+         }
+         #dining-map-container {
+         margin: 0.75rem 0;
+         padding: 0.6rem;
+         }
+         #dining-map-legend {
+         flex-direction: column;
+         gap: 0.5rem;
+         align-items: flex-start;
+         padding: 0.6rem;
+         }
+         #dining-svg-map {
+         min-height: 350px;
+         }
+         #dining-svg-map circle {
+         r: 12px !important;
+         }
+         #dining-svg-map text {
+         font-size: 11px !important;
+         }
+         #dining-svg-map text[x="15"] {
+         font-size: 14px !important;
+         }
+         .dining-grid {
+         padding: 0.8rem;
+         }
+         .dining-card {
+         margin: 0;
+         padding: 0.8rem;
+         }
+         .dining-card img {
+         height: 120px;
+         }
+         .footer-nav {
+         font-size: 0.75rem;
+         gap: 0.1rem;
+         }
+         .footer-nav a {
+         padding: 0.2rem 0;
+         }
+         }
+         /* Landscape orientation improvements */
+         @media screen and (max-height: 500px) and (orientation: landscape) {
+         .footer-nav {
+         position: relative;
+         margin-top: 1rem;
+         }
+         #dining-svg-map {
+         min-height: 300px;
+         }
+         .dining-grid {
+         grid-template-columns: repeat(2, 1fr) !important;
+         }
+         }
+         /* Tablet adjustments */
+         @media screen and (min-width: 769px) and (max-width: 1024px) {
+         .dining-grid {
+         grid-template-columns: repeat(2, 1fr);
+         max-width: 95%;
+         }
+         #dining-map-container {
+         max-width: 90%;
+         }
+         .footer-nav {
+         padding: 1rem 0;
+         font-size: 0.95rem;
+         }
+         }
+         /* Prevent text selection on interactive elements */
+         #dining-svg-map circle,
+         .footer-nav a {
+         user-select: none;
+         -webkit-user-select: none;
+         }
+         /* Smooth transitions */
+         .dining-card,
+         #dining-svg-map circle,
+         .modal {
+         transition: all 0.3s ease;
+         }
+         /* Enhanced touch feedback */
+         .dining-card:active {
+         transform: scale(0.98);
+         }
+         #dining-svg-map circle:active {
+         transform: scale(1.1);
+         }
+         /* ===== IMPROVED MOBILE-FIRST RESPONSIVE CSS ===== */
+         /* Base mobile adjustments */
+         @media screen and (max-width: 768px) {
+         /* Reset and base */
+         html, body {
+         font-size: 15px;
+         -webkit-text-size-adjust: 100%;
+         -webkit-tap-highlight-color: transparent;
+         overflow-x: hidden;
+         width: 100%;
+         }
+         body {
+         padding-bottom: 70px; /* Space for bottom nav */
+         }
+         /* Header improvements */
+         .header {
+         padding: 0.8rem 0;
+         position: fixed;
+         top: 0;
+         left: 0;
+         right: 0;
+         z-index: 1000;
+         }
+         .header-content {
+         padding: 0 1rem;
+         flex-wrap: wrap;
+         }
+         .logo {
+         flex: 1;
+         min-width: 0;
+         }
+         .logo-text {
+         font-size: 1.1rem;
+         white-space: nowrap;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         }
+         .logo-subtext {
+         font-size: 0.8rem;
+         }
+         .main-nav {
+         display: none !important; /* Hide desktop nav on mobile */
+         }
+         /* Hero section */
+         .hero {
+         padding: 5rem 1rem 2rem; /* Extra top padding for fixed header */
+         text-align: center;
+         margin-top: 60px; /* Offset for fixed header */
+         }
+         .hero-title {
+         font-size: 1.8rem !important;
+         line-height: 1.2;
+         margin-bottom: 1rem;
+         }
+         .hero-subtitle {
+         font-size: 0.95rem;
+         line-height: 1.4;
+         padding: 0 0.5rem;
+         margin-bottom: 1.5rem;
+         }
+         .hero-badges {
+         flex-wrap: wrap;
+         justify-content: center;
+         gap: 0.5rem;
+         margin-bottom: 1rem;
+         }
+         .hero-badge {
+         font-size: 0.8rem;
+         padding: 0.4rem 0.8rem;
+         }
+         /* Button groups */
+         .btn {
+         padding: 0.8rem 1.2rem;
+         font-size: 0.9rem;
+         min-height: 44px; /* Minimum touch target */
+         }
+         /* Main content container */
+         .container {
+         padding: 0 1rem;
+         width: 100%;
+         max-width: 100%;
+         }
+         /* Layout adjustments */
+         .main-layout {
+         display: block !important; /* Single column on mobile */
+         }
+         .main-content, .sidebar {
+         width: 100%;
+         padding: 0;
+         }
+         .sidebar {
+         margin-top: 2rem;
+         }
+         /* Dining banner */
+         .dining-banner {
+         flex-direction: column;
+         align-items: flex-start;
+         padding: 1rem;
+         margin: 1rem 0;
+         }
+         .dining-banner__content {
+         margin: 0.8rem 0;
+         }
+         .dining-banner__details {
+         flex-direction: column;
+         gap: 0.3rem;
+         }
+         /* Deck map card */
+         .deck-map-card {
+         margin: 1rem 0;
+         }
+         .deck-map-wrap {
+         padding: 0.8rem;
+         }
+         .deck-map-header {
+         flex-direction: column;
+         align-items: flex-start;
+         gap: 0.8rem;
+         }
+         .deck-map-legend {
+         width: 100%;
+         justify-content: space-between;
+         }
+         /* Dining tabs - horizontal scrolling */
+         .dining-tabs {
+         display: flex;
+         overflow-x: auto;
+         -webkit-overflow-scrolling: touch;
+         scrollbar-width: none; /* Firefox */
+         -ms-overflow-style: none; /* IE/Edge */
+         padding: 0.5rem 0;
+         margin: 1rem 0;
+         gap: 0.5rem;
+         white-space: nowrap;
+         }
+         .dining-tabs::-webkit-scrollbar {
+         display: none; /* Chrome/Safari */
+         }
+         .dining-tab {
+         flex: 0 0 auto;
+         padding: 0.6rem 1rem;
+         font-size: 0.85rem;
+         min-height: 44px;
+         }
+         /* Restaurant cards grid */
+         .restaurants-grid, .casual-grid, .packages-grid {
+         grid-template-columns: 1fr !important;
+         gap: 1rem;
+         }
+         .restaurant-card, .casual-card, .package-card {
+         padding: 1rem;
+         margin: 0 0 1rem 0;
+         }
+         .restaurant-card__header {
+         flex-direction: column;
+         align-items: flex-start;
+         gap: 0.5rem;
+         }
+         .restaurant-card__actions {
+         flex-direction: column;
+         gap: 0.5rem;
+         }
+         .restaurant-card__actions .btn {
+         width: 100%;
+         }
+         /* Reservations table - convert to cards */
+         .reservations-table {
+         display: block;
+         }
+         .reservation-row--header {
+         display: none; /* Hide header on mobile */
+         }
+         .reservation-row {
+         display: flex;
+         flex-direction: column;
+         padding: 1rem;
+         margin-bottom: 1rem;
+         border: 1px solid var(--border-color);
+         border-radius: var(--radius-sm);
+         background: var(--bg-card);
+         }
+         .reservation-cell {
+         display: flex;
+         justify-content: space-between;
+         padding: 0.5rem 0;
+         border-bottom: 1px solid var(--border-light);
+         }
+         .reservation-cell:last-child {
+         border-bottom: none;
+         }
+         .reservation-cell::before {
+         content: attr(data-label);
+         font-weight: 600;
+         color: var(--text-secondary);
+         min-width: 100px;
+         }
+         /* Dietary and dress code grids */
+         .dietary-grid, .dress-code-grid {
+         grid-template-columns: 1fr;
+         gap: 1rem;
+         }
+         /* Footer */
+         .footer {
+         padding: 2rem 1rem;
+         }
+         .footer-main {
+         grid-template-columns: 1fr;
+         gap: 2rem;
+         }
+         .footer-list li {
+         margin-bottom: 0.5rem;
+         }
+         .legal-links {
+         flex-wrap: wrap;
+         gap: 0.8rem;
+         }
+         /* Floating actions - reposition for mobile */
+         .floating-actions {
+         bottom: 80px; /* Above mobile nav */
+         right: 1rem;
+         }
+         .fab {
+         width: 50px;
+         height: 50px;
+         font-size: 1.2rem;
+         }
+         /* Toast notification */
+         .toast {
+         bottom: 80px; /* Above mobile nav */
+         left: 1rem;
+         right: 1rem;
+         width: auto;
+         }
+         /* Improve touch targets */
+         button, 
+         .btn, 
+         .dining-tab, 
+         .map-hotspot,
+         .mobile-nav-item {
+         min-height: 44px;
+         min-width: 44px;
+         }
+         /* Improve SVG map for mobile */
+         #diningMapSvg {
+         touch-action: manipulation;
+         user-select: none;
+         }
+         .map-hotspot {
+         r: 16px !important; /* Larger touch targets */
+         cursor: pointer;
+         }
+         .map-hotspot text {
+         font-size: 12px !important;
+         pointer-events: none;
+         }
+         /* Better spacing for deck labels */
+         #diningMapSvg text[x="12"] {
+         font-size: 14px !important;
+         }
+         }
+         /* ===== SMALL MOBILE DEVICES ===== */
+         @media screen and (max-width: 480px) {
+         .hero-title {
+         font-size: 1.5rem !important;
+         }
+         .hero-subtitle {
+         font-size: 0.85rem;
+         padding: 0;
+         }
+         .dining-tab {
+         padding: 0.5rem 0.8rem;
+         font-size: 0.8rem;
+         }
+         .card-header {
+         padding: 1rem;
+         }
+         .card-title {
+         font-size: 1.2rem;
+         }
+         .restaurant-card__details {
+         flex-direction: column;
+         gap: 0.5rem;
+         }
+         .detail-item {
+         flex: 1 0 100%;
+         }
+         /* Stack buttons vertically */
+         .btn-group {
+         flex-direction: column;
+         width: 100%;
+         }
+         .btn-group .btn {
+         width: 100%;
+         margin: 0.25rem 0;
+         }
+         /* Adjust font sizes */
+         h1 { font-size: 1.5rem; }
+         h2 { font-size: 1.3rem; }
+         h3 { font-size: 1.1rem; }
+         h4 { font-size: 1rem; }
+         /* Smaller padding */
+         .card-content, .sidebar-card {
+         padding: 1rem;
+         }
+         .note {
+         padding: 1rem;
+         margin: 1rem 0;
+         }
+         .note ul {
+         padding-left: 1rem;
+         }
+         .note li {
+         padding-left: 0;
+         margin-left: 1rem;
+         }
+         }
+         /* ===== LANDSCAPE ORIENTATION ===== */
+         @media screen and (max-height: 500px) and (orientation: landscape) {
+         .hero {
+         padding-top: 4rem;
+         min-height: auto;
+         }
+         .dining-tabs {
+         margin: 0.5rem 0;
+         }
+         .restaurant-card {
+         padding: 0.8rem;
+         }
+         .footer-nav {
+         padding: 0.5rem 0;
+         }
+         }
+         /* ===== TABLET ADJUSTMENTS ===== */
+         @media screen and (min-width: 769px) and (max-width: 1024px) {
+         .container {
+         max-width: 95%;
+         }
+         .main-layout {
+         grid-template-columns: 1fr;
+         }
+         .restaurants-grid {
+         grid-template-columns: repeat(2, 1fr);
+         }
+         .dining-tabs {
+         justify-content: center;
+         }
+         .deck-map-wrap {
+         padding: 1.5rem;
+         }
+         }
+         /* ===== IMPROVED MOBILE NAVIGATION ===== */
+         .mobile-nav {
+         position: fixed;
+         bottom: 0;
+         left: 0;
+         right: 0;
+         background: white;
+         border-top: 1px solid var(--border-color);
+         display: flex;
+         justify-content: space-around;
+         padding: 0.5rem 0.25rem;
+         z-index: 1000;
+         box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+         backdrop-filter: blur(10px);
+         background: rgba(255, 255, 255, 0.95);
+         }
+         .mobile-nav-item {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         justify-content: center;
+         text-decoration: none;
+         color: var(--text-secondary);
+         padding: 0.4rem 0.3rem;
+         flex: 1;
+         min-width: 0;
+         border-radius: var(--radius-sm);
+         transition: var(--transition);
+         font-size: 0.75rem;
+         min-height: 56px; /* Standard mobile nav height */
+         }
+         .mobile-nav-item.active {
+         color: var(--rc-blue);
+         background: var(--bg-secondary);
+         font-weight: 600;
+         }
+         .mobile-nav-icon {
+         font-size: 1.1rem;
+         margin-bottom: 0.2rem;
+         }
+         /* ===== IMPROVED TOUCH INTERACTIONS ===== */
+         /* Prevent text selection on interactive elements */
+         .dining-tab,
+         .map-hotspot,
+         .btn,
+         .mobile-nav-item {
+         user-select: none;
+         -webkit-user-select: none;
+         -webkit-tap-highlight-color: transparent;
+         }
+         /* Touch feedback */
+         .dining-tab:active,
+         .btn:active,
+         .mobile-nav-item:active {
+         transform: scale(0.96);
+         transition: transform 0.1s ease;
+         }
+         /* Improve focus states for accessibility */
+         .dining-tab:focus-visible,
+         .btn:focus-visible,
+         .map-hotspot:focus-visible {
+         outline: 2px solid var(--rc-blue);
+         outline-offset: 2px;
+         }
+         /* ===== PERFORMANCE OPTIMIZATIONS ===== */
+         /* Prevent layout shifts */
+         img, svg {
+         max-width: 100%;
+         height: auto;
+         display: block;
+         }
+         /* Smooth scrolling */
+         html {
+         scroll-behavior: smooth;
+         }
+         /* Optimize animations for mobile */
+         @media (prefers-reduced-motion: reduce) {
+         *,
+         *::before,
+         *::after {
+         animation-duration: 0.01ms !important;
+         animation-iteration-count: 1 !important;
+         transition-duration: 0.01ms !important;
+         }
+         }
+         /* ===== FIX FOR IOS SAFARI ===== */
+         @supports (-webkit-touch-callout: none) {
+         /* Safari-specific fixes */
+         .dining-tabs {
+         -webkit-overflow-scrolling: touch;
+         }
+         .hero {
+         background-attachment: scroll !important;
+         }
+         }
+      </style>
+   </head>
+   <body>
+      <!-- Header -->
+      <header class="header">
+         <div class="container">
             <div class="header-content">
-                <a href="index.html" class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-utensils"></i>
-                    </div>
-                    <div>
-                        <div class="logo-text">Adventure of the Seas</div>
-                        <div class="logo-subtext">Royal Dining Guide</div>
-                    </div>
-                </a>
-                
-                                <nav class="main-nav">
-                    <a href="index.html" class="nav-item">
-                        <i class="fas fa-home"></i> Dashboard
-                    </a>
-                    <a href="itinerary.html" class="nav-item">
-                        <i class="fas fa-route"></i> Itinerary
-                    </a>
-                    <a href="operations.html" class="nav-item">
-                        <i class="fas fa-tasks"></i> Checklist
-                    </a>
-                    <a href="rooms.html" class="nav-item">
-                        <i class="fas fa-bed"></i> Staterooms
-                    </a>
-                    <a href="decks.html" class="nav-item">
-                        <i class="fas fa-map"></i> Deck Plans
-                    </a>
-                    <a href="dining.html" class="nav-item active">
-                        <i class="fas fa-utensils"></i> Dining
-                    </a>
-                    <a href="tips.html" class="nav-item">
-                        <i class="fas fa-lightbulb"></i> Tips
-                    </a>
-                </nav>
+               <a href="index.html" class="logo">
+                  <div class="logo-icon">
+                     <i class="fas fa-utensils"></i>
+                  </div>
+                  <div>
+                     <div class="logo-text">Adventure of the Seas</div>
+                     <div class="logo-subtext">Royal Dining Guide</div>
+                  </div>
+               </a>
+               <nav class="main-nav">
+                  <a href="index.html" class="nav-item">
+                  <i class="fas fa-home"></i> Dashboard
+                  </a>
+                  <a href="itinerary.html" class="nav-item">
+                  <i class="fas fa-route"></i> Itinerary
+                  </a>
+                  <a href="operations.html" class="nav-item">
+                  <i class="fas fa-tasks"></i> Checklist
+                  </a>
+                  <a href="rooms.html" class="nav-item">
+                  <i class="fas fa-bed"></i> Staterooms
+                  </a>
+                  <a href="decks.html" class="nav-item">
+                  <i class="fas fa-map"></i> Deck Plans
+                  </a>
+                  <a href="dining.html" class="nav-item active">
+                  <i class="fas fa-utensils"></i> Dining
+                  </a>
+                  <a href="tips.html" class="nav-item">
+                  <i class="fas fa-lightbulb"></i> Tips
+                  </a>
+               </nav>
             </div>
-        </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
+         </div>
+      </header>
+      <!-- Hero Section -->
+      <section class="hero">
+         <div class="container">
             <div class="hero-content">
-                <div class="hero-badges">
-                    <span class="hero-badge">
-                        <i class="fas fa-utensils"></i>
-                        Complete Royal Dining Guide
-                    </span>
-                    <span class="hero-badge">
-                        <i class="fas fa-calendar-check"></i>
-                        Reservation Manager
-                    </span>
-                    <span class="hero-badge hero-badge--gold">
-                        <i class="fas fa-star"></i>
-                        Specialty Dining
-                    </span>
-                </div>
-                
-                <h1 class="hero-title">Royal Caribbean Dining Experiences</h1>
-                
-                <p class="hero-subtitle">
-                    From quick bites to date-night specialty dining, plan every meal with confidence for Adventure of the Seas, Feb 14–20, 2026.
-                </p>
-                
-                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn btn-primary" id="printDiningBtn">
-                        <i class="fas fa-print"></i>
-                        Print Royal Dining Guide
-                    </button>
-                    <button class="btn btn-outline" id="makeReservationBtn">
-                        <i class="fas fa-calendar-plus"></i>
-                        Make Reservation
-                    </button>
-                </div>
+               <div class="hero-badges">
+                  <span class="hero-badge">
+                  <i class="fas fa-utensils"></i>
+                  Complete Royal Dining Guide
+                  </span>
+                  <span class="hero-badge">
+                  <i class="fas fa-calendar-check"></i>
+                  Reservation Manager
+                  </span>
+                  <span class="hero-badge hero-badge--gold">
+                  <i class="fas fa-star"></i>
+                  Specialty Dining
+                  </span>
+               </div>
+               <h1 class="hero-title">Royal Caribbean Dining Experiences</h1>
+               <p class="hero-subtitle">
+                  From quick bites to date-night specialty dining, plan every meal with confidence for Adventure of the Seas, Feb 14–20, 2026.
+               </p>
+               <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                  <button class="btn btn-primary" id="printDiningBtn">
+                  <i class="fas fa-print"></i>
+                  Print Royal Dining Guide
+                  </button>
+                  <button class="btn btn-outline" id="makeReservationBtn">
+                  <i class="fas fa-calendar-plus"></i>
+                  Make Reservation
+                  </button>
+               </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main>
-        <div class="container">
+         </div>
+      </section>
+      <!-- Main Content -->
+      <main>
+         <div class="container">
             <div class="main-layout">
-                <!-- Main Content -->
-                <div class="main-content">
-                    <!-- Dining Banner -->
-                    <div class="dining-banner" id="mainDiningBanner">
-                        <div class="dining-banner__icon">
-                            <i class="fas fa-crown"></i>
+               <!-- Main Content -->
+               <div class="main-content">
+                  <!-- Dining Banner -->
+                  <div class="dining-banner" id="mainDiningBanner">
+                     <div class="dining-banner__icon">
+                        <i class="fas fa-crown"></i>
+                     </div>
+                     <div class="dining-banner__content">
+                        <h3 class="dining-banner__title">Main Dining Room • American Icon Grill</h3>
+                        <div class="dining-banner__details">
+                           <span><strong>Deck 4 • Traditional Seating</strong></span>
+                           <span>Dinner: 5:30 PM • Table #423</span>
+                           <span>Formal nights: Day 2 & Day 5</span>
                         </div>
-                        <div class="dining-banner__content">
-                            <h3 class="dining-banner__title">Main Dining Room • American Icon Grill</h3>
-                            <div class="dining-banner__details">
-                                <span><strong>Deck 4 • Traditional Seating</strong></span>
-                                <span>Dinner: 5:30 PM • Table #423</span>
-                                <span>Formal nights: Day 2 & Day 5</span>
-                            </div>
+                     </div>
+                     <div class="status-badge status-confirmed">
+                        <i class="fas fa-check"></i> Confirmed
+                     </div>
+                  </div>
+                  <section class="card deck-map-card" aria-label="Interactive dining deck map">
+                     <div class="card-content">
+                        <div class="deck-map-wrap">
+                           <div class="deck-map-header">
+                              <h2 class="deck-map-title">Find Restaurants by Deck</h2>
+                              <div class="deck-map-legend" aria-hidden="true">
+                                 <span><i class="legend-dot legend-dot--included"></i> Included</span>
+                                 <span><i class="legend-dot legend-dot--specialty"></i> Specialty</span>
+                                 <span><i class="legend-dot legend-dot--main"></i> Main Dining</span>
+                              </div>
+                           </div>
+                           <div id="mapTooltip" role="status" aria-live="polite"></div>
+                           <svg id="diningMapSvg" viewBox="0 0 440 340" aria-label="Dining deck map with clickable restaurants">
+                              <text x="12" y="36" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 12</text>
+                              <text x="12" y="120" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 11</text>
+                              <text x="12" y="210" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 5</text>
+                              <text x="12" y="300" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 4</text>
+                              <line x1="0" y1="50" x2="440" y2="50" stroke="#cbd5e1" stroke-width="1" />
+                              <line x1="0" y1="132" x2="440" y2="132" stroke="#cbd5e1" stroke-width="1" />
+                              <line x1="0" y1="222" x2="440" y2="222" stroke="#cbd5e1" stroke-width="1" />
+                              <circle class="map-hotspot" cx="290" cy="115" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
+                                 data-tab="specialty" data-target="izumiCard" data-tooltip="Izumi Hibachi & Sushi • Deck 12 • Specialty"></circle>
+                              <text x="308" y="120" fill="var(--text-primary)" font-size="12">Izumi</text>
+                              <circle class="map-hotspot" cx="110" cy="115" r="10" fill="var(--rc-success)" tabindex="0" role="button"
+                                 data-tab="included" data-target="windjammerCard" data-tooltip="Windjammer Marketplace • Deck 11 • Included"></circle>
+                              <text x="128" y="120" fill="var(--text-primary)" font-size="12">Windjammer</text>
+                              <circle class="map-hotspot" cx="280" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button"
+                                 data-tab="included" data-target="sorrentosCard" data-tooltip="Sorrento's Pizza • Deck 5 • Included"></circle>
+                              <text x="298" y="210" fill="var(--text-primary)" font-size="12">Sorrento's</text>
+                              <circle class="map-hotspot" cx="110" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button"
+                                 data-tab="included" data-target="cafePromenadeCard" data-tooltip="Café Promenade • Deck 5 • Included"></circle>
+                              <text x="128" y="210" fill="var(--text-primary)" font-size="12">Café Promenade</text>
+                              <circle class="map-hotspot" cx="90" cy="294" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
+                                 data-tab="specialty" data-target="chopsCard" data-tooltip="Chops Grille • Deck 4 • Specialty"></circle>
+                              <text x="108" y="299" fill="var(--text-primary)" font-size="12">Chops</text>
+                              <circle class="map-hotspot" cx="210" cy="294" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
+                                 data-tab="specialty" data-target="giovannisCard" data-tooltip="Giovanni's Table • Deck 4 • Specialty"></circle>
+                              <text x="228" y="299" fill="var(--text-primary)" font-size="12">Giovanni's</text>
+                              <circle class="map-hotspot" cx="350" cy="294" r="10" fill="var(--rc-gold)" tabindex="0" role="button"
+                                 data-tab="specialty" data-target="mainDiningBanner" data-tooltip="Main Dining Room • Deck 4 • Included"></circle>
+                              <text x="368" y="299" fill="var(--text-primary)" font-size="12">Main Dining</text>
+                           </svg>
                         </div>
-                        <div class="status-badge status-confirmed">
-                            <i class="fas fa-check"></i> Confirmed
+                     </div>
+                  </section>
+                  <!-- Dining Tabs -->
+                  <div class="dining-tabs horizontal-scroll">
+                     <button class="dining-tab active" data-tab="specialty">
+                     <i class="fas fa-star"></i> Specialty
+                     </button>
+                     <button class="dining-tab" data-tab="included">
+                     <i class="fas fa-check-circle"></i> Included
+                     </button>
+                     <button class="dining-tab" data-tab="casual">
+                     <i class="fas fa-coffee"></i> Casual
+                     </button>
+                     <button class="dining-tab" data-tab="reservations">
+                     <i class="fas fa-calendar-alt"></i> Reservations
+                     </button>
+                     <button class="dining-tab" data-tab="packages">
+                     <i class="fas fa-tags"></i> Packages
+                     </button>
+                  </div>
+                  <!-- Specialty Dining -->
+                  <div class="dining-tab-content active" id="specialty-tab">
+                     <div class="card mb-8">
+                        <div class="card-header">
+                           <h2 class="card-title">Specialty Dining Restaurants</h2>
+                           <p class="card-subtitle">Additional charge • Reservations recommended</p>
                         </div>
-                    </div>
-
-                    <section class="card deck-map-card" aria-label="Interactive dining deck map">
                         <div class="card-content">
-                            <div class="deck-map-wrap">
-                                <div class="deck-map-header">
-                                    <h2 class="deck-map-title">Find Restaurants by Deck</h2>
-                                    <div class="deck-map-legend" aria-hidden="true">
-                                        <span><i class="legend-dot legend-dot--included"></i> Included</span>
-                                        <span><i class="legend-dot legend-dot--specialty"></i> Specialty</span>
-                                        <span><i class="legend-dot legend-dot--main"></i> Main Dining</span>
+                           <div class="restaurants-grid">
+                              <!-- Chops Grille -->
+                              <div class="restaurant-card restaurant-card--featured" id="chopsCard">
+                                 <div class="restaurant-card__header">
+                                    <h3 class="restaurant-card__title">Chops Grille</h3>
+                                    <div class="restaurant-price">$64.99</div>
+                                 </div>
+                                 <div class="restaurant-card__details">
+                                    <div class="detail-item">
+                                       <i class="fas fa-map-marker-alt"></i>
+                                       <span><strong>Location:</strong> Deck 11 • Aft</span>
                                     </div>
-                                </div>
-                                <div id="mapTooltip" role="status" aria-live="polite"></div>
-                                <svg id="diningMapSvg" viewBox="0 0 440 340" aria-label="Dining deck map with clickable restaurants">
-                                    <text x="12" y="36" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 12</text>
-                                    <text x="12" y="120" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 11</text>
-                                    <text x="12" y="210" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 5</text>
-                                    <text x="12" y="300" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 4</text>
-                                    <line x1="0" y1="50" x2="440" y2="50" stroke="#cbd5e1" stroke-width="1" />
-                                    <line x1="0" y1="132" x2="440" y2="132" stroke="#cbd5e1" stroke-width="1" />
-                                    <line x1="0" y1="222" x2="440" y2="222" stroke="#cbd5e1" stroke-width="1" />
-
-                                    <circle class="map-hotspot" cx="290" cy="115" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
-                                        data-tab="specialty" data-target="izumiCard" data-tooltip="Izumi Hibachi & Sushi • Deck 12 • Specialty"></circle>
-                                    <text x="308" y="120" fill="var(--text-primary)" font-size="12">Izumi</text>
-
-                                    <circle class="map-hotspot" cx="110" cy="115" r="10" fill="var(--rc-success)" tabindex="0" role="button"
-                                        data-tab="included" data-target="windjammerCard" data-tooltip="Windjammer Marketplace • Deck 11 • Included"></circle>
-                                    <text x="128" y="120" fill="var(--text-primary)" font-size="12">Windjammer</text>
-
-                                    <circle class="map-hotspot" cx="280" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button"
-                                        data-tab="included" data-target="sorrentosCard" data-tooltip="Sorrento's Pizza • Deck 5 • Included"></circle>
-                                    <text x="298" y="210" fill="var(--text-primary)" font-size="12">Sorrento's</text>
-
-                                    <circle class="map-hotspot" cx="110" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button"
-                                        data-tab="included" data-target="cafePromenadeCard" data-tooltip="Café Promenade • Deck 5 • Included"></circle>
-                                    <text x="128" y="210" fill="var(--text-primary)" font-size="12">Café Promenade</text>
-
-                                    <circle class="map-hotspot" cx="90" cy="294" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
-                                        data-tab="specialty" data-target="chopsCard" data-tooltip="Chops Grille • Deck 4 • Specialty"></circle>
-                                    <text x="108" y="299" fill="var(--text-primary)" font-size="12">Chops</text>
-
-                                    <circle class="map-hotspot" cx="210" cy="294" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
-                                        data-tab="specialty" data-target="giovannisCard" data-tooltip="Giovanni's Table • Deck 4 • Specialty"></circle>
-                                    <text x="228" y="299" fill="var(--text-primary)" font-size="12">Giovanni's</text>
-
-                                    <circle class="map-hotspot" cx="350" cy="294" r="10" fill="var(--rc-gold)" tabindex="0" role="button"
-                                        data-tab="specialty" data-target="mainDiningBanner" data-tooltip="Main Dining Room • Deck 4 • Included"></circle>
-                                    <text x="368" y="299" fill="var(--text-primary)" font-size="12">Main Dining</text>
-                                </svg>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Dining Tabs -->
-                    <div class="dining-tabs horizontal-scroll">
-                        <button class="dining-tab active" data-tab="specialty">
-                            <i class="fas fa-star"></i> Specialty
-                        </button>
-                        <button class="dining-tab" data-tab="included">
-                            <i class="fas fa-check-circle"></i> Included
-                        </button>
-                        <button class="dining-tab" data-tab="casual">
-                            <i class="fas fa-coffee"></i> Casual
-                        </button>
-                        <button class="dining-tab" data-tab="reservations">
-                            <i class="fas fa-calendar-alt"></i> Reservations
-                        </button>
-                        <button class="dining-tab" data-tab="packages">
-                            <i class="fas fa-tags"></i> Packages
-                        </button>
-                    </div>
-
-                    <!-- Specialty Dining -->
-                    <div class="dining-tab-content active" id="specialty-tab">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Specialty Dining Restaurants</h2>
-                                <p class="card-subtitle">Additional charge • Reservations recommended</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="restaurants-grid">
-                                    <!-- Chops Grille -->
-                                    <div class="restaurant-card restaurant-card--featured" id="chopsCard">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Chops Grille</h3>
-                                            <div class="restaurant-price">$64.99</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 11 • Aft</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 5:30 PM - 9:30 PM</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Classic Steakhouse</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Premium steaks, seafood, and sides in an upscale setting. Perfect for formal nights.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-pending">Available</span>
-                                            <button class="btn btn-outline btn-sm" data-action="modify" data-restaurant="Chops Grille">
-                                                <i class="fas fa-edit"></i> Modify
-                                            </button>
-                                        </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-clock"></i>
+                                       <span><strong>Hours:</strong> 5:30 PM - 9:30 PM</span>
                                     </div>
-
-                                    <!-- Izumi Hibachi & Sushi -->
-                                    <div class="restaurant-card" id="izumiCard">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Izumi Hibachi & Sushi</h3>
-                                            <div class="restaurant-price">À la carte</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 12 • Forward</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 5:00 PM - 10:00 PM</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Japanese</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Teppanyaki tables and fresh sushi. Hibachi dinner includes chef's performance.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-pending">Available</span>
-                                            <button class="btn btn-primary btn-sm" data-action="book" data-restaurant="Izumi">
-                                                <i class="fas fa-plus"></i> Book
-                                            </button>
-                                        </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-utensils"></i>
+                                       <span><strong>Cuisine:</strong> Classic Steakhouse</span>
                                     </div>
-
-                                    <!-- Giovanni's Table -->
-                                    <div class="restaurant-card" id="giovannisCard">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Giovanni's Table</h3>
-                                            <div class="restaurant-price">$44.99</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 11 • Midship</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 6:00 PM - 9:30 PM</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Italian</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Family-style Italian dining with pasta made fresh daily. Great for groups.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-pending">Available</span>
-                                            <button class="btn btn-primary btn-sm" data-action="book" data-restaurant="Giovanni's">
-                                                <i class="fas fa-plus"></i> Book
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Chef's Table -->
-                                    <div class="restaurant-card">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Chef's Table</h3>
-                                            <div class="restaurant-price">$95</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 5 • Private</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 7:00 PM (Select nights)</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Multi-course Tasting</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Exclusive 5-course meal with wine pairings. Limited to 16 guests per seating.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-waitlist">Waitlist</span>
-                                            <button class="btn btn-outline btn-sm" data-action="waitlist" data-restaurant="Chef's Table">
-                                                <i class="fas fa-user-plus"></i> Waitlist
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Included Dining -->
-                    <div class="dining-tab-content" id="included-tab" style="display: none;">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Complimentary Dining</h2>
-                                <p class="card-subtitle">No additional charge • Open seating</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="restaurants-grid">
-                                    <!-- Windjammer Marketplace -->
-                                    <div class="restaurant-card restaurant-card--included" id="windjammerCard">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Windjammer Marketplace</h3>
-                                            <div class="restaurant-badge">Buffet</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 11 • Aft</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 6:30 AM - 9:00 PM</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> International</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Casual buffet with stations for breakfast, lunch, and dinner.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Tip:</strong> Less crowded during port days. Open for embarkation lunch.
-                                        </div>
-                                    </div>
-
-                                    <!-- Café Promenade -->
-                                    <div class="restaurant-card restaurant-card--included" id="cafePromenadeCard">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Café Promenade</h3>
-                                            <div class="restaurant-badge">24/7</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 5 • Promenade</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 24 Hours</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Coffee & Pastries</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Complimentary coffee, tea, pastries, sandwiches, and cookies available anytime.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Tip:</strong> Free pizza slices after 8 PM. Try the signature cookies!
-                                        </div>
-                                    </div>
-
-                                    <!-- Sorrento's Pizza -->
-                                    <div class="restaurant-card restaurant-card--included" id="sorrentosCard">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Sorrento's Pizza</h3>
-                                            <div class="restaurant-badge">Pizza</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 5 • Promenade</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 11:00 AM - 3:00 AM</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Pizza</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Freshly made pizza by the slice. Custom pizzas available during peak hours.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Tip:</strong> Try the create-your-own pizza station at lunch.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Casual Dining -->
-                    <div class="dining-tab-content" id="casual-tab" style="display: none;">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Casual Dining & Cafés</h2>
-                                <p class="card-subtitle">Quick bites and specialty drinks</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="casual-grid">
-                                    <!-- Ben & Jerry's -->
-                                    <div class="casual-card">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-ice-cream"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Ben & Jerry's</h4>
-                                            <p>Deck 5 • Royal Promenade</p>
-                                            <p>11:00 AM - 11:00 PM</p>
-                                            <p><strong>Cost:</strong> À la carte</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Starbucks -->
-                                    <div class="casual-card">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-coffee"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Starbucks</h4>
-                                            <p>Deck 5 • Royal Promenade</p>
-                                            <p>6:00 AM - 10:00 PM</p>
-                                            <p><strong>Cost:</strong> À la carte</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Pool Bar -->
-                                    <div class="casual-card">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-cocktail"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Pool Bar & Grill</h4>
-                                            <p>Deck 11 • Main Pool</p>
-                                            <p>10:00 AM - 6:00 PM</p>
-                                            <p><strong>Cost:</strong> Drinks extra</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Vitality Café -->
-                                    <div class="casual-card">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-apple-alt"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Vitality Café</h4>
-                                            <p>Deck 11 • Spa</p>
-                                            <p>7:00 AM - 7:00 PM</p>
-                                            <p><strong>Cost:</strong> Smoothies extra</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Room Service -->
-                                    <div class="casual-card">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-concierge-bell"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Room Service</h4>
-                                            <p>24/7 to your stateroom</p>
-                                            <p>24 Hours</p>
-                                            <p><strong>Cost:</strong> $7.95 service fee</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Reservations -->
-                    <div class="dining-tab-content" id="reservations-tab" style="display: none;">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Your Reservations</h2>
-                                <p class="card-subtitle">Manage and modify dining reservations</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="reservations-table">
-                                    <div class="reservation-row reservation-row--header">
-                                        <div>Restaurant</div>
-                                        <div>Date</div>
-                                        <div>Time</div>
-                                        <div>Guests</div>
-                                        <div>Status</div>
-                                        <div>Actions</div>
-                                    </div>
-                                    
-                                    <div class="reservation-row">
-                                        <div class="reservation-cell" data-label="Restaurant"><strong>Chops Grille</strong></div>
-                                        <div class="reservation-cell" data-label="Date">Day 5 (Feb 18)</div>
-                                        <div class="reservation-cell" data-label="Time">7:00 PM</div>
-                                        <div class="reservation-cell" data-label="Guests">8 guests</div>
-                                        <div class="reservation-cell" data-label="Status"><span class="status-badge status-confirmed">Confirmed</span></div>
-                                        <div class="reservation-cell" data-label="Actions">
-                                            <button class="btn btn-outline btn-sm" data-action="modify" data-reservation="chops">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline btn-sm" data-action="cancel" data-reservation="chops">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="reservation-row">
-                                        <div class="reservation-cell" data-label="Restaurant"><strong>Main Dining</strong></div>
-                                        <div class="reservation-cell" data-label="Date">Every night</div>
-                                        <div class="reservation-cell" data-label="Time">5:30 PM</div>
-                                        <div class="reservation-cell" data-label="Guests">14 guests</div>
-                                        <div class="reservation-cell" data-label="Status"><span class="status-badge status-confirmed">Assigned</span></div>
-                                        <div class="reservation-cell" data-label="Actions">
-                                            <button class="btn btn-outline btn-sm" data-action="info" data-reservation="main">
-                                                <i class="fas fa-info-circle"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="reservation-row">
-                                        <div class="reservation-cell" data-label="Restaurant"><strong>Chef's Table</strong></div>
-                                        <div class="reservation-cell" data-label="Date">Day 3</div>
-                                        <div class="reservation-cell" data-label="Time">7:00 PM</div>
-                                        <div class="reservation-cell" data-label="Guests">2 guests</div>
-                                        <div class="reservation-cell" data-label="Status"><span class="status-badge status-waitlist">Waitlist</span></div>
-                                        <div class="reservation-cell" data-label="Actions">
-                                            <button class="btn btn-outline btn-sm" data-action="waitlist" data-reservation="chefs">
-                                                <i class="fas fa-user-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="quick-actions mt-4">
-                                    <button class="btn btn-primary btn-block" id="makeNewReservationBtn">
-                                        <i class="fas fa-plus"></i> Make New Reservation
+                                 </div>
+                                 <div class="restaurant-card__description">
+                                    Premium steaks, seafood, and sides in an upscale setting. Perfect for formal nights.
+                                 </div>
+                                 <div class="restaurant-card__actions">
+                                    <span class="status-badge status-pending">Available</span>
+                                    <button class="btn btn-outline btn-sm" data-action="modify" data-restaurant="Chops Grille">
+                                    <i class="fas fa-edit"></i> Modify
                                     </button>
-                                    <button class="btn btn-outline btn-block" id="refreshReservationsBtn">
-                                        <i class="fas fa-sync-alt"></i> Refresh Status
+                                 </div>
+                              </div>
+                              <!-- Izumi Hibachi & Sushi -->
+                              <div class="restaurant-card" id="izumiCard">
+                                 <div class="restaurant-card__header">
+                                    <h3 class="restaurant-card__title">Izumi Hibachi & Sushi</h3>
+                                    <div class="restaurant-price">À la carte</div>
+                                 </div>
+                                 <div class="restaurant-card__details">
+                                    <div class="detail-item">
+                                       <i class="fas fa-map-marker-alt"></i>
+                                       <span><strong>Location:</strong> Deck 12 • Forward</span>
+                                    </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-clock"></i>
+                                       <span><strong>Hours:</strong> 5:00 PM - 10:00 PM</span>
+                                    </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-utensils"></i>
+                                       <span><strong>Cuisine:</strong> Japanese</span>
+                                    </div>
+                                 </div>
+                                 <div class="restaurant-card__description">
+                                    Teppanyaki tables and fresh sushi. Hibachi dinner includes chef's performance.
+                                 </div>
+                                 <div class="restaurant-card__actions">
+                                    <span class="status-badge status-pending">Available</span>
+                                    <button class="btn btn-primary btn-sm" data-action="book" data-restaurant="Izumi">
+                                    <i class="fas fa-plus"></i> Book
                                     </button>
-                                </div>
-                            </div>
+                                 </div>
+                              </div>
+                              <!-- Giovanni's Table -->
+                              <div class="restaurant-card" id="giovannisCard">
+                                 <div class="restaurant-card__header">
+                                    <h3 class="restaurant-card__title">Giovanni's Table</h3>
+                                    <div class="restaurant-price">$44.99</div>
+                                 </div>
+                                 <div class="restaurant-card__details">
+                                    <div class="detail-item">
+                                       <i class="fas fa-map-marker-alt"></i>
+                                       <span><strong>Location:</strong> Deck 11 • Midship</span>
+                                    </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-clock"></i>
+                                       <span><strong>Hours:</strong> 6:00 PM - 9:30 PM</span>
+                                    </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-utensils"></i>
+                                       <span><strong>Cuisine:</strong> Italian</span>
+                                    </div>
+                                 </div>
+                                 <div class="restaurant-card__description">
+                                    Family-style Italian dining with pasta made fresh daily. Great for groups.
+                                 </div>
+                                 <div class="restaurant-card__actions">
+                                    <span class="status-badge status-pending">Available</span>
+                                    <button class="btn btn-primary btn-sm" data-action="book" data-restaurant="Giovanni's">
+                                    <i class="fas fa-plus"></i> Book
+                                    </button>
+                                 </div>
+                              </div>
+                              <!-- Chef's Table -->
+                              <div class="restaurant-card">
+                                 <div class="restaurant-card__header">
+                                    <h3 class="restaurant-card__title">Chef's Table</h3>
+                                    <div class="restaurant-price">$95</div>
+                                 </div>
+                                 <div class="restaurant-card__details">
+                                    <div class="detail-item">
+                                       <i class="fas fa-map-marker-alt"></i>
+                                       <span><strong>Location:</strong> Deck 5 • Private</span>
+                                    </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-clock"></i>
+                                       <span><strong>Hours:</strong> 7:00 PM (Select nights)</span>
+                                    </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-utensils"></i>
+                                       <span><strong>Cuisine:</strong> Multi-course Tasting</span>
+                                    </div>
+                                 </div>
+                                 <div class="restaurant-card__description">
+                                    Exclusive 5-course meal with wine pairings. Limited to 16 guests per seating.
+                                 </div>
+                                 <div class="restaurant-card__actions">
+                                    <span class="status-badge status-waitlist">Waitlist</span>
+                                    <button class="btn btn-outline btn-sm" data-action="waitlist" data-restaurant="Chef's Table">
+                                    <i class="fas fa-user-plus"></i> Waitlist
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-                    </div>
-
-                    <!-- Packages -->
-                    <div class="dining-tab-content" id="packages-tab" style="display: none;">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Dining Packages</h2>
-                                <p class="card-subtitle">Save with pre-booked dining experiences</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="packages-grid">
-                                    <div class="package-card">
-                                        <h4>3-Night Dining Package</h4>
-                                        <div class="package-price">$109 pp</div>
-                                        <p>Any 3 specialty restaurants • Save 30% compared to individual bookings</p>
-                                        <button class="btn btn-outline btn-block mt-4" data-package="3-night">View Details</button>
-                                    </div>
-                                    <div class="package-card package-card--featured">
-                                        <h4>Unlimited Dining Package</h4>
-                                        <div class="package-price">$219 pp</div>
-                                        <p>Unlimited specialty dining • Includes lunch on sea days • Best value</p>
-                                        <button class="btn btn-secondary btn-block mt-4" data-package="unlimited">Purchase Now</button>
-                                    </div>
-                                    <div class="package-card">
-                                        <h4>Izumi Hibachi Experience</h4>
-                                        <div class="package-price">$45 pp</div>
-                                        <p>One hibachi dinner • Includes chef's performance • Sake pairing available</p>
-                                        <button class="btn btn-outline btn-block mt-4" data-package="izumi">View Details</button>
-                                    </div>
-                                </div>
-                            </div>
+                     </div>
+                  </div>
+                  <!-- Included Dining -->
+                  <div class="dining-tab-content" id="included-tab" style="display: none;">
+                     <div class="card mb-8">
+                        <div class="card-header">
+                           <h2 class="card-title">Complimentary Dining</h2>
+                           <p class="card-subtitle">No additional charge • Open seating</p>
                         </div>
-                    </div>
-
-                    <div class="dining-shared-sections">
-                        <!-- Dietary Information -->
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Dietary Needs & Allergies</h2>
-                                <p class="card-subtitle">Special accommodations available</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="dietary-grid">
-                                    <div class="dietary-card">
-                                        <div class="dietary-icon">
-                                            <i class="fas fa-seedling"></i>
-                                        </div>
-                                        <div>
-                                            <h4>Vegetarian & Vegan</h4>
-                                            <p>Notify server for special menus. Available in all restaurants.</p>
-                                        </div>
+                        <div class="card-content">
+                           <div class="restaurants-grid">
+                              <!-- Windjammer Marketplace -->
+                              <div class="restaurant-card restaurant-card--included" id="windjammerCard">
+                                 <div class="restaurant-card__header">
+                                    <h3 class="restaurant-card__title">Windjammer Marketplace</h3>
+                                    <div class="restaurant-badge">Buffet</div>
+                                 </div>
+                                 <div class="restaurant-card__details">
+                                    <div class="detail-item">
+                                       <i class="fas fa-map-marker-alt"></i>
+                                       <span><strong>Location:</strong> Deck 11 • Aft</span>
                                     </div>
-                                    <div class="dietary-card">
-                                        <div class="dietary-icon">
-                                            <i class="fas fa-bread-slice"></i>
-                                        </div>
-                                        <div>
-                                            <h4>Gluten-Free</h4>
-                                            <p>Pre-order meals 24 hours in advance. Dedicated preparation area.</p>
-                                        </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-clock"></i>
+                                       <span><strong>Hours:</strong> 6:30 AM - 9:00 PM</span>
                                     </div>
-                                    <div class="dietary-card">
-                                        <div class="dietary-icon">
-                                            <i class="fas fa-pepper-hot"></i>
-                                        </div>
-                                        <div>
-                                            <h4>Food Allergies</h4>
-                                            <p>Inform dining staff. Chefs can prepare separate meals.</p>
-                                        </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-utensils"></i>
+                                       <span><strong>Cuisine:</strong> International</span>
                                     </div>
-                                    <div class="dietary-card">
-                                        <div class="dietary-icon">
-                                            <i class="fas fa-star-of-life"></i>
-                                        </div>
-                                        <div>
-                                            <h4>Special Requests</h4>
-                                            <p>Contact head waiter. Kosher/Halal meals available with notice.</p>
-                                        </div>
+                                 </div>
+                                 <div class="restaurant-card__description">
+                                    Casual buffet with stations for breakfast, lunch, and dinner.
+                                 </div>
+                                 <div class="restaurant-card__tips">
+                                    <strong>Tip:</strong> Less crowded during port days. Open for embarkation lunch.
+                                 </div>
+                              </div>
+                              <!-- Café Promenade -->
+                              <div class="restaurant-card restaurant-card--included" id="cafePromenadeCard">
+                                 <div class="restaurant-card__header">
+                                    <h3 class="restaurant-card__title">Café Promenade</h3>
+                                    <div class="restaurant-badge">24/7</div>
+                                 </div>
+                                 <div class="restaurant-card__details">
+                                    <div class="detail-item">
+                                       <i class="fas fa-map-marker-alt"></i>
+                                       <span><strong>Location:</strong> Deck 5 • Promenade</span>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Dress Code -->
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Dress Code Guide</h2>
-                                <p class="card-subtitle">What to wear for each dining occasion</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="dress-code-grid">
-                                    <div class="dress-code-item">
-                                        <div class="dress-code-badge badge-casual">Casual</div>
-                                        <p><strong>Most nights</strong></p>
-                                        <p>Resort wear, sundresses, polo shirts, khakis, nice jeans</p>
+                                    <div class="detail-item">
+                                       <i class="fas fa-clock"></i>
+                                       <span><strong>Hours:</strong> 24 Hours</span>
                                     </div>
-                                    <div class="dress-code-item">
-                                        <div class="dress-code-badge badge-smart">Smart Casual</div>
-                                        <p><strong>Specialty restaurants</strong></p>
-                                        <p>Dress pants, blouses, jackets, cocktail dresses</p>
+                                    <div class="detail-item">
+                                       <i class="fas fa-utensils"></i>
+                                       <span><strong>Cuisine:</strong> Coffee & Pastries</span>
                                     </div>
-                                    <div class="dress-code-item">
-                                        <div class="dress-code-badge badge-formal">Formal</div>
-                                        <p><strong>Day 2 & 5</strong></p>
-                                        <p>Suits, tuxedos, cocktail dresses, gowns</p>
+                                 </div>
+                                 <div class="restaurant-card__description">
+                                    Complimentary coffee, tea, pastries, sandwiches, and cookies available anytime.
+                                 </div>
+                                 <div class="restaurant-card__tips">
+                                    <strong>Tip:</strong> Free pizza slices after 8 PM. Try the signature cookies!
+                                 </div>
+                              </div>
+                              <!-- Sorrento's Pizza -->
+                              <div class="restaurant-card restaurant-card--included" id="sorrentosCard">
+                                 <div class="restaurant-card__header">
+                                    <h3 class="restaurant-card__title">Sorrento's Pizza</h3>
+                                    <div class="restaurant-badge">Pizza</div>
+                                 </div>
+                                 <div class="restaurant-card__details">
+                                    <div class="detail-item">
+                                       <i class="fas fa-map-marker-alt"></i>
+                                       <span><strong>Location:</strong> Deck 5 • Promenade</span>
                                     </div>
-                                </div>
-                            </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-clock"></i>
+                                       <span><strong>Hours:</strong> 11:00 AM - 3:00 AM</span>
+                                    </div>
+                                    <div class="detail-item">
+                                       <i class="fas fa-utensils"></i>
+                                       <span><strong>Cuisine:</strong> Pizza</span>
+                                    </div>
+                                 </div>
+                                 <div class="restaurant-card__description">
+                                    Freshly made pizza by the slice. Custom pizzas available during peak hours.
+                                 </div>
+                                 <div class="restaurant-card__tips">
+                                    <strong>Tip:</strong> Try the create-your-own pizza station at lunch.
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-
-                        <!-- Important Notes -->
-                        <div class="note">
-                            <h4><i class="fas fa-info-circle"></i> Important Dining Information</h4>
-                            <ul>
-                                <li><strong>Reservations:</strong> Specialty dining can be booked via Royal app, cabin TV, or restaurant podium</li>
-                                <li><strong>Cancellation:</strong> 24-hour policy for specialty restaurants to avoid charges</li>
-                                <li><strong>Formal Nights:</strong> Professional photography available throughout ship on Day 2 & 5</li>
-                                <li><strong>Gratuities:</strong> Included in specialty dining packages, additional tipping at discretion</li>
-                                <li><strong>Children:</strong> Kids' menus available. Under 5 eat free from kids' menu</li>
-                            </ul>
+                     </div>
+                  </div>
+                  <!-- Casual Dining -->
+                  <div class="dining-tab-content" id="casual-tab" style="display: none;">
+                     <div class="card mb-8">
+                        <div class="card-header">
+                           <h2 class="card-title">Casual Dining & Cafés</h2>
+                           <p class="card-subtitle">Quick bites and specialty drinks</p>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <aside class="sidebar">
-                    <!-- Quick Actions -->
-                    <div class="sidebar-card sidebar-card--highlight">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-bolt"></i>
-                            Quick Actions
-                        </h3>
-                        <div class="quick-actions">
-                            <button class="btn btn-primary btn-block" id="viewMenusBtn">
-                                <i class="fas fa-book-open"></i>
-                                View Menus
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="bookSpecialtyBtn">
-                                <i class="fas fa-star"></i>
-                                Book Specialty
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="contactMaitreDBtn">
-                                <i class="fas fa-user-tie"></i>
-                                Contact Maître D'
-                            </button>
+                        <div class="card-content">
+                           <div class="casual-grid">
+                              <!-- Ben & Jerry's -->
+                              <div class="casual-card">
+                                 <div class="casual-card__icon">
+                                    <i class="fas fa-ice-cream"></i>
+                                 </div>
+                                 <div class="casual-card__content">
+                                    <h4>Ben & Jerry's</h4>
+                                    <p>Deck 5 • Royal Promenade</p>
+                                    <p>11:00 AM - 11:00 PM</p>
+                                    <p><strong>Cost:</strong> À la carte</p>
+                                 </div>
+                              </div>
+                              <!-- Starbucks -->
+                              <div class="casual-card">
+                                 <div class="casual-card__icon">
+                                    <i class="fas fa-coffee"></i>
+                                 </div>
+                                 <div class="casual-card__content">
+                                    <h4>Starbucks</h4>
+                                    <p>Deck 5 • Royal Promenade</p>
+                                    <p>6:00 AM - 10:00 PM</p>
+                                    <p><strong>Cost:</strong> À la carte</p>
+                                 </div>
+                              </div>
+                              <!-- Pool Bar -->
+                              <div class="casual-card">
+                                 <div class="casual-card__icon">
+                                    <i class="fas fa-cocktail"></i>
+                                 </div>
+                                 <div class="casual-card__content">
+                                    <h4>Pool Bar & Grill</h4>
+                                    <p>Deck 11 • Main Pool</p>
+                                    <p>10:00 AM - 6:00 PM</p>
+                                    <p><strong>Cost:</strong> Drinks extra</p>
+                                 </div>
+                              </div>
+                              <!-- Vitality Café -->
+                              <div class="casual-card">
+                                 <div class="casual-card__icon">
+                                    <i class="fas fa-apple-alt"></i>
+                                 </div>
+                                 <div class="casual-card__content">
+                                    <h4>Vitality Café</h4>
+                                    <p>Deck 11 • Spa</p>
+                                    <p>7:00 AM - 7:00 PM</p>
+                                    <p><strong>Cost:</strong> Smoothies extra</p>
+                                 </div>
+                              </div>
+                              <!-- Room Service -->
+                              <div class="casual-card">
+                                 <div class="casual-card__icon">
+                                    <i class="fas fa-concierge-bell"></i>
+                                 </div>
+                                 <div class="casual-card__content">
+                                    <h4>Room Service</h4>
+                                    <p>24/7 to your stateroom</p>
+                                    <p>24 Hours</p>
+                                    <p><strong>Cost:</strong> $7.95 service fee</p>
+                                 </div>
+                              </div>
+                           </div>
                         </div>
-                    </div>
-
-                    <!-- Formal Nights -->
-                    <div class="sidebar-card">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-crown"></i>
-                            Formal Nights
-                        </h3>
-                        <div class="guest-list">
-                            <div class="detail-item">
-                                <i class="fas fa-calendar-day"></i>
-                                <div>
-                                    <strong>Day 2</strong>
-                                    <div class="text-light">At sea</div>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-calendar-day"></i>
-                                <div>
-                                    <strong>Day 5</strong>
-                                    <div class="text-light">At sea</div>
-                                </div>
-                            </div>
+                     </div>
+                  </div>
+                  <!-- Reservations -->
+                  <div class="dining-tab-content" id="reservations-tab" style="display: none;">
+                     <div class="card mb-8">
+                        <div class="card-header">
+                           <h2 class="card-title">Your Reservations</h2>
+                           <p class="card-subtitle">Manage and modify dining reservations</p>
                         </div>
-                        <p class="mt-4 text-secondary">Lobster served on second formal night!</p>
-                    </div>
-
-                    <!-- Dining Hours -->
-                    <div class="sidebar-card">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-clock"></i>
-                            Key Dining Hours
-                        </h3>
-                        <div class="guest-list">
-                            <div class="detail-item">
-                                <i class="fas fa-utensils"></i>
-                                <div>
-                                    <strong>Main Dining</strong>
-                                    <div class="text-light">5:30 PM - 9:00 PM</div>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-utensils"></i>
-                                <div>
-                                    <strong>Windjammer</strong>
-                                    <div class="text-light">6:30 AM - 9:00 PM</div>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-pizza-slice"></i>
-                                <div>
-                                    <strong>Sorrento's</strong>
-                                    <div class="text-light">11:00 AM - 3:00 AM</div>
-                                </div>
-                            </div>
+                        <div class="card-content">
+                           <div class="reservations-table">
+                              <div class="reservation-row reservation-row--header">
+                                 <div>Restaurant</div>
+                                 <div>Date</div>
+                                 <div>Time</div>
+                                 <div>Guests</div>
+                                 <div>Status</div>
+                                 <div>Actions</div>
+                              </div>
+                              <div class="reservation-row">
+                                 <div class="reservation-cell" data-label="Restaurant"><strong>Chops Grille</strong></div>
+                                 <div class="reservation-cell" data-label="Date">Day 5 (Feb 18)</div>
+                                 <div class="reservation-cell" data-label="Time">7:00 PM</div>
+                                 <div class="reservation-cell" data-label="Guests">8 guests</div>
+                                 <div class="reservation-cell" data-label="Status"><span class="status-badge status-confirmed">Confirmed</span></div>
+                                 <div class="reservation-cell" data-label="Actions">
+                                    <button class="btn btn-outline btn-sm" data-action="modify" data-reservation="chops">
+                                    <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-outline btn-sm" data-action="cancel" data-reservation="chops">
+                                    <i class="fas fa-times"></i>
+                                    </button>
+                                 </div>
+                              </div>
+                              <div class="reservation-row">
+                                 <div class="reservation-cell" data-label="Restaurant"><strong>Main Dining</strong></div>
+                                 <div class="reservation-cell" data-label="Date">Every night</div>
+                                 <div class="reservation-cell" data-label="Time">5:30 PM</div>
+                                 <div class="reservation-cell" data-label="Guests">14 guests</div>
+                                 <div class="reservation-cell" data-label="Status"><span class="status-badge status-confirmed">Assigned</span></div>
+                                 <div class="reservation-cell" data-label="Actions">
+                                    <button class="btn btn-outline btn-sm" data-action="info" data-reservation="main">
+                                    <i class="fas fa-info-circle"></i>
+                                    </button>
+                                 </div>
+                              </div>
+                              <div class="reservation-row">
+                                 <div class="reservation-cell" data-label="Restaurant"><strong>Chef's Table</strong></div>
+                                 <div class="reservation-cell" data-label="Date">Day 3</div>
+                                 <div class="reservation-cell" data-label="Time">7:00 PM</div>
+                                 <div class="reservation-cell" data-label="Guests">2 guests</div>
+                                 <div class="reservation-cell" data-label="Status"><span class="status-badge status-waitlist">Waitlist</span></div>
+                                 <div class="reservation-cell" data-label="Actions">
+                                    <button class="btn btn-outline btn-sm" data-action="waitlist" data-reservation="chefs">
+                                    <i class="fas fa-user-plus"></i>
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="quick-actions mt-4">
+                              <button class="btn btn-primary btn-block" id="makeNewReservationBtn">
+                              <i class="fas fa-plus"></i> Make New Reservation
+                              </button>
+                              <button class="btn btn-outline btn-block" id="refreshReservationsBtn">
+                              <i class="fas fa-sync-alt"></i> Refresh Status
+                              </button>
+                           </div>
                         </div>
-                    </div>
-
-                    <!-- Save & Print -->
-                    <div class="sidebar-card">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-download"></i>
-                            Save & Print
-                        </h3>
-                        <div class="quick-actions">
-                            <button class="btn btn-primary btn-block" id="printPlanBtn">
-                                <i class="fas fa-print"></i>
-                                Print Dining Plan
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="saveOfflineBtn">
-                                <i class="fas fa-download"></i>
-                                Save Offline
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="emailReservationsBtn">
-                                <i class="fas fa-envelope"></i>
-                                Email Reservations
-                            </button>
+                     </div>
+                  </div>
+                  <!-- Packages -->
+                  <div class="dining-tab-content" id="packages-tab" style="display: none;">
+                     <div class="card mb-8">
+                        <div class="card-header">
+                           <h2 class="card-title">Dining Packages</h2>
+                           <p class="card-subtitle">Save with pre-booked dining experiences</p>
                         </div>
-                    </div>
-                </aside>
-            </div>
-        </div>
-    </main>
-
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <span class="toast__message">Dining guide loaded! Make reservations early for best times. 🍽️</span>
-        <button class="toast__close" id="toastClose">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-
-    <!-- Floating Actions -->
-    <div class="floating-actions">
-        <button class="fab" id="quickReservationBtn" title="Quick reservation">
-            <i class="fas fa-calendar-plus"></i>
-        </button>
-        <button class="fab" id="viewCalendarBtn" title="View dining calendar">
-            <i class="fas fa-calendar-alt"></i>
-        </button>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-main">
-                <div class="footer-logo-section">
-                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Royal Caribbean International</h3>
-                    <p class="footer-tagline">World's Best Cruise Line • 14 Years Running</p>
-                </div>
-                
-                <div>
-                    <h4 class="footer-column-heading">Cruise Guide</h4>
-                    <ul class="footer-list">
-                        <li><a href="index.html">Dashboard</a></li>
-                        <li><a href="itinerary.html">Daily Schedule</a></li>
-                        <li><a href="operations.html">Checklist</a></li>
-                        <li><a href="rooms.html">Rooms</a></li>
-                        <li><a href="dining.html" style="color: white; font-weight: 600;">Royal Dining Guide</a></li>
-                        <li><a href="tips.html">Tips Guide</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="footer-column-heading">Dining Resources</h4>
-                    <ul class="footer-list">
-                        <li><a href="#specialty-tab">Specialty Dining</a></li>
-                        <li><a href="#included-tab">Complimentary Dining</a></li>
-                        <li><a href="#reservations-tab">Your Reservations</a></li>
-                        <li><a href="#packages-tab">Dining Packages</a></li>
-                        <li><a href="#">Royal Caribbean Menus</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="footer-column-heading">Need Help?</h4>
-                    <p style="margin-bottom: 0.5rem;">
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:1-866-562-7625" style="color: rgba(255, 255, 255, 0.8);">1-866-562-7625</a>
-                    </p>
-                    <p>
+                        <div class="card-content">
+                           <div class="packages-grid">
+                              <div class="package-card">
+                                 <h4>3-Night Dining Package</h4>
+                                 <div class="package-price">$109 pp</div>
+                                 <p>Any 3 specialty restaurants • Save 30% compared to individual bookings</p>
+                                 <button class="btn btn-outline btn-block mt-4" data-package="3-night">View Details</button>
+                              </div>
+                              <div class="package-card package-card--featured">
+                                 <h4>Unlimited Dining Package</h4>
+                                 <div class="package-price">$219 pp</div>
+                                 <p>Unlimited specialty dining • Includes lunch on sea days • Best value</p>
+                                 <button class="btn btn-secondary btn-block mt-4" data-package="unlimited">Purchase Now</button>
+                              </div>
+                              <div class="package-card">
+                                 <h4>Izumi Hibachi Experience</h4>
+                                 <div class="package-price">$45 pp</div>
+                                 <p>One hibachi dinner • Includes chef's performance • Sake pairing available</p>
+                                 <button class="btn btn-outline btn-block mt-4" data-package="izumi">View Details</button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="dining-shared-sections">
+                     <!-- Dietary Information -->
+                     <div class="card mb-8">
+                        <div class="card-header">
+                           <h2 class="card-title">Dietary Needs & Allergies</h2>
+                           <p class="card-subtitle">Special accommodations available</p>
+                        </div>
+                        <div class="card-content">
+                           <div class="dietary-grid">
+                              <div class="dietary-card">
+                                 <div class="dietary-icon">
+                                    <i class="fas fa-seedling"></i>
+                                 </div>
+                                 <div>
+                                    <h4>Vegetarian & Vegan</h4>
+                                    <p>Notify server for special menus. Available in all restaurants.</p>
+                                 </div>
+                              </div>
+                              <div class="dietary-card">
+                                 <div class="dietary-icon">
+                                    <i class="fas fa-bread-slice"></i>
+                                 </div>
+                                 <div>
+                                    <h4>Gluten-Free</h4>
+                                    <p>Pre-order meals 24 hours in advance. Dedicated preparation area.</p>
+                                 </div>
+                              </div>
+                              <div class="dietary-card">
+                                 <div class="dietary-icon">
+                                    <i class="fas fa-pepper-hot"></i>
+                                 </div>
+                                 <div>
+                                    <h4>Food Allergies</h4>
+                                    <p>Inform dining staff. Chefs can prepare separate meals.</p>
+                                 </div>
+                              </div>
+                              <div class="dietary-card">
+                                 <div class="dietary-icon">
+                                    <i class="fas fa-star-of-life"></i>
+                                 </div>
+                                 <div>
+                                    <h4>Special Requests</h4>
+                                    <p>Contact head waiter. Kosher/Halal meals available with notice.</p>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <!-- Dress Code -->
+                     <div class="card mb-8">
+                        <div class="card-header">
+                           <h2 class="card-title">Dress Code Guide</h2>
+                           <p class="card-subtitle">What to wear for each dining occasion</p>
+                        </div>
+                        <div class="card-content">
+                           <div class="dress-code-grid">
+                              <div class="dress-code-item">
+                                 <div class="dress-code-badge badge-casual">Casual</div>
+                                 <p><strong>Most nights</strong></p>
+                                 <p>Resort wear, sundresses, polo shirts, khakis, nice jeans</p>
+                              </div>
+                              <div class="dress-code-item">
+                                 <div class="dress-code-badge badge-smart">Smart Casual</div>
+                                 <p><strong>Specialty restaurants</strong></p>
+                                 <p>Dress pants, blouses, jackets, cocktail dresses</p>
+                              </div>
+                              <div class="dress-code-item">
+                                 <div class="dress-code-badge badge-formal">Formal</div>
+                                 <p><strong>Day 2 & 5</strong></p>
+                                 <p>Suits, tuxedos, cocktail dresses, gowns</p>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <!-- Important Notes -->
+                     <div class="note">
+                        <h4><i class="fas fa-info-circle"></i> Important Dining Information</h4>
+                        <ul>
+                           <li><strong>Reservations:</strong> Specialty dining can be booked via Royal app, cabin TV, or restaurant podium</li>
+                           <li><strong>Cancellation:</strong> 24-hour policy for specialty restaurants to avoid charges</li>
+                           <li><strong>Formal Nights:</strong> Professional photography available throughout ship on Day 2 & 5</li>
+                           <li><strong>Gratuities:</strong> Included in specialty dining packages, additional tipping at discretion</li>
+                           <li><strong>Children:</strong> Kids' menus available. Under 5 eat free from kids' menu</li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+               <!-- Sidebar -->
+               <aside class="sidebar">
+                  <!-- Quick Actions -->
+                  <div class="sidebar-card sidebar-card--highlight">
+                     <h3 class="sidebar-card__title">
+                        <i class="fas fa-bolt"></i>
+                        Quick Actions
+                     </h3>
+                     <div class="quick-actions">
+                        <button class="btn btn-primary btn-block" id="viewMenusBtn">
+                        <i class="fas fa-book-open"></i>
+                        View Menus
+                        </button>
+                        <button class="btn btn-primary btn-block mt-2" id="bookSpecialtyBtn">
+                        <i class="fas fa-star"></i>
+                        Book Specialty
+                        </button>
+                        <button class="btn btn-primary btn-block mt-2" id="contactMaitreDBtn">
+                        <i class="fas fa-user-tie"></i>
+                        Contact Maître D'
+                        </button>
+                     </div>
+                  </div>
+                  <!-- Formal Nights -->
+                  <div class="sidebar-card">
+                     <h3 class="sidebar-card__title">
+                        <i class="fas fa-crown"></i>
+                        Formal Nights
+                     </h3>
+                     <div class="guest-list">
+                        <div class="detail-item">
+                           <i class="fas fa-calendar-day"></i>
+                           <div>
+                              <strong>Day 2</strong>
+                              <div class="text-light">At sea</div>
+                           </div>
+                        </div>
+                        <div class="detail-item">
+                           <i class="fas fa-calendar-day"></i>
+                           <div>
+                              <strong>Day 5</strong>
+                              <div class="text-light">At sea</div>
+                           </div>
+                        </div>
+                     </div>
+                     <p class="mt-4 text-secondary">Lobster served on second formal night!</p>
+                  </div>
+                  <!-- Dining Hours -->
+                  <div class="sidebar-card">
+                     <h3 class="sidebar-card__title">
+                        <i class="fas fa-clock"></i>
+                        Key Dining Hours
+                     </h3>
+                     <div class="guest-list">
+                        <div class="detail-item">
+                           <i class="fas fa-utensils"></i>
+                           <div>
+                              <strong>Main Dining</strong>
+                              <div class="text-light">5:30 PM - 9:00 PM</div>
+                           </div>
+                        </div>
+                        <div class="detail-item">
+                           <i class="fas fa-utensils"></i>
+                           <div>
+                              <strong>Windjammer</strong>
+                              <div class="text-light">6:30 AM - 9:00 PM</div>
+                           </div>
+                        </div>
+                        <div class="detail-item">
+                           <i class="fas fa-pizza-slice"></i>
+                           <div>
+                              <strong>Sorrento's</strong>
+                              <div class="text-light">11:00 AM - 3:00 AM</div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- Save & Print -->
+                  <div class="sidebar-card">
+                     <h3 class="sidebar-card__title">
+                        <i class="fas fa-download"></i>
+                        Save & Print
+                     </h3>
+                     <div class="quick-actions">
+                        <button class="btn btn-primary btn-block" id="printPlanBtn">
+                        <i class="fas fa-print"></i>
+                        Print Dining Plan
+                        </button>
+                        <button class="btn btn-primary btn-block mt-2" id="saveOfflineBtn">
+                        <i class="fas fa-download"></i>
+                        Save Offline
+                        </button>
+                        <button class="btn btn-primary btn-block mt-2" id="emailReservationsBtn">
                         <i class="fas fa-envelope"></i>
-                        <a href="mailto:guestservices@royalcaribbean.com" style="color: rgba(255, 255, 255, 0.8);">guestservices@royalcaribbean.com</a>
-                    </p>
-                </div>
+                        Email Reservations
+                        </button>
+                     </div>
+                  </div>
+               </aside>
             </div>
-            
+         </div>
+      </main>
+      <!-- Toast Notification -->
+      <div class="toast" id="toast">
+         <span class="toast__message">Dining guide loaded! Make reservations early for best times. 🍽️</span>
+         <button class="toast__close" id="toastClose">
+         <i class="fas fa-times"></i>
+         </button>
+      </div>
+      <!-- Floating Actions -->
+      <div class="floating-actions">
+         <button class="fab" id="quickReservationBtn" title="Quick reservation">
+         <i class="fas fa-calendar-plus"></i>
+         </button>
+         <button class="fab" id="viewCalendarBtn" title="View dining calendar">
+         <i class="fas fa-calendar-alt"></i>
+         </button>
+      </div>
+      <!-- Footer -->
+      <footer class="footer">
+         <div class="container">
+            <div class="footer-main">
+               <div class="footer-logo-section">
+                  <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Royal Caribbean International</h3>
+                  <p class="footer-tagline">World's Best Cruise Line • 14 Years Running</p>
+               </div>
+               <div>
+                  <h4 class="footer-column-heading">Cruise Guide</h4>
+                  <ul class="footer-list">
+                     <li><a href="index.html">Dashboard</a></li>
+                     <li><a href="itinerary.html">Daily Schedule</a></li>
+                     <li><a href="operations.html">Checklist</a></li>
+                     <li><a href="rooms.html">Rooms</a></li>
+                     <li><a href="dining.html" style="color: white; font-weight: 600;">Royal Dining Guide</a></li>
+                     <li><a href="tips.html">Tips Guide</a></li>
+                  </ul>
+               </div>
+               <div>
+                  <h4 class="footer-column-heading">Dining Resources</h4>
+                  <ul class="footer-list">
+                     <li><a href="#specialty-tab">Specialty Dining</a></li>
+                     <li><a href="#included-tab">Complimentary Dining</a></li>
+                     <li><a href="#reservations-tab">Your Reservations</a></li>
+                     <li><a href="#packages-tab">Dining Packages</a></li>
+                     <li><a href="#">Royal Caribbean Menus</a></li>
+                  </ul>
+               </div>
+               <div>
+                  <h4 class="footer-column-heading">Need Help?</h4>
+                  <p style="margin-bottom: 0.5rem;">
+                     <i class="fas fa-phone"></i>
+                     <a href="tel:1-866-562-7625" style="color: rgba(255, 255, 255, 0.8);">1-866-562-7625</a>
+                  </p>
+                  <p>
+                     <i class="fas fa-envelope"></i>
+                     <a href="mailto:guestservices@royalcaribbean.com" style="color: rgba(255, 255, 255, 0.8);">guestservices@royalcaribbean.com</a>
+                  </p>
+               </div>
+            </div>
             <div class="footer-disclaimer">
-                <div class="legal-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Use</a>
-                    <a href="#">Health & Safety</a>
-                    <a href="#">Accessibility</a>
-                </div>
-                <p class="mt-2">© 2026 Royal Caribbean International. Ships' Registry: The Bahamas. All dining, entertainment, and shore excursions are subject to change.</p>
-                <p class="mt-2">ADVENTURE OF THE SEAS® • VOYAGER CLASS • AMPLIFIED 2018</p>
+               <div class="legal-links">
+                  <a href="#">Privacy Policy</a>
+                  <a href="#">Terms of Use</a>
+                  <a href="#">Health & Safety</a>
+                  <a href="#">Accessibility</a>
+               </div>
+               <p class="mt-2">© 2026 Royal Caribbean International. Ships' Registry: The Bahamas. All dining, entertainment, and shore excursions are subject to change.</p>
+               <p class="mt-2">ADVENTURE OF THE SEAS® • VOYAGER CLASS • AMPLIFIED 2018</p>
             </div>
-        </div>
-    </footer>
-
-    <!-- Mobile Navigation -->
-        <nav class="mobile-nav">
-        <a href="index.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-home"></i></span><span>Home</span></a>
-        <a href="itinerary.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-route"></i></span><span>Schedule</span></a>
-        <a href="operations.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span><span>Checklist</span></a>
-        <a href="rooms.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-bed"></i></span><span>Rooms</span></a>
-        <a href="decks.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-map"></i></span><span>Decks</span></a>
-        <a href="dining.html" class="mobile-nav-item active"><span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span><span>Dining</span></a>
-        <a href="tips.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></span><span>Tips</span></a>
-    </nav>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show toast notification
-            const toast = document.getElementById('toast');
-            const toastClose = document.getElementById('toastClose');
-            
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 1000);
-            
-            toastClose.addEventListener('click', () => {
-                toast.classList.remove('show');
-            });
-            
-            // Tab functionality
-            const tabs = document.querySelectorAll('.dining-tab');
-            const tabContents = document.querySelectorAll('.dining-tab-content');
-
-            function activateDiningTab(tabId) {
-                tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabId));
-                tabContents.forEach(content => {
-                    content.style.display = content.id === `${tabId}-tab` ? 'block' : 'none';
-                });
-            }
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    activateDiningTab(this.getAttribute('data-tab'));
-                });
-            });
-
-            // Dining map interactions
-            const mapTooltip = document.getElementById('mapTooltip');
-            const mapWrap = document.querySelector('.deck-map-wrap');
-            const hotspots = document.querySelectorAll('.map-hotspot');
-
-            function moveTooltip(evt) {
-                if (!mapTooltip || !mapWrap) return;
-                const box = mapWrap.getBoundingClientRect();
-                mapTooltip.style.left = `${evt.clientX - box.left}px`;
-                mapTooltip.style.top = `${evt.clientY - box.top}px`;
-            }
-
-            hotspots.forEach(hotspot => {
-                const targetId = hotspot.getAttribute('data-target');
-                const targetTab = hotspot.getAttribute('data-tab');
-                const tooltipText = hotspot.getAttribute('data-tooltip');
-
-                const openTarget = () => {
-                    if (targetTab) activateDiningTab(targetTab);
-                    const targetEl = document.getElementById(targetId);
-                    if (targetEl) {
-                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        targetEl.style.boxShadow = '0 0 0 3px rgba(0, 163, 224, 0.35)';
-                        setTimeout(() => { targetEl.style.boxShadow = ''; }, 1200);
-                    }
-                };
-
-                hotspot.addEventListener('click', openTarget);
-                hotspot.addEventListener('keydown', (evt) => {
-                    if (evt.key === 'Enter' || evt.key === ' ') {
-                        evt.preventDefault();
-                        openTarget();
-                    }
-                });
-
-                hotspot.addEventListener('mousemove', (evt) => {
-                    if (mapTooltip && tooltipText) {
-                        mapTooltip.textContent = tooltipText;
-                        mapTooltip.classList.add('visible');
-                        moveTooltip(evt);
-                    }
-                });
-                hotspot.addEventListener('focus', () => {
-                    if (mapTooltip && tooltipText) {
-                        mapTooltip.textContent = tooltipText;
-                        mapTooltip.classList.add('visible');
-                    }
-                });
-                hotspot.addEventListener('mouseleave', () => mapTooltip?.classList.remove('visible'));
-                hotspot.addEventListener('blur', () => mapTooltip?.classList.remove('visible'));
-            });
-            
-            // Print functionality
-            const printButtons = ['printDiningBtn', 'printPlanBtn'];
-            printButtons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', function() {
-                        if (window.innerWidth < 768) {
-                            showToast('Print option selected. On mobile, use browser share → Print.');
-                        } else {
-                            window.print();
-                        }
-                    });
-                }
-            });
-            
-            // Save offline functionality
-            const saveButtons = ['saveOfflineBtn'];
-            saveButtons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', function() {
-                        this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                        this.style.background = 'var(--rc-success)';
-                        
-                        setTimeout(() => {
-                            this.innerHTML = '<i class="fas fa-download"></i> Save Offline';
-                            this.style.background = '';
-                        }, 2000);
-                        
-                        showToast('Dining guide saved offline!');
-                    });
-                }
-            });
-            
-            // Email functionality
-            const emailBtn = document.getElementById('emailReservationsBtn');
-            if (emailBtn) {
-                emailBtn.addEventListener('click', function() {
-                    const email = 'mailto:?subject=Royal Caribbean Dining Reservations&body=Check out our dining reservations! ' + encodeURIComponent(window.location.href);
-                    window.location.href = email;
-                });
-            }
-            
-            // Restaurant booking functionality
-            const bookButtons = document.querySelectorAll('[data-action="book"]');
-            bookButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const restaurant = this.getAttribute('data-restaurant');
-                    showToast(`Opening reservation for ${restaurant}...`);
-                    
-                    // Simulate booking animation
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
-                    this.disabled = true;
-                    
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-check"></i> Booked!';
-                        this.style.background = 'var(--rc-success)';
-                        this.style.borderColor = 'var(--rc-success)';
-                        this.style.color = 'white';
-                        
-                        // Update status badge
-                        const statusBadge = this.closest('.restaurant-card__actions').querySelector('.status-badge');
-                        if (statusBadge) {
-                            statusBadge.className = 'status-badge status-confirmed';
-                            statusBadge.innerHTML = '<i class="fas fa-check"></i> Booked';
-                        }
-                        
-                        setTimeout(() => {
-                            this.innerHTML = '<i class="fas fa-plus"></i> Book';
-                            this.disabled = false;
-                            this.style.background = '';
-                            this.style.borderColor = '';
-                            this.style.color = '';
-                        }, 2000);
-                    }, 1500);
-                });
-            });
-            
-            // Modify reservation buttons
-            const modifyButtons = document.querySelectorAll('[data-action="modify"]');
-            modifyButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const restaurant = this.getAttribute('data-restaurant') || 
-                                     this.closest('.reservation-row')?.querySelector('strong')?.textContent ||
-                                     'Unknown Restaurant';
-                    showToast(`Opening modification for ${restaurant} reservation...`);
-                });
-            });
-            
-            // Cancel reservation buttons
-            const cancelButtons = document.querySelectorAll('[data-action="cancel"]');
-            cancelButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to cancel this reservation?\n\nCancellations within 24 hours may incur charges.')) {
-                        const row = this.closest('.reservation-row');
-                        row.style.opacity = '0.5';
-                        row.style.textDecoration = 'line-through';
-                        
-                        setTimeout(() => {
-                            row.remove();
-                            showToast('Reservation cancelled successfully.');
-                        }, 500);
-                    }
-                });
-            });
-            
-            // Waitlist buttons
-            const waitlistButtons = document.querySelectorAll('[data-action="waitlist"]');
-            waitlistButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const restaurant = this.getAttribute('data-restaurant') || 'Chef\'s Table';
-                    showToast(`Added to waitlist for ${restaurant}. You'll be notified if a spot opens.`);
-                    
-                    this.innerHTML = '<i class="fas fa-user-clock"></i> On Waitlist';
-                    this.disabled = true;
-                });
-            });
-            
-            // Package buttons
-            const packageButtons = document.querySelectorAll('[data-package]');
-            packageButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const package = this.getAttribute('data-package');
-                    let message = '';
-                    
-                    switch(package) {
-                        case '3-night':
-                            message = '3-Night Dining Package\n\n• Any 3 specialty restaurants\n• Save 30% vs individual bookings\n• Can be used on any nights';
-                            break;
-                        case 'unlimited':
-                            message = 'Unlimited Dining Package\n\n• All specialty restaurants\n• Lunch included on sea days\n• 40% savings\n• Best for food enthusiasts';
-                            break;
-                        case 'izumi':
-                            message = 'Izumi Hibachi Experience\n\n• One hibachi dinner\n• Chef\'s performance included\n• Sake pairing available';
-                            break;
-                    }
-                    
-                    if (message) showToast(message);
-                });
-            });
-            
-            // Main action buttons
-            const actionButtons = {
-                'makeReservationBtn': 'Opening reservation system...',
-                'makeNewReservationBtn': 'Opening new reservation form...',
-                'viewMenusBtn': 'Opening sample menus...',
-                'bookSpecialtyBtn': 'Browsing specialty restaurants...',
-                'contactMaitreDBtn': 'Contact Maître D\' Information:\n\n• Visit: American Icon Grill, Deck 4\n• Hours: 5:00 PM - 6:00 PM daily\n• Phone: Ext. 7000 from cabin',
-                'refreshReservationsBtn': 'Refreshing reservation status...'
-            };
-            
-            Object.keys(actionButtons).forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', function() {
-                        showToast(actionButtons[id]);
-                    });
-                }
-            });
-            
-            // Floating action buttons
-            document.getElementById('quickReservationBtn').addEventListener('click', function() {
-                showToast('Quick reservation: Browse available times for tonight.');
-            });
-            
-            document.getElementById('viewCalendarBtn').addEventListener('click', function() {
-                showToast('Opening dining calendar for the week...');
-            });
-            
-            // Show toast helper
-            function showToast(message) {
-                const toast = document.getElementById('toast');
-                const toastMessage = toast.querySelector('.toast__message');
-                
-                toastMessage.textContent = message;
-                toast.classList.add('show');
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Add animations to cards
-            const cards = document.querySelectorAll('.restaurant-card, .casual-card, .package-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-                
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-4px)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-            
-            // Initialize with specialty dining visible
-            activateDiningTab('specialty');
-        });
-    </script>
-    <script src="service-worker-registration.js" defer></script>
-</body>
+         </div>
+      </footer>
+      <!-- Mobile Navigation -->
+      <nav class="mobile-nav">
+         <a href="index.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-home"></i></span><span>Home</span></a>
+         <a href="itinerary.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-route"></i></span><span>Schedule</span></a>
+         <a href="operations.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span><span>Checklist</span></a>
+         <a href="rooms.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-bed"></i></span><span>Rooms</span></a>
+         <a href="decks.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-map"></i></span><span>Decks</span></a>
+         <a href="dining.html" class="mobile-nav-item active"><span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span><span>Dining</span></a>
+         <a href="tips.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></span><span>Tips</span></a>
+      </nav>
+      <script>
+         document.addEventListener('DOMContentLoaded', function() {
+             // Show toast notification
+             const toast = document.getElementById('toast');
+             const toastClose = document.getElementById('toastClose');
+             
+             setTimeout(() => {
+                 toast.classList.add('show');
+             }, 1000);
+             
+             toastClose.addEventListener('click', () => {
+                 toast.classList.remove('show');
+             });
+             
+             // Tab functionality
+             const tabs = document.querySelectorAll('.dining-tab');
+             const tabContents = document.querySelectorAll('.dining-tab-content');
+         
+             function activateDiningTab(tabId) {
+                 tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabId));
+                 tabContents.forEach(content => {
+                     content.style.display = content.id === `${tabId}-tab` ? 'block' : 'none';
+                 });
+             }
+         
+             tabs.forEach(tab => {
+                 tab.addEventListener('click', function() {
+                     activateDiningTab(this.getAttribute('data-tab'));
+                 });
+             });
+         
+             // Dining map interactions
+             const mapTooltip = document.getElementById('mapTooltip');
+             const mapWrap = document.querySelector('.deck-map-wrap');
+             const hotspots = document.querySelectorAll('.map-hotspot');
+         
+             function moveTooltip(evt) {
+                 if (!mapTooltip || !mapWrap) return;
+                 const box = mapWrap.getBoundingClientRect();
+                 mapTooltip.style.left = `${evt.clientX - box.left}px`;
+                 mapTooltip.style.top = `${evt.clientY - box.top}px`;
+             }
+         
+             hotspots.forEach(hotspot => {
+                 const targetId = hotspot.getAttribute('data-target');
+                 const targetTab = hotspot.getAttribute('data-tab');
+                 const tooltipText = hotspot.getAttribute('data-tooltip');
+         
+                 const openTarget = () => {
+                     if (targetTab) activateDiningTab(targetTab);
+                     const targetEl = document.getElementById(targetId);
+                     if (targetEl) {
+                         targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                         targetEl.style.boxShadow = '0 0 0 3px rgba(0, 163, 224, 0.35)';
+                         setTimeout(() => { targetEl.style.boxShadow = ''; }, 1200);
+                     }
+                 };
+         
+                 hotspot.addEventListener('click', openTarget);
+                 hotspot.addEventListener('keydown', (evt) => {
+                     if (evt.key === 'Enter' || evt.key === ' ') {
+                         evt.preventDefault();
+                         openTarget();
+                     }
+                 });
+         
+                 hotspot.addEventListener('mousemove', (evt) => {
+                     if (mapTooltip && tooltipText) {
+                         mapTooltip.textContent = tooltipText;
+                         mapTooltip.classList.add('visible');
+                         moveTooltip(evt);
+                     }
+                 });
+                 hotspot.addEventListener('focus', () => {
+                     if (mapTooltip && tooltipText) {
+                         mapTooltip.textContent = tooltipText;
+                         mapTooltip.classList.add('visible');
+                     }
+                 });
+                 hotspot.addEventListener('mouseleave', () => mapTooltip?.classList.remove('visible'));
+                 hotspot.addEventListener('blur', () => mapTooltip?.classList.remove('visible'));
+             });
+             
+             // Print functionality
+             const printButtons = ['printDiningBtn', 'printPlanBtn'];
+             printButtons.forEach(id => {
+                 const btn = document.getElementById(id);
+                 if (btn) {
+                     btn.addEventListener('click', function() {
+                         if (window.innerWidth < 768) {
+                             showToast('Print option selected. On mobile, use browser share → Print.');
+                         } else {
+                             window.print();
+                         }
+                     });
+                 }
+             });
+             
+             // Save offline functionality
+             const saveButtons = ['saveOfflineBtn'];
+             saveButtons.forEach(id => {
+                 const btn = document.getElementById(id);
+                 if (btn) {
+                     btn.addEventListener('click', function() {
+                         this.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                         this.style.background = 'var(--rc-success)';
+                         
+                         setTimeout(() => {
+                             this.innerHTML = '<i class="fas fa-download"></i> Save Offline';
+                             this.style.background = '';
+                         }, 2000);
+                         
+                         showToast('Dining guide saved offline!');
+                     });
+                 }
+             });
+             
+             // Email functionality
+             const emailBtn = document.getElementById('emailReservationsBtn');
+             if (emailBtn) {
+                 emailBtn.addEventListener('click', function() {
+                     const email = 'mailto:?subject=Royal Caribbean Dining Reservations&body=Check out our dining reservations! ' + encodeURIComponent(window.location.href);
+                     window.location.href = email;
+                 });
+             }
+             
+             // Restaurant booking functionality
+             const bookButtons = document.querySelectorAll('[data-action="book"]');
+             bookButtons.forEach(button => {
+                 button.addEventListener('click', function() {
+                     const restaurant = this.getAttribute('data-restaurant');
+                     showToast(`Opening reservation for ${restaurant}...`);
+                     
+                     // Simulate booking animation
+                     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
+                     this.disabled = true;
+                     
+                     setTimeout(() => {
+                         this.innerHTML = '<i class="fas fa-check"></i> Booked!';
+                         this.style.background = 'var(--rc-success)';
+                         this.style.borderColor = 'var(--rc-success)';
+                         this.style.color = 'white';
+                         
+                         // Update status badge
+                         const statusBadge = this.closest('.restaurant-card__actions').querySelector('.status-badge');
+                         if (statusBadge) {
+                             statusBadge.className = 'status-badge status-confirmed';
+                             statusBadge.innerHTML = '<i class="fas fa-check"></i> Booked';
+                         }
+                         
+                         setTimeout(() => {
+                             this.innerHTML = '<i class="fas fa-plus"></i> Book';
+                             this.disabled = false;
+                             this.style.background = '';
+                             this.style.borderColor = '';
+                             this.style.color = '';
+                         }, 2000);
+                     }, 1500);
+                 });
+             });
+             
+             // Modify reservation buttons
+             const modifyButtons = document.querySelectorAll('[data-action="modify"]');
+             modifyButtons.forEach(button => {
+                 button.addEventListener('click', function() {
+                     const restaurant = this.getAttribute('data-restaurant') || 
+                                      this.closest('.reservation-row')?.querySelector('strong')?.textContent ||
+                                      'Unknown Restaurant';
+                     showToast(`Opening modification for ${restaurant} reservation...`);
+                 });
+             });
+             
+             // Cancel reservation buttons
+             const cancelButtons = document.querySelectorAll('[data-action="cancel"]');
+             cancelButtons.forEach(button => {
+                 button.addEventListener('click', function() {
+                     if (confirm('Are you sure you want to cancel this reservation?\n\nCancellations within 24 hours may incur charges.')) {
+                         const row = this.closest('.reservation-row');
+                         row.style.opacity = '0.5';
+                         row.style.textDecoration = 'line-through';
+                         
+                         setTimeout(() => {
+                             row.remove();
+                             showToast('Reservation cancelled successfully.');
+                         }, 500);
+                     }
+                 });
+             });
+             
+             // Waitlist buttons
+             const waitlistButtons = document.querySelectorAll('[data-action="waitlist"]');
+             waitlistButtons.forEach(button => {
+                 button.addEventListener('click', function() {
+                     const restaurant = this.getAttribute('data-restaurant') || 'Chef\'s Table';
+                     showToast(`Added to waitlist for ${restaurant}. You'll be notified if a spot opens.`);
+                     
+                     this.innerHTML = '<i class="fas fa-user-clock"></i> On Waitlist';
+                     this.disabled = true;
+                 });
+             });
+             
+             // Package buttons
+             const packageButtons = document.querySelectorAll('[data-package]');
+             packageButtons.forEach(button => {
+                 button.addEventListener('click', function() {
+                     const package = this.getAttribute('data-package');
+                     let message = '';
+                     
+                     switch(package) {
+                         case '3-night':
+                             message = '3-Night Dining Package\n\n• Any 3 specialty restaurants\n• Save 30% vs individual bookings\n• Can be used on any nights';
+                             break;
+                         case 'unlimited':
+                             message = 'Unlimited Dining Package\n\n• All specialty restaurants\n• Lunch included on sea days\n• 40% savings\n• Best for food enthusiasts';
+                             break;
+                         case 'izumi':
+                             message = 'Izumi Hibachi Experience\n\n• One hibachi dinner\n• Chef\'s performance included\n• Sake pairing available';
+                             break;
+                     }
+                     
+                     if (message) showToast(message);
+                 });
+             });
+             
+             // Main action buttons
+             const actionButtons = {
+                 'makeReservationBtn': 'Opening reservation system...',
+                 'makeNewReservationBtn': 'Opening new reservation form...',
+                 'viewMenusBtn': 'Opening sample menus...',
+                 'bookSpecialtyBtn': 'Browsing specialty restaurants...',
+                 'contactMaitreDBtn': 'Contact Maître D\' Information:\n\n• Visit: American Icon Grill, Deck 4\n• Hours: 5:00 PM - 6:00 PM daily\n• Phone: Ext. 7000 from cabin',
+                 'refreshReservationsBtn': 'Refreshing reservation status...'
+             };
+             
+             Object.keys(actionButtons).forEach(id => {
+                 const btn = document.getElementById(id);
+                 if (btn) {
+                     btn.addEventListener('click', function() {
+                         showToast(actionButtons[id]);
+                     });
+                 }
+             });
+             
+             // Floating action buttons
+             document.getElementById('quickReservationBtn').addEventListener('click', function() {
+                 showToast('Quick reservation: Browse available times for tonight.');
+             });
+             
+             document.getElementById('viewCalendarBtn').addEventListener('click', function() {
+                 showToast('Opening dining calendar for the week...');
+             });
+             
+             // Show toast helper
+             function showToast(message) {
+                 const toast = document.getElementById('toast');
+                 const toastMessage = toast.querySelector('.toast__message');
+                 
+                 toastMessage.textContent = message;
+                 toast.classList.add('show');
+                 
+                 setTimeout(() => {
+                     toast.classList.remove('show');
+                 }, 3000);
+             }
+             
+             // Add animations to cards
+             const cards = document.querySelectorAll('.restaurant-card, .casual-card, .package-card');
+             cards.forEach((card, index) => {
+                 card.style.animationDelay = `${index * 0.1}s`;
+                 
+                 card.addEventListener('mouseenter', function() {
+                     this.style.transform = 'translateY(-4px)';
+                 });
+                 
+                 card.addEventListener('mouseleave', function() {
+                     this.style.transform = 'translateY(0)';
+                 });
+             });
+             
+             // Initialize with specialty dining visible
+             activateDiningTab('specialty');
+         });
+      </script>
+      <script src="service-worker-registration.js" defer></script>
+   </body>
 </html>
