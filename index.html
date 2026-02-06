@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="theme-color" content="#1a365d">
+    <meta name="description" content="Plan your Adventure of the Seas voyage with countdowns, critical tasks, itinerary highlights, dining, weather, and stateroom details in one dashboard.">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.svg">
     <title>Caribbean Cruise Dashboard | Adventure of the Seas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -82,6 +85,25 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 1rem;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 1rem;
+            z-index: 3000;
+            background: var(--rc-white);
+            color: var(--rc-primary);
+            border: 2px solid var(--rc-primary);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .skip-link:focus {
+            top: 1rem;
         }
         
         /* === IMPROVED LAYOUT STRUCTURE === */
@@ -690,6 +712,18 @@
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 0.75rem;
         }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 1200px) {
+            .content-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
         
         /* === IMPROVED FOOTER === */
         .footer {
@@ -895,6 +929,7 @@
     </style>
 </head>
 <body>
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
     <!-- Header -->
     <header class="header">
         <div class="container">
@@ -934,7 +969,7 @@
                     </a>
                 </nav>
                 
-                <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+                <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -962,7 +997,7 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
         <div class="container">
             <div class="mobile-menu-header">
                 <div class="logo">
@@ -1005,7 +1040,7 @@
         </div>
     </div>
 
-    <div class="container">
+    <main class="container" id="mainContent">
         <!-- Alert Banner -->
         <div class="alert-banner mb-3">
             <div class="alert-content">
@@ -1082,7 +1117,7 @@
                 </div>
 
                 <!-- Next Port & Dining Row -->
-                <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+                <div class="content-grid">
                     <div class="card port-card">
                         <div class="card-header">
                             <h3 class="card-title">
@@ -1169,7 +1204,7 @@
                 </div>
 
                 <!-- Weather & Tips Row -->
-                <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+                <div class="content-grid">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">
@@ -1453,7 +1488,7 @@
                 <p class="mt-1">ADVENTURE OF THE SEAS® • VOYAGER CLASS • AMPLIFIED 2018</p>
             </div>
         </footer>
-    </div>
+    </main>
 
     <!-- Mobile Navigation -->
         <nav class="mobile-nav">
@@ -1475,11 +1510,15 @@
             
             menuToggle.addEventListener('click', () => {
                 mobileMenu.classList.add('active');
+                mobileMenu.setAttribute('aria-hidden', 'false');
+                menuToggle.setAttribute('aria-expanded', 'true');
                 document.body.style.overflow = 'hidden';
             });
             
             closeMenu.addEventListener('click', () => {
                 mobileMenu.classList.remove('active');
+                mobileMenu.setAttribute('aria-hidden', 'true');
+                menuToggle.setAttribute('aria-expanded', 'false');
                 document.body.style.overflow = '';
             });
             
@@ -1487,6 +1526,17 @@
             mobileMenu.addEventListener('click', (e) => {
                 if (e.target === mobileMenu) {
                     mobileMenu.classList.remove('active');
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && mobileMenu.classList.contains('active')) {
+                    mobileMenu.classList.remove('active');
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                    menuToggle.setAttribute('aria-expanded', 'false');
                     document.body.style.overflow = '';
                 }
             });
@@ -1537,6 +1587,8 @@
             window.addEventListener('resize', () => {
                 if (window.innerWidth >= 768 && mobileMenu.classList.contains('active')) {
                     mobileMenu.classList.remove('active');
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                    menuToggle.setAttribute('aria-expanded', 'false');
                     document.body.style.overflow = '';
                 }
             });
