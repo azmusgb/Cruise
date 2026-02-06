@@ -144,6 +144,7 @@
             padding: 1rem 0;
             margin: 1rem 0;
             -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x proximity;
         }
         
         .deck-nav::-webkit-scrollbar {
@@ -172,6 +173,7 @@
             cursor: pointer;
             transition: var(--transition);
             white-space: nowrap;
+            scroll-snap-align: start;
         }
         
         .deck-btn:hover {
@@ -183,6 +185,61 @@
             background: var(--rc-blue);
             color: white;
             border-color: var(--rc-blue);
+        }
+
+        .deck-btn:focus-visible,
+        .btn:focus-visible,
+        .modal-close:focus-visible,
+        .search-input:focus-visible {
+            outline: 3px solid rgba(2, 132, 199, 0.35);
+            outline-offset: 2px;
+        }
+
+        .deck-controls {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .deck-controls {
+                grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+                align-items: center;
+            }
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .search-input {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.7rem 0.8rem 0.7rem 2.4rem;
+            font: inherit;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+        }
+
+        .results-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            text-align: right;
         }
         
         /* Deck Info Grid */
@@ -310,6 +367,14 @@
         
         .deck-plan-card:hover .deck-plan-overlay {
             opacity: 1;
+        }
+
+        .deck-plan-card:focus-within .deck-plan-overlay {
+            opacity: 1;
+        }
+
+        .deck-plan-card[hidden] {
+            display: none !important;
         }
         
         .deck-plan-actions {
@@ -564,6 +629,33 @@
             height: auto;
             border-radius: var(--radius-sm);
         }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            margin: -1px;
+            border: 0;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+        }
+
+        .empty-state {
+            text-align: center;
+            background: white;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 2rem 1rem;
+            color: var(--text-secondary);
+            margin: 1rem 0 2rem;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+        }
         
         /* Utility Classes */
         .mt-2 { margin-top: 0.5rem; }
@@ -647,24 +739,33 @@
     <main class="container">
         <!-- Deck Navigation -->
         <div class="deck-nav">
-            <button class="deck-btn active" data-deck="all">
+            <button class="deck-btn active" data-deck="all" aria-pressed="true">
                 <i class="fas fa-layer-group"></i> All Decks
             </button>
-            <button class="deck-btn" data-deck="cabins">
+            <button class="deck-btn" data-deck="cabins" aria-pressed="false">
                 <i class="fas fa-bed"></i> Cabin Decks
             </button>
-            <button class="deck-btn" data-deck="dining">
+            <button class="deck-btn" data-deck="dining" aria-pressed="false">
                 <i class="fas fa-utensils"></i> Dining Decks
             </button>
-            <button class="deck-btn" data-deck="entertainment">
+            <button class="deck-btn" data-deck="entertainment" aria-pressed="false">
                 <i class="fas fa-theater-masks"></i> Entertainment
             </button>
-            <button class="deck-btn" data-deck="recreation">
+            <button class="deck-btn" data-deck="recreation" aria-pressed="false">
                 <i class="fas fa-swimming-pool"></i> Recreation
             </button>
-            <button class="deck-btn" data-deck="services">
+            <button class="deck-btn" data-deck="services" aria-pressed="false">
                 <i class="fas fa-concierge-bell"></i> Services
             </button>
+        </div>
+
+        <div class="deck-controls" aria-live="polite">
+            <div class="search-wrap">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <label for="deckSearch" class="sr-only">Search deck plans</label>
+                <input id="deckSearch" class="search-input" type="search" placeholder="Search by deck, venue, or keyword...">
+            </div>
+            <div class="results-meta" id="resultsMeta">Showing 4 of 4 deck plans</div>
         </div>
 
         <!-- Deck Information -->
@@ -721,13 +822,13 @@
         
         <div class="deck-plans-grid" id="deckPlansGrid">
             <!-- These would be populated dynamically from a JSON file or API -->
-            <div class="deck-plan-card">
+            <div class="deck-plan-card" data-categories="all cabins" data-search="deck 6 your stateroom deck rooms 6443 6650 starboard port">
                 <div class="deck-plan-image">
                     <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
                          alt="Deck 6 - Your Stateroom Deck">
                     <div class="deck-plan-overlay">
                         <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 6 - Staterooms')">
+                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 6 - Staterooms', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
                                 <i class="fas fa-expand"></i> View
                             </button>
                         </div>
@@ -742,13 +843,13 @@
                 </div>
             </div>
             
-            <div class="deck-plan-card">
+            <div class="deck-plan-card" data-categories="all dining recreation" data-search="deck 11 pool dining windjammer cafe solarium">
                 <div class="deck-plan-image">
                     <img src="https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
                          alt="Deck 11 - Pool & Dining">
                     <div class="deck-plan-overlay">
                         <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 11 - Pool & Dining')">
+                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 11 - Pool & Dining', 'https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
                                 <i class="fas fa-expand"></i> View
                             </button>
                         </div>
@@ -763,13 +864,13 @@
                 </div>
             </div>
             
-            <div class="deck-plan-card">
+            <div class="deck-plan-card" data-categories="all dining entertainment services" data-search="deck 5 royal promenade shops cafes guest services entertainment">
                 <div class="deck-plan-image">
                     <img src="https://images.unsplash.com/photo-1570696055904-5c5c55d566eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
                          alt="Deck 5 - Royal Promenade">
                     <div class="deck-plan-overlay">
                         <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 5 - Royal Promenade')">
+                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 5 - Royal Promenade', 'https://images.unsplash.com/photo-1570696055904-5c5c55d566eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
                                 <i class="fas fa-expand"></i> View
                             </button>
                         </div>
@@ -784,13 +885,13 @@
                 </div>
             </div>
             
-            <div class="deck-plan-card">
+            <div class="deck-plan-card" data-categories="all dining entertainment" data-search="decks 3 4 dining theater casino lounges">
                 <div class="deck-plan-image">
                     <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
                          alt="Deck 3 & 4 - Dining & Theater">
                     <div class="deck-plan-overlay">
                         <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Decks 3 & 4 - Dining & Theater')">
+                            <button class="btn btn-primary" onclick="viewDeckPlan('Decks 3 & 4 - Dining & Theater', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
                                 <i class="fas fa-expand"></i> View
                             </button>
                         </div>
@@ -804,6 +905,12 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="empty-state" id="emptyState" hidden>
+            <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
+            <h3>No deck plans match your filters</h3>
+            <p>Try a different category or clear your search.</p>
         </div>
 
         <!-- Legend -->
@@ -913,76 +1020,70 @@
         document.addEventListener('DOMContentLoaded', function() {
             const deckButtons = document.querySelectorAll('.deck-btn');
             const deckCards = document.querySelectorAll('.deck-plan-card');
-            
+            const searchInput = document.getElementById('deckSearch');
+            const resultsMeta = document.getElementById('resultsMeta');
+            const emptyState = document.getElementById('emptyState');
+            let activeFilter = 'all';
+
+            function applyFilters() {
+                const query = searchInput.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                deckCards.forEach(card => {
+                    const categories = card.dataset.categories || '';
+                    const searchIndex = card.dataset.search || '';
+                    const matchesCategory = activeFilter === 'all' || categories.includes(activeFilter);
+                    const matchesSearch = !query || searchIndex.includes(query);
+                    const visible = matchesCategory && matchesSearch;
+
+                    card.hidden = !visible;
+                    if (visible) visibleCount += 1;
+                });
+
+                resultsMeta.textContent = `Showing ${visibleCount} of ${deckCards.length} deck plans`;
+                emptyState.hidden = visibleCount !== 0;
+            }
+
             deckButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    // Update active button
-                    deckButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const filter = this.getAttribute('data-deck');
-                    
-                    // Show all if "all" is selected
-                    if (filter === 'all') {
-                        deckCards.forEach(card => {
-                            card.style.display = 'block';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'translateY(0)';
-                            }, 10);
-                        });
-                        return;
-                    }
-                    
-                    // Filter logic (simplified - would need real data attributes)
-                    deckCards.forEach(card => {
-                        // This is simplified - in reality you'd have data attributes on cards
-                        card.style.display = 'block';
-                        setTimeout(() => {
-                            card.style.opacity = '1';
-                            card.style.transform = 'translateY(0)';
-                        }, 10);
+                    deckButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-pressed', 'false');
                     });
-                    
-                    // Show message if no cards match
-                    const visibleCards = Array.from(deckCards).filter(card => 
-                        card.style.display !== 'none'
-                    );
-                    
-                    if (visibleCards.length === 0) {
-                        const grid = document.getElementById('deckPlansGrid');
-                        grid.innerHTML = `
-                            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                                <i class="fas fa-map-marked-alt" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-                                <h3 style="color: var(--rc-blue); margin-bottom: 0.5rem;">No deck plans match your filter</h3>
-                                <p class="text-secondary">Try selecting a different category or view all decks.</p>
-                            </div>
-                        `;
-                    }
+                    this.classList.add('active');
+                    this.setAttribute('aria-pressed', 'true');
+
+                    activeFilter = this.getAttribute('data-deck');
+                    applyFilters();
                 });
             });
-            
+
+            searchInput.addEventListener('input', applyFilters);
+
             // Add subtle animations
             deckCards.forEach((card, index) => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
-                
+
                 setTimeout(() => {
                     card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
                     card.style.opacity = '1';
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
+
+            applyFilters();
         });
         
         // Modal functions
-        function viewDeckPlan(title) {
+        function viewDeckPlan(title, imageUrl) {
             const modal = document.getElementById('deckModal');
             const modalTitle = document.getElementById('modalTitle');
             const modalImage = document.getElementById('modalImage');
             
             modalTitle.textContent = title;
-            modalImage.src = 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80';
+            modalImage.src = imageUrl;
+            modalImage.alt = title;
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
