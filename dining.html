@@ -51,7 +51,23 @@
         .mt-4 { margin-top: 1rem; }
         .mb-2 { margin-bottom: 0.5rem; }
         .mb-4 { margin-bottom: 1rem; }
-        @media print { .mobile-nav, .floating-actions, .fab, .toast, button { display: none !important; } .card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; } .hero { background: #f4f8ff !important; color: #1e293b !important; } .hero::after { display: none; } }
+
+        .deck-map-card { margin-bottom: 1.5rem; }
+        .deck-map-wrap { position: relative; background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; }
+        .deck-map-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .deck-map-title { font-size: 1.1rem; font-weight: 700; color: var(--rc-blue); }
+        .deck-map-legend { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.8125rem; color: var(--text-secondary); }
+        .deck-map-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .legend-dot--included { background: var(--rc-success); }
+        .legend-dot--specialty { background: var(--rc-warning); }
+        .legend-dot--main { background: var(--rc-gold); }
+        #diningMapSvg { width: 100%; height: auto; }
+        .map-hotspot { cursor: pointer; transition: transform .2s ease, filter .2s ease; }
+        .map-hotspot:hover, .map-hotspot:focus { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(0,0,0,.25)); outline: none; }
+        #mapTooltip { position: absolute; pointer-events: none; background: #111827; color: white; padding: 0.35rem 0.55rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; opacity: 0; transition: opacity .12s ease; transform: translate(-50%, calc(-100% - 12px)); z-index: 4; white-space: nowrap; }
+        #mapTooltip.visible { opacity: 1; }
+        @media print { .mobile-nav, .floating-actions, .fab, .toast, button, .deck-map-card { display: none !important; } .card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; } .hero { background: #f4f8ff !important; color: #1e293b !important; } .hero::after { display: none; } }
     </style>
 </head>
 <body>
@@ -142,7 +158,7 @@
                 <!-- Main Content -->
                 <div class="main-content">
                     <!-- Dining Banner -->
-                    <div class="dining-banner">
+                    <div class="dining-banner" id="mainDiningBanner">
                         <div class="dining-banner__icon">
                             <i class="fas fa-crown"></i>
                         </div>
@@ -158,6 +174,59 @@
                             <i class="fas fa-check"></i> Confirmed
                         </div>
                     </div>
+
+                    <section class="card deck-map-card" aria-label="Interactive dining deck map">
+                        <div class="card-content">
+                            <div class="deck-map-wrap">
+                                <div class="deck-map-header">
+                                    <h2 class="deck-map-title">Find Restaurants by Deck</h2>
+                                    <div class="deck-map-legend" aria-hidden="true">
+                                        <span><i class="legend-dot legend-dot--included"></i> Included</span>
+                                        <span><i class="legend-dot legend-dot--specialty"></i> Specialty</span>
+                                        <span><i class="legend-dot legend-dot--main"></i> Main Dining</span>
+                                    </div>
+                                </div>
+                                <div id="mapTooltip" role="status" aria-live="polite"></div>
+                                <svg id="diningMapSvg" viewBox="0 0 440 340" aria-label="Dining deck map with clickable restaurants">
+                                    <text x="12" y="36" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 12</text>
+                                    <text x="12" y="120" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 11</text>
+                                    <text x="12" y="210" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 5</text>
+                                    <text x="12" y="300" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 4</text>
+                                    <line x1="0" y1="50" x2="440" y2="50" stroke="#cbd5e1" stroke-width="1" />
+                                    <line x1="0" y1="132" x2="440" y2="132" stroke="#cbd5e1" stroke-width="1" />
+                                    <line x1="0" y1="222" x2="440" y2="222" stroke="#cbd5e1" stroke-width="1" />
+
+                                    <circle class="map-hotspot" cx="290" cy="115" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
+                                        data-tab="specialty" data-target="izumiCard" data-tooltip="Izumi Hibachi & Sushi • Deck 12 • Specialty"></circle>
+                                    <text x="308" y="120" fill="var(--text-primary)" font-size="12">Izumi</text>
+
+                                    <circle class="map-hotspot" cx="110" cy="115" r="10" fill="var(--rc-success)" tabindex="0" role="button"
+                                        data-tab="included" data-target="windjammerCard" data-tooltip="Windjammer Marketplace • Deck 11 • Included"></circle>
+                                    <text x="128" y="120" fill="var(--text-primary)" font-size="12">Windjammer</text>
+
+                                    <circle class="map-hotspot" cx="280" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button"
+                                        data-tab="included" data-target="sorrentosCard" data-tooltip="Sorrento's Pizza • Deck 5 • Included"></circle>
+                                    <text x="298" y="210" fill="var(--text-primary)" font-size="12">Sorrento's</text>
+
+                                    <circle class="map-hotspot" cx="110" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button"
+                                        data-tab="included" data-target="cafePromenadeCard" data-tooltip="Café Promenade • Deck 5 • Included"></circle>
+                                    <text x="128" y="210" fill="var(--text-primary)" font-size="12">Café Promenade</text>
+
+                                    <circle class="map-hotspot" cx="90" cy="294" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
+                                        data-tab="specialty" data-target="chopsCard" data-tooltip="Chops Grille • Deck 4 • Specialty"></circle>
+                                    <text x="108" y="299" fill="var(--text-primary)" font-size="12">Chops</text>
+
+                                    <circle class="map-hotspot" cx="210" cy="294" r="10" fill="var(--rc-warning)" tabindex="0" role="button"
+                                        data-tab="specialty" data-target="giovannisCard" data-tooltip="Giovanni's Table • Deck 4 • Specialty"></circle>
+                                    <text x="228" y="299" fill="var(--text-primary)" font-size="12">Giovanni's</text>
+
+                                    <circle class="map-hotspot" cx="350" cy="294" r="10" fill="var(--rc-gold)" tabindex="0" role="button"
+                                        data-tab="specialty" data-target="mainDiningBanner" data-tooltip="Main Dining Room • Deck 4 • Included"></circle>
+                                    <text x="368" y="299" fill="var(--text-primary)" font-size="12">Main Dining</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </section>
 
                     <!-- Dining Tabs -->
                     <div class="dining-tabs">
@@ -188,7 +257,7 @@
                             <div class="card-content">
                                 <div class="restaurants-grid">
                                     <!-- Chops Grille -->
-                                    <div class="restaurant-card restaurant-card--featured">
+                                    <div class="restaurant-card restaurant-card--featured" id="chopsCard">
                                         <div class="restaurant-card__header">
                                             <h3 class="restaurant-card__title">Chops Grille</h3>
                                             <div class="restaurant-price">$64.99</div>
@@ -219,7 +288,7 @@
                                     </div>
 
                                     <!-- Izumi Hibachi & Sushi -->
-                                    <div class="restaurant-card">
+                                    <div class="restaurant-card" id="izumiCard">
                                         <div class="restaurant-card__header">
                                             <h3 class="restaurant-card__title">Izumi Hibachi & Sushi</h3>
                                             <div class="restaurant-price">À la carte</div>
@@ -250,7 +319,7 @@
                                     </div>
 
                                     <!-- Giovanni's Table -->
-                                    <div class="restaurant-card">
+                                    <div class="restaurant-card" id="giovannisCard">
                                         <div class="restaurant-card__header">
                                             <h3 class="restaurant-card__title">Giovanni's Table</h3>
                                             <div class="restaurant-price">$44.99</div>
@@ -325,7 +394,7 @@
                             <div class="card-content">
                                 <div class="restaurants-grid">
                                     <!-- Windjammer Marketplace -->
-                                    <div class="restaurant-card restaurant-card--included">
+                                    <div class="restaurant-card restaurant-card--included" id="windjammerCard">
                                         <div class="restaurant-card__header">
                                             <h3 class="restaurant-card__title">Windjammer Marketplace</h3>
                                             <div class="restaurant-badge">Buffet</div>
@@ -353,7 +422,7 @@
                                     </div>
 
                                     <!-- Café Promenade -->
-                                    <div class="restaurant-card restaurant-card--included">
+                                    <div class="restaurant-card restaurant-card--included" id="cafePromenadeCard">
                                         <div class="restaurant-card__header">
                                             <h3 class="restaurant-card__title">Café Promenade</h3>
                                             <div class="restaurant-badge">24/7</div>
@@ -381,7 +450,7 @@
                                     </div>
 
                                     <!-- Sorrento's Pizza -->
-                                    <div class="restaurant-card restaurant-card--included">
+                                    <div class="restaurant-card restaurant-card--included" id="sorrentosCard">
                                         <div class="restaurant-card__header">
                                             <h3 class="restaurant-card__title">Sorrento's Pizza</h3>
                                             <div class="restaurant-badge">Pizza</div>
@@ -893,27 +962,70 @@
             // Tab functionality
             const tabs = document.querySelectorAll('.dining-tab');
             const tabContents = document.querySelectorAll('.dining-tab-content');
-            
+
+            function activateDiningTab(tabId) {
+                tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabId));
+                tabContents.forEach(content => {
+                    content.style.display = content.id === `${tabId}-tab` ? 'block' : 'none';
+                });
+            }
+
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    // Hide all tab contents
-                    tabContents.forEach(content => {
-                        content.style.display = 'none';
-                    });
-                    
-                    // Show selected tab content
-                    const tabId = this.getAttribute('data-tab');
-                    const selectedContent = document.getElementById(`${tabId}-tab`);
-                    if (selectedContent) {
-                        selectedContent.style.display = 'block';
+                    activateDiningTab(this.getAttribute('data-tab'));
+                });
+            });
+
+            // Dining map interactions
+            const mapTooltip = document.getElementById('mapTooltip');
+            const mapWrap = document.querySelector('.deck-map-wrap');
+            const hotspots = document.querySelectorAll('.map-hotspot');
+
+            function moveTooltip(evt) {
+                if (!mapTooltip || !mapWrap) return;
+                const box = mapWrap.getBoundingClientRect();
+                mapTooltip.style.left = `${evt.clientX - box.left}px`;
+                mapTooltip.style.top = `${evt.clientY - box.top}px`;
+            }
+
+            hotspots.forEach(hotspot => {
+                const targetId = hotspot.getAttribute('data-target');
+                const targetTab = hotspot.getAttribute('data-tab');
+                const tooltipText = hotspot.getAttribute('data-tooltip');
+
+                const openTarget = () => {
+                    if (targetTab) activateDiningTab(targetTab);
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        targetEl.style.boxShadow = '0 0 0 3px rgba(0, 163, 224, 0.35)';
+                        setTimeout(() => { targetEl.style.boxShadow = ''; }, 1200);
+                    }
+                };
+
+                hotspot.addEventListener('click', openTarget);
+                hotspot.addEventListener('keydown', (evt) => {
+                    if (evt.key === 'Enter' || evt.key === ' ') {
+                        evt.preventDefault();
+                        openTarget();
                     }
                 });
+
+                hotspot.addEventListener('mousemove', (evt) => {
+                    if (mapTooltip && tooltipText) {
+                        mapTooltip.textContent = tooltipText;
+                        mapTooltip.classList.add('visible');
+                        moveTooltip(evt);
+                    }
+                });
+                hotspot.addEventListener('focus', () => {
+                    if (mapTooltip && tooltipText) {
+                        mapTooltip.textContent = tooltipText;
+                        mapTooltip.classList.add('visible');
+                    }
+                });
+                hotspot.addEventListener('mouseleave', () => mapTooltip?.classList.remove('visible'));
+                hotspot.addEventListener('blur', () => mapTooltip?.classList.remove('visible'));
             });
             
             // Print functionality
@@ -1113,7 +1225,7 @@
             });
             
             // Initialize with specialty dining visible
-            document.getElementById('specialty-tab').style.display = 'block';
+            activateDiningTab('specialty');
         });
     </script>
     <script src="service-worker-registration.js" defer></script>
