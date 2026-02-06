@@ -3,169 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Caribbean Interactive Deck Explorer | Adventure of the Seas</title>
     <meta name="theme-color" content="#1a365d">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192.svg">
-    <title>Royal Caribbean Deck Plans | Adventure of the Seas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="shared-layout.js" defer></script>
     <style>
         :root {
             --rc-blue: #003580;
             --rc-light-blue: #00a3e0;
-            --rc-accent: #00a3e0;
             --rc-gold: #d4af37;
             --rc-warning: #ff6b35;
             --rc-success: #00b8a9;
+            --rc-purple: #7c3aed;
             --bg-primary: #ffffff;
             --bg-secondary: #f4f8ff;
-            --bg-card: #ffffff;
+            --bg-dark: #0f172a;
             --border-color: #e2e8f0;
-            --border-light: #f1f5f9;
             --text-primary: #1e293b;
             --text-secondary: #64748b;
-            --text-light: #94a3b8;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
-            --transition: all 0.3s ease;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-        
+
         body {
             font-family: 'Open Sans', sans-serif;
-            background-color: var(--bg-secondary);
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             color: var(--text-primary);
             line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        
+
         /* Header */
         .header {
             background: linear-gradient(135deg, var(--rc-blue) 0%, var(--rc-light-blue) 100%);
             color: white;
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .header-content {
             padding: 1rem 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
             text-decoration: none;
             color: white;
         }
-        
+
         .logo-icon {
-            font-size: 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 2rem;
         }
-        
+
         .logo-text {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
         }
-        
+
         .logo-subtext {
-            font-size: 0.75rem;
+            font-size: 0.875rem;
             opacity: 0.9;
         }
-        
-        /* Navigation */
-        .main-nav {
-            display: none;
-            gap: 0.25rem;
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            padding: 2rem 1.5rem;
+            margin-top: 80px;
         }
-        
-        @media (min-width: 768px) {
-            .main-nav {
-                display: flex;
-            }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
-        
-        .nav-item {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-sm);
-            font-weight: 500;
-            font-size: 0.9375rem;
-            transition: var(--transition);
+
+        .sidebar-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            color: var(--rc-blue);
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
-        .nav-item:hover, .nav-item.active {
-            color: white;
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        /* Hero styles are shared via styles.css for consistency across pages. */
 
-        /* Deck Navigation */
+        /* Deck Navigator */
         .deck-nav {
             display: flex;
+            flex-direction: column;
             gap: 0.5rem;
-            overflow-x: auto;
-            padding: 1rem 0;
-            margin: 1rem 0;
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: x proximity;
         }
-        
-        .deck-nav::-webkit-scrollbar {
-            height: 4px;
-        }
-        
-        .deck-nav::-webkit-scrollbar-track {
-            background: var(--border-light);
-        }
-        
-        .deck-nav::-webkit-scrollbar-thumb {
-            background: var(--rc-accent);
-        }
-        
+
         .deck-btn {
-            flex-shrink: 0;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
+            gap: 0.75rem;
+            padding: 1rem;
             background: white;
             border: 2px solid var(--border-color);
             border-radius: var(--radius-sm);
@@ -173,346 +147,281 @@
             color: var(--text-secondary);
             cursor: pointer;
             transition: var(--transition);
-            white-space: nowrap;
-            scroll-snap-align: start;
+            text-align: left;
         }
-        
+
         .deck-btn:hover {
-            border-color: var(--rc-accent);
+            border-color: var(--rc-light-blue);
             color: var(--rc-blue);
+            transform: translateX(4px);
         }
-        
+
         .deck-btn.active {
             background: var(--rc-blue);
             color: white;
             border-color: var(--rc-blue);
         }
 
-        .deck-btn:focus-visible,
-        .btn:focus-visible,
-        .modal-close:focus-visible,
-        .search-input:focus-visible {
-            outline: 3px solid rgba(2, 132, 199, 0.35);
-            outline-offset: 2px;
-        }
-
-        .deck-controls {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            padding: 1rem;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .deck-controls {
-                grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-                align-items: center;
-            }
-        }
-
-        .search-wrap {
-            position: relative;
-        }
-
-        .search-wrap i {
-            position: absolute;
-            left: 0.9rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-
-        .search-input {
-            width: 100%;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 0.7rem 0.8rem 0.7rem 2.4rem;
-            font: inherit;
-            color: var(--text-primary);
-            background: var(--bg-primary);
-        }
-
-        .results-meta {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            text-align: right;
-        }
-        
-        /* Deck Info Grid */
-        .deck-info-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        
-        @media (min-width: 768px) {
-            .deck-info-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
-        .deck-info-card {
-            background: white;
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-        
-        .deck-info-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .deck-info-icon {
-            width: 48px;
-            height: 48px;
-            background: #eff6ff;
-            border-radius: 12px;
+        .deck-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            min-width: 40px;
+            height: 40px;
+            background: rgba(0, 53, 128, 0.1);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
-            color: var(--rc-blue);
+            transition: var(--transition);
         }
-        
-        .deck-info-title {
+
+        .deck-btn.active .deck-number {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Main Explorer Area */
+        .explorer-container {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .explorer-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .explorer-title {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.25rem;
-            color: var(--rc-blue);
+            font-size: 1.5rem;
         }
-        
-        .deck-info-list {
-            list-style: none;
+
+        .explorer-controls {
+            display: flex;
+            gap: 0.5rem;
         }
-        
-        .deck-info-list li {
-            padding: 0.5rem 0;
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            border-bottom: 1px solid var(--border-light);
+            justify-content: center;
         }
-        
-        .deck-info-list li:last-child {
-            border-bottom: none;
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
-        
-        /* Royal Deck Plans Grid */
-        .deck-plans-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        
-        @media (min-width: 768px) {
-            .deck-plans-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        .deck-plan-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
-        }
-        
-        .deck-plan-card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-4px);
-        }
-        
-        .deck-plan-image {
+
+        /* Deck Viewer */
+        .deck-viewer {
             position: relative;
-            height: 200px;
+            height: 600px;
             overflow: hidden;
-            background: #f4f8ff;
+            background: var(--bg-dark);
         }
-        
-        .deck-plan-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-        
-        .deck-plan-card:hover .deck-plan-image img {
-            transform: scale(1.05);
-        }
-        
-        .deck-plan-overlay {
+
+        .deck-image-container {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(30, 58, 138, 0.8);
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            transition: var(--transition);
-        }
-        
-        .deck-plan-card:hover .deck-plan-overlay {
-            opacity: 1;
+            padding: 2rem;
         }
 
-        .deck-plan-card:focus-within .deck-plan-overlay {
-            opacity: 1;
+        .deck-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+            cursor: grab;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        .deck-plan-card[hidden] {
-            display: none !important;
+        .deck-image.dragging {
+            cursor: grabbing;
         }
-        
-        .deck-plan-actions {
+
+        /* Interactive Overlay */
+        .deck-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .hotspot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--rc-warning);
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .hotspot:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.3);
+        }
+
+        .hotspot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 107, 53, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        /* Zoom Controls */
+        .zoom-controls {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.5rem;
             display: flex;
+            flex-direction: column;
             gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            box-shadow: var(--shadow-md);
+            z-index: 100;
         }
-        
-        .deck-plan-content {
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: white;
+            border: 1px solid var(--border-color);
+            color: var(--rc-blue);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: var(--rc-blue);
+            color: white;
+        }
+
+        /* Deck Details Panel */
+        .deck-details {
             padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
         }
-        
-        .deck-plan-title {
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .detail-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--rc-blue);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: fixed;
+            top: 80px;
+            right: -400px;
+            width: 380px;
+            height: calc(100vh - 160px);
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .info-panel.open {
+            right: 1.5rem;
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-title {
             font-family: 'Montserrat', sans-serif;
             font-size: 1.25rem;
             color: var(--rc-blue);
-            margin-bottom: 0.5rem;
         }
-        
-        /* Legend */
-        .legend {
-            background: white;
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            margin: 2rem 0;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-        
-        .legend-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        @media (min-width: 768px) {
-            .legend-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-        
-        .color-blue { background: var(--rc-blue); }
-        .color-green { background: var(--rc-success); }
-        .color-gold { background: var(--rc-gold); }
-        .color-red { background: var(--rc-warning); }
-        
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
+
+        .info-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
             border: none;
-            transition: var(--transition);
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .btn-primary {
-            background: var(--rc-blue);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--rc-light-blue);
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: var(--rc-blue);
-            border: 2px solid var(--rc-blue);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--rc-blue);
-            color: white;
-        }
-        
-        /* Action Buttons */
-        .action-buttons {
+            color: var(--text-secondary);
+            cursor: pointer;
             display: flex;
-            gap: 1rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-        
-        /* Footer */
-        .footer {
-            background: var(--rc-blue);
-            color: white;
-            padding: 2rem 0;
-            margin-top: 3rem;
-        }
-        
-        .footer-links {
-            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            margin: 1rem 0;
         }
-        
-        .footer-links a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .footer-links a:hover {
-            color: white;
-        }
-        
-        .footer-disclaimer {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        
+
         /* Mobile Navigation */
         .mobile-nav {
             position: fixed;
@@ -527,13 +436,7 @@
             z-index: 1000;
             box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
         }
-        
-        @media (min-width: 768px) {
-            .mobile-nav {
-                display: none;
-            }
-        }
-        
+
         .mobile-nav-item {
             display: flex;
             flex-direction: column;
@@ -543,514 +446,704 @@
             padding: 0.5rem;
             flex: 1;
             max-width: 80px;
+            border-radius: var(--radius-sm);
             transition: var(--transition);
         }
-        
+
         .mobile-nav-item.active {
             color: var(--rc-blue);
+            background: var(--bg-secondary);
         }
-        
+
         .mobile-nav-icon {
             font-size: 1.25rem;
             margin-bottom: 0.25rem;
         }
-        
-        .mobile-nav-text {
-            font-size: 0.75rem;
-        }
-        
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
-            padding: 1rem;
-        }
-        
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: var(--radius-lg);
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow: auto;
-            position: relative;
-        }
-        
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 1;
-        }
-        
-        .modal-title {
-            font-family: 'Montserrat', sans-serif;
-            color: var(--rc-blue);
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-        }
-        
-        .modal-close:hover {
-            background: var(--border-light);
-            color: var(--rc-blue);
-        }
-        
-        .modal-body {
-            padding: 1.5rem;
-            text-align: center;
-        }
-        
-        .modal-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: var(--radius-sm);
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .deck-viewer {
+                height: 500px;
+            }
+
+            .info-panel {
+                width: 90vw;
+                right: -90vw;
+            }
+
+            .info-panel.open {
+                right: 1rem;
+            }
         }
 
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            margin: -1px;
-            border: 0;
-            padding: 0;
-            overflow: hidden;
-            clip: rect(0 0 0 0);
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .main-layout {
+                padding: 1rem;
+                margin-top: 70px;
+            }
+
+            .deck-viewer {
+                height: 400px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .explorer-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
         }
 
-        .empty-state {
-            text-align: center;
-            background: white;
-            border: 1px dashed var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 2rem 1rem;
-            color: var(--text-secondary);
-            margin: 1rem 0 2rem;
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .empty-state i {
-            font-size: 2.5rem;
-            color: var(--text-light);
-            margin-bottom: 0.75rem;
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
         }
-        
-        /* Utility Classes */
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .mb-2 { margin-bottom: 0.5rem; }
-        .mb-4 { margin-bottom: 1rem; }
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-secondary); }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <div id="sharedHeader" data-page="decks" data-menu-toggle="false"></div>
-
-<!-- Hero -->
-    <section class="hero">
+    <header class="header">
         <div class="container">
-            <div class="hero-content">
-                <div class="hero-badges">
-                    <span class="hero-badge">
-                        <i class="fas fa-map-marked-alt"></i>
-                        Royal Deck Plans
-                    </span>
-                    <span class="hero-badge">
-                        <i class="fas fa-layer-group"></i>
-                        15 Decks
-                    </span>
-                    <span class="hero-badge">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
                         <i class="fas fa-ship"></i>
-                        Voyager Class
-                    </span>
-                </div>
-                
-                <h1 class="hero-title">Explore Adventure of the Seas Decks</h1>
-                
-                <p class="hero-subtitle">
-                    Navigate every neighborhood like a pro, from pool deck action to show venues and family favorites.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <main class="container">
-        <!-- Deck Navigation -->
-        <div class="deck-nav horizontal-scroll">
-            <button class="deck-btn active" data-deck="all" aria-pressed="true">
-                <i class="fas fa-layer-group"></i> All Decks
-            </button>
-            <button class="deck-btn" data-deck="cabins" aria-pressed="false">
-                <i class="fas fa-bed"></i> Cabin Decks
-            </button>
-            <button class="deck-btn" data-deck="dining" aria-pressed="false">
-                <i class="fas fa-utensils"></i> Dining Decks
-            </button>
-            <button class="deck-btn" data-deck="entertainment" aria-pressed="false">
-                <i class="fas fa-theater-masks"></i> Entertainment
-            </button>
-            <button class="deck-btn" data-deck="recreation" aria-pressed="false">
-                <i class="fas fa-swimming-pool"></i> Recreation
-            </button>
-            <button class="deck-btn" data-deck="services" aria-pressed="false">
-                <i class="fas fa-concierge-bell"></i> Services
-            </button>
-        </div>
-
-        <div class="deck-controls" aria-live="polite">
-            <div class="search-wrap">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <label for="deckSearch" class="sr-only">Search deck plans</label>
-                <input id="deckSearch" class="search-input" type="search" placeholder="Search by deck, venue, or keyword...">
-            </div>
-            <div class="results-meta" id="resultsMeta">Showing 4 of 4 deck plans</div>
-        </div>
-
-        <!-- Deck Information -->
-        <div class="deck-info-grid">
-            <div class="deck-info-card">
-                <div class="deck-info-header">
-                    <div class="deck-info-icon">
-                        <i class="fas fa-bed"></i>
                     </div>
-                    <h3 class="deck-info-title">Your Cabin Decks</h3>
-                </div>
-                <ul class="deck-info-list">
-                    <li><strong>Deck 3:</strong> Interior Staterooms (3622)</li>
-                    <li><strong>Deck 6:</strong> Balcony & Interior (6443, 6650)</li>
-                    <li><strong>Deck 8:</strong> Balcony & Ocean View (8528, 8612)</li>
-                    <li><strong>Also:</strong> Decks 7, 9, 10 (other cabins)</li>
-                </ul>
-            </div>
-            
-            <div class="deck-info-card">
-                <div class="deck-info-header">
-                    <div class="deck-info-icon">
-                        <i class="fas fa-utensils"></i>
+                    <div>
+                        <div class="logo-text">Adventure of the Seas</div>
+                        <div class="logo-subtext">Interactive Deck Explorer</div>
                     </div>
-                    <h3 class="deck-info-title">Dining Decks</h3>
-                </div>
-                <ul class="deck-info-list">
-                    <li><strong>Deck 3:</strong> Main Dining Room (Aft)</li>
-                    <li><strong>Deck 4:</strong> Main Dining Room (Mid)</li>
-                    <li><strong>Deck 5:</strong> Café Promenade, Sorrento's</li>
-                    <li><strong>Deck 11:</strong> Windjammer Buffet</li>
-                    <li><strong>Deck 12:</strong> Chops Grille, Giovanni's</li>
-                </ul>
-            </div>
-            
-            <div class="deck-info-card">
-                <div class="deck-info-header">
-                    <div class="deck-info-icon">
-                        <i class="fas fa-swimming-pool"></i>
-                    </div>
-                    <h3 class="deck-info-title">Recreation Decks</h3>
-                </div>
-                <ul class="deck-info-list">
-                    <li><strong>Deck 11:</strong> Main Pool, Solarium</li>
-                    <li><strong>Deck 12:</strong> Sports Court, Rock Wall</li>
-                    <li><strong>Deck 13:</strong> FlowRider, Mini Golf</li>
-                    <li><strong>Deck 14:</strong> Sky Bar, Suite Lounge</li>
-                </ul>
+                </a>
+                <button class="btn btn-primary" id="viewToggle">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Switch View</span>
+                </button>
             </div>
         </div>
+    </header>
 
-        <!-- Royal Deck Plans Grid -->
-        <h2 class="text-center mb-4" style="color: var(--rc-blue);">Interactive Royal Deck Plans</h2>
-        
-        <div class="deck-plans-grid" id="deckPlansGrid">
-            <!-- These would be populated dynamically from a JSON file or API -->
-            <div class="deck-plan-card" data-categories="all cabins" data-search="deck 6 your stateroom deck rooms 6443 6650 starboard port">
-                <div class="deck-plan-image">
-                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
-                         alt="Deck 6 - Your Stateroom Deck">
-                    <div class="deck-plan-overlay">
-                        <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 6 - Staterooms', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
-                                <i class="fas fa-expand"></i> View
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="main-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <div class="sidebar-card">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-layer-group"></i>
+                            Deck Selection
+                        </h3>
+                        <div class="deck-nav" id="deckNav">
+                            <!-- Deck buttons will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="sidebar-card">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-star"></i>
+                            Your Locations
+                        </h3>
+                        <div class="deck-nav">
+                            <button class="deck-btn" data-deck="6">
+                                <div class="deck-number">6</div>
+                                <div>
+                                    <div>Your Stateroom</div>
+                                    <small style="color: var(--text-secondary);">Room 6443</small>
+                                </div>
+                            </button>
+                            <button class="deck-btn" data-deck="8">
+                                <div class="deck-number">8</div>
+                                <div>
+                                    <div>Your Stateroom</div>
+                                    <small style="color: var(--text-secondary);">Room 8528</small>
+                                </div>
                             </button>
                         </div>
                     </div>
-                </div>
-                <div class="deck-plan-content">
-                    <h3 class="deck-plan-title">Deck 6 - Your Stateroom Deck</h3>
-                    <p class="text-secondary">Rooms 6443 & 6650 • Starboard & Port locations</p>
-                    <div class="mt-2 text-secondary">
-                        <small><i class="far fa-clock"></i> Updated: Feb 2026</small>
+
+                    <div class="sidebar-card">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-utensils"></i>
+                            Dining Decks
+                        </h3>
+                        <div class="category-list">
+                            <div class="category-item">
+                                <i class="fas fa-utensils" style="color: var(--rc-success);"></i>
+                                <span>Deck 3 & 4 - Main Dining</span>
+                            </div>
+                            <div class="category-item">
+                                <i class="fas fa-coffee" style="color: var(--rc-success);"></i>
+                                <span>Deck 5 - Café Promenade</span>
+                            </div>
+                            <div class="category-item">
+                                <i class="fas fa-ice-cream" style="color: var(--rc-success);"></i>
+                                <span>Deck 5 - Ben & Jerry's</span>
+                            </div>
+                            <div class="category-item">
+                                <i class="fas fa-pizza-slice" style="color: var(--rc-success);"></i>
+                                <span>Deck 5 - Sorrento's</span>
+                            </div>
+                            <div class="category-item">
+                                <i class="fas fa-crown" style="color: var(--rc-warning);"></i>
+                                <span>Deck 11 - Windjammer</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="deck-plan-card" data-categories="all dining recreation" data-search="deck 11 pool dining windjammer cafe solarium">
-                <div class="deck-plan-image">
-                    <img src="https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
-                         alt="Deck 11 - Pool & Dining">
-                    <div class="deck-plan-overlay">
-                        <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 11 - Pool & Dining', 'https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
-                                <i class="fas fa-expand"></i> View
+                </aside>
+
+                <!-- Main Explorer -->
+                <div class="explorer-container fade-in">
+                    <div class="explorer-header">
+                        <div>
+                            <h2 class="explorer-title" id="currentDeckTitle">Deck 11 - Pool & Dining</h2>
+                            <p style="opacity: 0.9; margin-top: 0.25rem;">Windjammer Café • Main Pool • Solarium</p>
+                        </div>
+                        <div class="explorer-controls">
+                            <button class="control-btn" id="zoomIn" title="Zoom In">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="control-btn" id="zoomOut" title="Zoom Out">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <button class="control-btn" id="resetView" title="Reset View">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="control-btn" id="toggleHotspots" title="Toggle Hotspots">
+                                <i class="fas fa-map-marker-alt"></i>
                             </button>
                         </div>
                     </div>
-                </div>
-                <div class="deck-plan-content">
-                    <h3 class="deck-plan-title">Deck 11 - Pool & Dining</h3>
-                    <p class="text-secondary">Windjammer Café • Main Pool • Solarium</p>
-                    <div class="mt-2 text-secondary">
-                        <small><i class="far fa-clock"></i> Updated: Feb 2026</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="deck-plan-card" data-categories="all dining entertainment services" data-search="deck 5 royal promenade shops cafes guest services entertainment">
-                <div class="deck-plan-image">
-                    <img src="https://images.unsplash.com/photo-1570696055904-5c5c55d566eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
-                         alt="Deck 5 - Royal Promenade">
-                    <div class="deck-plan-overlay">
-                        <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Deck 5 - Royal Promenade', 'https://images.unsplash.com/photo-1570696055904-5c5c55d566eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
-                                <i class="fas fa-expand"></i> View
+
+                    <div class="deck-viewer" id="deckViewer">
+                        <div class="deck-image-container" id="imageContainer">
+                            <img src="https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" 
+                                 alt="Deck 11 Plan" 
+                                 class="deck-image" 
+                                 id="deckImage">
+                        </div>
+                        <div class="deck-overlay" id="deckOverlay">
+                            <!-- Interactive hotspots will be added here -->
+                        </div>
+                        
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" id="zoomInBtn" title="Zoom In">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button class="zoom-btn" id="fitBtn" title="Fit to Screen">
+                                <i class="fas fa-expand-alt"></i>
                             </button>
                         </div>
                     </div>
-                </div>
-                <div class="deck-plan-content">
-                    <h3 class="deck-plan-title">Deck 5 - Royal Promenade</h3>
-                    <p class="text-secondary">Shops • Cafés • Guest Services • Entertainment</p>
-                    <div class="mt-2 text-secondary">
-                        <small><i class="far fa-clock"></i> Updated: Feb 2026</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="deck-plan-card" data-categories="all dining entertainment" data-search="decks 3 4 dining theater casino lounges">
-                <div class="deck-plan-image">
-                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
-                         alt="Deck 3 & 4 - Dining & Theater">
-                    <div class="deck-plan-overlay">
-                        <div class="deck-plan-actions">
-                            <button class="btn btn-primary" onclick="viewDeckPlan('Decks 3 & 4 - Dining & Theater', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80')">
-                                <i class="fas fa-expand"></i> View
-                            </button>
+
+                    <div class="deck-details">
+                        <div class="details-grid">
+                            <div class="detail-card">
+                                <div class="detail-title">Deck Number</div>
+                                <div class="detail-value" id="deckNumber">11</div>
+                            </div>
+                            <div class="detail-card">
+                                <div class="detail-title">Primary Function</div>
+                                <div class="detail-value">Pool & Dining</div>
+                            </div>
+                            <div class="detail-card">
+                                <div class="detail-title">Featured Venues</div>
+                                <div class="detail-value">8</div>
+                            </div>
+                            <div class="detail-card">
+                                <div class="detail-title">Ship Section</div>
+                                <div class="detail-value">Aft</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="deck-plan-content">
-                    <h3 class="deck-plan-title">Decks 3 & 4 - Dining & Theater</h3>
-                    <p class="text-secondary">Main Dining Room • Theater • Casino • Lounges</p>
-                    <div class="mt-2 text-secondary">
-                        <small><i class="far fa-clock"></i> Updated: Feb 2026</small>
-                    </div>
-                </div>
             </div>
-        </div>
-
-        <div class="empty-state" id="emptyState" hidden>
-            <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-            <h3>No deck plans match your filters</h3>
-            <p>Try a different category or clear your search.</p>
-        </div>
-
-        <!-- Legend -->
-        <div class="legend">
-            <h3><i class="fas fa-key"></i> Deck Plan Legend</h3>
-            <div class="legend-grid">
-                <div class="legend-item">
-                    <div class="legend-color color-blue"></div>
-                    <span>Your Staterooms</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color color-green"></div>
-                    <span>Dining Venues</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color color-gold"></div>
-                    <span>Entertainment</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color color-red"></div>
-                    <span>Recreation</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <a href="rooms.html" class="btn btn-primary">
-                <i class="fas fa-bed"></i> Back to Your Rooms
-            </a>
-            <a href="index.html" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </a>
-            <button class="btn btn-secondary" onclick="downloadAllPlans()">
-                <i class="fas fa-download"></i> Download All Plans
-            </button>
-        </div>
-
-        <!-- Tips -->
-        <div class="deck-info-card mt-4">
-            <div class="deck-info-header">
-                <div class="deck-info-icon">
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <h3 class="deck-info-title">Deck Navigation Tips</h3>
-            </div>
-            <ul class="deck-info-list">
-                <li><i class="fas fa-star"></i> <strong>Forward:</strong> Theater, Fitness Center, Spa</li>
-                <li><i class="fas fa-star"></i> <strong>Mid:</strong> Elevators, Guest Services, Shops</li>
-                <li><i class="fas fa-star"></i> <strong>Aft:</strong> Main Dining Room, Windjammer</li>
-                <li><i class="fas fa-star"></i> Odd cabin numbers = Port side (left)</li>
-                <li><i class="fas fa-star"></i> Even cabin numbers = Starboard (right)</li>
-                <li><i class="fas fa-star"></i> Use the Royal App for real-time navigation</li>
-            </ul>
         </div>
     </main>
 
-    <!-- Modal for Royal Deck Plans -->
-    <div class="modal" id="deckModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Deck Plan</h3>
-                <button class="modal-close" onclick="closeModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <img class="modal-image" id="modalImage" src="" alt="Deck Plan">
-            </div>
+    <!-- Info Panel -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-header">
+            <h3 class="info-title" id="infoTitle">Venue Details</h3>
+            <button class="info-close" id="infoClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="infoContent">
+            <!-- Content will be populated by JavaScript -->
         </div>
     </div>
-        <!-- Footer -->
-        <div id="sharedFooter" data-page="decks"></div>
 
-<!-- Mobile Navigation -->
-        <nav class="mobile-nav">
-        <a href="index.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-home"></i></span><span class="mobile-nav-text">Home</span></a>
-        <a href="itinerary.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-route"></i></span><span class="mobile-nav-text">Schedule</span></a>
-        <a href="operations.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span><span class="mobile-nav-text">Checklist</span></a>
-        <a href="rooms.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-bed"></i></span><span class="mobile-nav-text">Rooms</span></a>
-        <a href="decks.html" class="mobile-nav-item active"><span class="mobile-nav-icon"><i class="fas fa-map"></i></span><span class="mobile-nav-text">Decks</span></a>
-        <a href="dining.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span><span class="mobile-nav-text">Dining</span></a>
-        <a href="tips.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></span><span class="mobile-nav-text">Tips</span></a>
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <a href="#" class="mobile-nav-item active">
+            <span class="mobile-nav-icon"><i class="fas fa-map"></i></span>
+            <span>Explorer</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-bed"></i></span>
+            <span>Rooms</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span>
+            <span>Dining</span>
+        </a>
+        <a href="#" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-info-circle"></i></span>
+            <span>Info</span>
+        </a>
     </nav>
 
     <script>
-        // Deck filtering
-        document.addEventListener('DOMContentLoaded', function() {
-            const deckButtons = document.querySelectorAll('.deck-btn');
-            const deckCards = document.querySelectorAll('.deck-plan-card');
-            const searchInput = document.getElementById('deckSearch');
-            const resultsMeta = document.getElementById('resultsMeta');
-            const emptyState = document.getElementById('emptyState');
-            let activeFilter = 'all';
-
-            function applyFilters() {
-                const query = searchInput.value.trim().toLowerCase();
-                let visibleCount = 0;
-
-                deckCards.forEach(card => {
-                    const categories = card.dataset.categories || '';
-                    const searchIndex = card.dataset.search || '';
-                    const matchesCategory = activeFilter === 'all' || categories.includes(activeFilter);
-                    const matchesSearch = !query || searchIndex.includes(query);
-                    const visible = matchesCategory && matchesSearch;
-
-                    card.hidden = !visible;
-                    if (visible) visibleCount += 1;
-                });
-
-                resultsMeta.textContent = `Showing ${visibleCount} of ${deckCards.length} deck plans`;
-                emptyState.hidden = visibleCount !== 0;
+        // Deck plans data structure
+        const deckPlans = [
+            {
+                id: 3,
+                name: "Deck 3",
+                title: "Main Dining & Entertainment",
+                description: "Main Dining Room • Theater • Casino",
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                hotspots: [
+                    { x: 30, y: 40, title: "Main Dining Room", type: "dining", description: "American Icon Grill - Traditional seating" },
+                    { x: 70, y: 30, title: "Theater", type: "entertainment", description: "Main theater for evening shows" },
+                    { x: 50, y: 60, title: "Casino Royale", type: "entertainment", description: "Slots, tables, and gaming" }
+                ]
+            },
+            {
+                id: 6,
+                name: "Deck 6",
+                title: "Your Stateroom Deck",
+                description: "Balcony & Interior Staterooms • Room 6443 & 6650",
+                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                hotspots: [
+                    { x: 40, y: 50, title: "Your Stateroom 6443", type: "stateroom", description: "Starboard side balcony room" },
+                    { x: 60, y: 50, title: "Your Stateroom 6650", type: "stateroom", description: "Port side interior room" },
+                    { x: 20, y: 30, title: "Elevators", type: "services", description: "Mid-ship elevators" }
+                ]
+            },
+            {
+                id: 8,
+                name: "Deck 8",
+                title: "Stateroom Deck",
+                description: "Balcony & Ocean View Rooms • Room 8528 & 8612",
+                image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                hotspots: [
+                    { x: 45, y: 55, title: "Your Stateroom 8528", type: "stateroom", description: "Mid-ship balcony room" },
+                    { x: 55, y: 55, title: "Your Stateroom 8612", type: "stateroom", description: "Forward ocean view room" }
+                ]
+            },
+            {
+                id: 11,
+                name: "Deck 11",
+                title: "Pool & Dining",
+                description: "Windjammer Café • Main Pool • Solarium",
+                image: "https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                hotspots: [
+                    { x: 40, y: 40, title: "Windjammer Marketplace", type: "dining", description: "Main buffet restaurant - Open 6:30 AM to 9:00 PM" },
+                    { x: 50, y: 30, title: "Main Pool", type: "recreation", description: "Outdoor pool with whirlpools and bar" },
+                    { x: 60, y: 40, title: "Solarium", type: "recreation", description: "Adults-only retreat with pool" },
+                    { x: 30, y: 50, title: "Island Grill", type: "dining", description: "Alternative buffet station" }
+                ]
+            },
+            {
+                id: 12,
+                name: "Deck 12",
+                title: "Sports & Specialty Dining",
+                description: "Sports Court • Rock Wall • Specialty Restaurants",
+                image: "https://images.unsplash.com/photo-1570696055904-5c5c55d566eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                hotspots: [
+                    { x: 40, y: 30, title: "Sports Court", type: "recreation", description: "Basketball and volleyball court" },
+                    { x: 60, y: 40, title: "Rock Climbing Wall", type: "recreation", description: "40-foot tall climbing wall" },
+                    { x: 30, y: 50, title: "Giovanni's Table", type: "dining", description: "Italian specialty restaurant" },
+                    { x: 70, y: 50, title: "Izumi Hibachi", type: "dining", description: "Japanese hibachi and sushi" }
+                ]
+            },
+            {
+                id: 13,
+                name: "Deck 13",
+                title: "Adventure & Recreation",
+                description: "FlowRider • Mini Golf • Sky Bar",
+                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                hotspots: [
+                    { x: 40, y: 40, title: "FlowRider", type: "recreation", description: "Surf simulator - Sign up required" },
+                    { x: 60, y: 50, title: "Mini Golf", type: "recreation", description: "9-hole mini golf course" },
+                    { x: 30, y: 30, title: "Sky Bar", type: "bar", description: "Open-air bar with ocean views" }
+                ]
+            },
+            {
+                id: 14,
+                name: "Deck 14",
+                title: "Observation & Suites",
+                description: "Viking Crown Lounge • Suite Lounge • Sun Deck",
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                hotspots: [
+                    { x: 50, y: 40, title: "Viking Crown Lounge", type: "entertainment", description: "360° observation lounge and nightclub" },
+                    { x: 40, y: 50, title: "Suite Lounge", type: "services", description: "Exclusive lounge for suite guests" },
+                    { x: 60, y: 50, title: "Diamond Club", type: "services", description: "Loyalty members lounge" }
+                ]
             }
+        ];
 
-            deckButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    deckButtons.forEach(btn => {
-                        btn.classList.remove('active');
-                        btn.setAttribute('aria-pressed', 'false');
-                    });
-                    this.classList.add('active');
-                    this.setAttribute('aria-pressed', 'true');
+        // State management
+        let currentDeck = deckPlans[3]; // Start with Deck 11
+        let zoomLevel = 1;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let hotspotsVisible = true;
 
-                    activeFilter = this.getAttribute('data-deck');
-                    applyFilters();
-                });
+        // DOM Elements
+        const deckNav = document.getElementById('deckNav');
+        const deckImage = document.getElementById('deckImage');
+        const deckOverlay = document.getElementById('deckOverlay');
+        const currentDeckTitle = document.getElementById('currentDeckTitle');
+        const deckNumber = document.getElementById('deckNumber');
+        const infoPanel = document.getElementById('infoPanel');
+        const infoTitle = document.getElementById('infoTitle');
+        const infoContent = document.getElementById('infoContent');
+        const infoClose = document.getElementById('infoClose');
+
+        // Initialize deck navigation
+        function initDeckNavigation() {
+            deckPlans.forEach(deck => {
+                const button = document.createElement('button');
+                button.className = `deck-btn ${deck.id === currentDeck.id ? 'active' : ''}`;
+                button.innerHTML = `
+                    <div class="deck-number">${deck.id}</div>
+                    <div>
+                        <div>${deck.name}</div>
+                        <small style="color: var(--text-secondary);">${deck.title.split('•')[0]}</small>
+                    </div>
+                `;
+                
+                button.addEventListener('click', () => switchDeck(deck.id));
+                deckNav.appendChild(button);
+            });
+        }
+
+        // Switch to a different deck
+        function switchDeck(deckId) {
+            const newDeck = deckPlans.find(d => d.id === deckId);
+            if (!newDeck) return;
+
+            // Update UI
+            document.querySelectorAll('.deck-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.deck-btn').forEach(btn => {
+                if (btn.textContent.includes(`Deck ${deckId}`)) {
+                    btn.classList.add('active');
+                }
             });
 
-            searchInput.addEventListener('input', applyFilters);
-
-            // Add subtle animations
-            deckCards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-
-            applyFilters();
-        });
-        
-        // Modal functions
-        function viewDeckPlan(title, imageUrl) {
-            const modal = document.getElementById('deckModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalImage = document.getElementById('modalImage');
+            // Update state
+            currentDeck = newDeck;
             
-            modalTitle.textContent = title;
-            modalImage.src = imageUrl;
-            modalImage.alt = title;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // Update deck image with fade effect
+            deckImage.style.opacity = '0';
+            setTimeout(() => {
+                deckImage.src = newDeck.image;
+                deckImage.alt = `${newDeck.name} Plan`;
+                deckImage.style.opacity = '1';
+                currentDeckTitle.textContent = `Deck ${newDeck.id} - ${newDeck.title}`;
+                deckNumber.textContent = newDeck.id;
+                
+                // Reset zoom and position
+                zoomLevel = 1;
+                offsetX = 0;
+                offsetY = 0;
+                updateImageTransform();
+                
+                // Create hotspots
+                createHotspots();
+            }, 300);
         }
-        
-        function closeModal() {
-            document.getElementById('deckModal').classList.remove('active');
-            document.body.style.overflow = '';
+
+        // Create interactive hotspots
+        function createHotspots() {
+            deckOverlay.innerHTML = '';
+            
+            if (!hotspotsVisible) return;
+            
+            currentDeck.hotspots.forEach(hotspot => {
+                const element = document.createElement('div');
+                element.className = 'hotspot';
+                element.style.left = `${hotspot.x}%`;
+                element.style.top = `${hotspot.y}%`;
+                element.title = hotspot.title;
+                
+                // Set color based on type
+                const colors = {
+                    dining: 'var(--rc-success)',
+                    stateroom: 'var(--rc-blue)',
+                    recreation: 'var(--rc-warning)',
+                    entertainment: 'var(--rc-purple)',
+                    services: 'var(--rc-gold)',
+                    bar: 'var(--rc-light-blue)'
+                };
+                
+                element.style.background = colors[hotspot.type] || 'var(--rc-warning)';
+                
+                element.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showInfoPanel(hotspot);
+                });
+                
+                deckOverlay.appendChild(element);
+            });
         }
-        
-        function downloadAllPlans() {
-            alert('In a real implementation, this would download a PDF of all deck plans.');
+
+        // Show info panel with details
+        function showInfoPanel(hotspot) {
+            infoTitle.textContent = hotspot.title;
+            
+            const typeColors = {
+                dining: { bg: 'rgba(0, 184, 169, 0.1)', color: 'var(--rc-success)', icon: 'utensils' },
+                stateroom: { bg: 'rgba(0, 53, 128, 0.1)', color: 'var(--rc-blue)', icon: 'bed' },
+                recreation: { bg: 'rgba(255, 107, 53, 0.1)', color: 'var(--rc-warning)', icon: 'swimming-pool' },
+                entertainment: { bg: 'rgba(124, 58, 237, 0.1)', color: 'var(--rc-purple)', icon: 'theater-masks' },
+                services: { bg: 'rgba(212, 175, 55, 0.1)', color: 'var(--rc-gold)', icon: 'concierge-bell' },
+                bar: { bg: 'rgba(0, 163, 224, 0.1)', color: 'var(--rc-light-blue)', icon: 'cocktail' }
+            };
+            
+            const typeInfo = typeColors[hotspot.type] || typeColors.services;
+            
+            infoContent.innerHTML = `
+                <div class="info-section">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: ${typeInfo.bg}; color: ${typeInfo.color}; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-${typeInfo.icon}"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.25rem; margin-bottom: 0.25rem;">${hotspot.title}</h4>
+                            <div style="color: var(--text-secondary); text-transform: capitalize;">${hotspot.type}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
+                        <p style="color: var(--text-primary);">${hotspot.description}</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Deck</div>
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--rc-blue);">${currentDeck.id}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Location</div>
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--rc-blue);">${currentDeck.title.split('•')[0]}</div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" style="width: 100%; padding: 0.75rem; background: var(--rc-blue); color: white; border: none; border-radius: var(--radius-sm);">
+                        <i class="fas fa-directions"></i>
+                        Get Directions
+                    </button>
+                </div>
+            `;
+            
+            infoPanel.classList.add('open');
         }
-        
-        // Close modal on ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
+
+        // Update image transform for zoom and pan
+        function updateImageTransform() {
+            deckImage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoomLevel})`;
+        }
+
+        // Initialize zoom and pan controls
+        function initZoomControls() {
+            // Zoom buttons
+            document.getElementById('zoomInBtn').addEventListener('click', () => {
+                zoomLevel = Math.min(3, zoomLevel + 0.25);
+                updateImageTransform();
+            });
+            
+            document.getElementById('zoomOutBtn').addEventListener('click', () => {
+                zoomLevel = Math.max(0.5, zoomLevel - 0.25);
+                updateImageTransform();
+            });
+            
+            document.getElementById('fitBtn').addEventListener('click', () => {
+                zoomLevel = 1;
+                offsetX = 0;
+                offsetY = 0;
+                updateImageTransform();
+            });
+            
+            // Header controls
+            document.getElementById('zoomIn').addEventListener('click', () => {
+                zoomLevel = Math.min(3, zoomLevel + 0.25);
+                updateImageTransform();
+            });
+            
+            document.getElementById('zoomOut').addEventListener('click', () => {
+                zoomLevel = Math.max(0.5, zoomLevel - 0.25);
+                updateImageTransform();
+            });
+            
+            document.getElementById('resetView').addEventListener('click', () => {
+                zoomLevel = 1;
+                offsetX = 0;
+                offsetY = 0;
+                updateImageTransform();
+            });
+            
+            document.getElementById('toggleHotspots').addEventListener('click', () => {
+                hotspotsVisible = !hotspotsVisible;
+                createHotspots();
+            });
+            
+            // Mouse wheel zoom
+            deckImage.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                zoomLevel = Math.max(0.5, Math.min(3, zoomLevel + delta));
+                updateImageTransform();
+            });
+            
+            // Mouse drag for panning
+            deckImage.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                deckImage.classList.add('dragging');
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+                
+                offsetX += deltaX;
+                offsetY += deltaY;
+                
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                
+                updateImageTransform();
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                deckImage.classList.remove('dragging');
+            });
+            
+            // Touch support for mobile
+            deckImage.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    lastMouseX = e.touches[0].clientX;
+                    lastMouseY = e.touches[0].clientY;
+                }
+            }, { passive: true });
+            
+            deckImage.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                e.preventDefault();
+                
+                const deltaX = e.touches[0].clientX - lastMouseX;
+                const deltaY = e.touches[0].clientY - lastMouseY;
+                
+                offsetX += deltaX;
+                offsetY += deltaY;
+                
+                lastMouseX = e.touches[0].clientX;
+                lastMouseY = e.touches[0].clientY;
+                
+                updateImageTransform();
+            }, { passive: false });
+            
+            deckImage.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+            
+            // Pinch zoom for touch devices
+            let initialDistance = 0;
+            deckImage.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    initialDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            }, { passive: true });
+            
+            deckImage.addEventListener('touchmove', (e) => {
+                if (e.touches.length !== 2) return;
+                e.preventDefault();
+                
+                const currentDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                
+                const delta = (currentDistance - initialDistance) * 0.01;
+                zoomLevel = Math.max(0.5, Math.min(3, zoomLevel + delta));
+                initialDistance = currentDistance;
+                
+                updateImageTransform();
+            }, { passive: false });
+        }
+
+        // Close info panel
+        infoClose.addEventListener('click', () => {
+            infoPanel.classList.remove('open');
         });
-        
-        // Close modal when clicking outside
-        document.getElementById('deckModal').addEventListener('click', (e) => {
-            if (e.target.id === 'deckModal') closeModal();
+
+        // Click outside to close info panel
+        document.addEventListener('click', (e) => {
+            if (!infoPanel.contains(e.target) && !e.target.classList.contains('hotspot')) {
+                infoPanel.classList.remove('open');
+            }
+        });
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            initDeckNavigation();
+            initZoomControls();
+            createHotspots();
+            
+            // Initialize with Deck 11
+            switchDeck(11);
+            
+            // Add view toggle button functionality
+            document.getElementById('viewToggle').addEventListener('click', () => {
+                const body = document.body;
+                const isDark = body.style.background.includes('#0f172a');
+                
+                if (isDark) {
+                    body.style.background = 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)';
+                    body.style.color = 'var(--text-primary)';
+                } else {
+                    body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+                    body.style.color = '#e2e8f0';
+                }
+            });
         });
     </script>
-    <script src="service-worker-registration.js" defer></script>
 </body>
 </html>
