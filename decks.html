@@ -4,302 +4,906 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Deck Plans | Adventure of the Seas</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --rc-blue:#003580;
-  --rc-light:#00a3e0;
-  --bg:#f4f8ff;
-  --card:#ffffff;
-  --border:#e2e8f0;
-  --text:#1e293b;
-  --muted:#64748b;
-  --radius:14px;
-  --shadow:0 10px 28px rgba(0,0,0,.1);
+:root {
+  --rc-blue: #003580;
+  --rc-blue-dark: #002554;
+  --rc-light: #00a3e0;
+  --rc-accent: #ff5a5f;
+  --rc-gold: #ffb400;
+  --bg: #f0f5ff;
+  --card: #ffffff;
+  --border: #dbe4ff;
+  --text: #1a237e;
+  --muted: #5a6a9c;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 30px rgba(0, 53, 128, 0.08);
+  --shadow-hover: 0 15px 40px rgba(0, 53, 128, 0.15);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:'Open Sans',system-ui,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Open Sans', system-ui, sans-serif;
+  background: linear-gradient(135deg, #f0f5ff 0%, #f8fbff 100%);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ===== HEADER ===== */
-header{
-  background:linear-gradient(135deg,#002b66,#003580);
-  color:#fff;
-  padding:1.2rem;
-}
-header h1{
-  margin:0;
-  font-family:'Montserrat';
-}
-header p{
-  margin:.25rem 0 0;
-  opacity:.9;
+.header {
+  background: linear-gradient(135deg, var(--rc-blue) 0%, var(--rc-blue-dark) 100%);
+  color: white;
+  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
-/* ===== SHIP CONTEXT ===== */
-.ship-context{
-  max-width:1200px;
-  margin:1.5rem auto 1rem;
-  padding:0 1rem;
-}
-.ship-context .stack{
-  display:flex;
-  align-items:center;
-  gap:.75rem;
-  color:var(--muted);
-  font-size:.9rem;
-}
-.ship-context .stack i{
-  color:var(--rc-blue);
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.3;
 }
 
-/* ===== FILTERS ===== */
-.filters{
-  max-width:1200px;
-  margin:.75rem auto;
-  padding:0 1rem;
-  display:flex;
-  gap:.5rem;
-  flex-wrap:wrap;
-}
-.filter-btn{
-  border:1px solid var(--border);
-  background:#fff;
-  padding:.45rem .8rem;
-  border-radius:999px;
-  cursor:pointer;
-  font-size:.8rem;
-  font-weight:600;
-}
-.filter-btn.active{
-  background:var(--rc-blue);
-  color:#fff;
-  border-color:var(--rc-blue);
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
-/* ===== FILTER STATE ===== */
-.filter-state{
-  max-width:1200px;
-  margin:.25rem auto 1rem;
-  padding:0 1rem;
-  font-size:.8rem;
-  color:var(--muted);
+.header h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 2.8rem;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(120deg, #fff 0%, #a3d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* ===== GRID ===== */
-.deck-grid{
-  max-width:1200px;
-  margin:auto;
-  padding:1rem;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:1.5rem;
+.header-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
 }
 
-.deck-card{
-  background:var(--card);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-  padding:1.25rem;
+.ship-icon {
+  font-size: 2rem;
+  color: var(--rc-light);
+  animation: float 3s ease-in-out infinite;
 }
 
-.deck-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.deck-header h2{
-  font-family:'Montserrat';
-  color:var(--rc-blue);
-  margin:0;
-}
-.deck-header button{
-  border:none;
-  background:var(--rc-light);
-  color:#fff;
-  padding:.35rem .6rem;
-  border-radius:8px;
-  font-size:.7rem;
-  cursor:pointer;
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-/* Orientation */
-.orientation{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  margin:.6rem 0;
-  font-size:.7rem;
-  text-align:center;
-}
-.orientation span{
-  padding:.25rem;
-  background:#eef3ff;
-}
-.orientation span.mid{
-  background:#dce7ff;
-  font-weight:600;
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  max-width: 1200px;
+  margin: -2rem auto 3rem;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
-/* List */
-.deck-list{
-  list-style:none;
-  padding:0;
-  margin:0;
+/* ===== FILTERS & SEARCH ===== */
+.controls-panel {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
 }
-.deck-list li{
-  display:flex;
-  gap:.5rem;
-  padding:.3rem 0;
+
+.search-bar {
+  position: relative;
+  margin-bottom: 1.5rem;
 }
-.deck-list i{
-  color:var(--rc-light);
+
+.search-bar input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  background: var(--bg);
+  transition: var(--transition);
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--rc-light);
+  box-shadow: 0 0 0 3px rgba(0, 163, 224, 0.1);
+}
+
+.search-bar i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+}
+
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+  transition: var(--transition);
+}
+
+.filter-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--rc-light);
+}
+
+.filter-btn.active {
+  background: var(--rc-blue);
+  color: white;
+  border-color: var(--rc-blue);
+  box-shadow: 0 4px 12px rgba(0, 53, 128, 0.2);
+}
+
+.filter-btn i {
+  font-size: 0.9rem;
+}
+
+.filter-state {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(120deg, rgba(0, 163, 224, 0.1), rgba(0, 53, 128, 0.05));
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+/* ===== DECK GRID ===== */
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.75rem;
+  margin-top: 2rem;
+}
+
+.deck-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.deck-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--rc-light), var(--rc-blue));
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.deck-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+}
+
+.deck-card:hover::before {
+  opacity: 1;
+}
+
+.deck-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.deck-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--rc-blue);
+  margin: 0;
+}
+
+.deck-number {
+  background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-dark));
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 53, 128, 0.2);
+}
+
+/* Orientation Indicator */
+.orientation-indicator {
+  background: linear-gradient(to right, #e3f2fd, #bbdefb, #90caf9);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  margin: 1.25rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.orientation-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--rc-blue);
+  margin-bottom: 0.5rem;
+}
+
+.orientation-bar {
+  height: 6px;
+  background: linear-gradient(to right, #1a237e, #3949ab, #7986cb);
+  border-radius: 3px;
+  position: relative;
+}
+
+.orientation-marker {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  background: var(--rc-accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.2); }
+}
+
+/* Deck List */
+.deck-list {
+  list-style: none;
+  margin-top: 1.5rem;
+}
+
+.deck-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: rgba(0, 163, 224, 0.05);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.deck-list li:hover {
+  background: rgba(0, 163, 224, 0.1);
+  transform: translateX(5px);
+}
+
+.deck-list i {
+  color: var(--rc-light);
+  width: 20px;
+  text-align: center;
+}
+
+.deck-list span {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+/* Action Button */
+.deck-action {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--rc-light), var(--rc-blue));
+  color: white;
+  border: none;
+  padding: 0.9rem 1.75rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(0, 163, 224, 0.3);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 163, 224, 0.4);
+  gap: 1rem;
+}
+
+.action-btn i {
+  transition: var(--transition);
 }
 
 /* ===== MODAL ===== */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.65);
-  display:none;
-  z-index:2000;
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 21, 53, 0.9);
+  display: none;
+  z-index: 3000;
+  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(8px);
 }
-.modal iframe{
-  width:90%;
-  height:90%;
-  margin:5%;
-  border:none;
-  border-radius:14px;
-  background:#fff;
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  position: relative;
+  width: 95%;
+  height: 95%;
+  margin: 2.5% auto;
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-dark));
+  color: white;
+}
+
+.modal-header h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-modal {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: var(--transition);
+}
+
+.close-modal:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  height: calc(100% - 80px);
+}
+
+.modal-body iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  margin-top: 4rem;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, var(--rc-blue-dark), #001a40);
+  color: white;
+  text-align: center;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer p {
+  opacity: 0.8;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .deck-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  
+  .filters {
+    justify-content: center;
+  }
+  
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}
+
+/* ===== LOADING ANIMATION ===== */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Deck Plans</h1>
-  <p>Adventure of the Seas · Voyager Class</p>
+<header class="header">
+  <div class="header-content">
+    <h1>Adventure of the Seas</h1>
+    <div class="header-subtitle">
+      <i class="fas fa-ship ship-icon"></i>
+      <span>Voyager Class · Deck Plans & Layouts</span>
+    </div>
+    <p>Explore all decks from top to bottom. Interactive layouts show amenities, cabins, and entertainment venues.</p>
+  </div>
 </header>
 
-<section class="ship-context">
-  <div class="stack">
-    <i class="fas fa-ship"></i>
-    Decks stack vertically · Forward → Midship → Aft
+<main class="main-content">
+  <div class="controls-panel">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search decks or amenities (e.g., 'pool', 'restaurant', 'Deck 5')...">
+    </div>
+    
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterDecks('all')">
+        <i class="fas fa-layer-group"></i>
+        <span>All Decks</span>
+      </button>
+      <button class="filter-btn" onclick="filterDecks('dining')">
+        <i class="fas fa-utensils"></i>
+        <span>Dining</span>
+      </button>
+      <button class="filter-btn" onclick="filterDecks('cabins')">
+        <i class="fas fa-bed"></i>
+        <span>Cabins</span>
+      </button>
+      <button class="filter-btn" onclick="filterDecks('recreation')">
+        <i class="fas fa-swimming-pool"></i>
+        <span>Recreation</span>
+      </button>
+      <button class="filter-btn" onclick="filterDecks('entertainment')">
+        <i class="fas fa-theater-masks"></i>
+        <span>Entertainment</span>
+      </button>
+    </div>
+    
+    <div class="filter-state">
+      <i class="fas fa-info-circle" style="color: var(--rc-light);"></i>
+      <span id="filterState">Showing all 15 decks · Use filters to narrow down</span>
+    </div>
   </div>
-</section>
 
-<div class="filters">
-  <button class="filter-btn active" onclick="filterDecks('all')">All</button>
-  <button class="filter-btn" onclick="filterDecks('dining')">Dining</button>
-  <button class="filter-btn" onclick="filterDecks('cabins')">Cabins</button>
-  <button class="filter-btn" onclick="filterDecks('recreation')">Recreation</button>
+  <div class="deck-grid" id="deckGrid">
+    <!-- Deck 3 -->
+    <article class="deck-card" data-tags="dining cabins entertainment" data-name="Deck 3">
+      <div class="deck-header">
+        <h2>Deck 3 · Staterooms & Dining</h2>
+        <div class="deck-number">3</div>
+      </div>
+      <div class="orientation-indicator">
+        <div class="orientation-labels">
+          <span>Forward</span>
+          <span>Midship</span>
+          <span>Aft</span>
+        </div>
+        <div class="orientation-bar">
+          <div class="orientation-marker"></div>
+        </div>
+      </div>
+      <ul class="deck-list">
+        <li><i class="fas fa-utensils"></i><span>Main Dining Room (Lower Level)</span></li>
+        <li><i class="fas fa-theater-masks"></i><span>Lyric Theatre (Orchestra Level)</span></li>
+        <li><i class="fas fa-bed"></i><span>Ocean View & Interior Staterooms</span></li>
+        <li><i class="fas fa-users"></i><span>Conference Center</span></li>
+      </ul>
+      <div class="deck-action">
+        <button class="action-btn" onclick="openPDF(3)">
+          <span>Explore Deck Plan</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </article>
+
+    <!-- Deck 4 -->
+    <article class="deck-card" data-tags="dining recreation entertainment" data-name="Deck 4">
+      <div class="deck-header">
+        <h2>Deck 4 · Specialty Dining</h2>
+        <div class="deck-number">4</div>
+      </div>
+      <div class="orientation-indicator">
+        <div class="orientation-labels">
+          <span>Forward</span>
+          <span>Midship</span>
+          <span>Aft</span>
+        </div>
+        <div class="orientation-bar">
+          <div class="orientation-marker"></div>
+        </div>
+      </div>
+      <ul class="deck-list">
+        <li><i class="fas fa-steak"></i><span>Chops Grille Steakhouse</span></li>
+        <li><i class="fas fa-pizza-slice"></i><span>Giovanni’s Table Italian</span></li>
+        <li><i class="fas fa-fish"></i><span>Izumi Hibachi & Sushi</span></li>
+        <li><i class="fas fa-dice"></i><span>Casino Royale</span></li>
+        <li><i class="fas fa-ticket-alt"></i><span>Studio B Ice Rink</span></li>
+      </ul>
+      <div class="deck-action">
+        <button class="action-btn" onclick="openPDF(4)">
+          <span>Explore Deck Plan</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </article>
+
+    <!-- Deck 5 -->
+    <article class="deck-card" data-tags="dining shopping entertainment" data-name="Deck 5 Royal Promenade">
+      <div class="deck-header">
+        <h2>Deck 5 · Royal Promenade</h2>
+        <div class="deck-number">5</div>
+      </div>
+      <div class="orientation-indicator">
+        <div class="orientation-labels">
+          <span>Forward</span>
+          <span>Midship</span>
+          <span>Aft</span>
+        </div>
+        <div class="orientation-bar">
+          <div class="orientation-marker"></div>
+        </div>
+      </div>
+      <ul class="deck-list">
+        <li><i class="fas fa-coffee"></i><span>Café Promenade (24/7)</span></li>
+        <li><i class="fas fa-pizza-slice"></i><span>Sorrento’s Pizza</span></li>
+        <li><i class="fas fa-shopping-bag"></i><span>Royal Shops & Boutiques</span></li>
+        <li><i class="fas fa-info-circle"></i><span>Guest Services & Excursions</span></li>
+        <li><i class="fas fa-beer"></i><span>English Pub & Schooner Bar</span></li>
+      </ul>
+      <div class="deck-action">
+        <button class="action-btn" onclick="openPDF(5)">
+          <span>Explore Deck Plan</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </article>
+
+    <!-- Deck 11 -->
+    <article class="deck-card" data-tags="dining recreation" data-name="Deck 11">
+      <div class="deck-header">
+        <h2>Deck 11 · Pool & Casual Dining</h2>
+        <div class="deck-number">11</div>
+      </div>
+      <div class="orientation-indicator">
+        <div class="orientation-labels">
+          <span>Forward</span>
+          <span>Midship</span>
+          <span>Aft</span>
+        </div>
+        <div class="orientation-bar">
+          <div class="orientation-marker"></div>
+        </div>
+      </div>
+      <ul class="deck-list">
+        <li><i class="fas fa-utensils"></i><span>Windjammer Café (Buffet)</span></li>
+        <li><i class="fas fa-swimming-pool"></i><span>Main Pool & Jacuzzis</span></li>
+        <li><i class="fas fa-ice-cream"></i><span>Sprinkles Ice Cream</span></li>
+        <li><i class="fas fa-sun"></i><span>Solarium Adult Pool</span></li>
+        <li><i class="fas fa-hamburger"></i><span>Pool Bar & Grill</span></li>
+      </ul>
+      <div class="deck-action">
+        <button class="action-btn" onclick="openPDF(11)">
+          <span>Explore Deck Plan</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </article>
+
+    <!-- Deck 12 -->
+    <article class="deck-card" data-tags="recreation sports dining" data-name="Deck 12">
+      <div class="deck-header">
+        <h2>Deck 12 · Sports & Activities</h2>
+        <div class="deck-number">12</div>
+      </div>
+      <div class="orientation-indicator">
+        <div class="orientation-labels">
+          <span>Forward</span>
+          <span>Midship</span>
+          <span>Aft</span>
+        </div>
+        <div class="orientation-bar">
+          <div class="orientation-marker"></div>
+        </div>
+      </div>
+      <ul class="deck-list">
+        <li><i class="fas fa-hamburger"></i><span>Johnny Rockets Diner</span></li>
+        <li><i class="fas fa-basketball-ball"></i><span>Sports Court & Mini Golf</span></li>
+        <li><i class="fas fa-mountain"></i><span>Rock Climbing Wall</span></li>
+        <li><i class="fas fa-running"></i><span>Jogging Track</span></li>
+        <li><i class="fas fa-child"></i><span>Adventure Ocean Youth Zone</span></li>
+      </ul>
+      <div class="deck-action">
+        <button class="action-btn" onclick="openPDF(12)">
+          <span>Explore Deck Plan</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </article>
+
+    <!-- Deck 14 -->
+    <article class="deck-card" data-tags="cabins suites" data-name="Deck 14">
+      <div class="deck-header">
+        <h2>Deck 14 · Suite Level</h2>
+        <div class="deck-number">14</div>
+      </div>
+      <div class="orientation-indicator">
+        <div class="orientation-labels">
+          <span>Forward</span>
+          <span>Midship</span>
+          <span>Aft</span>
+        </div>
+        <div class="orientation-bar">
+          <div class="orientation-marker"></div>
+        </div>
+      </div>
+      <ul class="deck-list">
+        <li><i class="fas fa-crown"></i><span>Royal Suite & Owner's Suite</span></li>
+        <li><i class="fas fa-door-open"></i><span>Grand Suites with Balconies</span></li>
+        <li><i class="fas fa-spa"></i><span>Concierge Club & Lounge</span></li>
+        <li><i class="fas fa-wind"></i><span>Viking Crown Lounge</span></li>
+      </ul>
+      <div class="deck-action">
+        <button class="action-btn" onclick="openPDF(14)">
+          <span>Explore Deck Plan</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </article>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal" id="pdfModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Deck Plan</h3>
+      <button class="close-modal" onclick="closePDF()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <iframe id="pdfFrame"></iframe>
+    </div>
+  </div>
 </div>
 
-<div class="filter-state" id="filterState">
-  Showing all decks
-</div>
-
-<section class="deck-grid">
-
-<article class="deck-card" data-tags="dining cabins">
-  <div class="deck-header">
-    <h2>Deck 3</h2>
-    <button onclick="openPDF(3)">View Deck</button>
+<footer class="footer">
+  <div class="footer-content">
+    <i class="fas fa-ship" style="font-size: 2rem; margin-bottom: 1rem; color: var(--rc-light);"></i>
+    <p>Adventure of the Seas Deck Plans · Royal Caribbean International</p>
+    <p>All deck layouts are interactive. Click any venue for more information.</p>
   </div>
-  <div class="orientation"><span>Forward</span><span class="mid">Mid</span><span>Aft</span></div>
-  <ul class="deck-list">
-    <li><i class="fas fa-utensils"></i>Main Dining Room (Lower)</li>
-    <li><i class="fas fa-theater-masks"></i>Lyric Theatre</li>
-    <li><i class="fas fa-bed"></i>Interior Staterooms</li>
-  </ul>
-</article>
-
-<article class="deck-card" data-tags="dining recreation">
-  <div class="deck-header">
-    <h2>Deck 4</h2>
-    <button onclick="openPDF(4)">View Deck</button>
-  </div>
-  <div class="orientation"><span>Forward</span><span class="mid">Mid</span><span>Aft</span></div>
-  <ul class="deck-list">
-    <li><i class="fas fa-steak"></i>Chops Grille</li>
-    <li><i class="fas fa-pizza-slice"></i>Giovanni’s Table</li>
-    <li><i class="fas fa-fish"></i>Izumi</li>
-    <li><i class="fas fa-dice"></i>Casino Royale</li>
-  </ul>
-</article>
-
-<article class="deck-card" data-tags="dining">
-  <div class="deck-header">
-    <h2>Deck 5 · Royal Promenade</h2>
-    <button onclick="openPDF(5)">View Deck</button>
-  </div>
-  <div class="orientation"><span>Forward</span><span class="mid">Mid</span><span>Aft</span></div>
-  <ul class="deck-list">
-    <li><i class="fas fa-coffee"></i>Café Promenade</li>
-    <li><i class="fas fa-pizza-slice"></i>Sorrento’s Pizza</li>
-    <li><i class="fas fa-info-circle"></i>Guest Services</li>
-  </ul>
-</article>
-
-<article class="deck-card" data-tags="dining recreation">
-  <div class="deck-header">
-    <h2>Deck 11</h2>
-    <button onclick="openPDF(11)">View Deck</button>
-  </div>
-  <div class="orientation"><span>Forward</span><span class="mid">Mid</span><span>Aft</span></div>
-  <ul class="deck-list">
-    <li><i class="fas fa-utensils"></i>Windjammer Café</li>
-    <li><i class="fas fa-swimming-pool"></i>Pool Deck</li>
-  </ul>
-</article>
-
-<article class="deck-card" data-tags="dining recreation">
-  <div class="deck-header">
-    <h2>Deck 12</h2>
-    <button onclick="openPDF(12)">View Deck</button>
-  </div>
-  <div class="orientation"><span>Forward</span><span class="mid">Mid</span><span>Aft</span></div>
-  <ul class="deck-list">
-    <li><i class="fas fa-hamburger"></i>Johnny Rockets</li>
-    <li><i class="fas fa-basketball-ball"></i>Sports Court</li>
-    <li><i class="fas fa-mountain"></i>Rock Climbing Wall</li>
-  </ul>
-</article>
-
-</section>
-
-<div class="modal" id="pdfModal" onclick="closePDF()">
-  <iframe id="pdfFrame"></iframe>
-</div>
+</footer>
 
 <script>
-function openPDF(deck){
-  const frame=document.getElementById('pdfFrame');
-  frame.src=`Adventure-of-the-Seas-deck-plan-21.pdf#page=${deck}`;
-  document.getElementById('pdfModal').style.display='block';
-}
-function closePDF(){
-  document.getElementById('pdfModal').style.display='none';
-}
-function filterDecks(tag){
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('filterState').textContent =
-    tag==='all' ? 'Showing all decks' : `Showing ${tag} decks`;
-  document.querySelectorAll('.deck-card').forEach(card=>{
-    card.style.display=(tag==='all'||card.dataset.tags.includes(tag))?'block':'none';
+// Enhanced filtering with search
+function filterDecks(tag) {
+  const buttons = document.querySelectorAll('.filter-btn');
+  buttons.forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const decks = document.querySelectorAll('.deck-card');
+  let visibleCount = 0;
+  
+  decks.forEach(deck => {
+    const deckTags = deck.dataset.tags;
+    const deckName = deck.dataset.name.toLowerCase();
+    const deckText = deck.textContent.toLowerCase();
+    
+    const matchesTag = tag === 'all' || deckTags.includes(tag);
+    const matchesSearch = !searchTerm || 
+                         deckName.includes(searchTerm) || 
+                         deckText.includes(searchTerm);
+    
+    if (matchesTag && matchesSearch) {
+      deck.style.display = 'block';
+      visibleCount++;
+      setTimeout(() => {
+        deck.style.opacity = '1';
+        deck.style.transform = 'translateY(0)';
+      }, 10);
+    } else {
+      deck.style.opacity = '0';
+      deck.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        deck.style.display = 'none';
+      }, 300);
+    }
   });
+  
+  updateFilterState(tag, searchTerm, visibleCount);
 }
-</script>
 
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+  const activeFilter = document.querySelector('.filter-btn.active');
+  const tag = activeFilter ? activeFilter.querySelector('span').textContent.toLowerCase() : 'all';
+  filterDecks(tag === 'all decks' ? 'all' : tag);
+});
+
+// Update filter state text
+function updateFilterState(tag, searchTerm, count) {
+  const state = document.getElementById('filterState');
+  let text = `Showing ${count} deck${count !== 1 ? 's' : ''}`;
+  
+  if (tag !== 'all') {
+    text += ` with ${tag}`;
+  }
+  
+  if (searchTerm) {
+    text += ` matching "${searchTerm}"`;
+  }
+  
+  state.innerHTML = `<i class="fas fa-info-circle" style="color: var(--rc-light);"></i> ${text}`;
+}
+
+// Enhanced PDF modal
+function openPDF(deck) {
+  const modal = document.getElementById('pdfModal');
+  const frame = document.getElementById('pdfFrame');
+  const modalTitle = document.getElementById('modalTitle');
+  
+  // Set modal title based on deck
+  const deckNames = {
+    3: 'Deck 3 · Staterooms & Dining',
+    4: 'Deck 4 · Specialty Dining',
+    5: 'Deck 5 · Royal Promenade',
+    11: 'Deck 11 · Pool & Casual Dining',
+    12: 'Deck 12 · Sports & Activities',
+    14: 'Deck 14 · Suite Level'
+  };
+  
+  modalTitle.textContent = deckNames[deck] || `Deck ${deck} Plan`;
+  
+  // Show loading state
+  frame.src = `about:blank`;
+  modal.style.display = 'block';
+  
+  // Load PDF after brief delay for smooth transition
+  setTimeout(() => {
+    frame.src = `Adventure-of-the-Seas-deck-plan-21.pdf#page=${deck}&toolbar=1&navpanes=1`;
+  }, 300);
+  
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+}
+
+function closePDF() {
+  document.getElementById('pdfModal').style.display = 'none';
+  document.getElementById('pdfFrame').src = 'about:blank';
+  document.body.style.overflow = 'auto';
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePDF();
+  if (e.key === 'Enter' && e.target.id === 'searchInput') {
+    e.preventDefault();
+    filterDecks('all');
+  }
+});
+
+// Close modal when clicking outside content
+document.getElementById('pdfModal').addEventListener('click', function(e) {
+  if (e.target === this) closePDF();
+});
+
+// Add smooth animations on load
+document.addEventListener('DOMContentLoaded', function() {
+  const cards = document.querySelectorAll('.deck-card');
+  cards.forEach((card, index) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+      card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    }, index * 100);
+  });
+  
+  // Add hover effect to deck numbers
+  const deckNumbers = document.querySelectorAll('.deck-number');
+  deckNumbers.forEach(num => {
+    num.addEventListener('mouseenter', function() {
+      this.style.transform = 'scale(1.1) rotate(10deg)';
+    });
+    num.addEventListener('mouseleave', function() {
+      this.style.transform = 'scale(1) rotate(0)';
+    });
+  });
+});
+</script>
 </body>
 </html>
