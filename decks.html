@@ -339,11 +339,37 @@ body{
 
 <body>
 <script>
-  window.addEventListener('error', (event) => {
-    if (event.filename && event.filename.includes('gpsBootstrap.js')) {
-      event.preventDefault();
-    }
-  });
+  (function() {
+    const originalError = window.console.error;
+    window.console.error = function() {
+      if (arguments[0] && typeof arguments[0] === 'string' &&
+          arguments[0].includes('gpsBootstrap.js')) {
+        return;
+      }
+      if (originalError) {
+        originalError.apply(window.console, arguments);
+      }
+    };
+
+    window.addEventListener('error', function(event) {
+      if (event.filename && (
+        event.filename.includes('gpsBootstrap.js') ||
+        (event.error && event.error.stack && event.error.stack.includes('gpsBootstrap.js'))
+      )) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+    }, true);
+
+    window.addEventListener('unhandledrejection', function(event) {
+      if (event.reason && event.reason.stack &&
+          event.reason.stack.includes('gpsBootstrap.js')) {
+        event.preventDefault();
+        return false;
+      }
+    });
+  })();
 </script>
 
 <div id="sharedHeader" data-page="decks" data-menu-toggle="false"></div>
