@@ -147,6 +147,27 @@ body {
   color: var(--muted);
 }
 
+.clear-search {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+}
+
+.clear-search:hover {
+  background: rgba(0, 53, 128, 0.08);
+  color: var(--rc-blue);
+}
+
 .filters {
   display: flex;
   gap: 0.75rem;
@@ -195,6 +216,32 @@ body {
   font-size: 0.9rem;
 }
 
+.filter-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.deck-jump {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.deck-jump select {
+  border: 2px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
 /* ===== DECK GRID ===== */
 .deck-grid {
   display: grid;
@@ -212,6 +259,14 @@ body {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+}
+
+.deck-card.hidden {
+  display: none;
+}
+
+.deck-card.highlight {
+  box-shadow: 0 0 0 3px rgba(0, 163, 224, 0.25), var(--shadow-hover);
 }
 
 .deck-card::before {
@@ -372,6 +427,26 @@ body {
   transition: var(--transition);
 }
 
+.empty-state {
+  display: none;
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background: var(--card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.empty-state i {
+  font-size: 2rem;
+  color: var(--rc-light);
+  margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+  color: var(--muted);
+}
+
 /* ===== MODAL ===== */
 .modal {
   position: fixed;
@@ -447,6 +522,25 @@ body {
   border: none;
 }
 
+.modal-loading {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--rc-blue);
+  font-weight: 600;
+  z-index: 2;
+}
+
+.modal-loading .loading {
+  border-color: rgba(0, 53, 128, 0.2);
+  border-top-color: var(--rc-light);
+}
+
 /* ===== FOOTER ===== */
 .footer {
   margin-top: 4rem;
@@ -480,6 +574,11 @@ body {
   
   .filters {
     justify-content: center;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
   .modal-content {
@@ -524,41 +623,59 @@ body {
   <div class="controls-panel">
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input type="text" id="searchInput" placeholder="Search decks or amenities (e.g., 'pool', 'restaurant', 'Deck 5')...">
+      <input type="text" id="searchInput" placeholder="Search decks or amenities (e.g., 'pool', 'restaurant', 'Deck 5')..." aria-label="Search decks and amenities">
+      <button class="clear-search" id="clearSearch" type="button" aria-label="Clear search">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     
     <div class="filters">
-      <button class="filter-btn active" onclick="filterDecks('all')">
+      <button class="filter-btn active">
         <i class="fas fa-layer-group"></i>
         <span>All Decks</span>
       </button>
-      <button class="filter-btn" onclick="filterDecks('dining')">
+      <button class="filter-btn">
         <i class="fas fa-utensils"></i>
         <span>Dining</span>
       </button>
-      <button class="filter-btn" onclick="filterDecks('cabins')">
+      <button class="filter-btn">
         <i class="fas fa-bed"></i>
         <span>Cabins</span>
       </button>
-      <button class="filter-btn" onclick="filterDecks('recreation')">
+      <button class="filter-btn">
         <i class="fas fa-swimming-pool"></i>
         <span>Recreation</span>
       </button>
-      <button class="filter-btn" onclick="filterDecks('entertainment')">
+      <button class="filter-btn">
         <i class="fas fa-theater-masks"></i>
         <span>Entertainment</span>
       </button>
     </div>
     
-    <div class="filter-state">
-      <i class="fas fa-info-circle" style="color: var(--rc-light);"></i>
-      <span id="filterState">Showing all 15 decks · Use filters to narrow down</span>
+    <div class="filter-actions">
+      <div class="filter-state">
+        <i class="fas fa-info-circle" style="color: var(--rc-light);"></i>
+        <span id="filterState">Showing all 6 decks · Use filters to narrow down</span>
+      </div>
+      <label class="deck-jump" for="deckJump">
+        <i class="fas fa-location-arrow"></i>
+        Quick jump
+        <select id="deckJump">
+          <option value="">Select deck</option>
+          <option value="3">Deck 3</option>
+          <option value="4">Deck 4</option>
+          <option value="5">Deck 5</option>
+          <option value="11">Deck 11</option>
+          <option value="12">Deck 12</option>
+          <option value="14">Deck 14</option>
+        </select>
+      </label>
     </div>
   </div>
 
-  <div class="deck-grid" id="deckGrid">
+  <div class="deck-grid" id="deckGrid" aria-live="polite" aria-busy="false">
     <!-- Deck 3 -->
-    <article class="deck-card" data-tags="dining cabins entertainment" data-name="Deck 3">
+    <article class="deck-card" id="deck-3" data-tags="dining cabins entertainment" data-name="Deck 3">
       <div class="deck-header">
         <h2>Deck 3 · Staterooms & Dining</h2>
         <div class="deck-number">3</div>
@@ -588,7 +705,7 @@ body {
     </article>
 
     <!-- Deck 4 -->
-    <article class="deck-card" data-tags="dining recreation entertainment" data-name="Deck 4">
+    <article class="deck-card" id="deck-4" data-tags="dining recreation entertainment" data-name="Deck 4">
       <div class="deck-header">
         <h2>Deck 4 · Specialty Dining</h2>
         <div class="deck-number">4</div>
@@ -619,7 +736,7 @@ body {
     </article>
 
     <!-- Deck 5 -->
-    <article class="deck-card" data-tags="dining shopping entertainment" data-name="Deck 5 Royal Promenade">
+    <article class="deck-card" id="deck-5" data-tags="dining shopping entertainment" data-name="Deck 5 Royal Promenade">
       <div class="deck-header">
         <h2>Deck 5 · Royal Promenade</h2>
         <div class="deck-number">5</div>
@@ -650,7 +767,7 @@ body {
     </article>
 
     <!-- Deck 11 -->
-    <article class="deck-card" data-tags="dining recreation" data-name="Deck 11">
+    <article class="deck-card" id="deck-11" data-tags="dining recreation" data-name="Deck 11">
       <div class="deck-header">
         <h2>Deck 11 · Pool & Casual Dining</h2>
         <div class="deck-number">11</div>
@@ -681,7 +798,7 @@ body {
     </article>
 
     <!-- Deck 12 -->
-    <article class="deck-card" data-tags="recreation sports dining" data-name="Deck 12">
+    <article class="deck-card" id="deck-12" data-tags="recreation sports dining" data-name="Deck 12">
       <div class="deck-header">
         <h2>Deck 12 · Sports & Activities</h2>
         <div class="deck-number">12</div>
@@ -712,7 +829,7 @@ body {
     </article>
 
     <!-- Deck 14 -->
-    <article class="deck-card" data-tags="cabins suites" data-name="Deck 14">
+    <article class="deck-card" id="deck-14" data-tags="cabins suites" data-name="Deck 14">
       <div class="deck-header">
         <h2>Deck 14 · Suite Level</h2>
         <div class="deck-number">14</div>
@@ -741,6 +858,12 @@ body {
       </div>
     </article>
   </div>
+
+  <div class="empty-state" id="emptyState">
+    <i class="fas fa-life-ring"></i>
+    <h3>No decks match your filters</h3>
+    <p>Try a broader search term or switch back to All Decks.</p>
+  </div>
 </main>
 
 <!-- Modal -->
@@ -753,7 +876,11 @@ body {
       </button>
     </div>
     <div class="modal-body">
-      <iframe id="pdfFrame"></iframe>
+      <div class="modal-loading" id="modalLoading">
+        <span class="loading"></span>
+        <span>Loading deck plan...</span>
+      </div>
+      <iframe id="pdfFrame" title="Deck plan PDF"></iframe>
     </div>
   </div>
 </div>
@@ -768,74 +895,72 @@ body {
 
 <script>
 // Enhanced filtering with search
-function filterDecks(tag) {
-  const buttons = document.querySelectorAll('.filter-btn');
-  buttons.forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-  const decks = document.querySelectorAll('.deck-card');
-  let visibleCount = 0;
-  
-  decks.forEach(deck => {
-    const deckTags = deck.dataset.tags;
-    const deckName = deck.dataset.name.toLowerCase();
-    const deckText = deck.textContent.toLowerCase();
-    
-    const matchesTag = tag === 'all' || deckTags.includes(tag);
-    const matchesSearch = !searchTerm || 
-                         deckName.includes(searchTerm) || 
-                         deckText.includes(searchTerm);
-    
-    if (matchesTag && matchesSearch) {
-      deck.style.display = 'block';
-      visibleCount++;
-      setTimeout(() => {
-        deck.style.opacity = '1';
-        deck.style.transform = 'translateY(0)';
-      }, 10);
-    } else {
-      deck.style.opacity = '0';
-      deck.style.transform = 'translateY(20px)';
-      setTimeout(() => {
-        deck.style.display = 'none';
-      }, 300);
-    }
+const searchInput = document.getElementById('searchInput');
+const clearSearchButton = document.getElementById('clearSearch');
+const deckCards = Array.from(document.querySelectorAll('.deck-card'));
+const deckGrid = document.getElementById('deckGrid');
+const emptyState = document.getElementById('emptyState');
+const deckJump = document.getElementById('deckJump');
+let activeTag = 'all';
+
+function setActiveFilterButton(tag) {
+  document.querySelectorAll('.filter-btn').forEach(button => {
+    const isMatch = button.dataset.tag === tag;
+    button.classList.toggle('active', isMatch);
+    button.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
   });
-  
-  updateFilterState(tag, searchTerm, visibleCount);
 }
 
-// Search functionality
-document.getElementById('searchInput').addEventListener('input', function() {
-  const activeFilter = document.querySelector('.filter-btn.active');
-  const tag = activeFilter ? activeFilter.querySelector('span').textContent.toLowerCase() : 'all';
-  filterDecks(tag === 'all decks' ? 'all' : tag);
-});
+function applyFilters() {
+  const searchTerm = searchInput.value.trim().toLowerCase();
+  let visibleCount = 0;
 
-// Update filter state text
+  deckCards.forEach(deck => {
+    const matchesTag = activeTag === 'all' || deck.dataset.tags.includes(activeTag);
+    const deckName = deck.dataset.name.toLowerCase();
+    const deckText = deck.textContent.toLowerCase();
+    const matchesSearch = !searchTerm || deckName.includes(searchTerm) || deckText.includes(searchTerm);
+    const showDeck = matchesTag && matchesSearch;
+
+    deck.classList.toggle('hidden', !showDeck);
+    if (showDeck) {
+      visibleCount += 1;
+    }
+  });
+
+  clearSearchButton.style.display = searchTerm ? 'inline-flex' : 'none';
+  emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+  deckGrid.setAttribute('aria-busy', 'false');
+  updateFilterState(activeTag, searchTerm, visibleCount);
+}
+
+function filterDecks(tag) {
+  activeTag = tag;
+  setActiveFilterButton(tag);
+  applyFilters();
+}
+
 function updateFilterState(tag, searchTerm, count) {
   const state = document.getElementById('filterState');
   let text = `Showing ${count} deck${count !== 1 ? 's' : ''}`;
-  
+
   if (tag !== 'all') {
     text += ` with ${tag}`;
   }
-  
+
   if (searchTerm) {
     text += ` matching "${searchTerm}"`;
   }
-  
-  state.innerHTML = `<i class="fas fa-info-circle" style="color: var(--rc-light);"></i> ${text}`;
+
+  state.textContent = text;
 }
 
-// Enhanced PDF modal
 function openPDF(deck) {
   const modal = document.getElementById('pdfModal');
   const frame = document.getElementById('pdfFrame');
   const modalTitle = document.getElementById('modalTitle');
-  
-  // Set modal title based on deck
+  const modalLoading = document.getElementById('modalLoading');
+
   const deckNames = {
     3: 'Deck 3 · Staterooms & Dining',
     4: 'Deck 4 · Specialty Dining',
@@ -844,46 +969,71 @@ function openPDF(deck) {
     12: 'Deck 12 · Sports & Activities',
     14: 'Deck 14 · Suite Level'
   };
-  
+
   modalTitle.textContent = deckNames[deck] || `Deck ${deck} Plan`;
-  
-  // Show loading state
-  frame.src = `about:blank`;
   modal.style.display = 'block';
-  
-  // Load PDF after brief delay for smooth transition
+  modalLoading.style.display = 'flex';
+  frame.src = 'about:blank';
+
   setTimeout(() => {
     frame.src = `Adventure-of-the-Seas-deck-plan-21.pdf#page=${deck}&toolbar=1&navpanes=1`;
-  }, 300);
-  
-  // Prevent body scroll
+  }, 150);
+
+  frame.onload = () => {
+    modalLoading.style.display = 'none';
+  };
+
   document.body.style.overflow = 'hidden';
 }
 
 function closePDF() {
   document.getElementById('pdfModal').style.display = 'none';
   document.getElementById('pdfFrame').src = 'about:blank';
+  document.getElementById('modalLoading').style.display = 'none';
   document.body.style.overflow = 'auto';
 }
 
-// Close modal on escape key
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closePDF();
-  if (e.key === 'Enter' && e.target.id === 'searchInput') {
-    e.preventDefault();
-    filterDecks('all');
-  }
 });
 
-// Close modal when clicking outside content
 document.getElementById('pdfModal').addEventListener('click', function(e) {
   if (e.target === this) closePDF();
 });
 
-// Add smooth animations on load
+document.querySelectorAll('.filter-btn').forEach(button => {
+  const label = button.querySelector('span').textContent.toLowerCase();
+  const tag = label === 'all decks' ? 'all' : label;
+  button.dataset.tag = tag;
+  button.setAttribute('type', 'button');
+  button.setAttribute('aria-pressed', button.classList.contains('active') ? 'true' : 'false');
+  button.addEventListener('click', () => filterDecks(tag));
+});
+
+searchInput.addEventListener('input', applyFilters);
+clearSearchButton.addEventListener('click', () => {
+  searchInput.value = '';
+  searchInput.focus();
+  applyFilters();
+});
+
+deckJump.addEventListener('change', event => {
+  const deckNumber = event.target.value;
+  if (!deckNumber) return;
+  const targetDeck = document.getElementById(`deck-${deckNumber}`);
+  if (targetDeck.classList.contains('hidden')) {
+    activeTag = 'all';
+    setActiveFilterButton('all');
+    searchInput.value = '';
+    applyFilters();
+  }
+  targetDeck.classList.add('highlight');
+  targetDeck.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => targetDeck.classList.remove('highlight'), 1800);
+});
+
 document.addEventListener('DOMContentLoaded', function() {
-  const cards = document.querySelectorAll('.deck-card');
-  cards.forEach((card, index) => {
+  deckCards.forEach((card, index) => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(20px)';
     setTimeout(() => {
@@ -892,8 +1042,7 @@ document.addEventListener('DOMContentLoaded', function() {
       card.style.transform = 'translateY(0)';
     }, index * 100);
   });
-  
-  // Add hover effect to deck numbers
+
   const deckNumbers = document.querySelectorAll('.deck-number');
   deckNumbers.forEach(num => {
     num.addEventListener('mouseenter', function() {
@@ -903,6 +1052,8 @@ document.addEventListener('DOMContentLoaded', function() {
       this.style.transform = 'scale(1) rotate(0)';
     });
   });
+
+  applyFilters();
 });
 </script>
 </body>
