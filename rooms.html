@@ -188,6 +188,80 @@
             gap: 1.5rem;
             margin: 2rem 0;
         }
+
+        .room-tools {
+            margin-top: 2rem;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .room-tools-grid {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .room-tools-grid {
+                grid-template-columns: 2fr 1fr 1fr auto;
+                align-items: end;
+            }
+        }
+
+        .field-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.35rem;
+        }
+
+        .field-control {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.7rem 0.75rem;
+            font: inherit;
+            color: var(--text-primary);
+            background: #fff;
+        }
+
+        .field-control:focus-visible,
+        .btn:focus-visible,
+        .room-link-btn:focus-visible,
+        .room-card:focus-within {
+            outline: 3px solid rgba(2, 132, 199, 0.35);
+            outline-offset: 2px;
+        }
+
+        .results-row {
+            margin-top: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .results-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            display: none;
+            margin: 1rem 0 2rem;
+            text-align: center;
+            background: white;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            color: var(--text-secondary);
+        }
         
         @media (min-width: 768px) {
             .room-grid {
@@ -260,6 +334,32 @@
         
         .room-content {
             padding: 1.5rem;
+        }
+
+        .room-cta {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .room-link-btn {
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 0.4rem 0.75rem;
+            background: #fff;
+            color: var(--rc-blue);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            cursor: pointer;
+        }
+
+        .room-link-btn:hover {
+            background: #eff6ff;
         }
         
         .room-label {
@@ -558,10 +658,41 @@
             </div>
         </div>
 
+        <section class="room-tools" aria-label="Find your room">
+            <div class="room-tools-grid">
+                <div>
+                    <label for="searchInput" class="field-label">Search by guest name or room number</label>
+                    <input id="searchInput" class="field-control" type="search" placeholder="e.g. Bill, 6650" autocomplete="off">
+                </div>
+                <div>
+                    <label for="deckFilter" class="field-label">Filter by deck</label>
+                    <select id="deckFilter" class="field-control">
+                        <option value="all">All decks</option>
+                        <option value="3">Deck 3</option>
+                        <option value="6">Deck 6</option>
+                        <option value="8">Deck 8</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="typeFilter" class="field-label">Filter by room type</label>
+                    <select id="typeFilter" class="field-control">
+                        <option value="all">All room types</option>
+                        <option value="balcony">Balcony</option>
+                        <option value="interior">Interior</option>
+                        <option value="ocean">Ocean View</option>
+                    </select>
+                </div>
+                <button id="clearFilters" class="btn btn-secondary" type="button"><i class="fas fa-rotate-left"></i> Reset</button>
+            </div>
+            <div class="results-row">
+                <p class="results-text" id="resultsText">Showing all 5 rooms</p>
+            </div>
+        </section>
+
         <!-- Room Grid -->
         <div class="room-grid" id="roomGrid">
             <!-- Room 1 - Featured Family Room -->
-            <div class="room-card featured">
+            <div class="room-card featured" data-room="6650" data-deck="6" data-type="balcony" data-guests="bill melissa owen declan">
                 <div class="room-header">
                     <div class="room-number">6650</div>
                     <div class="room-location">
@@ -588,11 +719,15 @@
                             <li><i class="fas fa-check"></i> Private bathroom with shower</li>
                         </ul>
                     </div>
+                    <div class="room-cta">
+                        <button class="room-link-btn" type="button" data-copy-room="6650"><i class="fas fa-copy"></i> Copy room #</button>
+                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                    </div>
                 </div>
             </div>
 
             <!-- Room 2 -->
-            <div class="room-card">
+            <div class="room-card" data-room="6443" data-deck="6" data-type="interior" data-guests="abel amy">
                 <div class="room-header">
                     <div class="room-number">6443</div>
                     <div class="room-location">
@@ -617,11 +752,15 @@
                             <li><i class="fas fa-check"></i> Convenient laundry access</li>
                         </ul>
                     </div>
+                    <div class="room-cta">
+                        <button class="room-link-btn" type="button" data-copy-room="6443"><i class="fas fa-copy"></i> Copy room #</button>
+                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                    </div>
                 </div>
             </div>
 
             <!-- Room 3 -->
-            <div class="room-card">
+            <div class="room-card" data-room="8528" data-deck="8" data-type="balcony" data-guests="aimee karin">
                 <div class="room-header">
                     <div class="room-number">8528</div>
                     <div class="room-location">
@@ -645,11 +784,15 @@
                             <li><i class="fas fa-check"></i> Easy access to elevators</li>
                         </ul>
                     </div>
+                    <div class="room-cta">
+                        <button class="room-link-btn" type="button" data-copy-room="8528"><i class="fas fa-copy"></i> Copy room #</button>
+                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                    </div>
                 </div>
             </div>
 
             <!-- Room 4 -->
-            <div class="room-card">
+            <div class="room-card" data-room="8612" data-deck="8" data-type="ocean" data-guests="bella tj">
                 <div class="room-header">
                     <div class="room-number">8612</div>
                     <div class="room-location">
@@ -673,11 +816,15 @@
                             <li><i class="fas fa-check"></i> Peaceful evenings</li>
                         </ul>
                     </div>
+                    <div class="room-cta">
+                        <button class="room-link-btn" type="button" data-copy-room="8612"><i class="fas fa-copy"></i> Copy room #</button>
+                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                    </div>
                 </div>
             </div>
 
             <!-- Room 5 -->
-            <div class="room-card">
+            <div class="room-card" data-room="3622" data-deck="3" data-type="interior" data-guests="phoebe ryan">
                 <div class="room-header">
                     <div class="room-number">3622</div>
                     <div class="room-location">
@@ -701,8 +848,16 @@
                             <li><i class="fas fa-check"></i> Close to forward elevators</li>
                         </ul>
                     </div>
+                    <div class="room-cta">
+                        <button class="room-link-btn" type="button" data-copy-room="3622"><i class="fas fa-copy"></i> Copy room #</button>
+                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <p><i class="fas fa-magnifying-glass"></i> No rooms match your current filters. Try resetting to view all rooms.</p>
         </div>
 
         <!-- Action Buttons -->
@@ -767,6 +922,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Add subtle animation to room cards
             const roomCards = document.querySelectorAll('.room-card');
+            const searchInput = document.getElementById('searchInput');
+            const deckFilter = document.getElementById('deckFilter');
+            const typeFilter = document.getElementById('typeFilter');
+            const clearFilters = document.getElementById('clearFilters');
+            const resultsText = document.getElementById('resultsText');
+            const emptyState = document.getElementById('emptyState');
+
             roomCards.forEach((card, index) => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
@@ -777,6 +939,65 @@
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
+
+            const updateRoomFilters = () => {
+                const searchQuery = searchInput.value.trim().toLowerCase();
+                const selectedDeck = deckFilter.value;
+                const selectedType = typeFilter.value;
+                let visibleRooms = 0;
+
+                roomCards.forEach((card) => {
+                    const roomNumber = card.dataset.room || '';
+                    const roomDeck = card.dataset.deck || '';
+                    const roomType = card.dataset.type || '';
+                    const roomGuests = card.dataset.guests || '';
+
+                    const matchesSearch = !searchQuery || `${roomNumber} ${roomGuests}`.includes(searchQuery);
+                    const matchesDeck = selectedDeck === 'all' || roomDeck === selectedDeck;
+                    const matchesType = selectedType === 'all' || roomType === selectedType;
+
+                    const visible = matchesSearch && matchesDeck && matchesType;
+                    card.style.display = visible ? '' : 'none';
+
+                    if (visible) {
+                        visibleRooms += 1;
+                    }
+                });
+
+                resultsText.textContent = `Showing ${visibleRooms} of ${roomCards.length} rooms`;
+                emptyState.style.display = visibleRooms === 0 ? 'block' : 'none';
+            };
+
+            [searchInput, deckFilter, typeFilter].forEach((element) => {
+                element.addEventListener('input', updateRoomFilters);
+                element.addEventListener('change', updateRoomFilters);
+            });
+
+            clearFilters.addEventListener('click', () => {
+                searchInput.value = '';
+                deckFilter.value = 'all';
+                typeFilter.value = 'all';
+                updateRoomFilters();
+                searchInput.focus();
+            });
+
+            document.querySelectorAll('[data-copy-room]').forEach((button) => {
+                button.addEventListener('click', async () => {
+                    const roomNumber = button.dataset.copyRoom;
+                    try {
+                        await navigator.clipboard.writeText(roomNumber);
+                        const originalText = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-check"></i> Copied';
+                        setTimeout(() => {
+                            button.innerHTML = originalText;
+                        }, 1200);
+                    } catch (error) {
+                        window.prompt('Copy room number:', roomNumber);
+                    }
+                });
+            });
+
+            updateRoomFilters();
         });
     </script>
     <script src="service-worker-registration.js" defer></script>
