@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* COMPLETE CSS STYLES */
         :root {
             --rc-blue: #003580;
             --rc-light-blue: #00a3e0;
@@ -15,19 +16,26 @@
             --rc-warning: #ff6b35;
             --rc-success: #00b8a9;
             --rc-purple: #7c3aed;
+            --rc-red: #dc2626;
             --bg-primary: #ffffff;
             --bg-secondary: #f4f8ff;
             --bg-dark: #0f172a;
+            --bg-card: #ffffff;
             --border-color: #e2e8f0;
+            --border-light: #f1f5f9;
             --text-primary: #1e293b;
             --text-secondary: #64748b;
+            --text-light: #94a3b8;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.2);
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
+            --radius-xl: 20px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -35,6 +43,7 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
@@ -48,7 +57,7 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, var(--rc-blue) 0%, var(--rc-light-blue) 100%);
+            background: linear-gradient(135deg, var(--rc-blue) 0%, #0054a6 100%);
             color: white;
             position: fixed;
             top: 0;
@@ -57,18 +66,22 @@
             z-index: 1000;
             padding: 1rem 0;
             box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 53, 128, 0.95);
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 1.5rem;
+            width: 100%;
         }
 
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1.5rem;
         }
 
         .logo {
@@ -77,21 +90,31 @@
             gap: 1rem;
             text-decoration: none;
             color: white;
+            flex-shrink: 0;
         }
 
         .logo-icon {
             font-size: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .logo-text {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
             font-size: 1.5rem;
+            line-height: 1.2;
         }
 
         .logo-subtext {
             font-size: 0.875rem;
             opacity: 0.9;
+            font-weight: 500;
         }
 
         /* Main Layout */
@@ -101,6 +124,23 @@
             gap: 2rem;
             padding: 2rem 1.5rem;
             margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 240px 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+                margin-top: 70px;
+            }
         }
 
         /* Sidebar */
@@ -112,10 +152,16 @@
 
         .sidebar-card {
             background: var(--bg-primary);
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-md);
             padding: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .sidebar-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
         }
 
         .sidebar-title {
@@ -125,94 +171,186 @@
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border-light);
         }
 
-        /* Deck Navigator */
+        .sidebar-title i {
+            color: var(--rc-light-blue);
+        }
+
+        /* Deck Navigation */
         .deck-nav {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .deck-btn {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
             background: white;
             border: 2px solid var(--border-color);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-md);
             font-weight: 600;
             color: var(--text-secondary);
             cursor: pointer;
             transition: var(--transition);
             text-align: left;
+            width: 100%;
         }
 
         .deck-btn:hover {
             border-color: var(--rc-light-blue);
             color: var(--rc-blue);
             transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
         }
 
         .deck-btn.active {
-            background: var(--rc-blue);
+            background: linear-gradient(135deg, var(--rc-blue) 0%, var(--rc-light-blue) 100%);
             color: white;
             border-color: var(--rc-blue);
+            box-shadow: 0 4px 12px rgba(0, 53, 128, 0.2);
         }
 
         .deck-number {
             font-size: 1.25rem;
             font-weight: 700;
-            min-width: 40px;
-            height: 40px;
+            min-width: 44px;
+            height: 44px;
             background: rgba(0, 53, 128, 0.1);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .deck-btn:hover .deck-number {
+            background: rgba(0, 163, 224, 0.1);
+            border-color: rgba(0, 163, 224, 0.2);
         }
 
         .deck-btn.active .deck-number {
             background: rgba(255, 255, 255, 0.2);
             color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .deck-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .deck-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .deck-description {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .deck-btn.active .deck-description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Category List */
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .category-item:hover {
+            background: var(--bg-secondary);
+            color: var(--rc-blue);
+            transform: translateX(4px);
+        }
+
+        .category-item i {
+            width: 20px;
+            text-align: center;
         }
 
         /* Main Explorer Area */
         .explorer-container {
             background: var(--bg-primary);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-xl);
             border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
             overflow: hidden;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 160px);
+            min-height: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .explorer-container {
+                height: auto;
+                min-height: 500px;
+            }
         }
 
         .explorer-header {
-            padding: 1.5rem;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .explorer-title {
             font-family: 'Montserrat', sans-serif;
             font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .explorer-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+            color: #cbd5e1;
         }
 
         .explorer-controls {
             display: flex;
             gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         .control-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
@@ -221,19 +359,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(10px);
         }
 
         .control-btn:hover {
             background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
         }
 
         /* Deck Viewer */
         .deck-viewer {
             position: relative;
-            height: 600px;
+            flex: 1;
             overflow: hidden;
             background: var(--bg-dark);
+            min-height: 400px;
         }
 
         .deck-image-container {
@@ -246,20 +391,23 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .deck-image-container.dragging {
+            cursor: grabbing;
         }
 
         .deck-image {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            transition: transform 0.3s ease;
-            cursor: grab;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .deck-image.dragging {
-            cursor: grabbing;
+            transition: transform 0.1s linear;
+            filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.4));
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
         }
 
         /* Interactive Overlay */
@@ -270,36 +418,88 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
+            z-index: 2;
         }
 
         .hotspot {
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background: var(--rc-warning);
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             cursor: pointer;
             pointer-events: all;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             z-index: 10;
+            transform-origin: center;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
         }
 
         .hotspot:hover {
             transform: scale(1.5);
-            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.3);
+            z-index: 11;
         }
 
-        .hotspot::after {
+        .hotspot::before {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 20px;
-            height: 20px;
-            background: rgba(255, 107, 53, 0.2);
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             animation: pulse 2s infinite;
+            z-index: -1;
+        }
+
+        .hotspot-dining {
+            background: var(--rc-success);
+        }
+        .hotspot-dining::before {
+            background: rgba(0, 184, 169, 0.2);
+        }
+
+        .hotspot-stateroom {
+            background: var(--rc-blue);
+        }
+        .hotspot-stateroom::before {
+            background: rgba(0, 53, 128, 0.2);
+        }
+
+        .hotspot-recreation {
+            background: var(--rc-warning);
+        }
+        .hotspot-recreation::before {
+            background: rgba(255, 107, 53, 0.2);
+        }
+
+        .hotspot-entertainment {
+            background: var(--rc-purple);
+        }
+        .hotspot-entertainment::before {
+            background: rgba(124, 58, 237, 0.2);
+        }
+
+        .hotspot-services {
+            background: var(--rc-gold);
+        }
+        .hotspot-services::before {
+            background: rgba(212, 175, 55, 0.2);
+        }
+
+        .hotspot-bar {
+            background: var(--rc-light-blue);
+        }
+        .hotspot-bar::before {
+            background: rgba(0, 163, 224, 0.2);
+        }
+
+        .hotspot-spa {
+            background: var(--rc-red);
+        }
+        .hotspot-spa::before {
+            background: rgba(220, 38, 38, 0.2);
         }
 
         @keyframes pulse {
@@ -310,22 +510,24 @@
         /* Zoom Controls */
         .zoom-controls {
             position: absolute;
-            bottom: 1.5rem;
-            right: 1.5rem;
+            bottom: 2rem;
+            right: 2rem;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: var(--radius-md);
-            padding: 0.5rem;
-            box-shadow: var(--shadow-md);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-lg);
+            padding: 0.75rem;
+            box-shadow: var(--shadow-xl);
             z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .zoom-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius-sm);
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
             background: white;
             border: 1px solid var(--border-color);
             color: var(--rc-blue);
@@ -334,44 +536,77 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.25rem;
         }
 
         .zoom-btn:hover {
             background: var(--rc-blue);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 53, 128, 0.2);
+        }
+
+        .zoom-btn:active {
+            transform: translateY(0);
+        }
+
+        .zoom-display {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            padding: 0.25rem 0;
+            font-weight: 600;
         }
 
         /* Deck Details Panel */
         .deck-details {
-            padding: 1.5rem;
+            padding: 1.5rem 2rem;
             background: var(--bg-secondary);
             border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
 
         .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1.5rem;
         }
 
         .detail-card {
             background: white;
-            border-radius: var(--radius-sm);
-            padding: 1rem;
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
             border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .detail-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--rc-light-blue);
         }
 
         .detail-title {
             font-size: 0.875rem;
             color: var(--text-secondary);
             margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .detail-value {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--rc-blue);
+            line-height: 1.2;
+        }
+
+        .detail-subvalue {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
         }
 
         /* Info Panel */
@@ -382,12 +617,15 @@
             width: 380px;
             height: calc(100vh - 160px);
             background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
             z-index: 1001;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 1.5rem;
-            overflow-y: auto;
+            transition: var(--transition-slow);
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
         }
 
         .info-panel.open {
@@ -395,31 +633,182 @@
         }
 
         .info-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--rc-blue) 0%, var(--rc-light-blue) 100%);
+            color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
         }
 
         .info-title {
             font-family: 'Montserrat', sans-serif;
             font-size: 1.25rem;
-            color: var(--rc-blue);
+            font-weight: 600;
+            line-height: 1.2;
         }
 
         .info-close {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: var(--bg-secondary);
-            border: none;
-            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition);
+        }
+
+        .info-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .info-content {
+            padding: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .info-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-description {
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--rc-blue);
+        }
+
+        .info-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-stat {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+
+        .info-stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-stat-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--rc-blue);
+        }
+
+        .info-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.9375rem;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--rc-blue);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 53, 128, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--rc-light-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 53, 128, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--rc-blue);
+            border: 2px solid var(--rc-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--rc-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Loading States */
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--rc-light-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 0.875rem;
+            opacity: 0.8;
         }
 
         /* Mobile Navigation */
@@ -432,9 +821,18 @@
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
-            padding: 0.75rem 0;
+            padding: 0.75rem 0.5rem;
             z-index: 1000;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-nav {
+                display: flex;
+            }
         }
 
         .mobile-nav-item {
@@ -443,11 +841,12 @@
             align-items: center;
             text-decoration: none;
             color: var(--text-secondary);
-            padding: 0.5rem;
+            padding: 0.5rem 0.25rem;
             flex: 1;
             max-width: 80px;
             border-radius: var(--radius-sm);
             transition: var(--transition);
+            min-height: 56px;
         }
 
         .mobile-nav-item.active {
@@ -460,26 +859,28 @@
             margin-bottom: 0.25rem;
         }
 
+        .mobile-nav-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
         /* Responsive Design */
-        @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .sidebar {
-                display: none;
-            }
-
-            .deck-viewer {
-                height: 500px;
-            }
-
+        @media (max-width: 1200px) {
             .info-panel {
-                width: 90vw;
-                right: -90vw;
+                width: 350px;
             }
+        }
 
+        @media (max-width: 1024px) {
+            .explorer-container {
+                height: auto;
+            }
+            
+            .info-panel {
+                width: 320px;
+                right: -320px;
+            }
+            
             .info-panel.open {
                 right: 1rem;
             }
@@ -489,35 +890,155 @@
             .container {
                 padding: 0 1rem;
             }
-
+            
             .main-layout {
                 padding: 1rem;
                 margin-top: 70px;
+                gap: 1rem;
             }
-
-            .deck-viewer {
-                height: 400px;
+            
+            .sidebar {
+                display: none;
             }
-
-            .details-grid {
-                grid-template-columns: 1fr;
-            }
-
+            
             .explorer-header {
+                padding: 1rem;
                 flex-direction: column;
                 gap: 1rem;
                 text-align: center;
             }
+            
+            .explorer-controls {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .deck-viewer {
+                min-height: 350px;
+            }
+            
+            .deck-image-container {
+                padding: 1rem;
+            }
+            
+            .zoom-controls {
+                bottom: 1rem;
+                right: 1rem;
+            }
+            
+            .deck-details {
+                padding: 1rem;
+            }
+            
+            .details-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .info-panel {
+                width: 90vw;
+                height: calc(100vh - 140px);
+                right: -90vw;
+                top: 70px;
+                border-radius: var(--radius-lg);
+            }
+            
+            .info-panel.open {
+                right: 1rem;
+            }
+            
+            .info-header {
+                padding: 1rem;
+            }
+            
+            .info-content {
+                padding: 1rem;
+            }
         }
 
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media (max-width: 480px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .explorer-title {
+                font-size: 1.25rem;
+            }
+            
+            .control-btn, .zoom-btn {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .hotspot {
+                width: 14px;
+                height: 14px;
+            }
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease forwards;
+        /* Print Styles */
+        @media print {
+            .header, .sidebar, .zoom-controls, .explorer-controls, 
+            .mobile-nav, .info-panel, .btn {
+                display: none !important;
+            }
+            
+            .main-layout {
+                grid-template-columns: 1fr;
+                margin-top: 0;
+                padding: 0;
+            }
+            
+            .explorer-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                border-radius: 0;
+                height: auto;
+            }
+            
+            .deck-viewer {
+                height: auto;
+                min-height: auto;
+            }
+            
+            .deck-image-container {
+                position: relative;
+                padding: 1rem;
+            }
+            
+            .deck-image {
+                filter: none;
+            }
+            
+            .deck-details {
+                page-break-before: always;
+            }
+        }
+
+        /* Utility Classes */
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+        .text-secondary { color: var(--text-secondary); }
+        .text-light { color: var(--text-light); }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
     </style>
 </head>
@@ -535,7 +1056,7 @@
                         <div class="logo-subtext">Interactive Deck Explorer</div>
                     </div>
                 </a>
-                <button class="btn btn-primary" id="viewToggle">
+                <button class="btn btn-primary" id="viewToggle" style="display: none;">
                     <i class="fas fa-layer-group"></i>
                     <span>Switch View</span>
                 </button>
@@ -549,16 +1070,18 @@
             <div class="main-layout">
                 <!-- Sidebar -->
                 <aside class="sidebar">
+                    <!-- Deck Selection -->
                     <div class="sidebar-card">
                         <h3 class="sidebar-title">
                             <i class="fas fa-layer-group"></i>
                             Deck Selection
                         </h3>
                         <div class="deck-nav" id="deckNav">
-                            <!-- Deck buttons will be populated by JavaScript -->
+                            <!-- Deck buttons populated by JavaScript -->
                         </div>
                     </div>
 
+                    <!-- Your Locations -->
                     <div class="sidebar-card">
                         <h3 class="sidebar-title">
                             <i class="fas fa-star"></i>
@@ -567,115 +1090,168 @@
                         <div class="deck-nav">
                             <button class="deck-btn" data-deck="6">
                                 <div class="deck-number">6</div>
-                                <div>
-                                    <div>Your Stateroom</div>
-                                    <small style="color: var(--text-secondary);">Room 6443</small>
+                                <div class="deck-info">
+                                    <div class="deck-name">Your Stateroom</div>
+                                    <div class="deck-description">Room 6443 & 6650</div>
                                 </div>
                             </button>
                             <button class="deck-btn" data-deck="8">
                                 <div class="deck-number">8</div>
-                                <div>
-                                    <div>Your Stateroom</div>
-                                    <small style="color: var(--text-secondary);">Room 8528</small>
+                                <div class="deck-info">
+                                    <div class="deck-name">Your Stateroom</div>
+                                    <div class="deck-description">Room 8528 & 8612</div>
                                 </div>
                             </button>
                         </div>
                     </div>
 
+                    <!-- Categories -->
                     <div class="sidebar-card">
                         <h3 class="sidebar-title">
-                            <i class="fas fa-utensils"></i>
-                            Dining Decks
+                            <i class="fas fa-filter"></i>
+                            Filter by Category
+                        </h3>
+                        <div class="category-list">
+                            <div class="category-item" data-category="all">
+                                <i class="fas fa-layer-group"></i>
+                                <span>All Categories</span>
+                            </div>
+                            <div class="category-item" data-category="stateroom">
+                                <i class="fas fa-bed" style="color: var(--rc-blue);"></i>
+                                <span>Staterooms</span>
+                            </div>
+                            <div class="category-item" data-category="dining">
+                                <i class="fas fa-utensils" style="color: var(--rc-success);"></i>
+                                <span>Dining</span>
+                            </div>
+                            <div class="category-item" data-category="recreation">
+                                <i class="fas fa-swimming-pool" style="color: var(--rc-warning);"></i>
+                                <span>Recreation</span>
+                            </div>
+                            <div class="category-item" data-category="entertainment">
+                                <i class="fas fa-theater-masks" style="color: var(--rc-purple);"></i>
+                                <span>Entertainment</span>
+                            </div>
+                            <div class="category-item" data-category="services">
+                                <i class="fas fa-concierge-bell" style="color: var(--rc-gold);"></i>
+                                <span>Services</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="sidebar-card">
+                        <h3 class="sidebar-title">
+                            <i class="fas fa-key"></i>
+                            Legend
                         </h3>
                         <div class="category-list">
                             <div class="category-item">
-                                <i class="fas fa-utensils" style="color: var(--rc-success);"></i>
-                                <span>Deck 3 & 4 - Main Dining</span>
+                                <div class="hotspot hotspot-stateroom" style="position: static; margin-right: 0.5rem;"></div>
+                                <span>Staterooms</span>
                             </div>
                             <div class="category-item">
-                                <i class="fas fa-coffee" style="color: var(--rc-success);"></i>
-                                <span>Deck 5 - Café Promenade</span>
+                                <div class="hotspot hotspot-dining" style="position: static; margin-right: 0.5rem;"></div>
+                                <span>Dining</span>
                             </div>
                             <div class="category-item">
-                                <i class="fas fa-ice-cream" style="color: var(--rc-success);"></i>
-                                <span>Deck 5 - Ben & Jerry's</span>
+                                <div class="hotspot hotspot-recreation" style="position: static; margin-right: 0.5rem;"></div>
+                                <span>Recreation</span>
                             </div>
                             <div class="category-item">
-                                <i class="fas fa-pizza-slice" style="color: var(--rc-success);"></i>
-                                <span>Deck 5 - Sorrento's</span>
+                                <div class="hotspot hotspot-entertainment" style="position: static; margin-right: 0.5rem;"></div>
+                                <span>Entertainment</span>
                             </div>
                             <div class="category-item">
-                                <i class="fas fa-crown" style="color: var(--rc-warning);"></i>
-                                <span>Deck 11 - Windjammer</span>
+                                <div class="hotspot hotspot-services" style="position: static; margin-right: 0.5rem;"></div>
+                                <span>Services</span>
                             </div>
                         </div>
                     </div>
                 </aside>
 
                 <!-- Main Explorer -->
-                <div class="explorer-container fade-in">
+                <div class="explorer-container">
+                    <!-- Loading Overlay -->
+                    <div class="loading" id="loadingOverlay" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Loading deck plan...</div>
+                    </div>
+
+                    <!-- Explorer Header -->
                     <div class="explorer-header">
                         <div>
                             <h2 class="explorer-title" id="currentDeckTitle">Deck 11 - Pool & Dining</h2>
-                            <p style="opacity: 0.9; margin-top: 0.25rem;">Windjammer Café • Main Pool • Solarium</p>
+                            <p class="explorer-subtitle" id="currentDeckSubtitle">Windjammer Café • Main Pool • Solarium</p>
                         </div>
                         <div class="explorer-controls">
-                            <button class="control-btn" id="zoomIn" title="Zoom In">
+                            <button class="control-btn" id="zoomInBtn" title="Zoom In">
                                 <i class="fas fa-search-plus"></i>
                             </button>
-                            <button class="control-btn" id="zoomOut" title="Zoom Out">
+                            <button class="control-btn" id="zoomOutBtn" title="Zoom Out">
                                 <i class="fas fa-search-minus"></i>
                             </button>
-                            <button class="control-btn" id="resetView" title="Reset View">
+                            <button class="control-btn" id="resetViewBtn" title="Reset View">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
-                            <button class="control-btn" id="toggleHotspots" title="Toggle Hotspots">
+                            <button class="control-btn" id="toggleHotspotsBtn" title="Toggle Hotspots">
                                 <i class="fas fa-map-marker-alt"></i>
+                            </button>
+                            <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+                                <i class="fas fa-expand"></i>
                             </button>
                         </div>
                     </div>
 
+                    <!-- Deck Viewer -->
                     <div class="deck-viewer" id="deckViewer">
                         <div class="deck-image-container" id="imageContainer">
-                            <img src="https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" 
-                                 alt="Deck 11 Plan" 
+                            <img src="" 
+                                 alt="" 
                                  class="deck-image" 
                                  id="deckImage">
                         </div>
                         <div class="deck-overlay" id="deckOverlay">
-                            <!-- Interactive hotspots will be added here -->
+                            <!-- Interactive hotspots populated by JavaScript -->
                         </div>
                         
+                        <!-- Zoom Controls -->
                         <div class="zoom-controls">
-                            <button class="zoom-btn" id="zoomInBtn" title="Zoom In">
+                            <button class="zoom-btn" id="zoomInControl" title="Zoom In">
                                 <i class="fas fa-plus"></i>
                             </button>
-                            <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out">
+                            <div class="zoom-display" id="zoomLevel">100%</div>
+                            <button class="zoom-btn" id="zoomOutControl" title="Zoom Out">
                                 <i class="fas fa-minus"></i>
                             </button>
-                            <button class="zoom-btn" id="fitBtn" title="Fit to Screen">
+                            <button class="zoom-btn" id="fitScreenControl" title="Fit to Screen">
                                 <i class="fas fa-expand-alt"></i>
                             </button>
                         </div>
                     </div>
 
+                    <!-- Deck Details -->
                     <div class="deck-details">
                         <div class="details-grid">
                             <div class="detail-card">
                                 <div class="detail-title">Deck Number</div>
                                 <div class="detail-value" id="deckNumber">11</div>
+                                <div class="detail-subvalue">Current Deck</div>
                             </div>
                             <div class="detail-card">
                                 <div class="detail-title">Primary Function</div>
-                                <div class="detail-value">Pool & Dining</div>
+                                <div class="detail-value" id="deckFunction">Pool & Dining</div>
+                                <div class="detail-subvalue">Main Purpose</div>
                             </div>
                             <div class="detail-card">
                                 <div class="detail-title">Featured Venues</div>
-                                <div class="detail-value">8</div>
+                                <div class="detail-value" id="venueCount">8</div>
+                                <div class="detail-subvalue">Interactive Points</div>
                             </div>
                             <div class="detail-card">
                                 <div class="detail-title">Ship Section</div>
-                                <div class="detail-value">Aft</div>
+                                <div class="detail-value" id="deckSection">Aft</div>
+                                <div class="detail-subvalue">Location on Ship</div>
                             </div>
                         </div>
                     </div>
@@ -692,8 +1268,8 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div id="infoContent">
-            <!-- Content will be populated by JavaScript -->
+        <div class="info-content" id="infoContent">
+            <!-- Content populated by JavaScript -->
         </div>
     </div>
 
@@ -701,108 +1277,167 @@
     <nav class="mobile-nav">
         <a href="#" class="mobile-nav-item active">
             <span class="mobile-nav-icon"><i class="fas fa-map"></i></span>
-            <span>Explorer</span>
+            <span class="mobile-nav-text">Explorer</span>
         </a>
         <a href="#" class="mobile-nav-item">
             <span class="mobile-nav-icon"><i class="fas fa-bed"></i></span>
-            <span>Rooms</span>
+            <span class="mobile-nav-text">Rooms</span>
         </a>
         <a href="#" class="mobile-nav-item">
             <span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span>
-            <span>Dining</span>
+            <span class="mobile-nav-text">Dining</span>
         </a>
         <a href="#" class="mobile-nav-item">
             <span class="mobile-nav-icon"><i class="fas fa-info-circle"></i></span>
-            <span>Info</span>
+            <span class="mobile-nav-text">Info</span>
         </a>
     </nav>
 
     <script>
-        // Deck plans data structure
+        // COMPLETE JAVASCRIPT IMPLEMENTATION
+        
+        // Deck plans data structure - Using actual deck numbers from your images
         const deckPlans = [
             {
                 id: 3,
                 name: "Deck 3",
                 title: "Main Dining & Entertainment",
-                description: "Main Dining Room • Theater • Casino",
-                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                subtitle: "Main Dining Room • Theater • Casino • Lounges",
+                function: "Dining & Entertainment",
+                section: "Lower",
+                venueCount: 12,
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80",
                 hotspots: [
-                    { x: 30, y: 40, title: "Main Dining Room", type: "dining", description: "American Icon Grill - Traditional seating" },
-                    { x: 70, y: 30, title: "Theater", type: "entertainment", description: "Main theater for evening shows" },
-                    { x: 50, y: 60, title: "Casino Royale", type: "entertainment", description: "Slots, tables, and gaming" }
+                    { x: 35, y: 45, title: "Main Dining Room", type: "dining", 
+                      description: "American Icon Grill - Traditional seating at 5:30 PM. Table #423 assigned for your group of 14. Formal nights on Day 2 & 5." },
+                    { x: 65, y: 30, title: "Amber Theater", type: "entertainment", 
+                      description: "Main theater for Broadway-style shows and entertainment. Evening performances at 7:00 PM and 9:00 PM." },
+                    { x: 50, y: 60, title: "Casino Royale", type: "entertainment", 
+                      description: "Slot machines, blackjack, roulette, and poker tables. Open from 10:00 AM to 2:00 AM. Minimum age 18." },
+                    { x: 25, y: 70, title: "Schooner Bar", type: "bar", 
+                      description: "Piano bar with live music nightly. Try the signature Royal Caribbean cocktails." }
                 ]
             },
             {
                 id: 6,
                 name: "Deck 6",
                 title: "Your Stateroom Deck",
-                description: "Balcony & Interior Staterooms • Room 6443 & 6650",
-                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                subtitle: "Balcony & Interior Staterooms • Your Rooms 6443 & 6650",
+                function: "Staterooms",
+                section: "Mid-Ship",
+                venueCount: 6,
+                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80",
                 hotspots: [
-                    { x: 40, y: 50, title: "Your Stateroom 6443", type: "stateroom", description: "Starboard side balcony room" },
-                    { x: 60, y: 50, title: "Your Stateroom 6650", type: "stateroom", description: "Port side interior room" },
-                    { x: 20, y: 30, title: "Elevators", type: "services", description: "Mid-ship elevators" }
+                    { x: 40, y: 50, title: "Your Stateroom 6443", type: "stateroom", 
+                      description: "Starboard side balcony room. Accommodates 2 guests. Includes private balcony, queen bed, and ocean views." },
+                    { x: 60, y: 50, title: "Your Stateroom 6650", type: "stateroom", 
+                      description: "Port side interior room. Accommodates 2 guests. Interior room with virtual balcony technology." },
+                    { x: 20, y: 30, title: "Mid-Ship Elevators", type: "services", 
+                      description: "Central elevator bank serving decks 2-14. Fastest access to dining and entertainment venues." },
+                    { x: 80, y: 30, title: "Forward Elevators", type: "services", 
+                      description: "Forward elevator bank. Best access to theater and spa areas." }
                 ]
             },
             {
                 id: 8,
                 name: "Deck 8",
                 title: "Stateroom Deck",
-                description: "Balcony & Ocean View Rooms • Room 8528 & 8612",
-                image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                subtitle: "Balcony & Ocean View Rooms • Your Rooms 8528 & 8612",
+                function: "Staterooms",
+                section: "Mid-Ship",
+                venueCount: 6,
+                image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80",
                 hotspots: [
-                    { x: 45, y: 55, title: "Your Stateroom 8528", type: "stateroom", description: "Mid-ship balcony room" },
-                    { x: 55, y: 55, title: "Your Stateroom 8612", type: "stateroom", description: "Forward ocean view room" }
+                    { x: 45, y: 55, title: "Your Stateroom 8528", type: "stateroom", 
+                      description: "Mid-ship balcony room. Spacious cabin with extended balcony. Great for sea day relaxation." },
+                    { x: 55, y: 55, title: "Your Stateroom 8612", type: "stateroom", 
+                      description: "Forward ocean view room. Large window with ocean views. Quiet location away from elevators." },
+                    { x: 30, y: 40, title: "Laundry Room", type: "services", 
+                      description: "Self-service laundry facilities. Irons and ironing boards available. Tokens available at Guest Services." }
                 ]
             },
             {
                 id: 11,
                 name: "Deck 11",
                 title: "Pool & Dining",
-                description: "Windjammer Café • Main Pool • Solarium",
-                image: "https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                subtitle: "Windjammer Café • Main Pool • Solarium • Whirlpools",
+                function: "Pool & Dining",
+                section: "Aft",
+                venueCount: 8,
+                image: "https://images.unsplash.com/photo-1516496636080-14fb876e029d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80",
                 hotspots: [
-                    { x: 40, y: 40, title: "Windjammer Marketplace", type: "dining", description: "Main buffet restaurant - Open 6:30 AM to 9:00 PM" },
-                    { x: 50, y: 30, title: "Main Pool", type: "recreation", description: "Outdoor pool with whirlpools and bar" },
-                    { x: 60, y: 40, title: "Solarium", type: "recreation", description: "Adults-only retreat with pool" },
-                    { x: 30, y: 50, title: "Island Grill", type: "dining", description: "Alternative buffet station" }
+                    { x: 40, y: 40, title: "Windjammer Marketplace", type: "dining", 
+                      description: "Main buffet restaurant offering international cuisine. Open 6:30 AM to 9:00 PM. Less crowded during port days." },
+                    { x: 50, y: 30, title: "Main Pool", type: "recreation", 
+                      description: "Outdoor pool with 4 whirlpools. Live music daily. Poolside movies under the stars at night." },
+                    { x: 60, y: 40, title: "Solarium", type: "recreation", 
+                      description: "Adults-only retreat with pool, whirlpools, and comfortable loungers. Open 24 hours." },
+                    { x: 30, y: 50, title: "Island Grill", type: "dining", 
+                      description: "Alternative buffet station with grill items. Great for quick lunches by the pool." },
+                    { x: 70, y: 50, title: "Pool Bar", type: "bar", 
+                      description: "Swim-up bar serving cocktails, beer, and non-alcoholic drinks. Open 10:00 AM to 8:00 PM." }
                 ]
             },
             {
                 id: 12,
                 name: "Deck 12",
                 title: "Sports & Specialty Dining",
-                description: "Sports Court • Rock Wall • Specialty Restaurants",
-                image: "https://images.unsplash.com/photo-1570696055904-5c5c55d566eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                subtitle: "Sports Court • Rock Wall • Adventure Ocean • Specialty Restaurants",
+                function: "Sports & Dining",
+                section: "Forward",
+                venueCount: 10,
+                image: "https://images.unsplash.com/photo-1570696055904-5c5c55d566eb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80",
                 hotspots: [
-                    { x: 40, y: 30, title: "Sports Court", type: "recreation", description: "Basketball and volleyball court" },
-                    { x: 60, y: 40, title: "Rock Climbing Wall", type: "recreation", description: "40-foot tall climbing wall" },
-                    { x: 30, y: 50, title: "Giovanni's Table", type: "dining", description: "Italian specialty restaurant" },
-                    { x: 70, y: 50, title: "Izumi Hibachi", type: "dining", description: "Japanese hibachi and sushi" }
+                    { x: 40, y: 30, title: "Sports Court", type: "recreation", 
+                      description: "Multi-purpose court for basketball, volleyball, and soccer. Equipment available for checkout." },
+                    { x: 60, y: 40, title: "Rock Climbing Wall", type: "recreation", 
+                      description: "40-foot tall climbing wall. Open daily 9:00 AM to 6:00 PM. Waiver required. Complimentary." },
+                    { x: 30, y: 50, title: "Adventure Ocean", type: "entertainment", 
+                      description: "Kids club for ages 3-12. Supervised activities, games, and crafts. Registration required on Day 1." },
+                    { x: 70, y: 50, title: "Giovanni's Table", type: "dining", 
+                      description: "Italian specialty restaurant. Family-style dining. Reservations recommended. Cover charge applies." },
+                    { x: 50, y: 60, title: "Izumi Hibachi", type: "dining", 
+                      description: "Japanese hibachi and sushi restaurant. Teppanyaki tables with chef表演. Reservations required." }
                 ]
             },
             {
                 id: 13,
                 name: "Deck 13",
                 title: "Adventure & Recreation",
-                description: "FlowRider • Mini Golf • Sky Bar",
-                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                subtitle: "FlowRider • Mini Golf • Sky Bar • Running Track",
+                function: "Adventure",
+                section: "Aft",
+                venueCount: 7,
+                image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80",
                 hotspots: [
-                    { x: 40, y: 40, title: "FlowRider", type: "recreation", description: "Surf simulator - Sign up required" },
-                    { x: 60, y: 50, title: "Mini Golf", type: "recreation", description: "9-hole mini golf course" },
-                    { x: 30, y: 30, title: "Sky Bar", type: "bar", description: "Open-air bar with ocean views" }
+                    { x: 40, y: 40, title: "FlowRider", type: "recreation", 
+                      description: "Surf simulator. Sign up required for sessions. Complimentary. Bring swimwear and towel." },
+                    { x: 60, y: 50, title: "Mini Golf", type: "recreation", 
+                      description: "9-hole mini golf course. Open 24 hours. Equipment available at the sports desk." },
+                    { x: 30, y: 30, title: "Sky Bar", type: "bar", 
+                      description: "Open-air bar with panoramic ocean views. Perfect for sunset cocktails." },
+                    { x: 50, y: 60, title: "Running Track", type: "recreation", 
+                      description: "Jogging track with ocean views. 4 laps = 1 mile. Open 6:00 AM to 10:00 PM." }
                 ]
             },
             {
                 id: 14,
                 name: "Deck 14",
                 title: "Observation & Suites",
-                description: "Viking Crown Lounge • Suite Lounge • Sun Deck",
-                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80",
+                subtitle: "Viking Crown Lounge • Suite Lounge • Sun Deck • Diamond Club",
+                function: "Observation & Luxury",
+                section: "Forward",
+                venueCount: 6,
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80",
                 hotspots: [
-                    { x: 50, y: 40, title: "Viking Crown Lounge", type: "entertainment", description: "360° observation lounge and nightclub" },
-                    { x: 40, y: 50, title: "Suite Lounge", type: "services", description: "Exclusive lounge for suite guests" },
-                    { x: 60, y: 50, title: "Diamond Club", type: "services", description: "Loyalty members lounge" }
+                    { x: 50, y: 40, title: "Viking Crown Lounge", type: "entertainment", 
+                      description: "360° observation lounge that transforms into a nightclub in the evening. Live music and dancing." },
+                    { x: 40, y: 50, title: "Suite Lounge", type: "services", 
+                      description: "Exclusive lounge for suite guests. Complimentary drinks and hors d'oeuvres 5:00-8:00 PM." },
+                    { x: 60, y: 50, title: "Diamond Club", type: "services", 
+                      description: "Loyalty members lounge for Diamond and above Crown & Anchor members. Evening happy hour." },
+                    { x: 45, y: 60, title: "Sun Deck", type: "recreation", 
+                      description: "Quiet sunbathing area with panoramic views. Less crowded than main pool deck." }
                 ]
             }
         ];
@@ -816,45 +1451,85 @@
         let lastMouseX = 0;
         let lastMouseY = 0;
         let hotspotsVisible = true;
+        let currentCategory = 'all';
+        let isFullscreen = false;
 
         // DOM Elements
         const deckNav = document.getElementById('deckNav');
         const deckImage = document.getElementById('deckImage');
+        const imageContainer = document.getElementById('imageContainer');
         const deckOverlay = document.getElementById('deckOverlay');
         const currentDeckTitle = document.getElementById('currentDeckTitle');
+        const currentDeckSubtitle = document.getElementById('currentDeckSubtitle');
         const deckNumber = document.getElementById('deckNumber');
+        const deckFunction = document.getElementById('deckFunction');
+        const venueCount = document.getElementById('venueCount');
+        const deckSection = document.getElementById('deckSection');
         const infoPanel = document.getElementById('infoPanel');
         const infoTitle = document.getElementById('infoTitle');
         const infoContent = document.getElementById('infoContent');
         const infoClose = document.getElementById('infoClose');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        const loadingOverlay = document.getElementById('loadingOverlay');
 
         // Initialize deck navigation
         function initDeckNavigation() {
             deckPlans.forEach(deck => {
                 const button = document.createElement('button');
                 button.className = `deck-btn ${deck.id === currentDeck.id ? 'active' : ''}`;
+                button.dataset.deck = deck.id;
                 button.innerHTML = `
                     <div class="deck-number">${deck.id}</div>
-                    <div>
-                        <div>${deck.name}</div>
-                        <small style="color: var(--text-secondary);">${deck.title.split('•')[0]}</small>
+                    <div class="deck-info">
+                        <div class="deck-name">${deck.name}</div>
+                        <div class="deck-description">${deck.title}</div>
                     </div>
                 `;
                 
                 button.addEventListener('click', () => switchDeck(deck.id));
                 deckNav.appendChild(button);
             });
+
+            // Add event listeners to category items
+            document.querySelectorAll('.category-item[data-category]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const category = item.dataset.category;
+                    filterHotspotsByCategory(category);
+                    
+                    // Update active category
+                    document.querySelectorAll('.category-item').forEach(i => {
+                        i.style.background = '';
+                        i.style.color = '';
+                    });
+                    
+                    if (category !== 'all') {
+                        item.style.background = 'var(--bg-secondary)';
+                        item.style.color = 'var(--rc-blue)';
+                    }
+                });
+            });
+
+            // Add event listeners to your location buttons
+            document.querySelectorAll('.deck-nav .deck-btn[data-deck]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const deckId = parseInt(btn.dataset.deck);
+                    switchDeck(deckId);
+                });
+            });
         }
 
         // Switch to a different deck
         function switchDeck(deckId) {
             const newDeck = deckPlans.find(d => d.id === deckId);
-            if (!newDeck) return;
+            if (!newDeck || newDeck.id === currentDeck.id) return;
+
+            // Show loading
+            loadingOverlay.style.display = 'flex';
 
             // Update UI
-            document.querySelectorAll('.deck-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.deck-btn').forEach(btn => {
-                if (btn.textContent.includes(`Deck ${deckId}`)) {
+                btn.classList.remove('active');
+                if (btn.dataset.deck == deckId) {
                     btn.classList.add('active');
                 }
             });
@@ -864,12 +1539,16 @@
             
             // Update deck image with fade effect
             deckImage.style.opacity = '0';
+            
             setTimeout(() => {
                 deckImage.src = newDeck.image;
-                deckImage.alt = `${newDeck.name} Plan`;
-                deckImage.style.opacity = '1';
+                deckImage.alt = `${newDeck.name} Deck Plan`;
                 currentDeckTitle.textContent = `Deck ${newDeck.id} - ${newDeck.title}`;
+                currentDeckSubtitle.textContent = newDeck.subtitle;
                 deckNumber.textContent = newDeck.id;
+                deckFunction.textContent = newDeck.function;
+                venueCount.textContent = newDeck.venueCount;
+                deckSection.textContent = newDeck.section;
                 
                 // Reset zoom and position
                 zoomLevel = 1;
@@ -879,6 +1558,20 @@
                 
                 // Create hotspots
                 createHotspots();
+                
+                // Hide loading after image loads
+                deckImage.onload = () => {
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                        deckImage.style.opacity = '1';
+                    }, 300);
+                };
+                
+                // Fallback in case image fails to load
+                deckImage.onerror = () => {
+                    loadingOverlay.style.display = 'none';
+                    deckImage.style.opacity = '1';
+                };
             }, 300);
         }
 
@@ -888,249 +1581,471 @@
             
             if (!hotspotsVisible) return;
             
-            currentDeck.hotspots.forEach(hotspot => {
+            currentDeck.hotspots.forEach((hotspot, index) => {
+                // Skip if category filter is active and doesn't match
+                if (currentCategory !== 'all' && hotspot.type !== currentCategory) {
+                    return;
+                }
+                
                 const element = document.createElement('div');
-                element.className = 'hotspot';
+                element.className = `hotspot hotspot-${hotspot.type}`;
                 element.style.left = `${hotspot.x}%`;
                 element.style.top = `${hotspot.y}%`;
                 element.title = hotspot.title;
-                
-                // Set color based on type
-                const colors = {
-                    dining: 'var(--rc-success)',
-                    stateroom: 'var(--rc-blue)',
-                    recreation: 'var(--rc-warning)',
-                    entertainment: 'var(--rc-purple)',
-                    services: 'var(--rc-gold)',
-                    bar: 'var(--rc-light-blue)'
-                };
-                
-                element.style.background = colors[hotspot.type] || 'var(--rc-warning)';
+                element.dataset.index = index;
                 
                 element.addEventListener('click', (e) => {
                     e.stopPropagation();
                     showInfoPanel(hotspot);
                 });
                 
+                element.addEventListener('mouseenter', () => {
+                    element.style.transform = 'scale(1.5)';
+                    element.style.zIndex = '11';
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    element.style.transform = 'scale(1)';
+                    element.style.zIndex = '10';
+                });
+                
                 deckOverlay.appendChild(element);
             });
+        }
+
+        // Filter hotspots by category
+        function filterHotspotsByCategory(category) {
+            currentCategory = category;
+            createHotspots();
         }
 
         // Show info panel with details
         function showInfoPanel(hotspot) {
             infoTitle.textContent = hotspot.title;
             
-            const typeColors = {
-                dining: { bg: 'rgba(0, 184, 169, 0.1)', color: 'var(--rc-success)', icon: 'utensils' },
-                stateroom: { bg: 'rgba(0, 53, 128, 0.1)', color: 'var(--rc-blue)', icon: 'bed' },
-                recreation: { bg: 'rgba(255, 107, 53, 0.1)', color: 'var(--rc-warning)', icon: 'swimming-pool' },
-                entertainment: { bg: 'rgba(124, 58, 237, 0.1)', color: 'var(--rc-purple)', icon: 'theater-masks' },
-                services: { bg: 'rgba(212, 175, 55, 0.1)', color: 'var(--rc-gold)', icon: 'concierge-bell' },
-                bar: { bg: 'rgba(0, 163, 224, 0.1)', color: 'var(--rc-light-blue)', icon: 'cocktail' }
+            const typeConfigs = {
+                dining: { 
+                    bg: 'rgba(0, 184, 169, 0.1)', 
+                    color: 'var(--rc-success)', 
+                    icon: 'utensils',
+                    label: 'Dining Venue'
+                },
+                stateroom: { 
+                    bg: 'rgba(0, 53, 128, 0.1)', 
+                    color: 'var(--rc-blue)', 
+                    icon: 'bed',
+                    label: 'Stateroom'
+                },
+                recreation: { 
+                    bg: 'rgba(255, 107, 53, 0.1)', 
+                    color: 'var(--rc-warning)', 
+                    icon: 'swimming-pool',
+                    label: 'Recreation'
+                },
+                entertainment: { 
+                    bg: 'rgba(124, 58, 237, 0.1)', 
+                    color: 'var(--rc-purple)', 
+                    icon: 'theater-masks',
+                    label: 'Entertainment'
+                },
+                services: { 
+                    bg: 'rgba(212, 175, 55, 0.1)', 
+                    color: 'var(--rc-gold)', 
+                    icon: 'concierge-bell',
+                    label: 'Service'
+                },
+                bar: { 
+                    bg: 'rgba(0, 163, 224, 0.1)', 
+                    color: 'var(--rc-light-blue)', 
+                    icon: 'cocktail',
+                    label: 'Bar & Lounge'
+                }
             };
             
-            const typeInfo = typeColors[hotspot.type] || typeColors.services;
+            const typeInfo = typeConfigs[hotspot.type] || typeConfigs.services;
             
             infoContent.innerHTML = `
                 <div class="info-section">
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                        <div style="background: ${typeInfo.bg}; color: ${typeInfo.color}; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: ${typeInfo.bg}; color: ${typeInfo.color}; width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                             <i class="fas fa-${typeInfo.icon}"></i>
                         </div>
                         <div>
-                            <h4 style="font-size: 1.25rem; margin-bottom: 0.25rem;">${hotspot.title}</h4>
-                            <div style="color: var(--text-secondary); text-transform: capitalize;">${hotspot.type}</div>
+                            <h4 style="font-size: 1.25rem; margin-bottom: 0.25rem; color: var(--text-primary);">${hotspot.title}</h4>
+                            <div class="info-category" style="background: ${typeInfo.bg}; color: ${typeInfo.color};">
+                                <i class="fas fa-${typeInfo.icon}"></i>
+                                <span>${typeInfo.label}</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
-                        <p style="color: var(--text-primary);">${hotspot.description}</p>
+                    <div class="info-description">
+                        <p>${hotspot.description}</p>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Deck</div>
-                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--rc-blue);">${currentDeck.id}</div>
+                    <div class="info-stats">
+                        <div class="info-stat">
+                            <div class="info-stat-label">Deck</div>
+                            <div class="info-stat-value">${currentDeck.id}</div>
                         </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Location</div>
-                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--rc-blue);">${currentDeck.title.split('•')[0]}</div>
+                        <div class="info-stat">
+                            <div class="info-stat-label">Ship Section</div>
+                            <div class="info-stat-value">${currentDeck.section}</div>
                         </div>
                     </div>
                     
-                    <button class="btn" style="width: 100%; padding: 0.75rem; background: var(--rc-blue); color: white; border: none; border-radius: var(--radius-sm);">
-                        <i class="fas fa-directions"></i>
-                        Get Directions
-                    </button>
+                    <div style="margin-top: 1.5rem;">
+                        <h5 style="font-size: 1rem; margin-bottom: 0.75rem; color: var(--text-primary);">
+                            <i class="fas fa-lightbulb"></i> Pro Tip
+                        </h5>
+                        <div style="background: rgba(212, 175, 55, 0.1); padding: 1rem; border-radius: var(--radius-md); border-left: 4px solid var(--rc-gold); color: var(--text-secondary);">
+                            ${getProTip(hotspot.type)}
+                        </div>
+                    </div>
+                    
+                    <div class="info-actions">
+                        <button class="btn btn-secondary" onclick="closeInfoPanel()">
+                            <i class="fas fa-times"></i>
+                            Close
+                        </button>
+                        <button class="btn btn-primary" onclick="getDirections('${hotspot.title}')">
+                            <i class="fas fa-directions"></i>
+                            Get Directions
+                        </button>
+                    </div>
                 </div>
             `;
             
             infoPanel.classList.add('open');
         }
 
+        // Get pro tip based on venue type
+        function getProTip(type) {
+            const tips = {
+                dining: "Best times to avoid crowds: Breakfast before 8 AM, lunch at 1:30 PM, dinner after 8 PM.",
+                stateroom: "Use magnetic hooks for schedules and hats. Walls are metal!",
+                recreation: "Reserve popular activities like FlowRider on the first day.",
+                entertainment: "Arrive 30 minutes early for popular shows to get good seats.",
+                services: "Guest Services is least crowded early morning or late evening.",
+                bar: "Happy hour specials are usually 4-6 PM at most bars."
+            };
+            return tips[type] || "Check the Royal Caribbean app for real-time updates and special offers.";
+        }
+
+        // Close info panel
+        function closeInfoPanel() {
+            infoPanel.classList.remove('open');
+        }
+
+        // Get directions (placeholder)
+        function getDirections(venue) {
+            alert(`Directions to ${venue}:\n\nFrom your current location, head to Deck ${currentDeck.id}. Use the nearest elevator bank and follow the signage. You can also use the Royal Caribbean app for turn-by-turn navigation.`);
+            closeInfoPanel();
+        }
+
         // Update image transform for zoom and pan
         function updateImageTransform() {
             deckImage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${zoomLevel})`;
+            zoomLevelDisplay.textContent = `${Math.round(zoomLevel * 100)}%`;
         }
 
         // Initialize zoom and pan controls
         function initZoomControls() {
-            // Zoom buttons
-            document.getElementById('zoomInBtn').addEventListener('click', () => {
-                zoomLevel = Math.min(3, zoomLevel + 0.25);
-                updateImageTransform();
-            });
+            // Zoom in buttons
+            document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+            document.getElementById('zoomInControl').addEventListener('click', zoomIn);
             
-            document.getElementById('zoomOutBtn').addEventListener('click', () => {
-                zoomLevel = Math.max(0.5, zoomLevel - 0.25);
-                updateImageTransform();
-            });
+            // Zoom out buttons
+            document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+            document.getElementById('zoomOutControl').addEventListener('click', zoomOut);
             
-            document.getElementById('fitBtn').addEventListener('click', () => {
-                zoomLevel = 1;
-                offsetX = 0;
-                offsetY = 0;
-                updateImageTransform();
-            });
+            // Reset view buttons
+            document.getElementById('resetViewBtn').addEventListener('click', resetView);
+            document.getElementById('fitScreenControl').addEventListener('click', fitToScreen);
             
-            // Header controls
-            document.getElementById('zoomIn').addEventListener('click', () => {
-                zoomLevel = Math.min(3, zoomLevel + 0.25);
-                updateImageTransform();
-            });
+            // Toggle hotspots
+            document.getElementById('toggleHotspotsBtn').addEventListener('click', toggleHotspots);
             
-            document.getElementById('zoomOut').addEventListener('click', () => {
-                zoomLevel = Math.max(0.5, zoomLevel - 0.25);
-                updateImageTransform();
-            });
-            
-            document.getElementById('resetView').addEventListener('click', () => {
-                zoomLevel = 1;
-                offsetX = 0;
-                offsetY = 0;
-                updateImageTransform();
-            });
-            
-            document.getElementById('toggleHotspots').addEventListener('click', () => {
-                hotspotsVisible = !hotspotsVisible;
-                createHotspots();
-            });
+            // Fullscreen
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
             
             // Mouse wheel zoom
-            deckImage.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                zoomLevel = Math.max(0.5, Math.min(3, zoomLevel + delta));
-                updateImageTransform();
-            });
+            imageContainer.addEventListener('wheel', handleWheel, { passive: false });
             
             // Mouse drag for panning
-            deckImage.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                deckImage.classList.add('dragging');
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                
-                const deltaX = e.clientX - lastMouseX;
-                const deltaY = e.clientY - lastMouseY;
-                
-                offsetX += deltaX;
-                offsetY += deltaY;
-                
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-                
-                updateImageTransform();
-            });
-            
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-                deckImage.classList.remove('dragging');
-            });
+            imageContainer.addEventListener('mousedown', startDragging);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDragging);
             
             // Touch support for mobile
-            deckImage.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 1) {
-                    isDragging = true;
-                    lastMouseX = e.touches[0].clientX;
-                    lastMouseY = e.touches[0].clientY;
-                }
-            }, { passive: true });
+            imageContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+            imageContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+            imageContainer.addEventListener('touchend', handleTouchEnd);
             
-            deckImage.addEventListener('touchmove', (e) => {
-                if (!isDragging || e.touches.length !== 1) return;
+            // Double click to zoom
+            deckImage.addEventListener('dblclick', (e) => {
                 e.preventDefault();
-                
-                const deltaX = e.touches[0].clientX - lastMouseX;
-                const deltaY = e.touches[0].clientY - lastMouseY;
+                zoomIn();
+            });
+            
+            // Prevent right click menu
+            deckImage.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+
+        // Zoom functions
+        function zoomIn() {
+            zoomLevel = Math.min(3, zoomLevel + 0.25);
+            updateImageTransform();
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(0.5, zoomLevel - 0.25);
+            updateImageTransform();
+        }
+
+        function resetView() {
+            zoomLevel = 1;
+            offsetX = 0;
+            offsetY = 0;
+            updateImageTransform();
+        }
+
+        function fitToScreen() {
+            const container = imageContainer.getBoundingClientRect();
+            const image = deckImage.getBoundingClientRect();
+            
+            const scaleX = container.width / image.width;
+            const scaleY = container.height / image.height;
+            
+            zoomLevel = Math.min(scaleX, scaleY) * 0.9;
+            offsetX = 0;
+            offsetY = 0;
+            updateImageTransform();
+        }
+
+        function toggleHotspots() {
+            hotspotsVisible = !hotspotsVisible;
+            createHotspots();
+            
+            const btn = document.getElementById('toggleHotspotsBtn');
+            btn.innerHTML = hotspotsVisible ? 
+                '<i class="fas fa-map-marker-alt"></i>' : 
+                '<i class="fas fa-map-marker-alt" style="opacity: 0.5;"></i>';
+            btn.title = hotspotsVisible ? 'Hide Hotspots' : 'Show Hotspots';
+        }
+
+        function toggleFullscreen() {
+            const explorer = document.querySelector('.explorer-container');
+            
+            if (!isFullscreen) {
+                if (explorer.requestFullscreen) {
+                    explorer.requestFullscreen();
+                } else if (explorer.webkitRequestFullscreen) {
+                    explorer.webkitRequestFullscreen();
+                } else if (explorer.msRequestFullscreen) {
+                    explorer.msRequestFullscreen();
+                }
+                isFullscreen = true;
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                isFullscreen = false;
+            }
+        }
+
+        // Mouse wheel handler
+        function handleWheel(e) {
+            e.preventDefault();
+            
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            const oldZoom = zoomLevel;
+            zoomLevel = Math.max(0.5, Math.min(3, zoomLevel + delta));
+            
+            // Adjust offset to zoom toward cursor
+            const rect = imageContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            offsetX = x - (x - offsetX) * (zoomLevel / oldZoom);
+            offsetY = y - (y - offsetY) * (zoomLevel / oldZoom);
+            
+            updateImageTransform();
+        }
+
+        // Dragging functions
+        function startDragging(e) {
+            isDragging = true;
+            imageContainer.classList.add('dragging');
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            e.preventDefault();
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const deltaX = e.clientX - lastMouseX;
+            const deltaY = e.clientY - lastMouseY;
+            
+            offsetX += deltaX;
+            offsetY += deltaY;
+            
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            
+            updateImageTransform();
+        }
+
+        function stopDragging() {
+            isDragging = false;
+            imageContainer.classList.remove('dragging');
+        }
+
+        // Touch handlers
+        let touchStartDistance = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        function handleTouchStart(e) {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                isDragging = false;
+                touchStartDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+            e.preventDefault();
+        }
+
+        function handleTouchMove(e) {
+            if (e.touches.length === 1 && isDragging) {
+                const deltaX = e.touches[0].clientX - touchStartX;
+                const deltaY = e.touches[0].clientY - touchStartY;
                 
                 offsetX += deltaX;
                 offsetY += deltaY;
                 
-                lastMouseX = e.touches[0].clientX;
-                lastMouseY = e.touches[0].clientY;
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
                 
                 updateImageTransform();
-            }, { passive: false });
-            
-            deckImage.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-            
-            // Pinch zoom for touch devices
-            let initialDistance = 0;
-            deckImage.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 2) {
-                    initialDistance = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                }
-            }, { passive: true });
-            
-            deckImage.addEventListener('touchmove', (e) => {
-                if (e.touches.length !== 2) return;
-                e.preventDefault();
-                
+            } else if (e.touches.length === 2) {
                 const currentDistance = Math.hypot(
                     e.touches[0].clientX - e.touches[1].clientX,
                     e.touches[0].clientY - e.touches[1].clientY
                 );
                 
-                const delta = (currentDistance - initialDistance) * 0.01;
+                const delta = (currentDistance - touchStartDistance) * 0.01;
                 zoomLevel = Math.max(0.5, Math.min(3, zoomLevel + delta));
-                initialDistance = currentDistance;
+                touchStartDistance = currentDistance;
                 
                 updateImageTransform();
-            }, { passive: false });
+            }
+            e.preventDefault();
         }
 
-        // Close info panel
-        infoClose.addEventListener('click', () => {
-            infoPanel.classList.remove('open');
-        });
+        function handleTouchEnd() {
+            isDragging = false;
+        }
 
-        // Click outside to close info panel
+        // Close info panel when clicking outside
         document.addEventListener('click', (e) => {
             if (!infoPanel.contains(e.target) && !e.target.classList.contains('hotspot')) {
-                infoPanel.classList.remove('open');
+                closeInfoPanel();
             }
         });
 
-        // Initialize everything
+        // Handle info panel close button
+        infoClose.addEventListener('click', closeInfoPanel);
+
+        // Handle Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeInfoPanel();
+                if (isFullscreen) {
+                    toggleFullscreen();
+                }
+            }
+        });
+
+        // Handle fullscreen change
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            isFullscreen = !!document.fullscreenElement || 
+                          !!document.webkitFullscreenElement || 
+                          !!document.msFullscreenElement;
+            
+            const btn = document.getElementById('fullscreenBtn');
+            btn.innerHTML = isFullscreen ? 
+                '<i class="fas fa-compress"></i>' : 
+                '<i class="fas fa-expand"></i>';
+            btn.title = isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen';
+        }
+
+        // Initialize everything when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             initDeckNavigation();
             initZoomControls();
-            createHotspots();
             
             // Initialize with Deck 11
             switchDeck(11);
             
-            // Add view toggle button functionality
+            // Add some initial animation
+            setTimeout(() => {
+                document.querySelectorAll('.deck-btn').forEach((btn, i) => {
+                    btn.style.opacity = '0';
+                    btn.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        btn.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        btn.style.opacity = '1';
+                        btn.style.transform = 'translateX(0)';
+                    }, i * 50);
+                });
+            }, 500);
+            
+            // Mobile nav functionality
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (item.classList.contains('active')) return;
+                    
+                    document.querySelectorAll('.mobile-nav-item').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    item.classList.add('active');
+                    
+                    // Handle navigation
+                    const text = item.querySelector('.mobile-nav-text').textContent;
+                    switch(text) {
+                        case 'Explorer':
+                            // Already on explorer page
+                            break;
+                        case 'Rooms':
+                            alert('Navigating to Rooms section...');
+                            break;
+                        case 'Dining':
+                            alert('Navigating to Dining section...');
+                            break;
+                        case 'Info':
+                            alert('Navigating to Information section...');
+                            break;
+                    }
+                });
+            });
+            
+            // View toggle functionality
             document.getElementById('viewToggle').addEventListener('click', () => {
                 const body = document.body;
                 const isDark = body.style.background.includes('#0f172a');
@@ -1142,6 +2057,59 @@
                     body.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
                     body.style.color = '#e2e8f0';
                 }
+            });
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Don't trigger if user is typing in an input
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                
+                switch(e.key) {
+                    case '+':
+                    case '=':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            zoomIn();
+                        }
+                        break;
+                    case '-':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            zoomOut();
+                        }
+                        break;
+                    case '0':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            resetView();
+                        }
+                        break;
+                    case 'h':
+                    case 'H':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            toggleHotspots();
+                        }
+                        break;
+                    case 'f':
+                    case 'F':
+                        if (e.ctrlKey) {
+                            e.preventDefault();
+                            toggleFullscreen();
+                        }
+                        break;
+                    case 'Escape':
+                        closeInfoPanel();
+                        break;
+                }
+            });
+            
+            // Add resize handler
+            window.addEventListener('resize', () => {
+                // Adjust zoom if needed
+                if (zoomLevel > 3) zoomLevel = 3;
+                if (zoomLevel < 0.5) zoomLevel = 0.5;
+                updateImageTransform();
             });
         });
     </script>
