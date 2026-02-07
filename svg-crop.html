@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a365d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+  <title>How to Crop an SVG Image | Cruise Companion</title>
+  <meta name="description" content="A quick guide to cropping SVG artwork by adjusting the viewBox for perfect framing.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="shared-layout.js" defer></script>
+  <style>
+    :root { --rc-blue: #003580; --rc-light-blue: #00a3e0; --rc-accent: #00a3e0; --rc-gold: #d4af37; --rc-warning: #ff6b35; --rc-success: #00b8a9; --rc-info: #00a3e0; --bg-primary: #ffffff; --bg-secondary: #f4f8ff; --bg-card: #ffffff; --bg-header: linear-gradient(135deg, #003580 0%, #0054a6 100%); --border-color: #e2e8f0; --border-light: #f1f5f9; --text-primary: #1e293b; --text-secondary: #64748b; --text-light: #94a3b8; --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08); --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05); --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06); --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Open Sans', sans-serif; background-color: var(--bg-secondary); color: var(--text-primary); line-height: 1.65; font-size: 16px; }
+    .header { background: var(--bg-header); color: white; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-md); }
+    .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: white; }
+    .card { background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); transition: var(--transition); overflow: hidden; margin-bottom: 1.5rem; }
+    .card-header { padding: 1.5rem; background: var(--rc-blue); color: white; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .card-content { padding: 1.75rem; }
+    .article-meta { color: rgba(255, 255, 255, 0.8); font-size: 0.875rem; }
+    .article-section { margin-bottom: 1.75rem; }
+    .article-section h3 { color: var(--rc-blue); margin-bottom: 0.75rem; }
+    .article-section p { margin-bottom: 0.75rem; color: var(--text-secondary); }
+    .article-section ul { margin-left: 1.25rem; color: var(--text-secondary); }
+    .article-section li { margin-bottom: 0.5rem; }
+    .inline-code { background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.9rem; color: #0f172a; }
+    .callout { background: #fff7ed; border-left: 4px solid var(--rc-warning); padding: 1rem 1.25rem; border-radius: var(--radius-sm); color: #9a3412; margin: 1.25rem 0; }
+    .example-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .example-card { background: var(--bg-secondary); border: 1px dashed var(--border-color); border-radius: var(--radius-sm); padding: 1rem; }
+    .example-card strong { display: block; color: var(--rc-blue); margin-bottom: 0.35rem; }
+    .tool-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+    .tool-panel { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 1.25rem; border: 1px solid var(--border-color); }
+    .tool-panel h4 { color: var(--rc-blue); margin-bottom: 0.75rem; }
+    .tool-panel label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-primary); }
+    .tool-panel textarea { width: 100%; min-height: 160px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); padding: 0.75rem; font-family: 'Courier New', monospace; font-size: 0.85rem; background: #fff; }
+    .tool-panel input { width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border-color); padding: 0.5rem 0.75rem; font-size: 0.9rem; }
+    .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; }
+    .btn-secondary { background: var(--rc-blue); color: #fff; border: none; padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; }
+    .btn-tertiary { background: #fff; color: var(--rc-blue); border: 1px solid var(--rc-blue); padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; }
+    .output-meta { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
+    .preview-wrap { background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; min-height: 220px; display: flex; align-items: center; justify-content: center; }
+    .preview-wrap svg { max-width: 100%; height: auto; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-4 { margin-top: 1rem; }
+    .footer { background: var(--rc-blue); color: white; padding: 3rem 0 2rem; margin-top: 3rem; }
+    .footer-disclaimer { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 2rem; text-align: center; font-size: 0.75rem; opacity: 0.8; }
+    @media (min-width: 768px) { .main-layout { grid-template-columns: 1fr; } }
+    @media (min-width: 1024px) { .tool-grid { grid-template-columns: 1.2fr 0.8fr; } }
+  </style>
+</head>
+<body>
+  <div id="sharedHeader" data-page="index" data-menu-toggle="false"></div>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badges">
+          <span class="hero-badge"><i class="fas fa-pen"></i> SVG Tutorial</span>
+          <span class="hero-badge hero-badge--gold"><i class="fas fa-clock"></i> Posted 5 Years Ago</span>
+        </div>
+        <h1 class="hero-title">How to Crop an SVG Image</h1>
+        <p class="hero-subtitle">A fast, editor-only workflow for trimming whitespace and focusing on the exact SVG artwork you want.</p>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <div class="container">
+      <div class="main-layout">
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Cropping SVGs with <span class="inline-code">viewBox</span></h2>
+              <p class="article-meta">A quick guide to framing your vector art without extra tools.</p>
+            </div>
+            <i class="fas fa-crop-alt fa-2x" aria-hidden="true"></i>
+          </div>
+          <div class="card-content">
+            <div class="article-section">
+              <p>Quite often, web developers have a great SVG image that they want to use but would prefer a cropped version of it. It could be that there's too much whitespace or they only want to use a specific part of the graphic. Take this vector illustration, for instance.</p>
+              <p>Suppose you wish to hide the smoke clouds and also want to remove the whitespace to show the rocket dead-center. There are a bunch of tools you can use to crop the image. You can use Inkscape, or some online utility. However, the fastest way is to edit the <span class="inline-code">viewBox</span> of SVG in a text editor. It is far more efficient than importing the SVG in software and then exporting it again.</p>
+            </div>
+
+            <div class="article-section">
+              <h3>ViewBox in a Nutshell</h3>
+              <p>The <span class="inline-code">viewBox</span> is easiest to understand as a camera on an infinite canvas. With <span class="inline-code">viewBox="x y width height"</span>, you control which part of the canvas is visible and how it scales.</p>
+              <p>For instance, the rocket illustration above has a viewport of <span class="inline-code">0 168.4 940.7 724</span>. If you double the width and height, the canvas stretches and you get empty space around the artwork.</p>
+            </div>
+
+            <div class="article-section">
+              <h3>Cropping SVG Using <span class="inline-code">viewBox</span></h3>
+              <p>Editing the <span class="inline-code">viewBox</span> attribute is an easy way to crop an SVG image. Open the SVG file in a text editor and start tweaking the numbers. Finding the right value is a bit of guesswork, but you get there in 3–4 tries.</p>
+              <div class="callout">
+                <strong>Note:</strong> It's important that you don't use the <span class="inline-code">height</span> attribute while adjusting these numbers as the browser tries to scale both the width and height of the SVG.
+              </div>
+              <p>Start with the <span class="inline-code">x</span> attribute. The default viewport is <span class="inline-code">0 168.4 940.7 724</span>. We edit <span class="inline-code">x</span> to be close to the rocket:</p>
+              <div class="example-grid">
+                <div class="example-card">
+                  <strong>Try x = 400</strong>
+                  <span class="inline-code">viewBox="400 168.4 940.7 724"</span>
+                  <p class="mt-2">Too much.</p>
+                </div>
+                <div class="example-card">
+                  <strong>Try x = 300</strong>
+                  <span class="inline-code">viewBox="300 168.4 940.7 724"</span>
+                  <p class="mt-2">Almost right.</p>
+                </div>
+              </div>
+              <p class="mt-4">Next, adjust <span class="inline-code">y</span> to sit just above the top of the rocket:</p>
+              <div class="example-grid">
+                <div class="example-card">
+                  <strong>Try y = 300</strong>
+                  <span class="inline-code">viewBox="300 300 940.7 724"</span>
+                  <p class="mt-2">Still too much.</p>
+                </div>
+                <div class="example-card">
+                  <strong>Try y = 280</strong>
+                  <span class="inline-code">viewBox="300 280 940.7 724"</span>
+                  <p class="mt-2">Closer.</p>
+                </div>
+              </div>
+              <p class="mt-4">Repeat for width and height. Reduce width to reach the right edge of the rocket, and height to trim the bottom space:</p>
+              <div class="example-grid">
+                <div class="example-card">
+                  <strong>Width around 380</strong>
+                  <span class="inline-code">viewBox="300 280 380 724"</span>
+                </div>
+                <div class="example-card">
+                  <strong>Height around 500</strong>
+                  <span class="inline-code">viewBox="300 280 380 500"</span>
+                </div>
+              </div>
+              <p class="mt-4"><strong>Final cropped viewBox:</strong> <span class="inline-code">300 280 380 500</span>.</p>
+            </div>
+
+            <div class="article-section">
+              <h3>Try It Now: Live SVG Cropper</h3>
+              <p>Paste your SVG, tweak the <span class="inline-code">viewBox</span> values, and see the result instantly. You can also auto-fit to the artwork to remove extra whitespace.</p>
+              <div class="tool-grid">
+                <div class="tool-panel">
+                  <h4>1) SVG Input</h4>
+                  <label for="svgInput">SVG Markup</label>
+                  <textarea id="svgInput" spellcheck="false"></textarea>
+                  <div class="button-row">
+                    <button class="btn-secondary" type="button" id="applyViewBox">Apply ViewBox</button>
+                    <button class="btn-tertiary" type="button" id="autoFit">Auto-Fit to Artwork</button>
+                    <button class="btn-tertiary" type="button" id="resetSample">Reset Sample</button>
+                  </div>
+                  <div class="output-meta">Tip: Auto-fit uses the SVG's bounding box to compute a tight viewBox.</div>
+                </div>
+                <div class="tool-panel">
+                  <h4>2) ViewBox + Preview</h4>
+                  <div class="input-row">
+                    <div>
+                      <label for="viewBoxX">x</label>
+                      <input id="viewBoxX" type="number" step="0.1">
+                    </div>
+                    <div>
+                      <label for="viewBoxY">y</label>
+                      <input id="viewBoxY" type="number" step="0.1">
+                    </div>
+                    <div>
+                      <label for="viewBoxW">width</label>
+                      <input id="viewBoxW" type="number" step="0.1">
+                    </div>
+                    <div>
+                      <label for="viewBoxH">height</label>
+                      <input id="viewBoxH" type="number" step="0.1">
+                    </div>
+                  </div>
+                  <div class="preview-wrap" id="svgPreview" aria-live="polite"></div>
+                  <div class="output-meta">Current viewBox: <span class="inline-code" id="viewBoxOutput">—</span></div>
+                </div>
+              </div>
+              <div class="tool-panel mt-4">
+                <h4>3) Updated SVG Output</h4>
+                <label for="svgOutput">Cropped SVG Markup</label>
+                <textarea id="svgOutput" spellcheck="false" readonly></textarea>
+              </div>
+            </div>
+
+            <div class="article-section">
+              <h3>ViewBox Approach vs Others</h3>
+              <p>Some may feel that guesswork isn't the best approach to do a trivial image manipulation operation. That is fair, but this workflow is still the fastest: adjust numbers, refresh, repeat.</p>
+              <p>Vector design software aren't always perfect in interpreting SVGs and exporting them properly. Using a text editor is faster and saves you more trouble than it gives. Give it a try!</p>
+            </div>
+
+            <div class="article-section">
+              <p><strong>Copyright</strong></p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <div id="sharedFooter" data-page="index"></div>
+  <script>
+    const sampleSvg = `
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <rect x="70" y="30" width="100" height="160" rx="14" fill="#00a3e0"/>
+  <circle cx="120" cy="70" r="18" fill="#d4af37"/>
+  <rect x="100" y="190" width="40" height="20" fill="#003580"/>
+</svg>
+`.trim();
+
+    const svgInput = document.getElementById('svgInput');
+    const svgOutput = document.getElementById('svgOutput');
+    const svgPreview = document.getElementById('svgPreview');
+    const viewBoxOutput = document.getElementById('viewBoxOutput');
+    const viewBoxX = document.getElementById('viewBoxX');
+    const viewBoxY = document.getElementById('viewBoxY');
+    const viewBoxW = document.getElementById('viewBoxW');
+    const viewBoxH = document.getElementById('viewBoxH');
+
+    const sanitizeNumber = (value) => Number.isFinite(value) ? value : 0;
+
+    const renderSvg = (markup) => {
+      svgPreview.innerHTML = markup;
+      const svg = svgPreview.querySelector('svg');
+      if (!svg) {
+        viewBoxOutput.textContent = 'Invalid SVG';
+        return null;
+      }
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      return svg;
+    };
+
+    const syncInputsFromViewBox = (svg) => {
+      const viewBox = svg.getAttribute('viewBox');
+      if (!viewBox) return;
+      const [x, y, w, h] = viewBox.split(/[\s,]+/).map(Number);
+      viewBoxX.value = x;
+      viewBoxY.value = y;
+      viewBoxW.value = w;
+      viewBoxH.value = h;
+      viewBoxOutput.textContent = `${x} ${y} ${w} ${h}`;
+    };
+
+    const updateOutput = (svg) => {
+      svgOutput.value = svg.outerHTML;
+    };
+
+    const applyViewBox = () => {
+      const svg = renderSvg(svgInput.value.trim());
+      if (!svg) return;
+      const x = sanitizeNumber(Number(viewBoxX.value));
+      const y = sanitizeNumber(Number(viewBoxY.value));
+      const w = sanitizeNumber(Number(viewBoxW.value));
+      const h = sanitizeNumber(Number(viewBoxH.value));
+      svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+      viewBoxOutput.textContent = `${x} ${y} ${w} ${h}`;
+      updateOutput(svg);
+    };
+
+    const autoFit = () => {
+      const svg = renderSvg(svgInput.value.trim());
+      if (!svg) return;
+      requestAnimationFrame(() => {
+        const bbox = svg.getBBox();
+        const x = Math.round(bbox.x * 10) / 10;
+        const y = Math.round(bbox.y * 10) / 10;
+        const w = Math.round(bbox.width * 10) / 10;
+        const h = Math.round(bbox.height * 10) / 10;
+        svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+        syncInputsFromViewBox(svg);
+        updateOutput(svg);
+      });
+    };
+
+    const resetSample = () => {
+      svgInput.value = sampleSvg;
+      const svg = renderSvg(sampleSvg);
+      if (!svg) return;
+      syncInputsFromViewBox(svg);
+      updateOutput(svg);
+    };
+
+    document.getElementById('applyViewBox').addEventListener('click', applyViewBox);
+    document.getElementById('autoFit').addEventListener('click', autoFit);
+    document.getElementById('resetSample').addEventListener('click', resetSample);
+
+    svgInput.addEventListener('input', () => {
+      const svg = renderSvg(svgInput.value.trim());
+      if (!svg) return;
+      syncInputsFromViewBox(svg);
+      updateOutput(svg);
+    });
+
+    resetSample();
+  </script>
+</body>
+</html>
