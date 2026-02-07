@@ -49,8 +49,10 @@
       `;
     }).join('');
 
+    const headerClassName = currentPage === 'index' ? 'header' : 'header header--subpage';
+
     headerMount.outerHTML = `
-      <header class="header">
+      <header class="${headerClassName}">
         <div class="container">
           <div class="header-content">
             <a href="index.html" class="logo">
