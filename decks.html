@@ -1014,7 +1014,7 @@
     </div>
 
     <!-- Toast Notification -->
-    <div class="toast glass" id="toast" role="status" aria-live="polite" aria-atomic="true">
+    <div class="toast glass" id="toast" role="status" aria-live="assertive" aria-atomic="true">
         <i class="fas fa-check-circle toast-icon"></i>
         <div class="toast-content">
             <div class="toast-title" id="toastTitle">Success</div>
@@ -1148,6 +1148,7 @@
             selectedDeck: null,
             viewMode: 'grid',
             searchQuery: '',
+            panZoomCleanup: null,
             zoom: {
                 scale: 1,
                 minScale: 0.5,
@@ -1601,7 +1602,7 @@
             elements.modalOverlay.setAttribute('aria-hidden', 'false');
 
             // focus
-            setTimeout(() => elements.modalContainer.focus(), 50);
+            requestAnimationFrame(() => elements.modalContainer.focus());
 
             // load SVG
             loadDeckSVG(deck).catch(err => {
@@ -1619,6 +1620,10 @@
             elements.modalOverlay.classList.remove('active');
             elements.modalContainer.classList.remove('active');
             elements.modalOverlay.setAttribute('aria-hidden', 'true');
+            if (state.panZoomCleanup) {
+                state.panZoomCleanup();
+                state.panZoomCleanup = null;
+            }
 
             // clear selected deck highlight OR keep it — you had it clearing before; I keep selection
             // state.selectedDeck = null;
@@ -1651,9 +1656,10 @@
             const res = await fetch(deck.svg, { cache: 'no-store' });
             if (!res.ok) throw new Error(`Failed to fetch ${deck.svg}: ${res.status}`);
             const svgText = await res.text();
+            const sanitizedSvgText = sanitizeSvgText(svgText);
 
             // swap content
-            elements.svgViewport.innerHTML = svgText;
+            elements.svgViewport.innerHTML = sanitizedSvgText;
 
             const svg = elements.svgViewport.querySelector('svg');
             if (!svg) throw new Error('SVG content did not include <svg> root.');
@@ -1742,6 +1748,29 @@
 
         function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
+        function sanitizeSvgText(svgText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgText, 'image/svg+xml');
+            if (doc.querySelector('parsererror')) {
+                throw new Error('Failed to parse SVG content.');
+            }
+
+            doc.querySelectorAll('script, foreignObject').forEach((node) => node.remove());
+
+            doc.querySelectorAll('*').forEach((node) => {
+                [...node.attributes].forEach((attr) => {
+                    const name = attr.name.toLowerCase();
+                    const value = attr.value.trim().toLowerCase();
+                    if (name.startsWith('on')) node.removeAttribute(attr.name);
+                    if ((name === 'href' || name === 'xlink:href') && value.startsWith('javascript:')) {
+                        node.removeAttribute(attr.name);
+                    }
+                });
+            });
+
+            return new XMLSerializer().serializeToString(doc.documentElement);
+        }
+
         function applySvgTransform() {
             const svg = getSvgEl();
             if (!svg) return;
@@ -1796,23 +1825,19 @@
         function bindSvgPanZoom() {
             const viewport = elements.svgViewport;
 
-            // Clear previous handlers (safe)
-            viewport.onmousedown = null;
-            viewport.onmousemove = null;
-            viewport.onmouseup = null;
-            viewport.onwheel = null;
+            if (state.panZoomCleanup) {
+                state.panZoomCleanup();
+                state.panZoomCleanup = null;
+            }
 
             // Mouse drag
-            viewport.onmousedown = (e) => {
+            const onMouseDown = (e) => {
                 if (e.button !== 0) return;
                 state.zoom.dragging = true;
                 state.zoom.startX = e.clientX - state.zoom.x;
                 state.zoom.startY = e.clientY - state.zoom.y;
                 viewport.classList.add('dragging');
             };
-
-            window.addEventListener('mousemove', onMouseMove, { passive: true });
-            window.addEventListener('mouseup', onMouseUp, { passive: true });
 
             function onMouseMove(e) {
                 if (!state.zoom.dragging) return;
@@ -1828,7 +1853,7 @@
             }
 
             // Wheel zoom
-            viewport.onwheel = (e) => {
+            const onWheel = (e) => {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.12 : 0.12;
                 state.zoom.scale = clamp(state.zoom.scale + delta, state.zoom.minScale, state.zoom.maxScale);
@@ -1837,7 +1862,7 @@
             };
 
             // Double click (desktop)
-            viewport.ondblclick = (e) => {
+            const onDblClick = (e) => {
                 e.preventDefault();
                 doubleTapZoom(e.clientX, e.clientY);
             };
@@ -1893,6 +1918,26 @@
                     if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
                 }
             }
+
+            viewport.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mousemove', onMouseMove, { passive: true });
+            window.addEventListener('mouseup', onMouseUp, { passive: true });
+            viewport.addEventListener('wheel', onWheel, { passive: false });
+            viewport.addEventListener('dblclick', onDblClick);
+            viewport.addEventListener('touchstart', onTouchStart, { passive: false });
+            viewport.addEventListener('touchmove', onTouchMove, { passive: false });
+            viewport.addEventListener('touchend', onTouchEnd, { passive: false });
+
+            state.panZoomCleanup = () => {
+                viewport.removeEventListener('mousedown', onMouseDown);
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+                viewport.removeEventListener('wheel', onWheel);
+                viewport.removeEventListener('dblclick', onDblClick);
+                viewport.removeEventListener('touchstart', onTouchStart);
+                viewport.removeEventListener('touchmove', onTouchMove);
+                viewport.removeEventListener('touchend', onTouchEnd);
+            };
         }
 
         // ===== Mini-map =====
@@ -2047,6 +2092,25 @@
             });
         }
 
+        function trapFocus(e) {
+            const focusable = elements.modalContainer.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            const visible = [...focusable].filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+            if (!visible.length) return;
+
+            const first = visible[0];
+            const last = visible[visible.length - 1];
+
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+
         // ============================================================================
         // MISC ACTIONS
         // ============================================================================
@@ -2161,6 +2225,7 @@
             // Modal escape inside
             elements.modalContainer.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeModal();
+                if (e.key === 'Tab') trapFocus(e);
             });
         });
 
