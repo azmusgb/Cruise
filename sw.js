@@ -87,6 +87,22 @@ async function handleNavigationRequest(event) {
 
 async function handleAssetRequest(request) {
   const cache = await caches.open(CACHE_NAME);
+  const isCriticalAsset = ['document', 'script', 'style'].includes(request.destination);
+
+  if (isCriticalAsset) {
+    try {
+      const response = await fetch(request, { cache: 'no-store' });
+      if (response && response.ok) {
+        cache.put(request, response.clone()).catch(() => {});
+      }
+      return response;
+    } catch (_) {
+      const cachedResponse = await cache.match(request, { ignoreSearch: true });
+      if (cachedResponse) return cachedResponse;
+      return new Response('', { status: 404, statusText: 'Not Found' });
+    }
+  }
+
   const cached = await cache.match(request, { ignoreSearch: true });
 
   if (cached) {
