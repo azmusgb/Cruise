@@ -3,971 +3,917 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#1a365d">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/icon-192.svg">
-<title>Deck Plans | Adventure of the Seas</title>
+<meta name="theme-color" content="#0a192f">
+<title>Adventure of the Seas | Deck Plans</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<script src="shared-layout.js" defer></script>
 
 <style>
-:root{
-  --rc-blue:#003580;
-  --rc-blue-dark:#0054a6;
-  --rc-light:#00a3e0;
-  --rc-accent:#00a3e0;
-  --bg:#f4f8ff;
-  --card:#ffffff;
-  --border:#e2e8f0;
-  --text-primary:#1e293b;
-  --text-secondary:#64748b;
-  --radius:16px;
-  --radius-sm:8px;
-  --shadow:0 8px 24px rgba(0,0,0,.06);
-  --shadow-hover:0 15px 40px rgba(0,53,128,.15);
-  --shadow-md:0 4px 12px rgba(0,0,0,.05);
-  --bg-header:linear-gradient(135deg,#003580 0%,#0054a6 100%);
-  --transition:all .3s cubic-bezier(.4,0,.2,1);
+:root {
+  --deep-navy: #0a192f;
+  --navy: #112240;
+  --light-navy: #233554;
+  --slate: #8892b0;
+  --light-slate: #ccd6f6;
+  --accent: #64ffda;
+  --accent-hover: #52dbbf;
+  --card-bg: rgba(17, 34, 64, 0.7);
+  --card-border: rgba(100, 255, 218, 0.1);
+  --glow: 0 0 20px rgba(100, 255, 218, 0.15);
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
-
-body{
-  font-family:'Open Sans',system-ui,sans-serif;
-  background:linear-gradient(135deg,#f4f8ff 0%,#ffffff 100%);
-  color:var(--text-primary);
-  min-height:100vh;
-  overflow-x:hidden;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Shared Header */
-.header{
-  background:var(--bg-header);
-  color:#fff;
-  position:sticky;
-  top:0;
-  z-index:1000;
-  box-shadow:var(--shadow-md);
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: linear-gradient(135deg, var(--deep-navy) 0%, #0c2541 100%);
+  color: var(--light-slate);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* Main */
-.main-content{
-  max-width:1200px;
-  margin:-1.75rem auto 3rem;
-  padding:0 1.5rem;
-  position:relative;
-  z-index:2;
+/* Navigation Header */
+.nav-header {
+  background: rgba(10, 25, 47, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+  padding: 1.25rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Controls */
-.controls-panel{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:1.25rem;
-  margin-bottom:1.75rem;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-}
-.search-bar{position:relative;margin-bottom:1rem}
-.search-bar input{
-  width:100%;
-  padding:1rem 1rem 1rem 3rem;
-  border:2px solid var(--border);
-  border-radius:var(--radius-sm);
-  font-size:1rem;
-  background:var(--bg);
-  transition:var(--transition);
-}
-.search-bar input:focus{
-  outline:none;
-  border-color:var(--rc-light);
-  box-shadow:0 0 0 3px rgba(0,163,224,.12);
-}
-.search-bar i{
-  position:absolute;
-  left:1rem;
-  top:50%;
-  transform:translateY(-50%);
-  color:var(--text-secondary);
-}
-.clear-search{
-  position:absolute;
-  right:.75rem;
-  top:50%;
-  transform:translateY(-50%);
-  border:none;
-  background:transparent;
-  color:var(--text-secondary);
-  font-size:1rem;
-  width:34px;height:34px;
-  border-radius:50%;
-  cursor:pointer;
-  display:none;
-}
-.clear-search:hover{background:rgba(0,53,128,.08);color:var(--rc-blue)}
-
-.filter-actions{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:1rem;
-  flex-wrap:wrap;
-}
-.filter-state{
-  display:flex;
-  align-items:center;
-  gap:.5rem;
-  padding:.65rem .85rem;
-  background:linear-gradient(120deg, rgba(0,163,224,.08), rgba(0,53,128,.04));
-  border-radius:var(--radius-sm);
-  font-size:.92rem;
-  color:var(--text-secondary);
-}
-.deck-jump{
-  display:flex;
-  align-items:center;
-  gap:.6rem;
-  color:var(--text-secondary);
-  font-size:.92rem;
-}
-.deck-jump select{
-  border:2px solid var(--border);
-  background:#fff;
-  border-radius:10px;
-  padding:.45rem .75rem;
-  color:var(--text-primary);
-  font-weight:600;
+.nav-brand h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--light-slate) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Grid */
-.deck-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(340px,1fr));
-  gap:1.5rem;
-}
-.deck-card{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:1.25rem;
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-  transition:var(--transition);
-  position:relative;
-  overflow:hidden;
-}
-.deck-card.hidden{display:none}
-.deck-card.highlight{box-shadow:0 0 0 3px rgba(0,163,224,.25), var(--shadow-hover)}
-.deck-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-hover)}
-.deck-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:1rem;
-  margin-bottom:1rem;
-}
-.deck-header h2{
-  font-family:'Montserrat',sans-serif;
-  font-weight:800;
-  font-size:1.35rem;
-  color:var(--rc-blue);
-}
-.deck-number{
-  background:linear-gradient(135deg,var(--rc-blue),var(--rc-blue-dark));
-  color:#fff;
-  width:42px;height:42px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:800;
-  font-size:1.15rem;
-  box-shadow:0 4px 12px rgba(0,53,128,.2);
+.nav-brand .subtitle {
+  font-size: 0.85rem;
+  color: var(--slate);
+  margin-top: 0.25rem;
 }
 
-/* Preview (SVG) */
-.deck-preview{
-  border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-  background:#fff;
+/* Main Layout */
+.main-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  min-height: calc(100vh - 100px);
 }
-.svg-pan-wrapper {
+
+@media (max-width: 1024px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  backdrop-filter: blur(10px);
+}
+
+.sidebar-section {
+  margin-bottom: 2rem;
+}
+
+.sidebar-section h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Deck Navigation */
+.deck-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.deck-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--slate);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.deck-nav-item:hover {
+  background: rgba(100, 255, 218, 0.05);
+  border-color: rgba(100, 255, 218, 0.2);
+  color: var(--light-slate);
+  transform: translateX(4px);
+}
+
+.deck-nav-item.active {
+  background: rgba(100, 255, 218, 0.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.deck-number-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--light-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.deck-nav-item.active .deck-number-badge {
+  background: var(--accent);
+  color: var(--deep-navy);
+}
+
+/* Quick Filter */
+.quick-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-btn {
+  padding: 0.75rem 1rem;
+  background: rgba(35, 53, 84, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  color: var(--light-slate);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: var(--transition);
+}
+
+.filter-btn:hover {
+  background: rgba(100, 255, 218, 0.1);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.filter-btn i {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+/* Main Content */
+.content-main {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+.content-header h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--light-slate);
+}
+
+.deck-count {
+  background: rgba(100, 255, 218, 0.1);
+  color: var(--accent);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Deck Card */
+.deck-card {
+  background: rgba(35, 53, 84, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
   position: relative;
-  width: 100%;
-  height: 360px;
   overflow: hidden;
-  background: #fff;
-  touch-action: none; /* critical for iOS */
 }
 
-.deck-svg {
-  width: 100%;
+.deck-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--glow);
+  transform: translateY(-4px);
+}
+
+.deck-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
   height: 100%;
-  pointer-events: auto;
-}
-.deck-preview .fallback{
-  padding:1rem;
-  color:var(--text-secondary);
-  font-size:.95rem;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 
-/* Buttons */
-.deck-action{
-  display:flex;
-  gap:.75rem;
-  margin-top:1rem;
+.deck-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
-.action-btn{
-  flex:1;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:.65rem;
-  background:linear-gradient(135deg,var(--rc-light),var(--rc-blue));
-  color:#fff;
-  border:none;
-  padding:.85rem 1rem;
-  border-radius:999px;
-  font-weight:700;
-  font-size:.95rem;
-  cursor:pointer;
-  transition:var(--transition);
-  box-shadow:0 4px 15px rgba(0,163,224,.25);
+
+.deck-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
-.action-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,163,224,.35)}
-.action-btn.secondary{
-  background:#e6efff;
-  color:var(--rc-blue);
-  box-shadow:none;
-  border:1px solid var(--border);
+
+.deck-title-number {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--deep-navy);
+  box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+}
+
+.deck-title-text h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--light-slate);
+  margin-bottom: 0.25rem;
+}
+
+.deck-title-text p {
+  color: var(--slate);
+  font-size: 0.95rem;
+}
+
+/* Features */
+.deck-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.feature-tag {
+  background: rgba(100, 255, 218, 0.05);
+  border: 1px solid rgba(100, 255, 218, 0.2);
+  color: var(--accent);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feature-tag i {
+  font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.deck-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: none;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: var(--deep-navy);
+}
+
+.action-btn.primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(100, 255, 218, 0.3);
+}
+
+.action-btn.secondary {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.action-btn.secondary:hover {
+  background: rgba(100, 255, 218, 0.1);
+  transform: translateY(-3px);
+}
+
+/* Search Bar */
+.search-container {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1.25rem 1.25rem 1.25rem 3rem;
+  background: rgba(35, 53, 84, 0.5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  color: var(--light-slate);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--slate);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--slate);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  color: var(--light-slate);
+  margin-bottom: 0.75rem;
 }
 
 /* Modal */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,21,53,.9);
-  display:none;
-  z-index:3000;
-  backdrop-filter:blur(8px);
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 47, 0.95);
+  backdrop-filter: blur(10px);
+  display: none;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
-.modal.open{display:block}
-.modal-content{
-  position:relative;
-  width:95%;
-  height:95%;
-  margin:2.5% auto;
-  background:#fff;
-  border-radius:var(--radius);
-  overflow:hidden;
-}
-.modal-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:1rem 1.25rem;
-  background:linear-gradient(135deg,var(--rc-blue),var(--rc-blue-dark));
-  color:#fff;
-}
-.modal-header h3{
-  font-family:'Montserrat',sans-serif;
-  font-weight:700;
-  margin:0;
-  font-size:1.2rem;
-}
-.modal-actions{
-  display:flex;
-  align-items:center;
-  gap:.6rem;
-}
-.modal-link{
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  color:#fff;
-  text-decoration:none;
-  padding:.45rem .75rem;
-  border-radius:999px;
-  background:rgba(255,255,255,.18);
-  border:1px solid rgba(255,255,255,.25);
-  font-weight:700;
-  font-size:.9rem;
-}
-.modal-link:hover{background:rgba(255,255,255,.26)}
-.close-modal{
-  background:rgba(255,255,255,.2);
-  border:none;
-  color:#fff;
-  width:40px;height:40px;
-  border-radius:50%;
-  cursor:pointer;
-  font-size:1.15rem;
-  transition:var(--transition);
-}
-.close-modal:hover{background:rgba(255,255,255,.3);transform:rotate(90deg)}
-.modal-body{height:calc(100% - 64px)}
-.modal-body iframe{width:100%;height:100%;border:none}
 
-.empty-state{
-  display:none;
-  text-align:center;
-  padding:2.25rem 1.5rem;
-  background:var(--card);
-  border:1px dashed var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  margin-top:1.5rem;
+.modal-overlay.active {
+  display: block;
+  opacity: 1;
 }
-.empty-state i{font-size:2rem;color:var(--rc-light);margin-bottom:.75rem}
-.empty-state p{color:var(--text-secondary)}
+
+.modal-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  background: var(--navy);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow: hidden;
+  z-index: 2001;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.modal-container.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  background: rgba(17, 34, 64, 0.8);
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  color: var(--light-slate);
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--slate);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  height: calc(90vh - 80px);
+  padding: 0;
+}
+
+.modal-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+}
 
 /* Responsive */
-@media (max-width:768px){
-  .header h1{font-size:2.15rem}
-  .deck-grid{grid-template-columns:1fr;gap:1.15rem}
-  .modal-content{width:100%;height:100%;margin:0;border-radius:0}
-  .svg-pan-wrapper{height:260px}
-  .filter-actions{flex-direction:column;align-items:flex-start}
+@media (max-width: 768px) {
+  .main-container {
+    padding: 1rem;
+  }
+  
+  .nav-header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .content-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .deck-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .deck-title {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .deck-actions {
+    flex-direction: column;
+  }
+  
+  .modal-container {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .modal-body {
+    height: calc(100vh - 80px);
+  }
+}
+
+/* Loading Animation */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(35, 53, 84, 0.1) 25%, 
+    rgba(35, 53, 84, 0.3) 50%, 
+    rgba(35, 53, 84, 0.1) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--light-navy);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
 }
 </style>
 </head>
 
 <body>
-<script>
-  (function() {
-    const originalError = window.console.error;
-    window.console.error = function() {
-      if (arguments[0] && typeof arguments[0] === 'string' &&
-          arguments[0].includes('gpsBootstrap.js')) {
-        return;
-      }
-      if (originalError) {
-        originalError.apply(window.console, arguments);
-      }
-    };
 
-    window.addEventListener('error', function(event) {
-      if (event.filename && (
-        event.filename.includes('gpsBootstrap.js') ||
-        (event.error && event.error.stack && event.error.stack.includes('gpsBootstrap.js'))
-      )) {
-        event.preventDefault();
-        event.stopPropagation();
-        return false;
-      }
-    }, true);
-
-    window.addEventListener('unhandledrejection', function(event) {
-      if (event.reason && event.reason.stack &&
-          event.reason.stack.includes('gpsBootstrap.js')) {
-        event.preventDefault();
-        return false;
-      }
-    });
-  })();
-</script>
-
-<div id="sharedHeader" data-page="decks" data-menu-toggle="false"></div>
-
-<main class="main-content">
-
-  <div class="controls-panel">
-    <div class="search-bar">
-      <i class="fas fa-search" aria-hidden="true"></i>
-      <input id="searchInput" type="text" placeholder="Search: 'pool', 'Windjammer', 'Deck 6'..." aria-label="Search decks">
-      <button class="clear-search" id="clearSearch" type="button" aria-label="Clear search">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
-    </div>
-
-    <div class="filter-actions">
-      <div class="filter-state">
-        <i class="fas fa-info-circle" aria-hidden="true" style="color:var(--rc-light)"></i>
-        <span id="filterState">Showing 14 decks · Decks 02–15</span>
-      </div>
-
-      <label class="deck-jump" for="deckJump">
-        <i class="fas fa-location-arrow" aria-hidden="true"></i>
-        Quick jump
-        <select id="deckJump">
-          <option value="">Select deck</option>
-          <option value="2">Deck 2</option>
-          <option value="3">Deck 3</option>
-          <option value="4">Deck 4</option>
-          <option value="5">Deck 5</option>
-          <option value="6">Deck 6</option>
-          <option value="7">Deck 7</option>
-          <option value="8">Deck 8</option>
-          <option value="9">Deck 9</option>
-          <option value="10">Deck 10</option>
-          <option value="11">Deck 11</option>
-          <option value="12">Deck 12</option>
-          <option value="13">Deck 13</option>
-          <option value="14">Deck 14</option>
-          <option value="15">Deck 15</option>
-        </select>
-      </label>
-    </div>
+<div class="nav-header">
+  <div class="nav-brand">
+    <h1>Adventure of the Seas</h1>
+    <div class="subtitle">Interactive Deck Plans</div>
   </div>
-
-  <section class="deck-grid" id="deckGrid" aria-live="polite" aria-busy="false">
-
-    <!-- Deck 02 -->
-    <article class="deck-card" id="deck-2" data-name="Deck 2">
-      <div class="deck-header">
-        <h2>Deck 2</h2>
-        <div class="deck-number">2</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-02.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="2">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(2)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(2)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(2)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 03 -->
-    <article class="deck-card" id="deck-3" data-name="Deck 3">
-      <div class="deck-header">
-        <h2>Deck 3</h2>
-        <div class="deck-number">3</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-03.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="3">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(3)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(3)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(3)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 04 -->
-    <article class="deck-card" id="deck-4" data-name="Deck 4">
-      <div class="deck-header">
-        <h2>Deck 4</h2>
-        <div class="deck-number">4</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-04.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="4">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(4)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(4)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(4)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 05 -->
-    <article class="deck-card" id="deck-5" data-name="Deck 5">
-      <div class="deck-header">
-        <h2>Deck 5</h2>
-        <div class="deck-number">5</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-05.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="5">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(5)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(5)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(5)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 06 -->
-    <article class="deck-card" id="deck-6" data-name="Deck 6">
-      <div class="deck-header">
-        <h2>Deck 6</h2>
-        <div class="deck-number">6</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-06.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="6">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(6)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(6)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(6)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 07 -->
-    <article class="deck-card" id="deck-7" data-name="Deck 7">
-      <div class="deck-header">
-        <h2>Deck 7</h2>
-        <div class="deck-number">7</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-07.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="7">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(7)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(7)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(7)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 08 -->
-    <article class="deck-card" id="deck-8" data-name="Deck 8">
-      <div class="deck-header">
-        <h2>Deck 8</h2>
-        <div class="deck-number">8</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-08.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="8">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(8)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(8)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(8)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 09 -->
-    <article class="deck-card" id="deck-9" data-name="Deck 9">
-      <div class="deck-header">
-        <h2>Deck 9</h2>
-        <div class="deck-number">9</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-09.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="9">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(9)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(9)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(9)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 10 -->
-    <article class="deck-card" id="deck-10" data-name="Deck 10">
-      <div class="deck-header">
-        <h2>Deck 10</h2>
-        <div class="deck-number">10</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-10.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="10">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(10)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(10)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(10)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 11 -->
-    <article class="deck-card" id="deck-11" data-name="Deck 11">
-      <div class="deck-header">
-        <h2>Deck 11</h2>
-        <div class="deck-number">11</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-11.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="11">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(11)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(11)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(11)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 12 -->
-    <article class="deck-card" id="deck-12" data-name="Deck 12">
-      <div class="deck-header">
-        <h2>Deck 12</h2>
-        <div class="deck-number">12</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-12.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="12">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(12)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(12)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(12)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 13 -->
-    <article class="deck-card" id="deck-13" data-name="Deck 13">
-      <div class="deck-header">
-        <h2>Deck 13</h2>
-        <div class="deck-number">13</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-13.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="13">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(13)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(13)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(13)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 14 -->
-    <article class="deck-card" id="deck-14" data-name="Deck 14">
-      <div class="deck-header">
-        <h2>Deck 14</h2>
-        <div class="deck-number">14</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-14.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="14">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(14)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(14)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(14)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-    <!-- Deck 15 -->
-    <article class="deck-card" id="deck-15" data-name="Deck 15">
-      <div class="deck-header">
-        <h2>Deck 15</h2>
-        <div class="deck-number">15</div>
-      </div>
-      <div class="deck-preview">
-        <div class="svg-pan-wrapper">
-        <object data="decks/deck-15.svg"
-                type="image/svg+xml"
-                class="deck-svg"
-                data-deck="15">
-          <div class="fallback">SVG preview not supported here. Use “Open” or “PDF”.</div>
-        </object>
-      </div>
-      </div>
-      <div class="deck-action">
-        <button class="action-btn" type="button" onclick="openDeck(15)"><span>Open</span><i class="fas fa-up-right-from-square" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="openPDF(15)"><span>PDF</span><i class="fas fa-file-pdf" aria-hidden="true"></i></button>
-        <button class="action-btn secondary" type="button" onclick="resetZoom(15)"><span>Reset View</span><i class="fas fa-expand" aria-hidden="true"></i></button>
-      </div>
-    </article>
-
-  </section>
-
-  <div class="empty-state" id="emptyState">
-    <i class="fas fa-life-ring" aria-hidden="true"></i>
-    <h3>No decks match your search</h3>
-    <p>Try a broader term (e.g., “pool”, “casino”, “Windjammer”).</p>
-  </div>
-
-</main>
-
-<!-- Modal -->
-<div class="modal" id="deckModal" aria-hidden="true">
-  <div class="modal-content" role="dialog" aria-modal="true" aria-label="Deck plan">
-    <div class="modal-header">
-      <h3 id="modalTitle">Deck Plan</h3>
-      <div class="modal-actions">
-        <a class="modal-link" id="modalDownload" href="#" target="_blank" rel="noopener">
-          <i class="fas fa-download" aria-hidden="true"></i> Download PDF
-        </a>
-        <button class="close-modal" type="button" onclick="closeDeckModal()" aria-label="Close">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-      </div>
-    </div>
-    <div class="modal-body">
-      <iframe id="modalFrame" title="Deck plan PDF"></iframe>
-    </div>
+  <div class="nav-actions">
+    <button class="action-btn secondary" onclick="toggleViewMode()">
+      <i class="fas fa-layer-group"></i>
+      Toggle View
+    </button>
   </div>
 </div>
 
-<div id="sharedFooter" data-page="decks"></div>
+<div class="main-container">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3><i class="fas fa-compass"></i> Quick Navigation</h3>
+      <div class="deck-nav" id="deckNav">
+        <!-- Deck navigation items will be generated by JavaScript -->
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <h3><i class="fas fa-filter"></i> Quick Filter</h3>
+      <div class="quick-filter">
+        <button class="filter-btn" data-filter="dining">
+          <i class="fas fa-utensils"></i>
+          Dining & Bars
+        </button>
+        <button class="filter-btn" data-filter="entertainment">
+          <i class="fas fa-theater-masks"></i>
+          Entertainment
+        </button>
+        <button class="filter-btn" data-filter="wellness">
+          <i class="fas fa-spa"></i>
+          Wellness & Spa
+        </button>
+        <button class="filter-btn" data-filter="pool">
+          <i class="fas fa-swimming-pool"></i>
+          Pools & Recreation
+        </button>
+        <button class="filter-btn" data-filter="shopping">
+          <i class="fas fa-shopping-bag"></i>
+          Shopping
+        </button>
+      </div>
+    </div>
+    
+    <div class="sidebar-section">
+      <h3><i class="fas fa-info-circle"></i> Tips</h3>
+      <div style="color: var(--slate); font-size: 0.9rem; line-height: 1.5;">
+        <p>• Click any deck to jump directly</p>
+        <p>• Use filters to find specific amenities</p>
+        <p>• PDF versions available for download</p>
+        <p>• Interactive SVG plans available</p>
+      </div>
+    </div>
+  </aside>
 
-<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <!-- Main Content -->
+  <main class="content-main">
+    <div class="content-header">
+      <h2 id="currentDeckTitle">All Deck Plans</h2>
+      <div class="deck-count" id="deckCount">14 Decks</div>
+    </div>
+    
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search-input" id="searchInput" 
+             placeholder="Search decks, amenities, or locations...">
+    </div>
+    
+    <div id="decksContainer">
+      <!-- Deck cards will be generated by JavaScript -->
+    </div>
+    
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <i class="fas fa-map-marked-alt"></i>
+      <h3>No Decks Found</h3>
+      <p>Try adjusting your search or filters</p>
+    </div>
+  </main>
+</div>
 
-<script>
-const searchInput = document.getElementById('searchInput');
-const clearSearchButton = document.getElementById('clearSearch');
-const deckCards = Array.from(document.querySelectorAll('.deck-card'));
-const emptyState = document.getElementById('emptyState');
-const deckJump = document.getElementById('deckJump');
-
-const modal = document.getElementById('deckModal');
-const modalFrame = document.getElementById('modalFrame');
-const modalTitle = document.getElementById('modalTitle');
-const modalDownload = document.getElementById('modalDownload');
-
-function deckAsset(deckNum){
-  const dd = String(deckNum).padStart(2,'0');
-  return {
-    svg: `decks/deck-${dd}.svg`,
-    pdf: `decks/deck-${dd}.pdf`
-  };
-}
-
-function updateState(count, term){
-  const state = document.getElementById('filterState');
-  state.textContent = term
-    ? `Showing ${count} deck${count!==1?'s':''} matching "${term}"`
-    : `Showing ${count} deck${count!==1?'s':''} · Decks 02–15`;
-}
-
-function applySearch(){
-  const term = searchInput.value.trim().toLowerCase();
-  let visible = 0;
-
-  deckCards.forEach(card=>{
-    const name = (card.dataset.name || '').toLowerCase();
-    const text = card.textContent.toLowerCase();
-    const show = !term || name.includes(term) || text.includes(term);
-
-    card.classList.toggle('hidden', !show);
-    if(show) visible++;
-  });
-
-  clearSearchButton.style.display = term ? 'inline-flex' : 'none';
-  emptyState.style.display = visible === 0 ? 'block' : 'none';
-  updateState(visible, term);
-}
-
-function openDeck(deckNum){
-  const { pdf } = deckAsset(deckNum);
-  modalTitle.textContent = `Deck ${deckNum}`;
-  modalFrame.src = pdf;
-  modalDownload.href = pdf;
-
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
-  refreshSvgPanZoom();
-}
-
-function openPDF(deckNum){ openDeck(deckNum); }
-
-function closeDeckModal(){
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden','true');
-  modalFrame.src = 'about:blank';
-  document.body.style.overflow='auto';
-}
-
-clearSearchButton.addEventListener('click', ()=>{
-  searchInput.value='';
-  searchInput.focus();
-  applySearch();
-});
-
-searchInput.addEventListener('input', applySearch);
-
-deckJump.addEventListener('change', (e)=>{
-  const deckNumber = e.target.value;
-  if(!deckNumber) return;
-  const target = document.getElementById(`deck-${deckNumber}`);
-  if(!target) return;
-
-  // Ensure visible
-  searchInput.value='';
-  applySearch();
-
-  target.classList.add('highlight');
-  target.scrollIntoView({behavior:'smooth',block:'center'});
-  setTimeout(()=>target.classList.remove('highlight'), 1600);
-});
-
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Escape') closeDeckModal();
-});
-
-modal.addEventListener('click', (e)=>{
-  if(e.target === modal) closeDeckModal();
-});
-
-// initial
-applySearch();
-</script>
-
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="modal-container" id="modalContainer">
+  <div class="modal-header">
+    <h3 id="modalTitle">Deck Plan</h3>
+    <button class="modal-close" onclick="closeModal()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="modal-body">
+    <iframe id="modalFrame" class="modal-frame" title="Deck Plan"></iframe>
+  </div>
+</div>
 
 <script>
-const panZoomInstances = new Map();
+// Deck Data
+const deckData = [
+  { number: 2, name: "Promenade Deck", features: ["Main Dining", "Theater", "Casino"], description: "Entertainment & Dining Hub" },
+  { number: 3, name: "Shopping Deck", features: ["Boutiques", "Jewelry", "Duty Free"], description: "Retail & Shopping" },
+  { number: 4, name: "Staterooms", features: ["Ocean View", "Balcony", "Suites"], description: "Accommodation Level" },
+  { number: 5, name: "Staterooms", features: ["Family Rooms", "Accessible"], description: "Accommodation Level" },
+  { number: 6, name: "Upper Promenade", features: ["Specialty Dining", "Lounges"], description: "Dining & Relaxation" },
+  { number: 7, name: "Central Deck", features: ["Guest Services", "Excursions"], description: "Services & Activities" },
+  { number: 8, name: "Pool Deck", features: ["Main Pool", "Jacuzzis", "Bar"], description: "Aquatic Recreation" },
+  { number: 9, name: "Sports Deck", features: ["Rock Wall", "Basketball", "Mini Golf"], description: "Active Recreation" },
+  { number: 10, name: "Spa Deck", features: ["Spa", "Fitness Center", "Salon"], description: "Wellness & Fitness" },
+  { number: 11, name: "Windjammer Cafe", features: ["Buffet", "Outdoor Seating"], description: "Casual Dining" },
+  { number: 12, name: "Teen & Kids", features: ["Arcade", "Kids Club", "Teen Zone"], description: "Youth Activities" },
+  { number: 13, name: "Sun Deck", features: ["Solarium", "Quiet Zone"], description: "Relaxation & Views" },
+  { number: 14, name: "Observation Deck", features: ["Sky Bar", "360° Views"], description: "Panoramic Views" },
+  { number: 15, name: "Sports Court", features: ["Sports", "Events", "Parties"], description: "Activities & Events" }
+];
 
-function enableSvgPanZoom(objectEl) {
-  if (!objectEl || panZoomInstances.has(objectEl)) return;
+// State
+let currentDeck = null;
+let activeFilter = null;
+let searchTerm = '';
 
-  const initPanZoom = () => {
-    const svgDoc = objectEl.contentDocument;
-    if (!svgDoc) return;
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  renderDeckNav();
+  renderDeckCards();
+  setupEventListeners();
+});
 
-    const svg = svgDoc.querySelector('svg');
-    if (!svg) return;
+function renderDeckNav() {
+  const navContainer = document.getElementById('deckNav');
+  navContainer.innerHTML = deckData.map(deck => `
+    <div class="deck-nav-item ${currentDeck === deck.number ? 'active' : ''}" 
+         onclick="scrollToDeck(${deck.number})">
+      <div class="deck-number-badge">${deck.number}</div>
+      <div>
+        <div style="font-weight: 600;">${deck.name}</div>
+        <div style="font-size: 0.8rem; color: var(--slate);">${deck.description}</div>
+      </div>
+    </div>
+  `).join('');
+}
 
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-    svg.style.touchAction = 'none';
-    if (!svg.dataset.originalViewBox) {
-      const originalViewBox = svg.getAttribute('viewBox');
-      if (originalViewBox) {
-        svg.dataset.originalViewBox = originalViewBox;
-      }
-      try {
-        const bbox = svg.getBBox();
-        if (bbox && bbox.width > 0 && bbox.height > 0) {
-          const padding = Math.max(bbox.width, bbox.height) * 0.03;
-          const minX = bbox.x - padding;
-          const minY = bbox.y - padding;
-          const width = bbox.width + padding * 2;
-          const height = bbox.height + padding * 2;
-          svg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
-        }
-      } catch (error) {
-        console.warn('Unable to compute SVG bounds for preview.', error);
-      }
-    }
-
-    const panZoom = svgPanZoom(svg, {
-      zoomEnabled: true,
-      panEnabled: true,
-      controlIconsEnabled: false,
-      dblClickZoomEnabled: true,
-      mouseWheelZoomEnabled: true,
-      preventMouseEventsDefault: true,
-      minZoom: 0.6,
-      maxZoom: 10,
-      zoomScaleSensitivity: 0.25,
-      fit: true,
-      center: true,
-      beforePan: function (oldPan, newPan) {
-        return newPan;
-      }
-    });
-
-    panZoom.resize();
-    panZoom.fit();
-    panZoom.center();
-    const sizes = panZoom.getSizes();
-    if (sizes && sizes.viewBox) {
-      const widthZoom = sizes.width / sizes.viewBox.width;
-      const heightZoom = sizes.height / sizes.viewBox.height;
-      const targetZoom = Math.max(widthZoom, heightZoom) * 0.98;
-      panZoom.zoom(targetZoom);
-      panZoom.center();
-    }
-
-    svg.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-
-    panZoomInstances.set(objectEl, panZoom);
-  };
-
-  if (objectEl.contentDocument) {
-    initPanZoom();
-    return;
+function renderDeckCards() {
+  const container = document.getElementById('decksContainer');
+  const filteredDecks = filterDecks();
+  
+  if (filteredDecks.length === 0) {
+    document.getElementById('emptyState').style.display = 'block';
+    container.innerHTML = '';
+  } else {
+    document.getElementById('emptyState').style.display = 'none';
+    container.innerHTML = filteredDecks.map(deck => createDeckCard(deck)).join('');
   }
-
-  objectEl.addEventListener('load', initPanZoom, { once: true });
+  
+  document.getElementById('deckCount').textContent = `${filteredDecks.length} ${filteredDecks.length === 1 ? 'Deck' : 'Decks'}`;
 }
 
-function refreshSvgPanZoom() {
-  document.querySelectorAll('.deck-svg').forEach(enableSvgPanZoom);
+function createDeckCard(deck) {
+  return `
+    <div class="deck-card" id="deck-${deck.number}" data-deck-number="${deck.number}">
+      <div class="deck-header">
+        <div class="deck-title">
+          <div class="deck-title-number">${deck.number}</div>
+          <div class="deck-title-text">
+            <h3>${deck.name}</h3>
+            <p>${deck.description}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="deck-features">
+        ${deck.features.map(feature => `
+          <span class="feature-tag">
+            <i class="fas fa-check-circle"></i>
+            ${feature}
+          </span>
+        `).join('')}
+      </div>
+      
+      <div class="deck-actions">
+        <button class="action-btn primary" onclick="openDeckPlan(${deck.number}, 'svg')">
+          <i class="fas fa-expand"></i>
+          View Interactive Plan
+        </button>
+        <button class="action-btn secondary" onclick="openDeckPlan(${deck.number}, 'pdf')">
+          <i class="fas fa-download"></i>
+          Download PDF
+        </button>
+      </div>
+    </div>
+  `;
 }
 
-function resetZoom(deck) {
-  document.querySelectorAll(`.deck-svg[data-deck="${deck}"]`).forEach(obj => {
-    const instance = panZoomInstances.get(obj);
-    if (instance) {
-      instance.resetZoom();
-      instance.center();
+function filterDecks() {
+  return deckData.filter(deck => {
+    // Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const deckText = `${deck.number} ${deck.name} ${deck.description} ${deck.features.join(' ')}`.toLowerCase();
+      if (!deckText.includes(searchLower)) return false;
     }
+    
+    // Category filter
+    if (activeFilter) {
+      const filterMap = {
+        'dining': ['dining', 'restaurant', 'cafe', 'bar', 'buffet'],
+        'entertainment': ['theater', 'casino', 'arcade', 'club'],
+        'wellness': ['spa', 'fitness', 'salon', 'solarium'],
+        'pool': ['pool', 'jacuzzi', 'aquatic'],
+        'shopping': ['shopping', 'boutique', 'jewelry', 'duty']
+      };
+      
+      const filterTerms = filterMap[activeFilter];
+      const hasMatch = filterTerms.some(term => 
+        deck.features.some(f => f.toLowerCase().includes(term)) ||
+        deck.name.toLowerCase().includes(term) ||
+        deck.description.toLowerCase().includes(term)
+      );
+      
+      if (!hasMatch) return false;
+    }
+    
+    return true;
   });
 }
 
-refreshSvgPanZoom();
+function setupEventListeners() {
+  // Search
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchTerm = e.target.value.trim();
+    renderDeckCards();
+  });
+  
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      activeFilter = activeFilter === filter ? null : filter;
+      
+      // Update UI
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.style.background = b.dataset.filter === activeFilter ? 
+          'rgba(100, 255, 218, 0.1)' : 
+          'rgba(35, 53, 84, 0.5)';
+        b.style.borderColor = b.dataset.filter === activeFilter ? 
+          'var(--accent)' : 
+          'var(--card-border)';
+      });
+      
+      renderDeckCards();
+    });
+  });
+  
+  // Modal overlay close
+  document.getElementById('modalOverlay').addEventListener('click', closeModal);
+}
+
+function scrollToDeck(deckNumber) {
+  const element = document.getElementById(`deck-${deckNumber}`);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Highlight temporarily
+    element.style.boxShadow = '0 0 30px rgba(100, 255, 218, 0.3)';
+    setTimeout(() => {
+      element.style.boxShadow = '';
+    }, 1500);
+  }
+}
+
+function openDeckPlan(deckNumber, type) {
+  const deckStr = deckNumber.toString().padStart(2, '0');
+  const file = type === 'svg' ? 
+    `decks/deck-${deckStr}.svg` : 
+    `decks/deck-${deckStr}.pdf`;
+  
+  document.getElementById('modalTitle').textContent = 
+    `Deck ${deckNumber} ${type.toUpperCase()} Plan`;
+  document.getElementById('modalFrame').src = file;
+  
+  document.getElementById('modalOverlay').classList.add('active');
+  document.getElementById('modalContainer').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.getElementById('modalContainer').classList.remove('active');
+  document.getElementById('modalFrame').src = 'about:blank';
+  document.body.style.overflow = 'auto';
+}
+
+function toggleViewMode() {
+  const body = document.body;
+  const current = body.getAttribute('data-view-mode') || 'grid';
+  const newMode = current === 'grid' ? 'compact' : 'grid';
+  
+  body.setAttribute('data-view-mode', newMode);
+  
+  if (newMode === 'compact') {
+    document.querySelectorAll('.deck-card').forEach(card => {
+      card.style.padding = '1.25rem';
+      card.querySelector('.deck-features').style.display = 'none';
+    });
+  } else {
+    document.querySelectorAll('.deck-card').forEach(card => {
+      card.style.padding = '';
+      card.querySelector('.deck-features').style.display = '';
+    });
+  }
+}
+
+// Close modal with ESC key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
 </script>
 
 </body>
