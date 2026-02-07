@@ -967,11 +967,13 @@
             position: relative;
         }
 
-        .modal-frame {
+        .modal-image {
             width: 100%;
             height: 100%;
+            object-fit: contain;
             border: none;
             background: white;
+            display: block;
         }
 
         .modal-loading {
@@ -1285,7 +1287,7 @@
                     </p>
                     <p>
                         <i class="fas fa-expand" style="color: var(--accent); margin-right: 0.5rem;"></i>
-                        Interactive SVG plans available
+                        High-resolution deck previews available
                     </p>
                 </div>
             </div>
@@ -1359,7 +1361,7 @@
                 <div class="spinner"></div>
                 <p>Loading deck plan...</p>
             </div>
-            <iframe id="modalFrame" class="modal-frame" title="Deck Plan"></iframe>
+            <img id="modalImage" class="modal-image" alt="Deck plan preview" loading="lazy" decoding="async">
         </div>
     </div>
 
@@ -1589,7 +1591,7 @@
         const modalContainer = document.getElementById('modalContainer');
         const modalTitle = document.getElementById('modalTitle');
         const modalDownload = document.getElementById('modalDownload');
-        const modalFrame = document.getElementById('modalFrame');
+        const modalImage = document.getElementById('modalImage');
         const modalLoading = document.getElementById('modalLoading');
 
         const toast = document.getElementById('toast');
@@ -1803,15 +1805,16 @@
         const openModal = (deck) => {
             modalTitle.innerHTML = `<i class="fas fa-ship"></i>${deck.name} Plan`;
             modalDownload.href = deck.pdf;
-            modalFrame.src = '';
+            modalImage.src = '';
             modalLoading.style.display = 'flex';
 
-            const planSrc = deck.svg || deck.pdf;
-            modalFrame.addEventListener('load', () => {
+            const planSrc = deck.image;
+            modalImage.addEventListener('load', () => {
                 modalLoading.style.display = 'none';
             }, { once: true });
 
-            modalFrame.src = planSrc;
+            modalImage.alt = `${deck.name} plan preview`;
+            modalImage.src = planSrc;
             modalOverlay.classList.add('active');
             modalContainer.classList.add('active');
         };
@@ -1819,7 +1822,7 @@
         const closeModal = () => {
             modalOverlay.classList.remove('active');
             modalContainer.classList.remove('active');
-            modalFrame.src = '';
+            modalImage.src = '';
         };
 
         const openPreview = (deck) => {
