@@ -19,6 +19,7 @@
     <script src="shared-layout.js" defer></script>
 
     <style>
+        /* [CSS remains exactly the same as in the previous enhanced version] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -1800,7 +1801,7 @@
 
     <script>
         // ============================================================================
-        // DATA
+        // DATA - FIXED IMAGE URLs
         // ============================================================================
         const deckData = [
             {
@@ -1812,7 +1813,7 @@
                 highlights: ['Medical Center', 'Crew Quarters', 'Laundry Services', 'Technical Storage'],
                 pdf: 'decks/deck-02.pdf',
                 svg: 'decks/deck-02.svg',
-                image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&q=80',
+                image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&q=80',
                 type: 'service',
                 color: '#06b6d4'
             },
@@ -1825,7 +1826,7 @@
                 highlights: ['Royal Promenade', 'Guest Services', 'Shops', 'Information Desk'],
                 pdf: 'decks/deck-03.pdf',
                 svg: 'decks/deck-03.svg',
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80',
+                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&q=80',
                 type: 'main',
                 color: '#2563eb'
             },
@@ -1838,7 +1839,7 @@
                 highlights: ['Promenade Cafes', 'Retail Arcade', 'Bars & Lounges', 'Live Music'],
                 pdf: 'decks/deck-05.pdf',
                 svg: 'decks/deck-05.svg',
-                image: 'https://images.unsplash.com/photo-1519677100203-6f5d4c7a08c9?auto=format&fit=crop&q=80',
+                image: 'https://images.unsplash.com/photo-1519677100203-6f5d4c7a08c9?ixlib=rb-4.0.3&auto=format&fit=crop&q=80',
                 type: 'entertainment',
                 color: '#8b5cf6'
             },
@@ -1851,7 +1852,7 @@
                 highlights: ['Fitness Center', 'Spa Treatments', 'Relaxation Lounge', 'Sauna & Steam'],
                 pdf: 'decks/deck-11.pdf',
                 svg: 'decks/deck-11.svg',
-                image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&q=80',
+                image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?ixlib=rb-4.0.3&auto=format&fit=crop&q=80',
                 type: 'wellness',
                 color: '#10b981'
             },
@@ -1864,7 +1865,7 @@
                 highlights: ['Main Pool', 'Solarium', 'Poolside Grill', 'Pool Bar'],
                 pdf: 'decks/deck-12.pdf',
                 svg: 'decks/deck-12.svg',
-                image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80',
+                image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&q=80',
                 type: 'recreation',
                 color: '#0ea5e9'
             },
@@ -1877,7 +1878,7 @@
                 highlights: ['Sky Lounge', 'Observation Areas', 'Sun Deck', 'Stargazing'],
                 pdf: 'decks/deck-14.pdf',
                 svg: 'decks/deck-14.svg',
-                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80',
+                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&q=80',
                 type: 'premium',
                 color: '#f59e0b'
             }
@@ -2181,6 +2182,7 @@
                 card.style.animationDelay = `${index * 60}ms`;
 
                 const isFav = favorites.has(deck.number);
+                const imageUrl = deck.image.includes('?') ? deck.image : `${deck.image}?auto=format&fit=crop&q=80`;
 
                 card.innerHTML = `
                     <div class="quick-actions">
@@ -2195,8 +2197,8 @@
                     <div class="deck-card-content">
                         <div class="deck-image">
                             <img
-                                src="${deck.image}&w=800&fit=crop&crop=entropy"
-                                srcset="${deck.image}&w=400 400w, ${deck.image}&w=800 800w, ${deck.image}&w=1200 1200w"
+                                src="${imageUrl}&w=800"
+                                srcset="${imageUrl}&w=400 400w, ${imageUrl}&w=800 800w"
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 alt="${deck.name} preview"
                                 loading="lazy"
@@ -2401,6 +2403,61 @@
             }
         }
 
+        function switchDeckInModal(deck) {
+            state.selectedDeck = deck.number;
+            updateSelectedState();
+
+            elements.modalDeckName.textContent = `${deck.name} – ${deck.subtitle}`;
+            elements.modalDownload.href = deck.pdf;
+
+            loadDeckSVG(deck).catch(err => {
+                console.error('Failed to load deck SVG:', err);
+                showToast('Load Failed', 'Could not load deck SVG. Please check the path.', 'error');
+            });
+        }
+
+        // ============================================================================
+        // SVG FUNCTIONS
+        // ============================================================================
+        function sanitizeSvgText(svgText) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(svgText, 'image/svg+xml');
+                if (doc.querySelector('parsererror')) {
+                    throw new Error('Failed to parse SVG content.');
+                }
+
+                // Remove potentially unsafe elements
+                doc.querySelectorAll('script, foreignObject').forEach((node) => node.remove());
+
+                // Remove event handlers
+                doc.querySelectorAll('*').forEach((node) => {
+                    [...node.attributes].forEach((attr) => {
+                        const name = attr.name.toLowerCase();
+                        if (name.startsWith('on')) {
+                            node.removeAttribute(attr.name);
+                        }
+                        // Remove javascript: URLs
+                        if ((name === 'href' || name === 'xlink:href') && 
+                            attr.value.trim().toLowerCase().startsWith('javascript:')) {
+                            node.removeAttribute(attr.name);
+                        }
+                    });
+                });
+
+                return new XMLSerializer().serializeToString(doc.documentElement);
+            } catch (error) {
+                console.error('SVG sanitization error:', error);
+                // Return a safe placeholder SVG if sanitization fails
+                return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+                    <rect width="800" height="400" fill="#0f172a"/>
+                    <text x="400" y="200" text-anchor="middle" fill="#64748b" font-family="Arial" font-size="20">
+                        Deck plan unavailable
+                    </text>
+                </svg>`;
+            }
+        }
+
         async function loadDeckSVG(deck) {
             elements.modalLoading.style.display = 'flex';
             elements.svgViewport.innerHTML = '';
@@ -2474,12 +2531,448 @@
             }
         }
 
-        // ... (rest of the JavaScript functions remain the same as in your original file,
-        // including sanitizeSvgText, bindSvgPanZoom, buildMiniMap, etc.)
+        function getSvgEl() {
+            return document.getElementById('deckSvg');
+        }
 
-        // Note: Due to character limits, I've focused on the CSS/HTML improvements.
-        // The JavaScript functions (zoomIn, zoomOut, resetZoom, focusOnYou, etc.)
-        // should remain as in your original file with minor improvements for UX.
+        function restoreDeckView(deckNumber) {
+            const saved = loadView(deckNumber);
+            if (saved && typeof saved.scale === 'number') {
+                state.zoom.scale = clamp(saved.scale, state.zoom.minScale, state.zoom.maxScale);
+                state.zoom.x = saved.x || 0;
+                state.zoom.y = saved.y || 0;
+            } else {
+                state.zoom.scale = 1;
+                state.zoom.x = 0;
+                state.zoom.y = 0;
+            }
+            applySvgTransform();
+        }
+
+        function persistDeckView(deckNumber) {
+            saveView(deckNumber, {
+                scale: state.zoom.scale,
+                x: state.zoom.x,
+                y: state.zoom.y
+            });
+        }
+
+        function clamp(v, min, max) { 
+            return Math.max(min, Math.min(max, v)); 
+        }
+
+        function applySvgTransform() {
+            const svg = getSvgEl();
+            if (!svg) return;
+            svg.style.transform = `translate(${state.zoom.x}px, ${state.zoom.y}px) scale(${state.zoom.scale})`;
+            updateMiniMapViewport();
+        }
+
+        function resetZoom() {
+            state.zoom.scale = 1;
+            state.zoom.x = 0;
+            state.zoom.y = 0;
+            applySvgTransform();
+            if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+            showToast('View Reset', 'Deck view has been reset', 'info', 'reset');
+        }
+
+        function zoomIn() {
+            const before = state.zoom.scale;
+            const after = clamp(before + 0.2, state.zoom.minScale, state.zoom.maxScale);
+            state.zoom.scale = after;
+            applySvgTransform();
+            if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+        }
+
+        function zoomOut() {
+            const before = state.zoom.scale;
+            const after = clamp(before - 0.2, state.zoom.minScale, state.zoom.maxScale);
+            state.zoom.scale = after;
+            applySvgTransform();
+            if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+        }
+
+        function bindSvgPanZoom() {
+            const viewport = elements.svgViewport;
+
+            if (state.panZoomCleanup) {
+                state.panZoomCleanup();
+                state.panZoomCleanup = null;
+            }
+
+            const onMouseDown = (e) => {
+                if (e.button !== 0) return;
+                state.zoom.dragging = true;
+                state.zoom.startX = e.clientX - state.zoom.x;
+                state.zoom.startY = e.clientY - state.zoom.y;
+                viewport.classList.add('dragging');
+            };
+
+            function onMouseMove(e) {
+                if (!state.zoom.dragging) return;
+                state.zoom.x = e.clientX - state.zoom.startX;
+                state.zoom.y = e.clientY - state.zoom.startY;
+                applySvgTransform();
+            }
+
+            function onMouseUp() {
+                if (!state.zoom.dragging) return;
+                state.zoom.dragging = false;
+                viewport.classList.remove('dragging');
+                if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+            }
+
+            const onWheel = (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.12 : 0.12;
+                state.zoom.scale = clamp(state.zoom.scale + delta, state.zoom.minScale, state.zoom.maxScale);
+                applySvgTransform();
+                if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+            };
+
+            const onDblClick = (e) => {
+                e.preventDefault();
+                doubleTapZoom(e.clientX, e.clientY);
+            };
+
+            function onTouchStart(e) {
+                if (e.touches.length === 2) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    state.zoom.pinchStartDistance = Math.hypot(dx, dy);
+                    state.zoom.pinchStartScale = state.zoom.scale;
+                } else if (e.touches.length === 1) {
+                    const now = Date.now();
+                    if (now - state.zoom.lastTapTime < 300) {
+                        doubleTapZoom(e.touches[0].clientX, e.touches[0].clientY);
+                        state.zoom.lastTapTime = 0;
+                        e.preventDefault();
+                        return;
+                    }
+                    state.zoom.lastTapTime = now;
+
+                    state.zoom.dragging = true;
+                    state.zoom.startX = e.touches[0].clientX - state.zoom.x;
+                    state.zoom.startY = e.touches[0].clientY - state.zoom.y;
+                }
+            }
+
+            function onTouchMove(e) {
+                e.preventDefault();
+                if (e.touches.length === 2) {
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const dist = Math.hypot(dx, dy);
+
+                    const factor = dist / (state.zoom.pinchStartDistance || dist);
+                    state.zoom.scale = clamp(state.zoom.pinchStartScale * factor, state.zoom.minScale, state.zoom.maxScale);
+                    applySvgTransform();
+                } else if (e.touches.length === 1 && state.zoom.dragging) {
+                    state.zoom.x = e.touches[0].clientX - state.zoom.startX;
+                    state.zoom.y = e.touches[0].clientY - state.zoom.startY;
+                    applySvgTransform();
+                }
+            }
+
+            function onTouchEnd() {
+                if (state.zoom.dragging) {
+                    state.zoom.dragging = false;
+                    if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+                }
+            }
+
+            // Add event listeners
+            viewport.addEventListener('mousedown', onMouseDown);
+            window.addEventListener('mousemove', onMouseMove, { passive: true });
+            window.addEventListener('mouseup', onMouseUp, { passive: true });
+            viewport.addEventListener('wheel', onWheel, { passive: false });
+            viewport.addEventListener('dblclick', onDblClick);
+            viewport.addEventListener('touchstart', onTouchStart, { passive: false });
+            viewport.addEventListener('touchmove', onTouchMove, { passive: false });
+            viewport.addEventListener('touchend', onTouchEnd, { passive: false });
+
+            // Store cleanup function
+            state.panZoomCleanup = () => {
+                viewport.removeEventListener('mousedown', onMouseDown);
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('mouseup', onMouseUp);
+                viewport.removeEventListener('wheel', onWheel);
+                viewport.removeEventListener('dblclick', onDblClick);
+                viewport.removeEventListener('touchstart', onTouchStart);
+                viewport.removeEventListener('touchmove', onTouchMove);
+                viewport.removeEventListener('touchend', onTouchEnd);
+            };
+        }
+
+        function doubleTapZoom(clientX, clientY) {
+            const viewport = elements.svgViewport.getBoundingClientRect();
+            const px = clientX - viewport.left;
+            const py = clientY - viewport.top;
+
+            const target = state.zoom.scale > 1 ? 1 : 2;
+            const scaleFactor = target / state.zoom.scale;
+
+            state.zoom.x = px - (px - state.zoom.x) * scaleFactor;
+            state.zoom.y = py - (py - state.zoom.y) * scaleFactor;
+            state.zoom.scale = target;
+
+            applySvgTransform();
+            if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+        }
+
+        // ============================================================================
+        // MINIMAP FUNCTIONS
+        // ============================================================================
+        function buildMiniMap(svg) {
+            const rect = elements.miniMapViewportRect;
+            const label = elements.miniMap.querySelector('.minimap-label');
+
+            elements.miniMap.innerHTML = '';
+            if (label) elements.miniMap.appendChild(label);
+
+            const clone = svg.cloneNode(true);
+            clone.removeAttribute('id');
+            clone.classList.remove('svg-transition');
+            clone.style.transform = '';
+            clone.style.width = '100%';
+            clone.style.height = '100%';
+
+            elements.miniMap.appendChild(clone);
+            elements.miniMap.appendChild(rect);
+
+            elements.miniMap.onclick = (e) => {
+                const miniRect = elements.miniMap.getBoundingClientRect();
+                const px = (e.clientX - miniRect.left) / miniRect.width;
+                const py = (e.clientY - miniRect.top) / miniRect.height;
+
+                recenterOnViewBoxPercent(px, py);
+            };
+
+            updateMiniMapViewport();
+        }
+
+        function recenterOnViewBoxPercent(px, py) {
+            const svg = getSvgEl();
+            if (!svg) return;
+            const vb = svg.viewBox.baseVal;
+            if (!vb) return;
+
+            const viewportRect = elements.svgViewport.getBoundingClientRect();
+            const centerX = vb.x + vb.width * px;
+            const centerY = vb.y + vb.height * py;
+
+            state.zoom.x = -centerX * state.zoom.scale + (viewportRect.width / 2);
+            state.zoom.y = -centerY * state.zoom.scale + (viewportRect.height / 2);
+
+            applySvgTransform();
+            if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+        }
+
+        function updateMiniMapViewport() {
+            const svg = getSvgEl();
+            if (!svg) return;
+
+            const vb = svg.viewBox.baseVal;
+            if (!vb) return;
+
+            const rect = elements.miniMapViewportRect;
+            const s = state.zoom.scale;
+
+            const vbX = (-state.zoom.x) / s;
+            const vbY = (-state.zoom.y) / s;
+
+            const vp = elements.svgViewport.getBoundingClientRect();
+            const visibleVbW = (vp.width / s);
+            const visibleVbH = (vp.height / s);
+
+            const leftPct = (vbX - vb.x) / vb.width;
+            const topPct = (vbY - vb.y) / vb.height;
+            const wPct = visibleVbW / vb.width;
+            const hPct = visibleVbH / vb.height;
+
+            rect.style.left = `${clamp(leftPct, 0, 1) * 100}%`;
+            rect.style.top = `${clamp(topPct, 0, 1) * 100}%`;
+            rect.style.width = `${clamp(wPct, 0, 1) * 100}%`;
+            rect.style.height = `${clamp(hPct, 0, 1) * 100}%`;
+        }
+
+        // ============================================================================
+        // ELEVATOR FUNCTIONS
+        // ============================================================================
+        function bindElevators(svg, deckNumber) {
+            svg.querySelectorAll('.elevator[data-elevator]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = el.dataset.elevator;
+                    if (!id) return;
+                    state.activeElevator = id;
+                    saveElevator(deckNumber, id);
+                    applyElevatorHighlight(id);
+                    showToast('Elevator Highlighted', `Elevator ${id} is highlighted on this deck`, 'info', 'elevator-' + id);
+                });
+            });
+        }
+
+        function applyElevatorHighlight(id) {
+            const svg = getSvgEl();
+            if (!svg) return;
+            svg.querySelectorAll('.elevator[data-elevator]').forEach(el => {
+                el.classList.toggle('active', el.dataset.elevator === id);
+                if (el.dataset.elevator === id) {
+                    el.style.stroke = '#22c55e';
+                    el.style.strokeWidth = '3';
+                } else {
+                    el.style.stroke = '';
+                    el.style.strokeWidth = '';
+                }
+            });
+        }
+
+        function focusOnYou() {
+            const svg = getSvgEl();
+            if (!svg) return;
+
+            const marker = svg.querySelector('#youAreHere');
+            if (!marker) {
+                showToast('Not Found', '"You are here" marker is not available on this deck', 'warning', 'you-not-found');
+                return;
+            }
+
+            let cx = null, cy = null;
+            if (marker.tagName.toLowerCase() === 'circle' || marker.tagName.toLowerCase() === 'ellipse') {
+                cx = marker.cx?.baseVal?.value ?? null;
+                cy = marker.cy?.baseVal?.value ?? null;
+            }
+            if (cx == null || cy == null) {
+                const bb = marker.getBBox();
+                cx = bb.x + bb.width / 2;
+                cy = bb.y + bb.height / 2;
+            }
+
+            const vp = elements.svgViewport.getBoundingClientRect();
+            state.zoom.scale = clamp(Math.max(state.zoom.scale, 2), state.zoom.minScale, state.zoom.maxScale);
+            state.zoom.x = -cx * state.zoom.scale + (vp.width / 2);
+            state.zoom.y = -cy * state.zoom.scale + (vp.height / 2);
+
+            applySvgTransform();
+            if (state.selectedDeck != null) persistDeckView(state.selectedDeck);
+            showToast('Centered', 'Centered on your location marker', 'success', 'you-centered');
+        }
+
+        // ============================================================================
+        // FOCUS TRAP
+        // ============================================================================
+        function trapFocus(e) {
+            const focusable = elements.modalContainer.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            const visible = [...focusable].filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+            if (!visible.length) return;
+
+            const first = visible[0];
+            const last = visible[visible.length - 1];
+
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+
+        // ============================================================================
+        // MISC ACTIONS
+        // ============================================================================
+        function showAllDecks() {
+            state.activeFilters.clear();
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+                chip.setAttribute('aria-pressed', 'false');
+            });
+            elements.searchInput.value = '';
+            state.searchQuery = '';
+            scheduleRender();
+            showToast('Filters Cleared', 'Showing all decks', 'info');
+        }
+
+        function clearFilters() { showAllDecks(); }
+
+        function routeTo(destination) {
+            const mapping = {
+                dining: ['Dining'],
+                entertainment: ['Entertainment'],
+                pools: ['Pools', 'Outdoors']
+            };
+            const filters = mapping[destination] || [];
+            state.activeFilters = new Set(filters);
+            
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                const key = chip.dataset.filter;
+                const active = state.activeFilters.has(key);
+                chip.classList.toggle('active', active);
+                chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            
+            scheduleRender();
+            const label = destination === 'pools' ? 'Pool & outdoor decks' :
+                          destination === 'dining' ? 'Dining decks' :
+                          'Entertainment decks';
+            showToast('Route Applied', label + ' are now in focus', 'info', 'route-' + destination);
+        }
+
+        function printPage() { window.print(); }
+
+        function scrollToDeck(deckNumber) {
+            if (elements.modalOverlay.classList.contains('active')) return;
+            const card = document.querySelector(`.deck-card[data-deck-number="${deckNumber}"]`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.focus();
+            }
+        }
+
+        function showDirections(deck) {
+            const highlight = deck.highlights && deck.highlights.length
+                ? deck.highlights.slice(0, 2).join(' → ')
+                : deck.subtitle;
+            showToast('Deck Highlights', highlight, 'info', 'dir-' + deck.number);
+        }
+
+        function openPreview(deck) {
+            openModal(deck);
+        }
+
+        // ============================================================================
+        // RENDER SCHEDULING / SEARCH
+        // ============================================================================
+        let renderHandle = null;
+        function scheduleRender() {
+            if (renderHandle) cancelAnimationFrame(renderHandle);
+            renderHandle = requestAnimationFrame(() => {
+                renderDecks();
+                renderHandle = null;
+            });
+        }
+
+        const debounce = (fn, delay = 250) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        };
+        
+        const throttle = (fn, limit = 16) => {
+            let inThrottle = false;
+            return (...args) => {
+                if (inThrottle) return;
+                inThrottle = true;
+                fn(...args);
+                setTimeout(() => { inThrottle = false; }, limit);
+            };
+        };
 
         // ============================================================================
         // INITIALIZATION
@@ -2516,71 +3009,31 @@
             });
         });
 
-        // Utility functions
-        const debounce = (fn, delay = 250) => {
-            let timeout;
-            return (...args) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => fn(...args), delay);
-            };
-        };
-        const throttle = (fn, limit = 16) => {
-            let inThrottle = false;
-            return (...args) => {
-                if (inThrottle) return;
-                inThrottle = true;
-                fn(...args);
-                setTimeout(() => { inThrottle = false; }, limit);
-            };
-        };
-
-        // Global functions
-        window.showAllDecks = function() {
-            state.activeFilters.clear();
-            document.querySelectorAll('.filter-chip').forEach(chip => {
-                chip.classList.remove('active');
-                chip.setAttribute('aria-pressed', 'false');
-            });
-            elements.searchInput.value = '';
-            state.searchQuery = '';
-            scheduleRender();
-            showToast('Filters Cleared', 'Showing all decks', 'info');
-        };
-        window.clearFilters = showAllDecks;
+        // ============================================================================
+        // GLOBAL FUNCTIONS
+        // ============================================================================
+        window.showAllDecks = showAllDecks;
+        window.clearFilters = clearFilters;
         window.changeViewMode = changeViewMode;
         window.closeModal = closeModal;
-        window.printPage = function() { window.print(); };
-        window.zoomIn = function() {
-            state.zoom.scale = Math.min(state.zoom.scale + 0.2, state.zoom.maxScale);
-            applySvgTransform();
-            showToast('Zoomed In', 'View zoomed in', 'info');
-        };
-        window.zoomOut = function() {
-            state.zoom.scale = Math.max(state.zoom.scale - 0.2, state.zoom.minScale);
-            applySvgTransform();
-            showToast('Zoomed Out', 'View zoomed out', 'info');
-        };
-        window.resetZoom = function() {
-            state.zoom.scale = 1;
-            state.zoom.x = 0;
-            state.zoom.y = 0;
-            applySvgTransform();
-            showToast('View Reset', 'Zoom and position reset', 'info');
-        };
-        window.focusOnYou = function() {
-            const svg = document.getElementById('deckSvg');
-            if (!svg) return;
-            const marker = svg.querySelector('#youAreHere');
-            if (marker) {
-                // Center on marker logic
-                showToast('Location Found', 'Centered on your location', 'success');
-            } else {
-                showToast('Location Not Found', 'You are here marker not available', 'warning');
-            }
-        };
+        window.printPage = printPage;
+        window.zoomIn = zoomIn;
+        window.zoomOut = zoomOut;
+        window.resetZoom = resetZoom;
+        window.focusOnYou = focusOnYou;
     </script>
 
-    <!-- Service Worker registration - Updated to handle external images properly -->
-    <script src="service-worker-registration.js" defer></script>
+    <!-- Updated Service Worker registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js', { scope: './' })
+                .then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    </script>
 </body>
 </html>
