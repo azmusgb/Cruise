@@ -1,920 +1,1193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0a192f">
-<title>Adventure of the Seas | Deck Plans</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-
-<style>
-:root {
-  --deep-navy: #0a192f;
-  --navy: #112240;
-  --light-navy: #233554;
-  --slate: #8892b0;
-  --light-slate: #ccd6f6;
-  --accent: #64ffda;
-  --accent-hover: #52dbbf;
-  --card-bg: rgba(17, 34, 64, 0.7);
-  --card-border: rgba(100, 255, 218, 0.1);
-  --glow: 0 0 20px rgba(100, 255, 218, 0.15);
-  --radius-lg: 20px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: linear-gradient(135deg, var(--deep-navy) 0%, #0c2541 100%);
-  color: var(--light-slate);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* Navigation Header */
-.nav-header {
-  background: rgba(10, 25, 47, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-  padding: 1.25rem 2rem;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-brand h1 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--light-slate) 0%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.nav-brand .subtitle {
-  font-size: 0.85rem;
-  color: var(--slate);
-  margin-top: 0.25rem;
-}
-
-/* Main Layout */
-.main-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 2rem;
-  min-height: calc(100vh - 100px);
-}
-
-@media (max-width: 1024px) {
-  .main-container {
-    grid-template-columns: 1fr;
-    padding: 1.5rem;
-  }
-}
-
-/* Sidebar */
-.sidebar {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  height: fit-content;
-  position: sticky;
-  top: 100px;
-  backdrop-filter: blur(10px);
-}
-
-.sidebar-section {
-  margin-bottom: 2rem;
-}
-
-.sidebar-section h3 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--accent);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/* Deck Navigation */
-.deck-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.deck-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  color: var(--slate);
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.deck-nav-item:hover {
-  background: rgba(100, 255, 218, 0.05);
-  border-color: rgba(100, 255, 218, 0.2);
-  color: var(--light-slate);
-  transform: translateX(4px);
-}
-
-.deck-nav-item.active {
-  background: rgba(100, 255, 218, 0.1);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.deck-number-badge {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--light-navy);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: var(--transition);
-}
-
-.deck-nav-item.active .deck-number-badge {
-  background: var(--accent);
-  color: var(--deep-navy);
-}
-
-/* Quick Filter */
-.quick-filter {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.filter-btn {
-  padding: 0.75rem 1rem;
-  background: rgba(35, 53, 84, 0.5);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  color: var(--light-slate);
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  transition: var(--transition);
-}
-
-.filter-btn:hover {
-  background: rgba(100, 255, 218, 0.1);
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
-
-.filter-btn i {
-  color: var(--accent);
-  font-size: 1rem;
-}
-
-/* Main Content */
-.content-main {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  backdrop-filter: blur(10px);
-}
-
-.content-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(100, 255, 218, 0.1);
-}
-
-.content-header h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--light-slate);
-}
-
-.deck-count {
-  background: rgba(100, 255, 218, 0.1);
-  color: var(--accent);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-/* Deck Card */
-.deck-card {
-  background: rgba(35, 53, 84, 0.5);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  margin-bottom: 1.5rem;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.deck-card:hover {
-  border-color: var(--accent);
-  box-shadow: var(--glow);
-  transform: translateY(-4px);
-}
-
-.deck-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(to bottom, var(--accent), transparent);
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-}
-
-.deck-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.deck-title {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.deck-title-number {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--deep-navy);
-  box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
-}
-
-.deck-title-text h3 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--light-slate);
-  margin-bottom: 0.25rem;
-}
-
-.deck-title-text p {
-  color: var(--slate);
-  font-size: 0.95rem;
-}
-
-/* Features */
-.deck-features {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-}
-
-.feature-tag {
-  background: rgba(100, 255, 218, 0.05);
-  border: 1px solid rgba(100, 255, 218, 0.2);
-  color: var(--accent);
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.feature-tag i {
-  font-size: 0.9rem;
-}
-
-/* Action Buttons */
-.deck-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.75rem;
-}
-
-.action-btn {
-  flex: 1;
-  padding: 1rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  border: none;
-}
-
-.action-btn.primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  color: var(--deep-navy);
-}
-
-.action-btn.primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(100, 255, 218, 0.3);
-}
-
-.action-btn.secondary {
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-}
-
-.action-btn.secondary:hover {
-  background: rgba(100, 255, 218, 0.1);
-  transform: translateY(-3px);
-}
-
-/* Search Bar */
-.search-container {
-  position: relative;
-  margin-bottom: 2rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 1.25rem 1.25rem 1.25rem 3rem;
-  background: rgba(35, 53, 84, 0.5);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-md);
-  color: var(--light-slate);
-  font-size: 1rem;
-  transition: var(--transition);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.1);
-}
-
-.search-input::placeholder {
-  color: var(--slate);
-}
-
-.search-icon {
-  position: absolute;
-  left: 1.25rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--accent);
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: var(--slate);
-}
-
-.empty-state i {
-  font-size: 3rem;
-  color: var(--accent);
-  margin-bottom: 1.5rem;
-  opacity: 0.5;
-}
-
-.empty-state h3 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.5rem;
-  color: var(--light-slate);
-  margin-bottom: 0.75rem;
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 25, 47, 0.95);
-  backdrop-filter: blur(10px);
-  display: none;
-  z-index: 2000;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.modal-overlay.active {
-  display: block;
-  opacity: 1;
-}
-
-.modal-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  background: var(--navy);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 1200px;
-  max-height: 90vh;
-  overflow: hidden;
-  z-index: 2001;
-  opacity: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-}
-
-.modal-container.active {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.modal-header {
-  padding: 1.5rem 2rem;
-  background: rgba(17, 34, 64, 0.8);
-  border-bottom: 1px solid var(--card-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h3 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.5rem;
-  color: var(--light-slate);
-}
-
-.modal-close {
-  background: transparent;
-  border: none;
-  color: var(--slate);
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-}
-
-.modal-close:hover {
-  color: var(--accent);
-  transform: rotate(90deg);
-}
-
-.modal-body {
-  height: calc(90vh - 80px);
-  padding: 0;
-}
-
-.modal-frame {
-  width: 100%;
-  height: 100%;
-  border: none;
-  background: white;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .main-container {
-    padding: 1rem;
-  }
-  
-  .nav-header {
-    padding: 1rem;
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-  
-  .content-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-  
-  .deck-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-  
-  .deck-title {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .deck-actions {
-    flex-direction: column;
-  }
-  
-  .modal-container {
-    width: 100%;
-    height: 100%;
-    max-height: 100vh;
-    border-radius: 0;
-  }
-  
-  .modal-body {
-    height: calc(100vh - 80px);
-  }
-}
-
-/* Loading Animation */
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
-.loading-shimmer {
-  background: linear-gradient(90deg, 
-    rgba(35, 53, 84, 0.1) 25%, 
-    rgba(35, 53, 84, 0.3) 50%, 
-    rgba(35, 53, 84, 0.1) 75%);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--light-navy);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-hover);
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a192f">
+    <title>Deck Plans | Adventure of the Seas</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --deep-navy: #0a192f;
+            --navy: #112240;
+            --light-navy: #233554;
+            --slate: #8892b0;
+            --light-slate: #ccd6f6;
+            --accent: #64ffda;
+            --accent-hover: #52dbbf;
+            --accent-rgb: 100, 255, 218;
+            --card-bg: rgba(17, 34, 64, 0.7);
+            --card-border: rgba(100, 255, 218, 0.1);
+            --glow: 0 0 20px rgba(var(--accent-rgb), 0.15);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--deep-navy) 0%, #0c2541 100%);
+            color: var(--light-slate);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .main-nav {
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--deep-navy);
+        }
+
+        .brand-text h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--light-slate) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-text .subtitle {
+            font-size: 0.85rem;
+            color: var(--slate);
+            margin-top: 0.25rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2.5rem;
+            min-height: calc(100vh - 100px);
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1.5rem;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--glow);
+        }
+
+        .sidebar-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .sidebar-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+        }
+
+        /* Deck Navigation */
+        .deck-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .deck-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            color: var(--slate);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .deck-nav-item:hover {
+            background: rgba(var(--accent-rgb), 0.05);
+            border-color: rgba(var(--accent-rgb), 0.2);
+            color: var(--light-slate);
+            transform: translateX(4px);
+        }
+
+        .deck-nav-item.active {
+            background: rgba(var(--accent-rgb), 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: var(--glow);
+        }
+
+        .deck-nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--accent);
+        }
+
+        .deck-number-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--light-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .deck-nav-item.active .deck-number-badge {
+            background: var(--accent);
+            color: var(--deep-navy);
+            transform: scale(1.1);
+        }
+
+        .deck-info {
+            flex: 1;
+        }
+
+        .deck-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .deck-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Quick Filter */
+        .quick-filter {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .filter-btn {
+            padding: 0.875rem 1.25rem;
+            background: rgba(35, 53, 84, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: var(--light-slate);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            transition: var(--transition);
+            text-align: left;
+        }
+
+        .filter-btn:hover {
+            background: rgba(var(--accent-rgb), 0.1);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
+        }
+
+        .filter-btn.active {
+            background: rgba(var(--accent-rgb), 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1rem;
+        }
+
+        /* View Mode Toggle */
+        .view-toggle {
+            display: flex;
+            background: rgba(35, 53, 84, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 0.25rem;
+        }
+
+        .view-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--slate);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .view-btn.active {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--accent);
+        }
+
+        /* Main Content */
+        .content-main {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--glow);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.75rem;
+            border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
+        }
+
+        .header-left h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--light-slate);
+            margin-bottom: 0.5rem;
+        }
+
+        .header-left p {
+            color: var(--slate);
+            font-size: 1.1rem;
+        }
+
+        .deck-stats {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .stat-box {
+            text-align: right;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--slate);
+            margin-top: 0.25rem;
+        }
+
+        /* Search */
+        .search-container {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+            background: rgba(35, 53, 84, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            color: var(--light-slate);
+            font-size: 1.1rem;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--slate);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+
+        .search-hint {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--slate);
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        /* Deck Cards Grid */
+        .decks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.75rem;
+        }
+
+        .decks-grid.compact {
+            grid-template-columns: 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .decks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Deck Card */
+        .deck-card {
+            background: rgba(35, 53, 84, 0.5);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .deck-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+            transform: translateY(-4px);
+        }
+
+        .deck-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+        }
+
+        .deck-card.active {
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+
+        .deck-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .deck-title {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .deck-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--deep-navy);
+            box-shadow: 0 0 25px rgba(var(--accent-rgb), 0.4);
+            flex-shrink: 0;
+        }
+
+        .deck-title-text h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--light-slate);
+            margin-bottom: 0.5rem;
+        }
+
+        .deck-title-text p {
+            color: var(--slate);
+            font-size: 1rem;
+        }
+
+        .deck-badge {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Features */
+        .deck-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+            min-height: 40px;
+        }
+
+        .feature-tag {
+            background: rgba(var(--accent-rgb), 0.05);
+            border: 1px solid rgba(var(--accent-rgb), 0.2);
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .feature-tag:hover {
+            background: rgba(var(--accent-rgb), 0.1);
+            transform: translateY(-1px);
+        }
+
+        .feature-tag i {
+            font-size: 0.9rem;
+        }
+
+        /* Action Buttons */
+        .deck-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.75rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+        }
+
+        .deck-card:hover .deck-actions,
+        .deck-card.active .deck-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: var(--deep-navy);
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.4);
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(var(--accent-rgb), 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .deck-card:hover .quick-actions {
+            opacity: 1;
+        }
+
+        .quick-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(var(--accent-rgb), 0.1);
+            border: 1px solid rgba(var(--accent-rgb), 0.2);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quick-btn:hover {
+            background: rgba(var(--accent-rgb), 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--slate);
+            display: none;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            color: var(--light-slate);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            max-width: 400px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: var(--navy);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-lg);
+            width: 95%;
+            max-width: 1400px;
+            max-height: 90vh;
+            overflow: hidden;
+            z-index: 2001;
+            opacity: 0;
+            transition: var(--transition-slow);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-container.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            background: rgba(17, 34, 64, 0.8);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            color: var(--light-slate);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .modal-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: rgba(var(--accent-rgb), 0.1);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-md);
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .modal-download:hover {
+            background: rgba(var(--accent-rgb), 0.2);
+            transform: translateY(-2px);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--slate);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--accent);
+            background: rgba(var(--accent-rgb), 0.1);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            height: calc(90vh - 80px);
+            padding: 0;
+            position: relative;
+        }
+
+        .modal-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .modal-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--navy);
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(var(--accent-rgb), 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--navy);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 3000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            color: var(--accent);
+            font-size: 1.25rem;
+        }
+
+        /* Loading Animation */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .loading-shimmer {
+            background: linear-gradient(90deg, 
+                rgba(35, 53, 84, 0.1) 25%, 
+                rgba(35, 53, 84, 0.3) 50%, 
+                rgba(35, 53, 84, 0.1) 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+            border-radius: var(--radius-md);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-navy);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .main-nav {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            
+            .deck-stats {
+                justify-content: center;
+            }
+            
+            .deck-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .deck-title {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .deck-actions {
+                flex-direction: column;
+            }
+            
+            .modal-container {
+                width: 100%;
+                height: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            
+            .modal-body {
+                height: calc(100vh - 80px);
+            }
+            
+            .modal-header {
+                padding: 1rem;
+            }
+            
+            .toast {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1rem;
+            }
+        }
+
+        /* Deck Preview Modal */
+        .preview-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            background: var(--navy);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--accent);
+            z-index: 2002;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-modal.active {
+            display: block;
+        }
+
+        .preview-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-content {
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: calc(80vh - 80px);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Print Styles */
+        @media print {
+            .main-nav,
+            .sidebar,
+            .search-container,
+            .deck-actions,
+            .quick-actions {
+                display: none !important;
+            }
+            
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 0;
+            }
+            
+            .content-main {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .deck-card {
+                break-inside: avoid;
+                border: 1px solid #ccc;
+                box-shadow: none;
+            }
+        }
+    </style>
 </head>
-
 <body>
-
-<div class="nav-header">
-  <div class="nav-brand">
-    <h1>Adventure of the Seas</h1>
-    <div class="subtitle">Interactive Deck Plans</div>
-  </div>
-  <div class="nav-actions">
-    <button class="action-btn secondary" onclick="toggleViewMode()">
-      <i class="fas fa-layer-group"></i>
-      Toggle View
-    </button>
-  </div>
-</div>
-
-<div class="main-container">
-  
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-section">
-      <h3><i class="fas fa-compass"></i> Quick Navigation</h3>
-      <div class="deck-nav" id="deckNav">
-        <!-- Deck navigation items will be generated by JavaScript -->
-      </div>
-    </div>
-    
-    <div class="sidebar-section">
-      <h3><i class="fas fa-filter"></i> Quick Filter</h3>
-      <div class="quick-filter">
-        <button class="filter-btn" data-filter="dining">
-          <i class="fas fa-utensils"></i>
-          Dining & Bars
-        </button>
-        <button class="filter-btn" data-filter="entertainment">
-          <i class="fas fa-theater-masks"></i>
-          Entertainment
-        </button>
-        <button class="filter-btn" data-filter="wellness">
-          <i class="fas fa-spa"></i>
-          Wellness & Spa
-        </button>
-        <button class="filter-btn" data-filter="pool">
-          <i class="fas fa-swimming-pool"></i>
-          Pools & Recreation
-        </button>
-        <button class="filter-btn" data-filter="shopping">
-          <i class="fas fa-shopping-bag"></i>
-          Shopping
-        </button>
-      </div>
-    </div>
-    
-    <div class="sidebar-section">
-      <h3><i class="fas fa-info-circle"></i> Tips</h3>
-      <div style="color: var(--slate); font-size: 0.9rem; line-height: 1.5;">
-        <p>• Click any deck to jump directly</p>
-        <p>• Use filters to find specific amenities</p>
-        <p>• PDF versions available for download</p>
-        <p>• Interactive SVG plans available</p>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="content-main">
-    <div class="content-header">
-      <h2 id="currentDeckTitle">All Deck Plans</h2>
-      <div class="deck-count" id="deckCount">14 Decks</div>
-    </div>
-    
-    <div class="search-container">
-      <i class="fas fa-search search-icon"></i>
-      <input type="text" class="search-input" id="searchInput" 
-             placeholder="Search decks, amenities, or locations...">
-    </div>
-    
-    <div id="decksContainer">
-      <!-- Deck cards will be generated by JavaScript -->
-    </div>
-    
-    <div class="empty-state" id="emptyState" style="display: none;">
-      <i class="fas fa-map-marked-alt"></i>
-      <h3>No Decks Found</h3>
-      <p>Try adjusting your search or filters</p>
-    </div>
-  </main>
-</div>
-
-<!-- Modal -->
-<div class="modal-overlay" id="modalOverlay"></div>
-<div class="modal-container" id="modalContainer">
-  <div class="modal-header">
-    <h3 id="modalTitle">Deck Plan</h3>
-    <button class="modal-close" onclick="closeModal()">
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  <div class="modal-body">
-    <iframe id="modalFrame" class="modal-frame" title="Deck Plan"></iframe>
-  </div>
-</div>
-
-<script>
-// Deck Data
-const deckData = [
-  { number: 2, name: "Promenade Deck", features: ["Main Dining", "Theater", "Casino"], description: "Entertainment & Dining Hub" },
-  { number: 3, name: "Shopping Deck", features: ["Boutiques", "Jewelry", "Duty Free"], description: "Retail & Shopping" },
-  { number: 4, name: "Staterooms", features: ["Ocean View", "Balcony", "Suites"], description: "Accommodation Level" },
-  { number: 5, name: "Staterooms", features: ["Family Rooms", "Accessible"], description: "Accommodation Level" },
-  { number: 6, name: "Upper Promenade", features: ["Specialty Dining", "Lounges"], description: "Dining & Relaxation" },
-  { number: 7, name: "Central Deck", features: ["Guest Services", "Excursions"], description: "Services & Activities" },
-  { number: 8, name: "Pool Deck", features: ["Main Pool", "Jacuzzis", "Bar"], description: "Aquatic Recreation" },
-  { number: 9, name: "Sports Deck", features: ["Rock Wall", "Basketball", "Mini Golf"], description: "Active Recreation" },
-  { number: 10, name: "Spa Deck", features: ["Spa", "Fitness Center", "Salon"], description: "Wellness & Fitness" },
-  { number: 11, name: "Windjammer Cafe", features: ["Buffet", "Outdoor Seating"], description: "Casual Dining" },
-  { number: 12, name: "Teen & Kids", features: ["Arcade", "Kids Club", "Teen Zone"], description: "Youth Activities" },
-  { number: 13, name: "Sun Deck", features: ["Solarium", "Quiet Zone"], description: "Relaxation & Views" },
-  { number: 14, name: "Observation Deck", features: ["Sky Bar", "360° Views"], description: "Panoramic Views" },
-  { number: 15, name: "Sports Court", features: ["Sports", "Events", "Parties"], description: "Activities & Events" }
-];
-
-// State
-let currentDeck = null;
-let activeFilter = null;
-let searchTerm = '';
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-  renderDeckNav();
-  renderDeckCards();
-  setupEventListeners();
-});
-
-function renderDeckNav() {
-  const navContainer = document.getElementById('deckNav');
-  navContainer.innerHTML = deckData.map(deck => `
-    <div class="deck-nav-item ${currentDeck === deck.number ? 'active' : ''}" 
-         onclick="scrollToDeck(${deck.number})">
-      <div class="deck-number-badge">${deck.number}</div>
-      <div>
-        <div style="font-weight: 600;">${deck.name}</div>
-        <div style="font-size: 0.8rem; color: var(--slate);">${deck.description}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderDeckCards() {
-  const container = document.getElementById('decksContainer');
-  const filteredDecks = filterDecks();
-  
-  if (filteredDecks.length === 0) {
-    document.getElementById('emptyState').style.display = 'block';
-    container.innerHTML = '';
-  } else {
-    document.getElementById('emptyState').style.display = 'none';
-    container.innerHTML = filteredDecks.map(deck => createDeckCard(deck)).join('');
-  }
-  
-  document.getElementById('deckCount').textContent = `${filteredDecks.length} ${filteredDecks.length === 1 ? 'Deck' : 'Decks'}`;
-}
-
-function createDeckCard(deck) {
-  return `
-    <div class="deck-card" id="deck-${deck.number}" data-deck-number="${deck.number}">
-      <div class="deck-header">
-        <div class="deck-title">
-          <div class="deck-title-number">${deck.number}</div>
-          <div class="deck-title-text">
-            <h3>${deck.name}</h3>
-            <p>${deck.description}</p>
-          </div>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-brand">
+            <div class="logo">A</div>
+            <div class="brand-text">
+                <h1>Adventure of the Seas</h1>
+                <div class="subtitle">Interactive Deck Plans</div>
+            </div>
         </div>
-      </div>
-      
-      <div class="deck-features">
-        ${deck.features.map(feature => `
-          <span class="feature-tag">
-            <i class="fas fa-check-circle"></i>
-            ${feature}
-          </span>
-        `).join('')}
-      </div>
-      
-      <div class="deck-actions">
-        <button class="action-btn primary" onclick="openDeckPlan(${deck.number}, 'svg')">
-          <i class="fas fa-expand"></i>
-          View Interactive Plan
-        </button>
-        <button class="action-btn secondary" onclick="openDeckPlan(${deck.number}, 'pdf')">
-          <i class="fas fa-download"></i>
-          Download PDF
-        </button>
-      </div>
+        <div class="nav-actions">
+            <button class="action-btn secondary" onclick="toggleViewMode()">
+                <i class="fas fa-layer-group"></i>
+                Toggle View
+            </button>
+            <button class="action-btn secondary" onclick="printPage()">
+                <i class="fas fa-print"></i>
+                Print
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <i class="fas fa-compass"></i>
+                    Quick Navigation
+                </h3>
+                <div class="deck-nav" id="deckNav">
+                    <!-- Generated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <i class="fas fa-filter"></i>
+                    Filter by Amenities
+                </h3>
+                <div class="quick-filter" id="quickFilter">
+                    <!-- Generated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <i class="fas fa-eye"></i>
+                    View Mode
+                </h3>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid" onclick="changeViewMode('grid')">
+                        <i class="fas fa-th-large"></i>
+                        Grid
+                    </button>
+                    <button class="view-btn" data-view="compact" onclick="changeViewMode('compact')">
+                        <i class="fas fa-list"></i>
+                        Compact
+                    </button>
+                    <button class="view-btn" data-view="detailed" onclick="changeViewMode('detailed')">
+                        <i class="fas fa-info-circle"></i>
+                        Detailed
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <i class="fas fa-lightbulb"></i>
+                    Quick Tips
+                </h3>
+                <div style="color: var(--slate); font-size: 0.9rem; line-height: 1.6;">
+                    <p style="margin-bottom: 0.75rem;">
+                        <i class="fas fa-search" style="color: var(--accent); margin-right: 0.5rem;"></i>
+                        Search for specific amenities or deck names
+                    </p>
+                    <p style="margin-bottom: 0.75rem;">
+                        <i class="fas fa-mouse-pointer" style="color: var(--accent); margin-right: 0.5rem;"></i>
+                        Click any deck to see details
+                    </p>
+                    <p style="margin-bottom: 0.75rem;">
+                        <i class="fas fa-download" style="color: var(--accent); margin-right: 0.5rem;"></i>
+                        PDF versions available for download
+                    </p>
+                    <p>
+                        <i class="fas fa-expand" style="color: var(--accent); margin-right: 0.5rem;"></i>
+                        Interactive SVG plans available
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content-main">
+            <div class="content-header">
+                <div class="header-left">
+                    <h2 id="currentDeckTitle">All Deck Plans</h2>
+                    <p id="deckSubtitle">Explore all available decks and their amenities</p>
+                </div>
+                <div class="deck-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalDecks">14</div>
+                        <div class="stat-label">Total Decks</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="visibleDecks">14</div>
+                        <div class="stat-label">Showing</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" 
+                       placeholder="Search decks, amenities, or locations...">
+                <div class="search-hint" id="searchHint">Press / to focus</div>
+            </div>
+            
+            <!-- Decks Grid -->
+            <div class="decks-grid" id="decksGrid">
+                <!-- Generated by JavaScript -->
+            </div>
+            
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>No Matching Decks Found</h3>
+                <p>Try adjusting your search terms or clearing some filters</p>
+                <button class="action-btn secondary" onclick="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Clear All Filters
+                </button>
+            </div>
+        </main>
     </div>
-  `;
-}
 
-function filterDecks() {
-  return deckData.filter(deck => {
-    // Search filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      const deckText = `${deck.number} ${deck.name} ${deck.description} ${deck.features.join(' ')}`.toLowerCase();
-      if (!deckText.includes(searchLower)) return false;
-    }
-    
-    // Category filter
-    if (activeFilter) {
-      const filterMap = {
-        'dining': ['dining', 'restaurant', 'cafe', 'bar', 'buffet'],
-        'entertainment': ['theater', 'casino', 'arcade', 'club'],
-        'wellness': ['spa', 'fitness', 'salon', 'solarium'],
-        'pool': ['pool', 'jacuzzi', 'aquatic'],
-        'shopping': ['shopping', 'boutique', 'jewelry', 'duty']
-      };
-      
-      const filterTerms = filterMap[activeFilter];
-      const hasMatch = filterTerms.some(term => 
-        deck.features.some(f => f.toLowerCase().includes(term)) ||
-        deck.name.toLowerCase().includes(term) ||
-        deck.description.toLowerCase().includes(term)
-      );
-      
-      if (!hasMatch) return false;
-    }
-    
-    return true;
-  });
-}
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-container" id="modalContainer">
+        <div class="modal-header">
+            <h3 id="modalTitle">
+                <i class="fas fa-ship"></i>
+                Deck Plan
+            </h3>
+            <div class="modal-actions">
+                <a class="modal-download" id="modalDownload" href="#" target="_blank" rel="noopener">
+                    <i class="fas fa-download"></i>
+                    Download PDF
+                </a>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-loading" id="modalLoading">
+                <div class="spinner"></div>
+                <p>Loading deck plan...</p>
+            </div>
+            <iframe id="modalFrame" class="modal-frame" title="Deck Plan"></iframe>
+        </div>
+    </div>
 
-function setupEventListeners() {
-  // Search
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    searchTerm = e.target.value.trim();
-    renderDeckCards();
-  });
-  
-  // Filter buttons
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const filter = btn.dataset.filter;
-      activeFilter = activeFilter === filter ? null : filter;
-      
-      // Update UI
-      document.querySelectorAll('.filter-btn').forEach(b => {
-        b.style.background = b.dataset.filter === activeFilter ? 
-          'rgba(100, 255, 218, 0.1)' : 
-          'rgba(35, 53, 84, 0.5)';
-        b.style.borderColor = b.dataset.filter === activeFilter ? 
-          'var(--accent)' : 
-          'var(--card-border)';
-      });
-      
-      renderDeckCards();
-    });
-  });
-  
-  // Modal overlay close
-  document.getElementById('modalOverlay').addEventListener('click', closeModal);
-}
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle toast-icon"></i>
+        <div class="toast-content">
+            <div class="toast-title" id="toastTitle">Success!</div>
+            <div class="toast-message" id="toastMessage">Operation completed successfully</div>
+        </div>
+    </div>
 
-function scrollToDeck(deckNumber) {
-  const element = document.getElementById(`deck-${deckNumber}`);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Highlight temporarily
-    element.style.boxShadow = '0 0 30px rgba(100, 255, 218, 0.3)';
-    setTimeout(() => {
-      element.style.boxShadow = '';
-    }, 1500);
-  }
-}
-
-function openDeckPlan(deckNumber, type) {
-  const deckStr = deckNumber.toString().padStart(2, '0');
-  const file = type === 'svg' ? 
-    `decks/deck-${deckStr}.svg` : 
-    `decks/deck-${deckStr}.pdf`;
-  
-  document.getElementById('modalTitle').textContent = 
-    `Deck ${deckNumber} ${type.toUpperCase()} Plan`;
-  document.getElementById('modalFrame').src = file;
-  
-  document.getElementById('modalOverlay').classList.add('active');
-  document.getElementById('modalContainer').classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('active');
-  document.getElementById('modalContainer').classList.remove('active');
-  document.getElementById('modalFrame').src = 'about:blank';
-  document.body.style.overflow = 'auto';
-}
-
-function toggleViewMode() {
-  const body = document.body;
-  const current = body.getAttribute('data-view-mode') || 'grid';
-  const newMode = current === 'grid' ? 'compact' : 'grid';
-  
-  body.setAttribute('data-view-mode', newMode);
-  
-  if (newMode === 'compact') {
-    document.querySelectorAll('.deck-card').forEach(card => {
-      card.style.padding = '1.25rem';
-      card.querySelector('.deck-features').style.display = 'none';
-    });
-  } else {
-    document.querySelectorAll('.deck-card').forEach(card => {
-      card.style.padding = '';
-      card.querySelector('.deck-features').style.display = '';
-    });
-  }
-}
-
-// Close modal with ESC key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeModal();
-});
-</script>
-
-</body>
-</html>
+    <!-- Deck Preview Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-header">
+            <h3 id="previewTitle">Deck Preview</h3>
+            <button class="modal-close" onclick="closePreview()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="preview-content" id="previewContent">
+            <!-- Preview content will be injected here -->
+        </div>
+    </div>
