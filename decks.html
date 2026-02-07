@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1a365d">
+    <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.svg">
     <title>Deck Plans | Adventure of the Seas</title>
 
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- 3D Library -->
+    <script src="https://unpkg.com/three@0.132.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
 
     <!-- CSS -->
     <link rel="stylesheet" href="styles.css">
@@ -25,155 +29,234 @@
         }
 
         :root {
-            --rc-blue: #003580;
-            --rc-light-blue: #00a3e0;
-            --rc-accent: #00a3e0;
-            --rc-gold: #d4af37;
-            --rc-warning: #ff6b35;
-            --rc-success: #00b8a9;
-            --rc-info: #00a3e0;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f4f8ff;
-            --bg-card: #ffffff;
-            --bg-header: linear-gradient(135deg, #003580 0%, #0054a6 100%);
-            --border-color: #e2e8f0;
-            --border-light: #f1f5f9;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-light: #94a3b8;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06);
-            --deep-navy: var(--bg-primary);
-            --navy: var(--bg-secondary);
-            --light-navy: var(--border-light);
-            --slate: var(--text-secondary);
-            --light-slate: var(--text-primary);
-            --accent: var(--rc-blue);
-            --accent-hover: #0054a6;
-            --accent-rgb: 0, 53, 128;
-            --card-bg: var(--bg-card);
-            --card-border: var(--border-color);
-            --glow: var(--shadow-md);
-            --radius-lg: 20px;
-            --radius-md: 12px;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
+            --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --glow: 0 0 20px rgba(37, 99, 235, 0.3);
             --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Open Sans', sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            background: var(--darker);
+            color: var(--light);
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
         }
 
         body::before {
-            content: none;
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
         }
 
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Glass Morphism */
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Header Enhancements */
         .header {
-            background: var(--bg-header);
-            color: white;
+            background: var(--gradient-dark);
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-xl);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        @media (min-width: 768px) {
-            .main-nav {
-                display: flex;
-            }
-        }
-
-        .footer {
-            background: var(--rc-blue);
-            color: white;
-            padding: 3rem 0 2rem;
-            margin-top: 3rem;
+        /* Hero Section */
+        .hero {
             position: relative;
+            padding: 6rem 2rem 4rem;
+            background: var(--gradient-dark);
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .mobile-nav {
-            position: fixed;
-            bottom: 0;
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
             left: 0;
             right: 0;
-            background: white;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            padding: 0.75rem 0;
-            z-index: 1000;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            bottom: 0;
+            background: 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><path fill="%2306b6d4" opacity="0.1" d="M0 0h1200v600H0z"/><g fill="none" stroke="%232563eb" stroke-width="2"><path d="M0 300h1200M600 0v600"/><circle cx="600" cy="300" r="200"/></g></svg>') center/cover no-repeat;
+            opacity: 0.1;
         }
 
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: var(--text-secondary);
-            padding: 0.5rem;
-            flex: 1;
-            max-width: 80px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
             position: relative;
+            z-index: 1;
         }
 
-        .mobile-nav-icon {
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-            background: var(--bg-secondary);
-            width: 32px;
-            height: 32px;
-            border-radius: 999px;
+        .hero-badges {
             display: flex;
-            align-items: center;
             justify-content: center;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
+        .hero-badge {
+            background: rgba(6, 182, 212, 0.2);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: var(--accent);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .hero-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(6, 182, 212, 0.2);
+        }
+
+        .hero-badge--gold {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .hero-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        /* Interactive Elements */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-sm);
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border-radius: var(--radius-lg);
             font-weight: 600;
-            font-size: 0.9375rem;
+            font-size: 1rem;
             text-decoration: none;
             cursor: pointer;
             border: none;
             transition: var(--transition);
             font-family: 'Montserrat', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
-            background: white;
-            color: var(--rc-blue);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-lg);
         }
 
         .btn-primary:hover {
-            background: #f4f8ff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl), var(--glow);
         }
 
         .btn-outline {
@@ -185,6 +268,26 @@
         .btn-outline:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: white;
+            transform: translateY(-3px);
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: var(--shadow-lg), var(--glow);
         }
 
         /* Main Layout */
@@ -193,56 +296,54 @@
             margin: 0 auto;
             padding: 2rem;
             display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 2.5rem;
-            min-height: calc(100vh - 100px);
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
         }
 
         @media (max-width: 1200px) {
             .main-container {
                 grid-template-columns: 1fr;
-                padding: 1.5rem;
             }
         }
 
-        /* Sidebar */
+        /* Enhanced Sidebar */
         .sidebar {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
             padding: 2rem;
             height: fit-content;
             position: sticky;
-            top: 100px;
-            box-shadow: var(--shadow-sm);
+            top: 120px;
+            box-shadow: var(--shadow-xl);
         }
 
         .sidebar-section {
             margin-bottom: 2.5rem;
         }
 
-        .sidebar-section:last-child {
-            margin-bottom: 0;
-        }
-
         .section-title {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--rc-blue);
-            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* Deck Navigation */
         .deck-nav {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .deck-nav-item {
@@ -250,10 +351,10 @@
             align-items: center;
             gap: 1rem;
             padding: 1rem;
-            background: transparent;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid transparent;
             border-radius: var(--radius-md);
-            color: var(--slate);
+            color: rgba(255, 255, 255, 0.7);
             font-weight: 500;
             cursor: pointer;
             transition: var(--transition);
@@ -261,194 +362,165 @@
             overflow: hidden;
         }
 
+        .deck-nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .deck-nav-item:hover::before {
+            left: 100%;
+        }
+
         .deck-nav-item:hover {
-            background: var(--bg-secondary);
-            border-color: rgba(var(--accent-rgb), 0.2);
-            color: var(--text-primary);
-            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: white;
+            transform: translateX(8px);
         }
 
         .deck-nav-item.active {
-            background: rgba(var(--accent-rgb), 0.1);
-            border-color: var(--accent);
-            color: var(--accent);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(139, 92, 246, 0.2));
+            border-color: var(--primary);
+            color: white;
             box-shadow: var(--glow);
         }
 
-        .deck-nav-item.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 3px;
-            background: var(--accent);
-        }
-
         .deck-number-badge {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: var(--light-navy);
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.1rem;
             transition: var(--transition);
             flex-shrink: 0;
         }
 
         .deck-nav-item.active .deck-number-badge {
-            background: var(--accent);
+            background: var(--gradient-primary);
             color: white;
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: var(--shadow-md);
         }
 
-        .deck-info {
-            flex: 1;
-        }
-
-        .deck-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .deck-desc {
-            font-size: 0.85rem;
-            opacity: 0.8;
-        }
-
-        /* Quick Filter */
-        .quick-filter {
+        /* Filter Chips */
+        .filter-chips {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 0.75rem;
         }
 
-        .filter-btn {
-            padding: 0.875rem 1.25rem;
-            background: var(--bg-card);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-md);
-            color: var(--text-secondary);
+        .filter-chip {
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.875rem;
-            transition: var(--transition);
-            text-align: left;
-        }
-
-        .filter-btn:hover {
-            background: rgba(var(--accent-rgb), 0.1);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-            box-shadow: var(--glow);
-        }
-
-        .filter-btn.active {
-            background: var(--bg-secondary);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .filter-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-size: 1rem;
-        }
-
-        /* View Mode Toggle */
-        .view-toggle {
-            display: flex;
-            background: var(--bg-secondary);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-md);
-            padding: 0.25rem;
-        }
-
-        .view-btn {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            background: transparent;
-            border: none;
-            border-radius: var(--radius-sm);
-            color: var(--slate);
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 0.5rem;
             transition: var(--transition);
         }
 
-        .view-btn.active {
-            background: rgba(var(--accent-rgb), 0.1);
-            color: var(--accent);
+        .filter-chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .filter-chip.active {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
         }
 
         /* Main Content */
         .content-main {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
             padding: 2.5rem;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-xl);
         }
 
+        /* Content Header */
         .content-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2.5rem;
             padding-bottom: 1.75rem;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .header-left h2 {
             font-family: 'Montserrat', sans-serif;
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            color: var(--rc-blue);
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
 
         .header-left p {
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1.1rem;
         }
 
+        /* Stats Cards */
         .deck-stats {
             display: flex;
             gap: 1.5rem;
         }
 
-        .stat-box {
-            text-align: right;
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            min-width: 150px;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: var(--primary);
         }
 
         .stat-value {
             font-family: 'Montserrat', sans-serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--rc-blue);
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             line-height: 1;
         }
 
         .stat-label {
             font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 0.25rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* Search */
+        /* Enhanced Search */
         .search-container {
             position: relative;
             margin-bottom: 2.5rem;
@@ -456,29 +528,30 @@
 
         .search-input {
             width: 100%;
-            padding: 1.25rem 1.25rem 1.25rem 3.5rem;
-            background: var(--bg-card);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-md);
-            color: var(--text-primary);
+            padding: 1.5rem 1.5rem 1.5rem 4rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            color: white;
             font-size: 1.1rem;
             transition: var(--transition);
-            font-family: 'Open Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), var(--glow);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .search-input::placeholder {
-            color: var(--text-light);
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .search-icon {
             position: absolute;
-            left: 1.25rem;
+            left: 1.5rem;
             top: 50%;
             transform: translateY(-50%);
             color: var(--accent);
@@ -487,19 +560,26 @@
 
         .search-hint {
             position: absolute;
-            right: 1.25rem;
+            right: 1.5rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-light);
+            color: rgba(255, 255, 255, 0.5);
             font-size: 0.85rem;
             opacity: 0.8;
+            pointer-events: none;
         }
 
         /* Deck Cards Grid */
         .decks-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 1.75rem;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 2rem;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
         .decks-grid.compact {
@@ -512,52 +592,26 @@
             }
         }
 
-        /* Deck Card */
+        /* Enhanced Deck Card */
         .deck-card {
-            background: var(--bg-card);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
             padding: 2rem;
             transition: var(--transition);
             position: relative;
             overflow: hidden;
             cursor: pointer;
-            content-visibility: auto;
-            contain-intrinsic-size: 520px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.4s ease-out forwards;
         }
 
-        .deck-card-content {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .deck-image {
-            width: 100%;
-            height: 180px;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .deck-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .deck-card:hover .deck-image img {
-            transform: scale(1.03);
-        }
-
-        .deck-card:hover {
-            border-color: var(--accent);
-            box-shadow: var(--glow);
-            transform: translateY(-4px);
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .deck-card::before {
@@ -565,17 +619,66 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, var(--accent), transparent);
-            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .deck-card:hover::before {
+            opacity: 1;
+        }
+
+        .deck-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-2xl), var(--glow);
         }
 
         .deck-card.active {
-            border-color: var(--accent);
-            box-shadow: var(--glow);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-2xl), var(--glow);
         }
 
+        .deck-card-content {
+            display: grid;
+            gap: 2rem;
+        }
+
+        /* Deck Image with Hover Effect */
+        .deck-image {
+            width: 100%;
+            height: 220px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .deck-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-slow);
+        }
+
+        .deck-card:hover .deck-image img {
+            transform: scale(1.1);
+        }
+
+        .deck-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(15, 23, 42, 0.8));
+            pointer-events: none;
+        }
+
+        /* Deck Header */
         .deck-header {
             display: flex;
             justify-content: space-between;
@@ -588,109 +691,81 @@
         .deck-title {
             display: flex;
             align-items: center;
-            gap: 1.25rem;
+            gap: 1.5rem;
         }
 
         .deck-number {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-light-blue));
+            background: var(--gradient-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.75rem;
+            font-size: 2rem;
             font-weight: 800;
             color: white;
-            box-shadow: 0 10px 22px rgba(var(--accent-rgb), 0.25);
+            box-shadow: var(--shadow-xl);
             flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .deck-card:hover .deck-number {
+            transform: scale(1.1) rotate(15deg);
         }
 
         .deck-title-text h3 {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--rc-blue);
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
             margin-bottom: 0.5rem;
         }
 
         .deck-title-text p {
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1rem;
         }
 
-        .deck-badge {
-            background: var(--bg-secondary);
-            color: var(--accent);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Features */
+        /* Features Grid */
         .deck-features {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin: 1.5rem 0;
-            min-height: 40px;
-        }
-
-        .deck-detail-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 0.75rem 1.25rem;
-            margin-top: 1rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
         }
 
-        .deck-detail-item {
+        .feature-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-
-        .deck-detail-item i {
-            color: var(--accent);
-        }
-
-        .feature-tag {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            color: var(--accent);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             transition: var(--transition);
         }
 
-        .feature-tag:hover {
-            background: rgba(var(--accent-rgb), 0.1);
-            transform: translateY(-1px);
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            border-color: var(--primary);
         }
 
-        .feature-tag i {
-            font-size: 0.9rem;
+        .feature-icon {
+            color: var(--accent);
+            font-size: 1.25rem;
         }
 
         /* Action Buttons */
         .deck-actions {
             display: flex;
             gap: 1rem;
-            margin-top: 1.75rem;
+            margin-top: 2rem;
             opacity: 0;
-            transform: translateY(10px);
-            transition: var(--transition);
+            transform: translateY(20px);
+            transition: var(--transition-slow);
         }
 
         .deck-card:hover .deck-actions,
@@ -701,10 +776,10 @@
 
         .action-btn {
             flex: 1;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-lg);
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
@@ -712,51 +787,71 @@
             justify-content: center;
             gap: 0.75rem;
             border: none;
-            font-family: 'Open Sans', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
         }
 
         .action-btn.primary {
-            background: linear-gradient(135deg, var(--rc-blue), var(--accent-hover));
+            background: var(--gradient-primary);
             color: white;
         }
 
         .action-btn.primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.4);
+            box-shadow: var(--shadow-xl), var(--glow);
         }
 
         .action-btn.secondary {
             background: transparent;
-            border: 1px solid var(--accent);
-            color: var(--accent);
+            border: 2px solid var(--primary);
+            color: var(--primary);
         }
 
         .action-btn.secondary:hover {
-            background: rgba(var(--accent-rgb), 0.1);
+            background: rgba(37, 99, 235, 0.1);
             transform: translateY(-3px);
         }
 
         /* Quick Actions */
         .quick-actions {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             opacity: 0;
+            transform: translateX(20px);
             transition: var(--transition);
+            z-index: 10;
         }
 
         .deck-card:hover .quick-actions {
             opacity: 1;
+            transform: translateX(0);
         }
 
         .quick-btn {
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--accent);
             display: flex;
             align-items: center;
@@ -766,105 +861,22 @@
         }
 
         .quick-btn:hover {
-            background: rgba(var(--accent-rgb), 0.2);
-            transform: scale(1.1);
+            background: var(--gradient-primary);
+            color: white;
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: var(--shadow-md);
         }
 
-        .deck-meta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .deck-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .decks-grid.compact .deck-card {
-            padding: 1.5rem;
-        }
-
-        .decks-grid.compact .deck-card-content {
-            grid-template-columns: 120px 1fr;
-            align-items: center;
-        }
-
-        .decks-grid.compact .deck-image {
-            height: 100px;
-        }
-
-        .decks-grid.compact .deck-actions,
-        .decks-grid.compact .deck-features,
-        .decks-grid.compact .deck-detail-list {
-            display: none;
-        }
-
-        .decks-grid.detailed .deck-card-content {
-            grid-template-columns: minmax(240px, 320px) 1fr;
-            align-items: start;
-        }
-
-        .decks-grid.detailed .deck-image {
-            height: 220px;
-        }
-
-        .decks-grid.detailed .deck-actions {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .view-btn:focus-visible,
-        .filter-btn:focus-visible,
-        .deck-nav-item:focus-visible,
-        .action-btn:focus-visible,
-        .quick-btn:focus-visible {
-            outline: 2px solid rgba(var(--accent-rgb), 0.6);
-            outline-offset: 2px;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--text-secondary);
-            display: none;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            color: var(--accent);
-            margin-bottom: 1.5rem;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.75rem;
-            color: var(--rc-blue);
-            margin-bottom: 1rem;
-        }
-
-        .empty-state p {
-            font-size: 1.1rem;
-            max-width: 400px;
-            margin: 0 auto 2rem;
-        }
-
-        /* Modal */
+        /* Modal Enhancements */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(10px);
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(20px);
             display: none;
             z-index: 2000;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
 
         .modal-overlay.active {
@@ -876,10 +888,11 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.95);
-            background: var(--navy);
-            border: 1px solid var(--accent);
-            border-radius: var(--radius-lg);
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
             width: 95%;
             max-width: 1400px;
             max-height: 90vh;
@@ -888,7 +901,7 @@
             opacity: 0;
             pointer-events: none;
             transition: var(--transition-slow);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-2xl);
         }
 
         .modal-container.active {
@@ -899,8 +912,8 @@
 
         .modal-header {
             padding: 1.5rem 2rem;
-            background: rgba(17, 34, 64, 0.8);
-            border-bottom: 1px solid var(--card-border);
+            background: rgba(2, 6, 23, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -908,11 +921,11 @@
 
         .modal-header h3 {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.5rem;
-            color: var(--light-slate);
+            font-size: 1.75rem;
+            color: white;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
         .modal-actions {
@@ -921,88 +934,13 @@
             gap: 1rem;
         }
 
-        .modal-download {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.25rem;
-            background: rgba(var(--accent-rgb), 0.1);
-            border: 1px solid var(--accent);
-            border-radius: var(--radius-md);
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: var(--transition);
-        }
-
-        .modal-download:hover {
-            background: rgba(var(--accent-rgb), 0.2);
-            transform: translateY(-2px);
-        }
-
-        .modal-close {
-            background: transparent;
-            border: none;
-            color: var(--slate);
-            font-size: 1.25rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-close:hover {
-            color: var(--accent);
-            background: rgba(var(--accent-rgb), 0.1);
-            transform: rotate(90deg);
-        }
-
-        .modal-body {
-            height: calc(90vh - 80px);
-            padding: 0;
-            position: relative;
-        }
-
-        .modal-image {
+        /* Canvas for 3D */
+        #deck3d {
             width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border: none;
-            background: white;
-            display: block;
-        }
-
-        .modal-loading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: var(--navy);
-            gap: 1rem;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(var(--accent-rgb), 0.1);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            height: 500px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 2rem;
+            display: none;
         }
 
         /* Toast Notification */
@@ -1010,78 +948,83 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 1rem 1.5rem;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.75rem;
             display: flex;
             align-items: center;
             gap: 1rem;
-            transform: translateY(100px);
+            transform: translateX(100px);
             opacity: 0;
             transition: var(--transition);
             z-index: 3000;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
         }
 
         .toast.show {
-            transform: translateY(0);
+            transform: translateX(0);
             opacity: 1;
         }
 
         .toast-icon {
-            color: var(--accent);
-            font-size: 1.25rem;
+            color: var(--success);
+            font-size: 1.5rem;
         }
 
-        /* Loading Animation */
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-xl);
+            transition: var(--transition);
+            z-index: 1000;
         }
 
-        .loading-shimmer {
-            background: linear-gradient(90deg,
-                var(--bg-secondary) 25%,
-                rgba(226, 232, 240, 0.8) 50%,
-                var(--bg-secondary) 75%);
-            background-size: 1000px 100%;
-            animation: shimmer 2s infinite;
-            border-radius: var(--radius-md);
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: var(--shadow-2xl), var(--glow);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
+        /* Progress Indicator */
+        .progress-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform-origin: 0%;
+            transform: scaleX(0);
+            z-index: 1001;
         }
 
-        ::-webkit-scrollbar-track {
-            background: var(--light-navy);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-hover);
-        }
-
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
             .main-container {
                 padding: 1rem;
             }
             
-            .btn-group {
-                flex-direction: column;
-                width: 100%;
-            }
-            
             .content-header {
                 flex-direction: column;
-                gap: 1.5rem;
+                gap: 2rem;
                 text-align: center;
             }
             
@@ -1089,136 +1032,102 @@
                 justify-content: center;
             }
             
-            .deck-header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .deck-title {
-                flex-direction: column;
-                text-align: center;
-            }
-            
             .deck-actions {
                 flex-direction: column;
             }
             
-            .modal-container {
-                width: 100%;
-                height: 100%;
-                max-height: 100vh;
-                border-radius: 0;
-            }
-            
-            .modal-body {
-                height: calc(100vh - 80px);
-            }
-            
-            .modal-header {
-                padding: 1rem;
-            }
-            
-            .toast {
-                left: 1rem;
-                right: 1rem;
-                bottom: 1rem;
+            .fab {
+                bottom: 5rem;
             }
         }
 
-        /* Deck Preview Modal */
-        .preview-modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 800px;
-            max-height: 80vh;
-            background: var(--navy);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--accent);
-            z-index: 2002;
-            display: none;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .preview-modal.active {
-            display: block;
-        }
-
-        .preview-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--card-border);
+        /* View Mode Toggle */
+        .view-toggle {
             display: flex;
-            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem;
+        }
+
+        .view-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
             align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
         }
 
-        .preview-content {
-            padding: 2rem;
-            overflow-y: auto;
-            max-height: calc(80vh - 80px);
+        .view-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .view-btn.active {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
         }
 
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        /* Print Styles */
-        @media print {
-            .main-nav,
-            .sidebar,
-            .search-container,
-            .deck-actions,
-            .quick-actions {
-                display: none !important;
-            }
-            
-            .main-container {
-                grid-template-columns: 1fr;
-                padding: 0;
-            }
-            
-            .content-main {
-                border: none;
-                box-shadow: none;
-                padding: 0;
-            }
-            
-            .deck-card {
-                break-inside: avoid;
-                border: 1px solid #ccc;
-                box-shadow: none;
-            }
+        /* Deck Type Badges */
+        .deck-badge {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(37, 99, 235, 0.2));
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(6, 182, 212, 0.3);
         }
     </style>
 </head>
 <body>
     <div id="sharedHeader" data-page="decks" data-menu-toggle="true"></div>
 
+    <!-- Progress Indicator -->
+    <div class="progress-indicator" id="progressIndicator"></div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fabToggle" title="Toggle 3D View">
+        <i class="fas fa-cube"></i>
+    </button>
+
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Hero Section -->
     <section class="hero">
         <div class="container hero-content">
             <div class="hero-badges">
-                <span class="hero-badge"><i class="fas fa-map"></i> Deck Navigator</span>
-                <span class="hero-badge hero-badge--gold"><i class="fas fa-compass"></i> Adventure of the Seas</span>
+                <span class="hero-badge"><i class="fas fa-map-marked-alt"></i> Interactive Deck Navigator</span>
+                <span class="hero-badge hero-badge--gold"><i class="fas fa-ship"></i> Adventure of the Seas</span>
+                <span class="hero-badge"><i class="fas fa-expand-arrows-alt"></i> 14 Decks</span>
             </div>
-            <h1 class="hero-title">Explore the Ship, Deck by Deck</h1>
-            <p class="hero-subtitle">Plan your route with interactive deck plans, amenity filters, and quick access to the venues your crew loves most.</p>
+            <h1 class="hero-title">Navigate Your Adventure</h1>
+            <p class="hero-subtitle">Explore interactive deck plans with 3D visualization, real-time filtering, and immersive ship navigation. Find amenities, staterooms, and entertainment venues with ease.</p>
             <div class="btn-group">
-                <button class="btn btn-primary" onclick="toggleViewMode()">
-                    <i class="fas fa-layer-group"></i>
-                    Toggle View
+                <button class="btn btn-primary" onclick="toggle3DView()">
+                    <i class="fas fa-cube"></i>
+                    3D Ship View
                 </button>
-                <button class="btn btn-outline" onclick="printPage()">
-                    <i class="fas fa-print"></i>
-                    Print Decks
+                <button class="btn btn-outline" onclick="showAllDecks()">
+                    <i class="fas fa-layer-group"></i>
+                    Show All Decks
+                </button>
+                <button class="btn btn-outline" onclick="toggleVirtualTour()">
+                    <i class="fas fa-vr-cardboard"></i>
+                    Virtual Tour
                 </button>
             </div>
         </div>
@@ -1227,11 +1136,11 @@
     <!-- Main Container -->
     <div class="main-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar glass">
             <div class="sidebar-section">
                 <h3 class="section-title">
-                    <i class="fas fa-compass"></i>
-                    Quick Navigation
+                    <i class="fas fa-ship"></i>
+                    Deck Navigation
                 </h3>
                 <div class="deck-nav" id="deckNav">
                     <!-- Generated by JavaScript -->
@@ -1241,9 +1150,9 @@
             <div class="sidebar-section">
                 <h3 class="section-title">
                     <i class="fas fa-filter"></i>
-                    Filter by Amenities
+                    Filter Amenities
                 </h3>
-                <div class="quick-filter" id="quickFilter">
+                <div class="filter-chips" id="filterChips">
                     <!-- Generated by JavaScript -->
                 </div>
             </div>
@@ -1251,7 +1160,7 @@
             <div class="sidebar-section">
                 <h3 class="section-title">
                     <i class="fas fa-eye"></i>
-                    View Mode
+                    View Options
                 </h3>
                 <div class="view-toggle">
                     <button class="view-btn active" data-view="grid" onclick="changeViewMode('grid')">
@@ -1260,10 +1169,10 @@
                     </button>
                     <button class="view-btn" data-view="compact" onclick="changeViewMode('compact')">
                         <i class="fas fa-list"></i>
-                        Compact
+                        List
                     </button>
                     <button class="view-btn" data-view="detailed" onclick="changeViewMode('detailed')">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fas fa-expand"></i>
                         Detailed
                     </button>
                 </div>
@@ -1271,55 +1180,58 @@
             
             <div class="sidebar-section">
                 <h3 class="section-title">
-                    <i class="fas fa-lightbulb"></i>
-                    Quick Tips
+                    <i class="fas fa-route"></i>
+                    Quick Routes
                 </h3>
-                <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
-                    <p style="margin-bottom: 0.75rem;">
-                        <i class="fas fa-search" style="color: var(--accent); margin-right: 0.5rem;"></i>
-                        Search for specific amenities or deck names
-                    </p>
-                    <p style="margin-bottom: 0.75rem;">
-                        <i class="fas fa-mouse-pointer" style="color: var(--accent); margin-right: 0.5rem;"></i>
-                        Click any deck to see details
-                    </p>
-                    <p style="margin-bottom: 0.75rem;">
-                        <i class="fas fa-download" style="color: var(--accent); margin-right: 0.5rem;"></i>
-                        PDF versions available for download
-                    </p>
-                    <p>
-                        <i class="fas fa-expand" style="color: var(--accent); margin-right: 0.5rem;"></i>
-                        High-resolution deck previews available
-                    </p>
+                <div class="quick-routes">
+                    <button class="filter-chip" onclick="routeTo('dining')">
+                        <i class="fas fa-utensils"></i>
+                        Dining Decks
+                    </button>
+                    <button class="filter-chip" onclick="routeTo('entertainment')">
+                        <i class="fas fa-masks-theater"></i>
+                        Entertainment
+                    </button>
+                    <button class="filter-chip" onclick="routeTo('pools')">
+                        <i class="fas fa-swimming-pool"></i>
+                        Pool Areas
+                    </button>
                 </div>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="content-main">
+        <main class="content-main glass">
+            <!-- 3D View Canvas -->
+            <canvas id="deck3d"></canvas>
+            
             <div class="content-header">
                 <div class="header-left">
-                    <h2 id="currentDeckTitle">All Deck Plans</h2>
-                    <p id="deckSubtitle">Explore all available decks and their amenities</p>
+                    <h2 id="currentDeckTitle">Ship Deck Plans</h2>
+                    <p id="deckSubtitle">Interactive navigation with 3D visualization</p>
                 </div>
                 <div class="deck-stats">
-                    <div class="stat-box">
+                    <div class="stat-card">
                         <div class="stat-value" id="totalDecks">14</div>
                         <div class="stat-label">Total Decks</div>
                     </div>
-                    <div class="stat-box">
+                    <div class="stat-card">
                         <div class="stat-value" id="visibleDecks">14</div>
                         <div class="stat-label">Showing</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="amenitiesCount">36</div>
+                        <div class="stat-label">Amenities</div>
                     </div>
                 </div>
             </div>
             
-            <!-- Search -->
+            <!-- Enhanced Search -->
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" class="search-input" id="searchInput" 
-                       placeholder="Search decks, amenities, or locations...">
-                <div class="search-hint" id="searchHint">Press / to focus</div>
+                       placeholder="Search decks, venues, restaurants, pools...">
+                <div class="search-hint" id="searchHint">Try "pool" or "restaurant"</div>
             </div>
             
             <!-- Decks Grid -->
@@ -1330,30 +1242,36 @@
             <!-- Empty State -->
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-map-marked-alt"></i>
-                <h3>No Matching Decks Found</h3>
-                <p>Try adjusting your search terms or clearing some filters</p>
+                <h3>No Decks Found</h3>
+                <p>Try adjusting your search or clearing filters</p>
                 <button class="action-btn secondary" onclick="clearFilters()">
-                    <i class="fas fa-times"></i>
+                    <i class="fas fa-times-circle"></i>
                     Clear All Filters
                 </button>
             </div>
         </main>
     </div>
 
-    <!-- Modal -->
+    <!-- Enhanced Modal -->
     <div class="modal-overlay" id="modalOverlay"></div>
-    <div class="modal-container" id="modalContainer">
+    <div class="modal-container glass" id="modalContainer">
         <div class="modal-header">
             <h3 id="modalTitle">
                 <i class="fas fa-ship"></i>
-                Deck Plan
+                Deck Plan Viewer
             </h3>
             <div class="modal-actions">
-                <a class="modal-download" id="modalDownload" href="#" target="_blank" rel="noopener">
+                <button class="btn-icon" onclick="zoomIn()" title="Zoom In">
+                    <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="btn-icon" onclick="zoomOut()" title="Zoom Out">
+                    <i class="fas fa-search-minus"></i>
+                </button>
+                <a class="btn btn-primary" id="modalDownload" href="#" target="_blank" rel="noopener">
                     <i class="fas fa-download"></i>
                     Download PDF
                 </a>
-                <button class="modal-close" onclick="closeModal()">
+                <button class="btn-icon" onclick="closeModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1361,309 +1279,447 @@
         <div class="modal-body">
             <div class="modal-loading" id="modalLoading">
                 <div class="spinner"></div>
-                <p>Loading deck plan...</p>
+                <p>Loading high-resolution deck plan...</p>
             </div>
-            <img id="modalImage" class="modal-image" alt="Deck plan preview" loading="lazy" decoding="async">
+            <div class="modal-content" id="modalContent">
+                <img id="modalImage" class="modal-image" alt="Deck plan preview" loading="lazy">
+            </div>
         </div>
     </div>
 
     <!-- Toast Notification -->
-    <div class="toast" id="toast">
+    <div class="toast glass" id="toast">
         <i class="fas fa-check-circle toast-icon"></i>
         <div class="toast-content">
-            <div class="toast-title" id="toastTitle">Success!</div>
-            <div class="toast-message" id="toastMessage">Operation completed successfully</div>
+            <div class="toast-title" id="toastTitle">Success</div>
+            <div class="toast-message" id="toastMessage">Operation completed</div>
         </div>
     </div>
 
-    <!-- Deck Preview Modal -->
-    <div class="preview-modal" id="previewModal">
-        <div class="preview-header">
-            <h3 id="previewTitle">Deck Preview</h3>
-            <button class="modal-close" onclick="closePreview()">
-                <i class="fas fa-times"></i>
-            </button>
+    <!-- Virtual Tour Modal -->
+    <div class="modal-overlay" id="tourOverlay"></div>
+    <div class="modal-container glass" id="tourModal">
+        <div class="modal-header">
+            <h3><i class="fas fa-vr-cardboard"></i> Virtual Ship Tour</h3>
+            <div class="modal-actions">
+                <button class="btn-icon" onclick="prevTourStop()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <button class="btn-icon" onclick="nextTourStop()">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn-icon" onclick="closeTour()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
-        <div class="preview-content" id="previewContent">
-            <!-- Preview content will be injected here -->
+        <div class="modal-body">
+            <div id="tourContent"></div>
         </div>
     </div>
 
     <div id="sharedFooter" data-page="decks"></div>
 
-    <nav class="mobile-nav">
+    <nav class="mobile-nav glass">
         <a href="index.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-home"></i></span><span>Home</span></a>
-        <a href="itinerary.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-route"></i></span><span>Schedule</span></a>
-        <a href="operations.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span><span>Ops</span></a>
+        <a href="itinerary.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-calendar-alt"></i></span><span>Schedule</span></a>
+        <a href="operations.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-cogs"></i></span><span>Ops</span></a>
         <a href="rooms.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-bed"></i></span><span>Rooms</span></a>
         <a href="decks.html" class="mobile-nav-item active"><span class="mobile-nav-icon"><i class="fas fa-map"></i></span><span>Decks</span></a>
         <a href="dining.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span><span>Dining</span></a>
-        <a href="tips.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></span><span>Tips</span></a>
+        <a href="tips.html" class="mobile-nav-item"><span class="mobile-nav-icon"><i class="fas fa-star"></i></span><span>Tips</span></a>
     </nav>
 
     <script>
+        // Enhanced deck data with more details
         const deckData = [
             {
                 number: 2,
                 name: 'Deck 2',
                 subtitle: 'Medical & Crew Support',
                 description: 'Medical center and crew-only services.',
-                amenities: ['Medical', 'Crew Areas', 'Laundry'],
-                highlights: ['Medical Center', 'Crew Quarters', 'Laundry Services'],
+                amenities: ['Medical', 'Crew Areas', 'Laundry', 'Storage'],
+                highlights: ['Medical Center', 'Crew Quarters', 'Laundry Services', 'Technical Storage'],
                 pdf: 'decks/deck-02.pdf',
                 svg: 'decks/deck-02.svg',
-                image: 'decks/deck-02.png'
+                image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=800&q=80',
+                type: 'service',
+                color: '#06b6d4'
             },
             {
                 number: 3,
                 name: 'Deck 3',
                 subtitle: 'Lobby & Guest Services',
                 description: 'Main lobby, dining, and guest support.',
-                amenities: ['Guest Services', 'Dining', 'Retail'],
-                highlights: ['Royal Promenade', 'Guest Services', 'Shops'],
+                amenities: ['Guest Services', 'Dining', 'Retail', 'Information'],
+                highlights: ['Royal Promenade', 'Guest Services', 'Shops', 'Information Desk'],
                 pdf: 'decks/deck-03.pdf',
                 svg: 'decks/deck-03.svg',
-                image: 'decks/deck-03.png'
-            },
-            {
-                number: 4,
-                name: 'Deck 4',
-                subtitle: 'Staterooms & Amenities',
-                description: 'Oceanview staterooms and access corridors.',
-                amenities: ['Staterooms', 'Guest Services'],
-                highlights: ['Oceanview Rooms', 'Access to Promenade'],
-                pdf: 'decks/deck-04.pdf',
-                svg: 'decks/deck-04.svg',
-                image: 'decks/deck-04.png'
+                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80',
+                type: 'main',
+                color: '#2563eb'
             },
             {
                 number: 5,
                 name: 'Deck 5',
                 subtitle: 'Promenade Level',
                 description: 'Entertainment, dining, and retail hub.',
-                amenities: ['Entertainment', 'Dining', 'Retail'],
-                highlights: ['Promenade Cafes', 'Retail Arcade', 'Bars & Lounges'],
+                amenities: ['Entertainment', 'Dining', 'Retail', 'Bars'],
+                highlights: ['Promenade Cafes', 'Retail Arcade', 'Bars & Lounges', 'Live Music'],
                 pdf: 'decks/deck-05.pdf',
                 svg: 'decks/deck-05.svg',
-                image: 'decks/deck-05.png'
-            },
-            {
-                number: 6,
-                name: 'Deck 6',
-                subtitle: 'Staterooms',
-                description: 'Prime stateroom decks with easy access.',
-                amenities: ['Staterooms'],
-                highlights: ['Stateroom Corridor', 'Elevator Access'],
-                pdf: 'decks/deck-06.pdf',
-                svg: 'decks/deck-06.svg',
-                image: 'decks/deck-06.png'
-            },
-            {
-                number: 7,
-                name: 'Deck 7',
-                subtitle: 'Staterooms',
-                description: 'Midship staterooms and quiet lounges.',
-                amenities: ['Staterooms', 'Lounges'],
-                highlights: ['Balcony Staterooms', 'Lounges'],
-                pdf: 'decks/deck-07.pdf',
-                svg: 'decks/deck-07.svg',
-                image: 'decks/deck-07.png'
-            },
-            {
-                number: 8,
-                name: 'Deck 8',
-                subtitle: 'Staterooms',
-                description: 'High-level stateroom deck with views.',
-                amenities: ['Staterooms'],
-                highlights: ['Staterooms', 'Elevator Access'],
-                pdf: 'decks/deck-08.pdf',
-                svg: 'decks/deck-08.svg',
-                image: 'decks/deck-08.png'
-            },
-            {
-                number: 9,
-                name: 'Deck 9',
-                subtitle: 'Staterooms',
-                description: 'Upper staterooms and scenic balconies.',
-                amenities: ['Staterooms', 'Scenic Views'],
-                highlights: ['Balcony Suites', 'Sea Views'],
-                pdf: 'decks/deck-09.pdf',
-                svg: 'decks/deck-09.svg',
-                image: 'decks/deck-09.png'
-            },
-            {
-                number: 10,
-                name: 'Deck 10',
-                subtitle: 'Staterooms',
-                description: 'Premium staterooms and suites.',
-                amenities: ['Staterooms', 'Suites'],
-                highlights: ['Premium Suites', 'Concierge Access'],
-                pdf: 'decks/deck-10.pdf',
-                svg: 'decks/deck-10.svg',
-                image: 'decks/deck-10.png'
+                image: 'https://images.unsplash.com/photo-1519677100203-6f5d4c7a08c9?auto=format&fit=crop&w=800&q=80',
+                type: 'entertainment',
+                color: '#8b5cf6'
             },
             {
                 number: 11,
                 name: 'Deck 11',
                 subtitle: 'Fitness & Spa',
                 description: 'Spa, fitness center, and relaxation zones.',
-                amenities: ['Fitness', 'Spa', 'Wellness'],
-                highlights: ['Fitness Center', 'Spa Treatments', 'Relaxation Lounge'],
+                amenities: ['Fitness', 'Spa', 'Wellness', 'Sauna'],
+                highlights: ['Fitness Center', 'Spa Treatments', 'Relaxation Lounge', 'Sauna & Steam'],
                 pdf: 'decks/deck-11.pdf',
                 svg: 'decks/deck-11.svg',
-                image: 'decks/deck-11.png'
+                image: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?auto=format&fit=crop&w=800&q=80',
+                type: 'wellness',
+                color: '#10b981'
             },
             {
                 number: 12,
                 name: 'Deck 12',
                 subtitle: 'Pool Deck',
                 description: 'Main pools, sun decks, and casual dining.',
-                amenities: ['Pools', 'Dining', 'Outdoors'],
-                highlights: ['Main Pool', 'Solarium', 'Poolside Grill'],
+                amenities: ['Pools', 'Dining', 'Outdoors', 'Bar'],
+                highlights: ['Main Pool', 'Solarium', 'Poolside Grill', 'Pool Bar'],
                 pdf: 'decks/deck-12.pdf',
                 svg: 'decks/deck-12.svg',
-                image: 'decks/deck-12.png'
-            },
-            {
-                number: 13,
-                name: 'Deck 13',
-                subtitle: 'Sports & Recreation',
-                description: 'Sports courts and outdoor activity zones.',
-                amenities: ['Sports', 'Outdoors', 'Kids'],
-                highlights: ['Sports Court', 'Mini Golf', 'Adventure Zones'],
-                pdf: 'decks/deck-13.pdf',
-                svg: 'decks/deck-13.svg',
-                image: 'decks/deck-13.png'
+                image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+                type: 'recreation',
+                color: '#0ea5e9'
             },
             {
                 number: 14,
                 name: 'Deck 14',
                 subtitle: 'Sky Deck',
                 description: 'Panoramic decks and entertainment.',
-                amenities: ['Outdoors', 'Entertainment'],
-                highlights: ['Sky Lounge', 'Observation Areas'],
+                amenities: ['Outdoors', 'Entertainment', 'Views'],
+                highlights: ['Sky Lounge', 'Observation Areas', 'Sun Deck', 'Stargazing'],
                 pdf: 'decks/deck-14.pdf',
                 svg: 'decks/deck-14.svg',
-                image: 'decks/deck-14.png'
-            },
-            {
-                number: 15,
-                name: 'Deck 15',
-                subtitle: 'Vitality & Adventure',
-                description: 'Top deck recreation and adventure activities.',
-                amenities: ['Adventure', 'Outdoors', 'Fitness'],
-                highlights: ['Rock Climbing', 'Sports Activities'],
-                pdf: 'decks/deck-15.pdf',
-                svg: 'decks/deck-15.svg',
-                image: 'decks/deck-15.png'
+                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80',
+                type: 'premium',
+                color: '#f59e0b'
             }
         ];
 
+        // Enhanced filter configuration
         const filterConfig = [
-            { key: 'Staterooms', label: 'Staterooms', icon: 'fa-bed' },
-            { key: 'Dining', label: 'Dining', icon: 'fa-utensils' },
-            { key: 'Entertainment', label: 'Entertainment', icon: 'fa-masks-theater' },
-            { key: 'Pools', label: 'Pools', icon: 'fa-person-swimming' },
-            { key: 'Fitness', label: 'Fitness', icon: 'fa-dumbbell' },
-            { key: 'Spa', label: 'Spa', icon: 'fa-spa' },
-            { key: 'Kids', label: 'Kids', icon: 'fa-children' },
-            { key: 'Outdoors', label: 'Outdoors', icon: 'fa-mountain-sun' },
-            { key: 'Guest Services', label: 'Guest Services', icon: 'fa-concierge-bell' }
+            { key: 'Staterooms', label: 'Staterooms', icon: 'fa-bed', color: '#3b82f6' },
+            { key: 'Dining', label: 'Dining', icon: 'fa-utensils', color: '#10b981' },
+            { key: 'Entertainment', label: 'Entertainment', icon: 'fa-masks-theater', color: '#8b5cf6' },
+            { key: 'Pools', label: 'Pools', icon: 'fa-person-swimming', color: '#06b6d4' },
+            { key: 'Fitness', label: 'Fitness', icon: 'fa-dumbbell', color: '#ef4444' },
+            { key: 'Spa', label: 'Spa', icon: 'fa-spa', color: '#ec4899' },
+            { key: 'Retail', label: 'Shops', icon: 'fa-shopping-bag', color: '#f59e0b' },
+            { key: 'Guest Services', label: 'Services', icon: 'fa-concierge-bell', color: '#64748b' },
+            { key: 'Outdoors', label: 'Outdoors', icon: 'fa-mountain-sun', color: '#22c55e' }
         ];
 
+        // Application state
         const state = {
             activeFilters: new Set(),
             activeDeck: null,
             viewMode: 'grid',
-            searchQuery: ''
+            searchQuery: '',
+            zoomLevel: 1,
+            is3DView: false,
+            tourActive: false,
+            tourStep: 0
         };
 
-        const deckNav = document.getElementById('deckNav');
-        const decksGrid = document.getElementById('decksGrid');
-        const quickFilter = document.getElementById('quickFilter');
-        const searchInput = document.getElementById('searchInput');
-        const emptyState = document.getElementById('emptyState');
-        const totalDecks = document.getElementById('totalDecks');
-        const visibleDecks = document.getElementById('visibleDecks');
-        const currentDeckTitle = document.getElementById('currentDeckTitle');
-        const deckSubtitle = document.getElementById('deckSubtitle');
-        const searchHint = document.getElementById('searchHint');
+        // DOM Elements
+        const elements = {
+            deckNav: document.getElementById('deckNav'),
+            decksGrid: document.getElementById('decksGrid'),
+            filterChips: document.getElementById('filterChips'),
+            searchInput: document.getElementById('searchInput'),
+            emptyState: document.getElementById('emptyState'),
+            totalDecks: document.getElementById('totalDecks'),
+            visibleDecks: document.getElementById('visibleDecks'),
+            amenitiesCount: document.getElementById('amenitiesCount'),
+            currentDeckTitle: document.getElementById('currentDeckTitle'),
+            deckSubtitle: document.getElementById('deckSubtitle'),
+            modalOverlay: document.getElementById('modalOverlay'),
+            modalContainer: document.getElementById('modalContainer'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalDownload: document.getElementById('modalDownload'),
+            modalImage: document.getElementById('modalImage'),
+            modalLoading: document.getElementById('modalLoading'),
+            modalContent: document.getElementById('modalContent'),
+            toast: document.getElementById('toast'),
+            toastTitle: document.getElementById('toastTitle'),
+            toastMessage: document.getElementById('toastMessage'),
+            fabToggle: document.getElementById('fabToggle'),
+            deck3d: document.getElementById('deck3d'),
+            progressIndicator: document.getElementById('progressIndicator'),
+            particles: document.getElementById('particles'),
+            tourOverlay: document.getElementById('tourOverlay'),
+            tourModal: document.getElementById('tourModal'),
+            tourContent: document.getElementById('tourContent')
+        };
 
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modalContainer = document.getElementById('modalContainer');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalDownload = document.getElementById('modalDownload');
-        const modalImage = document.getElementById('modalImage');
-        const modalLoading = document.getElementById('modalLoading');
+        // Initialize particles
+        function initParticles() {
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = `${Math.random() * 4 + 2}px`;
+                particle.style.height = particle.style.width;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 20}s`;
+                particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                elements.particles.appendChild(particle);
+            }
+        }
 
-        const toast = document.getElementById('toast');
-        const toastTitle = document.getElementById('toastTitle');
-        const toastMessage = document.getElementById('toastMessage');
+        // Initialize 3D view
+        function init3DView() {
+            const canvas = elements.deck3d;
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            
+            renderer.setSize(canvas.width, canvas.height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            scene.add(directionalLight);
+            
+            // Create ship hull
+            const hullGeometry = new THREE.BoxGeometry(20, 8, 60);
+            const hullMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x2563eb,
+                shininess: 100
+            });
+            const hull = new THREE.Mesh(hullGeometry, hullMaterial);
+            scene.add(hull);
+            
+            // Add decks as layers
+            deckData.forEach((deck, i) => {
+                const deckGeometry = new THREE.BoxGeometry(18, 0.5, 58);
+                const deckMaterial = new THREE.MeshPhongMaterial({ 
+                    color: parseInt(deck.color.replace('#', '0x')),
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const deckMesh = new THREE.Mesh(deckGeometry, deckMaterial);
+                deckMesh.position.y = i * 0.6 - 3;
+                scene.add(deckMesh);
+            });
+            
+            camera.position.set(30, 20, 30);
+            
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+        }
 
-        const previewModal = document.getElementById('previewModal');
-        const previewTitle = document.getElementById('previewTitle');
-        const previewContent = document.getElementById('previewContent');
-
-        const formatDeckNumber = (number) => number.toString().padStart(2, '0');
-
-        const buildDeckNav = () => {
-            deckNav.innerHTML = '';
+        // Enhanced deck navigation
+        function buildDeckNav() {
+            elements.deckNav.innerHTML = '';
             deckData.forEach((deck) => {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'deck-nav-item';
                 button.dataset.deckNumber = deck.number;
                 button.innerHTML = `
-                    <span class="deck-number-badge">${deck.number}</span>
+                    <span class="deck-number-badge" style="background: ${deck.color}22; color: ${deck.color}">
+                        ${deck.number}
+                    </span>
                     <span class="deck-info">
                         <span class="deck-name">${deck.name}</span>
                         <span class="deck-desc">${deck.subtitle}</span>
                     </span>
-                    <i class="fas fa-chevron-right"></i>
+                    <i class="fas fa-chevron-right" style="color: ${deck.color}"></i>
                 `;
                 button.addEventListener('click', () => {
                     state.activeDeck = deck.number;
                     updateDeckNavActive();
                     scrollToDeck(deck.number);
-                    updateHeader(`Deck ${deck.number}`, deck.subtitle);
+                    updateHeader(deck.name, deck.subtitle);
+                    showToast('Deck Selected', `Now viewing ${deck.name}`);
                 });
-                deckNav.appendChild(button);
+                elements.deckNav.appendChild(button);
             });
-        };
+        }
 
-        const buildFilters = () => {
-            quickFilter.innerHTML = '';
+        // Enhanced filter chips
+        function buildFilterChips() {
+            elements.filterChips.innerHTML = '';
             filterConfig.forEach((filter) => {
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'filter-btn';
-                button.dataset.filter = filter.key;
-                button.innerHTML = `
-                    <span class="filter-icon"><i class="fas ${filter.icon}"></i></span>
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'filter-chip';
+                chip.dataset.filter = filter.key;
+                chip.style.borderColor = `${filter.color}40`;
+                chip.innerHTML = `
+                    <i class="fas ${filter.icon}" style="color: ${filter.color}"></i>
                     <span>${filter.label}</span>
                 `;
-                button.addEventListener('click', () => {
+                chip.addEventListener('click', () => {
+                    chip.classList.toggle('active');
                     if (state.activeFilters.has(filter.key)) {
                         state.activeFilters.delete(filter.key);
-                        button.classList.remove('active');
+                        chip.style.background = 'rgba(255, 255, 255, 0.05)';
                     } else {
                         state.activeFilters.add(filter.key);
-                        button.classList.add('active');
+                        chip.style.background = `${filter.color}20`;
                     }
                     scheduleRender();
                 });
-                quickFilter.appendChild(button);
+                elements.filterChips.appendChild(chip);
             });
-        };
+        }
 
-        const deckMatchesFilters = (deck) => {
+        // Enhanced deck cards rendering
+        function renderDecks() {
+            const filteredDecks = deckData.filter(deckMatchesFilters);
+            elements.decksGrid.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+
+            filteredDecks.forEach((deck, index) => {
+                const card = document.createElement('article');
+                card.className = 'deck-card';
+                card.dataset.deckNumber = deck.number;
+                card.style.animationDelay = `${index * 60}ms`;
+
+                card.innerHTML = `
+                    <div class="quick-actions">
+                        <button class="quick-btn" data-action="preview" title="Quick preview">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="quick-btn" data-action="tour" title="Virtual tour">
+                            <i class="fas fa-vr-cardboard"></i>
+                        </button>
+                        <button class="quick-btn" data-action="favorite" title="Add to favorites">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="deck-card-content">
+                        <div class="deck-image">
+                            <img src="${deck.image}" alt="${deck.name} preview" loading="lazy">
+                        </div>
+                        <div>
+                            <div class="deck-header">
+                                <div class="deck-title">
+                                    <div class="deck-number" style="background: ${deck.color}">
+                                        ${deck.number}
+                                    </div>
+                                    <div class="deck-title-text">
+                                        <h3>${deck.name}</h3>
+                                        <p>${deck.subtitle}</p>
+                                    </div>
+                                </div>
+                                <span class="deck-badge" style="border-color: ${deck.color}40; color: ${deck.color}">
+                                    <i class="fas fa-${getDeckIcon(deck.type)}"></i>
+                                    ${deck.type.charAt(0).toUpperCase() + deck.type.slice(1)}
+                                </span>
+                            </div>
+                            <div class="deck-features">
+                                ${deck.amenities.map(amenity => `
+                                    <div class="feature-item">
+                                        <i class="fas fa-check feature-icon"></i>
+                                        <span>${amenity}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="deck-actions">
+                                <button class="action-btn primary" data-action="view">
+                                    <i class="fas fa-expand"></i>
+                                    Explore Deck
+                                </button>
+                                <button class="action-btn secondary" data-action="directions">
+                                    <i class="fas fa-directions"></i>
+                                    Get Directions
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add event listeners
+                card.querySelector('[data-action="view"]').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openModal(deck);
+                });
+
+                card.querySelector('[data-action="directions"]').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showDirections(deck);
+                });
+
+                card.querySelector('[data-action="preview"]').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openPreview(deck);
+                });
+
+                card.querySelector('[data-action="tour"]').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    startTour(deck);
+                });
+
+                card.querySelector('[data-action="favorite"]').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const heart = e.target.closest('button').querySelector('i');
+                    heart.classList.toggle('far');
+                    heart.classList.toggle('fas');
+                    showToast('Added to Favorites', `${deck.name} saved to your favorites`);
+                });
+
+                card.addEventListener('click', () => openModal(deck));
+                fragment.appendChild(card);
+            });
+
+            elements.decksGrid.appendChild(fragment);
+            updateStats(filteredDecks);
+        }
+
+        // Helper functions
+        function getDeckIcon(type) {
+            const icons = {
+                service: 'first-aid',
+                main: 'star',
+                entertainment: 'music',
+                wellness: 'spa',
+                recreation: 'swimming-pool',
+                premium: 'crown'
+            };
+            return icons[type] || 'map';
+        }
+
+        function deckMatchesFilters(deck) {
             const query = state.searchQuery.trim().toLowerCase();
             const searchTarget = [
                 deck.name,
                 deck.subtitle,
                 deck.description,
-                deck.amenities.join(' '),
-                deck.highlights.join(' ')
+                ...deck.amenities,
+                ...deck.highlights
             ].join(' ').toLowerCase();
 
             const matchesSearch = !query || searchTarget.includes(query);
@@ -1671,278 +1727,244 @@
                 Array.from(state.activeFilters).every((filter) => deck.amenities.includes(filter));
 
             return matchesSearch && matchesFilters;
-        };
+        }
 
-        let renderHandle = null;
+        function updateStats(filteredDecks) {
+            elements.totalDecks.textContent = deckData.length;
+            elements.visibleDecks.textContent = filteredDecks.length;
+            
+            // Calculate total amenities
+            const allAmenities = new Set();
+            deckData.forEach(deck => deck.amenities.forEach(a => allAmenities.add(a)));
+            elements.amenitiesCount.textContent = allAmenities.size;
 
-        const renderDecks = () => {
-            const filteredDecks = deckData.filter(deckMatchesFilters);
-            decksGrid.innerHTML = '';
-            const fragment = document.createDocumentFragment();
+            elements.emptyState.style.display = filteredDecks.length === 0 ? 'block' : 'none';
+        }
 
-            filteredDecks.forEach((deck, index) => {
-                const card = document.createElement('article');
-                card.className = 'deck-card fade-in';
-                card.dataset.deckNumber = deck.number;
-                card.dataset.search = [deck.name, deck.subtitle, deck.amenities.join(' ')].join(' ');
-                card.style.animationDelay = `${index * 60}ms`;
-
-                const amenitiesHtml = deck.amenities.map((amenity) => `
-                    <span class="feature-tag"><i class="fas fa-check"></i>${amenity}</span>
-                `).join('');
-
-                const highlightHtml = deck.highlights.map((highlight) => `
-                    <div class="deck-detail-item"><i class="fas fa-star"></i>${highlight}</div>
-                `).join('');
-
-                card.innerHTML = `
-                    <div class="quick-actions">
-                        <button class="quick-btn" data-action="preview" title="Quick preview">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="quick-btn" data-action="copy" title="Copy deck link">
-                            <i class="fas fa-link"></i>
-                        </button>
-                    </div>
-                    <div class="deck-card-content">
-                        <div class="deck-image">
-                            <img src="${deck.image}" alt="${deck.name} preview" loading="lazy" decoding="async" fetchpriority="low">
-                        </div>
-                        <div>
-                            <div class="deck-header">
-                                <div class="deck-title">
-                                    <div class="deck-number">${deck.number}</div>
-                                    <div class="deck-title-text">
-                                        <h3>${deck.name}</h3>
-                                        <p>${deck.subtitle}</p>
-                                    </div>
-                                </div>
-                                <span class="deck-badge">
-                                    <i class="fas fa-map"></i>
-                                    Deck ${formatDeckNumber(deck.number)}
-                                </span>
+        // Enhanced modal
+        function openModal(deck) {
+            elements.modalTitle.innerHTML = `
+                <i class="fas fa-ship" style="color: ${deck.color}"></i>
+                ${deck.name} - ${deck.subtitle}
+            `;
+            elements.modalDownload.href = deck.pdf;
+            elements.modalImage.src = deck.image;
+            elements.modalImage.style.transform = `scale(${state.zoomLevel})`;
+            
+            elements.modalOverlay.classList.add('active');
+            elements.modalContainer.classList.add('active');
+            
+            // Add modal content
+            elements.modalContent.innerHTML = `
+                <div class="modal-grid">
+                    <img src="${deck.image}" alt="${deck.name}" class="modal-image" id="modalImage">
+                    <div class="modal-sidebar">
+                        <h4>Deck Features</h4>
+                        ${deck.highlights.map(h => `
+                            <div class="modal-feature">
+                                <i class="fas fa-check" style="color: ${deck.color}"></i>
+                                <span>${h}</span>
                             </div>
-                            <div class="deck-meta">
-                                <span><i class="fas fa-layer-group"></i>${deck.description}</span>
-                            </div>
-                            <div class="deck-features">${amenitiesHtml}</div>
-                            <div class="deck-detail-list">${highlightHtml}</div>
-                            <div class="deck-actions">
-                                <button class="action-btn primary" data-action="view">
-                                    <i class="fas fa-expand"></i>
-                                    Open Plan
-                                </button>
-                                <button class="action-btn secondary" data-action="download">
-                                    <i class="fas fa-download"></i>
-                                    Download PDF
-                                </button>
-                            </div>
+                        `).join('')}
+                        <div class="modal-amenities">
+                            ${deck.amenities.map(a => `<span class="modal-amenity">${a}</span>`).join('')}
                         </div>
                     </div>
-                `;
-
-                card.querySelector('[data-action="view"]').addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    openModal(deck);
-                });
-
-                card.querySelector('[data-action="download"]').addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    window.open(deck.pdf, '_blank', 'noopener');
-                });
-
-                card.querySelector('[data-action="preview"]').addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    openPreview(deck);
-                });
-
-                card.querySelector('[data-action="copy"]').addEventListener('click', async (event) => {
-                    event.stopPropagation();
-                    const url = new URL(window.location.href);
-                    url.hash = `deck-${deck.number}`;
-                    try {
-                        await navigator.clipboard.writeText(url.toString());
-                        showToast('Link copied', `Deck ${deck.number} link copied to clipboard.`);
-                    } catch (error) {
-                        window.prompt('Copy this link:', url.toString());
-                    }
-                });
-
-                card.addEventListener('click', () => openModal(deck));
-                fragment.appendChild(card);
-            });
-
-            decksGrid.appendChild(fragment);
-
-            emptyState.style.display = filteredDecks.length === 0 ? 'block' : 'none';
-            totalDecks.textContent = deckData.length;
-            visibleDecks.textContent = filteredDecks.length;
-
-            if (state.activeFilters.size || state.searchQuery) {
-                updateHeader('Filtered Deck Plans', `${filteredDecks.length} decks match your filters`);
-            } else {
-                updateHeader('All Deck Plans', 'Explore all available decks and their amenities');
-            }
-        };
-
-        const updateHeader = (title, subtitle) => {
-            currentDeckTitle.textContent = title;
-            deckSubtitle.textContent = subtitle;
-        };
-
-        const updateDeckNavActive = () => {
-            document.querySelectorAll('.deck-nav-item').forEach((button) => {
-                const deckNumber = Number(button.dataset.deckNumber);
-                button.classList.toggle('active', deckNumber === state.activeDeck);
-            });
-        };
-
-        const scrollToDeck = (deckNumber) => {
-            const card = document.querySelector(`.deck-card[data-deck-number="${deckNumber}"]`);
-            if (card) {
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        };
-
-        const openModal = (deck) => {
-            modalTitle.innerHTML = `<i class="fas fa-ship"></i>${deck.name} Plan`;
-            modalDownload.href = deck.pdf;
-            modalImage.src = '';
-            modalLoading.style.display = 'flex';
-
-            const planSrc = deck.image;
-            modalImage.addEventListener('load', () => {
-                modalLoading.style.display = 'none';
-            }, { once: true });
-
-            modalImage.alt = `${deck.name} plan preview`;
-            modalImage.src = planSrc;
-            modalOverlay.classList.add('active');
-            modalContainer.classList.add('active');
-        };
-
-        const closeModal = () => {
-            modalOverlay.classList.remove('active');
-            modalContainer.classList.remove('active');
-            modalImage.src = '';
-        };
-
-        const openPreview = (deck) => {
-            previewTitle.textContent = `${deck.name} Preview`;
-            previewContent.innerHTML = `
-                <img src="${deck.image}" alt="${deck.name} preview" style="width:100%; border-radius: 12px; border: 1px solid rgba(100,255,218,0.2);">
-                <div class="deck-detail-list" style="margin-top:1.5rem;">
-                    ${deck.highlights.map((highlight) => `
-                        <div class="deck-detail-item"><i class="fas fa-check-circle"></i>${highlight}</div>
-                    `).join('')}
                 </div>
             `;
-            previewModal.classList.add('active');
-        };
+        }
 
-        const closePreview = () => {
-            previewModal.classList.remove('active');
-        };
+        function closeModal() {
+            elements.modalOverlay.classList.remove('active');
+            elements.modalContainer.classList.remove('active');
+        }
 
-        const showToast = (title, message) => {
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2500);
-        };
+        // Toast notification
+        function showToast(title, message, type = 'success') {
+            elements.toastTitle.textContent = title;
+            elements.toastMessage.textContent = message;
+            elements.toast.style.borderColor = type === 'success' ? '#10b981' : '#ef4444';
+            elements.toast.querySelector('.toast-icon').style.color = type === 'success' ? '#10b981' : '#ef4444';
+            
+            elements.toast.classList.add('show');
+            setTimeout(() => elements.toast.classList.remove('show'), 3000);
+        }
 
-        const changeViewMode = (mode) => {
+        // View mode changes
+        function changeViewMode(mode) {
             state.viewMode = mode;
-            decksGrid.classList.remove('compact', 'detailed');
-            if (mode === 'compact') {
-                decksGrid.classList.add('compact');
-            }
-            if (mode === 'detailed') {
-                decksGrid.classList.add('detailed');
-            }
+            elements.decksGrid.classList.remove('compact', 'detailed');
+            if (mode === 'compact') elements.decksGrid.classList.add('compact');
+            if (mode === 'detailed') elements.decksGrid.classList.add('detailed');
+            
             document.querySelectorAll('.view-btn').forEach((btn) => {
                 btn.classList.toggle('active', btn.dataset.view === mode);
             });
-        };
+            
+            showToast('View Changed', `Switched to ${mode} view`);
+        }
 
-        const toggleViewMode = () => {
-            const modes = ['grid', 'compact', 'detailed'];
-            const nextMode = modes[(modes.indexOf(state.viewMode) + 1) % modes.length];
-            changeViewMode(nextMode);
-        };
+        // 3D View toggle
+        function toggle3DView() {
+            state.is3DView = !state.is3DView;
+            elements.deck3d.style.display = state.is3DView ? 'block' : 'none';
+            elements.fabToggle.innerHTML = state.is3DView ? 
+                '<i class="fas fa-th-large"></i>' : 
+                '<i class="fas fa-cube"></i>';
+            
+            if (state.is3DView) {
+                init3DView();
+                showToast('3D View', 'Interactive ship model activated');
+            }
+        }
 
-        const clearFilters = () => {
+        // Virtual tour
+        function startTour(deck) {
+            state.tourActive = true;
+            state.tourStep = 0;
+            
+            elements.tourOverlay.classList.add('active');
+            elements.tourModal.classList.add('active');
+            
+            updateTourContent();
+        }
+
+        function updateTourContent() {
+            const tourSteps = [
+                { title: 'Welcome Aboard', content: 'Welcome to the Adventure of the Seas virtual tour.' },
+                { title: 'Main Lobby', content: 'Explore the stunning main lobby on Deck 3.' },
+                { title: 'Pool Deck', content: 'Relax at our beautiful pool areas.' }
+            ];
+            
+            const step = tourSteps[state.tourStep];
+            elements.tourContent.innerHTML = `
+                <div class="tour-step">
+                    <h3>${step.title}</h3>
+                    <p>${step.content}</p>
+                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80" 
+                         alt="Tour preview" style="width:100%; border-radius:12px; margin:1rem 0;">
+                    <div class="tour-progress">
+                        ${tourSteps.map((_, i) => `
+                            <span class="tour-dot ${i === state.tourStep ? 'active' : ''}"></span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function nextTourStop() {
+            state.tourStep = Math.min(state.tourStep + 1, 2);
+            updateTourContent();
+        }
+
+        function prevTourStop() {
+            state.tourStep = Math.max(state.tourStep - 1, 0);
+            updateTourContent();
+        }
+
+        function closeTour() {
+            state.tourActive = false;
+            elements.tourOverlay.classList.remove('active');
+            elements.tourModal.classList.remove('active');
+        }
+
+        // Progress indicator
+        function initProgressIndicator() {
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                elements.progressIndicator.style.transform = `scaleX(${scrolled / 100})`;
+            });
+        }
+
+        // Utility functions
+        function showAllDecks() {
             state.activeFilters.clear();
-            document.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
-            searchInput.value = '';
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+                chip.style.background = 'rgba(255, 255, 255, 0.05)';
+            });
+            elements.searchInput.value = '';
             state.searchQuery = '';
             scheduleRender();
-        };
+            showToast('All Decks', 'Showing all available decks');
+        }
 
-        const printPage = () => {
-            window.print();
-        };
+        function clearFilters() {
+            state.activeFilters.clear();
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+                chip.style.background = 'rgba(255, 255, 255, 0.05)';
+            });
+            scheduleRender();
+        }
 
-        modalOverlay.addEventListener('click', closeModal);
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                closeModal();
-                closePreview();
-            }
-            if (event.key === '/' && document.activeElement !== searchInput) {
-                event.preventDefault();
-                searchInput.focus();
-            }
-        });
+        function routeTo(destination) {
+            // Mock routing function
+            showToast('Navigation', `Routing to ${destination} decks`);
+        }
 
-        const scheduleRender = () => {
-            if (renderHandle) {
-                cancelAnimationFrame(renderHandle);
-            }
+        // Search with debounce
+        let renderHandle = null;
+        function scheduleRender() {
+            if (renderHandle) cancelAnimationFrame(renderHandle);
             renderHandle = requestAnimationFrame(() => {
                 renderDecks();
                 renderHandle = null;
             });
-        };
+        }
 
-        const debounce = (fn, delay = 160) => {
+        const debounce = (fn, delay = 300) => {
             let timeout;
             return (...args) => {
-                window.clearTimeout(timeout);
-                timeout = window.setTimeout(() => fn(...args), delay);
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
             };
         };
 
-        const debouncedSearch = debounce((value) => {
-            state.searchQuery = value;
-            scheduleRender();
-        });
-
-        searchInput.addEventListener('input', (event) => {
-            debouncedSearch(event.target.value);
-        });
-
-        searchInput.addEventListener('focus', () => {
-            searchHint.style.opacity = '0';
-        });
-
-        searchInput.addEventListener('blur', () => {
-            searchHint.style.opacity = '0.7';
-        });
-
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+            initProgressIndicator();
             buildDeckNav();
-            buildFilters();
+            buildFilterChips();
             renderDecks();
             changeViewMode(state.viewMode);
+            
+            // Search functionality
+            elements.searchInput.addEventListener('input', debounce((e) => {
+                state.searchQuery = e.target.value;
+                scheduleRender();
+            }));
+            
+            // Keyboard shortcuts
+            window.addEventListener('keydown', (e) => {
+                if (e.key === '/' && e.target !== elements.searchInput) {
+                    e.preventDefault();
+                    elements.searchInput.focus();
+                }
+                if (e.key === 'Escape') {
+                    closeModal();
+                    closeTour();
+                }
+            });
+            
+            // Modal close
+            elements.modalOverlay.addEventListener('click', closeModal);
+            elements.tourOverlay.addEventListener('click', closeTour);
         });
 
-        window.toggleViewMode = toggleViewMode;
-        window.changeViewMode = changeViewMode;
+        // Global functions
+        window.toggle3DView = toggle3DView;
+        window.showAllDecks = showAllDecks;
         window.clearFilters = clearFilters;
-        window.printPage = printPage;
+        window.changeViewMode = changeViewMode;
         window.closeModal = closeModal;
-        window.closePreview = closePreview;
+        window.closeTour = closeTour;
+        window.nextTourStop = nextTourStop;
+        window.prevTourStop = prevTourStop;
+        window.toggleVirtualTour = () => startTour(deckData[0]);
     </script>
     <script src="service-worker-registration.js" defer></script>
 </body>
