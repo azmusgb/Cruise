@@ -43,17 +43,11 @@
     .tool-panel input { width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border-color); padding: 0.5rem 0.75rem; font-size: 0.9rem; }
     .input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; }
     .button-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; }
-    .upload-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 0.75rem; }
     .btn-secondary { background: var(--rc-blue); color: #fff; border: none; padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; }
     .btn-tertiary { background: #fff; color: var(--rc-blue); border: 1px solid var(--rc-blue); padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; }
-    .btn-muted { background: #e2e8f0; color: #1e293b; border: none; padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; }
     .output-meta { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; }
     .preview-wrap { background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; min-height: 220px; display: flex; align-items: center; justify-content: center; }
     .preview-wrap svg { max-width: 100%; height: auto; }
-    .dropzone { border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 1rem; text-align: center; background: #fff; color: var(--text-secondary); transition: var(--transition); }
-    .dropzone.dragover { border-color: var(--rc-light-blue); background: #eef6ff; color: var(--rc-blue); }
-    .status { font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-secondary); }
-    .status.error { color: #b91c1c; }
     .mt-2 { margin-top: 0.5rem; }
     .mt-4 { margin-top: 1rem; }
     .footer { background: var(--rc-blue); color: white; padding: 3rem 0 2rem; margin-top: 3rem; }
@@ -155,19 +149,12 @@
                   <h4>1) SVG Input</h4>
                   <label for="svgInput">SVG Markup</label>
                   <textarea id="svgInput" spellcheck="false"></textarea>
-                  <div class="upload-row">
-                    <input id="svgFileInput" type="file" accept=".svg,image/svg+xml" hidden>
-                    <button class="btn-muted" type="button" id="uploadSvgBtn"><i class="fas fa-upload"></i> Upload SVG</button>
-                    <div class="output-meta" id="fileName">No file loaded</div>
-                  </div>
-                  <div class="dropzone mt-2" id="dropzone">Drop an SVG file here or use Upload.</div>
                   <div class="button-row">
                     <button class="btn-secondary" type="button" id="applyViewBox">Apply ViewBox</button>
                     <button class="btn-tertiary" type="button" id="autoFit">Auto-Fit to Artwork</button>
                     <button class="btn-tertiary" type="button" id="resetSample">Reset Sample</button>
                   </div>
                   <div class="output-meta">Tip: Auto-fit uses the SVG's bounding box to compute a tight viewBox.</div>
-                  <div class="status" id="inputStatus"></div>
                 </div>
                 <div class="tool-panel">
                   <h4>2) ViewBox + Preview</h4>
@@ -197,11 +184,6 @@
                 <h4>3) Updated SVG Output</h4>
                 <label for="svgOutput">Cropped SVG Markup</label>
                 <textarea id="svgOutput" spellcheck="false" readonly></textarea>
-                <div class="button-row">
-                  <button class="btn-secondary" type="button" id="downloadSvg"><i class="fas fa-download"></i> Download Cropped SVG</button>
-                  <button class="btn-tertiary" type="button" id="copySvg">Copy to Clipboard</button>
-                </div>
-                <div class="status" id="outputStatus"></div>
               </div>
             </div>
 
@@ -238,39 +220,19 @@
     const viewBoxY = document.getElementById('viewBoxY');
     const viewBoxW = document.getElementById('viewBoxW');
     const viewBoxH = document.getElementById('viewBoxH');
-    const svgFileInput = document.getElementById('svgFileInput');
-    const uploadSvgBtn = document.getElementById('uploadSvgBtn');
-    const fileName = document.getElementById('fileName');
-    const dropzone = document.getElementById('dropzone');
-    const inputStatus = document.getElementById('inputStatus');
-    const outputStatus = document.getElementById('outputStatus');
-    const downloadSvg = document.getElementById('downloadSvg');
-    const copySvg = document.getElementById('copySvg');
 
     const sanitizeNumber = (value) => Number.isFinite(value) ? value : 0;
-    const setStatus = (el, message, isError = false) => {
-      if (!el) return;
-      el.textContent = message;
-      el.classList.toggle('error', isError);
-    };
 
     const renderSvg = (markup) => {
       svgPreview.innerHTML = markup;
       const svg = svgPreview.querySelector('svg');
       if (!svg) {
         viewBoxOutput.textContent = 'Invalid SVG';
-        setStatus(inputStatus, 'Please provide a valid SVG markup.', true);
         return null;
       }
       svg.removeAttribute('width');
       svg.removeAttribute('height');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      if (!svg.getAttribute('viewBox')) {
-        const width = Number(svg.getAttribute('width')) || 240;
-        const height = Number(svg.getAttribute('height')) || 240;
-        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-      }
-      setStatus(inputStatus, 'SVG loaded successfully.');
       return svg;
     };
 
@@ -287,7 +249,6 @@
 
     const updateOutput = (svg) => {
       svgOutput.value = svg.outerHTML;
-      setStatus(outputStatus, 'Output updated.');
     };
 
     const applyViewBox = () => {
@@ -317,58 +278,8 @@
       });
     };
 
-    const loadSvgFromFile = (file) => {
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        svgInput.value = String(reader.result || '').trim();
-        fileName.textContent = file.name;
-        const svg = renderSvg(svgInput.value);
-        if (!svg) return;
-        syncInputsFromViewBox(svg);
-        updateOutput(svg);
-      };
-      reader.onerror = () => {
-        setStatus(inputStatus, 'Unable to read the SVG file.', true);
-      };
-      reader.readAsText(file);
-    };
-
-    const downloadSvgFile = () => {
-      const content = svgOutput.value.trim();
-      if (!content) {
-        setStatus(outputStatus, 'Nothing to download yet.', true);
-        return;
-      }
-      const blob = new Blob([content], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = (fileName.textContent || 'cropped').replace(/\\.[^/.]+$/, '') + '-cropped.svg';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      setStatus(outputStatus, 'Download started.');
-    };
-
-    const copyToClipboard = async () => {
-      const content = svgOutput.value.trim();
-      if (!content) {
-        setStatus(outputStatus, 'Nothing to copy yet.', true);
-        return;
-      }
-      try {
-        await navigator.clipboard.writeText(content);
-        setStatus(outputStatus, 'Copied to clipboard.');
-      } catch (error) {
-        setStatus(outputStatus, 'Clipboard copy failed.', true);
-      }
-    };
-
     const resetSample = () => {
       svgInput.value = sampleSvg;
-      fileName.textContent = 'Sample SVG';
       const svg = renderSvg(sampleSvg);
       if (!svg) return;
       syncInputsFromViewBox(svg);
@@ -378,25 +289,6 @@
     document.getElementById('applyViewBox').addEventListener('click', applyViewBox);
     document.getElementById('autoFit').addEventListener('click', autoFit);
     document.getElementById('resetSample').addEventListener('click', resetSample);
-    uploadSvgBtn.addEventListener('click', () => svgFileInput.click());
-    svgFileInput.addEventListener('change', (event) => {
-      const [file] = event.target.files || [];
-      loadSvgFromFile(file);
-      svgFileInput.value = '';
-    });
-    dropzone.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      dropzone.classList.add('dragover');
-    });
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-    dropzone.addEventListener('drop', (event) => {
-      event.preventDefault();
-      dropzone.classList.remove('dragover');
-      const [file] = event.dataTransfer.files || [];
-      loadSvgFromFile(file);
-    });
-    downloadSvg.addEventListener('click', downloadSvgFile);
-    copySvg.addEventListener('click', copyToClipboard);
 
     svgInput.addEventListener('input', () => {
       const svg = renderSvg(svgInput.value.trim());
