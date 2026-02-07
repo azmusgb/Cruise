@@ -522,6 +522,8 @@
             position: relative;
             overflow: hidden;
             cursor: pointer;
+            content-visibility: auto;
+            contain-intrinsic-size: 520px;
         }
 
         .deck-card-content {
@@ -1644,7 +1646,7 @@
                         state.activeFilters.add(filter.key);
                         button.classList.add('active');
                     }
-                    renderDecks();
+                    scheduleRender();
                 });
                 quickFilter.appendChild(button);
             });
@@ -1667,9 +1669,12 @@
             return matchesSearch && matchesFilters;
         };
 
+        let renderHandle = null;
+
         const renderDecks = () => {
             const filteredDecks = deckData.filter(deckMatchesFilters);
             decksGrid.innerHTML = '';
+            const fragment = document.createDocumentFragment();
 
             filteredDecks.forEach((deck, index) => {
                 const card = document.createElement('article');
@@ -1697,7 +1702,7 @@
                     </div>
                     <div class="deck-card-content">
                         <div class="deck-image">
-                            <img src="${deck.image}" alt="${deck.name} preview">
+                            <img src="${deck.image}" alt="${deck.name} preview" loading="lazy" decoding="async" fetchpriority="low">
                         </div>
                         <div>
                             <div class="deck-header">
@@ -1760,8 +1765,10 @@
                 });
 
                 card.addEventListener('click', () => openModal(deck));
-                decksGrid.appendChild(card);
+                fragment.appendChild(card);
             });
+
+            decksGrid.appendChild(fragment);
 
             emptyState.style.display = filteredDecks.length === 0 ? 'block' : 'none';
             totalDecks.textContent = deckData.length;
@@ -1864,7 +1871,7 @@
             document.querySelectorAll('.filter-btn').forEach((btn) => btn.classList.remove('active'));
             searchInput.value = '';
             state.searchQuery = '';
-            renderDecks();
+            scheduleRender();
         };
 
         const printPage = () => {
@@ -1883,9 +1890,31 @@
             }
         });
 
+        const scheduleRender = () => {
+            if (renderHandle) {
+                cancelAnimationFrame(renderHandle);
+            }
+            renderHandle = requestAnimationFrame(() => {
+                renderDecks();
+                renderHandle = null;
+            });
+        };
+
+        const debounce = (fn, delay = 160) => {
+            let timeout;
+            return (...args) => {
+                window.clearTimeout(timeout);
+                timeout = window.setTimeout(() => fn(...args), delay);
+            };
+        };
+
+        const debouncedSearch = debounce((value) => {
+            state.searchQuery = value;
+            scheduleRender();
+        });
+
         searchInput.addEventListener('input', (event) => {
-            state.searchQuery = event.target.value;
-            renderDecks();
+            debouncedSearch(event.target.value);
         });
 
         searchInput.addEventListener('focus', () => {
