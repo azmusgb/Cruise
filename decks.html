@@ -909,6 +909,18 @@ function enableSvgPanZoom(objectEl) {
       }
     });
 
+    panZoom.resize();
+    panZoom.fit();
+    panZoom.center();
+    const sizes = panZoom.getSizes();
+    if (sizes && sizes.viewBox) {
+      const widthZoom = sizes.width / sizes.viewBox.width;
+      const heightZoom = sizes.height / sizes.viewBox.height;
+      const targetZoom = Math.max(widthZoom, heightZoom) * 0.98;
+      panZoom.zoom(targetZoom);
+      panZoom.center();
+    }
+
     svg.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
     panZoomInstances.set(objectEl, panZoom);
