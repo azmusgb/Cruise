@@ -891,6 +891,25 @@ function enableSvgPanZoom(objectEl) {
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.style.touchAction = 'none';
+    if (!svg.dataset.originalViewBox) {
+      const originalViewBox = svg.getAttribute('viewBox');
+      if (originalViewBox) {
+        svg.dataset.originalViewBox = originalViewBox;
+      }
+      try {
+        const bbox = svg.getBBox();
+        if (bbox && bbox.width > 0 && bbox.height > 0) {
+          const padding = Math.max(bbox.width, bbox.height) * 0.03;
+          const minX = bbox.x - padding;
+          const minY = bbox.y - padding;
+          const width = bbox.width + padding * 2;
+          const height = bbox.height + padding * 2;
+          svg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+        }
+      } catch (error) {
+        console.warn('Unable to compute SVG bounds for preview.', error);
+      }
+    }
 
     const panZoom = svgPanZoom(svg, {
       zoomEnabled: true,
