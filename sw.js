@@ -198,8 +198,8 @@ async function handleImageRequest(event) {
       // Return a placeholder if offline
       return new Response(
         `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-          <rect width="400" height="300" fill="#1e293b"/>
-          <text x="50%" y="50%" text-anchor="middle" fill="#94a3b8" font-family="Arial" font-size="16">
+          <rect width="400" height="300" fill="#f5f7fb"/>
+          <text x="50%" y="50%" text-anchor="middle" fill="#6b7280" font-family="Arial" font-size="16">
             Image not available offline
           </text>
         </svg>`,
@@ -235,9 +235,9 @@ async function handleImageRequest(event) {
     // Return placeholder for missing images
     return new Response(
       `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-        <rect width="400" height="300" fill="#0f172a"/>
-        <circle cx="200" cy="150" r="50" fill="#1e293b"/>
-        <text x="200" y="150" text-anchor="middle" fill="#64748b" dy=".3em" font-family="Arial" font-size="14">
+        <rect width="400" height="300" fill="#f7f9fc"/>
+        <circle cx="200" cy="150" r="50" fill="#d8e1ee"/>
+        <text x="200" y="150" text-anchor="middle" fill="#6b7280" dy=".3em" font-family="Arial" font-size="14">
           No image
         </text>
       </svg>`,
