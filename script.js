@@ -3257,14 +3257,14 @@
          }
          contextBadge.textContent = active.badge;
          
-         const badgeColors = {
-         operations: { bg: 'rgba(255,107,107,0.2)', color: '#ffdede' },
-         itinerary: { bg: 'rgba(54,194,255,0.2)', color: '#d8f1ff' },
-         dining: { bg: 'rgba(255,206,107,0.2)', color: '#ffe7b3' },
-         rooms: { bg: 'rgba(59,212,167,0.2)', color: '#d4f4e8' },
-         tips: { bg: 'rgba(155,178,199,0.2)', color: '#e9f2fb' },
-         default: { bg: 'rgba(54,194,255,0.2)', color: '#d7f1ff' }
-         };
+        const badgeColors = {
+        operations: { bg: 'rgba(201, 68, 79, 0.15)', color: '#8b1f2d' },
+        itinerary: { bg: 'rgba(43, 141, 191, 0.15)', color: '#1f4d6a' },
+        dining: { bg: 'rgba(210, 162, 58, 0.2)', color: '#7c5a1e' },
+        rooms: { bg: 'rgba(31, 138, 143, 0.18)', color: '#19595c' },
+        tips: { bg: 'rgba(112, 132, 152, 0.18)', color: '#2d3d4f' },
+        default: { bg: 'rgba(43, 141, 191, 0.15)', color: '#1f4d6a' }
+        };
          
          const styles = badgeColors[section] || badgeColors.default;
          contextBadge.style.background = styles.bg;
