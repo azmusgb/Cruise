@@ -85,7 +85,7 @@
   };
 
   const initHeroObserver = () => {
-    const hero = document.querySelector('.hero');
+    const hero = document.querySelector('.app-hero, .hero');
     if (!hero) return;
 
     const body = document.body;
