@@ -40,9 +40,6 @@
     }
   ];
 
-  // Mobile menu state
-  let isMobileMenuOpen = false;
-
   const renderHeader = () => {
     const headerMount = document.getElementById('sharedHeader');
     if (!headerMount) {
@@ -81,75 +78,10 @@
             <nav class="nav-desktop" aria-label="Main navigation">
               ${navLinks}
             </nav>
-            <button class="menu-toggle" aria-label="${isMobileMenuOpen ? 'Close menu' : 'Open menu'}" aria-expanded="${isMobileMenuOpen}">
-              <i class="fas fa-bars" aria-hidden="true"></i>
-            </button>
           </div>
         </div>
-        <!-- Mobile Navigation -->
-        <nav class="nav-mobile" aria-label="Mobile navigation" ${isMobileMenuOpen ? '' : 'hidden'}>
-          <div class="nav-mobile-content">
-            ${navLinks}
-          </div>
-        </nav>
       </header>
     `;
-
-    // Initialize mobile menu functionality
-    initMobileMenu();
-  };
-
-  const initMobileMenu = () => {
-    const menuToggle = document.querySelector('.menu-toggle');
-    const mobileNav = document.querySelector('.nav-mobile');
-    
-    if (!menuToggle || !mobileNav) return;
-
-    const updateMenuState = (open) => {
-      isMobileMenuOpen = open;
-      mobileNav.hidden = !open;
-      menuToggle.setAttribute('aria-expanded', open);
-      menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-      document.body.style.overflow = open ? 'hidden' : '';
-    };
-
-    menuToggle.addEventListener('click', () => {
-      updateMenuState(!isMobileMenuOpen);
-    });
-
-    // Close menu when clicking on a link
-    mobileNav.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        updateMenuState(false);
-      });
-    });
-
-    // Close menu with Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isMobileMenuOpen) {
-        updateMenuState(false);
-      }
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (isMobileMenuOpen && 
-          !mobileNav.contains(e.target) && 
-          !menuToggle.contains(e.target)) {
-        updateMenuState(false);
-      }
-    });
-
-    // Handle window resize
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        if (window.innerWidth > 768 && isMobileMenuOpen) {
-          updateMenuState(false);
-        }
-      }, 250);
-    });
   };
 
   const initHeroObserver = () => {
