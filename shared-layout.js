@@ -49,10 +49,8 @@
       `;
     }).join('');
 
-    const headerClassName = currentPage === 'index' ? 'header' : 'header header--subpage';
-
     headerMount.outerHTML = `
-      <header class="${headerClassName}">
+      <header class="app-header">
         <div class="container">
           <div class="header-content">
             <a href="index.html" class="logo">
@@ -72,6 +70,40 @@
     `;
   };
 
+  const initHeroObserver = () => {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+
+    const body = document.body;
+    const getHeaderHeight = () => {
+      const header = document.querySelector('.app-header');
+      return header ? header.getBoundingClientRect().height : 0;
+    };
+
+    const setHeroState = (isVisible) => {
+      body.classList.toggle('hero-visible', isVisible);
+      body.classList.toggle('hero-past', !isVisible);
+    };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        ([entry]) => setHeroState(entry.isIntersecting),
+        {
+          rootMargin: `-${getHeaderHeight()}px 0px 0px 0px`,
+          threshold: 0.1
+        }
+      );
+      observer.observe(hero);
+    } else {
+      const handleScroll = () => {
+        const heroBottom = hero.getBoundingClientRect().bottom;
+        setHeroState(heroBottom > getHeaderHeight());
+      };
+      handleScroll();
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+  };
+
   const renderFooter = () => {
     const footerMount = document.getElementById('sharedFooter');
     if (!footerMount) return;
@@ -82,9 +114,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderHeader();
       renderFooter();
+      initHeroObserver();
     });
   } else {
     renderHeader();
     renderFooter();
+    initHeroObserver();
   }
 })();
