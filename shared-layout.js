@@ -1,11 +1,12 @@
+[file name]: shared-layout-polished-rccl.js
+[file content begin]
 /* ============================================================================
- * Shared Layout (RCCL-inspired) — drop-in, production-grade
- * - Data-driven nav/footer
- * - Accessible mobile drawer + focus trap
- * - Theme sync (saved + system), reduced-motion aware
- * - Scroll progress + hero observer (safe)
- * - Dynamic badges (checklist / dining) via localStorage (optional)
- * - Safe link handling + page transitions (opt-out friendly)
+ * Shared Layout (RCCL Polished) — premium, cruise-themed
+ * - Enhanced RCCL color scheme & typography
+ * - Ocean-inspired design elements
+ * - Premium UI with depth & subtle animations
+ * - Fully accessible with enhanced mobile experience
+ * - Dynamic badges with cruise-themed styling
  * ============================================================================
  * Expected mounts in each page:
  *   <div id="sharedHeader" data-page="index"></div>
@@ -41,13 +42,13 @@
   };
 
   const NAV_ITEMS = [
-    { id: 'index',      href: 'index.html',      icon: 'fa-home',       text: 'Dashboard', ariaLabel: 'Go to dashboard page', description: 'Overview of your cruise experience' },
-    { id: 'operations', href: 'operations.html', icon: 'fa-tasks',      text: 'Checklist', ariaLabel: 'Operations checklist page', description: 'Pre-cruise tasks and prep', badgeKey: 'checklist' },
+    { id: 'index',      href: 'index.html',      icon: 'fa-home',       text: 'Dashboard', ariaLabel: 'Go to dashboard page', description: 'Overview of your cruise experience', badge: 'WAVE', badgeTone: 'accent' },
+    { id: 'operations', href: 'operations.html', icon: 'fa-clipboard-check', text: 'Checklist', ariaLabel: 'Operations checklist page', description: 'Pre-cruise tasks and prep', badgeKey: 'checklist' },
     { id: 'itinerary',  href: 'itinerary.html',  icon: 'fa-route',      text: 'Itinerary', ariaLabel: 'Itinerary page', description: 'Daily schedule and activities', badge: 'NEW', badgeTone: 'success' },
     { id: 'rooms',      href: 'rooms.html',      icon: 'fa-bed',        text: 'Staterooms', ariaLabel: 'Staterooms page', description: 'Room assignments and details' },
     { id: 'decks',      href: 'decks.html',      icon: 'fa-map',        text: 'Decks', ariaLabel: 'View deck plans', description: 'Interactive ship layout' },
     { id: 'dining',     href: 'dining.html',     icon: 'fa-utensils',   text: 'Dining', ariaLabel: 'Dining page', description: 'Restaurants and reservations', badgeKey: 'dining' },
-    { id: 'tips',       href: 'tips.html',       icon: 'fa-lightbulb',  text: 'Tips', ariaLabel: 'View tips and packing guide', description: 'Cruise advice and packing list' },
+    { id: 'tips',       href: 'tips.html',       icon: 'fa-suitcase',   text: 'Packing', ariaLabel: 'View tips and packing guide', description: 'Cruise advice and packing list' },
   ];
 
   const FOOTER_SECTIONS = [
@@ -95,6 +96,19 @@
     { title: 'Dining Reservations', subtitle: 'Lock in your dining times', icon: 'fa-utensils', href: 'dining.html', cta: 'Reserve now', badgeKey: 'dining' },
   ];
 
+  // RCCL-inspired color palette
+  const RCCL_COLORS = {
+    primary: '#0052a5',    // Royal Blue
+    secondary: '#ffb400',  // Gold/Amber
+    accent: '#00a8e8',     // Ocean Blue
+    success: '#28a745',    // Green
+    warning: '#ffc107',    // Yellow
+    danger: '#dc3545',     // Red
+    dark: '#1a1a2e',       // Navy
+    light: '#f8f9fa',      // Off-white
+    gray: '#6c757d',
+  };
+
   // ---------------------------
   // Utilities
   // ---------------------------
@@ -136,7 +150,6 @@
     lockBodyScroll(locked) {
       document.body.style.overflow = locked ? 'hidden' : '';
     },
-    // Basic focus trap for drawers/modals
     trapFocus(container, active) {
       if (!container) return () => {};
       const focusableSel = [
@@ -176,7 +189,7 @@
   };
 
   // ---------------------------
-  // Theme Manager (light/dark/system)
+  // Theme Manager (enhanced for RCCL)
   // ---------------------------
   const ThemeManager = {
     key: 'cruise-theme',
@@ -210,14 +223,60 @@
 
       const resolved = this.resolve(normalized);
       document.documentElement.setAttribute('data-theme', resolved);
-      document.documentElement.setAttribute('data-theme-mode', normalized); // helps your CSS if you want
+      document.documentElement.setAttribute('data-theme-mode', normalized);
 
-      if (!opts.silent) utils.announce(`Theme set to ${resolved}`);
+      // Inject theme colors
+      this.injectThemeColors(resolved);
+
+      if (!opts.silent) {
+        const themeNames = { system: 'system', light: 'light', dark: 'dark' };
+        utils.announce(`Theme set to ${themeNames[normalized]}`);
+      }
       this.syncToggleUI();
     },
 
+    injectThemeColors(theme) {
+      const styleId = 'rccl-theme-colors';
+      let styleEl = document.getElementById(styleId);
+      if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = styleId;
+        document.head.appendChild(styleEl);
+      }
+
+      const colors = theme === 'dark' ? {
+        bg: RCCL_COLORS.dark,
+        surface: '#2d3047',
+        text: '#f8f9fa',
+        border: '#404258',
+        primary: RCCL_COLORS.accent,
+        secondary: RCCL_COLORS.secondary,
+      } : {
+        bg: RCCL_COLORS.light,
+        surface: '#ffffff',
+        text: RCCL_COLORS.dark,
+        border: '#dee2e6',
+        primary: RCCL_COLORS.primary,
+        secondary: RCCL_COLORS.secondary,
+      };
+
+      styleEl.textContent = `
+        :root {
+          --rccl-bg: ${colors.bg};
+          --rccl-surface: ${colors.surface};
+          --rccl-text: ${colors.text};
+          --rccl-border: ${colors.border};
+          --rccl-primary: ${colors.primary};
+          --rccl-secondary: ${colors.secondary};
+          --rccl-accent: ${RCCL_COLORS.accent};
+          --rccl-success: ${RCCL_COLORS.success};
+          --rccl-warning: ${RCCL_COLORS.warning};
+          --rccl-danger: ${RCCL_COLORS.danger};
+        }
+      `;
+    },
+
     toggle() {
-      // cycle: system -> dark -> light -> system
       const next = this.current === 'system' ? 'dark' : (this.current === 'dark' ? 'light' : 'system');
       this.apply(next);
     },
@@ -239,20 +298,22 @@
   };
 
   // ---------------------------
-  // Badge Providers (optional)
+  // Badge Providers (enhanced styling)
   // ---------------------------
   const BadgeProvider = {
-    // returns: { text: string, tone?: 'info'|'warning'|'success'|'primary' }
     getChecklistBadge() {
       const raw = localStorage.getItem('cruise-checklist');
       if (!raw) return null;
       const data = utils.safeJsonParse(raw, null);
       const items = Array.isArray(data?.items) ? data.items : [];
       const remaining = items.filter(i => !i?.done).length;
-      if (!remaining) return { text: '0', tone: 'success' };
-      // emphasize if priority items remain
+      if (!remaining) return { text: '✓', tone: 'success' };
       const priorityRemaining = items.filter(i => !i?.done && (i?.priority === 'high' || i?.priority === 'urgent')).length;
-      return { text: String(remaining), tone: priorityRemaining ? 'warning' : 'info' };
+      return { 
+        text: String(remaining), 
+        tone: priorityRemaining ? 'warning' : 'info',
+        pulse: priorityRemaining > 0
+      };
     },
 
     getDiningBadge() {
@@ -265,8 +326,8 @@
         if (!reservations.length) return null;
         return { text: String(reservations.length), tone: 'info' };
       }
-      if (pending <= 0) return { text: 'SET', tone: 'success' };
-      return { text: String(pending), tone: 'warning' };
+      if (pending <= 0) return { text: '✓', tone: 'success' };
+      return { text: String(pending), tone: 'warning', pulse: pending > 0 };
     },
 
     resolve(key) {
@@ -280,12 +341,12 @@
   // Rendering Helpers
   // ---------------------------
   function toneToClass(tone) {
-    // Map to your existing badge classes (adjust to match your CSS)
     switch (tone) {
-      case 'success': return 'badge-success';
-      case 'warning': return 'badge-warning';
-      case 'info': return 'badge-info';
-      default: return 'badge-primary';
+      case 'success': return 'badge--success';
+      case 'warning': return 'badge--warning';
+      case 'info': return 'badge--info';
+      case 'accent': return 'badge--accent';
+      default: return 'badge--primary';
     }
   }
 
@@ -293,9 +354,10 @@
     const badgeFromStorage = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
     const badgeText = badgeFromStorage?.text ?? item.badge ?? '';
     const badgeTone = badgeFromStorage?.tone ?? item.badgeTone ?? 'primary';
+    const pulseClass = (badgeFromStorage?.pulse) ? 'badge--pulse' : '';
 
     const badgeHTML = badgeText
-      ? `<span class="nav-badge ${toneToClass(badgeTone)}" aria-label="${badgeText} ${item.text}">
+      ? `<span class="nav-badge ${toneToClass(badgeTone)} ${pulseClass}" aria-label="${badgeText} ${item.text}">
            ${badgeText}
          </span>`
       : '';
@@ -310,6 +372,7 @@
         <i class="fas ${item.icon}" aria-hidden="true"></i>
         <span class="nav-text">${item.text}</span>
         ${badgeHTML}
+        <span class="nav-link__wave" aria-hidden="true"></span>
       </a>
     `;
   }
@@ -318,15 +381,19 @@
     const badgeFromStorage = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
     const badgeText = badgeFromStorage?.text ?? item.badge ?? '';
     const badgeTone = badgeFromStorage?.tone ?? item.badgeTone ?? 'primary';
+    const pulseClass = (badgeFromStorage?.pulse) ? 'badge--pulse' : '';
 
     return `
       <a href="${item.href}"
          class="mobile-nav-link${isActive ? ' active' : ''}"
          ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
          ${isActive ? 'aria-current="page"' : ''}>
-        <i class="fas ${item.icon}" aria-hidden="true"></i>
+        <div class="mobile-nav-link__icon">
+          <i class="fas ${item.icon}" aria-hidden="true"></i>
+          ${badgeText ? `<span class="mobile-badge ${toneToClass(badgeTone)} ${pulseClass}">${badgeText}</span>` : ''}
+        </div>
         <span class="mobile-nav-link__text">${item.text}</span>
-        ${badgeText ? `<span class="mobile-badge ${toneToClass(badgeTone)}">${badgeText}</span>` : ''}
+        <i class="fas fa-chevron-right mobile-nav-link__chevron" aria-hidden="true"></i>
       </a>
     `;
   }
@@ -346,7 +413,7 @@
   }
 
   // ---------------------------
-  // Header
+  // Header (RCCL Enhanced)
   // ---------------------------
   function renderHeader() {
     const headerMount = utils.qs('#sharedHeader');
@@ -361,54 +428,84 @@
     const headerHTML = `
       <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
 
-      <header class="app-header app-header--nav" role="banner" data-page="${currentPage}">
+      <header class="app-header app-header--rccl" role="banner" data-page="${currentPage}">
+        <div class="header-waves" aria-hidden="true">
+          <div class="wave wave-1"></div>
+          <div class="wave wave-2"></div>
+        </div>
+        
         <div class="container">
           <div class="header-content">
-            <a href="index.html" class="logo" aria-label="Go to dashboard">
+            <a href="index.html" class="logo logo--rccl" aria-label="Go to dashboard">
               <div class="logo-icon" aria-hidden="true">
-                <i class="fas fa-crown" aria-hidden="true"></i>
+                <i class="fas fa-ship" aria-hidden="true"></i>
+                <div class="logo-icon__wave"></div>
               </div>
               <div class="logo-text-container">
                 <div class="logo-text">${escapeHtml(meta.brand)}</div>
-                <div class="logo-subtext">${escapeHtml(meta.ship)} • ${escapeHtml(meta.sailing)}</div>
+                <div class="logo-subtext">
+                  <i class="fas fa-anchor" aria-hidden="true"></i>
+                  <span>${escapeHtml(meta.ship)}</span>
+                  <span class="logo-separator">•</span>
+                  <span>${escapeHtml(meta.sailing)}</span>
+                </div>
               </div>
             </a>
 
             <nav class="nav-desktop" aria-label="Main navigation">
-              ${navLinks}
+              <div class="nav-desktop__links">
+                ${navLinks}
+              </div>
 
-              <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
-                <span class="theme-toggle__icons" aria-hidden="true">
-                  <i class="fas fa-sun"></i>
-                  <i class="fas fa-moon"></i>
-                  <i class="fas fa-desktop"></i>
-                </span>
-                <span class="toggle-track" aria-hidden="true"></span>
-              </button>
-
-              <div class="user-menu">
-                <button class="user-menu-toggle" type="button" aria-label="User menu" aria-expanded="false">
-                  <i class="fas fa-user-circle" aria-hidden="true"></i>
-                  <span class="user-name">Guest</span>
-                  <i class="fas fa-chevron-down" aria-hidden="true"></i>
+              <div class="nav-desktop__actions">
+                <button class="theme-toggle theme-toggle--rccl" id="themeToggle" type="button" aria-label="Toggle theme">
+                  <span class="theme-toggle__icons" aria-hidden="true">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-desktop"></i>
+                  </span>
+                  <span class="toggle-track" aria-hidden="true"></span>
                 </button>
-                <div class="user-dropdown" role="menu" aria-label="User menu options">
-                  <a href="profile.html" class="dropdown-item" role="menuitem">
-                    <i class="fas fa-user" aria-hidden="true"></i> My Profile
-                  </a>
-                  <a href="settings.html" class="dropdown-item" role="menuitem">
-                    <i class="fas fa-cog" aria-hidden="true"></i> Settings
-                  </a>
-                  <div class="dropdown-divider" role="separator"></div>
-                  <a href="help.html" class="dropdown-item" role="menuitem">
-                    <i class="fas fa-question-circle" aria-hidden="true"></i> Help Center
-                  </a>
+
+                <div class="user-menu user-menu--rccl">
+                  <button class="user-menu-toggle" type="button" aria-label="User menu" aria-expanded="false">
+                    <div class="user-avatar">
+                      <i class="fas fa-user" aria-hidden="true"></i>
+                    </div>
+                    <span class="user-name">Guest</span>
+                    <i class="fas fa-chevron-down user-menu__chevron" aria-hidden="true"></i>
+                  </button>
+                  <div class="user-dropdown" role="menu" aria-label="User menu options">
+                    <div class="user-dropdown__header">
+                      <div class="user-dropdown__avatar">
+                        <i class="fas fa-user-circle" aria-hidden="true"></i>
+                      </div>
+                      <div>
+                        <strong>Guest</strong>
+                        <span>Welcome aboard!</span>
+                      </div>
+                    </div>
+                    <div class="dropdown-divider" role="separator"></div>
+                    <a href="profile.html" class="dropdown-item" role="menuitem">
+                      <i class="fas fa-user" aria-hidden="true"></i> My Profile
+                    </a>
+                    <a href="settings.html" class="dropdown-item" role="menuitem">
+                      <i class="fas fa-cog" aria-hidden="true"></i> Settings
+                    </a>
+                    <a href="help.html" class="dropdown-item" role="menuitem">
+                      <i class="fas fa-question-circle" aria-hidden="true"></i> Help Center
+                    </a>
+                    <div class="dropdown-divider" role="separator"></div>
+                    <button class="dropdown-item dropdown-item--signout" role="menuitem" type="button">
+                      <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sign Out
+                    </button>
+                  </div>
                 </div>
               </div>
             </nav>
 
             ${meta.showMenuToggle ? `
-              <button class="mobile-menu-toggle" type="button"
+              <button class="mobile-menu-toggle mobile-menu-toggle--rccl" type="button"
                       aria-label="Open navigation menu"
                       aria-expanded="false"
                       aria-controls="navMobile">
@@ -424,40 +521,48 @@
           ${meta.showMenuToggle ? `
             <div class="nav-mobile-overlay" data-action="close-mobile" hidden></div>
 
-            <nav class="nav-mobile" id="navMobile" aria-label="Mobile navigation" hidden>
-              <div class="mobile-nav-header">
-                <div class="mobile-nav-title">
-                  <span class="mobile-nav-title__eyebrow">${escapeHtml(meta.port)}</span>
-                  <strong class="mobile-nav-title__main">Plan your day</strong>
+            <nav class="nav-mobile nav-mobile--rccl" id="navMobile" aria-label="Mobile navigation" hidden>
+              <div class="nav-mobile__header">
+                <div class="mobile-nav-header">
+                  <div class="mobile-nav-title">
+                    <span class="mobile-nav-title__eyebrow">${escapeHtml(meta.port)}</span>
+                    <strong class="mobile-nav-title__main">Welcome Aboard</strong>
+                  </div>
+                  <div class="mobile-nav-header__actions">
+                    <button class="theme-toggle-mobile theme-toggle-mobile--rccl" id="themeToggleMobile" type="button" aria-label="Toggle theme">
+                      <i class="fas fa-adjust" aria-hidden="true"></i>
+                    </button>
+                    <button class="mobile-nav-close" type="button" data-action="close-mobile" aria-label="Close menu">
+                      <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                  </div>
                 </div>
-                <button class="mobile-nav-close" type="button" data-action="close-mobile" aria-label="Close menu">
-                  <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
+                <div class="mobile-nav-ship-info">
+                  <i class="fas fa-ship" aria-hidden="true"></i>
+                  <span>${escapeHtml(meta.ship)} • ${escapeHtml(meta.sailing)}</span>
+                </div>
               </div>
 
               <div class="mobile-nav-links">
                 ${mobileLinks}
               </div>
 
-              <div class="mobile-nav-footer">
-                <button class="theme-toggle-mobile" id="themeToggleMobile" type="button" aria-label="Toggle theme">
-                  <i class="fas fa-adjust" aria-hidden="true"></i>
-                  <span class="theme-toggle-mobile__label">Theme</span>
-                  <span class="toggle-switch" aria-hidden="true">
-                    <span class="toggle-slider"></span>
-                  </span>
-                </button>
-
+              <div class="nav-mobile__footer">
                 <div class="mobile-nav-shortcuts" aria-label="Shortcuts">
-                  <button type="button" class="chip" data-action="go" data-href="operations.html">
+                  <button type="button" class="chip chip--rccl" data-action="go" data-href="operations.html">
                     <i class="fas fa-clipboard-check" aria-hidden="true"></i> Checklist
                   </button>
-                  <button type="button" class="chip" data-action="go" data-href="itinerary.html">
+                  <button type="button" class="chip chip--rccl" data-action="go" data-href="itinerary.html">
                     <i class="fas fa-route" aria-hidden="true"></i> Itinerary
                   </button>
-                  <button type="button" class="chip" data-action="go" data-href="dining.html">
+                  <button type="button" class="chip chip--rccl" data-action="go" data-href="dining.html">
                     <i class="fas fa-utensils" aria-hidden="true"></i> Dining
                   </button>
+                </div>
+                <div class="mobile-nav-footer-legal">
+                  <span>© ${DEFAULT_META.year} Royal Caribbean</span>
+                  <span class="legal-separator">•</span>
+                  <a href="privacy.html">Privacy</a>
                 </div>
               </div>
             </nav>
@@ -465,8 +570,10 @@
         </div>
 
         ${meta.showProgress ? `
-          <div class="header-progress" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" aria-hidden="true"></div>
+          <div class="header-progress header-progress--rccl" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" aria-hidden="true">
+              <div class="progress-wave"></div>
+            </div>
           </div>
         ` : ''}
       </header>
@@ -476,13 +583,12 @@
   }
 
   // ---------------------------
-  // Footer
+  // Footer (RCCL Enhanced)
   // ---------------------------
   function renderFooter() {
     const footerMount = utils.qs('#sharedFooter');
     if (!footerMount) return;
 
-    // Next port: defaults to CocoCay (per your updated itinerary)
     const nextPort = (() => {
       const raw = localStorage.getItem('cruise-nextport');
       const parsed = raw ? utils.safeJsonParse(raw, null) : null;
@@ -492,13 +598,21 @@
 
     const sectionsHTML = FOOTER_SECTIONS.map(section => `
       <div class="footer-section">
-        <h4 class="footer-subtitle">${escapeHtml(section.title)}</h4>
-        ${section.links.map(link => `
-          <a href="${link.href}" class="footer-link">
-            ${link.icon ? `<i class="fas ${link.icon}" aria-hidden="true"></i>` : ''}
-            <span>${escapeHtml(link.text)}</span>
-          </a>
-        `).join('')}
+        <h4 class="footer-subtitle">
+          <i class="fas fa-compass" aria-hidden="true"></i>
+          ${escapeHtml(section.title)}
+        </h4>
+        <div class="footer-links">
+          ${section.links.map(link => `
+            <a href="${link.href}" class="footer-link">
+              <div class="footer-link__icon">
+                <i class="fas ${link.icon}" aria-hidden="true"></i>
+              </div>
+              <span>${escapeHtml(link.text)}</span>
+              <i class="fas fa-chevron-right footer-link__chevron" aria-hidden="true"></i>
+            </a>
+          `).join('')}
+        </div>
       </div>
     `).join('');
 
@@ -508,16 +622,33 @@
         ? `${action.subtitle} • ${badgeFromStorage.text} ${action.badgeKey === 'checklist' ? 'remaining' : 'saved'}`
         : action.subtitle;
 
+      const badgeHTML = badgeFromStorage?.text ? `
+        <span class="footer-action-badge ${toneToClass(badgeFromStorage.tone)}">
+          ${badgeFromStorage.text}
+        </span>
+      ` : '';
+
       return `
-        <a class="footer-action-card" href="${action.href}">
-          <div class="footer-action-icon" aria-hidden="true">
-            <i class="fas ${action.icon}"></i>
+        <a class="footer-action-card footer-action-card--rccl" href="${action.href}">
+          <div class="footer-action-card__content">
+            <div class="footer-action-card__header">
+              <div class="footer-action-icon" aria-hidden="true">
+                <i class="fas ${action.icon}"></i>
+              </div>
+              ${badgeHTML}
+            </div>
+            <div class="footer-action-card__body">
+              <h4>${escapeHtml(action.title)}</h4>
+              <p>${escapeHtml(subtitle)}</p>
+            </div>
+            <div class="footer-action-card__footer">
+              <span class="footer-action-cta">
+                ${escapeHtml(action.cta)}
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+              </span>
+            </div>
           </div>
-          <div class="footer-action-content">
-            <h4>${escapeHtml(action.title)}</h4>
-            <p>${escapeHtml(subtitle)}</p>
-            <span class="footer-action-cta">${escapeHtml(action.cta)} <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
-          </div>
+          <div class="footer-action-card__wave" aria-hidden="true"></div>
         </a>
       `;
     }).join('');
@@ -525,23 +656,31 @@
     const year = DEFAULT_META.year;
 
     const footerHTML = `
-      <footer class="app-footer" role="contentinfo">
+      <footer class="app-footer app-footer--rccl" role="contentinfo">
+        <div class="footer-waves" aria-hidden="true">
+          <div class="wave wave-1"></div>
+          <div class="wave wave-2"></div>
+        </div>
+        
         <div class="container">
           <div class="footer-hero">
             <div class="footer-hero__intro">
-              <span class="footer-eyebrow">${escapeHtml(DEFAULT_META.ship)} • ${escapeHtml(DEFAULT_META.sailing)}</span>
-              <h3>Plan clean. Sail calmer.</h3>
-              <p>Keep your checklist, dining, and itinerary in one place — fast, readable, and phone-friendly.</p>
+              <div class="footer-hero__badge">
+                <i class="fas fa-anchor" aria-hidden="true"></i>
+                <span>Onboard Guide</span>
+              </div>
+              <h3>Plan Clean. Sail Calmer.</h3>
+              <p>Your complete digital cruise companion — everything you need in one elegant, intuitive place.</p>
             </div>
 
             <div class="footer-hero__actions">
-              <a class="btn btn--primary btn--icon" href="operations.html">
+              <a class="btn btn--primary btn--rccl btn--icon" href="operations.html">
                 <i class="fas fa-clipboard-check" aria-hidden="true"></i>
-                Finish checklist
+                Finish Checklist
               </a>
-              <a class="btn btn--secondary btn--icon" href="itinerary.html">
-                <i class="fas fa-route" aria-hidden="true"></i>
-                View itinerary
+              <a class="btn btn--secondary btn--rccl btn--icon" href="itinerary.html">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                View Itinerary
               </a>
             </div>
 
@@ -553,50 +692,92 @@
           <div class="footer-grid">
             ${sectionsHTML}
 
-            <div class="footer-section footer-newsletter">
-              <h4 class="footer-subtitle">Stay Updated</h4>
-              <p class="footer-text">Quick alerts you actually care about: ports, weather, and schedule changes.</p>
+            <div class="footer-section footer-newsletter footer-newsletter--rccl">
+              <div class="footer-newsletter__header">
+                <h4 class="footer-subtitle">
+                  <i class="fas fa-bell" aria-hidden="true"></i>
+                  Stay Updated
+                </h4>
+                <div class="footer-newsletter__icon">
+                  <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                </div>
+              </div>
+              <p class="footer-text">Get alerts for port updates, weather changes, and special offers.</p>
 
-              <form class="newsletter-form" aria-label="Newsletter signup">
+              <form class="newsletter-form newsletter-form--rccl" aria-label="Newsletter signup">
                 <div class="input-group">
-                  <input type="email" placeholder="Email address" aria-label="Email address" class="newsletter-input" autocomplete="email" inputmode="email">
+                  <input type="email" placeholder="Enter your email" aria-label="Email address" class="newsletter-input" autocomplete="email" inputmode="email">
                   <button type="submit" class="newsletter-button" aria-label="Subscribe">
                     <i class="fas fa-paper-plane" aria-hidden="true"></i>
                   </button>
                 </div>
-                <p class="newsletter-note">No spam. No drama. Just useful updates.</p>
+                <p class="newsletter-note">No spam. Just useful updates.</p>
               </form>
 
               <div class="footer-support" aria-label="Support">
-                <div class="footer-support__item">
-                  <i class="fas fa-headset" aria-hidden="true"></i>
-                  <div>
+                <div class="footer-support__item footer-support__item--rccl">
+                  <div class="footer-support__icon">
+                    <i class="fas fa-headset" aria-hidden="true"></i>
+                  </div>
+                  <div class="footer-support__content">
                     <strong>Guest Services</strong>
-                    <span>Onboard support & help center</span>
+                    <span>24/7 onboard support</span>
                   </div>
                 </div>
 
-                <div class="footer-support__item">
-                  <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                  <div>
+                <div class="footer-support__item footer-support__item--rccl">
+                  <div class="footer-support__icon">
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                  </div>
+                  <div class="footer-support__content">
                     <strong>Next Port</strong>
                     <span>${escapeHtml(nextPort.name)} • ${escapeHtml(nextPort.time || '')}</span>
                   </div>
                 </div>
               </div>
+
+              <div class="footer-social">
+                <span>Follow the journey:</span>
+                <div class="social-links">
+                  <a href="#" class="social-link" aria-label="Facebook">
+                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                  </a>
+                  <a href="#" class="social-link" aria-label="Instagram">
+                    <i class="fab fa-instagram" aria-hidden="true"></i>
+                  </a>
+                  <a href="#" class="social-link" aria-label="Twitter">
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                  </a>
+                  <a href="#" class="social-link" aria-label="YouTube">
+                    <i class="fab fa-youtube" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="footer-bottom">
-            <div class="footer-copyright">
-              <i class="fas fa-ship" aria-hidden="true"></i>
-              <span>© ${year} Royal Caribbean International. All rights reserved.</span>
+          <div class="footer-bottom footer-bottom--rccl">
+            <div class="footer-bottom__content">
+              <div class="footer-copyright">
+                <i class="fas fa-ship" aria-hidden="true"></i>
+                <span>© ${year} Royal Caribbean International. All rights reserved.</span>
+              </div>
+              <div class="footer-legal">
+                <a href="privacy.html">Privacy Policy</a>
+                <span class="legal-separator">•</span>
+                <a href="terms.html">Terms of Service</a>
+                <span class="legal-separator">•</span>
+                <a href="accessibility.html">Accessibility</a>
+                <span class="legal-separator">•</span>
+                <a href="cookies.html">Cookies</a>
+              </div>
             </div>
 
-
-          <button class="back-to-top" type="button" aria-label="Scroll to top">
-            <i class="fas fa-chevron-up" aria-hidden="true"></i>
-          </button>
+            <button class="back-to-top back-to-top--rccl" type="button" aria-label="Scroll to top">
+              <i class="fas fa-chevron-up" aria-hidden="true"></i>
+              <span class="back-to-top__text">Back to Top</span>
+            </button>
+          </div>
         </div>
       </footer>
     `;
@@ -605,7 +786,7 @@
   }
 
   // ---------------------------
-  // Interactions (delegated)
+  // Interactions (enhanced)
   // ---------------------------
   let cleanupFns = [];
 
@@ -632,7 +813,11 @@
       overlay && (overlay.hidden = false);
       utils.lockBodyScroll(true);
 
-      // focus first link
+      // Animate in
+      nav.style.transform = 'translateX(0)';
+      if (overlay) overlay.style.opacity = '1';
+
+      // Focus management
       const firstLink = utils.qs('.nav-mobile a, .nav-mobile button', nav);
       if (firstLink) firstLink.focus({ preventScroll: true });
 
@@ -645,10 +830,16 @@
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', 'Open navigation menu');
 
-      nav.hidden = true;
-      overlay && (overlay.hidden = true);
-      utils.lockBodyScroll(false);
+      // Animate out
+      nav.style.transform = 'translateX(100%)';
+      if (overlay) overlay.style.opacity = '0';
 
+      setTimeout(() => {
+        nav.hidden = true;
+        overlay && (overlay.hidden = true);
+      }, 300);
+
+      utils.lockBodyScroll(false);
       releaseTrap();
       releaseTrap = () => {};
 
@@ -707,16 +898,32 @@
 
     // User dropdown
     const userToggle = utils.qs('.user-menu-toggle');
+    const userDropdown = utils.qs('.user-dropdown');
+    
     on(userToggle, 'click', (e) => {
       e.stopPropagation();
       const expanded = userToggle.getAttribute('aria-expanded') === 'true';
       userToggle.setAttribute('aria-expanded', String(!expanded));
+      if (userDropdown) {
+        userDropdown.classList.toggle('visible', !expanded);
+      }
     });
+    
     on(document, 'click', () => {
-      if (userToggle) userToggle.setAttribute('aria-expanded', 'false');
+      if (userToggle) {
+        userToggle.setAttribute('aria-expanded', 'false');
+        if (userDropdown) userDropdown.classList.remove('visible');
+      }
     });
 
-    // Desktop tooltips (if you already have CSS for .nav-tooltip)
+    // Sign out button in dropdown
+    const signOutBtn = utils.qs('.dropdown-item--signout');
+    on(signOutBtn, 'click', () => {
+      utils.announce('Signed out successfully');
+      // Add your sign-out logic here
+    });
+
+    // Desktop tooltips with enhanced styling
     if (!utils.isMobile()) {
       let tipEl = null;
       let tipT = null;
@@ -725,7 +932,7 @@
         const text = link?.dataset?.tooltip;
         if (!text) return;
         tipEl = document.createElement('div');
-        tipEl.className = 'nav-tooltip';
+        tipEl.className = 'nav-tooltip nav-tooltip--rccl';
         tipEl.textContent = text;
         document.body.appendChild(tipEl);
 
@@ -733,6 +940,11 @@
         tipEl.style.left = `${r.left + r.width / 2}px`;
         tipEl.style.top = `${r.bottom + 10}px`;
         tipEl.style.transform = 'translateX(-50%)';
+        
+        // Add arrow
+        const arrow = document.createElement('div');
+        arrow.className = 'nav-tooltip__arrow';
+        tipEl.appendChild(arrow);
       };
 
       const hideTip = () => {
@@ -757,25 +969,46 @@
     const hero = utils.qs('.app-hero, .hero');
     const header = utils.qs('.app-header');
     const progressBar = utils.qs('.header-progress .progress-bar');
+    const waves = utils.qs('.header-waves');
 
     if (!header) return () => {};
-    if (!hero && !progressBar) return () => {};
 
     const update = () => {
       const y = window.scrollY || 0;
 
-      if (y > 100) header.classList.add('scrolled');
-      else header.classList.remove('scrolled');
+      // Header scroll effect
+      if (y > 100) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
 
+      // Progress bar
       if (progressBar) {
         const doc = document.documentElement;
         const max = Math.max(1, doc.scrollHeight - window.innerHeight);
         const p = utils.clamp(y / max, 0, 1);
         progressBar.style.transform = `scaleX(${p})`;
+        
+        // Animate progress wave
+        const wave = utils.qs('.progress-wave', progressBar);
+        if (wave) {
+          wave.style.transform = `translateX(${p * 100}%)`;
+        }
       }
 
+      // Wave animation
+      if (waves && !utils.prefersReducedMotion()) {
+        const wave1 = utils.qs('.wave-1', waves);
+        const wave2 = utils.qs('.wave-2', waves);
+        if (wave1 && wave2) {
+          wave1.style.transform = `translateX(${y * 0.2}px)`;
+          wave2.style.transform = `translateX(${y * 0.1}px)`;
+        }
+      }
+
+      // Hero parallax
       if (hero && !utils.prefersReducedMotion()) {
-        // gentle parallax if hero has background image
         const bg = getComputedStyle(hero).backgroundImage;
         if (bg && bg !== 'none') {
           hero.style.backgroundPositionY = `${-(y * 0.25)}px`;
@@ -788,11 +1021,11 @@
     on(window, 'scroll', handler, { passive: true });
     on(window, 'resize', utils.debounce(update, 100), { passive: true });
 
-    return () => {}; // removal handled by cleanupFns via on()
+    return () => {};
   }
 
   function initFooterInteractions() {
-    // Newsletter: purely local UX
+    // Newsletter form
     const form = utils.qs('.newsletter-form');
     on(form, 'submit', (e) => {
       e.preventDefault();
@@ -804,29 +1037,60 @@
         input.focus();
         return;
       }
+      
+      // Visual feedback
+      const submitBtn = utils.qs('.newsletter-button', form);
+      if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+        submitBtn.classList.add('success');
+        setTimeout(() => {
+          submitBtn.innerHTML = '<i class="fas fa-paper-plane" aria-hidden="true"></i>';
+          submitBtn.classList.remove('success');
+        }, 2000);
+      }
+      
       input.value = '';
-      utils.announce('Subscribed. You’re on the list.');
+      utils.announce('Subscribed! You\'ll receive updates via email.');
     });
 
-    // Back to top
+    // Back to top button
     const btn = utils.qs('.back-to-top');
     const updateVis = utils.debounce(() => {
       if (!btn) return;
-      btn.classList.toggle('visible', (window.scrollY || 0) > 500);
+      const scrolled = (window.scrollY || 0) > 500;
+      btn.classList.toggle('visible', scrolled);
+      
+      // Update aria-label
+      if (scrolled) {
+        btn.setAttribute('aria-label', 'Scroll to top of page');
+      }
     }, 80);
 
     on(btn, 'click', () => {
-      window.scrollTo({ top: 0, behavior: utils.prefersReducedMotion() ? 'auto' : 'smooth' });
-      utils.announce('Back to top.');
+      window.scrollTo({ 
+        top: 0, 
+        behavior: utils.prefersReducedMotion() ? 'auto' : 'smooth' 
+      });
+      utils.announce('Returned to top of page');
     });
 
     updateVis();
     on(window, 'scroll', updateVis, { passive: true });
+
+    // Social link hover effects
+    utils.qsa('.social-link').forEach(link => {
+      on(link, 'mouseenter', () => {
+        link.classList.add('hover');
+      });
+      on(link, 'mouseleave', () => {
+        link.classList.remove('hover');
+      });
+    });
   }
 
   function initKeyboardShortcuts() {
     on(document, 'keydown', (e) => {
-      // Alt+1..7 = nav shortcuts (desktop power move)
+      // Alt+1..7 = nav shortcuts
       if (e.altKey && !e.ctrlKey && !e.metaKey && e.key >= '1' && e.key <= '7') {
         const idx = parseInt(e.key, 10) - 1;
         if (NAV_ITEMS[idx]) {
@@ -834,13 +1098,25 @@
           window.location.href = NAV_ITEMS[idx].href;
         }
       }
+      
+      // T = Toggle theme
+      if (e.key === 't' && (e.altKey || e.metaKey)) {
+        e.preventDefault();
+        ThemeManager.toggle();
+      }
+      
+      // M = Toggle mobile menu
+      if (e.key === 'm' && (e.altKey || e.metaKey)) {
+        const toggle = utils.qs('.mobile-menu-toggle');
+        if (toggle && toggle.getAttribute('aria-expanded') === 'false') {
+          toggle.click();
+        }
+      }
     });
   }
 
   function initPageTransitions(enabled) {
     if (!enabled) return;
-
-    // Respect reduced motion
     if (utils.prefersReducedMotion()) return;
 
     document.documentElement.classList.add('page-transitions');
@@ -849,7 +1125,6 @@
       const a = e.target.closest('a');
       if (!a) return;
 
-      // only same-origin .html navigations without hash jumps
       const href = a.getAttribute('href') || '';
       if (!href || href.startsWith('#')) return;
       if (!href.includes('.html')) return;
@@ -857,13 +1132,169 @@
       if (a.hasAttribute('download')) return;
 
       e.preventDefault();
-      document.body.classList.add('page-exiting');
-      setTimeout(() => { window.location.href = href; }, 220);
+      
+      // Add ocean wave transition effect
+      document.body.classList.add('page-exiting', 'page-exiting--rccl');
+      
+      setTimeout(() => { 
+        window.location.href = href; 
+      }, 400);
     });
   }
 
   // ---------------------------
-  // Escape helper (basic)
+  // CSS Injection for RCCL styling
+  // ---------------------------
+  function injectRCClStyles() {
+    const styleId = 'rccl-styles';
+    if (document.getElementById(styleId)) return;
+
+    const styles = `
+      /* RCCL Wave Animations */
+      .wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, var(--rccl-accent, ${RCCL_COLORS.accent}), transparent);
+        opacity: 0.6;
+      }
+      
+      .wave-1 {
+        animation: waveFlow 8s ease-in-out infinite;
+      }
+      
+      .wave-2 {
+        height: 2px;
+        animation: waveFlow 12s ease-in-out infinite reverse;
+        opacity: 0.4;
+      }
+      
+      @keyframes waveFlow {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(20px); }
+      }
+      
+      /* RCCL Badge Styles */
+      .badge--primary {
+        background: var(--rccl-primary, ${RCCL_COLORS.primary});
+        color: white;
+        border: 2px solid var(--rccl-primary, ${RCCL_COLORS.primary});
+      }
+      
+      .badge--accent {
+        background: var(--rccl-accent, ${RCCL_COLORS.accent});
+        color: white;
+        border: 2px solid var(--rccl-accent, ${RCCL_COLORS.accent});
+      }
+      
+      .badge--success {
+        background: var(--rccl-success, ${RCCL_COLORS.success});
+        color: white;
+        border: 2px solid var(--rccl-success, ${RCCL_COLORS.success});
+      }
+      
+      .badge--warning {
+        background: var(--rccl-warning, ${RCCL_COLORS.warning});
+        color: var(--rccl-dark, ${RCCL_COLORS.dark});
+        border: 2px solid var(--rccl-warning, ${RCCL_COLORS.warning});
+      }
+      
+      .badge--pulse {
+        animation: pulse 2s infinite;
+      }
+      
+      @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(var(--rccl-warning-rgb, 255, 193, 7), 0.7); }
+        70% { box-shadow: 0 0 0 6px rgba(var(--rccl-warning-rgb, 255, 193, 7), 0); }
+        100% { box-shadow: 0 0 0 0 rgba(var(--rccl-warning-rgb, 255, 193, 7), 0); }
+      }
+      
+      /* RCCL Button Styles */
+      .btn--rccl {
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .btn--rccl:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+      }
+      
+      .btn--rccl:hover:before {
+        left: 100%;
+      }
+      
+      .btn--primary.btn--rccl {
+        background: linear-gradient(135deg, var(--rccl-primary, ${RCCL_COLORS.primary}), var(--rccl-accent, ${RCCL_COLORS.accent}));
+        border: none;
+        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb, 0, 82, 165), 0.2);
+      }
+      
+      /* RCCL Card Styles */
+      .footer-action-card--rccl {
+        border-radius: 12px;
+        background: var(--rccl-surface, white);
+        border: 1px solid var(--rccl-border, #dee2e6);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .footer-action-card--rccl:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        border-color: var(--rccl-accent, ${RCCL_COLORS.accent});
+      }
+      
+      .footer-action-card__wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--rccl-accent, ${RCCL_COLORS.accent}), var(--rccl-primary, ${RCCL_COLORS.primary}));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+      
+      .footer-action-card--rccl:hover .footer-action-card__wave {
+        transform: scaleX(1);
+      }
+      
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        .badge--pulse,
+        .btn--rccl:before,
+        .wave-1,
+        .wave-2,
+        .footer-action-card--rccl,
+        .footer-action-card__wave {
+          animation: none;
+          transition: none;
+        }
+      }
+    `;
+
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = styles;
+    document.head.appendChild(styleEl);
+  }
+
+  // ---------------------------
+  // Escape helper
   // ---------------------------
   function escapeHtml(s) {
     return String(s)
@@ -875,10 +1306,10 @@
   }
 
   // ---------------------------
-  // Refresh badges without full rerender
+  // Refresh badges
   // ---------------------------
   function refreshBadgesInDOM() {
-    // desktop
+    // desktop badges
     utils.qsa('.nav-link').forEach((link) => {
       const textEl = utils.qs('.nav-text', link);
       if (!textEl) return;
@@ -900,12 +1331,13 @@
         badgeEl.className = 'nav-badge';
         link.appendChild(badgeEl);
       }
-      badgeEl.className = `nav-badge ${toneToClass(badge.tone || 'primary')}`;
+      
+      badgeEl.className = `nav-badge ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}`;
       badgeEl.textContent = badge.text;
       badgeEl.setAttribute('aria-label', `${badge.text} ${label}`);
     });
 
-    // mobile
+    // mobile badges
     utils.qsa('.mobile-nav-link').forEach((link) => {
       const label = utils.qs('.mobile-nav-link__text', link)?.textContent?.trim();
       if (!label) return;
@@ -926,7 +1358,8 @@
         badgeEl.className = 'mobile-badge';
         link.appendChild(badgeEl);
       }
-      badgeEl.className = `mobile-badge ${toneToClass(badge.tone || 'primary')}`;
+      
+      badgeEl.className = `mobile-badge ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}`;
       badgeEl.textContent = badge.text;
     });
   }
@@ -944,6 +1377,7 @@
   function init() {
     cleanup();
 
+    injectRCClStyles();
     ThemeManager.init();
     renderHeader();
     renderFooter();
@@ -953,18 +1387,14 @@
     initHeroObserver();
     initKeyboardShortcuts();
 
-    // page transitions flag comes from mount dataset
     const headerMount = utils.qs('.app-header');
-    const transitionsEnabled = utils.qs('.app-header')?.closest('body') && (utils.qs('#sharedHeader')?.dataset?.transitions === 'true');
-    // ^ #sharedHeader no longer exists after render; use persisted config approach:
-    // If you want transitions, set <body data-transitions="true"> and we’ll read it below.
-    const bodyTransitions = document.body?.dataset?.transitions === 'true';
-    initPageTransitions(transitionsEnabled || bodyTransitions);
+    const transitionsEnabled = document.body?.dataset?.transitions === 'true';
+    initPageTransitions(transitionsEnabled);
 
     ThemeManager.syncToggleUI();
     refreshBadgesInDOM();
 
-    // Auto-refresh badges when storage updates (multi-tab) or app writes
+    // Auto-refresh on storage updates
     const onStorage = (e) => {
       if (!e || !e.key) return;
       if (e.key === 'cruise-checklist' || e.key === 'cruise-dining') refreshBadgesInDOM();
@@ -972,12 +1402,13 @@
     };
     on(window, 'storage', onStorage);
 
-    // expose a small API
+    // Expose API
     window.SharedLayout = {
       utils,
       ThemeManager,
       NAV_ITEMS,
       FOOTER_SECTIONS,
+      RCCL_COLORS,
       refresh: () => init(),
       refreshBadges: () => refreshBadgesInDOM(),
       destroy: () => cleanup(),
@@ -993,3 +1424,4 @@
     init();
   }
 })();
+[file content end]
