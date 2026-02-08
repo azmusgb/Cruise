@@ -585,8 +585,17 @@
   // Footer (RCCL Enhanced)
   // ---------------------------
   function renderFooter() {
-    const footerMount = utils.qs('#sharedFooter');
-    if (!footerMount) return;
+    let footerMount = utils.qs('#sharedFooter');
+    if (!footerMount) {
+      footerMount = document.createElement('div');
+      footerMount.id = 'sharedFooter';
+      const main = utils.qs('main');
+      if (main && main.parentNode) {
+        main.insertAdjacentElement('afterend', footerMount);
+      } else {
+        document.body.appendChild(footerMount);
+      }
+    }
 
     const nextPort = (() => {
       const raw = localStorage.getItem('cruise-nextport');
