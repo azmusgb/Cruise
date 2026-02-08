@@ -5,6 +5,15 @@
 
 /* === 1. DESIGN TOKENS & CSS CUSTOM PROPERTIES === */
 :root {
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
   /* Brand Colors - RCCL */
   --rc-primary: #001f5f;
   --rc-primary-dark: #001445;
@@ -32,12 +41,15 @@
   --gray: #6c757d;
   --dark-gray: #343a40;
   --black: #121212;
+  --accent-soft: rgba(0, 31, 95, 0.12);
   
   /* Background Colors */
   --bg-primary: var(--white);
   --bg-secondary: var(--off-white);
   --bg-card: var(--white);
-  --bg-header: linear-gradient(135deg, var(--rc-primary) 0%, var(--rc-primary-light) 100%);
+  --bg-header: var(--bg-primary);
+  --surface: var(--bg-primary);
+  --surface-elevated: var(--bg-card);
   
   /* Text Colors */
   --text-primary: #1e293b;
@@ -50,15 +62,10 @@
   
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--rc-primary) 0%, var(--rc-primary-light) 100%);
-  --gradient-secondary: linear-gradient(135deg, var(--rc-secondary) 0%, var(--rc-secondary-light) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--rc-accent) 0%, var(--rc-accent-light) 100%);
-  --gradient-teal: linear-gradient(135deg, var(--rc-teal) 0%, var(--rc-teal-light) 100%);
-  --gradient-hero: linear-gradient(135deg, #0f2f8f 0%, #1d4ed8 52%, #00a3e0 100%);
-  --hero-overlay-gradient: linear-gradient(180deg, rgba(3, 23, 69, 0.55) 0%, rgba(3, 23, 69, 0.75) 65%, rgba(2, 18, 52, 0.9) 100%);
   
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.08);
+  --shadow-md: 0 6px 20px rgba(0,0,0,.12);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06);
   --shadow-xl: 0 12px 36px rgba(0, 31, 95, 0.25);
   --shadow-2xl: 0 16px 48px rgba(0, 31, 95, 0.3);
@@ -66,9 +73,9 @@
   --shadow-teal: 0 4px 20px rgba(0, 167, 157, 0.3);
   
   /* Border Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --radius-xl: 16px;
   --radius-2xl: 24px;
   --radius-pill: 999px;
@@ -129,7 +136,7 @@ body {
   font-family: var(--font-sans);
   line-height: var(--line-height-body);
   color: var(--text-primary);
-  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  background: var(--surface);
   min-height: 100vh;
   overflow-x: hidden;
   padding-bottom: var(--mobile-nav-height);
@@ -144,13 +151,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 { font-size: clamp(2rem, 5vw, 3rem); }
-h2 { font-size: clamp(1.5rem, 4vw, 2.25rem); }
-h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.125rem; }
 h4 { font-size: clamp(1.125rem, 2.5vw, 1.5rem); }
 
 p {
+  font-size: 1rem;
+  line-height: 1.6;
   margin-bottom: 1rem;
   color: var(--text-secondary);
+}
+
+.meta {
+  font-size: 0.875rem;
+  opacity: 0.7;
 }
 
 a {
@@ -218,8 +232,8 @@ button {
 .main-layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
-  padding: 2rem 0;
+  gap: var(--space-4);
+  padding: var(--space-5) 0;
 }
 
 @media (min-width: 1024px) {
@@ -232,6 +246,27 @@ button {
 
 /* 4.1 Header Component */
 .app-header {
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.app-header--hero {
+  min-height: var(--hero-min-height-mobile);
+  padding: var(--hero-padding-y) var(--space-4);
+  background: var(--gradient-primary);
+  background-size: cover;
+  background-position: center;
+}
+
+.app-header--page {
+  min-height: 140px;
+  background: var(--surface);
+}
+
+.app-header--nav {
+  padding: 0;
   background: var(--bg-header);
   color: var(--white);
   position: sticky;
@@ -353,7 +388,7 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  background: var(--surface);
   z-index: var(--z-fixed);
   overflow-y: auto;
   padding: 1.5rem;
@@ -380,14 +415,19 @@ button {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
+  font-size: 1rem;
 }
 
 .nav-mobile .nav-link:hover,
 .nav-mobile .nav-link.active {
-  background: var(--gradient-primary);
-  color: var(--white);
+  background: var(--accent-soft);
+  color: var(--text-primary);
   border-color: transparent;
   transform: translateX(4px);
+}
+
+.nav-mobile .nav-link.active {
+  font-weight: 600;
 }
 
 /* Menu Toggle */
@@ -422,11 +462,6 @@ button {
 /* 4.2 Hero Section */
 .hero {
   position: relative;
-  min-height: var(--hero-min-height-mobile);
-  padding: var(--hero-padding-y) 0;
-  background: var(--gradient-hero);
-  background-size: cover;
-  background-position: center;
   color: var(--white);
   display: flex;
   align-items: center;
@@ -434,7 +469,7 @@ button {
 }
 
 @media (min-width: 768px) {
-  .hero {
+  .app-header--hero {
     min-height: var(--hero-min-height-desktop);
   }
 }
@@ -442,7 +477,7 @@ button {
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: var(--hero-overlay-gradient);
+  background: rgba(3, 23, 69, 0.75);
   pointer-events: none;
 }
 
@@ -503,8 +538,9 @@ button {
 
 /* 4.3 Card Component */
 .card {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background: var(--surface-elevated);
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
@@ -518,12 +554,13 @@ button {
 }
 
 .card-header {
-  padding: 1.5rem;
-  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+  padding: 0 0 var(--space-3);
+  background: transparent;
   border-bottom: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: var(--space-3);
 }
 
 .card-title {
@@ -536,7 +573,34 @@ button {
 }
 
 .card-content {
-  padding: 1.5rem;
+  padding: 0;
+}
+
+.card-body {
+  padding: 0;
+}
+
+.card--nav {
+  cursor: pointer;
+}
+
+.card--highlight {
+  box-shadow: var(--shadow-md);
+}
+
+.section-collapsible {
+  margin-top: var(--space-4);
+}
+
+.section-collapsible > summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+  list-style: none;
+}
+
+.section-collapsible > summary::marker {
+  display: none;
 }
 
 /* Card Variations */
@@ -555,6 +619,7 @@ button {
 
 .card--info {
   border-left: 4px solid var(--rc-info);
+  box-shadow: none;
 }
 
 /* 4.4 Button Component */
@@ -697,7 +762,7 @@ button {
 .footer-content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: var(--space-4);
   margin-bottom: 2rem;
 }
 
@@ -877,7 +942,7 @@ button {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: rgba(255, 255, 255, 0.4);
   animation: loading 1.5s infinite;
 }
 
@@ -983,7 +1048,7 @@ button {
 .stat-item {
   text-align: center;
   padding: 1.5rem;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  background: var(--surface);
   border-radius: var(--radius-lg);
   border: 2px solid var(--border-light);
   transition: var(--transition);
@@ -1011,8 +1076,8 @@ button {
 
 /* 5.2 Dining Page */
 .dining-banner {
-  background: linear-gradient(135deg, var(--rc-primary) 0%, var(--rc-primary-light) 100%);
-  color: var(--white);
+  background: var(--surface);
+  color: var(--text-primary);
   padding: 1.5rem;
   border-radius: var(--radius-lg);
   margin-bottom: 2rem;
@@ -1133,7 +1198,7 @@ button {
 }
 
 .day-btn.active {
-  background: var(--gradient-primary);
+  background: var(--rc-primary);
   border-color: var(--rc-primary);
   color: var(--white);
 }
@@ -1141,7 +1206,7 @@ button {
 .itinerary-day {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  padding: 2rem;
+  padding: var(--space-5);
   margin-bottom: 2rem;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
@@ -1207,8 +1272,8 @@ button {
 
 .room-header {
   padding: 1.5rem;
-  background: linear-gradient(to right, var(--rc-primary), var(--rc-primary-light));
-  color: var(--white);
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .room-number {
@@ -1409,7 +1474,7 @@ button {
 .tip-card-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, var(--rc-primary) 0%, var(--rc-primary-light) 100%);
+  background: var(--rc-primary);
   color: var(--white);
   border-radius: 50%;
   display: flex;
@@ -1443,7 +1508,7 @@ button {
   --bg-primary: #ffffff;
   --bg-secondary: #f4f8ff;
   --bg-card: #ffffff;
-  --bg-header: linear-gradient(135deg, #003580 0%, #0054a6 100%);
+  --bg-header: var(--bg-primary);
   --border-color: #e2e8f0;
   --border-light: #f1f5f9;
   --text-primary: #1e293b;
@@ -1712,7 +1777,7 @@ button {
 .p-2 { padding: 0.5rem; }
 .p-3 { padding: 1rem; }
 .p-4 { padding: 1.5rem; }
-.p-5 { padding: 2rem; }
+.p-5 { padding: var(--space-5); }
 
 /* Text */
 .text-center { text-align: center; }
@@ -1764,7 +1829,7 @@ button {
 .gap-2 { gap: 0.5rem; }
 .gap-3 { gap: 1rem; }
 .gap-4 { gap: 1.5rem; }
-.gap-5 { gap: 2rem; }
+.gap-5 { gap: var(--space-4); }
 
 /* Visibility */
 .visible { visibility: visible; }
@@ -1904,13 +1969,13 @@ button {
 }
 
 /* === 11. HERO OBSERVER STATES === */
-body.hero-visible .app-header {
+body.hero-visible .app-header--nav {
   background: transparent;
   box-shadow: none;
   border-bottom-color: transparent;
 }
 
-body.hero-past .app-header {
+body.hero-past .app-header--nav {
   background: var(--bg-header);
   box-shadow: var(--shadow-md);
   border-bottom-color: var(--rc-secondary);
@@ -2024,6 +2089,6 @@ body.hero-past .floating-actions {
 }
 
 .deck-number {
-  background: linear-gradient(135deg, var(--deck-color, var(--rc-primary)), var(--deck-color-light, var(--rc-primary-light)));
+  background: var(--deck-color, var(--rc-primary));
   color: var(--white);
 }
