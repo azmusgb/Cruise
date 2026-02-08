@@ -1,0 +1,76 @@
+name: 🧠 Code Quality & AI Reviewer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*.js"
+      - "**/*.css"
+      - "**/*.html"
+      - ".eslintrc.json"
+      - ".stylelintrc.json"
+      - ".prettierrc"
+
+jobs:
+  lint:
+    name: ✅ Lint & Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install Dependencies
+        run: npm ci || npm install
+
+      - name: 🎨 Stylelint
+        uses: reviewdog/action-stylelint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          stylelint_input: '**/*.css'
+          reporter: github-pr-review
+          fail_on_error: true
+
+      - name: 🧠 ESLint
+        uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          eslint_flags: '**/*.js'
+          reporter: github-pr-review
+          fail_on_error: true
+
+      - name: ✨ Prettier Check
+        run: npx prettier --check .
+
+      - name: ✨ Prettier Suggestions
+        uses: reviewdog/action-prettier@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          prettier_flags: '.'
+
+  ai_review:
+    name: 🤖 GPT-4 AI Review
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: 📥 Checkout PR code
+        uses: actions/checkout@v3
+
+      - name: 🧠 Install GPT-Review CLI
+        run: |
+          curl -s https://raw.githubusercontent.com/kuchin/gpt-review/main/install.sh | bash
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: 🤖 Run GPT Review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gpt-review --openai-api-key=${{ secrets.OPENAI_API_KEY }} --pr=${{ github.event.pull_request.number }}
