@@ -4,6 +4,143 @@
    Organized by: 1) Variables 2) Reset 3) Layout 4) Components
    ========================================================= */
 
+/* ==========================================================================
+   LAYERED CSS ARCHITECTURE (prevents “random override roulette”)
+   Order matters: later layers win when specificity ties.
+   ========================================================================== */
+@layer reset, base, layout, components, utilities, pages;
+
+/* Prefer consistent form controls + correct native theming */
+html { color-scheme: light; }
+
+/* ==========================================================================
+   1) TOKENS (keep ALL theming here)
+   ========================================================================== */
+@layer base {
+  :root {
+    /* (Your existing tokens remain below — keep them. This patch adds theme hooks.) */
+
+    /* App-wide motion preference (used in utilities) */
+    --motion-ok: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root { --motion-ok: 0; }
+  }
+
+  /* Dark theme (opt-in): <html data-theme="dark"> ... */
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Backgrounds */
+    --bg-primary: #07101e;
+    --bg-secondary: #0a1628;
+    --bg-card: #0c1a30;
+    --surface: var(--bg-primary);
+    --surface-elevated: var(--bg-card);
+    --bg-gradient-start: #061024;
+    --bg-gradient-end: #081a2e;
+
+    /* Text */
+    --text-primary: #e6eef8;
+    --text-secondary: #b7c6dc;
+    --text-tertiary: #93a7c4;
+    --text-light: #7f94b3;
+
+    /* Borders */
+    --border-color: rgba(255, 255, 255, 0.12);
+    --border-light: rgba(255, 255, 255, 0.08);
+
+    /* Keep brand colors the same; they should pop in dark mode */
+  }
+}
+
+/* ==========================================================================
+   2) RESET (limit global collateral damage)
+   ========================================================================== */
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  /* Keep your margin/padding reset, but avoid forcing too much on embedded widgets */
+}
+
+/* ==========================================================================
+   3) BASE (typography, links, media)
+   ========================================================================== */
+@layer base {
+  body {
+    /* Keep your current gradient + pattern, but ensure it respects theme tokens */
+    background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-primary);
+  }
+
+  /* Safer defaults */
+  a { color: var(--rc-primary); }
+  a:hover, a:focus-visible { color: var(--rc-primary-light); }
+
+  /* Accessible “screen reader only” utility */
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   4) LAYOUT (grid, containers, spacing rhythm)
+   ========================================================================== */
+@layer layout {
+  /* Consistent vertical rhythm wrapper */
+  .flow > * + * { margin-top: var(--space-4); }
+  .flow-tight > * + * { margin-top: var(--space-2); }
+
+  /* Stack utility for flex columns */
+  .stack { display: flex; flex-direction: column; gap: var(--space-4); }
+  .stack-tight { display: flex; flex-direction: column; gap: var(--space-2); }
+
+  /* Center utility */
+  .center { margin-inline: auto; max-width: var(--container-max-width); padding-inline: var(--space-4); }
+}
+
+/* ==========================================================================
+   5) COMPONENTS (buttons/cards/header/hero/etc.)
+   Keep your existing component rules; gradually move them under @layer components.
+   ========================================================================== */
+@layer components {
+  /* Alias hooks to prevent naming mismatch bleeding between pages */
+  .button, .btn { /* keep existing .btn rules; this is just a safety net */ }
+  .card, .panel { /* allow “panel” markup to render like card where used */ }
+  .badge, .pill { /* common pattern name */ }
+}
+
+/* ==========================================================================
+   6) UTILITIES (tiny helpers; never page-specific)
+   ========================================================================== */
+@layer utilities {
+  .hidden { display: none !important; }
+  .nowrap { white-space: nowrap !important; }
+  .muted { color: var(--text-tertiary) !important; }
+
+  /* Motion safety */
+  .no-motion * { transition: none !important; animation: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+  }
+}
+
+/* ==========================================================================
+   7) PAGES (ONLY what cannot be generalized)
+   Keep this section thin. If a rule can be a component/utility, move it.
+   ========================================================================== */
+@layer pages {
+  /* Placeholder: move your truly page-locked styles here over time */
+}
+
 /* === 1. DESIGN TOKENS & CSS CUSTOM PROPERTIES === */
 :root {
   /* BRAND USAGE GUIDE:
@@ -47,7 +184,7 @@
   --rc-info: #2b8dbf;
   --rc-purple: #6b59b5;
   
-  /* UI Colors - Light Mode Only */
+  /* UI Colors (theme-driven; overridden by [data-theme="dark"]) */
   --white: #ffffff;
   --off-white: #f5f7fb;
   --light-gray: #e2e8f0;
@@ -179,6 +316,7 @@ html {
 }
 
 body {
+  /* Let theme tokens drive visuals; don’t hardcode light-only values here */
   font-family: var(--font-sans);
   line-height: var(--line-height-body);
   color: var(--text-primary);
@@ -283,6 +421,11 @@ button {
   min-height: 44px;
   min-width: 44px;
   touch-action: manipulation;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--rc-blue);
+  outline-offset: 2px;
 }
 
 /* === 3. LAYOUT & CONTAINERS === */
