@@ -70,29 +70,30 @@
   // Enhanced footer links configuration
   const FOOTER_SECTIONS = [
     {
-      title: 'Adventure of the Seas',
+      title: 'Plan & Prepare',
       links: [
         { text: 'Dashboard', href: 'index.html', icon: 'fa-home' },
-        { text: 'Ship Overview', href: 'ship.html', icon: 'fa-ship' },
-        { text: 'Cruise Documents', href: 'docs.html', icon: 'fa-file-alt' }
+        { text: 'Checklist', href: 'operations.html', icon: 'fa-clipboard-check' },
+        { text: 'Itinerary', href: 'itinerary.html', icon: 'fa-route' },
+        { text: 'Staterooms', href: 'rooms.html', icon: 'fa-bed' }
       ]
     },
     {
-      title: 'Onboard Experience',
+      title: 'Onboard Essentials',
       links: [
-        { text: 'Activities', href: 'activities.html', icon: 'fa-calendar-alt' },
-        { text: 'Entertainment', href: 'entertainment.html', icon: 'fa-music' },
-        { text: 'Spa & Fitness', href: 'spa.html', icon: 'fa-spa' },
-        { text: 'Shopping', href: 'shopping.html', icon: 'fa-shopping-bag' }
+        { text: 'Deck Plans', href: 'decks.html', icon: 'fa-map' },
+        { text: 'Dining', href: 'dining.html', icon: 'fa-utensils' },
+        { text: 'Packing Tips', href: 'tips.html', icon: 'fa-suitcase' },
+        { text: 'Shore Excursions', href: 'excursions.html', icon: 'fa-umbrella-beach' }
       ]
     },
     {
-      title: 'Support',
+      title: 'Stay Connected',
       links: [
-        { text: '24/7 Support', href: 'tel:+1-800-398-9819', icon: 'fa-headset' },
-        { text: 'FAQ & Help', href: 'faq.html', icon: 'fa-question-circle' },
-        { text: 'Safety Info', href: 'safety.html', icon: 'fa-shield-alt' },
-        { text: 'Contact Us', href: 'contact.html', icon: 'fa-envelope' }
+        { text: 'Ship Contacts', href: 'contacts.html', icon: 'fa-address-book' },
+        { text: 'VOOM Wi-Fi', href: 'wifi.html', icon: 'fa-wifi' },
+        { text: 'Support Center', href: 'faq.html', icon: 'fa-question-circle' },
+        { text: 'Safety Updates', href: 'safety.html', icon: 'fa-shield-alt' }
       ]
     },
     {
@@ -103,6 +104,30 @@
         { text: 'Accessibility', href: 'accessibility.html' },
         { text: 'Cookie Policy', href: 'cookies.html' }
       ]
+    }
+  ];
+
+  const FOOTER_QUICK_ACTIONS = [
+    {
+      title: 'Finish Your Checklist',
+      subtitle: '6 priority items remaining',
+      icon: 'fa-clipboard-list',
+      href: 'operations.html',
+      cta: 'View tasks'
+    },
+    {
+      title: 'Today’s Itinerary',
+      subtitle: 'Plan activities & showtimes',
+      icon: 'fa-calendar-check',
+      href: 'itinerary.html',
+      cta: 'Build schedule'
+    },
+    {
+      title: 'Dining Reservations',
+      subtitle: 'Secure your dining times',
+      icon: 'fa-utensils',
+      href: 'dining.html',
+      cta: 'Reserve now'
     }
   ];
 
@@ -529,20 +554,54 @@
       </div>
     `).join('');
 
+    const footerQuickActions = FOOTER_QUICK_ACTIONS.map(action => `
+      <a class="footer-action-card" href="${action.href}">
+        <div class="footer-action-icon">
+          <i class="fas ${action.icon}" aria-hidden="true"></i>
+        </div>
+        <div class="footer-action-content">
+          <h4>${action.title}</h4>
+          <p>${action.subtitle}</p>
+          <span class="footer-action-cta">${action.cta} <i class="fas fa-arrow-right"></i></span>
+        </div>
+      </a>
+    `).join('');
+
     const footerHTML = `
       <footer class="app-footer" role="contentinfo">
         <div class="container">
+          <div class="footer-hero">
+            <div class="footer-hero__intro">
+              <span class="footer-eyebrow">Adventure of the Seas • ${currentYear}</span>
+              <h3>Wrap up your plans and sail stress-free.</h3>
+              <p>Track your checklist, secure dining, and keep your itinerary polished in one place.</p>
+            </div>
+            <div class="footer-hero__actions">
+              <a class="btn btn--primary btn--icon" href="operations.html">
+                <i class="fas fa-clipboard-check"></i>
+                Finish checklist
+              </a>
+              <a class="btn btn--secondary btn--icon" href="itinerary.html">
+                <i class="fas fa-route"></i>
+                View itinerary
+              </a>
+            </div>
+            <div class="footer-hero__cards">
+              ${footerQuickActions}
+            </div>
+          </div>
+
           <div class="footer-grid">
             ${footerSections}
-            
+
             <!-- Newsletter Signup -->
             <div class="footer-section footer-newsletter">
               <h4 class="footer-subtitle">Stay Updated</h4>
-              <p class="footer-text">Get the latest cruise deals and news</p>
+              <p class="footer-text">Cruise alerts, port updates, and curated offers.</p>
               <form class="newsletter-form" aria-label="Newsletter signup">
                 <div class="input-group">
-                  <input type="email" 
-                         placeholder="Your email" 
+                  <input type="email"
+                         placeholder="Email address"
                          aria-label="Email address"
                          class="newsletter-input">
                   <button type="submit" class="newsletter-button" aria-label="Subscribe">
@@ -551,16 +610,32 @@
                 </div>
                 <p class="newsletter-note">By subscribing you agree to our Privacy Policy</p>
               </form>
+              <div class="footer-support">
+                <div class="footer-support__item">
+                  <i class="fas fa-headset" aria-hidden="true"></i>
+                  <div>
+                    <strong>24/7 Guest Services</strong>
+                    <span>1-800-398-9819</span>
+                  </div>
+                </div>
+                <div class="footer-support__item">
+                  <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                  <div>
+                    <strong>Next Port</strong>
+                    <span>Labadee, Haiti • 8:00 AM</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          
+
           <!-- Bottom Bar -->
           <div class="footer-bottom">
             <div class="footer-copyright">
               <i class="fas fa-ship" aria-hidden="true"></i>
               <span>© ${currentYear} Royal Caribbean International. All rights reserved.</span>
             </div>
-            
+
             <div class="footer-social">
               <span class="social-label">Follow us:</span>
               <a href="https://facebook.com" class="social-link" aria-label="Facebook">
@@ -576,7 +651,7 @@
                 <i class="fab fa-youtube"></i>
               </a>
             </div>
-            
+
             <div class="footer-app">
               <a href="https://apps.apple.com" class="app-link" aria-label="Download on App Store">
                 <i class="fab fa-app-store"></i>
@@ -588,7 +663,7 @@
               </a>
             </div>
           </div>
-          
+
           <!-- Back to Top -->
           <button class="back-to-top" aria-label="Scroll to top">
             <i class="fas fa-chevron-up"></i>
