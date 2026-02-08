@@ -31,16 +31,10 @@
       <!-- Main Content -->
       <main>
          <div class="container">
-            <section class="hero-support">
-               <p class="page-intro">
-                  From quick bites to date-night specialty dining, plan every meal with confidence for Adventure of the Seas, Feb 14–20, 2026.
-               </p>
-               <div class="action-group">
-                  <button class="btn btn-primary" id="printDiningBtn">
-                  <i class="fas fa-print"></i>
-                  Print Royal Dining Guide
-                  </button>
-                  <button class="btn btn-outline" id="makeReservationBtn">
+            <section class="hero-support hero-support--compact">
+               <p class="hero-support__note">Reservations: Main Dining nightly at 5:30 PM • Chops Grille Day 5 at 7:00 PM.</p>
+               <div class="hero-actions">
+                  <button class="btn btn-primary" id="makeReservationBtn">
                   <i class="fas fa-calendar-plus"></i>
                   Make Reservation
                   </button>
@@ -49,6 +43,14 @@
             <div class="main-layout">
                <!-- Main Content -->
                <div class="main-content">
+                  <div class="card card--compact">
+                     <div class="action-group">
+                        <button class="btn btn-outline" id="printDiningBtn">
+                        <i class="fas fa-print"></i>
+                        Print Royal Dining Guide
+                        </button>
+                     </div>
+                  </div>
                   <!-- Dining Banner -->
                   <div class="dining-banner" id="mainDiningBanner">
                      <div class="dining-banner__icon">
@@ -116,10 +118,10 @@
                   </section>
                   <!-- Dining Tabs -->
                   <div class="dining-tabs horizontal-scroll">
-                     <button class="dining-tab active" data-tab="specialty">
+                     <button class="dining-tab" data-tab="specialty">
                      <i class="fas fa-star"></i> Specialty
                      </button>
-                     <button class="dining-tab" data-tab="included">
+                     <button class="dining-tab active" data-tab="included">
                      <i class="fas fa-check-circle"></i> Included
                      </button>
                      <button class="dining-tab" data-tab="casual">
@@ -133,7 +135,7 @@
                      </button>
                   </div>
                   <!-- Specialty Dining -->
-                  <div class="dining-tab-content active" id="specialty-tab">
+                  <div class="dining-tab-content is-hidden" id="specialty-tab">
                      <div class="card mb-8">
                         <div class="card-header">
                            <h2 class="card-title">Specialty Dining Restaurants</h2>
@@ -266,7 +268,7 @@
                      </div>
                   </div>
                   <!-- Included Dining -->
-                  <div class="dining-tab-content is-hidden" id="included-tab">
+                  <div class="dining-tab-content active" id="included-tab">
                      <div class="card mb-8">
                         <div class="card-header">
                            <h2 class="card-title">Complimentary Dining</h2>
@@ -809,6 +811,11 @@
              const mapTooltip = document.getElementById('mapTooltip');
              const mapWrap = document.querySelector('.deck-map-wrap');
              const hotspots = document.querySelectorAll('.map-hotspot');
+             const diningMapSvg = document.getElementById('diningMapSvg');
+         
+             function onMapInteraction() {
+                 diningMapSvg?.classList.add('map-muted');
+             }
          
              function moveTooltip(evt) {
                  if (!mapTooltip || !mapWrap) return;
@@ -823,6 +830,7 @@
                  const tooltipText = hotspot.getAttribute('data-tooltip');
          
                  const openTarget = () => {
+                     onMapInteraction();
                      if (targetTab) activateDiningTab(targetTab);
                      const targetEl = document.getElementById(targetId);
                      if (targetEl) {
@@ -841,6 +849,7 @@
                  });
          
                  hotspot.addEventListener('mousemove', (evt) => {
+                     onMapInteraction();
                      if (mapTooltip && tooltipText) {
                          mapTooltip.textContent = tooltipText;
                          mapTooltip.classList.add('visible');
@@ -848,6 +857,7 @@
                      }
                  });
                  hotspot.addEventListener('focus', () => {
+                     onMapInteraction();
                      if (mapTooltip && tooltipText) {
                          mapTooltip.textContent = tooltipText;
                          mapTooltip.classList.add('visible');
@@ -1053,8 +1063,8 @@
                  });
              });
              
-             // Initialize with specialty dining visible
-             activateDiningTab('specialty');
+             // Initialize with included dining visible
+             activateDiningTab('included');
          });
       </script>
       <script src="service-worker-registration.js" defer></script>
