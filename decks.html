@@ -34,18 +34,11 @@
         </div>
     </section>
 
-    <section class="hero-support hero-support--padded">
-        <p class="page-intro">
-            Explore interactive deck plans with real-time filtering and immersive ship navigation. Pan, zoom, pinch, and jump between decks in an app‑like experience.
-        </p>
-        <div class="btn-group">
+    <section class="hero-support hero-support--compact">
+        <div class="hero-actions">
             <button class="btn btn-primary" onclick="showAllDecks()">
                 <i class="fas fa-layer-group"></i>
                 Show All Decks
-            </button>
-            <button class="btn btn-outline" onclick="printPage()">
-                <i class="fas fa-print"></i>
-                Print Decks
             </button>
         </div>
     </section>
@@ -120,7 +113,8 @@
     <!-- Main Container -->
     <div class="main-container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <div id="deckContextUI" hidden>
+            <aside class="sidebar">
             <div class="sidebar-section">
                 <h3 class="section-title">
                     <i class="fas fa-filter"></i>
@@ -206,7 +200,8 @@
                     </button>
                 </div>
             </div>
-        </aside>
+            </aside>
+        </div>
 
         <!-- Main Content -->
         <main class="content-main">
@@ -216,18 +211,24 @@
                     <p id="deckSubtitle">Interactive navigation and filtering across key decks.</p>
                 </div>
                 <div class="deck-stats">
-                    <div class="stat-card">
+                    <div class="card card--compact">
                         <div class="stat-value" id="totalDecks">6</div>
                         <div class="stat-label">Total Decks</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="card card--compact">
                         <div class="stat-value" id="visibleDecks">6</div>
                         <div class="stat-label">Showing</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="card card--compact">
                         <div class="stat-value" id="amenitiesCount">18</div>
                         <div class="stat-label">Amenities</div>
                     </div>
+                </div>
+                <div class="content-actions">
+                    <button class="btn btn-outline" onclick="printPage()">
+                        <i class="fas fa-print"></i>
+                        Print Decks
+                    </button>
                 </div>
             </div>
 
@@ -510,7 +511,8 @@
             toastMessage: document.getElementById('toastMessage'),
             progressIndicator: document.getElementById('progressIndicator'),
             particles: document.getElementById('particles'),
-            heroDeckCount: document.getElementById('heroDeckCount')
+            heroDeckCount: document.getElementById('heroDeckCount'),
+            deckContextUI: document.getElementById('deckContextUI')
         };
 
         // ============================================================================
@@ -640,6 +642,7 @@
                         state.activeDeck = deck.number;
                         state.selectedDeck = deck.number;
                         updateSelectedState();
+                        localStorage.setItem('lastDeck', deck.number);
                         scrollToDeck(deck.number);
                         updateHeader(deck.name, deck.subtitle);
                         if (elements.modalOverlay.classList.contains('active')) {
@@ -876,14 +879,22 @@
         }
 
         function updateSelectedState() {
+            const hasSelection = state.selectedDeck != null;
             document.querySelectorAll('.deck-card').forEach(card => {
                 const deckNumber = parseInt(card.dataset.deckNumber, 10);
                 card.classList.toggle('selected', deckNumber === state.selectedDeck);
+                card.classList.toggle('is-dim', hasSelection && deckNumber !== state.selectedDeck);
             });
             document.querySelectorAll('.deck-nav-item').forEach(navItem => {
                 const deckNumber = parseInt(navItem.dataset.deckNumber, 10);
                 navItem.classList.toggle('selected', deckNumber === state.selectedDeck);
             });
+            if (elements.deckContextUI) {
+                elements.deckContextUI.hidden = !hasSelection;
+            }
+            if (hasSelection) {
+                localStorage.setItem('lastDeck', state.selectedDeck);
+            }
         }
 
         // ============================================================================
@@ -1543,6 +1554,14 @@
             initProgressIndicator();
             buildDeckNav();
             buildFilterChips();
+            const lastDeck = parseInt(localStorage.getItem('lastDeck'), 10);
+            if (Number.isInteger(lastDeck)) {
+                const savedDeck = deckData.find(deck => deck.number === lastDeck);
+                if (savedDeck) {
+                    state.selectedDeck = savedDeck.number;
+                    updateHeader(savedDeck.name, savedDeck.subtitle);
+                }
+            }
             renderDecks();
             changeViewMode(state.viewMode);
 
