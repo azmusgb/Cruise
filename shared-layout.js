@@ -165,7 +165,7 @@
     
     footerMount.outerHTML = `
       <footer class="app-footer" role="contentinfo">
-        <div class="container">
+        <div class="container footer-container">
           <div class="footer-content">
             <div class="footer-section">
               <h3 class="footer-title">The Royal Way Hub</h3>
