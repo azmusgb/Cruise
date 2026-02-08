@@ -7,6 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="manifest" href="manifest.json">
+    <meta name="description" content="Your personal cruise planning hub for Adventure of the Seas sailing Feb 14-20, 2026. Manage itinerary, checklists, dining, and more.">
+    <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="icons/icon-192.svg">
     <title>Royal Caribbean Voyage Hub | Adventure of the Seas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,6 +27,11 @@
             <p class="app-hero__meta">
                 Everything you need for Adventure of the Seas • Feb 14–20, 2026
             </p>
+            <div class="countdown">
+                <span class="countdown-label">Embarkation in:</span>
+                <span class="countdown-number" data-unit="days">00</span> days
+                <span class="countdown-number" data-unit="hours">00</span> hours
+            </div>
         </div>
     </section>
 
@@ -45,22 +52,6 @@
                 Continue Checklist
             </a>
         </section>
-        <!-- Alert -->
-        <div class="alert">
-            <div class="alert-content">
-                <i class="fas fa-exclamation-triangle alert-icon"></i>
-                <div class="alert-text">
-                    <strong>Urgent: 3 Actions Required</strong>
-                    <small>Complete your pre-cruise checklist</small>
-                </div>
-            </div>
-            <div class="progress-wrap">
-                <div class="progress-label">55% Complete</div>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
-                </div>
-            </div>
-        </div>
 
         <!-- Dashboard Grid -->
         <div class="grid">
@@ -182,12 +173,12 @@
                                         <div class="dining-name">Main Dining Room</div>
                                         <div class="dining-time">6:00 PM</div>
                                     </div>
-                                    <div class="dining-detail">Traditional • 14 guests</div>
+                                    <div class="dining-detail">Traditional • Table for 14</div>
                                 </div>
 
                                 <div class="dining-item">
                                     <div class="dining-header">
-                                        <div class="dining-name">Chops Grille</div>
+                                        <div class="dining-name">Chops Grille <span class="badge badge-warning">Waitlist</span></div>
                                         <div class="dining-time">7:30 PM</div>
                                     </div>
                                     <div class="dining-detail">Steakhouse • Deck 11</div>
@@ -250,7 +241,7 @@
                             <div class="card-body">
                                 <p>Jump into interactive deck maps to locate dining, pools, and staterooms fast.</p>
                                 <a href="decks.html" class="btn btn-secondary btn-full mt-2">
-                                    <i class="fas fa-map"></i> Explore Decks
+                                    <i class="fas fa-map-marked-alt"></i> Explore Decks
                                 </a>
                             </div>
                         </div>
@@ -294,7 +285,7 @@
                                     </div>
                                 </div>
                                 <a href="tips.html" class="btn btn-secondary btn-full mt-2">
-                                    <i class="fas fa-chevron-right"></i> More Tips
+                                    <i class="fas fa-lightbulb"></i> More Tips
                                 </a>
                             </div>
                         </div>
@@ -311,6 +302,20 @@
                             <i class="fas fa-ship card-icon"></i>
                             Trip Overview
                         </h3>
+                    </div>
+                    <div class="card-countdown">
+                        <div class="countdown-display">
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="countdown-days">00</span>
+                                <span class="countdown-label">Days</span>
+                            </div>
+                            <div class="countdown-separator">:</div>
+                            <div class="countdown-item">
+                                <span class="countdown-value" id="countdown-hours">00</span>
+                                <span class="countdown-label">Hours</span>
+                            </div>
+                        </div>
+                        <p class="countdown-note">Until embarkation (Feb 14, 3:00 PM)</p>
                     </div>
                     <div class="card-body">
                         <div class="stats-grid">
@@ -378,7 +383,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-secondary btn-full mt-2" id="saveContacts">
+                        <button class="btn btn-primary btn-full mt-2" id="saveContacts">
                             <i class="fas fa-download"></i> Save to Phone
                         </button>
                     </div>
@@ -465,41 +470,70 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Save Contacts Button
             const saveButton = document.getElementById('saveContacts');
 
             if (saveButton) {
                 saveButton.addEventListener('click', function() {
                     saveButton.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                    saveButton.classList.remove('btn-secondary');
-                    saveButton.classList.add('btn-primary');
+                    saveButton.classList.add('btn-success');
+                    saveButton.disabled = true;
 
                     setTimeout(() => {
                         saveButton.innerHTML = '<i class="fas fa-download"></i> Save to Phone';
-                        saveButton.classList.remove('btn-primary');
-                        saveButton.classList.add('btn-secondary');
+                        saveButton.classList.remove('btn-success');
+                        saveButton.disabled = false;
                     }, 2000);
                 });
             }
 
-            function updateCountdown() {
+            // Countdown Function
+            function updateCountdown(displayId = null) {
                 const now = new Date();
                 const embarkationDate = new Date('2026-02-14T15:00:00');
 
                 const timeDiff = embarkationDate - now;
-                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-                const daysEl = document.querySelector('.countdown-number[data-unit="days"]');
-                const hoursEl = document.querySelector('.countdown-number[data-unit="hours"]');
+                if (timeDiff <= 0) {
+                    if (displayId) {
+                        document.getElementById(`countdown-${displayId}`).textContent = '00';
+                    } else {
+                        document.querySelectorAll('.countdown-number, .countdown-value').forEach(el => {
+                            el.textContent = '00';
+                        });
+                    }
+                    return;
+                }
 
-                if (daysEl && hoursEl) {
-                    daysEl.textContent = days.toString().padStart(2, '0');
-                    hoursEl.textContent = hours.toString().padStart(2, '0');
+                const totalHours = Math.floor(timeDiff / (1000 * 60 * 60));
+                const days = Math.floor(totalHours / 24);
+                const hours = totalHours % 24;
+
+                if (displayId) {
+                    const element = document.getElementById(`countdown-${displayId}`);
+                    if (element) {
+                        element.textContent = displayId === 'days'
+                            ? days.toString().padStart(2, '0')
+                            : hours.toString().padStart(2, '0');
+                    }
+                } else {
+                    // Update all countdown displays
+                    const daysElements = document.querySelectorAll('[data-unit="days"], #countdown-days');
+                    const hoursElements = document.querySelectorAll('[data-unit="hours"], #countdown-hours');
+
+                    daysElements.forEach(el => {
+                        el.textContent = days.toString().padStart(2, '0');
+                    });
+
+                    hoursElements.forEach(el => {
+                        el.textContent = hours.toString().padStart(2, '0');
+                    });
                 }
             }
 
+            // Initialize countdown
             updateCountdown();
-            setInterval(updateCountdown, 60000);
+            setInterval(updateCountdown, 60000); // Update every minute
         });
     </script>
 </body>
