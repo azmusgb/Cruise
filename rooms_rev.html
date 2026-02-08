@@ -1,2014 +1,692 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0066b2">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Deck Plans | Adventure of the Seas | Royal Caribbean</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Base Styles */
-        :root {
-            --primary-blue: #0066b2;
-            --primary-dark: #004d87;
-            --primary-gradient: linear-gradient(135deg, #0066b2 0%, #004d87 100%);
-            --secondary-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            --accent-color: #ff6b35;
-            --accent-hover: #e55a2b;
-            --success-color: #28a745;
-            --info-color: #17a2b8;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
-            --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.2);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-xl: 30px;
-            --transition-fast: 0.2s ease;
-            --transition-normal: 0.3s ease;
-            --transition-slow: 0.5s ease;
-            --font-heading: 'Montserrat', sans-serif;
-            --font-body: 'Inter', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-body);
-            line-height: 1.6;
-            color: #333;
-            background: #f5f7fa;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
-
-        /* Hero Section */
-        .app-hero {
-            background: linear-gradient(135deg, #0066b2 0%, #003d65 100%);
-            color: white;
-            padding: 4rem 0 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .app-hero::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 150px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.1));
-        }
-
-        .app-hero__inner {
-            max-width: 1000px;
-            margin: 0 auto;
-            text-align: center;
-            padding: 2rem 0;
-            position: relative;
-            z-index: 2;
-        }
-
-        .app-hero__context {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1.5rem;
-            border-radius: var(--radius-xl);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .app-hero__title {
-            font-family: var(--font-heading);
-            font-size: 3.5rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            line-height: 1.2;
-        }
-
-        .app-hero__meta {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto 2rem;
-            line-height: 1.6;
-        }
-
-        /* Deck Navigation */
-        .deck-navigation {
-            background: white;
-            padding: 1.5rem 0;
-            box-shadow: var(--shadow-sm);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .deck-nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        .deck-selector {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .deck-btn {
-            padding: 0.75rem 1.5rem;
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            color: #495057;
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-family: var(--font-heading);
-        }
-
-        .deck-btn:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-        }
-
-        .deck-btn.active {
-            background: var(--primary-gradient);
-            color: white;
-            border-color: var(--primary-blue);
-            box-shadow: var(--shadow-md);
-        }
-
-        .deck-controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .deck-zoom {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            background: #f8f9fa;
-            padding: 0.5rem;
-            border-radius: var(--radius-md);
-        }
-
-        .zoom-btn {
-            width: 36px;
-            height: 36px;
-            border: 2px solid #dee2e6;
-            background: white;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            color: #495057;
-        }
-
-        .zoom-btn:hover {
-            background: #e9ecef;
-            border-color: var(--primary-blue);
-            color: var(--primary-blue);
-        }
-
-        .zoom-level {
-            min-width: 60px;
-            text-align: center;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .deck-search {
-            position: relative;
-        }
-
-        .deck-search input {
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 2px solid #dee2e6;
-            border-radius: var(--radius-md);
-            width: 250px;
-            font-size: 0.95rem;
-            transition: all var(--transition-fast);
-        }
-
-        .deck-search input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(0, 102, 178, 0.1);
-        }
-
-        .deck-search i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        /* Deck Overview */
-        .deck-overview {
-            padding: 3rem 0;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        }
-
-        .deck-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-lg);
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-normal);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--primary-gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-blue);
-            font-family: var(--font-heading);
-            line-height: 1;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .deck-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-normal);
-            border: 1px solid #e9ecef;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .feature-card h3 {
-            color: var(--primary-blue);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 1.3rem;
-        }
-
-        .feature-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .feature-list li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #f8f9fa;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .feature-list li:last-child {
-            border-bottom: none;
-        }
-
-        .feature-list li i {
-            color: var(--success-color);
-        }
-
-        /* Interactive Deck Plan */
-        .deck-plan-container {
-            padding: 3rem 0;
-            background: white;
-            min-height: 800px;
-        }
-
-        .deck-plan-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .deck-plan-header h2 {
-            font-family: var(--font-heading);
-            font-size: 2.5rem;
-            color: var(--primary-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .deck-plan-header p {
-            color: #666;
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .deck-plan-wrapper {
-            position: relative;
-            overflow-x: auto;
-            background: #f8f9fa;
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid #e9ecef;
-        }
-
-        /* Ship Outline */
-        .ship-outline {
-            position: relative;
-            width: 1400px;
-            height: 600px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-        }
-
-        .ship-bow {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 100px;
-            background: #adb5bd;
-            clip-path: polygon(0 0, 100% 20%, 100% 80%, 0 100%);
-        }
-
-        .ship-stern {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 100px;
-            background: #adb5bd;
-            clip-path: polygon(0 20%, 100% 0, 100% 100%, 0 80%);
-        }
-
-        .ship-body {
-            position: absolute;
-            left: 100px;
-            right: 100px;
-            top: 0;
-            bottom: 0;
-            background: #ced4da;
-        }
-
-        /* Deck Layout */
-        .deck-layout {
-            position: absolute;
-            left: 150px;
-            right: 150px;
-            top: 50px;
-            bottom: 50px;
-            display: grid;
-            grid-template-columns: repeat(40, 1fr);
-            grid-template-rows: repeat(20, 1fr);
-            gap: 2px;
-        }
-
-        /* Room Types */
-        .deck-area {
-            background: white;
-            border-radius: 4px;
-            transition: all var(--transition-fast);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .deck-area:hover {
-            transform: scale(1.05);
-            z-index: 10;
-            box-shadow: 0 0 0 2px var(--primary-blue);
-        }
-
-        .deck-area.your-room {
-            box-shadow: 0 0 0 3px var(--accent-color);
-            z-index: 5;
-        }
-
-        .deck-area.cabin {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border: 1px solid #90caf9;
-        }
-
-        .deck-area.suite {
-            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-            border: 1px solid #ffb74d;
-        }
-
-        .deck-area.balcony {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border: 1px solid #81c784;
-        }
-
-        .deck-area.public {
-            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
-            border: 1px solid #ba68c8;
-        }
-
-        .deck-area.service {
-            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
-            border: 1px solid #4db6ac;
-        }
-
-        .deck-area.corridor {
-            background: #f5f5f5;
-            border: 1px dashed #bdbdbd;
-        }
-
-        .deck-area.stairs {
-            background: linear-gradient(135deg, #ffecb3 0%, #ffd54f 100%);
-            border: 1px solid #ffa000;
-        }
-
-        .deck-area.elevator {
-            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
-            border: 1px solid #f06292;
-        }
-
-        .room-label {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: #333;
-            pointer-events: none;
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .your-room .room-label {
-            color: var(--accent-color);
-            font-weight: 900;
-        }
-
-        /* Deck Legend */
-        .deck-legend {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            margin-top: 2rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid #e9ecef;
-        }
-
-        .legend-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary-blue);
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        .legend-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem;
-            background: #f8f9fa;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-fast);
-        }
-
-        .legend-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-        }
-
-        .legend-color {
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-
-        .legend-text {
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
-
-        /* Deck Information */
-        .deck-info {
-            background: white;
-            padding: 3rem;
-            border-radius: var(--radius-lg);
-            margin: 3rem 0;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid #e9ecef;
-        }
-
-        .deck-info-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .deck-info-header h2 {
-            color: var(--primary-blue);
-            font-family: var(--font-heading);
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .deck-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .info-card {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            border-left: 4px solid var(--primary-blue);
-        }
-
-        .info-card h3 {
-            color: var(--primary-blue);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .info-card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .info-card li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .info-card li:last-child {
-            border-bottom: none;
-        }
-
-        /* Deck Tips */
-        .deck-tips {
-            background: linear-gradient(135deg, #fff9db 0%, #fff3bf 100%);
-            padding: 2.5rem;
-            border-radius: var(--radius-lg);
-            margin: 3rem 0;
-            border-left: 6px solid #ffd43b;
-        }
-
-        .deck-tips h3 {
-            color: #e67700;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 1.3rem;
-        }
-
-        .tips-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .tip-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem;
-            background: white;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .tip-icon {
-            width: 40px;
-            height: 40px;
-            background: #ffd43b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: #e67700;
-        }
-
-        .tip-content {
-            flex: 1;
-        }
-
-        .tip-content h4 {
-            color: #495057;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .tip-content p {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        /* Room Details Modal */
-        .room-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .room-modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: var(--radius-lg);
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-            box-shadow: var(--shadow-xl);
-        }
-
-        .modal-header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 1.3rem;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: all var(--transition-fast);
-        }
-
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        .modal-section {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .modal-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .modal-section h4 {
-            color: var(--primary-blue);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .modal-guests {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .guest-tag {
-            background: #e9ecef;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .modal-features {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .modal-features li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #f8f9fa;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .modal-features li:last-child {
-            border-bottom: none;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin: 3rem 0;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border-radius: var(--radius-md);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all var(--transition-normal);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 0.95rem;
-            border: none;
-            font-family: var(--font-heading);
-        }
-
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 102, 178, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #005a9c 0%, #003d65 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 102, 178, 0.4);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary-blue);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 102, 178, 0.2);
-        }
-
-        /* Mobile Navigation */
-        .mobile-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 0.75rem 0;
-            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #6c757d;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-fast);
-        }
-
-        .mobile-nav-item.active {
-            color: var(--primary-blue);
-            background: rgba(0, 102, 178, 0.1);
-        }
-
-        .mobile-nav-icon {
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .mobile-nav-text {
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(30px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .ship-outline {
-                width: 1000px;
-                height: 500px;
-            }
-            
-            .deck-layout {
-                left: 100px;
-                right: 100px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .app-hero__title {
-                font-size: 2.5rem;
-            }
-            
-            .deck-nav-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .deck-selector {
-                justify-content: center;
-            }
-            
-            .deck-controls {
-                justify-content: center;
-            }
-            
-            .deck-search input {
-                width: 100%;
-            }
-            
-            .ship-outline {
-                width: 800px;
-                height: 400px;
-            }
-            
-            .deck-layout {
-                left: 50px;
-                right: 50px;
-                grid-template-columns: repeat(30, 1fr);
-                grid-template-rows: repeat(15, 1fr);
-            }
-            
-            .room-label {
-                font-size: 0.6rem;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-            }
-            
-            .modal-actions {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .app-hero__title {
-                font-size: 2rem;
-            }
-            
-            .deck-plan-header h2 {
-                font-size: 1.8rem;
-            }
-            
-            .deck-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-            
-            .ship-outline {
-                width: 600px;
-                height: 300px;
-            }
-            
-            .deck-layout {
-                left: 30px;
-                right: 30px;
-                grid-template-columns: repeat(20, 1fr);
-                grid-template-rows: repeat(10, 1fr);
-            }
-            
-            .room-label {
-                font-size: 0.5rem;
-            }
-        }
-
-        /* Accessibility */
-        .skip-to-content {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: var(--primary-blue);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            text-decoration: none;
-            z-index: 9999;
-        }
-
-        .skip-to-content:focus {
-            top: 0;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Print Styles */
-        @media print {
-            .deck-navigation,
-            .action-buttons,
-            .mobile-nav {
-                display: none !important;
-            }
-            
-            .deck-plan-wrapper {
-                box-shadow: none !important;
-                border: 1px solid #ccc !important;
-            }
-            
-            .deck-area {
-                border: 1px solid #ccc !important;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0066b2" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.svg" />
+
+  <title>Staterooms | Adventure of the Seas | Feb 14–20, 2026</title>
+  <meta name="description" content="Stateroom assignments, deck locations, and room details for your cruise group." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Shared layout injector -->
+  <script src="shared-layout.js" defer></script>
 </head>
-<body>
-    <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
-    <!-- Header (Simulated) -->
-    <header style="background: var(--primary-gradient); padding: 1rem 0; color: white;">
-        <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <i class="fas fa-ship" style="font-size: 1.5rem;"></i>
-                    <h1 style="font-family: var(--font-heading); font-size: 1.2rem;">Adventure of the Seas</h1>
-                </div>
-                <nav style="display: flex; gap: 2rem;">
-                    <a href="index.html" style="color: white; text-decoration: none; font-weight: 500;">Dashboard</a>
-                    <a href="rooms.html" style="color: white; text-decoration: none; font-weight: 500;">Rooms</a>
-                    <a href="decks.html" style="color: white; text-decoration: none; font-weight: 500; text-decoration: underline;">Decks</a>
-                    <a href="itinerary.html" style="color: white; text-decoration: none; font-weight: 500;">Itinerary</a>
-                </nav>
-            </div>
-        </div>
+<body>
+  <a class="skip-to-content" href="#mainContent">Skip to main content</a>
+
+  <!-- Shared header injected here -->
+  <div id="sharedHeader" data-page="rooms" data-menu-toggle="false"></div>
+
+  <!-- Screen reader live region -->
+  <div id="liveAnnouncement" class="sr-only" aria-live="polite"></div>
+
+  <main id="mainContent" class="main-content">
+    <header class="app-hero">
+      <div class="container">
+        <h1 class="app-hero__title">
+          <i class="fas fa-bed" aria-hidden="true"></i>
+          Stateroom Assignments
+        </h1>
+        <p class="app-hero__meta">
+          Adventure of the Seas • Feb 14–20, 2026 • Quick copy, filter, and jump to deck location.
+        </p>
+      </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="app-hero">
-        <div class="app-hero__inner">
-            <span class="app-hero__context">Interactive Deck Plans</span>
-            <h1 class="app-hero__title">Explore Your Ship</h1>
-            <p class="app-hero__meta">
-                Navigate the Adventure of the Seas with our interactive deck plans. Find amenities, locate your stateroom, and discover everything our ship has to offer.
+    <section class="container stack">
+      <!-- Quick stats -->
+      <section class="quick-stats" aria-label="Room stats">
+        <div class="card--compact">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Rooms</div>
+        </div>
+        <div class="card--compact">
+          <div class="stat-number">10</div>
+          <div class="stat-label">Guests</div>
+        </div>
+        <div class="card--compact">
+          <div class="stat-number">3</div>
+          <div class="stat-label">Decks</div>
+        </div>
+        <div class="card--compact">
+          <div class="stat-number">2</div>
+          <div class="stat-label">Balcony</div>
+        </div>
+      </section>
+
+      <!-- Tools -->
+      <section class="room-tools" aria-label="Room filters">
+        <div class="room-tools-grid grid grid-2">
+          <div class="card">
+            <h2 class="card__title">
+              <i class="fas fa-filter" aria-hidden="true"></i>
+              Filter Rooms
+            </h2>
+
+            <div class="form-group">
+              <label for="searchInput" class="form-label">Search by room # or guest</label>
+              <input id="searchInput" class="form-input" type="search" placeholder="Try: 6650, Aimee, TJ…" autocomplete="off" />
+              <div id="searchHelp" class="form-help">Search matches room number and guest names.</div>
+            </div>
+
+            <div class="grid grid-2">
+              <div class="form-group">
+                <label for="deckFilter" class="form-label">Deck</label>
+                <select id="deckFilter" class="form-select">
+                  <option value="all">All Decks</option>
+                  <option value="3">Deck 3</option>
+                  <option value="6">Deck 6</option>
+                  <option value="8">Deck 8</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="typeFilter" class="form-label">Type</label>
+                <select id="typeFilter" class="form-select">
+                  <option value="all">All Types</option>
+                  <option value="balcony">Balcony</option>
+                  <option value="ocean">Ocean View</option>
+                  <option value="interior">Interior</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="room-tools-actions">
+              <button id="clearFilters" class="btn btn-secondary" type="button">
+                <i class="fas fa-filter-circle-xmark" aria-hidden="true"></i>
+                Clear Filters
+              </button>
+
+              <span id="filterCount" class="filter-count" aria-live="polite">No active filters</span>
+            </div>
+
+            <div id="filterChips" class="filter-chips" aria-label="Active filters"></div>
+          </div>
+
+          <div class="card">
+            <h2 class="card__title">
+              <i class="fas fa-circle-info" aria-hidden="true"></i>
+              At a Glance
+            </h2>
+
+            <p id="resultsText" class="muted">
+              Showing all 5 staterooms in your party
             </p>
+
+            <div class="nautical-legend">
+              <h4><i class="fas fa-compass" aria-hidden="true"></i> Ship Location Guide</h4>
+              <div class="legend-items">
+                <div class="legend-item">
+                  <span class="legend-dot dot-starboard"></span>
+                  <span class="legend-text"><strong>Starboard:</strong> Right side • sunset</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot dot-port"></span>
+                  <span class="legend-text"><strong>Port:</strong> Left side • sunrise</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot dot-aft"></span>
+                  <span class="legend-text"><strong>Aft:</strong> Rear • wake views</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot dot-forward"></span>
+                  <span class="legend-text"><strong>Forward:</strong> Front • theaters</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot dot-midship"></span>
+                  <span class="legend-text"><strong>Midship:</strong> Least motion</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pro-tips">
+              <h4><i class="fas fa-lightbulb" aria-hidden="true"></i> Pro Tips</h4>
+              <ul class="features-list">
+                <li><i class="fas fa-magnet" aria-hidden="true"></i> Magnetic walls: bring hooks/magnets.</li>
+                <li><i class="fas fa-plug" aria-hidden="true"></i> Power strip: <strong>non-surge</strong> only.</li>
+                <li><i class="fas fa-suitcase" aria-hidden="true"></i> Store suitcases under beds.</li>
+                <li><i class="fas fa-clock" aria-hidden="true"></i> Balcony = morning coffee headquarters.</li>
+              </ul>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <!-- Rooms -->
+      <section class="room-grid" id="roomGrid" aria-label="Stateroom list">
+        <!-- Room 1 -->
+        <div class="room-card featured" data-room="6650" data-deck="6" data-type="balcony" data-guests="bill melissa owen declan">
+          <div class="room-header">
+            <div class="room-number">
+              <span>6650</span>
+              <button class="copy-quick" type="button" data-copy-room="6650" aria-label="Copy room number 6650" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="room-location">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              Deck 6 • Starboard • Connecting to 6652
+              <span class="location-tooltip">Starboard is the right side of the ship when facing forward.</span>
+            </div>
+
+            <span class="room-tag tag--success">Balcony Stateroom</span>
+          </div>
+
+          <div class="room-content">
+            <p class="room-label"><i class="fas fa-user-friends" aria-hidden="true"></i> Guests (4):</p>
+            <ul class="guest-list">
+              <li class="adult">Bill (Adult • Primary Guest)</li>
+              <li class="adult">Melissa (Adult)</li>
+              <li class="child">Owen (Child • Age 8)</li>
+              <li class="child">Declan (Child • Age 5)</li>
+            </ul>
+
+            <div class="room-features">
+              <p class="room-label"><i class="fas fa-list-check" aria-hidden="true"></i> Room Features:</p>
+              <ul class="features-list">
+                <li><i class="fas fa-check" aria-hidden="true"></i> 198 sq ft cabin + 46 sq ft private balcony</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Connecting door to adjacent room 6652</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Two twin beds convertible to king</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Interactive TV with movies & cruise info</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Mini-safe, mini-fridge, hairdryer</li>
+              </ul>
+            </div>
+
+            <div class="room-cta">
+              <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="6650" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i> Copy
+              </button>
+              <a class="btn btn-secondary room-link-btn" href="decks.html?deck=6&room=6650">
+                <i class="fas fa-map" aria-hidden="true"></i> Deck Map
+              </a>
+              <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="6650" title="Copy room number (for saving)">
+                <i class="fas fa-address-card" aria-hidden="true"></i> Save Info
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room 2 -->
+        <div class="room-card" data-room="6443" data-deck="6" data-type="interior" data-guests="abel amy">
+          <div class="room-header">
+            <div class="room-number">
+              <span>6443</span>
+              <button class="copy-quick" type="button" data-copy-room="6443" aria-label="Copy room number 6443" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="room-location">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              Deck 6 • Port Side • Near Laundry
+              <span class="location-tooltip">Port is the left side of the ship. Laundry on same deck.</span>
+            </div>
+
+            <span class="room-tag tag--warning">Interior Stateroom</span>
+          </div>
+
+          <div class="room-content">
+            <p class="room-label"><i class="fas fa-user-friends" aria-hidden="true"></i> Guests (2):</p>
+            <ul class="guest-list">
+              <li class="adult">Abel (Adult)</li>
+              <li class="adult">Amy (Adult)</li>
+            </ul>
+
+            <div class="room-features">
+              <p class="room-label"><i class="fas fa-list-check" aria-hidden="true"></i> Room Features:</p>
+              <ul class="features-list">
+                <li><i class="fas fa-check" aria-hidden="true"></i> 160 sq ft cozy interior space</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Quiet location away from elevators</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Convenient laundry room access</li>
+              </ul>
+            </div>
+
+            <div class="room-cta">
+              <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="6443" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i> Copy
+              </button>
+              <a class="btn btn-secondary room-link-btn" href="decks.html?deck=6&room=6443">
+                <i class="fas fa-map" aria-hidden="true"></i> Deck Map
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room 3 -->
+        <div class="room-card" data-room="8528" data-deck="8" data-type="balcony" data-guests="aimee karin">
+          <div class="room-header">
+            <div class="room-number">
+              <span>8528</span>
+              <button class="copy-quick" type="button" data-copy-room="8528" aria-label="Copy room number 8528" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="room-location">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              Deck 8 • Midship • Premium Location
+              <span class="location-tooltip">Midship offers the smoothest ride with minimal motion.</span>
+            </div>
+
+            <span class="room-tag tag--success">Balcony Stateroom</span>
+          </div>
+
+          <div class="room-content">
+            <p class="room-label"><i class="fas fa-user-friends" aria-hidden="true"></i> Guests (2):</p>
+            <ul class="guest-list">
+              <li class="adult">Aimee (Adult)</li>
+              <li class="adult">Karin (Adult)</li>
+            </ul>
+
+            <div class="room-features">
+              <p class="room-label"><i class="fas fa-list-check" aria-hidden="true"></i> Room Features:</p>
+              <ul class="features-list">
+                <li><i class="fas fa-check" aria-hidden="true"></i> Private balcony with ocean views</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Mid-ship location (minimal motion)</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Close to central elevators</li>
+              </ul>
+            </div>
+
+            <div class="room-cta">
+              <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="8528" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i> Copy
+              </button>
+              <a class="btn btn-secondary room-link-btn" href="decks.html?deck=8&room=8528">
+                <i class="fas fa-map" aria-hidden="true"></i> Deck Map
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room 4 -->
+        <div class="room-card" data-room="8612" data-deck="8" data-type="ocean" data-guests="bella tj">
+          <div class="room-header">
+            <div class="room-number">
+              <span>8612</span>
+              <button class="copy-quick" type="button" data-copy-room="8612" aria-label="Copy room number 8612" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="room-location">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              Deck 8 • Aft • Quiet Corridor
+              <span class="location-tooltip">Aft offers beautiful wake views and quieter hallways.</span>
+            </div>
+
+            <span class="room-tag tag--info">Ocean View</span>
+          </div>
+
+          <div class="room-content">
+            <p class="room-label"><i class="fas fa-user-friends" aria-hidden="true"></i> Guests (2):</p>
+            <ul class="guest-list">
+              <li class="adult">Bella (Adult)</li>
+              <li class="adult">TJ (Adult)</li>
+            </ul>
+
+            <div class="room-features">
+              <p class="room-label"><i class="fas fa-list-check" aria-hidden="true"></i> Room Features:</p>
+              <ul class="features-list">
+                <li><i class="fas fa-check" aria-hidden="true"></i> Large ocean view window</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Quiet aft location</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Close to specialty dining</li>
+              </ul>
+            </div>
+
+            <div class="room-cta">
+              <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="8612" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i> Copy
+              </button>
+              <a class="btn btn-secondary room-link-btn" href="decks.html?deck=8&room=8612">
+                <i class="fas fa-map" aria-hidden="true"></i> Deck Map
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room 5 -->
+        <div class="room-card" data-room="3622" data-deck="3" data-type="interior" data-guests="phoebe ryan">
+          <div class="room-header">
+            <div class="room-number">
+              <span>3622</span>
+              <button class="copy-quick" type="button" data-copy-room="3622" aria-label="Copy room number 3622" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="room-location">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              Deck 3 • Forward • Budget-Friendly
+              <span class="location-tooltip">Forward location offers easy access to theaters and shows.</span>
+            </div>
+
+            <span class="room-tag tag--warning">Interior Stateroom</span>
+          </div>
+
+          <div class="room-content">
+            <p class="room-label"><i class="fas fa-user-friends" aria-hidden="true"></i> Guests (2):</p>
+            <ul class="guest-list">
+              <li class="adult">Phoebe (Adult)</li>
+              <li class="adult">Ryan (Adult)</li>
+            </ul>
+
+            <div class="room-features">
+              <p class="room-label"><i class="fas fa-list-check" aria-hidden="true"></i> Room Features:</p>
+              <ul class="features-list">
+                <li><i class="fas fa-check" aria-hidden="true"></i> Efficient interior space</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Close to theaters</li>
+                <li><i class="fas fa-check" aria-hidden="true"></i> Great value pick</li>
+              </ul>
+            </div>
+
+            <div class="room-cta">
+              <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="3622" title="Copy room number">
+                <i class="fas fa-copy" aria-hidden="true"></i> Copy
+              </button>
+              <a class="btn btn-secondary room-link-btn" href="decks.html?deck=3&room=3622">
+                <i class="fas fa-map" aria-hidden="true"></i> Deck Map
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Empty state -->
+      <div class="empty-state is-hidden" id="emptyState" role="status" aria-live="polite">
+        <i class="fas fa-ship" aria-hidden="true"></i>
+        <h3>No Matching Staterooms Found</h3>
+        <p>Try adjusting your search filters or clear filters to show all rooms.</p>
+        <button class="btn btn-primary mt-3" id="clearEmptyState" type="button">
+          <i class="fas fa-filter-circle-xmark" aria-hidden="true"></i>
+          Clear All Filters &amp; Show All Rooms
+        </button>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-buttons">
+        <a class="btn btn-primary" href="decks.html">
+          <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
+          Explore Interactive Deck Plans
+        </a>
+        <a class="btn btn-secondary" href="index.html">
+          <i class="fas fa-home" aria-hidden="true"></i>
+          Return to Dashboard
+        </a>
+        <button class="btn btn-secondary" type="button" onclick="window.print()">
+          <i class="fas fa-print" aria-hidden="true"></i>
+          Print Room List
+        </button>
+      </div>
+
+      <!-- Important notes -->
+      <div class="important-notes">
+        <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Essential Stateroom Information</h3>
+        <ul>
+          <li><strong>Stateroom access:</strong> Typically after 1:00 PM on embarkation day</li>
+          <li><strong>SeaPass:</strong> Room key + onboard payment method</li>
+          <li><strong>Wi-Fi:</strong> Join “Royal-WiFi” and use the Royal Caribbean app</li>
+          <li><strong>Muster:</strong> F6 (Deck 4) — complete eMuster before sailaway</li>
+          <li><strong>Room service:</strong> Availability varies; check app for current hours</li>
+          <li><strong>Power:</strong> 110V/220V outlets; limited USB</li>
+        </ul>
+      </div>
     </section>
+  </main>
 
-    <!-- Deck Navigation -->
-    <nav class="deck-navigation">
-        <div class="container deck-nav-container">
-            <div class="deck-selector">
-                <button class="deck-btn active" data-deck="3">
-                    <i class="fas fa-layer-group"></i>
-                    Deck 3 • Lower Deck
-                </button>
-                <button class="deck-btn" data-deck="6">
-                    <i class="fas fa-layer-group"></i>
-                    Deck 6 • Main Deck
-                </button>
-                <button class="deck-btn" data-deck="8">
-                    <i class="fas fa-layer-group"></i>
-                    Deck 8 • Upper Deck
-                </button>
-                <button class="deck-btn" data-deck="12">
-                    <i class="fas fa-layer-group"></i>
-                    Deck 12 • Pool Deck
-                </button>
-            </div>
-            <div class="deck-controls">
-                <div class="deck-zoom">
-                    <button class="zoom-btn" id="zoom-out">
-                        <i class="fas fa-search-minus"></i>
-                    </button>
-                    <span class="zoom-level" id="zoom-level">100%</span>
-                    <button class="zoom-btn" id="zoom-in">
-                        <i class="fas fa-search-plus"></i>
-                    </button>
-                </div>
-                <div class="deck-search">
-                    <input type="text" placeholder="Search room or amenity..." id="deck-search">
-                    <i class="fas fa-search"></i>
-                </div>
-            </div>
-        </div>
-    </nav>
+  <!-- Shared footer injected here -->
+  <div id="sharedFooter"></div>
 
-    <main id="main-content" class="container">
-        <!-- Deck Overview -->
-        <section class="deck-overview">
-            <div class="deck-stats">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-bed"></i>
-                    </div>
-                    <div class="stat-number">1,557</div>
-                    <div class="stat-label">Total Staterooms</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-utensils"></i>
-                    </div>
-                    <div class="stat-number">12</div>
-                    <div class="stat-label">Dining Venues</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-swimming-pool"></i>
-                    </div>
-                    <div class="stat-number">4</div>
-                    <div class="stat-label">Swimming Pools</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-dumbbell"></i>
-                    </div>
-                    <div class="stat-number">1</div>
-                    <div class="stat-label">Fitness Center</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-theater-masks"></i>
-                    </div>
-                    <div class="stat-number">3</div>
-                    <div class="stat-label">Theaters & Shows</div>
-                </div>
-            </div>
+  <!-- Mobile bottom nav -->
+  <nav class="mobile-nav" aria-label="Bottom navigation">
+    <a class="mobile-nav-item" href="index.html">
+      <span class="mobile-nav-icon"><i class="fas fa-home" aria-hidden="true"></i></span>
+      <span class="mobile-nav-text">Dashboard</span>
+    </a>
+    <a class="mobile-nav-item" href="operations.html">
+      <span class="mobile-nav-icon"><i class="fas fa-tasks" aria-hidden="true"></i></span>
+      <span class="mobile-nav-text">Checklist</span>
+    </a>
+    <a class="mobile-nav-item" href="itinerary.html">
+      <span class="mobile-nav-icon"><i class="fas fa-route" aria-hidden="true"></i></span>
+      <span class="mobile-nav-text">Itinerary</span>
+    </a>
+    <a class="mobile-nav-item active" aria-current="page" href="rooms.html">
+      <span class="mobile-nav-icon"><i class="fas fa-bed" aria-hidden="true"></i></span>
+      <span class="mobile-nav-text">Rooms</span>
+    </a>
+    <a class="mobile-nav-item" href="decks.html">
+      <span class="mobile-nav-icon"><i class="fas fa-map" aria-hidden="true"></i></span>
+      <span class="mobile-nav-text">Decks</span>
+    </a>
+    <a class="mobile-nav-item" href="dining.html">
+      <span class="mobile-nav-icon"><i class="fas fa-utensils" aria-hidden="true"></i></span>
+      <span class="mobile-nav-text">Dining</span>
+    </a>
+    <a class="mobile-nav-item" href="tips.html">
+      <span class="mobile-nav-icon"><i class="fas fa-lightbulb" aria-hidden="true"></i></span>
+      <span class="mobile-nav-text">Tips</span>
+    </a>
+  </nav>
 
-            <div class="deck-features">
-                <div class="feature-card">
-                    <h3><i class="fas fa-star"></i> Your Staterooms</h3>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check"></i> <strong>6650</strong> - Deck 6 • Balcony Suite</li>
-                        <li><i class="fas fa-check"></i> <strong>6443</strong> - Deck 6 • Interior</li>
-                        <li><i class="fas fa-check"></i> <strong>8528</strong> - Deck 8 • Deluxe Balcony</li>
-                        <li><i class="fas fa-check"></i> <strong>8612</strong> - Deck 8 • Ocean View</li>
-                        <li><i class="fas fa-check"></i> <strong>3622</strong> - Deck 3 • Interior</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <h3><i class="fas fa-map-marker-alt"></i> Key Locations</h3>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-walking"></i> <strong>Main Dining Room:</strong> Deck 4 & 5</li>
-                        <li><i class="fas fa-walking"></i> <strong>Windjammer Café:</strong> Deck 11</li>
-                        <li><i class="fas fa-walking"></i> <strong>Royal Promenade:</strong> Deck 5</li>
-                        <li><i class="fas fa-walking"></i> <strong>Pool Deck:</strong> Deck 11 & 12</li>
-                        <li><i class="fas fa-walking"></i> <strong>Spa & Fitness:</strong> Deck 12</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
+  <script>
+/* Rooms Page Interactions (filters + copy) */
+document.addEventListener('DOMContentLoaded', () => {
+  const els = {
+    roomCards: Array.from(document.querySelectorAll('.room-card')),
+    searchInput: document.getElementById('searchInput'),
+    deckFilter: document.getElementById('deckFilter'),
+    typeFilter: document.getElementById('typeFilter'),
+    clearFilters: document.getElementById('clearFilters'),
+    resultsText: document.getElementById('resultsText'),
+    filterChips: document.getElementById('filterChips'),
+    emptyState: document.getElementById('emptyState'),
+    clearEmptyState: document.getElementById('clearEmptyState'),
+    liveAnnouncement: document.getElementById('liveAnnouncement'),
+    filterCount: document.getElementById('filterCount')
+  };
 
-        <!-- Interactive Deck Plan -->
-        <section class="deck-plan-container">
-            <div class="deck-plan-header">
-                <h2>Deck 6 - Main Deck</h2>
-                <p>Interactive deck plan showing staterooms, amenities, and your party's locations</p>
-            </div>
+  if (!els.searchInput || !els.deckFilter || !els.typeFilter || !els.clearFilters || !els.resultsText) return;
 
-            <div class="deck-plan-wrapper">
-                <div class="ship-outline">
-                    <div class="ship-bow"></div>
-                    <div class="ship-stern"></div>
-                    <div class="ship-body"></div>
-                    
-                    <!-- Deck Layout Grid -->
-                    <div class="deck-layout" id="deck-layout">
-                        <!-- This will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
+  els.roomCards.forEach((card, idx) => card.style.setProperty('--index', String(idx)));
 
-            <!-- Deck Legend -->
-            <div class="deck-legend">
-                <div class="legend-header">
-                    <i class="fas fa-key"></i>
-                    Deck Plan Legend
-                </div>
-                <div class="legend-grid">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 1px solid #90caf9;"></div>
-                        <span class="legend-text">Standard Cabins</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border: 1px solid #ffb74d;"></div>
-                        <span class="legend-text">Suites</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 1px solid #81c784;"></div>
-                        <span class="legend-text">Balcony Rooms</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); border: 1px solid #ba68c8;"></div>
-                        <span class="legend-text">Public Areas</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); border: 1px solid #4db6ac;"></div>
-                        <span class="legend-text">Service Areas</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #ff6b35; border: 2px solid #e55a2b;"></div>
-                        <span class="legend-text">Your Stateroom</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+  const debounce = (fn, wait = 200) => {
+    let t;
+    return (...args) => {
+      window.clearTimeout(t);
+      t = window.setTimeout(() => fn(...args), wait);
+    };
+  };
 
-        <!-- Deck Information -->
-        <section class="deck-info">
-            <div class="deck-info-header">
-                <h2>Deck 6 Features & Amenities</h2>
-                <p>Everything you need to know about Main Deck facilities and services</p>
-            </div>
-            <div class="deck-info-grid">
-                <div class="info-card">
-                    <h3><i class="fas fa-utensils"></i> Dining & Bars</h3>
-                    <ul>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Main Dining Room (Forward)</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Café Promenade (Midship)</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Champagne Bar (Aft)</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Ben & Jerry's (Port Side)</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3><i class="fas fa-shopping-bag"></i> Shopping</h3>
-                    <ul>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Royal Promenade Shops</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Logo & Souvenir Store</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Perfume & Cosmetics</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Duty-Free Liquor</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3><i class="fas fa-concierge-bell"></i> Services</h3>
-                    <ul>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Guest Services (Midship)</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Shore Excursions Desk</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Next Cruise Booking</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Photo Gallery</li>
-                    </ul>
-                </div>
-                <div class="info-card">
-                    <h3><i class="fas fa-door-open"></i> Access Points</h3>
-                    <ul>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Main Elevators (4 banks)</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Stairwells (Forward/Aft)</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Gangway Access (Deck 1)</li>
-                        <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Tender Access (when needed)</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
+  const setLive = (msg) => {
+    if (!els.liveAnnouncement) return;
+    els.liveAnnouncement.textContent = msg;
+  };
 
-        <!-- Deck Tips -->
-        <section class="deck-tips">
-            <h3><i class="fas fa-lightbulb"></i> Deck Navigation Tips</h3>
-            <div class="tips-grid">
-                <div class="tip-item">
-                    <div class="tip-icon">
-                        <i class="fas fa-compass"></i>
-                    </div>
-                    <div class="tip-content">
-                        <h4>Orientation Tip</h4>
-                        <p>Remember: Port (left) side has red accents, Starboard (right) has green. Use carpets and signage to navigate.</p>
-                    </div>
-                </div>
-                <div class="tip-item">
-                    <div class="tip-icon">
-                        <i class="fas fa-elevator"></i>
-                    </div>
-                    <div class="tip-content">
-                        <h4>Elevator Strategy</h4>
-                        <p>Forward elevators are less crowded. Use stairs between decks 3-6 for quick access to dining and rooms.</p>
-                    </div>
-                </div>
-                <div class="tip-item">
-                    <div class="tip-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="tip-content">
-                        <h4>Peak Times</h4>
-                        <p>Avoid main elevators during dinner hours (6-8 PM) and after shows. Use forward/aft elevators instead.</p>
-                    </div>
-                </div>
-                <div class="tip-item">
-                    <div class="tip-icon">
-                        <i class="fas fa-walking"></i>
-                    </div>
-                    <div class="tip-content">
-                        <h4>Walking Distances</h4>
-                        <p>Deck 6 connects to everything. It's the central hub - remember this when planning your activities.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+  const createChip = (label, ariaLabel, onRemove) => {
+    const chip = document.createElement('div');
+    chip.className = 'filter-chip';
+    chip.innerHTML = `<span>${label}</span><button type="button" aria-label="${ariaLabel}"><i class="fas fa-times" aria-hidden="true"></i></button>`;
+    chip.querySelector('button').addEventListener('click', onRemove);
+    return chip;
+  };
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <a href="rooms.html" class="btn btn-primary">
-                <i class="fas fa-bed"></i> Back to Staterooms
-            </a>
-            <button class="btn btn-secondary" onclick="window.print()">
-                <i class="fas fa-print"></i> Print Deck Plan
-            </button>
-            <a href="index.html" class="btn btn-secondary">
-                <i class="fas fa-home"></i> Return to Dashboard
-            </a>
-        </div>
-    </main>
+  const updateChips = (q, deck, type) => {
+    if (!els.filterChips) return;
+    els.filterChips.innerHTML = '';
 
-    <!-- Room Details Modal -->
-    <div class="room-modal" id="room-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-door-open"></i> Room Details</h3>
-                <button class="modal-close" id="modal-close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="modal-section">
-                    <h4><i class="fas fa-info-circle"></i> Room Information</h4>
-                    <p><strong>Room Number:</strong> <span id="modal-room-number">6650</span></p>
-                    <p><strong>Deck:</strong> <span id="modal-deck">6</span></p>
-                    <p><strong>Category:</strong> <span id="modal-category">Balcony Suite</span></p>
-                    <p><strong>Location:</strong> <span id="modal-location">Starboard Side, Midship</span></p>
-                </div>
-                <div class="modal-section">
-                    <h4><i class="fas fa-user-friends"></i> Guests</h4>
-                    <div class="modal-guests" id="modal-guests">
-                        <!-- Guests will be populated here -->
-                    </div>
-                </div>
-                <div class="modal-section">
-                    <h4><i class="fas fa-list-check"></i> Features</h4>
-                    <ul class="modal-features" id="modal-features">
-                        <!-- Features will be populated here -->
-                    </ul>
-                </div>
-                <div class="modal-section">
-                    <h4><i class="fas fa-map-marker-alt"></i> Nearby Amenities</h4>
-                    <p id="modal-amenities">Close to main dining, elevators, and Royal Promenade</p>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn btn-primary" id="modal-copy-btn">
-                        <i class="fas fa-copy"></i> Copy Room Number
-                    </button>
-                    <a href="rooms.html" class="btn btn-secondary">
-                        <i class="fas fa-external-link-alt"></i> View Full Details
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    if (q) {
+      els.filterChips.appendChild(createChip(`Search: “${q}”`, 'Remove search filter', () => {
+        els.searchInput.value = '';
+        applyFilters();
+      }));
+    }
 
-    <!-- Mobile Navigation -->
-    <nav class="mobile-nav" aria-label="Bottom navigation">
-        <a href="index.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-home"></i></span>
-            <span class="mobile-nav-text">Dashboard</span>
-        </a>
-        <a href="operations.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span>
-            <span class="mobile-nav-text">Checklist</span>
-        </a>
-        <a href="itinerary.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-route"></i></span>
-            <span class="mobile-nav-text">Itinerary</span>
-        </a>
-        <a href="rooms.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-bed"></i></span>
-            <span class="mobile-nav-text">Rooms</span>
-        </a>
-        <a href="decks.html" class="mobile-nav-item active" aria-current="page">
-            <span class="mobile-nav-icon"><i class="fas fa-map"></i></span>
-            <span class="mobile-nav-text">Decks</span>
-        </a>
-        <a href="dining.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span>
-            <span class="mobile-nav-text">Dining</span>
-        </a>
-    </nav>
+    if (deck !== 'all') {
+      const deckLabel = els.deckFilter.options[els.deckFilter.selectedIndex]?.text || `Deck ${deck}`;
+      els.filterChips.appendChild(createChip(deckLabel.split(' - ')[0], 'Remove deck filter', () => {
+        els.deckFilter.value = 'all';
+        applyFilters();
+      }));
+    }
 
-    <!-- Complete JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚢 RCCL Deck Plans Experience Initialized');
-            
-            // Room data for interactive deck plan
-            const deckData = {
-                '3': {
-                    name: 'Deck 3 - Lower Deck',
-                    description: 'Interior staterooms, forward section, close to theaters',
-                    rooms: [
-                        { number: '3622', type: 'cabin', category: 'Interior', guests: ['Phoebe', 'Ryan'], 
-                          grid: { col: 5, row: 8, span: 2, height: 2 }, features: ['160 sq ft', 'Virtual balcony option'], 
-                          location: 'Forward, Port Side' }
-                    ],
-                    publicAreas: [
-                        { name: 'Theater Entrance', type: 'public', grid: { col: 2, row: 5, span: 3, height: 4 } },
-                        { name: 'Medical Center', type: 'service', grid: { col: 10, row: 7, span: 2, height: 2 } },
-                        { name: 'Guest Services', type: 'service', grid: { col: 15, row: 8, span: 2, height: 2 } }
-                    ]
-                },
-                '6': {
-                    name: 'Deck 6 - Main Deck',
-                    description: 'Central deck with mixed staterooms, dining, and shopping',
-                    rooms: [
-                        { number: '6650', type: 'suite', category: 'Balcony Suite', guests: ['Bill', 'Melissa', 'Owen', 'Declan'], 
-                          grid: { col: 25, row: 8, span: 3, height: 3 }, features: ['198 sq ft + balcony', 'Connecting door'], 
-                          location: 'Midship, Starboard Side', yourRoom: true },
-                        { number: '6652', type: 'balcony', category: 'Deluxe Balcony', guests: ['Connecting to 6650'], 
-                          grid: { col: 22, row: 8, span: 3, height: 3 }, features: ['Balcony access', 'Standard size'], 
-                          location: 'Midship, Starboard Side' },
-                        { number: '6443', type: 'cabin', category: 'Interior', guests: ['Abel', 'Amy'], 
-                          grid: { col: 10, row: 12, span: 2, height: 2 }, features: ['160 sq ft', 'Near laundry'], 
-                          location: 'Port Side, Midship' }
-                    ],
-                    publicAreas: [
-                        { name: 'Main Dining', type: 'public', grid: { col: 5, row: 3, span: 8, height: 4 } },
-                        { name: 'Café Promenade', type: 'public', grid: { col: 18, row: 5, span: 4, height: 3 } },
-                        { name: 'Elevators', type: 'elevator', grid: { col: 15, row: 8, span: 2, height: 4 } },
-                        { name: 'Stairs', type: 'stairs', grid: { col: 12, row: 8, span: 1, height: 4 } },
-                        { name: 'Corridor', type: 'corridor', grid: { col: 13, row: 8, span: 2, height: 1 } },
-                        { name: 'Guest Services', type: 'service', grid: { col: 28, row: 5, span: 3, height: 2 } }
-                    ]
-                },
-                '8': {
-                    name: 'Deck 8 - Upper Deck',
-                    description: 'Premium staterooms with ocean views, aft section',
-                    rooms: [
-                        { number: '8528', type: 'balcony', category: 'Deluxe Balcony', guests: ['Aimee', 'Karin'], 
-                          grid: { col: 20, row: 9, span: 3, height: 3 }, features: ['Panoramic views', 'Mid-ship location'], 
-                          location: 'Midship, Starboard Side' },
-                        { number: '8612', type: 'cabin', category: 'Ocean View', guests: ['Bella', 'TJ'], 
-                          grid: { col: 30, row: 10, span: 2, height: 2 }, features: ['Ocean view window', 'Aft location'], 
-                          location: 'Aft, Port Side' }
-                    ],
-                    publicAreas: [
-                        { name: 'Specialty Dining', type: 'public', grid: { col: 25, row: 5, span: 4, height: 3 } },
-                        { name: 'Library', type: 'public', grid: { col: 10, row: 7, span: 3, height: 2 } },
-                        { name: 'Elevators', type: 'elevator', grid: { col: 15, row: 9, span: 2, height: 4 } }
-                    ]
-                },
-                '12': {
-                    name: 'Deck 12 - Pool Deck',
-                    description: 'Recreation area with pools, spa, and fitness center',
-                    rooms: [],
-                    publicAreas: [
-                        { name: 'Main Pool', type: 'public', grid: { col: 18, row: 5, span: 8, height: 6 } },
-                        { name: 'Whirlpools', type: 'public', grid: { col: 28, row: 5, span: 3, height: 2 } },
-                        { name: 'Windjammer Café', type: 'public', grid: { col: 5, row: 5, span: 8, height: 4 } },
-                        { name: 'Spa & Fitness', type: 'service', grid: { col: 32, row: 3, span: 6, height: 8 } },
-                        { name: 'Sports Court', type: 'public', grid: { col: 5, row: 12, span: 10, height: 4 } }
-                    ]
-                }
-            };
+    if (type !== 'all') {
+      const typeLabel = els.typeFilter.options[els.typeFilter.selectedIndex]?.text || type;
+      els.filterChips.appendChild(createChip(typeLabel.split(' (')[0], 'Remove stateroom type filter', () => {
+        els.typeFilter.value = 'all';
+        applyFilters();
+      }));
+    }
+  };
 
-            // Your party's rooms
-            const yourRooms = ['6650', '6443', '8528', '8612', '3622'];
+  const applyFilters = debounce(() => {
+    const q = els.searchInput.value.trim().toLowerCase();
+    const deck = els.deckFilter.value;
+    const type = els.typeFilter.value;
 
-            // State
-            let currentDeck = '6';
-            let zoomLevel = 100;
-            let selectedRoom = null;
+    let visible = 0;
 
-            // DOM Elements
-            const elements = {
-                deckBtns: document.querySelectorAll('.deck-btn'),
-                zoomIn: document.getElementById('zoom-in'),
-                zoomOut: document.getElementById('zoom-out'),
-                zoomLevel: document.getElementById('zoom-level'),
-                deckSearch: document.getElementById('deck-search'),
-                deckLayout: document.getElementById('deck-layout'),
-                roomModal: document.getElementById('room-modal'),
-                modalClose: document.getElementById('modal-close'),
-                modalRoomNumber: document.getElementById('modal-room-number'),
-                modalDeck: document.getElementById('modal-deck'),
-                modalCategory: document.getElementById('modal-category'),
-                modalLocation: document.getElementById('modal-location'),
-                modalGuests: document.getElementById('modal-guests'),
-                modalFeatures: document.getElementById('modal-features'),
-                modalAmenities: document.getElementById('modal-amenities'),
-                modalCopyBtn: document.getElementById('modal-copy-btn')
-            };
+    for (const card of els.roomCards) {
+      const roomNumber = (card.dataset.room || '').toLowerCase();
+      const roomDeck = (card.dataset.deck || '').toLowerCase();
+      const roomType = (card.dataset.type || '').toLowerCase();
+      const roomGuests = (card.dataset.guests || '').toLowerCase();
 
-            // Initialize Deck Plan
-            function initializeDeckPlan() {
-                renderDeckPlan();
-                setupEventListeners();
-                updateDeckInfo();
-            }
+      const matchesSearch = !q || roomNumber.includes(q) || roomGuests.includes(q);
+      const matchesDeck = deck === 'all' || roomDeck === deck.toLowerCase();
+      const matchesType = type === 'all' || roomType === type.toLowerCase();
 
-            // Render Deck Plan
-            function renderDeckPlan() {
-                const deck = deckData[currentDeck];
-                elements.deckLayout.innerHTML = '';
-                
-                // Clear any existing grid items
-                while (elements.deckLayout.firstChild) {
-                    elements.deckLayout.removeChild(elements.deckLayout.firstChild);
-                }
-                
-                // Update deck title
-                const deckTitle = document.querySelector('.deck-plan-header h2');
-                const deckDesc = document.querySelector('.deck-plan-header p');
-                if (deckTitle) deckTitle.textContent = deck.name;
-                if (deckDesc) deckDesc.textContent = deck.description;
-                
-                // Create empty grid cells (40x20 grid)
-                for (let row = 1; row <= 20; row++) {
-                    for (let col = 1; col <= 40; col++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'deck-area empty';
-                        cell.style.gridColumn = `${col} / ${col + 1}`;
-                        cell.style.gridRow = `${row} / ${row + 1}`;
-                        elements.deckLayout.appendChild(cell);
-                    }
-                }
-                
-                // Render public areas first (background)
-                deck.publicAreas.forEach(area => {
-                    createAreaElement(area);
-                });
-                
-                // Render rooms on top
-                deck.rooms.forEach(room => {
-                    createRoomElement(room);
-                });
-                
-                // Add deck features based on deck number
-                addDeckFeatures();
-            }
+      const show = matchesSearch && matchesDeck && matchesType;
+      card.classList.toggle('is-hidden', !show);
+      card.setAttribute('aria-hidden', show ? 'false' : 'true');
+      if (show) visible += 1;
 
-            function createAreaElement(area) {
-                const areaEl = document.createElement('div');
-                areaEl.className = `deck-area ${area.type}`;
-                areaEl.style.gridColumn = `${area.grid.col} / ${area.grid.col + area.grid.span}`;
-                areaEl.style.gridRow = `${area.grid.row} / ${area.grid.row + area.grid.height}`;
-                
-                if (area.name) {
-                    const label = document.createElement('div');
-                    label.className = 'area-label';
-                    label.textContent = area.name;
-                    areaEl.appendChild(label);
-                }
-                
-                elements.deckLayout.appendChild(areaEl);
-            }
+      card.style.order = card.classList.contains('featured') ? '-1' : '0';
+    }
 
-            function createRoomElement(room) {
-                const roomEl = document.createElement('div');
-                roomEl.className = `deck-area ${room.type} ${room.yourRoom ? 'your-room' : ''}`;
-                roomEl.style.gridColumn = `${room.grid.col} / ${room.grid.col + room.grid.span}`;
-                roomEl.style.gridRow = `${room.grid.row} / ${room.grid.row + room.grid.height}`;
-                roomEl.dataset.room = room.number;
-                roomEl.dataset.deck = currentDeck;
-                
-                const label = document.createElement('div');
-                label.className = 'room-label';
-                label.textContent = room.number;
-                roomEl.appendChild(label);
-                
-                roomEl.addEventListener('click', () => showRoomDetails(room));
-                roomEl.addEventListener('mouseenter', () => highlightRoom(room.number, true));
-                roomEl.addEventListener('mouseleave', () => highlightRoom(room.number, false));
-                
-                elements.deckLayout.appendChild(roomEl);
-            }
+    const total = els.roomCards.length;
+    els.resultsText.textContent = (visible === total)
+      ? `Showing all ${total} staterooms in your party`
+      : `Showing ${visible} of ${total} staterooms`;
 
-            function addDeckFeatures() {
-                // Add ship features based on deck
-                switch(currentDeck) {
-                    case '3':
-                        addForwardFeatures();
-                        break;
-                    case '6':
-                        addMidshipFeatures();
-                        break;
-                    case '8':
-                        addAftFeatures();
-                        break;
-                    case '12':
-                        addPoolDeckFeatures();
-                        break;
-                }
-            }
+    const active = (q ? 1 : 0) + (deck !== 'all' ? 1 : 0) + (type !== 'all' ? 1 : 0);
+    if (els.filterCount) {
+      els.filterCount.textContent = active ? `${active} filter${active !== 1 ? 's' : ''} active` : 'No active filters';
+    }
 
-            function addForwardFeatures() {
-                // Add theater area
-                const theater = document.createElement('div');
-                theater.className = 'deck-area public';
-                theater.style.gridColumn = '2 / 10';
-                theater.style.gridRow = '3 / 8';
-                theater.innerHTML = '<div class="area-label">Lyric Theater</div>';
-                elements.deckLayout.appendChild(theater);
-            }
+    updateChips(q, deck, type);
 
-            function addMidshipFeatures() {
-                // Add Royal Promenade
-                const promenade = document.createElement('div');
-                promenade.className = 'deck-area public';
-                promenade.style.gridColumn = '15 / 28';
-                promenade.style.gridRow = '3 / 6';
-                promenade.innerHTML = '<div class="area-label">Royal Promenade</div>';
-                elements.deckLayout.appendChild(promenade);
-                
-                // Add shopping area
-                const shops = document.createElement('div');
-                shops.className = 'deck-area public';
-                shops.style.gridColumn = '18 / 24';
-                shops.style.gridRow = '3 / 5';
-                shops.innerHTML = '<div class="area-label">Shopping</div>';
-                elements.deckLayout.appendChild(shops);
-            }
+    const isEmpty = visible === 0;
+    if (els.emptyState) els.emptyState.classList.toggle('is-hidden', !isEmpty);
 
-            function addAftFeatures() {
-                // Add specialty restaurants
-                const restaurants = document.createElement('div');
-                restaurants.className = 'deck-area public';
-                restaurants.style.gridColumn = '25 / 35';
-                restaurants.style.gridRow = '3 / 7';
-                restaurants.innerHTML = '<div class="area-label">Specialty Dining</div>';
-                elements.deckLayout.appendChild(restaurants);
-            }
+    setLive(isEmpty
+      ? 'No staterooms match your filters. Try adjusting the search or clearing filters.'
+      : `Showing ${visible} stateroom${visible !== 1 ? 's' : ''}.`);
+  }, 250);
 
-            function addPoolDeckFeatures() {
-                // Add pool area
-                const pool = document.createElement('div');
-                pool.className = 'deck-area public';
-                pool.style.gridColumn = '18 / 26';
-                pool.style.gridRow = '5 / 11';
-                pool.innerHTML = '<div class="area-label">Main Pool</div>';
-                elements.deckLayout.appendChild(pool);
-            }
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', 'true');
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+  };
 
-            // Event Listeners
-            function setupEventListeners() {
-                // Deck selection
-                elements.deckBtns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const deck = btn.dataset.deck;
-                        switchDeck(deck);
-                    });
-                });
-                
-                // Zoom controls
-                elements.zoomIn.addEventListener('click', zoomIn);
-                elements.zoomOut.addEventListener('click', zoomOut);
-                
-                // Search
-                elements.deckSearch.addEventListener('input', handleSearch);
-                
-                // Modal
-                elements.modalClose.addEventListener('click', closeModal);
-                elements.modalCopyBtn.addEventListener('click', copyRoomNumber);
-                
-                // Close modal on background click
-                elements.roomModal.addEventListener('click', (e) => {
-                    if (e.target === elements.roomModal) {
-                        closeModal();
-                    }
-                });
-                
-                // Close modal on Escape key
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && elements.roomModal.classList.contains('active')) {
-                        closeModal();
-                    }
-                });
-            }
+  const flashCopied = (el) => {
+    const originalHTML = el.innerHTML;
+    const originalTitle = el.getAttribute('title');
+    el.classList.add('copy-success');
+    el.innerHTML = `<i class="fas fa-check" aria-hidden="true"></i> <span class="sr-only">Copied</span>`;
+    el.setAttribute('title', 'Copied');
 
-            function switchDeck(deck) {
-                // Update active button
-                elements.deckBtns.forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.deck === deck);
-                });
-                
-                // Update current deck
-                currentDeck = deck;
-                
-                // Render new deck
-                renderDeckPlan();
-                updateDeckInfo();
-                
-                // Announce to screen readers
-                announceDeckChange(deck);
-            }
+    window.setTimeout(() => {
+      el.classList.remove('copy-success');
+      el.innerHTML = originalHTML;
+      if (originalTitle) el.setAttribute('title', originalTitle);
+      else el.removeAttribute('title');
+    }, 1200);
+  };
 
-            function zoomIn() {
-                if (zoomLevel < 200) {
-                    zoomLevel += 25;
-                    updateZoom();
-                }
-            }
-
-            function zoomOut() {
-                if (zoomLevel > 50) {
-                    zoomLevel -= 25;
-                    updateZoom();
-                }
-            }
-
-            function updateZoom() {
-                elements.zoomLevel.textContent = `${zoomLevel}%`;
-                elements.deckLayout.style.transform = `scale(${zoomLevel / 100})`;
-                elements.deckLayout.style.transformOrigin = 'center';
-            }
-
-            function handleSearch() {
-                const query = elements.deckSearch.value.toLowerCase().trim();
-                
-                if (!query) {
-                    // Reset all highlights
-                    document.querySelectorAll('.deck-area').forEach(area => {
-                        area.style.boxShadow = '';
-                    });
-                    return;
-                }
-                
-                // Highlight matching rooms and areas
-                document.querySelectorAll('.deck-area').forEach(area => {
-                    const text = area.textContent.toLowerCase();
-                    const roomNumber = area.dataset.room;
-                    
-                    if (text.includes(query) || (roomNumber && roomNumber.includes(query))) {
-                        area.style.boxShadow = '0 0 0 3px #ff6b35';
-                        area.style.zIndex = '10';
-                        
-                        // If it's a room, scroll it into view
-                        if (roomNumber) {
-                            area.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-                        }
-                    } else {
-                        area.style.boxShadow = '';
-                    }
-                });
-            }
-
-            function showRoomDetails(room) {
-                selectedRoom = room;
-                
-                // Update modal content
-                elements.modalRoomNumber.textContent = room.number;
-                elements.modalDeck.textContent = currentDeck;
-                elements.modalCategory.textContent = room.category;
-                elements.modalLocation.textContent = room.location;
-                
-                // Update guests
-                elements.modalGuests.innerHTML = '';
-                room.guests.forEach(guest => {
-                    const guestTag = document.createElement('div');
-                    guestTag.className = 'guest-tag';
-                    guestTag.innerHTML = `<i class="fas fa-user"></i> ${guest}`;
-                    elements.modalGuests.appendChild(guestTag);
-                });
-                
-                // Update features
-                elements.modalFeatures.innerHTML = '';
-                room.features.forEach(feature => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<i class="fas fa-check"></i> ${feature}`;
-                    elements.modalFeatures.appendChild(li);
-                });
-                
-                // Update amenities based on location
-                let amenities = '';
-                if (room.location.includes('Midship')) {
-                    amenities = 'Close to main elevators, dining rooms, and shopping areas.';
-                } else if (room.location.includes('Forward')) {
-                    amenities = 'Near theaters and entertainment venues. Quick access to gangway.';
-                } else if (room.location.includes('Aft')) {
-                    amenities = 'Quiet location with beautiful wake views. Close to specialty dining.';
-                }
-                elements.modalAmenities.textContent = amenities;
-                
-                // Show modal
-                elements.roomModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeModal() {
-                elements.roomModal.classList.remove('active');
-                document.body.style.overflow = '';
-                selectedRoom = null;
-            }
-
-            function copyRoomNumber() {
-                if (selectedRoom) {
-                    navigator.clipboard.writeText(selectedRoom.number)
-                        .then(() => {
-                            // Show success feedback
-                            elements.modalCopyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                            setTimeout(() => {
-                                elements.modalCopyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Room Number';
-                            }, 2000);
-                            
-                            // Haptic feedback if available
-                            if (navigator.vibrate) {
-                                navigator.vibrate(50);
-                            }
-                        })
-                        .catch(err => {
-                            console.error('Failed to copy:', err);
-                            alert(`Room number ${selectedRoom.number} copied to clipboard!`);
-                        });
-                }
-            }
-
-            function highlightRoom(roomNumber, highlight) {
-                const roomEl = document.querySelector(`[data-room="${roomNumber}"]`);
-                if (roomEl) {
-                    if (highlight) {
-                        roomEl.style.animation = 'pulse 1s infinite';
-                        roomEl.style.zIndex = '20';
-                    } else {
-                        roomEl.style.animation = '';
-                        roomEl.style.zIndex = '';
-                    }
-                }
-            }
-
-            function updateDeckInfo() {
-                const deck = deckData[currentDeck];
-                const infoCards = document.querySelectorAll('.info-card');
-                
-                // Update deck-specific information
-                if (infoCards.length >= 4) {
-                    const servicesCard = infoCards[2];
-                    if (currentDeck === '6') {
-                        servicesCard.querySelector('ul').innerHTML = `
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Guest Services (Midship)</li>
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Shore Excursions Desk</li>
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Next Cruise Booking</li>
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Photo Gallery</li>
-                        `;
-                    } else if (currentDeck === '12') {
-                        servicesCard.querySelector('ul').innerHTML = `
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Spa Reception</li>
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Fitness Center Desk</li>
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Pool Bar Service</li>
-                            <li><i class="fas fa-circle" style="font-size: 0.5rem; color: var(--primary-blue);"></i> Towel Station</li>
-                        `;
-                    }
-                }
-            }
-
-            function announceDeckChange(deck) {
-                const deckName = deckData[deck]?.name || `Deck ${deck}`;
-                const announcement = document.createElement('div');
-                announcement.className = 'sr-only';
-                announcement.setAttribute('aria-live', 'polite');
-                announcement.textContent = `Now viewing ${deckName}`;
-                document.body.appendChild(announcement);
-                setTimeout(() => announcement.remove(), 1000);
-            }
-
-            // Initialize
-            initializeDeckPlan();
-            
-            // Add keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                // Number keys 1-4 for deck selection
-                if (e.key >= '1' && e.key <= '4' && !e.ctrlKey && !e.metaKey) {
-                    const deckMap = { '1': '3', '2': '6', '3': '8', '4': '12' };
-                    const deck = deckMap[e.key];
-                    if (deck) {
-                        switchDeck(deck);
-                        e.preventDefault();
-                    }
-                }
-                
-                // +/- for zoom
-                if ((e.key === '+' || e.key === '=') && (e.ctrlKey || e.metaKey)) {
-                    zoomIn();
-                    e.preventDefault();
-                }
-                if ((e.key === '-' || e.key === '_') && (e.ctrlKey || e.metaKey)) {
-                    zoomOut();
-                    e.preventDefault();
-                }
-                
-                // Ctrl/Cmd + F for search
-                if ((e.key === 'f' || e.key === 'F') && (e.ctrlKey || e.metaKey)) {
-                    elements.deckSearch.focus();
-                    elements.deckSearch.select();
-                    e.preventDefault();
-                }
-            });
-
-            // Add print styles dynamically
-            const printStyles = document.createElement('style');
-            printStyles.textContent = `
-                @media print {
-                    @page {
-                        size: landscape;
-                        margin: 0.5in;
-                    }
-                    
-                    .deck-plan-wrapper {
-                        transform: scale(0.9) !important;
-                        transform-origin: top left !important;
-                    }
-                    
-                    .deck-legend {
-                        page-break-inside: avoid;
-                    }
-                }
-            `;
-            document.head.appendChild(printStyles);
-
-            console.log('🌊 RCCL Deck Plans fully loaded and interactive!');
-        });
-
-        // Global helper functions
-        function showNotification(message, type = 'info') {
-            // Remove existing notification
-            const existing = document.querySelector('.global-notification');
-            if (existing) existing.remove();
-            
-            // Create new notification
-            const notification = document.createElement('div');
-            notification.className = `global-notification ${type}`;
-            notification.textContent = message;
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#0066b2'};
-                color: white;
-                padding: 1rem 2rem;
-                border-radius: var(--radius-md);
-                box-shadow: var(--shadow-xl);
-                z-index: 9999;
-                animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s forwards;
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+  const wireCopyButtons = () => {
+    document.querySelectorAll('[data-copy-room]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const room = btn.getAttribute('data-copy-room');
+        if (!room) return;
+        const ok = await copyText(room);
+        if (ok) {
+          flashCopied(btn);
+          setLive(`Room ${room} copied to clipboard.`);
         }
+      });
+    });
+  };
 
-        // Add notification animation styles
-        const notificationStyles = document.createElement('style');
-        notificationStyles.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(notificationStyles);
-    </script>
+  els.clearFilters.addEventListener('click', () => {
+    const hasActive = els.searchInput.value.trim() || els.deckFilter.value !== 'all' || els.typeFilter.value !== 'all';
+    if (!hasActive) return;
+
+    els.searchInput.value = '';
+    els.deckFilter.value = 'all';
+    els.typeFilter.value = 'all';
+    applyFilters();
+    els.searchInput.focus();
+    setLive('All filters cleared.');
+  });
+
+  if (els.clearEmptyState) {
+    els.clearEmptyState.addEventListener('click', () => {
+      els.searchInput.value = '';
+      els.deckFilter.value = 'all';
+      els.typeFilter.value = 'all';
+      applyFilters();
+      els.searchInput.focus();
+      setLive('All filters cleared.');
+    });
+  }
+
+  ['input', 'change'].forEach(evt => {
+    els.searchInput.addEventListener(evt, applyFilters);
+    els.deckFilter.addEventListener(evt, applyFilters);
+    els.typeFilter.addEventListener(evt, applyFilters);
+  });
+
+  wireCopyButtons();
+  applyFilters();
+});
+  </script>
+
+  <script src="service-worker-registration.js" defer></script>
 </body>
 </html>
