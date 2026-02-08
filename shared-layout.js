@@ -68,7 +68,7 @@
     }).join('');
 
     headerMount.outerHTML = `
-      <header class="app-header" role="banner">
+      <header class="app-header app-header--nav" role="banner">
         <div class="container">
           <div class="header-content">
             <a href="index.html" class="logo" aria-label="Go to dashboard">
