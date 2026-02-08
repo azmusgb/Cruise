@@ -1,73 +1,55 @@
-(function renderSharedLayout() {
+/* ============================================================================
+ * Shared Layout (RCCL-inspired) — drop-in, production-grade
+ * - Data-driven nav/footer
+ * - Accessible mobile drawer + focus trap
+ * - Theme sync (saved + system), reduced-motion aware
+ * - Scroll progress + hero observer (safe)
+ * - Dynamic badges (checklist / dining) via localStorage (optional)
+ * - Safe link handling + page transitions (opt-out friendly)
+ * ============================================================================
+ * Expected mounts in each page:
+ *   <div id="sharedHeader" data-page="index"></div>
+ *   <div id="sharedFooter"></div>
+ *
+ * Optional dataset knobs on #sharedHeader:
+ *   data-menu-toggle="false"   -> hide mobile menu toggle
+ *   data-brand="The Royal Way Hub"
+ *   data-ship="Adventure of the Seas"
+ *   data-sailing="Feb 14–20, 2026"
+ *   data-port="Port Canaveral"
+ *   data-hero-progress="true"  -> enable progressbar
+ *   data-transitions="true"    -> enable page transitions
+ *
+ * LocalStorage (optional):
+ *   cruise-theme: "light" | "dark" | "system"
+ *   cruise-checklist: JSON { items:[{done:boolean, priority?:'high'|'med'|'low'}] }
+ *   cruise-dining: JSON { reservations:[...], pending?:number }
+ *   cruise-nextport: JSON { name:'Perfect Day at CocoCay', time:'7:00 AM' }
+ * ========================================================================== */
+(function renderSharedLayoutRCCL() {
   'use strict';
 
-  // Enhanced navigation configuration
+  // ---------------------------
+  // Configuration
+  // ---------------------------
+  const DEFAULT_META = {
+    brand: 'The Royal Way Hub',
+    ship: 'Adventure of the Seas',
+    sailing: 'Feb 14–20, 2026',
+    port: 'Port Canaveral',
+    year: new Date().getFullYear(),
+  };
+
   const NAV_ITEMS = [
-    {
-      id: 'index',
-      href: 'index.html',
-      icon: 'fa-home',
-      text: 'Dashboard',
-      ariaLabel: 'Go to dashboard page',
-      description: 'Overview of your cruise experience'
-    },
-    {
-      id: 'operations',
-      href: 'operations.html',
-      icon: 'fa-tasks',
-      text: 'Checklist',
-      badge: '6',
-      ariaLabel: 'Operations checklist page',
-      description: 'Pre-cruise tasks and preparation',
-      badgeColor: 'badge-warning'
-    },
-    {
-      id: 'itinerary',
-      href: 'itinerary.html',
-      icon: 'fa-route',
-      text: 'Itinerary',
-      ariaLabel: 'Itinerary page',
-      description: 'Daily schedule and activities',
-      badge: 'NEW',
-      badgeColor: 'badge-success'
-    },
-    {
-      id: 'rooms',
-      href: 'rooms.html',
-      icon: 'fa-bed',
-      text: 'Staterooms',
-      ariaLabel: 'Staterooms page',
-      description: 'Room assignments and details'
-    },
-    {
-      id: 'decks',
-      href: 'decks.html',
-      icon: 'fa-map',
-      text: 'Decks',
-      ariaLabel: 'View deck plans',
-      description: 'Interactive ship layout'
-    },
-    {
-      id: 'dining',
-      href: 'dining.html',
-      icon: 'fa-utensils',
-      text: 'Dining',
-      ariaLabel: 'Dining page',
-      description: 'Restaurants and reservations',
-      badge: '3',
-      badgeColor: 'badge-info'
-    },
-    {
-      id: 'tips',
-      href: 'tips.html',
-      icon: 'fa-lightbulb',
-      text: 'Tips',
-      ariaLabel: 'View tips and packing guide',
-      description: 'Cruise advice and packing list'
-    }
+    { id: 'index',      href: 'index.html',      icon: 'fa-home',       text: 'Dashboard', ariaLabel: 'Go to dashboard page', description: 'Overview of your cruise experience' },
+    { id: 'operations', href: 'operations.html', icon: 'fa-tasks',      text: 'Checklist', ariaLabel: 'Operations checklist page', description: 'Pre-cruise tasks and prep', badgeKey: 'checklist' },
+    { id: 'itinerary',  href: 'itinerary.html',  icon: 'fa-route',      text: 'Itinerary', ariaLabel: 'Itinerary page', description: 'Daily schedule and activities', badge: 'NEW', badgeTone: 'success' },
+    { id: 'rooms',      href: 'rooms.html',      icon: 'fa-bed',        text: 'Staterooms', ariaLabel: 'Staterooms page', description: 'Room assignments and details' },
+    { id: 'decks',      href: 'decks.html',      icon: 'fa-map',        text: 'Decks', ariaLabel: 'View deck plans', description: 'Interactive ship layout' },
+    { id: 'dining',     href: 'dining.html',     icon: 'fa-utensils',   text: 'Dining', ariaLabel: 'Dining page', description: 'Restaurants and reservations', badgeKey: 'dining' },
+    { id: 'tips',       href: 'tips.html',       icon: 'fa-lightbulb',  text: 'Tips', ariaLabel: 'View tips and packing guide', description: 'Cruise advice and packing list' },
   ];
 
-  // Enhanced footer links configuration
   const FOOTER_SECTIONS = [
     {
       title: 'Plan & Prepare',
@@ -75,8 +57,8 @@
         { text: 'Dashboard', href: 'index.html', icon: 'fa-home' },
         { text: 'Checklist', href: 'operations.html', icon: 'fa-clipboard-check' },
         { text: 'Itinerary', href: 'itinerary.html', icon: 'fa-route' },
-        { text: 'Staterooms', href: 'rooms.html', icon: 'fa-bed' }
-      ]
+        { text: 'Staterooms', href: 'rooms.html', icon: 'fa-bed' },
+      ],
     },
     {
       title: 'Onboard Essentials',
@@ -84,8 +66,8 @@
         { text: 'Deck Plans', href: 'decks.html', icon: 'fa-map' },
         { text: 'Dining', href: 'dining.html', icon: 'fa-utensils' },
         { text: 'Packing Tips', href: 'tips.html', icon: 'fa-suitcase' },
-        { text: 'Shore Excursions', href: 'excursions.html', icon: 'fa-umbrella-beach' }
-      ]
+        { text: 'Shore Excursions', href: 'excursions.html', icon: 'fa-umbrella-beach' },
+      ],
     },
     {
       title: 'Stay Connected',
@@ -93,8 +75,8 @@
         { text: 'Ship Contacts', href: 'contacts.html', icon: 'fa-address-book' },
         { text: 'VOOM Wi-Fi', href: 'wifi.html', icon: 'fa-wifi' },
         { text: 'Support Center', href: 'faq.html', icon: 'fa-question-circle' },
-        { text: 'Safety Updates', href: 'safety.html', icon: 'fa-shield-alt' }
-      ]
+        { text: 'Safety Updates', href: 'safety.html', icon: 'fa-shield-alt' },
+      ],
     },
     {
       title: 'Legal',
@@ -102,192 +84,335 @@
         { text: 'Privacy Policy', href: 'privacy.html' },
         { text: 'Terms of Service', href: 'terms.html' },
         { text: 'Accessibility', href: 'accessibility.html' },
-        { text: 'Cookie Policy', href: 'cookies.html' }
-      ]
-    }
+        { text: 'Cookie Policy', href: 'cookies.html' },
+      ],
+    },
   ];
 
   const FOOTER_QUICK_ACTIONS = [
-    {
-      title: 'Finish Your Checklist',
-      subtitle: '6 priority items remaining',
-      icon: 'fa-clipboard-list',
-      href: 'operations.html',
-      cta: 'View tasks'
-    },
-    {
-      title: 'Today’s Itinerary',
-      subtitle: 'Plan activities & showtimes',
-      icon: 'fa-calendar-check',
-      href: 'itinerary.html',
-      cta: 'Build schedule'
-    },
-    {
-      title: 'Dining Reservations',
-      subtitle: 'Secure your dining times',
-      icon: 'fa-utensils',
-      href: 'dining.html',
-      cta: 'Reserve now'
-    }
+    { title: 'Finish Your Checklist', subtitle: 'Keep the essentials tight', icon: 'fa-clipboard-list', href: 'operations.html', cta: 'View tasks', badgeKey: 'checklist' },
+    { title: 'Today’s Itinerary', subtitle: 'Plan activities & showtimes', icon: 'fa-calendar-check', href: 'itinerary.html', cta: 'Build schedule' },
+    { title: 'Dining Reservations', subtitle: 'Lock in your dining times', icon: 'fa-utensils', href: 'dining.html', cta: 'Reserve now', badgeKey: 'dining' },
   ];
 
-  // Utility functions
+  // ---------------------------
+  // Utilities
+  // ---------------------------
   const utils = {
-    debounce: (func, wait) => {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+    qs: (sel, root = document) => root.querySelector(sel),
+    qsa: (sel, root = document) => Array.from(root.querySelectorAll(sel)),
+    clamp: (n, min, max) => Math.min(Math.max(n, min), max),
+    isMobile: () => window.matchMedia && window.matchMedia('(max-width: 768px)').matches,
+    prefersReducedMotion: () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    debounce(fn, wait = 100) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
       };
     },
-
-    isMobile: () => window.innerWidth <= 768,
-
-    getCurrentPage: (mountElement) => {
-      return mountElement?.dataset?.page || 
-             window.location.pathname.split('/').pop()?.replace('.html', '') || 
-             'index';
+    createElement(html) {
+      const tpl = document.createElement('template');
+      tpl.innerHTML = String(html).trim();
+      return tpl.content.firstElementChild;
     },
-
-    createElement: (html) => {
-      const template = document.createElement('template');
-      template.innerHTML = html.trim();
-      return template.content.firstChild;
+    safeJsonParse(value, fallback) {
+      try { return JSON.parse(value); } catch { return fallback; }
     },
+    getCurrentPage(mountEl) {
+      const fromDataset = mountEl?.dataset?.page;
+      if (fromDataset) return fromDataset;
+      const file = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      return file.replace('.html', '') || 'index';
+    },
+    announce(message, priority = 'polite') {
+      const el = document.createElement('div');
+      el.className = 'sr-only';
+      el.setAttribute('aria-live', priority);
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 900);
+    },
+    lockBodyScroll(locked) {
+      document.body.style.overflow = locked ? 'hidden' : '';
+    },
+    // Basic focus trap for drawers/modals
+    trapFocus(container, active) {
+      if (!container) return () => {};
+      const focusableSel = [
+        'a[href]',
+        'button:not([disabled])',
+        'input:not([disabled])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])',
+      ].join(',');
 
-    announceToScreenReader: (message, priority = 'polite') => {
-      const announcement = document.createElement('div');
-      announcement.setAttribute('aria-live', priority);
-      announcement.className = 'sr-only';
-      announcement.textContent = message;
-      document.body.appendChild(announcement);
-      setTimeout(() => announcement.remove(), 1000);
-    }
+      function handleKeydown(e) {
+        if (e.key !== 'Tab') return;
+        const focusables = utils.qsa(focusableSel, container).filter(x => x.offsetParent !== null);
+        if (!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const activeEl = document.activeElement;
+
+        if (e.shiftKey) {
+          if (activeEl === first || !container.contains(activeEl)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (activeEl === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+
+      if (active) container.addEventListener('keydown', handleKeydown);
+      return () => container.removeEventListener('keydown', handleKeydown);
+    },
   };
 
-  // Theme management
+  // ---------------------------
+  // Theme Manager (light/dark/system)
+  // ---------------------------
   const ThemeManager = {
-    currentTheme: 'light',
+    key: 'cruise-theme',
+    current: 'system',
+    media: null,
 
     init() {
-      this.loadTheme();
-      this.setupThemeToggle();
+      this.media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      const saved = localStorage.getItem(this.key) || 'system';
+      this.apply(saved, { silent: true });
+
+      if (this.media && this.media.addEventListener) {
+        this.media.addEventListener('change', () => {
+          if (this.current === 'system') this.apply('system', { silent: true });
+        });
+      }
     },
 
-    loadTheme() {
-      const savedTheme = localStorage.getItem('cruise-theme') || 'light';
-      this.applyTheme(savedTheme);
+    resolve(theme) {
+      if (theme === 'system') {
+        const isDark = this.media ? this.media.matches : false;
+        return isDark ? 'dark' : 'light';
+      }
+      return theme === 'dark' ? 'dark' : 'light';
     },
 
-    applyTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      this.currentTheme = theme;
-      localStorage.setItem('cruise-theme', theme);
+    apply(theme, opts = {}) {
+      const normalized = (theme === 'dark' || theme === 'light') ? theme : 'system';
+      this.current = normalized;
+      localStorage.setItem(this.key, normalized);
+
+      const resolved = this.resolve(normalized);
+      document.documentElement.setAttribute('data-theme', resolved);
+      document.documentElement.setAttribute('data-theme-mode', normalized); // helps your CSS if you want
+
+      if (!opts.silent) utils.announce(`Theme set to ${resolved}`);
+      this.syncToggleUI();
     },
 
-    toggleTheme() {
-      const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
-      this.applyTheme(newTheme);
-      utils.announceToScreenReader(`Switched to ${newTheme} theme`);
+    toggle() {
+      // cycle: system -> dark -> light -> system
+      const next = this.current === 'system' ? 'dark' : (this.current === 'dark' ? 'light' : 'system');
+      this.apply(next);
     },
 
-    setupThemeToggle() {
-      // Will be implemented in renderHeader
-    }
+    syncToggleUI() {
+      const resolved = this.resolve(this.current);
+      const btn = utils.qs('#themeToggle');
+      const mobile = utils.qs('#themeToggleMobile');
+
+      const label = resolved === 'dark' ? 'Dark Mode' : 'Light Mode';
+      if (btn) btn.setAttribute('aria-label', `Theme: ${label}. Activate to change.`);
+      if (mobile) {
+        mobile.querySelector('.theme-toggle-mobile__label')?.replaceChildren(document.createTextNode(label));
+        mobile.setAttribute('aria-label', `Theme: ${label}. Activate to change.`);
+        mobile.setAttribute('data-resolved', resolved);
+        mobile.setAttribute('data-mode', this.current);
+      }
+    },
   };
 
-  // Enhanced header rendering with animations
-  const renderHeader = () => {
-    const headerMount = document.getElementById('sharedHeader');
-    if (!headerMount) {
-      console.warn('Header mount element not found');
-      return;
+  // ---------------------------
+  // Badge Providers (optional)
+  // ---------------------------
+  const BadgeProvider = {
+    // returns: { text: string, tone?: 'info'|'warning'|'success'|'primary' }
+    getChecklistBadge() {
+      const raw = localStorage.getItem('cruise-checklist');
+      if (!raw) return null;
+      const data = utils.safeJsonParse(raw, null);
+      const items = Array.isArray(data?.items) ? data.items : [];
+      const remaining = items.filter(i => !i?.done).length;
+      if (!remaining) return { text: '0', tone: 'success' };
+      // emphasize if priority items remain
+      const priorityRemaining = items.filter(i => !i?.done && (i?.priority === 'high' || i?.priority === 'urgent')).length;
+      return { text: String(remaining), tone: priorityRemaining ? 'warning' : 'info' };
+    },
+
+    getDiningBadge() {
+      const raw = localStorage.getItem('cruise-dining');
+      if (!raw) return null;
+      const data = utils.safeJsonParse(raw, null);
+      const pending = Number.isFinite(data?.pending) ? data.pending : null;
+      if (pending === null) {
+        const reservations = Array.isArray(data?.reservations) ? data.reservations : [];
+        if (!reservations.length) return null;
+        return { text: String(reservations.length), tone: 'info' };
+      }
+      if (pending <= 0) return { text: 'SET', tone: 'success' };
+      return { text: String(pending), tone: 'warning' };
+    },
+
+    resolve(key) {
+      if (key === 'checklist') return this.getChecklistBadge();
+      if (key === 'dining') return this.getDiningBadge();
+      return null;
+    },
+  };
+
+  // ---------------------------
+  // Rendering Helpers
+  // ---------------------------
+  function toneToClass(tone) {
+    // Map to your existing badge classes (adjust to match your CSS)
+    switch (tone) {
+      case 'success': return 'badge-success';
+      case 'warning': return 'badge-warning';
+      case 'info': return 'badge-info';
+      default: return 'badge-primary';
     }
+  }
+
+  function buildNavLink(item, isActive) {
+    const badgeFromStorage = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
+    const badgeText = badgeFromStorage?.text ?? item.badge ?? '';
+    const badgeTone = badgeFromStorage?.tone ?? item.badgeTone ?? 'primary';
+
+    const badgeHTML = badgeText
+      ? `<span class="nav-badge ${toneToClass(badgeTone)}" aria-label="${badgeText} ${item.text}">
+           ${badgeText}
+         </span>`
+      : '';
+
+    return `
+      <a href="${item.href}"
+         class="nav-link${isActive ? ' active' : ''}"
+         ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
+         ${isActive ? 'aria-current="page"' : ''}
+         data-tooltip="${item.description || ''}"
+         data-delay="140">
+        <i class="fas ${item.icon}" aria-hidden="true"></i>
+        <span class="nav-text">${item.text}</span>
+        ${badgeHTML}
+      </a>
+    `;
+  }
+
+  function buildMobileNavLink(item, isActive) {
+    const badgeFromStorage = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
+    const badgeText = badgeFromStorage?.text ?? item.badge ?? '';
+    const badgeTone = badgeFromStorage?.tone ?? item.badgeTone ?? 'primary';
+
+    return `
+      <a href="${item.href}"
+         class="mobile-nav-link${isActive ? ' active' : ''}"
+         ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
+         ${isActive ? 'aria-current="page"' : ''}>
+        <i class="fas ${item.icon}" aria-hidden="true"></i>
+        <span class="mobile-nav-link__text">${item.text}</span>
+        ${badgeText ? `<span class="mobile-badge ${toneToClass(badgeTone)}">${badgeText}</span>` : ''}
+      </a>
+    `;
+  }
+
+  function getMetaFromMount(headerMount) {
+    const ds = headerMount?.dataset || {};
+    return {
+      brand: ds.brand || DEFAULT_META.brand,
+      ship: ds.ship || DEFAULT_META.ship,
+      sailing: ds.sailing || DEFAULT_META.sailing,
+      port: ds.port || DEFAULT_META.port,
+      year: DEFAULT_META.year,
+      showMenuToggle: ds.menuToggle !== 'false',
+      showProgress: ds.heroProgress !== 'false',
+      transitions: ds.transitions === 'true',
+    };
+  }
+
+  // ---------------------------
+  // Header
+  // ---------------------------
+  function renderHeader() {
+    const headerMount = utils.qs('#sharedHeader');
+    if (!headerMount) return;
 
     const currentPage = utils.getCurrentPage(headerMount);
-    const showMenuToggle = headerMount.dataset.menuToggle !== 'false';
-    const currentYear = new Date().getFullYear();
+    const meta = getMetaFromMount(headerMount);
 
-    const navLinks = NAV_ITEMS.map((item) => {
-      const isActive = currentPage === item.id;
-      return `
-        <a href="${item.href}" 
-           class="nav-link${isActive ? ' active' : ''}" 
-           ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
-           ${isActive ? 'aria-current="page"' : ''}
-           data-tooltip="${item.description}"
-           data-delay="100">
-          <i class="fas ${item.icon}" aria-hidden="true"></i> 
-          <span class="nav-text">${item.text}</span>
-          ${item.badge ? `
-            <span class="nav-badge ${item.badgeColor || 'badge-primary'}" 
-                  aria-label="${item.badge} ${item.text === 'Checklist' ? 'pending items' : 'new items'}">
-              ${item.badge}
-            </span>
-          ` : ''}
-        </a>
-      `;
-    }).join('');
+    const navLinks = NAV_ITEMS.map(item => buildNavLink(item, currentPage === item.id)).join('');
+    const mobileLinks = NAV_ITEMS.map(item => buildMobileNavLink(item, currentPage === item.id)).join('');
 
     const headerHTML = `
-      <header class="app-header app-header--nav" role="banner">
+      <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
+
+      <header class="app-header app-header--nav" role="banner" data-page="${currentPage}">
         <div class="container">
           <div class="header-content">
-            <!-- Logo Section -->
             <a href="index.html" class="logo" aria-label="Go to dashboard">
               <div class="logo-icon" aria-hidden="true">
-                <i class="fas fa-ship"></i>
+                <i class="fas fa-crown" aria-hidden="true"></i>
               </div>
               <div class="logo-text-container">
-                <div class="logo-text">The Royal Way Hub</div>
-                <div class="logo-subtext">Adventure of the Seas • ${currentYear}</div>
+                <div class="logo-text">${escapeHtml(meta.brand)}</div>
+                <div class="logo-subtext">${escapeHtml(meta.ship)} • ${escapeHtml(meta.sailing)}</div>
               </div>
             </a>
 
-            <!-- Desktop Navigation -->
             <nav class="nav-desktop" aria-label="Main navigation">
               ${navLinks}
-              
-              <!-- Theme Toggle -->
-              <button class="theme-toggle" aria-label="Toggle theme" id="themeToggle">
-                <i class="fas fa-sun" aria-hidden="true"></i>
-                <i class="fas fa-moon" aria-hidden="true"></i>
-                <span class="toggle-track"></span>
+
+              <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+                <span class="theme-toggle__icons" aria-hidden="true">
+                  <i class="fas fa-sun"></i>
+                  <i class="fas fa-moon"></i>
+                  <i class="fas fa-desktop"></i>
+                </span>
+                <span class="toggle-track" aria-hidden="true"></span>
               </button>
-              
-              <!-- User Menu -->
+
               <div class="user-menu">
-                <button class="user-menu-toggle" aria-label="User menu" aria-expanded="false">
-                  <i class="fas fa-user-circle"></i>
+                <button class="user-menu-toggle" type="button" aria-label="User menu" aria-expanded="false">
+                  <i class="fas fa-user-circle" aria-hidden="true"></i>
                   <span class="user-name">Guest</span>
-                  <i class="fas fa-chevron-down"></i>
+                  <i class="fas fa-chevron-down" aria-hidden="true"></i>
                 </button>
-                <div class="user-dropdown">
-                  <a href="profile.html" class="dropdown-item">
-                    <i class="fas fa-user"></i> My Profile
+                <div class="user-dropdown" role="menu" aria-label="User menu options">
+                  <a href="profile.html" class="dropdown-item" role="menuitem">
+                    <i class="fas fa-user" aria-hidden="true"></i> My Profile
                   </a>
-                  <a href="settings.html" class="dropdown-item">
-                    <i class="fas fa-cog"></i> Settings
+                  <a href="settings.html" class="dropdown-item" role="menuitem">
+                    <i class="fas fa-cog" aria-hidden="true"></i> Settings
                   </a>
-                  <div class="dropdown-divider"></div>
-                  <a href="help.html" class="dropdown-item">
-                    <i class="fas fa-question-circle"></i> Help Center
-                  </a>
-                  <a href="logout.html" class="dropdown-item">
-                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                  <div class="dropdown-divider" role="separator"></div>
+                  <a href="help.html" class="dropdown-item" role="menuitem">
+                    <i class="fas fa-question-circle" aria-hidden="true"></i> Help Center
                   </a>
                 </div>
               </div>
             </nav>
 
-            <!-- Mobile Menu Toggle -->
-            ${showMenuToggle ? `
-              <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
-                <span class="hamburger-box">
+            ${meta.showMenuToggle ? `
+              <button class="mobile-menu-toggle" type="button"
+                      aria-label="Open navigation menu"
+                      aria-expanded="false"
+                      aria-controls="navMobile">
+                <span class="hamburger-box" aria-hidden="true">
                   <span class="hamburger-line"></span>
                   <span class="hamburger-line"></span>
                   <span class="hamburger-line"></span>
@@ -296,538 +421,602 @@
             ` : ''}
           </div>
 
-          <!-- Mobile Navigation (Hidden by default) -->
-          ${showMenuToggle ? `
-            <nav class="nav-mobile" aria-label="Mobile navigation" hidden>
+          ${meta.showMenuToggle ? `
+            <div class="nav-mobile-overlay" data-action="close-mobile" hidden></div>
+
+            <nav class="nav-mobile" id="navMobile" aria-label="Mobile navigation" hidden>
               <div class="mobile-nav-header">
-                <span class="mobile-nav-title">Navigation</span>
-                <button class="mobile-nav-close" aria-label="Close menu">
-                  <i class="fas fa-times"></i>
+                <div class="mobile-nav-title">
+                  <span class="mobile-nav-title__eyebrow">${escapeHtml(meta.port)}</span>
+                  <strong class="mobile-nav-title__main">Plan your day</strong>
+                </div>
+                <button class="mobile-nav-close" type="button" data-action="close-mobile" aria-label="Close menu">
+                  <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
               </div>
+
               <div class="mobile-nav-links">
-                ${NAV_ITEMS.map(item => `
-                  <a href="${item.href}" 
-                     class="mobile-nav-link${currentPage === item.id ? ' active' : ''}"
-                     ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}>
-                    <i class="fas ${item.icon}"></i>
-                    <span>${item.text}</span>
-                    ${item.badge ? `<span class="mobile-badge ${item.badgeColor}">${item.badge}</span>` : ''}
-                  </a>
-                `).join('')}
+                ${mobileLinks}
               </div>
+
               <div class="mobile-nav-footer">
-                <button class="theme-toggle-mobile" aria-label="Toggle theme">
-                  <i class="fas fa-sun"></i>
-                  <span>Light Mode</span>
-                  <div class="toggle-switch">
+                <button class="theme-toggle-mobile" id="themeToggleMobile" type="button" aria-label="Toggle theme">
+                  <i class="fas fa-adjust" aria-hidden="true"></i>
+                  <span class="theme-toggle-mobile__label">Theme</span>
+                  <span class="toggle-switch" aria-hidden="true">
                     <span class="toggle-slider"></span>
-                  </div>
+                  </span>
                 </button>
+
+                <div class="mobile-nav-shortcuts" aria-label="Shortcuts">
+                  <button type="button" class="chip" data-action="go" data-href="operations.html">
+                    <i class="fas fa-clipboard-check" aria-hidden="true"></i> Checklist
+                  </button>
+                  <button type="button" class="chip" data-action="go" data-href="itinerary.html">
+                    <i class="fas fa-route" aria-hidden="true"></i> Itinerary
+                  </button>
+                  <button type="button" class="chip" data-action="go" data-href="dining.html">
+                    <i class="fas fa-utensils" aria-hidden="true"></i> Dining
+                  </button>
+                </div>
               </div>
             </nav>
           ` : ''}
         </div>
-        
-        <!-- Progress Indicator -->
-        <div class="header-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-          <div class="progress-bar"></div>
-        </div>
+
+        ${meta.showProgress ? `
+          <div class="header-progress" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" aria-hidden="true"></div>
+          </div>
+        ` : ''}
       </header>
     `;
 
     headerMount.outerHTML = headerHTML;
-    initHeaderInteractions();
-  };
+  }
 
-  // Initialize header interactions
-  const initHeaderInteractions = () => {
-    // Mobile menu toggle
-    const mobileToggle = document.querySelector('.mobile-menu-toggle');
-    const mobileNav = document.querySelector('.nav-mobile');
-    const mobileClose = document.querySelector('.mobile-nav-close');
-    
-    if (mobileToggle && mobileNav) {
-      mobileToggle.addEventListener('click', () => {
-        const isExpanded = mobileToggle.getAttribute('aria-expanded') === 'true';
-        mobileToggle.setAttribute('aria-expanded', !isExpanded);
-        mobileNav.hidden = isExpanded;
-        
-        // Animate hamburger to X
-        mobileToggle.classList.toggle('active');
-        
-        // Prevent body scroll when menu is open
-        document.body.style.overflow = isExpanded ? '' : 'hidden';
-      });
-      
-      if (mobileClose) {
-        mobileClose.addEventListener('click', () => {
-          mobileToggle.setAttribute('aria-expanded', 'false');
-          mobileNav.hidden = true;
-          mobileToggle.classList.remove('active');
-          document.body.style.overflow = '';
-        });
-      }
-      
-      // Close menu when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!mobileNav.hidden && 
-            !mobileNav.contains(e.target) && 
-            !mobileToggle.contains(e.target)) {
-          mobileToggle.setAttribute('aria-expanded', 'false');
-          mobileNav.hidden = true;
-          mobileToggle.classList.remove('active');
-          document.body.style.overflow = '';
-        }
-      });
-    }
-    
-    // Theme toggle
-    const themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-      themeToggle.addEventListener('click', () => ThemeManager.toggleTheme());
-    }
-    
-    // User menu
-    const userMenuToggle = document.querySelector('.user-menu-toggle');
-    if (userMenuToggle) {
-      userMenuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isExpanded = userMenuToggle.getAttribute('aria-expanded') === 'true';
-        userMenuToggle.setAttribute('aria-expanded', !isExpanded);
-        
-        // Close other open dropdowns
-        document.querySelectorAll('.user-menu-toggle[aria-expanded="true"]')
-          .forEach(btn => {
-            if (btn !== userMenuToggle) {
-              btn.setAttribute('aria-expanded', 'false');
-            }
-          });
-      });
-      
-      // Close user menu when clicking outside
-      document.addEventListener('click', () => {
-        userMenuToggle.setAttribute('aria-expanded', 'false');
-      });
-    }
-    
-    // Tooltips for desktop nav
-    if (!utils.isMobile()) {
-      document.querySelectorAll('.nav-link[data-tooltip]').forEach(link => {
-        let tooltip = null;
-        let timeout = null;
-        
-        link.addEventListener('mouseenter', (e) => {
-          timeout = setTimeout(() => {
-            tooltip = document.createElement('div');
-            tooltip.className = 'nav-tooltip';
-            tooltip.textContent = e.target.dataset.tooltip;
-            document.body.appendChild(tooltip);
-            
-            const rect = e.target.getBoundingClientRect();
-            tooltip.style.left = `${rect.left + rect.width / 2}px`;
-            tooltip.style.top = `${rect.bottom + 10}px`;
-            tooltip.style.transform = 'translateX(-50%)';
-          }, parseInt(link.dataset.delay) || 300);
-        });
-        
-        link.addEventListener('mouseleave', () => {
-          clearTimeout(timeout);
-          if (tooltip) {
-            tooltip.remove();
-            tooltip = null;
-          }
-        });
-      });
-    }
-  };
+  // ---------------------------
+  // Footer
+  // ---------------------------
+  function renderFooter() {
+    const footerMount = utils.qs('#sharedFooter');
+    if (!footerMount) return;
 
-  // Enhanced hero observer with parallax effects
-  const initHeroObserver = () => {
-    const hero = document.querySelector('.app-hero, .hero');
-    if (!hero) return;
+    // Next port: defaults to CocoCay (per your updated itinerary)
+    const nextPort = (() => {
+      const raw = localStorage.getItem('cruise-nextport');
+      const parsed = raw ? utils.safeJsonParse(raw, null) : null;
+      if (parsed?.name) return parsed;
+      return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
+    })();
 
-    const body = document.body;
-    const header = document.querySelector('.app-header');
-    const progressBar = document.querySelector('.header-progress .progress-bar');
-    
-    let observer = null;
-    let scrollHandler = null;
-    let lastScroll = 0;
-
-    const updateHeaderState = (scrollProgress) => {
-      if (!header) return;
-      
-      // Add/remove classes based on scroll
-      body.classList.toggle('hero-visible', scrollProgress < 0.8);
-      body.classList.toggle('hero-past', scrollProgress >= 0.8);
-      
-      // Update progress bar
-      if (progressBar) {
-        progressBar.style.transform = `scaleX(${scrollProgress})`;
-      }
-      
-      // Add/remove scrolled class for header styling
-      if (window.scrollY > 100) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
-      
-      // Parallax effect for hero if it has background image
-      if (hero.style.backgroundImage) {
-        const parallaxSpeed = 0.5;
-        const yPos = -(window.scrollY * parallaxSpeed);
-        hero.style.backgroundPositionY = `${yPos}px`;
-      }
-    };
-
-    const calculateScrollProgress = () => {
-      const heroHeight = hero.offsetHeight;
-      const scrollTop = window.scrollY;
-      const windowHeight = window.innerHeight;
-      const scrollPercent = (scrollTop / (heroHeight - windowHeight)) * 100;
-      return Math.min(Math.max(scrollPercent / 100, 0), 1);
-    };
-
-    if ('IntersectionObserver' in window) {
-      observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach(entry => {
-            const progress = calculateScrollProgress();
-            updateHeaderState(progress);
-          });
-        },
-        {
-          threshold: Array.from({ length: 101 }, (_, i) => i * 0.01)
-        }
-      );
-      observer.observe(hero);
-    } else {
-      // Fallback for older browsers
-      scrollHandler = utils.debounce(() => {
-        const progress = calculateScrollProgress();
-        updateHeaderState(progress);
-        lastScroll = window.scrollY;
-      }, 10);
-      
-      scrollHandler(); // Initial check
-      window.addEventListener('scroll', scrollHandler, { passive: true });
-    }
-
-    // Handle resize events
-    const resizeHandler = utils.debounce(() => {
-      if (scrollHandler) scrollHandler();
-    }, 100);
-    
-    window.addEventListener('resize', resizeHandler, { passive: true });
-
-    // Cleanup function
-    return () => {
-      if (observer) observer.disconnect();
-      if (scrollHandler) {
-        window.removeEventListener('scroll', scrollHandler);
-      }
-      window.removeEventListener('resize', resizeHandler);
-    };
-  };
-
-  // Enhanced footer rendering with more information
-  const renderFooter = () => {
-    const footerMount = document.getElementById('sharedFooter');
-    if (!footerMount) {
-      console.warn('Footer mount element not found');
-      return;
-    }
-
-    const currentYear = new Date().getFullYear();
-    
-    const footerSections = FOOTER_SECTIONS.map(section => `
+    const sectionsHTML = FOOTER_SECTIONS.map(section => `
       <div class="footer-section">
-        <h4 class="footer-subtitle">${section.title}</h4>
+        <h4 class="footer-subtitle">${escapeHtml(section.title)}</h4>
         ${section.links.map(link => `
           <a href="${link.href}" class="footer-link">
             ${link.icon ? `<i class="fas ${link.icon}" aria-hidden="true"></i>` : ''}
-            <span>${link.text}</span>
+            <span>${escapeHtml(link.text)}</span>
           </a>
         `).join('')}
       </div>
     `).join('');
 
-    const footerQuickActions = FOOTER_QUICK_ACTIONS.map(action => `
-      <a class="footer-action-card" href="${action.href}">
-        <div class="footer-action-icon">
-          <i class="fas ${action.icon}" aria-hidden="true"></i>
-        </div>
-        <div class="footer-action-content">
-          <h4>${action.title}</h4>
-          <p>${action.subtitle}</p>
-          <span class="footer-action-cta">${action.cta} <i class="fas fa-arrow-right"></i></span>
-        </div>
-      </a>
-    `).join('');
+    const quickActionsHTML = FOOTER_QUICK_ACTIONS.map(action => {
+      const badgeFromStorage = action.badgeKey ? BadgeProvider.resolve(action.badgeKey) : null;
+      const subtitle = badgeFromStorage?.text
+        ? `${action.subtitle} • ${badgeFromStorage.text} ${action.badgeKey === 'checklist' ? 'remaining' : 'saved'}`
+        : action.subtitle;
+
+      return `
+        <a class="footer-action-card" href="${action.href}">
+          <div class="footer-action-icon" aria-hidden="true">
+            <i class="fas ${action.icon}"></i>
+          </div>
+          <div class="footer-action-content">
+            <h4>${escapeHtml(action.title)}</h4>
+            <p>${escapeHtml(subtitle)}</p>
+            <span class="footer-action-cta">${escapeHtml(action.cta)} <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
+          </div>
+        </a>
+      `;
+    }).join('');
+
+    const year = DEFAULT_META.year;
 
     const footerHTML = `
       <footer class="app-footer" role="contentinfo">
         <div class="container">
           <div class="footer-hero">
             <div class="footer-hero__intro">
-              <span class="footer-eyebrow">Adventure of the Seas • ${currentYear}</span>
-              <h3>Wrap up your plans and sail stress-free.</h3>
-              <p>Track your checklist, secure dining, and keep your itinerary polished in one place.</p>
+              <span class="footer-eyebrow">${escapeHtml(DEFAULT_META.ship)} • ${escapeHtml(DEFAULT_META.sailing)}</span>
+              <h3>Plan clean. Sail calmer.</h3>
+              <p>Keep your checklist, dining, and itinerary in one place — fast, readable, and phone-friendly.</p>
             </div>
+
             <div class="footer-hero__actions">
               <a class="btn btn--primary btn--icon" href="operations.html">
-                <i class="fas fa-clipboard-check"></i>
+                <i class="fas fa-clipboard-check" aria-hidden="true"></i>
                 Finish checklist
               </a>
               <a class="btn btn--secondary btn--icon" href="itinerary.html">
-                <i class="fas fa-route"></i>
+                <i class="fas fa-route" aria-hidden="true"></i>
                 View itinerary
               </a>
             </div>
+
             <div class="footer-hero__cards">
-              ${footerQuickActions}
+              ${quickActionsHTML}
             </div>
           </div>
 
           <div class="footer-grid">
-            ${footerSections}
+            ${sectionsHTML}
 
-            <!-- Newsletter Signup -->
             <div class="footer-section footer-newsletter">
               <h4 class="footer-subtitle">Stay Updated</h4>
-              <p class="footer-text">Cruise alerts, port updates, and curated offers.</p>
+              <p class="footer-text">Quick alerts you actually care about: ports, weather, and schedule changes.</p>
+
               <form class="newsletter-form" aria-label="Newsletter signup">
                 <div class="input-group">
-                  <input type="email"
-                         placeholder="Email address"
-                         aria-label="Email address"
-                         class="newsletter-input">
+                  <input type="email" placeholder="Email address" aria-label="Email address" class="newsletter-input" autocomplete="email" inputmode="email">
                   <button type="submit" class="newsletter-button" aria-label="Subscribe">
-                    <i class="fas fa-paper-plane"></i>
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
                   </button>
                 </div>
-                <p class="newsletter-note">By subscribing you agree to our Privacy Policy</p>
+                <p class="newsletter-note">No spam. No drama. Just useful updates.</p>
               </form>
-              <div class="footer-support">
+
+              <div class="footer-support" aria-label="Support">
                 <div class="footer-support__item">
                   <i class="fas fa-headset" aria-hidden="true"></i>
                   <div>
-                    <strong>24/7 Guest Services</strong>
-                    <span>1-800-398-9819</span>
+                    <strong>Guest Services</strong>
+                    <span>Onboard support & help center</span>
                   </div>
                 </div>
+
                 <div class="footer-support__item">
                   <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
                   <div>
                     <strong>Next Port</strong>
-                    <span>Labadee, Haiti • 8:00 AM</span>
+                    <span>${escapeHtml(nextPort.name)} • ${escapeHtml(nextPort.time || '')}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Bottom Bar -->
           <div class="footer-bottom">
             <div class="footer-copyright">
               <i class="fas fa-ship" aria-hidden="true"></i>
-              <span>© ${currentYear} Royal Caribbean International. All rights reserved.</span>
+              <span>© ${year} Royal Caribbean International. All rights reserved.</span>
             </div>
 
-            <div class="footer-social">
-              <span class="social-label">Follow us:</span>
-              <a href="https://facebook.com" class="social-link" aria-label="Facebook">
-                <i class="fab fa-facebook"></i>
+            <div class="footer-social" aria-label="Social links">
+              <span class="social-label">Follow:</span>
+              <a href="https://facebook.com" class="social-link" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-facebook" aria-hidden="true"></i>
               </a>
-              <a href="https://twitter.com" class="social-link" aria-label="Twitter">
-                <i class="fab fa-twitter"></i>
+              <a href="https://twitter.com" class="social-link" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-twitter" aria-hidden="true"></i>
               </a>
-              <a href="https://instagram.com" class="social-link" aria-label="Instagram">
-                <i class="fab fa-instagram"></i>
+              <a href="https://instagram.com" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-instagram" aria-hidden="true"></i>
               </a>
-              <a href="https://youtube.com" class="social-link" aria-label="YouTube">
-                <i class="fab fa-youtube"></i>
+              <a href="https://youtube.com" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-youtube" aria-hidden="true"></i>
               </a>
             </div>
 
-            <div class="footer-app">
-              <a href="https://apps.apple.com" class="app-link" aria-label="Download on App Store">
-                <i class="fab fa-app-store"></i>
+            <div class="footer-app" aria-label="App links">
+              <a href="https://apps.apple.com" class="app-link" aria-label="Download on App Store" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-app-store" aria-hidden="true"></i>
                 <span>App Store</span>
               </a>
-              <a href="https://play.google.com" class="app-link" aria-label="Get it on Google Play">
-                <i class="fab fa-google-play"></i>
+              <a href="https://play.google.com" class="app-link" aria-label="Get it on Google Play" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-google-play" aria-hidden="true"></i>
                 <span>Google Play</span>
               </a>
             </div>
           </div>
 
-          <!-- Back to Top -->
-          <button class="back-to-top" aria-label="Scroll to top">
-            <i class="fas fa-chevron-up"></i>
+          <button class="back-to-top" type="button" aria-label="Scroll to top">
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
           </button>
         </div>
       </footer>
     `;
 
     footerMount.outerHTML = footerHTML;
-    initFooterInteractions();
-  };
+  }
 
-  // Initialize footer interactions
-  const initFooterInteractions = () => {
-    // Newsletter form
-    const newsletterForm = document.querySelector('.newsletter-form');
-    if (newsletterForm) {
-      newsletterForm.addEventListener('submit', (e) => {
+  // ---------------------------
+  // Interactions (delegated)
+  // ---------------------------
+  let cleanupFns = [];
+
+  function on(el, evt, handler, opts) {
+    if (!el) return;
+    el.addEventListener(evt, handler, opts);
+    cleanupFns.push(() => el.removeEventListener(evt, handler, opts));
+  }
+
+  function initHeaderInteractions() {
+    const toggle = utils.qs('.mobile-menu-toggle');
+    const nav = utils.qs('.nav-mobile');
+    const overlay = utils.qs('.nav-mobile-overlay');
+
+    let releaseTrap = () => {};
+
+    function openMobile() {
+      if (!toggle || !nav) return;
+      toggle.classList.add('active');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close navigation menu');
+
+      nav.hidden = false;
+      overlay && (overlay.hidden = false);
+      utils.lockBodyScroll(true);
+
+      // focus first link
+      const firstLink = utils.qs('.nav-mobile a, .nav-mobile button', nav);
+      if (firstLink) firstLink.focus({ preventScroll: true });
+
+      releaseTrap = utils.trapFocus(nav, true);
+    }
+
+    function closeMobile() {
+      if (!toggle || !nav) return;
+      toggle.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation menu');
+
+      nav.hidden = true;
+      overlay && (overlay.hidden = true);
+      utils.lockBodyScroll(false);
+
+      releaseTrap();
+      releaseTrap = () => {};
+
+      toggle.focus({ preventScroll: true });
+    }
+
+    // Mobile toggle click
+    on(toggle, 'click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      expanded ? closeMobile() : openMobile();
+    });
+
+    // Close buttons / overlay
+    on(document, 'click', (e) => {
+      const actionEl = e.target.closest('[data-action]');
+      if (!actionEl) return;
+
+      const action = actionEl.getAttribute('data-action');
+      if (action === 'close-mobile') {
         e.preventDefault();
-        const input = newsletterForm.querySelector('input[type="email"]');
-        if (input.value) {
-          utils.announceToScreenReader('Thank you for subscribing to our newsletter!');
-          input.value = '';
-          // In a real app, you would send this to a server
-        }
-      });
-    }
-    
-    // Back to top button
-    const backToTop = document.querySelector('.back-to-top');
-    if (backToTop) {
-      backToTop.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        utils.announceToScreenReader('Scrolled to top of page');
-      });
-      
-      // Show/hide based on scroll
-      window.addEventListener('scroll', utils.debounce(() => {
-        if (window.scrollY > 500) {
-          backToTop.classList.add('visible');
-        } else {
-          backToTop.classList.remove('visible');
-        }
-      }, 100));
-    }
-  };
+        closeMobile();
+        return;
+      }
+      if (action === 'go') {
+        const href = actionEl.getAttribute('data-href');
+        if (href) window.location.href = href;
+      }
+    });
 
-  // Initialize the entire layout system
-  const init = () => {
-    try {
-      // Initialize theme manager
-      ThemeManager.init();
-      
-      // Render components
-      renderHeader();
-      renderFooter();
-      
-      // Initialize hero observer (with cleanup reference)
-      const cleanupHeroObserver = initHeroObserver();
-      
-      // Add global keyboard shortcuts
-      initKeyboardShortcuts();
-      
-      // Initialize page transitions
-      initPageTransitions();
-      
-      // Setup performance monitoring
-      setupPerformanceMonitoring();
-      
-      // Store cleanup function
-      if (typeof window !== 'undefined') {
-        window.__cleanupSharedLayout = () => {
-          if (cleanupHeroObserver) cleanupHeroObserver();
-          // Add other cleanup functions here
-        };
+    // Click outside drawer closes (only when open)
+    on(document, 'click', (e) => {
+      if (!nav || nav.hidden) return;
+      if (nav.contains(e.target)) return;
+      if (toggle && toggle.contains(e.target)) return;
+      if (overlay && overlay.contains(e.target)) {
+        closeMobile();
       }
-      
-      // Log initialization
-      console.log('Shared layout initialized successfully');
-    } catch (error) {
-      console.error('Error initializing shared layout:', error);
-      // Fallback: ensure at least basic navigation is available
-      const headerMount = document.getElementById('sharedHeader');
-      if (headerMount) {
-        headerMount.innerHTML = '<div style="padding: 1rem; background: #f0f0f0;">Navigation Loading Error</div>';
-      }
-    }
-  };
+    });
 
-  // Additional features
-  const initKeyboardShortcuts = () => {
-    document.addEventListener('keydown', (e) => {
-      // Alt + 1-7 for navigation items
-      if (e.altKey && e.key >= '1' && e.key <= '7') {
-        const index = parseInt(e.key) - 1;
-        if (NAV_ITEMS[index]) {
-          window.location.href = NAV_ITEMS[index].href;
-          e.preventDefault();
-        }
+    // Escape closes drawer + dropdowns
+    on(document, 'keydown', (e) => {
+      if (e.key !== 'Escape') return;
+
+      // close dropdowns
+      utils.qsa('[aria-expanded="true"]').forEach(el => el.setAttribute('aria-expanded', 'false'));
+
+      if (nav && !nav.hidden) {
+        e.preventDefault();
+        closeMobile();
       }
-      
-      // Escape to close any open dropdowns
-      if (e.key === 'Escape') {
-        document.querySelectorAll('[aria-expanded="true"]').forEach(el => {
-          el.setAttribute('aria-expanded', 'false');
+    });
+
+    // Theme toggles
+    on(utils.qs('#themeToggle'), 'click', () => ThemeManager.toggle());
+    on(utils.qs('#themeToggleMobile'), 'click', () => ThemeManager.toggle());
+
+    // User dropdown
+    const userToggle = utils.qs('.user-menu-toggle');
+    on(userToggle, 'click', (e) => {
+      e.stopPropagation();
+      const expanded = userToggle.getAttribute('aria-expanded') === 'true';
+      userToggle.setAttribute('aria-expanded', String(!expanded));
+    });
+    on(document, 'click', () => {
+      if (userToggle) userToggle.setAttribute('aria-expanded', 'false');
+    });
+
+    // Desktop tooltips (if you already have CSS for .nav-tooltip)
+    if (!utils.isMobile()) {
+      let tipEl = null;
+      let tipT = null;
+
+      const showTip = (link) => {
+        const text = link?.dataset?.tooltip;
+        if (!text) return;
+        tipEl = document.createElement('div');
+        tipEl.className = 'nav-tooltip';
+        tipEl.textContent = text;
+        document.body.appendChild(tipEl);
+
+        const r = link.getBoundingClientRect();
+        tipEl.style.left = `${r.left + r.width / 2}px`;
+        tipEl.style.top = `${r.bottom + 10}px`;
+        tipEl.style.transform = 'translateX(-50%)';
+      };
+
+      const hideTip = () => {
+        clearTimeout(tipT);
+        if (tipEl) tipEl.remove();
+        tipEl = null;
+      };
+
+      utils.qsa('.nav-link[data-tooltip]').forEach((link) => {
+        on(link, 'mouseenter', () => {
+          const delay = parseInt(link.dataset.delay || '200', 10);
+          tipT = setTimeout(() => showTip(link), delay);
         });
-        const mobileNav = document.querySelector('.nav-mobile');
-        if (mobileNav && !mobileNav.hidden) {
-          mobileNav.hidden = true;
-          document.body.style.overflow = '';
-        }
-      }
-    });
-  };
-
-  const initPageTransitions = () => {
-    // Add smooth page transition class
-    document.documentElement.classList.add('page-transitions');
-    
-    // Intercept link clicks for smooth transitions
-    document.addEventListener('click', (e) => {
-      const link = e.target.closest('a');
-      if (link && link.href && link.href.includes('.html') && !link.href.includes('#')) {
-        e.preventDefault();
-        document.body.classList.add('page-exiting');
-        
-        setTimeout(() => {
-          window.location.href = link.href;
-        }, 300);
-      }
-    });
-  };
-
-  const setupPerformanceMonitoring = () => {
-    // Only in development
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      const perfObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          console.log(`Layout shift: ${entry.value.toFixed(3)}`, entry);
-        }
+        on(link, 'mouseleave', hideTip);
+        on(link, 'focus', () => showTip(link));
+        on(link, 'blur', hideTip);
       });
-      
-      perfObserver.observe({ type: 'layout-shift', buffered: true });
     }
-  };
+  }
 
-  // Initialize based on document state
+  function initHeroObserver() {
+    const hero = utils.qs('.app-hero, .hero');
+    const header = utils.qs('.app-header');
+    const progressBar = utils.qs('.header-progress .progress-bar');
+
+    if (!header) return () => {};
+    if (!hero && !progressBar) return () => {};
+
+    const update = () => {
+      const y = window.scrollY || 0;
+
+      if (y > 100) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+
+      if (progressBar) {
+        const doc = document.documentElement;
+        const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+        const p = utils.clamp(y / max, 0, 1);
+        progressBar.style.transform = `scaleX(${p})`;
+      }
+
+      if (hero && !utils.prefersReducedMotion()) {
+        // gentle parallax if hero has background image
+        const bg = getComputedStyle(hero).backgroundImage;
+        if (bg && bg !== 'none') {
+          hero.style.backgroundPositionY = `${-(y * 0.25)}px`;
+        }
+      }
+    };
+
+    const handler = utils.debounce(update, 10);
+    update();
+    on(window, 'scroll', handler, { passive: true });
+    on(window, 'resize', utils.debounce(update, 100), { passive: true });
+
+    return () => {}; // removal handled by cleanupFns via on()
+  }
+
+  function initFooterInteractions() {
+    // Newsletter: purely local UX
+    const form = utils.qs('.newsletter-form');
+    on(form, 'submit', (e) => {
+      e.preventDefault();
+      const input = utils.qs('input[type="email"]', form);
+      if (!input) return;
+      const val = String(input.value || '').trim();
+      if (!val) {
+        utils.announce('Please enter an email address.', 'assertive');
+        input.focus();
+        return;
+      }
+      input.value = '';
+      utils.announce('Subscribed. You’re on the list.');
+    });
+
+    // Back to top
+    const btn = utils.qs('.back-to-top');
+    const updateVis = utils.debounce(() => {
+      if (!btn) return;
+      btn.classList.toggle('visible', (window.scrollY || 0) > 500);
+    }, 80);
+
+    on(btn, 'click', () => {
+      window.scrollTo({ top: 0, behavior: utils.prefersReducedMotion() ? 'auto' : 'smooth' });
+      utils.announce('Back to top.');
+    });
+
+    updateVis();
+    on(window, 'scroll', updateVis, { passive: true });
+  }
+
+  function initKeyboardShortcuts() {
+    on(document, 'keydown', (e) => {
+      // Alt+1..7 = nav shortcuts (desktop power move)
+      if (e.altKey && !e.ctrlKey && !e.metaKey && e.key >= '1' && e.key <= '7') {
+        const idx = parseInt(e.key, 10) - 1;
+        if (NAV_ITEMS[idx]) {
+          e.preventDefault();
+          window.location.href = NAV_ITEMS[idx].href;
+        }
+      }
+    });
+  }
+
+  function initPageTransitions(enabled) {
+    if (!enabled) return;
+
+    // Respect reduced motion
+    if (utils.prefersReducedMotion()) return;
+
+    document.documentElement.classList.add('page-transitions');
+
+    on(document, 'click', (e) => {
+      const a = e.target.closest('a');
+      if (!a) return;
+
+      // only same-origin .html navigations without hash jumps
+      const href = a.getAttribute('href') || '';
+      if (!href || href.startsWith('#')) return;
+      if (!href.includes('.html')) return;
+      if (a.target === '_blank') return;
+      if (a.hasAttribute('download')) return;
+
+      e.preventDefault();
+      document.body.classList.add('page-exiting');
+      setTimeout(() => { window.location.href = href; }, 220);
+    });
+  }
+
+  // ---------------------------
+  // Escape helper (basic)
+  // ---------------------------
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  // ---------------------------
+  // Refresh badges without full rerender
+  // ---------------------------
+  function refreshBadgesInDOM() {
+    // desktop
+    utils.qsa('.nav-link').forEach((link) => {
+      const textEl = utils.qs('.nav-text', link);
+      if (!textEl) return;
+
+      const label = textEl.textContent.trim();
+      const item = NAV_ITEMS.find(x => x.text === label);
+      if (!item || !item.badgeKey) return;
+
+      const badge = BadgeProvider.resolve(item.badgeKey);
+      let badgeEl = utils.qs('.nav-badge', link);
+
+      if (!badge) {
+        if (badgeEl) badgeEl.remove();
+        return;
+      }
+
+      if (!badgeEl) {
+        badgeEl = document.createElement('span');
+        badgeEl.className = 'nav-badge';
+        link.appendChild(badgeEl);
+      }
+      badgeEl.className = `nav-badge ${toneToClass(badge.tone || 'primary')}`;
+      badgeEl.textContent = badge.text;
+      badgeEl.setAttribute('aria-label', `${badge.text} ${label}`);
+    });
+
+    // mobile
+    utils.qsa('.mobile-nav-link').forEach((link) => {
+      const label = utils.qs('.mobile-nav-link__text', link)?.textContent?.trim();
+      if (!label) return;
+
+      const item = NAV_ITEMS.find(x => x.text === label);
+      if (!item || !item.badgeKey) return;
+
+      const badge = BadgeProvider.resolve(item.badgeKey);
+      let badgeEl = utils.qs('.mobile-badge', link);
+
+      if (!badge) {
+        if (badgeEl) badgeEl.remove();
+        return;
+      }
+
+      if (!badgeEl) {
+        badgeEl = document.createElement('span');
+        badgeEl.className = 'mobile-badge';
+        link.appendChild(badgeEl);
+      }
+      badgeEl.className = `mobile-badge ${toneToClass(badge.tone || 'primary')}`;
+      badgeEl.textContent = badge.text;
+    });
+  }
+
+  // ---------------------------
+  // Init / Cleanup
+  // ---------------------------
+  function cleanup() {
+    cleanupFns.forEach(fn => {
+      try { fn(); } catch { /* no-op */ }
+    });
+    cleanupFns = [];
+  }
+
+  function init() {
+    cleanup();
+
+    ThemeManager.init();
+    renderHeader();
+    renderFooter();
+
+    initHeaderInteractions();
+    initFooterInteractions();
+    initHeroObserver();
+    initKeyboardShortcuts();
+
+    // page transitions flag comes from mount dataset
+    const headerMount = utils.qs('.app-header');
+    const transitionsEnabled = utils.qs('.app-header')?.closest('body') && (utils.qs('#sharedHeader')?.dataset?.transitions === 'true');
+    // ^ #sharedHeader no longer exists after render; use persisted config approach:
+    // If you want transitions, set <body data-transitions="true"> and we’ll read it below.
+    const bodyTransitions = document.body?.dataset?.transitions === 'true';
+    initPageTransitions(transitionsEnabled || bodyTransitions);
+
+    ThemeManager.syncToggleUI();
+    refreshBadgesInDOM();
+
+    // Auto-refresh badges when storage updates (multi-tab) or app writes
+    const onStorage = (e) => {
+      if (!e || !e.key) return;
+      if (e.key === 'cruise-checklist' || e.key === 'cruise-dining') refreshBadgesInDOM();
+      if (e.key === ThemeManager.key) ThemeManager.apply(localStorage.getItem(ThemeManager.key) || 'system', { silent: true });
+    };
+    on(window, 'storage', onStorage);
+
+    // expose a small API
+    window.SharedLayout = {
+      utils,
+      ThemeManager,
+      NAV_ITEMS,
+      FOOTER_SECTIONS,
+      refresh: () => init(),
+      refreshBadges: () => refreshBadgesInDOM(),
+      destroy: () => cleanup(),
+    };
+  }
+
+  // ---------------------------
+  // Boot
+  // ---------------------------
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
     init();
   }
-
-  // Export utilities for other scripts to use
-  window.SharedLayout = {
-    utils,
-    ThemeManager,
-    NAV_ITEMS,
-    FOOTER_SECTIONS,
-    refresh: () => {
-      if (window.__cleanupSharedLayout) {
-        window.__cleanupSharedLayout();
-      }
-      init();
-    }
-  };
 })();
