@@ -14,7 +14,8 @@
     <link rel="stylesheet" href="styles.css">
     <script src="shared-layout.js" defer></script>
 </head>
-<body>
+<body class="hero-visible">
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
     <!-- Header -->
     <div id="sharedHeader" data-page="rooms" data-menu-toggle="false"></div>
 
@@ -32,7 +33,7 @@
         </div>
     </section>
 
-    <main class="container">
+    <main id="main-content" class="container">
         <section class="hero-support">
             <p class="page-intro">
                 Experience elevated comfort with room details, locations, and perks for every guest in your party.
@@ -60,37 +61,74 @@
 
         <section class="room-tools" aria-label="Find your room">
             <div class="room-tools-grid">
-                <div>
-                    <label for="searchInput" class="field-label">Search by guest name or room number</label>
-                    <input id="searchInput" class="field-control" type="search" placeholder="e.g. Bill, 6650" autocomplete="off">
+                <div class="search-container">
+                    <label for="searchInput" class="field-label">
+                        <i class="fas fa-search"></i> Search by guest name or room number
+                    </label>
+                    <div class="search-wrapper">
+                        <input id="searchInput" class="field-control"
+                               type="search"
+                               placeholder="Type guest name (Bill) or room number (6650)"
+                               autocomplete="off"
+                               aria-describedby="searchHelp">
+                        <span class="search-icon" aria-hidden="true">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <small id="searchHelp" class="field-help">Search accepts names or room numbers separately</small>
                 </div>
-                <div>
-                    <label for="deckFilter" class="field-label">Filter by deck</label>
-                    <select id="deckFilter" class="field-control">
-                        <option value="all">All decks</option>
-                        <option value="3">Deck 3</option>
-                        <option value="6">Deck 6</option>
-                        <option value="8">Deck 8</option>
+
+                <div class="filter-group">
+                    <label for="deckFilter" class="field-label">
+                        <i class="fas fa-layer-group"></i> Filter by deck
+                    </label>
+                    <select id="deckFilter" class="field-control" aria-describedby="deckHelp">
+                        <option value="all">All decks (3, 6, 8)</option>
+                        <option value="3">Deck 3 - Lower Deck</option>
+                        <option value="6">Deck 6 - Main Deck</option>
+                        <option value="8">Deck 8 - Upper Deck</option>
                     </select>
+                    <small id="deckHelp" class="field-help">Deck 3: Forward, Deck 6: Mid, Deck 8: Aft</small>
                 </div>
-                <div>
-                    <label for="typeFilter" class="field-label">Filter by room type</label>
-                    <select id="typeFilter" class="field-control">
+
+                <div class="filter-group">
+                    <label for="typeFilter" class="field-label">
+                        <i class="fas fa-bed"></i> Filter by room type
+                    </label>
+                    <select id="typeFilter" class="field-control" aria-describedby="typeHelp">
                         <option value="all">All room types</option>
-                        <option value="balcony">Balcony</option>
-                        <option value="interior">Interior</option>
-                        <option value="ocean">Ocean View</option>
+                        <option value="balcony">Balcony Room (with private balcony)</option>
+                        <option value="ocean">Ocean View (window view)</option>
+                        <option value="interior">Interior Room (no window)</option>
                     </select>
+                    <small id="typeHelp" class="field-help">Balcony includes suite, ocean view has window</small>
                 </div>
-                <button id="clearFilters" class="btn btn-secondary" type="button"><i class="fas fa-rotate-left"></i> Reset</button>
+
+                <div class="filter-actions">
+                    <button id="clearFilters" class="btn btn-secondary" type="button" aria-label="Reset all filters">
+                        <i class="fas fa-filter-circle-xmark"></i> Clear Filters
+                    </button>
+                    <span class="filter-count" id="filterCount" aria-live="polite"></span>
+                </div>
             </div>
             <div class="results-row">
                 <p class="results-text" id="resultsText">Showing all 5 rooms</p>
             </div>
+            <div class="screen-reader-announcement" aria-live="polite" aria-atomic="true">
+                <span id="liveAnnouncement"></span>
+            </div>
         </section>
 
+        <div class="room-grid-skeleton" id="roomSkeleton" style="display: none;">
+            <div class="room-card-skeleton"></div>
+            <div class="room-card-skeleton"></div>
+            <div class="room-card-skeleton"></div>
+        </div>
+
         <!-- Room Grid -->
-        <div class="room-grid" id="roomGrid">
+        <section class="room-grid" id="roomGrid"
+                 aria-label="List of staterooms"
+                 role="region">
             <!-- Room 1 - Featured Family Room -->
             <div class="room-card featured" data-room="6650" data-deck="6" data-type="balcony" data-guests="bill melissa owen declan">
                 <div class="room-header">
@@ -98,16 +136,17 @@
                     <div class="room-location">
                         <i class="fas fa-map-marker-alt"></i>
                         Deck 6 • Starboard • Connecting to 6652
+                        <span class="location-tooltip">Starboard is the right side of the ship.</span>
                     </div>
                     <span class="room-tag tag--info">Balcony Suite</span>
                 </div>
                 <div class="room-content">
                     <p class="room-label"><i class="fas fa-user-friends"></i> Guests (4):</p>
                     <ul class="guest-list">
-                        <li>Bill</li>
-                        <li>Melissa</li>
-                        <li>Owen</li>
-                        <li>Declan</li>
+                        <li class="adult">Bill (Adult)</li>
+                        <li class="adult">Melissa (Adult)</li>
+                        <li class="child">Owen (Child)</li>
+                        <li class="child">Declan (Child)</li>
                     </ul>
                     <div class="room-features">
                         <p class="room-label"><i class="fas fa-list-check"></i> Room Features:</p>
@@ -120,8 +159,12 @@
                         </ul>
                     </div>
                     <div class="room-cta">
-                        <button class="room-link-btn" type="button" data-copy-room="6650"><i class="fas fa-copy"></i> Copy room #</button>
-                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                        <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="6650">
+                            <i class="fas fa-copy"></i> Copy Room #
+                        </button>
+                        <a href="decks.html" class="btn btn-secondary room-link-btn">
+                            <i class="fas fa-map"></i> Deck Plan
+                        </a>
                     </div>
                 </div>
             </div>
@@ -133,14 +176,15 @@
                     <div class="room-location">
                         <i class="fas fa-map-marker-alt"></i>
                         Deck 6 • Port • Near laundry
+                        <span class="location-tooltip">Port is the left side of the ship.</span>
                     </div>
                     <span class="room-tag tag--warning">Interior Room</span>
                 </div>
                 <div class="room-content">
                     <p class="room-label"><i class="fas fa-user-friends"></i> Guests (2):</p>
                     <ul class="guest-list">
-                        <li>Abel</li>
-                        <li>Amy</li>
+                        <li class="adult">Abel (Adult)</li>
+                        <li class="adult">Amy (Adult)</li>
                     </ul>
                     <div class="room-features">
                         <p class="room-label"><i class="fas fa-list-check"></i> Room Features:</p>
@@ -153,8 +197,12 @@
                         </ul>
                     </div>
                     <div class="room-cta">
-                        <button class="room-link-btn" type="button" data-copy-room="6443"><i class="fas fa-copy"></i> Copy room #</button>
-                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                        <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="6443">
+                            <i class="fas fa-copy"></i> Copy Room #
+                        </button>
+                        <a href="decks.html" class="btn btn-secondary room-link-btn">
+                            <i class="fas fa-map"></i> Deck Plan
+                        </a>
                     </div>
                 </div>
             </div>
@@ -166,14 +214,15 @@
                     <div class="room-location">
                         <i class="fas fa-map-marker-alt"></i>
                         Deck 8 • Midship
+                        <span class="location-tooltip">Midship is the middle of the ship with less motion.</span>
                     </div>
                     <span class="room-tag tag--info">Balcony Room</span>
                 </div>
                 <div class="room-content">
                     <p class="room-label"><i class="fas fa-user-friends"></i> Guests (2):</p>
                     <ul class="guest-list">
-                        <li>Aimee</li>
-                        <li>Karin</li>
+                        <li class="adult">Aimee (Adult)</li>
+                        <li class="adult">Karin (Adult)</li>
                     </ul>
                     <div class="room-features">
                         <p class="room-label"><i class="fas fa-list-check"></i> Room Features:</p>
@@ -185,8 +234,12 @@
                         </ul>
                     </div>
                     <div class="room-cta">
-                        <button class="room-link-btn" type="button" data-copy-room="8528"><i class="fas fa-copy"></i> Copy room #</button>
-                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                        <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="8528">
+                            <i class="fas fa-copy"></i> Copy Room #
+                        </button>
+                        <a href="decks.html" class="btn btn-secondary room-link-btn">
+                            <i class="fas fa-map"></i> Deck Plan
+                        </a>
                     </div>
                 </div>
             </div>
@@ -198,14 +251,15 @@
                     <div class="room-location">
                         <i class="fas fa-map-marker-alt"></i>
                         Deck 8 • Aft • Quiet corridor
+                        <span class="location-tooltip">Aft is the rear of the ship.</span>
                     </div>
                     <span class="room-tag tag--success">Ocean View</span>
                 </div>
                 <div class="room-content">
                     <p class="room-label"><i class="fas fa-user-friends"></i> Guests (2):</p>
                     <ul class="guest-list">
-                        <li>Bella</li>
-                        <li>TJ</li>
+                        <li class="adult">Bella (Adult)</li>
+                        <li class="adult">TJ (Adult)</li>
                     </ul>
                     <div class="room-features">
                         <p class="room-label"><i class="fas fa-list-check"></i> Room Features:</p>
@@ -217,8 +271,12 @@
                         </ul>
                     </div>
                     <div class="room-cta">
-                        <button class="room-link-btn" type="button" data-copy-room="8612"><i class="fas fa-copy"></i> Copy room #</button>
-                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                        <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="8612">
+                            <i class="fas fa-copy"></i> Copy Room #
+                        </button>
+                        <a href="decks.html" class="btn btn-secondary room-link-btn">
+                            <i class="fas fa-map"></i> Deck Plan
+                        </a>
                     </div>
                 </div>
             </div>
@@ -230,14 +288,15 @@
                     <div class="room-location">
                         <i class="fas fa-map-marker-alt"></i>
                         Deck 3 • Forward
+                        <span class="location-tooltip">Forward is the front of the ship.</span>
                     </div>
                     <span class="room-tag tag--warning">Interior Room</span>
                 </div>
                 <div class="room-content">
                     <p class="room-label"><i class="fas fa-user-friends"></i> Guests (2):</p>
                     <ul class="guest-list">
-                        <li>Phoebe</li>
-                        <li>Ryan</li>
+                        <li class="adult">Phoebe (Adult)</li>
+                        <li class="adult">Ryan (Adult)</li>
                     </ul>
                     <div class="room-features">
                         <p class="room-label"><i class="fas fa-list-check"></i> Room Features:</p>
@@ -249,14 +308,18 @@
                         </ul>
                     </div>
                     <div class="room-cta">
-                        <button class="room-link-btn" type="button" data-copy-room="3622"><i class="fas fa-copy"></i> Copy room #</button>
-                        <a href="decks.html" class="room-link-btn"><i class="fas fa-map"></i> Open deck plan</a>
+                        <button class="btn btn-secondary room-link-btn" type="button" data-copy-room="3622">
+                            <i class="fas fa-copy"></i> Copy Room #
+                        </button>
+                        <a href="decks.html" class="btn btn-secondary room-link-btn">
+                            <i class="fas fa-map"></i> Deck Plan
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="empty-state" id="emptyState">
+        <div class="empty-state is-hidden" id="emptyState">
             <p><i class="fas fa-magnifying-glass"></i> No rooms match your current filters. Try resetting to view all rooms.</p>
         </div>
 
@@ -283,6 +346,31 @@
                 <li><strong>Housekeeping:</strong> Twice daily service (morning & evening turn-down)</li>
                 <li><strong>Questions:</strong> Contact Guest Services (Ext. 7000) for any room issues</li>
             </ul>
+            <div class="nautical-legend">
+                <h4><i class="fas fa-anchor"></i> Location Guide</h4>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-dot dot-starboard"></span>
+                        <span class="legend-text">Starboard: Right side of ship</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot dot-port"></span>
+                        <span class="legend-text">Port: Left side of ship</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot dot-aft"></span>
+                        <span class="legend-text">Aft: Rear of ship</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot dot-forward"></span>
+                        <span class="legend-text">Forward: Front of ship</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot dot-midship"></span>
+                        <span class="legend-text">Midship: Middle of ship (less motion)</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
         <!-- Mobile Navigation -->
@@ -319,83 +407,170 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Add subtle animation to room cards
-            const roomCards = document.querySelectorAll('.room-card');
-            const searchInput = document.getElementById('searchInput');
-            const deckFilter = document.getElementById('deckFilter');
-            const typeFilter = document.getElementById('typeFilter');
-            const clearFilters = document.getElementById('clearFilters');
-            const resultsText = document.getElementById('resultsText');
-            const emptyState = document.getElementById('emptyState');
+            // Elements
+            const elements = {
+                roomCards: document.querySelectorAll('.room-card'),
+                searchInput: document.getElementById('searchInput'),
+                deckFilter: document.getElementById('deckFilter'),
+                typeFilter: document.getElementById('typeFilter'),
+                clearFilters: document.getElementById('clearFilters'),
+                resultsText: document.getElementById('resultsText'),
+                emptyState: document.getElementById('emptyState'),
+                liveAnnouncement: document.getElementById('liveAnnouncement'),
+                filterCount: document.getElementById('filterCount')
+            };
 
-            roomCards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
 
-            const updateRoomFilters = () => {
-                const searchQuery = searchInput.value.trim().toLowerCase();
-                const selectedDeck = deckFilter.value;
-                const selectedType = typeFilter.value;
+            // Update filters with debounce
+            const updateRoomFilters = debounce(() => {
+                const searchQuery = elements.searchInput.value.trim().toLowerCase();
+                const selectedDeck = elements.deckFilter.value;
+                const selectedType = elements.typeFilter.value;
                 let visibleRooms = 0;
 
-                roomCards.forEach((card) => {
+                const activeFilters = [
+                    searchQuery ? 'search' : null,
+                    selectedDeck !== 'all' ? 'deck' : null,
+                    selectedType !== 'all' ? 'type' : null
+                ].filter(Boolean).length;
+
+                elements.roomCards.forEach((card) => {
                     const roomNumber = card.dataset.room || '';
                     const roomDeck = card.dataset.deck || '';
                     const roomType = card.dataset.type || '';
                     const roomGuests = card.dataset.guests || '';
 
-                    const matchesSearch = !searchQuery || `${roomNumber} ${roomGuests}`.includes(searchQuery);
+                    const matchesSearch = !searchQuery ||
+                        roomNumber.includes(searchQuery) ||
+                        roomGuests.toLowerCase().includes(searchQuery);
+
                     const matchesDeck = selectedDeck === 'all' || roomDeck === selectedDeck;
                     const matchesType = selectedType === 'all' || roomType === selectedType;
 
                     const visible = matchesSearch && matchesDeck && matchesType;
                     card.classList.toggle('is-hidden', !visible);
+                    card.setAttribute('aria-hidden', !visible);
 
                     if (visible) {
                         visibleRooms += 1;
+                        card.style.order = card.classList.contains('featured') ? '-1' : '0';
                     }
                 });
 
-                resultsText.textContent = `Showing ${visibleRooms} of ${roomCards.length} rooms`;
-                emptyState.classList.toggle('is-hidden', visibleRooms !== 0);
-            };
+                elements.resultsText.textContent = `Showing ${visibleRooms} of ${elements.roomCards.length} rooms`;
+                elements.filterCount.textContent = activeFilters > 0 ? `${activeFilters} filter${activeFilters !== 1 ? 's' : ''} active` : '';
+                elements.emptyState.classList.toggle('is-hidden', visibleRooms !== 0);
 
-            [searchInput, deckFilter, typeFilter].forEach((element) => {
-                element.addEventListener('input', updateRoomFilters);
-                element.addEventListener('change', updateRoomFilters);
-            });
+                if (elements.liveAnnouncement) {
+                    elements.liveAnnouncement.textContent =
+                        visibleRooms === 0
+                            ? 'No rooms match your filters. Try adjusting your search.'
+                            : `Found ${visibleRooms} room${visibleRooms !== 1 ? 's' : ''}.`;
+                }
+            }, 300);
 
-            clearFilters.addEventListener('click', () => {
-                searchInput.value = '';
-                deckFilter.value = 'all';
-                typeFilter.value = 'all';
-                updateRoomFilters();
-                searchInput.focus();
-            });
+            // Enhanced copy function
+            function setupCopyButtons() {
+                document.querySelectorAll('[data-copy-room]').forEach((button) => {
+                    button.addEventListener('click', async () => {
+                        const roomNumber = button.dataset.copyRoom;
+                        const originalContent = button.innerHTML;
 
-            document.querySelectorAll('[data-copy-room]').forEach((button) => {
-                button.addEventListener('click', async () => {
-                    const roomNumber = button.dataset.copyRoom;
-                    try {
-                        await navigator.clipboard.writeText(roomNumber);
-                        const originalText = button.innerHTML;
-                        button.innerHTML = '<i class="fas fa-check"></i> Copied';
-                        setTimeout(() => {
-                            button.innerHTML = originalText;
-                        }, 1200);
-                    } catch (error) {
-                        window.prompt('Copy room number:', roomNumber);
+                        try {
+                            await navigator.clipboard.writeText(roomNumber);
+
+                            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            button.classList.add('copy-success');
+
+                            const announcement = document.createElement('div');
+                            announcement.setAttribute('aria-live', 'polite');
+                            announcement.setAttribute('class', 'sr-only');
+                            announcement.textContent = `Room number ${roomNumber} copied to clipboard`;
+                            document.body.appendChild(announcement);
+
+                            setTimeout(() => {
+                                button.innerHTML = originalContent;
+                                button.classList.remove('copy-success');
+                                document.body.removeChild(announcement);
+                            }, 1500);
+                        } catch (error) {
+                            const textArea = document.createElement('textarea');
+                            textArea.value = roomNumber;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+
+                            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            setTimeout(() => {
+                                button.innerHTML = originalContent;
+                            }, 1200);
+                        }
+                    });
+                });
+            }
+
+            elements.clearFilters.addEventListener('click', () => {
+                const hasActiveFilters = elements.searchInput.value ||
+                    elements.deckFilter.value !== 'all' ||
+                    elements.typeFilter.value !== 'all';
+
+                if (hasActiveFilters) {
+                    elements.searchInput.value = '';
+                    elements.deckFilter.value = 'all';
+                    elements.typeFilter.value = 'all';
+                    updateRoomFilters();
+                    elements.searchInput.focus();
+
+                    if (elements.liveAnnouncement) {
+                        elements.liveAnnouncement.textContent = 'All filters have been reset.';
                     }
+                }
+            });
+
+            function initializeAnimations() {
+                elements.roomCards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+
+                    setTimeout(() => {
+                        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }
+
+            elements.roomCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-4px)';
+                    card.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
                 });
             });
 
+            elements.searchInput.addEventListener('input', updateRoomFilters);
+            elements.deckFilter.addEventListener('change', updateRoomFilters);
+            elements.typeFilter.addEventListener('change', updateRoomFilters);
+
+            initializeAnimations();
+            setupCopyButtons();
             updateRoomFilters();
         });
     </script>
