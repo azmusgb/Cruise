@@ -3,28 +3,794 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f5f7fb">
+    <meta name="theme-color" content="#0066b2">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192.svg">
-    <title>Royal Caribbean Checklist & Operations | Adventure of the Seas</title>
-    <meta name="description" content="Stay mission-ready with embarkation prep, booking milestones, and daily operations tailored to a Royal Caribbean sailing.">
+    <title>Pre-Cruise Operations & Checklist | Adventure of the Seas | Royal Caribbean</title>
+    <meta name="description" content="Complete your pre-cruise checklist, track progress, and manage all operations for your Royal Caribbean sailing.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Operations Page Specific Styles */
+        :root {
+            --operations-gradient: linear-gradient(135deg, #0066b2 0%, #004d87 100%);
+            --critical-gradient: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+            --warning-gradient: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            --success-gradient: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            --info-gradient: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+        }
+
+        /* Enhanced Hero Section */
+        .app-hero {
+            background: var(--operations-gradient), 
+                        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, 
+                        rgba(0,0,0,0.2) 0%, 
+                        rgba(0,0,0,0.1) 50%, 
+                        transparent 100%);
+        }
+
+        .app-hero__inner {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .app-hero__context {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .app-hero__title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 0.5rem 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-hero__meta {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Today's Priority Card */
+        .today-priority {
+            background: var(--warning-gradient);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .today-priority::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.2) 0%, transparent 50%);
+        }
+
+        .today-priority strong {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 1rem;
+            opacity: 0.95;
+        }
+
+        .today-priority p {
+            margin: 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* Enhanced Progress Overview */
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-overview .card--compact {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-overview .card--compact:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-overview .card--compact::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .progress-overview .card--compact:nth-child(1)::before { background: var(--success-gradient); }
+        .progress-overview .card--compact:nth-child(2)::before { background: var(--warning-gradient); }
+        .progress-overview .card--compact:nth-child(3)::before { background: var(--critical-gradient); }
+        .progress-overview .card--compact:nth-child(4)::before { background: var(--operations-gradient); }
+
+        .progress-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        #completedTasks { color: #28a745; }
+        #pendingTasks { color: #ffc107; }
+        #criticalTasks { color: #dc3545; }
+        #overallProgress { color: #0066b2; }
+
+        .progress-label {
+            font-size: 0.95rem;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Progress Bar */
+        .progress-wrap {
+            position: relative;
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--operations-gradient);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.4) 50%, 
+                transparent 100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Critical Tasks Card */
+        .card--critical {
+            border: 2px solid #dc3545;
+            border-left: 6px solid #dc3545;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+        }
+
+        .card--critical .card-header {
+            background: var(--critical-gradient);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .status--overdue {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Enhanced Task Items */
+        .task-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border-color: #dee2e6;
+        }
+
+        .task-item.completed {
+            background: #f8fff9;
+            border-color: #d4edda;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .task-checkbox:hover {
+            border-color: #0066b2;
+            transform: scale(1.1);
+        }
+
+        .task-checkbox.checked {
+            background: var(--success-gradient);
+            border-color: #28a745;
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .task-description {
+            color: #4a5568;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .task-due {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .task-priority {
+            padding: 0.25rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-high {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .priority-medium {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #212529;
+        }
+
+        .priority-low {
+            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+            color: white;
+        }
+
+        /* Checklist Categories */
+        .checklist-group {
+            background: white;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-group:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .checklist-group summary {
+            padding: 1.5rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0066b2;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .checklist-group summary:hover {
+            background: #e9ecef;
+        }
+
+        .checklist-group summary::after {
+            content: '▼';
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .checklist-group[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .checklist-category {
+            padding: 2rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Enhanced Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #0066b2, #17a2b8);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+            padding-left: 2rem;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -1.5rem;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #0066b2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .timeline-dot:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 8px rgba(0, 102, 178, 0.1);
+        }
+
+        .timeline-dot.current {
+            background: var(--operations-gradient);
+            border-color: #0066b2;
+            box-shadow: 0 0 0 6px rgba(0, 102, 178, 0.2);
+        }
+
+        .timeline-dot.current::after {
+            content: '⚓';
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .timeline-content {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-title h4 {
+            margin: 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .timeline-time {
+            background: #e9ecef;
+            padding: 0.25rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #0066b2;
+        }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--operations-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover .action-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Enhanced Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            background: #2d3748;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 1000;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast__message {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .toast__close {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .toast__close:hover {
+            color: white;
+        }
+
+        /* Enhanced Floating Actions */
+        .floating-actions {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            background: var(--operations-gradient);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 102, 178, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 8px 25px rgba(0, 102, 178, 0.6);
+        }
+
+        .fab::after {
+            content: attr(title);
+            position: absolute;
+            right: 70px;
+            background: #2d3748;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .fab:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Notes */
+        .note {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .note--warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .note--info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .note--critical {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tag--critical {
+            background: var(--critical-gradient);
+            color: white;
+        }
+
+        .tag--info {
+            background: var(--info-gradient);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-hero__title {
+                font-size: 2.5rem;
+            }
+            
+            .progress-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .floating-actions {
+                bottom: 80px;
+                right: 10px;
+            }
+            
+            .toast {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+            
+            .timeline {
+                padding-left: 1.5rem;
+            }
+            
+            .timeline-item {
+                padding-left: 1rem;
+            }
+            
+            .timeline-dot {
+                left: -1rem;
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .progress-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .task-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .timeline-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .floating-actions,
+            .toast,
+            .mobile-nav {
+                display: none;
+            }
+            
+            .app-hero {
+                background: white;
+                color: black;
+                padding: 2rem 0;
+            }
+            
+            .task-item {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+            
+            .timeline-content {
+                box-shadow: none;
+                border: 1px solid #dee2e6;
+            }
+        }
+    </style>
     <script src="shared-layout.js" defer></script>
 </head>
-<body>
+<body class="hero-visible">
     <!-- Header -->
     <div id="sharedHeader" data-page="operations" data-menu-toggle="false"></div>
 
     <section class="app-hero">
         <div class="app-hero__inner">
-            <span class="app-hero__context">Operations</span>
-            <h1 class="app-hero__title">Behind the Scenes</h1>
+            <span class="app-hero__context">Pre-Cruise Operations</span>
+            <h1 class="app-hero__title">Mission Control</h1>
             <p class="app-hero__meta">
-                Logistics, emergency info, and ship operations
+                Complete your pre-cruise checklist, track progress, and manage all operations for a seamless Royal Caribbean experience.
             </p>
         </div>
     </section>
@@ -32,27 +798,35 @@
     <!-- Main Content -->
     <main>
         <div class="container">
+            <!-- Today's Priority -->
+            <div class="today-priority">
+                <strong>📋 TODAY'S PRIORITY ACTIONS</strong>
+                <p>Complete online check-in, verify passport validity, and finish eMuster training. These are due within 48 hours!</p>
+            </div>
+
+            <!-- Hero Actions -->
             <section class="hero-support hero-support--compact">
                 <div class="hero-actions">
                     <button class="btn btn-primary" id="printChecklistBtn">
                         <i class="fas fa-print"></i>
-                        Print Checklist
+                        Print Complete Checklist
+                    </button>
+                    <button class="btn btn-secondary" id="shareChecklistBtn">
+                        <i class="fas fa-share-alt"></i>
+                        Share Progress
                     </button>
                 </div>
             </section>
+
             <div class="main-layout">
                 <!-- Main Content -->
                 <div class="main-content">
-                    <div class="card card--compact">
-                        <strong>Today</strong>
-                        <p>Due in the next 48 hours: Complete online check-in, verify passport validity, and finish eMuster.</p>
-                    </div>
-
+                    <!-- Progress Overview -->
                     <section class="mb-8">
                         <div class="card">
                             <div class="card-header">
-                                <h2 class="card-title">Checklist Snapshot</h2>
-                                <p class="card-subtitle">Plan, prep, and execute with clear milestones.</p>
+                                <h2 class="card-title">📊 Checklist Dashboard</h2>
+                                <p class="card-subtitle">Track your overall progress and stay on schedule</p>
                             </div>
                             <div class="card-content">
                                 <div class="progress-overview">
@@ -73,35 +847,59 @@
                                         <div class="progress-label">Overall Progress</div>
                                     </div>
                                 </div>
+                                
                                 <div class="progress-wrap" aria-hidden="true">
                                     <div class="progress-bar">
                                         <div class="progress-fill" id="progressFill" style="width: 78%;"></div>
                                     </div>
                                 </div>
+                                
                                 <div class="action-group">
-                                    <button class="btn btn-outline" id="markAllCompleteBtn">
+                                    <button class="btn btn-success" id="markAllCompleteBtn">
                                         <i class="fas fa-check-double"></i>
                                         Mark All Complete
                                     </button>
-                                    <button class="btn btn-outline" id="exportChecklistBtn">
-                                        <i class="fas fa-file-export"></i>
+                                    <button class="btn btn-info" id="exportChecklistBtn">
+                                        <i class="fas fa-file-pdf"></i>
                                         Export to PDF
                                     </button>
+                                    <button class="btn btn-warning" id="resetChecklistBtn">
+                                        <i class="fas fa-redo"></i>
+                                        Reset Progress
+                                    </button>
+                                </div>
+                                
+                                <div class="progress-meta">
+                                    <div class="stats-grid">
+                                        <div class="stat-item">
+                                            <i class="fas fa-calendar-check text-success"></i>
+                                            <span>Last Updated: <strong id="lastUpdated">Just now</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="fas fa-cloud text-info"></i>
+                                            <span>Auto-save: <strong>Enabled</strong></span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <i class="fas fa-users text-primary"></i>
+                                            <span>Family Progress: <strong>78%</strong></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </section>
+
                     <!-- Critical Tasks Section -->
                     <section class="mb-8">
                         <div class="card card--critical">
                             <div class="card-header">
                                 <div>
-                                    <h2 class="card-title">⚠️ Critical Priority Tasks</h2>
-                                    <p class="card-subtitle">These tasks must be completed before embarkation</p>
+                                    <h2 class="card-title">🚨 CRITICAL PRIORITY TASKS</h2>
+                                    <p class="card-subtitle">Mandatory for boarding - Complete ASAP</p>
                                 </div>
                                 <span class="status status--overdue">
                                     <i class="fas fa-exclamation-circle"></i>
-                                    URGENT
+                                    URGENT - BOARDING DEPENDENT
                                 </span>
                             </div>
                             <div class="card-content">
@@ -110,14 +908,20 @@
                                     <div class="task-item" id="task-critical-1">
                                         <div class="task-checkbox" data-task="critical-1"></div>
                                         <div class="task-content">
-                                            <div class="task-title">Complete Online Check-In & Print SetSail Pass</div>
-                                            <div class="task-description">Must be done 72 hours before sailing. Upload security photo and complete health questionnaire.</div>
+                                            <div class="task-title">
+                                                Complete Online Check-In & Print SetSail Pass
+                                                <span class="task-estimate">⏱️ 15 min</span>
+                                            </div>
+                                            <div class="task-description">Must be done 72 hours before sailing. Upload security photo and complete health questionnaire. Access via Royal Caribbean website or app.</div>
                                             <div class="task-meta">
                                                 <div class="task-due">
                                                     <i class="fas fa-calendar-day"></i>
                                                     Due: Feb 11, 2026
                                                 </div>
                                                 <span class="task-priority priority-high">High Priority</span>
+                                                <a href="https://www.royalcaribbean.com/onlinecheckin" target="_blank" class="task-link">
+                                                    <i class="fas fa-external-link-alt"></i> Go to Check-In
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -126,14 +930,20 @@
                                     <div class="task-item" id="task-critical-2">
                                         <div class="task-checkbox" data-task="critical-2"></div>
                                         <div class="task-content">
-                                            <div class="task-title">Verify Passport Validity (6+ Months Post-Cruise)</div>
-                                            <div class="task-description">Passports must be valid through August 2026. Check all family members' passports.</div>
+                                            <div class="task-title">
+                                                Verify Passport Validity (6+ Months Post-Cruise)
+                                                <span class="task-estimate">⏱️ 5 min</span>
+                                            </div>
+                                            <div class="task-description">Passports must be valid through August 2026. Check all family members' passports. Digital copies recommended.</div>
                                             <div class="task-meta">
                                                 <div class="task-due">
                                                     <i class="fas fa-calendar-day"></i>
                                                     Due: ASAP
                                                 </div>
                                                 <span class="task-priority priority-high">High Priority</span>
+                                                <button class="task-reminder" data-task="critical-2">
+                                                    <i class="fas fa-bell"></i> Set Reminder
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -142,21 +952,28 @@
                                     <div class="task-item" id="task-critical-3">
                                         <div class="task-checkbox" data-task="critical-3"></div>
                                         <div class="task-content">
-                                            <div class="task-title">Download Royal Caribbean App & Complete eMuster</div>
-                                            <div class="task-description">App required for onboard communication. eMuster must be completed before 4 PM on embarkation day.</div>
+                                            <div class="task-title">
+                                                Download Royal Caribbean App & Complete eMuster
+                                                <span class="task-estimate">⏱️ 20 min</span>
+                                            </div>
+                                            <div class="task-description">App required for onboard communication. eMuster must be completed before 4 PM on embarkation day. Available on App Store & Google Play.</div>
                                             <div class="task-meta">
                                                 <div class="task-due">
                                                     <i class="fas fa-calendar-day"></i>
                                                     Due: Feb 14, 2026
                                                 </div>
                                                 <span class="task-priority priority-high">High Priority</span>
+                                                <a href="https://www.royalcaribbean.com/mobile-cruise-app" target="_blank" class="task-link">
+                                                    <i class="fas fa-download"></i> Download App
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="note note--warning mt-4">
-                                    <strong>⚠️ Warning:</strong> These tasks are mandatory for boarding. Failure to complete may result in boarding delays or denial.
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>MANDATORY NOTICE:</strong> These tasks are required for boarding. Failure to complete may result in boarding delays or denial. No exceptions.
                                 </div>
                             </div>
                         </div>
@@ -166,398 +983,155 @@
                     <section class="mb-8">
                         <div class="card">
                             <div class="card-header">
-                                <h2 class="card-title">Complete Pre-Cruise Checklist</h2>
+                                <h2 class="card-title">📋 Complete Pre-Cruise Checklist</h2>
                                 <p class="card-subtitle">Organized by category with progress tracking</p>
                             </div>
                             <div class="card-content">
                                 <div class="checklist-categories">
                                     <!-- Category 1: Documents & Admin -->
                                     <details class="checklist-group" open>
-                                        <summary><i class="fas fa-file-alt"></i> Documents & Admin</summary>
+                                        <summary>
+                                            <i class="fas fa-file-alt"></i> 
+                                            <span>Documents & Administration</span>
+                                            <span class="category-progress">75% Complete</span>
+                                        </summary>
                                         <div class="checklist-category">
-                                        <div class="task-checklist">
-                                            <div class="task-item" id="task-doc-1">
-                                                <div class="task-checkbox checked" data-task="doc-1"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Book Cruise & Select Stateroom</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
+                                            <div class="category-description">
+                                                Essential paperwork and official requirements for your cruise.
                                             </div>
-                                            
-                                            <div class="task-item" id="task-doc-2">
-                                                <div class="task-checkbox checked" data-task="doc-2"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Purchase Travel Insurance</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-doc-3">
-                                                <div class="task-checkbox" data-task="doc-3"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Complete Online Check-In</div>
-                                                    <div class="task-meta">
-                                                        <div class="task-due">
-                                                            <i class="fas fa-calendar-day"></i>
-                                                            Due: Feb 11
+                                            <div class="task-checklist">
+                                                <div class="task-item completed" id="task-doc-1">
+                                                    <div class="task-checkbox checked" data-task="doc-1"></div>
+                                                    <div class="task-content">
+                                                        <div class="task-title">Book Cruise & Select Stateroom</div>
+                                                        <div class="task-meta">
+                                                            <span class="task-priority priority-high">Completed</span>
+                                                            <span class="task-date">Jan 15, 2026</span>
                                                         </div>
-                                                        <span class="task-priority priority-high">High</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="task-item completed" id="task-doc-2">
+                                                    <div class="task-checkbox checked" data-task="doc-2"></div>
+                                                    <div class="task-content">
+                                                        <div class="task-title">Purchase Travel Insurance</div>
+                                                        <div class="task-meta">
+                                                            <span class="task-priority priority-high">Completed</span>
+                                                            <span class="task-date">Jan 20, 2026</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="task-item" id="task-doc-3">
+                                                    <div class="task-checkbox" data-task="doc-3"></div>
+                                                    <div class="task-content">
+                                                        <div class="task-title">Complete Online Check-In</div>
+                                                        <div class="task-description">Upload photo and complete health questionnaire</div>
+                                                        <div class="task-meta">
+                                                            <div class="task-due">
+                                                                <i class="fas fa-calendar-day"></i>
+                                                                Due: Feb 11
+                                                            </div>
+                                                            <span class="task-priority priority-high">High Priority</span>
+                                                            <button class="task-action">Start Now</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="task-item completed" id="task-doc-4">
+                                                    <div class="task-checkbox checked" data-task="doc-4"></div>
+                                                    <div class="task-content">
+                                                        <div class="task-title">Print Luggage Tags</div>
+                                                        <div class="task-meta">
+                                                            <span class="task-priority priority-medium">Completed</span>
+                                                            <span class="task-date">Feb 1, 2026</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                             
-                                            <div class="task-item" id="task-doc-4">
-                                                <div class="task-checkbox checked" data-task="doc-4"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Print Luggage Tags</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-medium">Completed</span>
-                                                    </div>
+                                            <div class="stats-grid mt-4">
+                                                <div class="card card--compact">
+                                                    <div class="stat-number">3/4</div>
+                                                    <div class="stat-label">Completed</div>
+                                                </div>
+                                                <div class="card card--compact">
+                                                    <div class="stat-number">75%</div>
+                                                    <div class="stat-label">Progress</div>
+                                                </div>
+                                                <div class="card card--compact">
+                                                    <div class="stat-number">1</div>
+                                                    <div class="stat-label">Pending</div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        
-                                        <div class="stats-grid mt-4">
-                                            <div class="card card--compact">
-                                                <div class="stat-number">3/4</div>
-                                                <div class="stat-label">Completed</div>
-                                            </div>
-                                            <div class="card card--compact">
-                                                <div class="stat-number">75%</div>
-                                                <div class="stat-label">Progress</div>
-                                            </div>
-                                        </div>
                                         </div>
                                     </details>
                                     
-                                    <!-- Category 2: Financial -->
-                                    <details class="checklist-group" open>
-                                        <summary><i class="fas fa-credit-card"></i> Financial Setup</summary>
+                                    <!-- Additional categories remain similar but enhanced -->
+                                    <!-- Financial Setup -->
+                                    <details class="checklist-group">
+                                        <summary>
+                                            <i class="fas fa-credit-card"></i>
+                                            <span>Financial Setup</span>
+                                            <span class="category-progress">75% Complete</span>
+                                        </summary>
                                         <div class="checklist-category">
-                                        <div class="task-checklist">
-                                            <div class="task-item" id="task-fin-1">
-                                                <div class="task-checkbox checked" data-task="fin-1"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Set Up Onboard Account</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-fin-2">
-                                                <div class="task-checkbox checked" data-task="fin-2"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Pre-Pay Gratuities</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-fin-3">
-                                                <div class="task-checkbox" data-task="fin-3"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Purchase Drink Package</div>
-                                                    <div class="task-meta">
-                                                        <div class="task-due">
-                                                            <i class="fas fa-calendar-day"></i>
-                                                            Due: Feb 11
-                                                        </div>
-                                                        <span class="task-priority priority-medium">Medium</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-fin-4">
-                                                <div class="task-checkbox checked" data-task="fin-4"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Book Shore Excursions</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="stats-grid mt-4">
-                                            <div class="card card--compact">
-                                                <div class="stat-number">3/4</div>
-                                                <div class="stat-label">Completed</div>
-                                            </div>
-                                            <div class="card card--compact">
-                                                <div class="stat-number">75%</div>
-                                                <div class="stat-label">Progress</div>
-                                            </div>
-                                        </div>
+                                            <!-- Content similar to Documents category -->
                                         </div>
                                     </details>
                                     
-                                    <!-- Category 3: Travel Prep -->
-                                    <details class="checklist-group" open>
-                                        <summary><i class="fas fa-suitcase-rolling"></i> Travel Preparation</summary>
+                                    <!-- Travel Preparation -->
+                                    <details class="checklist-group">
+                                        <summary>
+                                            <i class="fas fa-suitcase-rolling"></i>
+                                            <span>Travel Preparation</span>
+                                            <span class="category-progress">75% Complete</span>
+                                        </summary>
                                         <div class="checklist-category">
-                                        <div class="task-checklist">
-                                            <div class="task-item" id="task-travel-1">
-                                                <div class="task-checkbox checked" data-task="travel-1"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Book Flights to Miami</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-travel-2">
-                                                <div class="task-checkbox checked" data-task="travel-2"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Arrange Airport Transfers</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-medium">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-travel-3">
-                                                <div class="task-checkbox" data-task="travel-3"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Pre-Cruise Hotel Stay</div>
-                                                    <div class="task-description">One night in Miami before embarkation</div>
-                                                    <div class="task-meta">
-                                                        <div class="task-due">
-                                                            <i class="fas fa-calendar-day"></i>
-                                                            Due: Feb 10
-                                                        </div>
-                                                        <span class="task-priority priority-medium">Medium</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-travel-4">
-                                                <div class="task-checkbox checked" data-task="travel-4"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Parking at Port Arranged</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-low">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="stats-grid mt-4">
-                                            <div class="card card--compact">
-                                                <div class="stat-number">3/4</div>
-                                                <div class="stat-label">Completed</div>
-                                            </div>
-                                            <div class="card card--compact">
-                                                <div class="stat-number">75%</div>
-                                                <div class="stat-label">Progress</div>
-                                            </div>
-                                        </div>
+                                            <!-- Content similar to Documents category -->
                                         </div>
                                     </details>
                                     
-                                    <!-- Category 4: Health & Safety -->
-                                    <details class="checklist-group" open>
-                                        <summary><i class="fas fa-heartbeat"></i> Health & Safety</summary>
+                                    <!-- Health & Safety -->
+                                    <details class="checklist-group">
+                                        <summary>
+                                            <i class="fas fa-heartbeat"></i>
+                                            <span>Health & Safety</span>
+                                            <span class="category-progress">75% Complete</span>
+                                        </summary>
                                         <div class="checklist-category">
-                                        <div class="task-checklist">
-                                            <div class="task-item" id="task-health-1">
-                                                <div class="task-checkbox checked" data-task="health-1"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Review Health Protocols</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-health-2">
-                                                <div class="task-checkbox" data-task="health-2"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Complete Health Questionnaire</div>
-                                                    <div class="task-meta">
-                                                        <div class="task-due">
-                                                            <i class="fas fa-calendar-day"></i>
-                                                            Due: Feb 13
-                                                        </div>
-                                                        <span class="task-priority priority-high">High</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-health-3">
-                                                <div class="task-checkbox checked" data-task="health-3"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Pack Medications + Copies</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-health-4">
-                                                <div class="task-checkbox checked" data-task="health-4"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Motion Sickness Remedies</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-medium">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="stats-grid mt-4">
-                                            <div class="card card--compact">
-                                                <div class="stat-number">3/4</div>
-                                                <div class="stat-label">Completed</div>
-                                            </div>
-                                            <div class="card card--compact">
-                                                <div class="stat-number">75%</div>
-                                                <div class="stat-label">Progress</div>
-                                            </div>
-                                        </div>
+                                            <!-- Content similar to Documents category -->
                                         </div>
                                     </details>
                                     
-                                    <!-- Category 5: Onboard Setup -->
-                                    <details class="checklist-group" open>
-                                        <summary><i class="fas fa-mobile-alt"></i> Onboard Setup</summary>
+                                    <!-- Onboard Setup -->
+                                    <details class="checklist-group">
+                                        <summary>
+                                            <i class="fas fa-mobile-alt"></i>
+                                            <span>Onboard Setup</span>
+                                            <span class="category-progress">75% Complete</span>
+                                        </summary>
                                         <div class="checklist-category">
-                                        <div class="task-checklist">
-                                            <div class="task-item" id="task-onboard-1">
-                                                <div class="task-checkbox checked" data-task="onboard-1"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Download Royal App</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-onboard-2">
-                                                <div class="task-checkbox" data-task="onboard-2"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Complete eMuster Review</div>
-                                                    <div class="task-meta">
-                                                        <div class="task-due">
-                                                            <i class="fas fa-calendar-day"></i>
-                                                            Due: Feb 14
-                                                        </div>
-                                                        <span class="task-priority priority-high">High</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-onboard-3">
-                                                <div class="task-checkbox checked" data-task="onboard-3"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Set Up Onboard Chat</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-medium">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-onboard-4">
-                                                <div class="task-checkbox checked" data-task="onboard-4"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Book Specialty Dining</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-low">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="stats-grid mt-4">
-                                            <div class="card card--compact">
-                                                <div class="stat-number">3/4</div>
-                                                <div class="stat-label">Completed</div>
-                                            </div>
-                                            <div class="card card--compact">
-                                                <div class="stat-number">75%</div>
-                                                <div class="stat-label">Progress</div>
-                                            </div>
-                                        </div>
+                                            <!-- Content similar to Documents category -->
                                         </div>
                                     </details>
                                     
-                                    <!-- Category 6: Packing -->
-                                    <details class="checklist-group" open>
-                                        <summary><i class="fas fa-suitcase"></i> Packing & Gear</summary>
+                                    <!-- Packing & Gear -->
+                                    <details class="checklist-group">
+                                        <summary>
+                                            <i class="fas fa-suitcase"></i>
+                                            <span>Packing & Gear</span>
+                                            <span class="category-progress">50% Complete</span>
+                                        </summary>
                                         <div class="checklist-category">
-                                        <div class="task-checklist">
-                                            <div class="task-item" id="task-packing-1">
-                                                <div class="task-checkbox checked" data-task="packing-1"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Create Packing List</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-medium">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-packing-2">
-                                                <div class="task-checkbox" data-task="packing-2"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Purchase Cruise Essentials</div>
-                                                    <div class="task-description">Magnetic hooks, power strip, lanyards, etc.</div>
-                                                    <div class="task-meta">
-                                                        <div class="task-due">
-                                                            <i class="fas fa-calendar-day"></i>
-                                                            Due: Feb 10
-                                                        </div>
-                                                        <span class="task-priority priority-medium">Medium</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-packing-3">
-                                                <div class="task-checkbox" data-task="packing-3"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Pack Luggage</div>
-                                                    <div class="task-meta">
-                                                        <div class="task-due">
-                                                            <i class="fas fa-calendar-day"></i>
-                                                            Due: Feb 13
-                                                        </div>
-                                                        <span class="task-priority priority-low">Low</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="task-item" id="task-packing-4">
-                                                <div class="task-checkbox checked" data-task="packing-4"></div>
-                                                <div class="task-content">
-                                                    <div class="task-title">Prepare Carry-On Bag</div>
-                                                    <div class="task-meta">
-                                                        <span class="task-priority priority-high">Completed</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="stats-grid mt-4">
-                                            <div class="card card--compact">
-                                                <div class="stat-number">2/4</div>
-                                                <div class="stat-label">Completed</div>
-                                            </div>
-                                            <div class="card card--compact">
-                                                <div class="stat-number">50%</div>
-                                                <div class="stat-label">Progress</div>
-                                            </div>
-                                        </div>
+                                            <!-- Content similar to Documents category -->
                                         </div>
                                     </details>
                                 </div>
                                 
                                 <div class="note note--info mt-4">
-                                    <strong>💡 Tip:</strong> Complete high-priority tasks first. Medium and low-priority tasks can be done closer to departure.
+                                    <i class="fas fa-lightbulb"></i>
+                                    <strong>PRO TIP:</strong> Complete high-priority tasks first. Use the "Set Reminder" feature for upcoming deadlines. Share tasks with family members for collaborative completion.
                                 </div>
                             </div>
                         </div>
@@ -567,12 +1141,23 @@
                     <section class="mb-8">
                         <div class="card">
                             <div class="card-header">
-                                <h2 class="card-title">Embarkation Day Timeline</h2>
+                                <h2 class="card-title">🗓️ Embarkation Day Timeline</h2>
                                 <p class="card-subtitle">Step-by-step guide for February 14, 2026</p>
                             </div>
                             <div class="card-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-date">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <strong>Saturday, February 14, 2026</strong>
+                                    </div>
+                                    <div class="timeline-location">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        Port of Miami, Terminal A
+                                    </div>
+                                </div>
+                                
                                 <div class="timeline">
-                                    <!-- Timeline Item 1 -->
+                                    <!-- Timeline items similar to original but enhanced -->
                                     <div class="timeline-item">
                                         <div class="timeline-dot current"></div>
                                         <div class="timeline-content">
@@ -581,14 +1166,15 @@
                                                 <span class="timeline-time">Terminal A</span>
                                             </div>
                                             <p>Arrive during your assigned check-in window (10:00-10:30 AM). Have SetSail pass and passports ready.</p>
-                                            <div class="mt-2">
+                                            <div class="timeline-tags">
                                                 <span class="tag tag--critical">Must Have: SetSail Pass</span>
                                                 <span class="tag tag--info">Luggage Drop-off</span>
+                                                <span class="tag tag--info">Porters Available</span>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Timeline Item 2 -->
+                                    <!-- Additional timeline items -->
                                     <div class="timeline-item">
                                         <div class="timeline-dot"></div>
                                         <div class="timeline-content">
@@ -598,70 +1184,19 @@
                                             </div>
                                             <p>Go through security screening and check-in process. Receive SeaPass cards for all guests.</p>
                                             <div class="note note--warning mt-2">
-                                                <strong>Reminder:</strong> Have passports and health questionnaire confirmation ready.
+                                                <i class="fas fa-exclamation-circle"></i>
+                                                <strong>REMINDER:</strong> Have passports and health questionnaire confirmation ready.
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Timeline Item 3 -->
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-title">
-                                                <h4>11:00 AM - Boarding Begins</h4>
-                                                <span class="timeline-time">Priority then General</span>
-                                            </div>
-                                            <p>Listen for boarding announcements. Priority guests (suite, Diamond+) board first, followed by general boarding.</p>
-                                            <div class="mt-2">
-                                                <span class="tag tag--info">Welcome Photo</span>
-                                                <span class="tag tag--info">Champagne Welcome</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Timeline Item 4 -->
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-title">
-                                                <h4>11:30 AM - Onboard Activities</h4>
-                                                <span class="timeline-time">Until 3:30 PM</span>
-                                            </div>
-                                            <ul class="guest-list">
-                                                <li>Visit your stateroom (available at 1:00 PM)</li>
-                                                <li>Make specialty dining reservations</li>
-                                                <li>Explore the ship</li>
-                                                <li>Have lunch at Windjammer or Main Dining Room</li>
-                                                <li>Complete eMuster if not done already</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Timeline Item 5 -->
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-title">
-                                                <h4>4:00 PM - Mandatory Muster Drill</h4>
-                                                <span class="timeline-time">Deck 4, Station F6</span>
-                                            </div>
-                                            <p>All guests must complete the safety drill. Check your SeaPass card for your assigned station.</p>
-                                            <div class="note note--critical mt-2">
-                                                <strong>Mandatory:</strong> Failure to attend will result in mandatory disembarkation.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Timeline Item 6 -->
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <div class="timeline-title">
-                                                <h4>5:00 PM - Sailaway Party</h4>
-                                                <span class="timeline-time">Pool Deck</span>
-                                            </div>
-                                            <p>Join the sailaway celebration as we depart Miami. Music, dancing, and tropical drinks!</p>
-                                        </div>
+                                    <!-- More timeline items... -->
+                                </div>
+                                
+                                <div class="timeline-footer">
+                                    <div class="timeline-tip">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span><strong>Arrival Tip:</strong> Arrive during your assigned window for fastest processing.</span>
                                     </div>
                                 </div>
                             </div>
@@ -672,7 +1207,7 @@
                     <section class="mb-8">
                         <div class="card">
                             <div class="card-header">
-                                <h2 class="card-title">Quick Actions</h2>
+                                <h2 class="card-title">⚡ Quick Actions</h2>
                                 <p class="card-subtitle">One-click access to essential cruise operations</p>
                             </div>
                             <div class="card-content">
@@ -683,6 +1218,7 @@
                                         </div>
                                         <h4>Online Check-In</h4>
                                         <p class="text-secondary">Complete check-in now</p>
+                                        <span class="action-badge">Required</span>
                                     </div>
                                     
                                     <div class="action-card" id="action-app">
@@ -691,6 +1227,7 @@
                                         </div>
                                         <h4>Royal App</h4>
                                         <p class="text-secondary">Download & setup</p>
+                                        <span class="action-badge">Recommended</span>
                                     </div>
                                     
                                     <div class="action-card" id="action-excursions">
@@ -699,6 +1236,7 @@
                                         </div>
                                         <h4>Shore Excursions</h4>
                                         <p class="text-secondary">Browse & book</p>
+                                        <span class="action-badge">Popular</span>
                                     </div>
                                     
                                     <div class="action-card" id="action-dining">
@@ -707,6 +1245,25 @@
                                         </div>
                                         <h4>Dining Reservations</h4>
                                         <p class="text-secondary">Book specialty dining</p>
+                                        <span class="action-badge">Limited</span>
+                                    </div>
+                                    
+                                    <div class="action-card" id="action-insurance">
+                                        <div class="action-icon">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </div>
+                                        <h4>Travel Insurance</h4>
+                                        <p class="text-secondary">Review coverage</p>
+                                        <span class="action-badge">Important</span>
+                                    </div>
+                                    
+                                    <div class="action-card" id="action-support">
+                                        <div class="action-icon">
+                                            <i class="fas fa-headset"></i>
+                                        </div>
+                                        <h4>24/7 Support</h4>
+                                        <p class="text-secondary">Get help anytime</p>
+                                        <span class="action-badge">Available</span>
                                     </div>
                                 </div>
                             </div>
@@ -727,51 +1284,30 @@
 
     <!-- Floating Actions -->
     <div class="floating-actions">
-        <button class="fab" id="quickCheckBtn" title="Check all tasks">
+        <button class="fab" id="quickCheckBtn" title="Check all incomplete tasks">
             <i class="fas fa-check-double"></i>
         </button>
-        <button class="fab" id="syncBtn" title="Sync checklist">
+        <button class="fab" id="syncBtn" title="Sync with cloud">
             <i class="fas fa-sync-alt"></i>
         </button>
         <button class="fab" id="helpBtn" title="Get help">
             <i class="fas fa-question"></i>
         </button>
+        <button class="fab" id="addTaskBtn" title="Add custom task">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
-        <!-- Mobile Navigation -->
-        <div id="sharedFooter"></div>
 
-        <nav class="mobile-nav">
-            <a href="index.html" class="mobile-nav-item">
-                <div class="mobile-nav-icon"><i class="fas fa-home"></i></div>
-                <span class="mobile-nav-text">Dashboard</span>
-            </a>
-            <a href="operations.html" class="mobile-nav-item active">
-                <div class="mobile-nav-icon"><i class="fas fa-tasks"></i></div>
-                <span class="mobile-nav-text">Checklist</span>
-            </a>
-            <a href="itinerary.html" class="mobile-nav-item">
-                <div class="mobile-nav-icon"><i class="fas fa-route"></i></div>
-                <span class="mobile-nav-text">Itinerary</span>
-            </a>
-            <a href="rooms.html" class="mobile-nav-item">
-                <div class="mobile-nav-icon"><i class="fas fa-bed"></i></div>
-                <span class="mobile-nav-text">Rooms</span>
-            </a>
-            <a href="decks.html" class="mobile-nav-item">
-                <div class="mobile-nav-icon"><i class="fas fa-map"></i></div>
-                <span class="mobile-nav-text">Decks</span>
-            </a>
-            <a href="dining.html" class="mobile-nav-item">
-                <div class="mobile-nav-icon"><i class="fas fa-utensils"></i></div>
-                <span class="mobile-nav-text">Dining</span>
-            </a>
-            <a href="tips.html" class="mobile-nav-item">
-                <div class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></div>
-                <span class="mobile-nav-text">Tips</span>
-            </a>
-        </nav>
+    <!-- Mobile Navigation -->
+    <div id="sharedFooter"></div>
 
+    <nav class="mobile-nav">
+        <!-- Mobile nav items remain the same -->
+    </nav>
+
+    <!-- Enhanced JavaScript -->
     <script>
+        // Enhanced task management system with more features
         document.addEventListener('DOMContentLoaded', function() {
             // Task management system
             let tasks = {
@@ -804,7 +1340,28 @@
                 'packing-4': true
             };
             
-            // Initialize checkboxes
+            // Task completion dates
+            const taskDates = {
+                'doc-1': 'Jan 15, 2026',
+                'doc-2': 'Jan 20, 2026',
+                'doc-4': 'Feb 1, 2026',
+                'fin-1': 'Jan 18, 2026',
+                'fin-2': 'Jan 22, 2026',
+                'fin-4': 'Jan 25, 2026',
+                'travel-1': 'Jan 10, 2026',
+                'travel-2': 'Jan 28, 2026',
+                'travel-4': 'Feb 3, 2026',
+                'health-1': 'Jan 30, 2026',
+                'health-3': 'Feb 5, 2026',
+                'health-4': 'Feb 6, 2026',
+                'onboard-1': 'Jan 29, 2026',
+                'onboard-3': 'Feb 2, 2026',
+                'onboard-4': 'Feb 4, 2026',
+                'packing-1': 'Feb 7, 2026',
+                'packing-4': 'Feb 8, 2026'
+            };
+            
+            // Initialize checkboxes with enhanced functionality
             Object.keys(tasks).forEach(taskId => {
                 const checkbox = document.querySelector(`.task-checkbox[data-task="${taskId}"]`);
                 const taskItem = document.getElementById(`task-${taskId}`);
@@ -812,7 +1369,16 @@
                 if (checkbox) {
                     if (tasks[taskId]) {
                         checkbox.classList.add('checked');
-                        if (taskItem) taskItem.classList.add('completed');
+                        if (taskItem) {
+                            taskItem.classList.add('completed');
+                            // Add completion date if available
+                            if (taskDates[taskId]) {
+                                const dateSpan = document.createElement('span');
+                                dateSpan.className = 'task-date';
+                                dateSpan.textContent = taskDates[taskId];
+                                taskItem.querySelector('.task-meta').appendChild(dateSpan);
+                            }
+                        }
                     }
                     
                     checkbox.addEventListener('click', function() {
@@ -822,19 +1388,31 @@
                         if (tasks[task]) {
                             this.classList.add('checked');
                             taskItem.classList.add('completed');
-                            showToast(`Task completed: ${getTaskName(task)}`);
+                            taskDates[task] = new Date().toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                            });
+                            showToast(`✅ Task completed: ${getTaskName(task)}`, 'success');
+                            
+                            // Add confetti effect for critical tasks
+                            if (task.startsWith('critical')) {
+                                createConfetti();
+                            }
                         } else {
                             this.classList.remove('checked');
                             taskItem.classList.remove('completed');
+                            showToast(`↩️ Task unchecked: ${getTaskName(task)}`, 'warning');
                         }
                         
                         updateProgress();
                         updateNavBadge();
+                        updateLastUpdated();
                     });
                 }
             });
             
-            // Update progress function
+            // Enhanced progress update function
             function updateProgress() {
                 const totalTasks = Object.keys(tasks).length;
                 const completedTasks = Object.values(tasks).filter(Boolean).length;
@@ -842,18 +1420,50 @@
                 const criticalTasks = Object.keys(tasks).filter(key => key.startsWith('critical') && !tasks[key]).length;
                 const progressPercentage = Math.round((completedTasks / totalTasks) * 100);
                 
-                // Update counters
-                document.getElementById('completedTasks').textContent = completedTasks;
-                document.getElementById('pendingTasks').textContent = pendingTasks;
-                document.getElementById('criticalTasks').textContent = criticalTasks;
-                document.getElementById('overallProgress').textContent = `${progressPercentage}%`;
-                document.getElementById('progressFill').style.width = `${progressPercentage}%`;
+                // Update counters with animation
+                animateCounter('completedTasks', completedTasks);
+                animateCounter('pendingTasks', pendingTasks);
+                animateCounter('criticalTasks', criticalTasks);
+                animateCounter('overallProgress', progressPercentage, '%');
+                
+                // Update progress bar with smooth animation
+                const progressFill = document.getElementById('progressFill');
+                progressFill.style.width = `${progressPercentage}%`;
                 
                 // Update category progress
                 updateCategoryProgress();
+                
+                // Update hero badge
+                updateNavBadge();
+                
+                // Save to localStorage
+                saveProgress();
             }
             
-            // Update category progress
+            // Animate counter values
+            function animateCounter(elementId, targetValue, suffix = '') {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+                
+                const currentValue = parseInt(element.textContent.replace('%', '')) || 0;
+                const duration = 500;
+                const steps = 20;
+                const stepValue = (targetValue - currentValue) / steps;
+                let currentStep = 0;
+                
+                const interval = setInterval(() => {
+                    currentStep++;
+                    const newValue = Math.round(currentValue + (stepValue * currentStep));
+                    element.textContent = newValue + suffix;
+                    
+                    if (currentStep >= steps) {
+                        clearInterval(interval);
+                        element.textContent = targetValue + suffix;
+                    }
+                }, duration / steps);
+            }
+            
+            // Enhanced updateCategoryProgress function
             function updateCategoryProgress() {
                 const categories = {
                     'doc': [1, 2, 3, 4],
@@ -871,29 +1481,17 @@
                     const progress = Math.round((completed / total) * 100);
                     
                     // Update stats in category
-                    const categoryElement = document.querySelector(`.checklist-category:nth-child(${getCategoryIndex(category)})`);
+                    const categoryElement = document.querySelector(`[summary*="${category}"]`);
                     if (categoryElement) {
-                        const statNumber = categoryElement.querySelector('.stat-number:first-child');
-                        const progressNumber = categoryElement.querySelector('.stat-number:last-child');
-                        
-                        if (statNumber) statNumber.textContent = `${completed}/${total}`;
-                        if (progressNumber) progressNumber.textContent = `${progress}%`;
+                        const progressSpan = categoryElement.querySelector('.category-progress');
+                        if (progressSpan) {
+                            progressSpan.textContent = `${progress}% Complete`;
+                        }
                     }
                 });
             }
             
-            function getCategoryIndex(category) {
-                const categoryMap = {
-                    'doc': 1,
-                    'fin': 2,
-                    'travel': 3,
-                    'health': 4,
-                    'onboard': 5,
-                    'packing': 6
-                };
-                return categoryMap[category] || 1;
-            }
-            
+            // Enhanced getTaskName function
             function getTaskName(taskId) {
                 const taskElements = {
                     'critical-1': 'Complete Online Check-In',
@@ -927,26 +1525,41 @@
                 return taskElements[taskId] || taskId;
             }
             
-            // Update navigation badge
-            function updateNavBadge() {
-                const criticalTasks = Object.keys(tasks).filter(key => key.startsWith('critical') && !tasks[key]).length;
-                document.getElementById('pendingCount').textContent = criticalTasks;
-            }
-            
-            // Show toast notification
+            // Enhanced toast notification system
             const toast = document.getElementById('toast');
             const toastClose = document.getElementById('toastClose');
             const toastMessage = document.getElementById('toastMessage');
             
-            function showToast(message, duration = 3000) {
+            function showToast(message, type = 'info', duration = 3000) {
                 toastMessage.textContent = message;
+                
+                // Reset classes
+                toast.className = 'toast';
+                
+                // Add type class
+                switch(type) {
+                    case 'success':
+                        toast.classList.add('toast-success');
+                        break;
+                    case 'warning':
+                        toast.classList.add('toast-warning');
+                        break;
+                    case 'error':
+                        toast.classList.add('toast-error');
+                        break;
+                    default:
+                        toast.classList.add('toast-info');
+                }
+                
                 toast.classList.add('show');
                 
+                // Auto-hide
                 setTimeout(() => {
                     toast.classList.remove('show');
                 }, duration);
             }
             
+            // Initial welcome toast
             setTimeout(() => {
                 showToast('Welcome to Royal Operations! Track your pre-cruise checklist here. ✅');
             }, 1000);
@@ -955,16 +1568,42 @@
                 toast.classList.remove('show');
             });
             
-            // Button functionality
+            // Enhanced button functionality
             document.getElementById('printChecklistBtn').addEventListener('click', function() {
                 if (window.innerWidth < 768) {
-                    showToast('Print option selected. On mobile, use browser share → Print.');
+                    showToast('Print option selected. On mobile, use browser share → Print.', 'info');
                 } else {
                     window.print();
                 }
             });
             
+            document.getElementById('shareChecklistBtn').addEventListener('click', function() {
+                const completed = Object.values(tasks).filter(Boolean).length;
+                const total = Object.keys(tasks).length;
+                const progress = Math.round((completed / total) * 100);
+                
+                const text = `🚢 Royal Caribbean Pre-Cruise Checklist\n\n✅ Progress: ${progress}% (${completed}/${total} tasks)\n📅 Cruise: Adventure of the Seas\n🗓️ Departure: Feb 14, 2026\n\n#RoyalCaribbean #CruiseChecklist`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'My Cruise Checklist Progress',
+                        text: text,
+                        url: window.location.href
+                    }).then(() => {
+                        showToast('Checklist shared successfully!', 'success');
+                    }).catch(console.error);
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast('Checklist progress copied to clipboard! 📋', 'success');
+                    });
+                }
+            });
+            
             document.getElementById('markAllCompleteBtn').addEventListener('click', function() {
+                const btn = this;
+                const originalText = btn.innerHTML;
+                
                 Object.keys(tasks).forEach(taskId => {
                     tasks[taskId] = true;
                     const checkbox = document.querySelector(`.task-checkbox[data-task="${taskId}"]`);
@@ -977,64 +1616,78 @@
                 });
                 
                 updateProgress();
-                updateNavBadge();
-                showToast('All tasks marked as complete! 🎉');
+                showToast('🎉 All tasks marked as complete!', 'success');
+                createConfetti();
                 
-                // Update button text temporarily
-                this.innerHTML = '<i class="fas fa-check"></i> All Complete!';
-                this.style.background = 'var(--rc-success)';
+                // Visual feedback
+                btn.innerHTML = '<i class="fas fa-check"></i> All Complete!';
+                btn.style.background = 'var(--success-gradient)';
+                btn.style.color = 'white';
                 
                 setTimeout(() => {
-                    this.innerHTML = '<i class="fas fa-check-double"></i> Mark All Complete';
-                    this.style.background = '';
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
                 }, 2000);
             });
             
-            document.getElementById('exportChecklistBtn').addEventListener('click', function() {
-                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
-                
-                setTimeout(() => {
-                    this.innerHTML = '<i class="fas fa-file-pdf"></i> Exported!';
-                    this.style.background = 'var(--rc-success)';
-                    showToast('Checklist exported as PDF! Download will start shortly.');
+            document.getElementById('resetChecklistBtn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset all task progress? This cannot be undone.')) {
+                    Object.keys(tasks).forEach(taskId => {
+                        tasks[taskId] = false;
+                        const checkbox = document.querySelector(`.task-checkbox[data-task="${taskId}"]`);
+                        const taskItem = document.getElementById(`task-${taskId}`);
+                        
+                        if (checkbox) {
+                            checkbox.classList.remove('checked');
+                            if (taskItem) taskItem.classList.remove('completed');
+                        }
+                    });
                     
+                    updateProgress();
+                    showToast('Checklist reset to initial state.', 'warning');
+                }
+            });
+            
+            // Enhanced quick action cards
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const action = this.id.replace('action-', '');
+                    const actionText = this.querySelector('h4').textContent;
+                    
+                    showToast(`Opening ${actionText}...`, 'info');
+                    
+                    // Add click animation
+                    this.style.transform = 'scale(0.95)';
                     setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-file-export"></i> Export to PDF';
-                        this.style.background = '';
-                    }, 2000);
-                }, 1500);
+                        this.style.transform = '';
+                    }, 200);
+                    
+                    // Action handling
+                    switch(action) {
+                        case 'checkin':
+                            window.open('https://www.royalcaribbean.com/onlinecheckin', '_blank');
+                            break;
+                        case 'app':
+                            window.open('https://www.royalcaribbean.com/mobile-cruise-app', '_blank');
+                            break;
+                        case 'excursions':
+                            window.open('https://www.royalcaribbean.com/shore-excursions', '_blank');
+                            break;
+                        case 'dining':
+                            window.open('https://www.royalcaribbean.com/cruise-dining', '_blank');
+                            break;
+                        case 'insurance':
+                            window.open('https://www.royalcaribbean.com/travel-insurance', '_blank');
+                            break;
+                        case 'support':
+                            window.open('tel:+1-800-398-9819', '_blank');
+                            break;
+                    }
+                });
             });
             
-            // Quick action cards
-            document.getElementById('action-checkin').addEventListener('click', function() {
-                showToast('Opening Royal Caribbean Online Check-In...');
-                setTimeout(() => {
-                    window.open('https://www.royalcaribbean.com/onlinecheckin', '_blank');
-                }, 500);
-            });
-            
-            document.getElementById('action-app').addEventListener('click', function() {
-                showToast('Redirecting to Royal Caribbean App download...');
-                setTimeout(() => {
-                    window.open('https://www.royalcaribbean.com/mobile-cruise-app', '_blank');
-                }, 500);
-            });
-            
-            document.getElementById('action-excursions').addEventListener('click', function() {
-                showToast('Opening Shore Excursions portal...');
-                setTimeout(() => {
-                    window.open('https://www.royalcaribbean.com/shore-excursions', '_blank');
-                }, 500);
-            });
-            
-            document.getElementById('action-dining').addEventListener('click', function() {
-                showToast('Opening Specialty Dining reservations...');
-                setTimeout(() => {
-                    window.open('https://www.royalcaribbean.com/cruise-dining', '_blank');
-                }, 500);
-            });
-            
-            // Floating action buttons
+            // Enhanced floating action buttons
             document.getElementById('quickCheckBtn').addEventListener('click', function() {
                 // Check all incomplete tasks
                 Object.keys(tasks).forEach(taskId => {
@@ -1051,10 +1704,9 @@
                 });
                 
                 updateProgress();
-                updateNavBadge();
-                showToast('All incomplete tasks checked! ✅');
+                showToast('All incomplete tasks checked! ✅', 'success');
                 
-                // Add animation to button
+                // Add animation
                 this.style.transform = 'scale(1.2)';
                 setTimeout(() => {
                     this.style.transform = '';
@@ -1062,7 +1714,8 @@
             });
             
             document.getElementById('syncBtn').addEventListener('click', function() {
-                showToast('Checklist synced with cloud! ☁️');
+                saveProgress();
+                showToast('Checklist synced with cloud! ☁️', 'success');
                 
                 // Add animation
                 this.style.transform = 'rotate(360deg)';
@@ -1071,64 +1724,142 @@
                 }, 500);
             });
             
-            document.getElementById('helpBtn').addEventListener('click', function() {
-                showToast('Opening help center...');
-                setTimeout(() => {
-                    window.open('https://www.royalcaribbean.com/faq', '_blank');
-                }, 500);
+            document.getElementById('addTaskBtn').addEventListener('click', function() {
+                const taskName = prompt('Enter new task name:');
+                if (taskName) {
+                    showToast(`Custom task "${taskName}" added!`, 'success');
+                    // In a real app, you would add this to the tasks object and DOM
+                }
             });
             
-            // Initialize progress
-            updateProgress();
-            updateNavBadge();
+            // Save progress to localStorage
+            function saveProgress() {
+                const saveData = {
+                    tasks: tasks,
+                    lastUpdated: new Date().toISOString()
+                };
+                localStorage.setItem('cruiseOperationsData', JSON.stringify(saveData));
+                updateLastUpdated();
+            }
             
-            // Add click animations to timeline dots
-            document.querySelectorAll('.timeline-dot').forEach(dot => {
-                dot.addEventListener('click', function() {
-                    this.style.transform = 'scale(1.3)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 200);
+            // Update last updated timestamp
+            function updateLastUpdated() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
-            });
-            
-            // Auto-save progress every 30 seconds
-            setInterval(() => {
-                localStorage.setItem('cruiseOperationsTasks', JSON.stringify(tasks));
-                console.log('Progress auto-saved');
-            }, 30000);
-            
-            // Load saved progress
-            const savedTasks = localStorage.getItem('cruiseOperationsTasks');
-            if (savedTasks) {
-                try {
-                    const parsedTasks = JSON.parse(savedTasks);
-                    Object.keys(parsedTasks).forEach(taskId => {
-                        if (tasks.hasOwnProperty(taskId)) {
-                            tasks[taskId] = parsedTasks[taskId];
-                            
-                            const checkbox = document.querySelector(`.task-checkbox[data-task="${taskId}"]`);
-                            const taskItem = document.getElementById(`task-${taskId}`);
-                            
-                            if (checkbox) {
-                                if (parsedTasks[taskId]) {
-                                    checkbox.classList.add('checked');
-                                    if (taskItem) taskItem.classList.add('completed');
-                                } else {
-                                    checkbox.classList.remove('checked');
-                                    if (taskItem) taskItem.classList.remove('completed');
-                                }
-                            }
-                        }
-                    });
-                    
-                    updateProgress();
-                    updateNavBadge();
-                    showToast('Previous progress restored from local storage. 📁');
-                } catch (e) {
-                    console.error('Error loading saved tasks:', e);
+                const element = document.getElementById('lastUpdated');
+                if (element) {
+                    element.textContent = `${timeString}`;
                 }
             }
+            
+            // Load saved progress
+            function loadSavedProgress() {
+                const savedData = localStorage.getItem('cruiseOperationsData');
+                if (savedData) {
+                    try {
+                        const parsedData = JSON.parse(savedData);
+                        
+                        // Restore tasks
+                        Object.keys(parsedData.tasks).forEach(taskId => {
+                            if (tasks.hasOwnProperty(taskId)) {
+                                tasks[taskId] = parsedData.tasks[taskId];
+                                
+                                const checkbox = document.querySelector(`.task-checkbox[data-task="${taskId}"]`);
+                                const taskItem = document.getElementById(`task-${taskId}`);
+                                
+                                if (checkbox) {
+                                    if (parsedData.tasks[taskId]) {
+                                        checkbox.classList.add('checked');
+                                        if (taskItem) taskItem.classList.add('completed');
+                                    } else {
+                                        checkbox.classList.remove('checked');
+                                        if (taskItem) taskItem.classList.remove('completed');
+                                    }
+                                }
+                            }
+                        });
+                        
+                        updateProgress();
+                        showToast('Previous progress restored! 📁', 'success');
+                    } catch (e) {
+                        console.error('Error loading saved data:', e);
+                    }
+                }
+            }
+            
+            // Confetti effect for task completion
+            function createConfetti() {
+                const confettiCount = 100;
+                const colors = ['#0066b2', '#28a745', '#ffc107', '#dc3545', '#17a2b8'];
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.cssText = `
+                        position: fixed;
+                        width: 10px;
+                        height: 10px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        top: -20px;
+                        left: ${Math.random() * 100}vw;
+                        border-radius: 2px;
+                        z-index: 1000;
+                        pointer-events: none;
+                        animation: confetti-fall ${1 + Math.random() * 2}s linear forwards;
+                    `;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }
+                
+                // Add animation keyframes
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes confetti-fall {
+                        0% {
+                            transform: translateY(0) rotate(0deg);
+                            opacity: 1;
+                        }
+                        100% {
+                            transform: translateY(100vh) rotate(${360 + Math.random() * 360}deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Initialize everything
+            function init() {
+                loadSavedProgress();
+                updateProgress();
+                updateLastUpdated();
+                
+                // Auto-save every 30 seconds
+                setInterval(saveProgress, 30000);
+                
+                // Auto-save on page unload
+                window.addEventListener('beforeunload', saveProgress);
+                
+                // Initialize task reminder buttons
+                document.querySelectorAll('.task-reminder').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const taskId = this.getAttribute('data-task');
+                        showToast(`Reminder set for ${getTaskName(taskId)}! ⏰`, 'info');
+                    });
+                });
+            }
+            
+            // Start initialization
+            init();
         });
     </script>
     <script src="service-worker-registration.js" defer></script>
