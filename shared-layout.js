@@ -1,5 +1,4 @@
-[file name]: shared-layout-polished-rccl.js
-[file content begin]
+
 /* ============================================================================
  * Shared Layout (RCCL Polished) — premium, cruise-themed
  * - Enhanced RCCL color scheme & typography
