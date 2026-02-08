@@ -593,31 +593,50 @@
               <span>© ${year} Royal Caribbean International. All rights reserved.</span>
             </div>
 
-            <div class="footer-social" aria-label="Social links">
-              <span class="social-label">Follow:</span>
-              <a href="https://facebook.com" class="social-link" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-facebook" aria-hidden="true"></i>
-              </a>
-              <a href="https://twitter.com" class="social-link" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-twitter" aria-hidden="true"></i>
-              </a>
-              <a href="https://instagram.com" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-instagram" aria-hidden="true"></i>
-              </a>
-              <a href="https://youtube.com" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-youtube" aria-hidden="true"></i>
-              </a>
-            </div>
+            <div class="footer-connect">
+              <div class="footer-social" aria-label="Social links">
+                <span class="footer-group-title">Follow</span>
+                <a href="https://facebook.com" class="social-link" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                  <span class="social-link__icon">
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                  </span>
+                  <span>Facebook</span>
+                </a>
+                <a href="https://twitter.com" class="social-link" aria-label="X / Twitter" target="_blank" rel="noopener noreferrer">
+                  <span class="social-link__icon">
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                  </span>
+                  <span>X / Twitter</span>
+                </a>
+                <a href="https://instagram.com" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                  <span class="social-link__icon">
+                    <i class="fab fa-instagram" aria-hidden="true"></i>
+                  </span>
+                  <span>Instagram</span>
+                </a>
+                <a href="https://youtube.com" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                  <span class="social-link__icon">
+                    <i class="fab fa-youtube" aria-hidden="true"></i>
+                  </span>
+                  <span>YouTube</span>
+                </a>
+              </div>
 
-            <div class="footer-app" aria-label="App links">
-              <a href="https://apps.apple.com" class="app-link" aria-label="Download on App Store" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-app-store" aria-hidden="true"></i>
-                <span>App Store</span>
-              </a>
-              <a href="https://play.google.com" class="app-link" aria-label="Get it on Google Play" target="_blank" rel="noopener noreferrer">
-                <i class="fab fa-google-play" aria-hidden="true"></i>
-                <span>Google Play</span>
-              </a>
+              <div class="footer-app" aria-label="App links">
+                <span class="footer-group-title">Get the app</span>
+                <a href="https://apps.apple.com" class="app-link" aria-label="Download on App Store" target="_blank" rel="noopener noreferrer">
+                  <span class="app-link__icon">
+                    <i class="fab fa-app-store" aria-hidden="true"></i>
+                  </span>
+                  <span>App Store</span>
+                </a>
+                <a href="https://play.google.com" class="app-link" aria-label="Get it on Google Play" target="_blank" rel="noopener noreferrer">
+                  <span class="app-link__icon">
+                    <i class="fab fa-google-play" aria-hidden="true"></i>
+                  </span>
+                  <span>Google Play</span>
+                </a>
+              </div>
             </div>
           </div>
 
