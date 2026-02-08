@@ -7,7 +7,7 @@
       href: 'index.html',
       icon: 'fa-home',
       text: 'Dashboard',
-      ariaLabel: 'Dashboard page'
+      ariaLabel: 'Go to dashboard page'
     },
     {
       id: 'operations',
@@ -30,6 +30,20 @@
       icon: 'fa-bed',
       text: 'Staterooms',
       ariaLabel: 'Staterooms page'
+    },
+    {
+      id: 'decks',
+      href: 'decks.html',
+      icon: 'fa-map',
+      text: 'Decks',
+      ariaLabel: 'View deck plans'
+    },
+    {
+      id: 'tips',
+      href: 'tips.html',
+      icon: 'fa-lightbulb',
+      text: 'Tips',
+      ariaLabel: 'View tips and packing guide'
     },
     {
       id: 'dining',
