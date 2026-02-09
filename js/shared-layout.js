@@ -1,31 +1,12 @@
 /* ============================================================================
  * Shared Layout (RCCL Premium) — Complete Enhanced Version
- * - Premium cruise-themed design with nautical elements
- * - Enhanced RCCL color scheme & typography
- * - Ocean-inspired animations & depth effects
- * - Fully accessible with mobile-first responsive design
- * - Dynamic badge system with cruise-themed styling
- * - Performance optimized with error boundaries
  * ============================================================================
- * Expected mounts in each page:
- *   <div id="sharedHeader" data-page="index"></div>
- *   <div id="sharedFooter"></div>
- *   <div id="sharedBottomNav" data-page="index"></div> (optional)
- *
- * Optional dataset knobs on #sharedHeader:
- *   data-menu-toggle="false"   -> hide mobile menu toggle
- *   data-brand="The Royal Way Hub"
- *   data-ship="Adventure of the Seas"
- *   data-sailing="Feb 14–20, 2026"
- *   data-port="Port Canaveral"
- *   data-hero-progress="true"  -> enable progressbar
- *   data-transitions="true"    -> enable page transitions
- *
- * LocalStorage (optional):
- *   cruise-theme: "light" | "dark" | "system"
- *   cruise-checklist: JSON { items:[{done:boolean, priority?:'high'|'med'|'low'}] }
- *   cruise-dining: JSON { reservations:[...], pending?:number }
- *   cruise-nextport: JSON { name:'Perfect Day at CocoCay', time:'7:00 AM' }
+ * Updated to support:
+ * - data-menu-toggle="false" attribute
+ * - enhanced class integration
+ * - Countdown elements support
+ * - CSS compatibility with existing styles
+ * - Proper mobile navigation handling
  * ========================================================================== */
 (function renderSharedLayoutRCCL() {
   'use strict';
@@ -128,7 +109,7 @@
     { title: 'Dining Reservations', subtitle: 'Lock in your dining times', icon: 'fa-utensils', href: 'dining.html', cta: 'Reserve now', badgeKey: 'dining' },
   ];
 
-  // RCCL-inspired color palette with RGB values for animations
+  // RCCL-inspired color palette
   const RCCL_COLORS = {
     primary: '#0052a5',
     primaryRgb: '0, 82, 165',
@@ -216,6 +197,10 @@
     },
     lockBodyScroll(locked) {
       document.body.style.overflow = locked ? 'hidden' : '';
+      document.body.style.paddingRight = locked ? `${this.getScrollbarWidth()}px` : '';
+    },
+    getScrollbarWidth() {
+      return window.innerWidth - document.documentElement.clientWidth;
     },
     trapFocus(container, active) {
       if (!container) return () => {};
@@ -265,6 +250,35 @@
         rect.top <= (window.innerHeight || document.documentElement.clientHeight) - offset &&
         rect.bottom >= offset
       );
+    },
+    // Countdown utility for dashboard
+    updateCountdown() {
+      const targetDate = new Date('February 14, 2026 15:00:00').getTime();
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      
+      if (distance < 0) {
+        // Countdown finished
+        utils.qsa('.countdown__value, .countdown-display__value').forEach(el => {
+          el.textContent = '00';
+        });
+        return;
+      }
+      
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      
+      // Update main hero countdown
+      const daysEl = document.getElementById('countdown-days');
+      const hoursEl = document.getElementById('countdown-hours');
+      if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+      if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+      
+      // Update sidebar countdown
+      const sidebarDays = document.getElementById('sidebar-countdown-days');
+      const sidebarHours = document.getElementById('sidebar-countdown-hours');
+      if (sidebarDays) sidebarDays.textContent = days.toString().padStart(2, '0');
+      if (sidebarHours) sidebarHours.textContent = hours.toString().padStart(2, '0');
     },
   };
 
@@ -363,6 +377,13 @@
       const resolved = this.resolve(normalized);
       document.documentElement.setAttribute('data-theme', resolved);
       document.documentElement.setAttribute('data-theme-mode', normalized);
+
+      // Update meta theme-color for mobile browsers
+      const themeColor = resolved === 'dark' ? RCCL_COLORS.dark : RCCL_COLORS.primary;
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', themeColor);
+      }
 
       // Inject theme colors
       this.injectThemeColors(resolved);
@@ -477,6 +498,41 @@
             --rccl-border: ${theme === 'dark' ? '#5c5f77' : '#adb5bd'};
           }
         ` : ''}
+        
+        /* Enhanced button styles for your HTML */
+        .btn.enhanced {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .btn.enhanced::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 5px;
+          height: 5px;
+          background: rgba(255, 255, 255, 0.5);
+          opacity: 0;
+          border-radius: 100%;
+          transform: scale(1, 1) translate(-50%);
+          transform-origin: 50% 50%;
+        }
+        
+        .btn.enhanced:focus:not(:active)::after {
+          animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+          0% {
+            transform: scale(0, 0);
+            opacity: 0.5;
+          }
+          100% {
+            transform: scale(20, 20);
+            opacity: 0;
+          }
+        }
       `;
     },
 
@@ -493,62 +549,11 @@
       const label = resolved === 'dark' ? 'Dark Mode' : 'Light Mode';
       if (btn) btn.setAttribute('aria-label', `Theme: ${label}. Activate to change.`);
       if (mobile) {
-        mobile.querySelector('.theme-toggle-mobile__label')?.replaceChildren(document.createTextNode(label));
         mobile.setAttribute('aria-label', `Theme: ${label}. Activate to change.`);
         mobile.setAttribute('data-resolved', resolved);
         mobile.setAttribute('data-mode', this.current);
       }
     },
-  };
-
-  // ---------------------------
-  // Telemetry (Optional Analytics)
-  // ---------------------------
-  const Telemetry = {
-    enabled: false,
-    
-    init(enabled = false) {
-      this.enabled = enabled && typeof window.gtag !== 'undefined';
-    },
-    
-    track(event, data = {}) {
-      if (!this.enabled) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[Telemetry] ${event}`, data);
-        }
-        return;
-      }
-      
-      try {
-        window.gtag('event', event, {
-          ...data,
-          event_category: 'layout',
-          event_label: 'rccl_shared_layout',
-        });
-      } catch (error) {
-        console.error('Telemetry error:', error);
-      }
-    },
-    
-    trackNavigation(toPage, fromPage) {
-      this.track('navigation', {
-        to_page: toPage,
-        from_page: fromPage,
-        navigation_type: 'link_click',
-      });
-    },
-    
-    trackThemeChange(mode) {
-      this.track('theme_change', {
-        theme_mode: mode,
-      });
-    },
-    
-    trackMobileMenu(open) {
-      this.track('mobile_menu', {
-        action: open ? 'open' : 'close',
-      });
-    }
   };
 
   // ---------------------------
@@ -620,18 +625,8 @@
     
     refresh() {
       this.clearCache();
-      // Badges will be regenerated on next access
     }
   };
-
-  function resolveNextPort() {
-    const raw = localStorage.getItem('cruise-nextport');
-    const parsed = raw ? utils.safeJsonParse(raw, null) : null;
-    if (parsed && typeof parsed === 'object' && parsed.name) {
-      return parsed;
-    }
-    return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
-  }
 
   // ---------------------------
   // Rendering Helpers
@@ -720,7 +715,7 @@
       port: ds.port || DEFAULT_META.port,
       year: DEFAULT_META.year,
       showMenuToggle: ds.menuToggle !== 'false',
-      showProgress: ds.heroProgress !== 'false',
+      showProgress: ds.heroProgress === 'true',
       transitions: ds.transitions === 'true',
     };
   }
@@ -734,38 +729,9 @@
 
     const styles = `
       /* ============================================================================
-       * RCCL Premium Styles - Complete Enhanced Version
+       * RCCL Premium Styles - Optimized for existing HTML structure
        * ========================================================================== */
        
-      /* CSS Custom Properties */
-      :root {
-        /* Animation keyframes */
-        --rccl-animation-shimmer: shimmer 3s infinite;
-        --rccl-animation-wave-flow: waveFlow 8s ease-in-out infinite;
-        --rccl-animation-float: float 3s ease-in-out infinite;
-        --rccl-animation-ripple: ripple 0.6s linear;
-        --rccl-animation-pulse: pulse 2s infinite;
-      }
-      
-      /* Reduced motion support */
-      @media (prefers-reduced-motion: reduce) {
-        :root {
-          --rccl-animation-shimmer: none;
-          --rccl-animation-wave-flow: none;
-          --rccl-animation-float: none;
-          --rccl-animation-ripple: none;
-          --rccl-animation-pulse: none;
-        }
-        
-        *,
-        *::before,
-        *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
-      
       /* Animation Keyframes */
       @keyframes shimmer {
         0% { transform: translateX(-100%); }
@@ -829,7 +795,7 @@
         white-space: normal;
       }
       
-      /* Header Styles */
+      /* Header Styles - Fixed at top */
       .app-header--rccl {
         position: fixed;
         top: 0;
@@ -853,6 +819,24 @@
       .app-header--rccl.scrolled {
         background: color-mix(in srgb, var(--rccl-surface) 98%, transparent);
         box-shadow: var(--rccl-shadow-lg);
+      }
+      
+      /* Add padding to body to account for fixed header */
+      body:not(.page-shell) {
+        padding-top: 80px;
+      }
+      
+      .page-shell {
+        padding-top: 80px !important;
+      }
+      
+      @media (max-width: 768px) {
+        body:not(.page-shell) {
+          padding-top: 70px;
+        }
+        .page-shell {
+          padding-top: 70px !important;
+        }
       }
       
       .header-waves {
@@ -901,6 +885,13 @@
         justify-content: space-between;
         padding: var(--rccl-spacing-sm) 0;
         position: relative;
+        min-height: 80px;
+      }
+      
+      @media (max-width: 768px) {
+        .header-content {
+          min-height: 70px;
+        }
       }
       
       /* Logo */
@@ -1143,6 +1134,12 @@
       .badge--info {
         background: #17a2b8;
         border: 2px solid #17a2b8;
+      }
+      
+      .badge--critical {
+        background: var(--rccl-danger);
+        border: 2px solid var(--rccl-danger);
+        color: white;
       }
       
       /* Desktop Actions */
@@ -1388,7 +1385,7 @@
         background: color-mix(in srgb, var(--rccl-danger) 10%, transparent);
       }
       
-      /* Mobile Menu Toggle */
+      /* Mobile Menu Toggle - Only show when enabled */
       .mobile-menu-toggle {
         display: none;
         flex-direction: column;
@@ -1399,6 +1396,10 @@
         border: none;
         cursor: pointer;
         padding: 0;
+      }
+      
+      .mobile-menu-toggle.enabled {
+        display: flex;
       }
       
       .mobile-menu-toggle .hamburger-line {
@@ -1430,6 +1431,7 @@
         z-index: 999;
         opacity: 0;
         transition: opacity var(--rccl-transition-duration-slow) var(--rccl-transition-timing);
+        display: none;
       }
       
       .nav-mobile {
@@ -2355,7 +2357,7 @@
           display: none;
         }
         
-        .mobile-menu-toggle {
+        .mobile-menu-toggle.enabled {
           display: flex;
         }
         
@@ -2413,6 +2415,28 @@
         }
       }
       
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        .wave-1,
+        .wave-2,
+        .progress-bar,
+        .footer-action-card__wave,
+        .btn.enhanced::after,
+        .theme-toggle--rccl::before,
+        .footer-action-card--rccl::before {
+          animation: none !important;
+          transition: none !important;
+        }
+        
+        .nav-link:hover,
+        .btn:hover,
+        .footer-action-card--rccl:hover,
+        .social-link:hover,
+        .back-to-top--rccl:hover {
+          transform: none !important;
+        }
+      }
+      
       /* Print Styles */
       @media print {
         .app-header--rccl,
@@ -2442,6 +2466,11 @@
         .footer-grid {
           border: none;
         }
+        
+        body:not(.page-shell),
+        .page-shell {
+          padding-top: 0 !important;
+        }
       }
     `;
 
@@ -2462,11 +2491,6 @@
     cleanupFns.push(() => el.removeEventListener(evt, handler, opts));
   }
 
-  function off(el, evt, handler, opts) {
-    if (!el) return;
-    el.removeEventListener(evt, handler, opts);
-  }
-
   // ---------------------------
   // Header Component
   // ---------------------------
@@ -2482,6 +2506,9 @@
       const mobileLinks = NAV_ITEMS.map(item => 
         buildMobileNavLink(item, currentPage === item.id)
       ).join('');
+
+      const showMenuToggle = meta.showMenuToggle;
+      const toggleClass = showMenuToggle ? 'enabled' : '';
 
       const headerHTML = `
         <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
@@ -2562,24 +2589,23 @@
                 </div>
               </nav>
 
-              ${meta.showMenuToggle ? `
-                <button class="mobile-menu-toggle" type="button"
-                        aria-label="Open navigation menu"
-                        aria-expanded="false"
-                        aria-controls="navMobile">
-                  <span class="hamburger-box" aria-hidden="true">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                  </span>
-                </button>
-              ` : ''}
+              <button class="mobile-menu-toggle ${toggleClass}" type="button"
+                      aria-label="${showMenuToggle ? 'Open navigation menu' : 'Menu disabled'}"
+                      aria-expanded="false"
+                      aria-controls="navMobile"
+                      ${!showMenuToggle ? 'disabled' : ''}>
+                <span class="hamburger-box" aria-hidden="true">
+                  <span class="hamburger-line"></span>
+                  <span class="hamburger-line"></span>
+                  <span class="hamburger-line"></span>
+                </span>
+              </button>
             </div>
 
-            ${meta.showMenuToggle ? `
-              <div class="nav-mobile-overlay" data-action="close-mobile" hidden></div>
+            ${showMenuToggle ? `
+              <div class="nav-mobile-overlay" data-action="close-mobile" style="display: none;"></div>
 
-              <nav class="nav-mobile" id="navMobile" aria-label="Mobile navigation" hidden>
+              <nav class="nav-mobile" id="navMobile" aria-label="Mobile navigation" style="display: none; transform: translateX(100%);">
                 <div class="nav-mobile__header">
                   <div class="mobile-nav-header">
                     <div class="mobile-nav-title">
@@ -2650,10 +2676,10 @@
   // ---------------------------
   function renderFooter() {
     return safeMount('#sharedFooter', (mount) => {
-      const fromStore = CruiseState.get('cruise-nextport', null);
-      const nextPort = fromStore && typeof fromStore === 'object' && fromStore.name
-        ? fromStore
-        : resolveNextPort();
+      const nextPort = CruiseState.get('cruise-nextport', { 
+        name: 'Perfect Day at CocoCay', 
+        time: '7:00 AM' 
+      });
 
       const sectionsHTML = FOOTER_SECTIONS.map(section => `
         <div class="footer-section">
@@ -2889,30 +2915,29 @@
     let releaseTrap = () => {};
 
     function openMobile() {
-      if (!toggle || !nav) return;
+      if (!toggle || !nav || !toggle.classList.contains('enabled')) return;
       
       toggle.classList.add('active');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', 'Close navigation menu');
 
-      nav.hidden = false;
-      overlay && (overlay.hidden = false);
-      utils.lockBodyScroll(true);
-
-      // Animate in
+      nav.style.display = 'flex';
+      overlay.style.display = 'block';
+      
+      // Trigger reflow
+      nav.offsetHeight;
+      overlay.offsetHeight;
+      
       nav.style.transform = 'translateX(0)';
-      if (overlay) {
-        overlay.style.opacity = '1';
-        overlay.style.display = 'block';
-      }
+      overlay.style.opacity = '1';
+      
+      utils.lockBodyScroll(true);
 
       // Focus management
       const firstLink = utils.qs('.nav-mobile a, .nav-mobile button', nav);
       if (firstLink) firstLink.focus({ preventScroll: true });
 
       releaseTrap = utils.trapFocus(nav, true);
-      
-      Telemetry.trackMobileMenu(true);
     }
 
     function closeMobile() {
@@ -2924,12 +2949,11 @@
 
       // Animate out
       nav.style.transform = 'translateX(100%)';
-      if (overlay) overlay.style.opacity = '0';
+      overlay.style.opacity = '0';
 
       setTimeout(() => {
-        nav.hidden = true;
-        overlay && (overlay.hidden = true);
-        overlay && (overlay.style.display = 'none');
+        nav.style.display = 'none';
+        overlay.style.display = 'none';
       }, 300);
 
       utils.lockBodyScroll(false);
@@ -2937,16 +2961,16 @@
       releaseTrap = () => {};
 
       toggle.focus({ preventScroll: true });
-      
-      Telemetry.trackMobileMenu(false);
     }
 
     // Mobile toggle click
-    on(toggle, 'click', (e) => {
-      e.stopPropagation();
-      const expanded = toggle.getAttribute('aria-expanded') === 'true';
-      expanded ? closeMobile() : openMobile();
-    });
+    if (toggle && toggle.classList.contains('enabled')) {
+      on(toggle, 'click', (e) => {
+        e.stopPropagation();
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        expanded ? closeMobile() : openMobile();
+      });
+    }
 
     // Close buttons / overlay
     on(document, 'click', (e) => {
@@ -2962,7 +2986,6 @@
       if (action === 'go') {
         const href = actionEl.getAttribute('data-href');
         if (href) {
-          Telemetry.trackNavigation(href, window.location.pathname);
           window.location.href = href;
         }
       }
@@ -2970,7 +2993,7 @@
 
     // Click outside drawer closes (only when open)
     on(document, 'click', (e) => {
-      if (!nav || nav.hidden) return;
+      if (!nav || nav.style.display === 'none') return;
       if (nav.contains(e.target)) return;
       if (toggle && toggle.contains(e.target)) return;
       if (overlay && overlay.contains(e.target)) {
@@ -2993,7 +3016,7 @@
       const userDropdown = utils.qs('.user-dropdown');
       if (userDropdown) userDropdown.classList.remove('visible');
 
-      if (nav && !nav.hidden) {
+      if (nav && nav.style.display !== 'none') {
         e.preventDefault();
         closeMobile();
       }
@@ -3003,30 +3026,34 @@
     const themeToggle = utils.qs('#themeToggle');
     const themeToggleMobile = utils.qs('#themeToggleMobile');
     
-    on(themeToggle, 'click', (e) => {
-      e.stopPropagation();
-      ThemeManager.toggle();
-      Telemetry.trackThemeChange(ThemeManager.current);
-    });
+    if (themeToggle) {
+      on(themeToggle, 'click', (e) => {
+        e.stopPropagation();
+        ThemeManager.toggle();
+      });
+    }
     
-    on(themeToggleMobile, 'click', (e) => {
-      e.stopPropagation();
-      ThemeManager.toggle();
-      Telemetry.trackThemeChange(ThemeManager.current);
-    });
+    if (themeToggleMobile) {
+      on(themeToggleMobile, 'click', (e) => {
+        e.stopPropagation();
+        ThemeManager.toggle();
+      });
+    }
 
     // User dropdown
     const userToggle = utils.qs('.user-menu-toggle');
     const userDropdown = utils.qs('.user-dropdown');
     
-    on(userToggle, 'click', (e) => {
-      e.stopPropagation();
-      const expanded = userToggle.getAttribute('aria-expanded') === 'true';
-      userToggle.setAttribute('aria-expanded', String(!expanded));
-      if (userDropdown) {
-        userDropdown.classList.toggle('visible', !expanded);
-      }
-    });
+    if (userToggle) {
+      on(userToggle, 'click', (e) => {
+        e.stopPropagation();
+        const expanded = userToggle.getAttribute('aria-expanded') === 'true';
+        userToggle.setAttribute('aria-expanded', String(!expanded));
+        if (userDropdown) {
+          userDropdown.classList.toggle('visible', !expanded);
+        }
+      });
+    }
     
     // Close dropdown when clicking outside
     on(document, 'click', (e) => {
@@ -3038,11 +3065,12 @@
 
     // Sign out button in dropdown
     const signOutBtn = utils.qs('.dropdown-item--signout');
-    on(signOutBtn, 'click', () => {
-      utils.announce('Signed out successfully');
-      // Add your sign-out logic here
-      Telemetry.track('sign_out');
-    });
+    if (signOutBtn) {
+      on(signOutBtn, 'click', () => {
+        utils.announce('Signed out successfully');
+        // Add your sign-out logic here
+      });
+    }
 
     // Desktop tooltips
     if (!utils.isMobile() && capabilities.hasHover) {
@@ -3146,60 +3174,60 @@
   function initFooterInteractions() {
     // Newsletter form
     const form = utils.qs('.newsletter-form');
-    on(form, 'submit', (e) => {
-      e.preventDefault();
-      const input = utils.qs('input[type="email"]', form);
-      if (!input) return;
-      const val = String(input.value || '').trim();
-      if (!val) {
-        utils.announce('Please enter an email address.', 'assertive');
-        input.focus();
-        return;
-      }
-      
-      // Visual feedback
-      const submitBtn = utils.qs('.newsletter-button', form);
-      if (submitBtn) {
-        submitBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
-        submitBtn.classList.add('success');
-        setTimeout(() => {
-          submitBtn.innerHTML = '<i class="fas fa-paper-plane" aria-hidden="true"></i>';
-          submitBtn.classList.remove('success');
-        }, 2000);
-      }
-      
-      input.value = '';
-      utils.announce('Subscribed! You\'ll receive updates via email.');
-      
-      Telemetry.track('newsletter_subscribe', { email: val });
-    });
+    if (form) {
+      on(form, 'submit', (e) => {
+        e.preventDefault();
+        const input = utils.qs('input[type="email"]', form);
+        if (!input) return;
+        const val = String(input.value || '').trim();
+        if (!val) {
+          utils.announce('Please enter an email address.', 'assertive');
+          input.focus();
+          return;
+        }
+        
+        // Visual feedback
+        const submitBtn = utils.qs('.newsletter-button', form);
+        if (submitBtn) {
+          submitBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+          submitBtn.classList.add('success');
+          setTimeout(() => {
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane" aria-hidden="true"></i>';
+            submitBtn.classList.remove('success');
+          }, 2000);
+        }
+        
+        input.value = '';
+        utils.announce('Subscribed! You\'ll receive updates via email.');
+      });
+    }
 
     // Back to top button
     const btn = utils.qs('.back-to-top');
-    const updateVis = utils.debounce(() => {
-      if (!btn) return;
-      const scrolled = utils.getScrollPosition() > 500;
-      btn.classList.toggle('visible', scrolled);
-      
-      if (scrolled) {
-        btn.setAttribute('aria-label', 'Scroll to top of page');
-      } else {
-        btn.setAttribute('aria-label', 'Back to top');
-      }
-    }, 80);
+    if (btn) {
+      const updateVis = utils.debounce(() => {
+        if (!btn) return;
+        const scrolled = utils.getScrollPosition() > 500;
+        btn.classList.toggle('visible', scrolled);
+        
+        if (scrolled) {
+          btn.setAttribute('aria-label', 'Scroll to top of page');
+        } else {
+          btn.setAttribute('aria-label', 'Back to top');
+        }
+      }, 80);
 
-    on(btn, 'click', () => {
-      window.scrollTo({ 
-        top: 0, 
-        behavior: utils.prefersReducedMotion() ? 'auto' : 'smooth' 
+      on(btn, 'click', () => {
+        window.scrollTo({ 
+          top: 0, 
+          behavior: utils.prefersReducedMotion() ? 'auto' : 'smooth' 
+        });
+        utils.announce('Returned to top of page');
       });
-      utils.announce('Returned to top of page');
-      
-      Telemetry.track('back_to_top');
-    });
 
-    updateVis();
-    on(window, 'scroll', updateVis, { passive: true });
+      updateVis();
+      on(window, 'scroll', updateVis, { passive: true });
+    }
 
     // Social link hover effects
     utils.qsa('.social-link').forEach(link => {
@@ -3212,93 +3240,53 @@
     });
   }
 
-  function initKeyboardShortcuts() {
-    on(document, 'keydown', (e) => {
-      // Alt+1..7 = nav shortcuts
-      if (e.altKey && !e.ctrlKey && !e.metaKey && e.key >= '1' && e.key <= '7') {
-        const idx = parseInt(e.key, 10) - 1;
-        if (NAV_ITEMS[idx]) {
-          e.preventDefault();
-          Telemetry.trackNavigation(NAV_ITEMS[idx].href, window.location.pathname);
-          window.location.href = NAV_ITEMS[idx].href;
-        }
-      }
-      
-      // T = Toggle theme
-      if (e.key === 't' && (e.altKey || e.metaKey)) {
-        e.preventDefault();
-        ThemeManager.toggle();
-        Telemetry.trackThemeChange(ThemeManager.current);
-      }
-      
-      // M = Toggle mobile menu
-      if (e.key === 'm' && (e.altKey || e.metaKey)) {
-        const toggle = utils.qs('.mobile-menu-toggle');
-        if (toggle) {
-          e.preventDefault();
-          toggle.click();
-        }
-      }
-    });
-  }
-
-  function initPageTransitions(enabled) {
-    if (!enabled) return;
-    if (utils.prefersReducedMotion()) return;
-
-    document.documentElement.classList.add('page-transitions');
-
-    on(document, 'click', (e) => {
-      const a = e.target.closest('a');
-      if (!a) return;
-
-      const href = a.getAttribute('href') || '';
-      if (!href || href.startsWith('#')) return;
-      if (!href.includes('.html')) return;
-      if (a.target === '_blank') return;
-      if (a.hasAttribute('download')) return;
-      if (a.hasAttribute('data-no-transition')) return;
-
-      e.preventDefault();
-      
-      // Add ocean wave transition effect
-      document.body.classList.add('page-exiting', 'page-exiting--rccl');
-      
-      Telemetry.trackNavigation(href, window.location.pathname);
-      
-      setTimeout(() => { 
-        window.location.href = href; 
-      }, 400);
-    });
-  }
-
-  function initLazyEffects() {
-    if (!capabilities.hasIntersectionObserver) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-in');
-          
-          // Load enhanced features only when needed
-          if (entry.target.classList.contains('footer-action-card--rccl')) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
+  function initEnhancedButtonEffects() {
+    // Add ripple effect to enhanced buttons
+    utils.qsa('.btn.enhanced').forEach((button) => {
+      on(button, 'click', (e) => {
+        if (utils.prefersReducedMotion()) return;
+        
+        const rect = button.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const ripple = document.createElement('span');
+        ripple.style.position = 'absolute';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'rgba(255, 255, 255, 0.6)';
+        ripple.style.transform = 'translate(-50%, -50%) scale(0)';
+        ripple.style.animation = 'ripple 0.6s linear';
+        ripple.style.pointerEvents = 'none';
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        ripple.style.width = '100px';
+        ripple.style.height = '100px';
+        
+        button.style.position = 'relative';
+        button.style.overflow = 'hidden';
+        button.appendChild(ripple);
+        
+        setTimeout(() => {
+          if (ripple.parentNode === button) {
+            button.removeChild(ripple);
           }
-        }
+        }, 600);
       });
-    }, { 
-      threshold: 0.1,
-      rootMargin: '50px' 
     });
+  }
+
+  // ---------------------------
+  // Countdown Timer
+  // ---------------------------
+  function initCountdownTimer() {
+    // Initialize countdown immediately
+    utils.updateCountdown();
     
-    utils.qsa('[data-lazy-effect]').forEach(el => observer.observe(el));
-    utils.qsa('.footer-action-card--rccl').forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-      observer.observe(el);
-    });
+    // Update countdown every minute
+    const countdownInterval = setInterval(utils.updateCountdown, 60000);
+    
+    // Add to cleanup
+    cleanupFns.push(() => clearInterval(countdownInterval));
   }
 
   // ---------------------------
@@ -3415,12 +3403,11 @@
     CruiseState.clearCache();
   }
 
-  function init({ enhanced = true, enableTelemetry = false } = {}) {
+  function init() {
     // Clean up any previous instances
     cleanup();
     
     // Initialize systems
-    Telemetry.init(enableTelemetry);
     ThemeManager.init();
     
     // Inject styles
@@ -3435,13 +3422,14 @@
     initHeaderInteractions();
     initFooterInteractions();
     initHeroObserver();
-    initKeyboardShortcuts();
-    initLazyEffects();
+    initEnhancedButtonEffects();
+    initCountdownTimer();
     
-    const headerMount = utils.qs('.app-header');
-    const transitionsEnabled = headerMount?.dataset?.transitions === 'true' || 
-                              document.body?.dataset?.transitions === 'true';
-    initPageTransitions(transitionsEnabled);
+    // Add page-shell class to body for proper padding
+    document.body.classList.add('page-shell');
+    
+    // Update countdown immediately
+    utils.updateCountdown();
     
     ThemeManager.syncToggleUI();
     refreshBadgesInDOM();
@@ -3462,85 +3450,41 @@
       ThemeManager,
       CruiseState,
       BadgeProvider,
-      Telemetry,
       NAV_ITEMS,
-      FOOTER_SECTIONS,
-      RCCL_COLORS,
-      capabilities,
       
       // Public methods
-      refresh: () => init({ enhanced, enableTelemetry }),
+      refresh: () => {
+        cleanup();
+        init();
+      },
       refreshBadges: () => {
         BadgeProvider.refresh();
         refreshBadgesInDOM();
       },
       updateTheme: (theme) => ThemeManager.apply(theme),
+      updateCountdown: () => utils.updateCountdown(),
       openMobileMenu: () => {
         const toggle = utils.qs('.mobile-menu-toggle');
-        if (toggle && toggle.getAttribute('aria-expanded') === 'false') {
+        if (toggle && toggle.classList.contains('enabled') && toggle.getAttribute('aria-expanded') === 'false') {
           toggle.click();
         }
       },
       closeMobileMenu: () => {
         const toggle = utils.qs('.mobile-menu-toggle');
-        if (toggle && toggle.getAttribute('aria-expanded') === 'true') {
+        if (toggle && toggle.classList.contains('enabled') && toggle.getAttribute('aria-expanded') === 'true') {
           toggle.click();
         }
       },
       destroy: cleanup,
-      
-      // Version info
-      version: '2.0.0',
-      buildDate: '2024-01-15'
     };
-    
-    Telemetry.track('layout_loaded', {
-      enhanced,
-      theme: ThemeManager.current,
-      capabilities: Object.keys(capabilities).filter(k => capabilities[k] && typeof capabilities[k] !== 'function')
-    });
-  }
-
-  // ---------------------------
-  // Service Worker Registration (Optional)
-  // ---------------------------
-  function registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
-          updateViaCache: 'none'
-        }).then(reg => {
-          console.log('Service Worker registered for scope:', reg.scope);
-        }).catch(error => {
-          console.log('Service Worker registration failed:', error);
-        });
-      });
-    }
   }
 
   // ---------------------------
   // Boot
   // ---------------------------
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      init();
-      registerServiceWorker();
-    }, { once: true });
+    document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
     init();
-    registerServiceWorker();
   }
-
-  // Global error handler for layout
-  window.addEventListener('error', (event) => {
-    if (event.target && (event.target.tagName === 'LINK' || event.target.tagName === 'SCRIPT')) {
-      console.error('Layout resource failed to load:', event.target.src || event.target.href);
-    }
-  });
-
-  // Provide a way to reinitialize if needed
-  window.addEventListener('shared-layout:refresh', () => {
-    init();
-  });
 })();
