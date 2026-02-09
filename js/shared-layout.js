@@ -2774,75 +2774,7 @@
 
             <div class="footer-grid">
               ${sectionsHTML}
-
-              <div class="footer-section footer-newsletter">
-                <div class="footer-newsletter__header">
-                  <h4 class="footer-subtitle">
-                    <i class="fas fa-bell" aria-hidden="true"></i>
-                    Stay Updated
-                  </h4>
-                  <div class="footer-newsletter__icon">
-                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                  </div>
-                </div>
-                <p class="footer-text">Get alerts for port updates, weather changes, and special offers.</p>
-
-                <form class="newsletter-form" aria-label="Newsletter signup">
-                  <div class="input-group">
-                    <input type="email" 
-                           placeholder="Enter your email" 
-                           aria-label="Email address" 
-                           class="newsletter-input" 
-                           autocomplete="email" 
-                           inputmode="email">
-                    <button type="submit" class="newsletter-button" aria-label="Subscribe">
-                      <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                    </button>
-                  </div>
-                  <p class="newsletter-note">No spam. Just useful updates.</p>
-                </form>
-
-                <div class="footer-support" aria-label="Support">
-                  <div class="footer-support__item">
-                    <div class="footer-support__icon">
-                      <i class="fas fa-headset" aria-hidden="true"></i>
-                    </div>
-                    <div class="footer-support__content">
-                      <strong>Guest Services</strong>
-                      <span>24/7 onboard support</span>
-                    </div>
-                  </div>
-
-                  <div class="footer-support__item">
-                    <div class="footer-support__icon">
-                      <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                    </div>
-                    <div class="footer-support__content">
-                      <strong>Next Port</strong>
-                      <span>${escapeHtml(nextPort.name)}${nextPort.time ? ` • ${escapeHtml(nextPort.time)}` : ''}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="footer-social">
-                  <span>Follow the journey:</span>
-                  <div class="social-links">
-                    <a href="#" class="social-link" aria-label="Facebook">
-                      <i class="fab fa-facebook-f" aria-hidden="true"></i>
-                    </a>
-                    <a href="#" class="social-link" aria-label="Instagram">
-                      <i class="fab fa-instagram" aria-hidden="true"></i>
-                    </a>
-                    <a href="#" class="social-link" aria-label="Twitter">
-                      <i class="fab fa-twitter" aria-hidden="true"></i>
-                    </a>
-                    <a href="#" class="social-link" aria-label="YouTube">
-                      <i class="fab fa-youtube" aria-hidden="true"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
+               
 
             <div class="footer-bottom footer-bottom--rccl">
               <div class="footer-bottom__content">
