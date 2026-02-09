@@ -1,11 +1,11 @@
-
 /* ============================================================================
- * Shared Layout (RCCL Polished) — premium, cruise-themed
+ * Shared Layout (RCCL Premium) — Complete Enhanced Version
+ * - Premium cruise-themed design with nautical elements
  * - Enhanced RCCL color scheme & typography
- * - Ocean-inspired design elements
- * - Premium UI with depth & subtle animations
- * - Fully accessible with enhanced mobile experience
- * - Dynamic badges with cruise-themed styling
+ * - Ocean-inspired animations & depth effects
+ * - Fully accessible with mobile-first responsive design
+ * - Dynamic badge system with cruise-themed styling
+ * - Performance optimized with error boundaries
  * ============================================================================
  * Expected mounts in each page:
  *   <div id="sharedHeader" data-page="index"></div>
@@ -29,6 +29,38 @@
  * ========================================================================== */
 (function renderSharedLayoutRCCL() {
   'use strict';
+
+  // ---------------------------
+  // Error Boundary & Safe Operations
+  // ---------------------------
+  function safeMount(selector, renderFn, fallbackHTML = '<div class="layout-error">Layout component failed to load</div>') {
+    try {
+      const mount = document.querySelector(selector);
+      if (!mount) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`Mount point ${selector} not found`);
+        }
+        return null;
+      }
+      return renderFn(mount);
+    } catch (error) {
+      console.error(`Failed to render ${selector}:`, error);
+      const mount = document.querySelector(selector);
+      if (mount) {
+        mount.innerHTML = fallbackHTML;
+      }
+      return null;
+    }
+  }
+
+  function sanitizeHref(href) {
+    const trimmed = String(href || '').trim();
+    // Prevent javascript: and data: URLs
+    if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:')) {
+      return '#';
+    }
+    return trimmed;
+  }
 
   // ---------------------------
   // Configuration
@@ -92,21 +124,41 @@
 
   const FOOTER_QUICK_ACTIONS = [
     { title: 'Finish Your Checklist', subtitle: 'Keep the essentials tight', icon: 'fa-clipboard-list', href: 'operations.html', cta: 'View tasks', badgeKey: 'checklist' },
-    { title: 'Today’s Itinerary', subtitle: 'Plan activities & showtimes', icon: 'fa-calendar-check', href: 'itinerary.html', cta: 'Build schedule' },
+    { title: 'Today\'s Itinerary', subtitle: 'Plan activities & showtimes', icon: 'fa-calendar-check', href: 'itinerary.html', cta: 'Build schedule' },
     { title: 'Dining Reservations', subtitle: 'Lock in your dining times', icon: 'fa-utensils', href: 'dining.html', cta: 'Reserve now', badgeKey: 'dining' },
   ];
 
-  // RCCL-inspired color palette
+  // RCCL-inspired color palette with RGB values for animations
   const RCCL_COLORS = {
-    primary: '#0052a5',    // Royal Blue
-    secondary: '#ffb400',  // Gold/Amber
-    accent: '#00a8e8',     // Ocean Blue
-    success: '#28a745',    // Green
-    warning: '#ffc107',    // Yellow
-    danger: '#dc3545',     // Red
-    dark: '#1a1a2e',       // Navy
-    light: '#f8f9fa',      // Off-white
+    primary: '#0052a5',
+    primaryRgb: '0, 82, 165',
+    secondary: '#ffb400',
+    secondaryRgb: '255, 180, 0',
+    accent: '#00a8e8',
+    accentRgb: '0, 168, 232',
+    success: '#28a745',
+    successRgb: '40, 167, 69',
+    warning: '#ffc107',
+    warningRgb: '255, 193, 7',
+    danger: '#dc3545',
+    dangerRgb: '220, 53, 69',
+    dark: '#1a1a2e',
+    darkRgb: '26, 26, 46',
+    light: '#f8f9fa',
+    lightRgb: '248, 249, 250',
     gray: '#6c757d',
+    grayRgb: '108, 117, 125',
+  };
+
+  // ---------------------------
+  // Capabilities Detection
+  // ---------------------------
+  const capabilities = {
+    hasIntersectionObserver: 'IntersectionObserver' in window,
+    hasResizeObserver: 'ResizeObserver' in window,
+    hasHover: window.matchMedia && window.matchMedia('(hover: hover)').matches,
+    hasReducedMotion: () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    hasContrast: window.matchMedia && window.matchMedia('(prefers-contrast: more)').matches,
   };
 
   // ---------------------------
@@ -117,12 +169,23 @@
     qsa: (sel, root = document) => Array.from(root.querySelectorAll(sel)),
     clamp: (n, min, max) => Math.min(Math.max(n, min), max),
     isMobile: () => window.matchMedia && window.matchMedia('(max-width: 768px)').matches,
-    prefersReducedMotion: () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    prefersReducedMotion: () => capabilities.hasReducedMotion ? capabilities.hasReducedMotion().matches : false,
+    prefersContrast: () => capabilities.hasContrast ? capabilities.hasContrast().matches : false,
     debounce(fn, wait = 100) {
       let t;
       return (...args) => {
         clearTimeout(t);
         t = setTimeout(() => fn(...args), wait);
+      };
+    },
+    throttle(fn, limit = 100) {
+      let inThrottle;
+      return function(...args) {
+        if (!inThrottle) {
+          fn.apply(this, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
       };
     },
     createElement(html) {
@@ -131,7 +194,11 @@
       return tpl.content.firstElementChild;
     },
     safeJsonParse(value, fallback) {
-      try { return JSON.parse(value); } catch { return fallback; }
+      try { 
+        return JSON.parse(value); 
+      } catch { 
+        return fallback; 
+      }
     },
     getCurrentPage(mountEl) {
       const fromDataset = mountEl?.dataset?.page;
@@ -183,13 +250,76 @@
         }
       }
 
-      if (active) container.addEventListener('keydown', handleKeydown);
+      if (active) {
+        container.addEventListener('keydown', handleKeydown);
+      }
       return () => container.removeEventListener('keydown', handleKeydown);
+    },
+    getScrollPosition() {
+      return window.pageYOffset || document.documentElement.scrollTop;
+    },
+    isInViewport(el, offset = 0) {
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
+      return (
+        rect.top <= (window.innerHeight || document.documentElement.clientHeight) - offset &&
+        rect.bottom >= offset
+      );
     },
   };
 
   // ---------------------------
-  // Theme Manager (enhanced for RCCL)
+  // Centralized State Management
+  // ---------------------------
+  const CruiseState = {
+    listeners: new Set(),
+    cache: new Map(),
+    
+    get(key, fallback) {
+      if (this.cache.has(key)) {
+        return this.cache.get(key);
+      }
+      const value = utils.safeJsonParse(localStorage.getItem(key), fallback);
+      this.cache.set(key, value);
+      return value;
+    },
+    
+    set(key, value) {
+      const oldValue = this.get(key);
+      if (JSON.stringify(oldValue) === JSON.stringify(value)) {
+        return; // No change
+      }
+      localStorage.setItem(key, JSON.stringify(value));
+      this.cache.set(key, value);
+      this.notify(key, value);
+    },
+    
+    notify(key, value) {
+      this.listeners.forEach(fn => {
+        try {
+          fn(key, value);
+        } catch (error) {
+          console.error('State listener error:', error);
+        }
+      });
+    },
+    
+    subscribe(fn) {
+      this.listeners.add(fn);
+      return () => this.listeners.delete(fn);
+    },
+    
+    unsubscribe(fn) {
+      this.listeners.delete(fn);
+    },
+    
+    clearCache() {
+      this.cache.clear();
+    }
+  };
+
+  // ---------------------------
+  // Theme Manager (Enhanced)
   // ---------------------------
   const ThemeManager = {
     key: 'cruise-theme',
@@ -198,14 +328,23 @@
 
     init() {
       this.media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-      const saved = localStorage.getItem(this.key) || 'system';
+      const saved = CruiseState.get(this.key, 'system');
       this.apply(saved, { silent: true });
 
       if (this.media && this.media.addEventListener) {
         this.media.addEventListener('change', () => {
-          if (this.current === 'system') this.apply('system', { silent: true });
+          if (this.current === 'system') {
+            this.apply('system', { silent: true });
+          }
         });
       }
+      
+      // Subscribe to storage changes
+      CruiseState.subscribe((key, value) => {
+        if (key === this.key) {
+          this.apply(value, { silent: true });
+        }
+      });
     },
 
     resolve(theme) {
@@ -219,7 +358,7 @@
     apply(theme, opts = {}) {
       const normalized = (theme === 'dark' || theme === 'light') ? theme : 'system';
       this.current = normalized;
-      localStorage.setItem(this.key, normalized);
+      CruiseState.set(this.key, normalized);
 
       const resolved = this.resolve(normalized);
       document.documentElement.setAttribute('data-theme', resolved);
@@ -246,33 +385,98 @@
 
       const colors = theme === 'dark' ? {
         bg: RCCL_COLORS.dark,
+        bgRgb: RCCL_COLORS.darkRgb,
         surface: '#2d3047',
+        surfaceRgb: '45, 48, 71',
         text: '#f8f9fa',
+        textRgb: RCCL_COLORS.lightRgb,
         border: '#404258',
+        borderRgb: '64, 66, 88',
         primary: RCCL_COLORS.accent,
+        primaryRgb: RCCL_COLORS.accentRgb,
         secondary: RCCL_COLORS.secondary,
+        secondaryRgb: RCCL_COLORS.secondaryRgb,
       } : {
         bg: RCCL_COLORS.light,
+        bgRgb: RCCL_COLORS.lightRgb,
         surface: '#ffffff',
+        surfaceRgb: '255, 255, 255',
         text: RCCL_COLORS.dark,
+        textRgb: RCCL_COLORS.darkRgb,
         border: '#dee2e6',
+        borderRgb: '222, 226, 230',
         primary: RCCL_COLORS.primary,
+        primaryRgb: RCCL_COLORS.primaryRgb,
         secondary: RCCL_COLORS.secondary,
+        secondaryRgb: RCCL_COLORS.secondaryRgb,
       };
 
       styleEl.textContent = `
         :root {
           --rccl-bg: ${colors.bg};
+          --rccl-bg-rgb: ${colors.bgRgb};
           --rccl-surface: ${colors.surface};
+          --rccl-surface-rgb: ${colors.surfaceRgb};
           --rccl-text: ${colors.text};
+          --rccl-text-rgb: ${colors.textRgb};
           --rccl-border: ${colors.border};
+          --rccl-border-rgb: ${colors.borderRgb};
           --rccl-primary: ${colors.primary};
+          --rccl-primary-rgb: ${colors.primaryRgb};
           --rccl-secondary: ${colors.secondary};
+          --rccl-secondary-rgb: ${colors.secondaryRgb};
           --rccl-accent: ${RCCL_COLORS.accent};
+          --rccl-accent-rgb: ${RCCL_COLORS.accentRgb};
           --rccl-success: ${RCCL_COLORS.success};
+          --rccl-success-rgb: ${RCCL_COLORS.successRgb};
           --rccl-warning: ${RCCL_COLORS.warning};
+          --rccl-warning-rgb: ${RCCL_COLORS.warningRgb};
           --rccl-danger: ${RCCL_COLORS.danger};
+          --rccl-danger-rgb: ${RCCL_COLORS.dangerRgb};
+          
+          /* Semantic tokens */
+          --rccl-spacing-unit: 8px;
+          --rccl-spacing-xs: calc(var(--rccl-spacing-unit) * 0.5);
+          --rccl-spacing-sm: calc(var(--rccl-spacing-unit) * 1);
+          --rccl-spacing-md: calc(var(--rccl-spacing-unit) * 2);
+          --rccl-spacing-lg: calc(var(--rccl-spacing-unit) * 3);
+          --rccl-spacing-xl: calc(var(--rccl-spacing-unit) * 4);
+          
+          --rccl-border-radius-sm: 4px;
+          --rccl-border-radius-md: 8px;
+          --rccl-border-radius-lg: 12px;
+          --rccl-border-radius-xl: 16px;
+          --rccl-border-radius-full: 9999px;
+          
+          --rccl-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+          --rccl-transition-duration: 0.3s;
+          --rccl-transition-duration-slow: 0.5s;
+          
+          --rccl-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+          --rccl-font-size-xs: 0.75rem;
+          --rccl-font-size-sm: 0.875rem;
+          --rccl-font-size-base: 1rem;
+          --rccl-font-size-lg: 1.125rem;
+          --rccl-font-size-xl: 1.25rem;
+          --rccl-font-size-2xl: 1.5rem;
+          
+          --rccl-shadow-sm: 0 2px 8px rgba(var(--rccl-primary-rgb), 0.08);
+          --rccl-shadow-md: 0 4px 20px rgba(var(--rccl-primary-rgb), 0.12);
+          --rccl-shadow-lg: 0 8px 32px rgba(var(--rccl-primary-rgb), 0.16);
+          --rccl-shadow-xl: 0 12px 48px rgba(var(--rccl-primary-rgb), 0.2);
+          
+          --rccl-gradient-primary: linear-gradient(135deg, var(--rccl-primary) 0%, var(--rccl-accent) 100%);
+          --rccl-gradient-secondary: linear-gradient(135deg, var(--rccl-secondary) 0%, #e6a200 100%);
+          --rccl-gradient-surface: linear-gradient(180deg, rgba(var(--rccl-surface-rgb), 0.95) 0%, rgba(var(--rccl-surface-rgb), 0.85) 100%);
         }
+        
+        ${utils.prefersContrast() ? `
+          :root {
+            --rccl-primary: ${theme === 'dark' ? '#4dabf7' : '#1864ab'};
+            --rccl-accent: ${theme === 'dark' ? '#74c0fc' : '#1c7ed6'};
+            --rccl-border: ${theme === 'dark' ? '#5c5f77' : '#adb5bd'};
+          }
+        ` : ''}
       `;
     },
 
@@ -298,36 +502,110 @@
   };
 
   // ---------------------------
-  // Badge Providers (enhanced styling)
+  // Telemetry (Optional Analytics)
+  // ---------------------------
+  const Telemetry = {
+    enabled: false,
+    
+    init(enabled = false) {
+      this.enabled = enabled && typeof window.gtag !== 'undefined';
+    },
+    
+    track(event, data = {}) {
+      if (!this.enabled) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Telemetry] ${event}`, data);
+        }
+        return;
+      }
+      
+      try {
+        window.gtag('event', event, {
+          ...data,
+          event_category: 'layout',
+          event_label: 'rccl_shared_layout',
+        });
+      } catch (error) {
+        console.error('Telemetry error:', error);
+      }
+    },
+    
+    trackNavigation(toPage, fromPage) {
+      this.track('navigation', {
+        to_page: toPage,
+        from_page: fromPage,
+        navigation_type: 'link_click',
+      });
+    },
+    
+    trackThemeChange(mode) {
+      this.track('theme_change', {
+        theme_mode: mode,
+      });
+    },
+    
+    trackMobileMenu(open) {
+      this.track('mobile_menu', {
+        action: open ? 'open' : 'close',
+      });
+    }
+  };
+
+  // ---------------------------
+  // Badge Providers (Enhanced)
   // ---------------------------
   const BadgeProvider = {
+    cache: new Map(),
+    
     getChecklistBadge() {
-      const raw = localStorage.getItem('cruise-checklist');
-      if (!raw) return null;
-      const data = utils.safeJsonParse(raw, null);
+      const cacheKey = 'checklist-badge';
+      if (this.cache.has(cacheKey)) {
+        return this.cache.get(cacheKey);
+      }
+      
+      const data = CruiseState.get('cruise-checklist', null);
       const items = Array.isArray(data?.items) ? data.items : [];
       const remaining = items.filter(i => !i?.done).length;
-      if (!remaining) return { text: '✓', tone: 'success' };
-      const priorityRemaining = items.filter(i => !i?.done && (i?.priority === 'high' || i?.priority === 'urgent')).length;
-      return { 
-        text: String(remaining), 
-        tone: priorityRemaining ? 'warning' : 'info',
-        pulse: priorityRemaining > 0
-      };
+      
+      let badge = null;
+      if (!remaining) {
+        badge = { text: '✓', tone: 'success', ariaLabel: 'All checklist items complete' };
+      } else {
+        const priorityRemaining = items.filter(i => !i?.done && (i?.priority === 'high' || i?.priority === 'urgent')).length;
+        badge = { 
+          text: String(remaining), 
+          tone: priorityRemaining ? 'warning' : 'info',
+          pulse: priorityRemaining > 0,
+          ariaLabel: `${remaining} checklist items remaining${priorityRemaining ? `, ${priorityRemaining} are high priority` : ''}`
+        };
+      }
+      
+      this.cache.set(cacheKey, badge);
+      return badge;
     },
 
     getDiningBadge() {
-      const raw = localStorage.getItem('cruise-dining');
-      if (!raw) return null;
-      const data = utils.safeJsonParse(raw, null);
+      const cacheKey = 'dining-badge';
+      if (this.cache.has(cacheKey)) {
+        return this.cache.get(cacheKey);
+      }
+      
+      const data = CruiseState.get('cruise-dining', null);
       const pending = Number.isFinite(data?.pending) ? data.pending : null;
+      
+      let badge = null;
       if (pending === null) {
         const reservations = Array.isArray(data?.reservations) ? data.reservations : [];
         if (!reservations.length) return null;
-        return { text: String(reservations.length), tone: 'info' };
+        badge = { text: String(reservations.length), tone: 'info', ariaLabel: `${reservations.length} dining reservations` };
+      } else if (pending <= 0) {
+        badge = { text: '✓', tone: 'success', ariaLabel: 'All dining confirmed' };
+      } else {
+        badge = { text: String(pending), tone: 'warning', pulse: pending > 0, ariaLabel: `${pending} dining reservations pending` };
       }
-      if (pending <= 0) return { text: '✓', tone: 'success' };
-      return { text: String(pending), tone: 'warning', pulse: pending > 0 };
+      
+      this.cache.set(cacheKey, badge);
+      return badge;
     },
 
     resolve(key) {
@@ -335,11 +613,29 @@
       if (key === 'dining') return this.getDiningBadge();
       return null;
     },
+    
+    clearCache() {
+      this.cache.clear();
+    },
+    
+    refresh() {
+      this.clearCache();
+      // Badges will be regenerated on next access
+    }
   };
 
   // ---------------------------
   // Rendering Helpers
   // ---------------------------
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
   function toneToClass(tone) {
     switch (tone) {
       case 'success': return 'badge--success';
@@ -355,22 +651,24 @@
     const badgeText = badgeFromStorage?.text ?? item.badge ?? '';
     const badgeTone = badgeFromStorage?.tone ?? item.badgeTone ?? 'primary';
     const pulseClass = (badgeFromStorage?.pulse) ? 'badge--pulse' : '';
+    const badgeAriaLabel = badgeFromStorage?.ariaLabel ?? `${badgeText} ${item.text}`;
 
     const badgeHTML = badgeText
-      ? `<span class="nav-badge ${toneToClass(badgeTone)} ${pulseClass}" aria-label="${badgeText} ${item.text}">
-           ${badgeText}
+      ? `<span class="nav-badge ${toneToClass(badgeTone)} ${pulseClass}" 
+                aria-label="${escapeHtml(badgeAriaLabel)}">
+           ${escapeHtml(badgeText)}
          </span>`
       : '';
 
     return `
-      <a href="${item.href}"
+      <a href="${sanitizeHref(item.href)}"
          class="nav-link${isActive ? ' active' : ''}"
-         ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
+         ${item.ariaLabel ? `aria-label="${escapeHtml(item.ariaLabel)}"` : ''}
          ${isActive ? 'aria-current="page"' : ''}
-         data-tooltip="${item.description || ''}"
+         data-tooltip="${escapeHtml(item.description || '')}"
          data-delay="140">
         <i class="fas ${item.icon}" aria-hidden="true"></i>
-        <span class="nav-text">${item.text}</span>
+        <span class="nav-text">${escapeHtml(item.text)}</span>
         ${badgeHTML}
         <span class="nav-link__wave" aria-hidden="true"></span>
       </a>
@@ -382,17 +680,23 @@
     const badgeText = badgeFromStorage?.text ?? item.badge ?? '';
     const badgeTone = badgeFromStorage?.tone ?? item.badgeTone ?? 'primary';
     const pulseClass = (badgeFromStorage?.pulse) ? 'badge--pulse' : '';
+    const badgeAriaLabel = badgeFromStorage?.ariaLabel ?? `${badgeText} ${item.text}`;
 
     return `
-      <a href="${item.href}"
+      <a href="${sanitizeHref(item.href)}"
          class="mobile-nav-link${isActive ? ' active' : ''}"
-         ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
+         ${item.ariaLabel ? `aria-label="${escapeHtml(item.ariaLabel)}"` : ''}
          ${isActive ? 'aria-current="page"' : ''}>
         <div class="mobile-nav-link__icon">
           <i class="fas ${item.icon}" aria-hidden="true"></i>
-          ${badgeText ? `<span class="mobile-badge ${toneToClass(badgeTone)} ${pulseClass}">${badgeText}</span>` : ''}
+          ${badgeText ? `
+            <span class="mobile-badge ${toneToClass(badgeTone)} ${pulseClass}"
+                  aria-label="${escapeHtml(badgeAriaLabel)}">
+              ${escapeHtml(badgeText)}
+            </span>
+          ` : ''}
         </div>
-        <span class="mobile-nav-link__text">${item.text}</span>
+        <span class="mobile-nav-link__text">${escapeHtml(item.text)}</span>
         <i class="fas fa-chevron-right mobile-nav-link__chevron" aria-hidden="true"></i>
       </a>
     `;
@@ -413,1068 +717,1733 @@
   }
 
   // ---------------------------
-  // Header (RCCL Enhanced)
+  // CSS Injection for RCCL Premium Styling
   // ---------------------------
-  function renderHeader() {
-    const headerMount = utils.qs('#sharedHeader');
-    if (!headerMount) return;
-
-    const currentPage = utils.getCurrentPage(headerMount);
-    const meta = getMetaFromMount(headerMount);
-
-    const navLinks = NAV_ITEMS.map(item => buildNavLink(item, currentPage === item.id)).join('');
-    const mobileLinks = NAV_ITEMS.map(item => buildMobileNavLink(item, currentPage === item.id)).join('');
-
-    const headerHTML = `
-      <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
-
-      <header class="app-header app-header--rccl" role="banner" data-page="${currentPage}">
-        <div class="header-waves" aria-hidden="true">
-          <div class="wave wave-1"></div>
-          <div class="wave wave-2"></div>
-        </div>
-        
-        <div class="container">
-          <div class="header-content">
-            <a href="index.html" class="logo logo--rccl" aria-label="Go to dashboard">
-              <div class="logo-icon" aria-hidden="true">
-                <i class="fas fa-ship" aria-hidden="true"></i>
-                <div class="logo-icon__wave"></div>
-              </div>
-              <div class="logo-text-container">
-                <div class="logo-text">${escapeHtml(meta.brand)}</div>
-                <div class="logo-subtext">
-                  <i class="fas fa-anchor" aria-hidden="true"></i>
-                  <span>${escapeHtml(meta.ship)}</span>
-                  <span class="logo-separator">•</span>
-                  <span>${escapeHtml(meta.sailing)}</span>
-                </div>
-              </div>
-            </a>
-
-            <nav class="nav-desktop" aria-label="Main navigation">
-              <div class="nav-desktop__links">
-                ${navLinks}
-              </div>
-
-              <div class="nav-desktop__actions">
-                <button class="theme-toggle theme-toggle--rccl" id="themeToggle" type="button" aria-label="Toggle theme">
-                  <span class="theme-toggle__icons" aria-hidden="true">
-                    <i class="fas fa-sun"></i>
-                    <i class="fas fa-moon"></i>
-                    <i class="fas fa-desktop"></i>
-                  </span>
-                  <span class="toggle-track" aria-hidden="true"></span>
-                </button>
-
-                <div class="user-menu user-menu--rccl">
-                  <button class="user-menu-toggle" type="button" aria-label="User menu" aria-expanded="false">
-                    <div class="user-avatar">
-                      <i class="fas fa-user" aria-hidden="true"></i>
-                    </div>
-                    <span class="user-name">Guest</span>
-                    <i class="fas fa-chevron-down user-menu__chevron" aria-hidden="true"></i>
-                  </button>
-                  <div class="user-dropdown" role="menu" aria-label="User menu options">
-                    <div class="user-dropdown__header">
-                      <div class="user-dropdown__avatar">
-                        <i class="fas fa-user-circle" aria-hidden="true"></i>
-                      </div>
-                      <div>
-                        <strong>Guest</strong>
-                        <span>Welcome aboard!</span>
-                      </div>
-                    </div>
-                    <div class="dropdown-divider" role="separator"></div>
-                    <a href="profile.html" class="dropdown-item" role="menuitem">
-                      <i class="fas fa-user" aria-hidden="true"></i> My Profile
-                    </a>
-                    <a href="settings.html" class="dropdown-item" role="menuitem">
-                      <i class="fas fa-cog" aria-hidden="true"></i> Settings
-                    </a>
-                    <a href="help.html" class="dropdown-item" role="menuitem">
-                      <i class="fas fa-question-circle" aria-hidden="true"></i> Help Center
-                    </a>
-                    <div class="dropdown-divider" role="separator"></div>
-                    <button class="dropdown-item dropdown-item--signout" role="menuitem" type="button">
-                      <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sign Out
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </nav>
-
-            ${meta.showMenuToggle ? `
-              <button class="mobile-menu-toggle mobile-menu-toggle--rccl" type="button"
-                      aria-label="Open navigation menu"
-                      aria-expanded="false"
-                      aria-controls="navMobile">
-                <span class="hamburger-box" aria-hidden="true">
-                  <span class="hamburger-line"></span>
-                  <span class="hamburger-line"></span>
-                  <span class="hamburger-line"></span>
-                </span>
-              </button>
-            ` : ''}
-          </div>
-
-          ${meta.showMenuToggle ? `
-            <div class="nav-mobile-overlay" data-action="close-mobile" hidden></div>
-
-            <nav class="nav-mobile nav-mobile--rccl" id="navMobile" aria-label="Mobile navigation" hidden>
-              <div class="nav-mobile__header">
-                <div class="mobile-nav-header">
-                  <div class="mobile-nav-title">
-                    <span class="mobile-nav-title__eyebrow">${escapeHtml(meta.port)}</span>
-                    <strong class="mobile-nav-title__main">Welcome Aboard</strong>
-                  </div>
-                  <div class="mobile-nav-header__actions">
-                    <button class="theme-toggle-mobile theme-toggle-mobile--rccl" id="themeToggleMobile" type="button" aria-label="Toggle theme">
-                      <i class="fas fa-adjust" aria-hidden="true"></i>
-                    </button>
-                    <button class="mobile-nav-close" type="button" data-action="close-mobile" aria-label="Close menu">
-                      <i class="fas fa-times" aria-hidden="true"></i>
-                    </button>
-                  </div>
-                </div>
-                <div class="mobile-nav-ship-info">
-                  <i class="fas fa-ship" aria-hidden="true"></i>
-                  <span>${escapeHtml(meta.ship)} • ${escapeHtml(meta.sailing)}</span>
-                </div>
-              </div>
-
-              <div class="mobile-nav-links">
-                ${mobileLinks}
-              </div>
-
-              <div class="nav-mobile__footer">
-                <div class="mobile-nav-shortcuts" aria-label="Shortcuts">
-                  <button type="button" class="chip chip--rccl" data-action="go" data-href="operations.html">
-                    <i class="fas fa-clipboard-check" aria-hidden="true"></i> Checklist
-                  </button>
-                  <button type="button" class="chip chip--rccl" data-action="go" data-href="itinerary.html">
-                    <i class="fas fa-route" aria-hidden="true"></i> Itinerary
-                  </button>
-                  <button type="button" class="chip chip--rccl" data-action="go" data-href="dining.html">
-                    <i class="fas fa-utensils" aria-hidden="true"></i> Dining
-                  </button>
-                </div>
-                <div class="mobile-nav-footer-legal">
-                  <span>© ${DEFAULT_META.year} Royal Caribbean</span>
-                  <span class="legal-separator">•</span>
-                  <a href="privacy.html">Privacy</a>
-                </div>
-              </div>
-            </nav>
-          ` : ''}
-        </div>
-
-        ${meta.showProgress ? `
-          <div class="header-progress header-progress--rccl" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" aria-hidden="true">
-              <div class="progress-wave"></div>
-            </div>
-          </div>
-        ` : ''}
-      </header>
-    `;
-
-    headerMount.outerHTML = headerHTML;
-  }
-
-  // ---------------------------
-  // Bottom navigation (shared)
-  // ---------------------------
-  function renderBottomNav() {
-    const mounts = utils.qsa('#sharedBottomNav');
-    if (!mounts.length) return;
-
-    mounts.forEach((mount) => {
-      const currentPage = utils.getCurrentPage(mount);
-      const links = NAV_ITEMS.map((item) => {
-        const isActive = currentPage === item.id;
-        return `
-          <a href="${item.href}"
-             class="mobile-nav-item${isActive ? ' active' : ''}"
-             ${isActive ? 'aria-current="page"' : ''}>
-            <span class="mobile-nav-icon"><i class="fas ${item.icon}" aria-hidden="true"></i></span>
-            <span class="mobile-nav-text">${item.text}</span>
-          </a>
-        `;
-      }).join('');
-
-      mount.innerHTML = `
-        <nav class="mobile-nav" aria-label="Bottom navigation">
-          ${links}
-        </nav>
-      `;
-    });
-  }
-
-  // ---------------------------
-  // Footer (RCCL Enhanced)
-  // ---------------------------
-  function renderFooter() {
-    let footerMount = utils.qs('#sharedFooter');
-    if (!footerMount) {
-      footerMount = document.createElement('div');
-      footerMount.id = 'sharedFooter';
-      const main = utils.qs('main');
-      if (main && main.parentNode) {
-        main.insertAdjacentElement('afterend', footerMount);
-      } else {
-        document.body.appendChild(footerMount);
-      }
-    }
-
-    const nextPort = (() => {
-      const raw = localStorage.getItem('cruise-nextport');
-      const parsed = raw ? utils.safeJsonParse(raw, null) : null;
-      if (parsed?.name) return parsed;
-      return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
-    })();
-
-    const sectionsHTML = FOOTER_SECTIONS.map(section => `
-      <div class="footer-section">
-        <h4 class="footer-subtitle">
-          <i class="fas fa-compass" aria-hidden="true"></i>
-          ${escapeHtml(section.title)}
-        </h4>
-        <div class="footer-links">
-          ${section.links.map(link => `
-            <a href="${link.href}" class="footer-link">
-              <div class="footer-link__icon">
-                <i class="fas ${link.icon}" aria-hidden="true"></i>
-              </div>
-              <span>${escapeHtml(link.text)}</span>
-              <i class="fas fa-chevron-right footer-link__chevron" aria-hidden="true"></i>
-            </a>
-          `).join('')}
-        </div>
-      </div>
-    `).join('');
-
-    const quickActionsHTML = FOOTER_QUICK_ACTIONS.map(action => {
-      const badgeFromStorage = action.badgeKey ? BadgeProvider.resolve(action.badgeKey) : null;
-      const subtitle = badgeFromStorage?.text
-        ? `${action.subtitle} • ${badgeFromStorage.text} ${action.badgeKey === 'checklist' ? 'remaining' : 'saved'}`
-        : action.subtitle;
-
-      const badgeHTML = badgeFromStorage?.text ? `
-        <span class="footer-action-badge ${toneToClass(badgeFromStorage.tone)}">
-          ${badgeFromStorage.text}
-        </span>
-      ` : '';
-
-      return `
-        <a class="footer-action-card footer-action-card--rccl" href="${action.href}">
-          <div class="footer-action-card__content">
-            <div class="footer-action-card__header">
-              <div class="footer-action-icon" aria-hidden="true">
-                <i class="fas ${action.icon}"></i>
-              </div>
-              ${badgeHTML}
-            </div>
-            <div class="footer-action-card__body">
-              <h4>${escapeHtml(action.title)}</h4>
-              <p>${escapeHtml(subtitle)}</p>
-            </div>
-            <div class="footer-action-card__footer">
-              <span class="footer-action-cta">
-                ${escapeHtml(action.cta)}
-                <i class="fas fa-arrow-right" aria-hidden="true"></i>
-              </span>
-            </div>
-          </div>
-          <div class="footer-action-card__wave" aria-hidden="true"></div>
-        </a>
-      `;
-    }).join('');
-
-    const year = DEFAULT_META.year;
-
-    const footerHTML = `
-      <footer class="app-footer app-footer--rccl" role="contentinfo">
-        <div class="footer-waves" aria-hidden="true">
-          <div class="wave wave-1"></div>
-          <div class="wave wave-2"></div>
-        </div>
-        
-        <div class="container">
-          <div class="footer-hero">
-            <div class="footer-hero__intro">
-              <div class="footer-hero__badge">
-                <i class="fas fa-anchor" aria-hidden="true"></i>
-                <span>Onboard Guide</span>
-              </div>
-              <h3>Plan Clean. Sail Calmer.</h3>
-              <p>Your complete digital cruise companion — everything you need in one elegant, intuitive place.</p>
-            </div>
-
-            <div class="footer-hero__actions">
-              <a class="btn btn--primary btn--rccl btn--icon" href="operations.html">
-                <i class="fas fa-clipboard-check" aria-hidden="true"></i>
-                Finish Checklist
-              </a>
-              <a class="btn btn--secondary btn--rccl btn--icon" href="itinerary.html">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                View Itinerary
-              </a>
-            </div>
-
-            <div class="footer-hero__cards">
-              ${quickActionsHTML}
-            </div>
-          </div>
-
-          <div class="footer-grid">
-            ${sectionsHTML}
-
-            <div class="footer-section footer-newsletter footer-newsletter--rccl">
-              <div class="footer-newsletter__header">
-                <h4 class="footer-subtitle">
-                  <i class="fas fa-bell" aria-hidden="true"></i>
-                  Stay Updated
-                </h4>
-                <div class="footer-newsletter__icon">
-                  <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                </div>
-              </div>
-              <p class="footer-text">Get alerts for port updates, weather changes, and special offers.</p>
-
-              <form class="newsletter-form newsletter-form--rccl" aria-label="Newsletter signup">
-                <div class="input-group">
-                  <input type="email" placeholder="Enter your email" aria-label="Email address" class="newsletter-input" autocomplete="email" inputmode="email">
-                  <button type="submit" class="newsletter-button" aria-label="Subscribe">
-                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                  </button>
-                </div>
-                <p class="newsletter-note">No spam. Just useful updates.</p>
-              </form>
-
-              <div class="footer-support" aria-label="Support">
-                <div class="footer-support__item footer-support__item--rccl">
-                  <div class="footer-support__icon">
-                    <i class="fas fa-headset" aria-hidden="true"></i>
-                  </div>
-                  <div class="footer-support__content">
-                    <strong>Guest Services</strong>
-                    <span>24/7 onboard support</span>
-                  </div>
-                </div>
-
-                <div class="footer-support__item footer-support__item--rccl">
-                  <div class="footer-support__icon">
-                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                  </div>
-                  <div class="footer-support__content">
-                    <strong>Next Port</strong>
-                    <span>${escapeHtml(nextPort.name)} • ${escapeHtml(nextPort.time || '')}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="footer-social">
-                <span>Follow the journey:</span>
-                <div class="social-links">
-                  <a href="#" class="social-link" aria-label="Facebook">
-                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="Instagram">
-                    <i class="fab fa-instagram" aria-hidden="true"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="Twitter">
-                    <i class="fab fa-twitter" aria-hidden="true"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="YouTube">
-                    <i class="fab fa-youtube" aria-hidden="true"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="footer-bottom footer-bottom--rccl">
-            <div class="footer-bottom__content">
-              <div class="footer-copyright">
-                <i class="fas fa-ship" aria-hidden="true"></i>
-                <span>© ${year} Royal Caribbean International. All rights reserved.</span>
-              </div>
-              <div class="footer-legal">
-                <a href="privacy.html">Privacy Policy</a>
-                <span class="legal-separator">•</span>
-                <a href="terms.html">Terms of Service</a>
-                <span class="legal-separator">•</span>
-                <a href="accessibility.html">Accessibility</a>
-                <span class="legal-separator">•</span>
-                <a href="cookies.html">Cookies</a>
-              </div>
-            </div>
-
-            <button class="back-to-top back-to-top--rccl" type="button" aria-label="Scroll to top">
-              <i class="fas fa-chevron-up" aria-hidden="true"></i>
-              <span class="back-to-top__text">Back to Top</span>
-            </button>
-          </div>
-        </div>
-      </footer>
-    `;
-
-    footerMount.outerHTML = footerHTML;
-  }
-
-  /* ============================================================================
-   * Enhanced RCCL Premium UI (optional upgrade)
-   * ========================================================================== */
-  function injectEnhancedStyles() {
+  function injectRCCLStyles() {
     const styleId = 'rccl-premium-styles';
     if (document.getElementById(styleId)) return;
-    const styleEl = document.createElement('style');
-    styleEl.id = styleId;
-    styleEl.textContent = `
+
+    const styles = `
+      /* ============================================================================
+       * RCCL Premium Styles - Complete Enhanced Version
+       * ========================================================================== */
+       
+      /* CSS Custom Properties */
       :root {
-        --rccl-gradient-primary: linear-gradient(135deg, var(--rccl-primary) 0%, var(--rccl-accent) 100%);
-        --rccl-gradient-gold: linear-gradient(135deg, #ffc91a 0%, #e6a200 100%);
-        --rccl-gradient-surface: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
-        --rccl-shadow-sm: 0 2px 8px rgba(0, 82, 165, 0.08);
-        --rccl-shadow-md: 0 4px 20px rgba(0, 82, 165, 0.12);
-        --rccl-shadow-lg: 0 8px 32px rgba(0, 82, 165, 0.16);
-        --rccl-shadow-xl: 0 12px 48px rgba(0, 82, 165, 0.2);
-        --rccl-radius-full: 9999px;
+        /* Animation keyframes */
+        --rccl-animation-shimmer: shimmer 3s infinite;
+        --rccl-animation-wave-flow: waveFlow 8s ease-in-out infinite;
+        --rccl-animation-float: float 3s ease-in-out infinite;
+        --rccl-animation-ripple: ripple 0.6s linear;
+        --rccl-animation-pulse: pulse 2s infinite;
       }
-
-      .app-header--rccl.enhanced {
-        background: var(--rccl-gradient-surface);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(0, 82, 165, 0.1);
-        box-shadow: var(--rccl-shadow-md);
-        transition: all var(--transition-base);
+      
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        :root {
+          --rccl-animation-shimmer: none;
+          --rccl-animation-wave-flow: none;
+          --rccl-animation-float: none;
+          --rccl-animation-ripple: none;
+          --rccl-animation-pulse: none;
+        }
+        
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
       }
-
-      .app-header--rccl.enhanced.scrolled {
+      
+      /* Animation Keyframes */
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+      
+      @keyframes waveFlow {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(20px); }
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+      }
+      
+      @keyframes ripple {
+        to {
+          width: 280px;
+          height: 280px;
+          opacity: 0;
+        }
+      }
+      
+      @keyframes pulse {
+        0% { 
+          box-shadow: 0 0 0 0 rgba(var(--rccl-warning-rgb), 0.7); 
+        }
+        70% { 
+          box-shadow: 0 0 0 6px rgba(var(--rccl-warning-rgb), 0); 
+        }
+        100% { 
+          box-shadow: 0 0 0 0 rgba(var(--rccl-warning-rgb), 0); 
+        }
+      }
+      
+      @keyframes wave-gradient {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+      
+      /* Base Layout */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      
+      .sr-only-focusable:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+      }
+      
+      /* Header Styles */
+      .app-header--rccl {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: linear-gradient(180deg, 
+          color-mix(in srgb, var(--rccl-surface) 95%, transparent) 0%,
+          color-mix(in srgb, var(--rccl-surface) 98%, transparent) 100%
+        );
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid 
+          color-mix(in srgb, var(--rccl-primary) 15%, transparent);
+        box-shadow: 
+          0 4px 20px rgba(0, 0, 0, 0.08),
+          0 1px 0 rgba(255, 255, 255, 0.15) inset;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .app-header--rccl.scrolled {
         background: color-mix(in srgb, var(--rccl-surface) 98%, transparent);
         box-shadow: var(--rccl-shadow-lg);
       }
-
-      .logo--rccl.enhanced {
-        padding: var(--spacing-sm);
-        border-radius: var(--radius-md);
-        position: relative;
+      
+      .header-waves {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
         overflow: hidden;
-        transition: all var(--transition-base);
+        pointer-events: none;
       }
-
-      .logo--rccl.enhanced::before {
+      
+      .wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, 
+          transparent, 
+          var(--rccl-accent), 
+          transparent
+        );
+        opacity: 0.6;
+      }
+      
+      .wave-1 {
+        animation: var(--rccl-animation-wave-flow);
+      }
+      
+      .wave-2 {
+        height: 2px;
+        animation: waveFlow 12s ease-in-out infinite reverse;
+        opacity: 0.4;
+      }
+      
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 var(--rccl-spacing-md);
+      }
+      
+      .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--rccl-spacing-sm) 0;
+        position: relative;
+      }
+      
+      /* Logo */
+      .logo--rccl {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        text-decoration: none;
+        color: var(--rccl-text);
+        padding: var(--rccl-spacing-sm) var(--rccl-spacing-md);
+        border-radius: var(--rccl-border-radius-lg);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        position: relative;
+      }
+      
+      .logo--rccl:hover {
+        background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
+      }
+      
+      .logo--rccl::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 20%;
+        right: 20%;
+        height: 2px;
+        background: linear-gradient(90deg, 
+          transparent, 
+          var(--rccl-accent) 30%, 
+          var(--rccl-accent) 70%, 
+          transparent
+        );
+        opacity: 0;
+        transition: opacity var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .logo--rccl:hover::after {
+        opacity: 0.7;
+      }
+      
+      .logo-icon {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border-radius: var(--rccl-border-radius-md);
+        box-shadow: var(--rccl-shadow-sm);
+      }
+      
+      .logo-icon i {
+        font-size: 1.25rem;
+        z-index: 1;
+      }
+      
+      .logo-icon__wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: var(--rccl-border-radius-full);
+      }
+      
+      .logo-text-container {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .logo-text {
+        font-size: var(--rccl-font-size-lg);
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--rccl-primary);
+      }
+      
+      .logo-subtext {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-xs);
+        font-size: var(--rccl-font-size-xs);
+        color: var(--rccl-gray);
+        margin-top: 2px;
+      }
+      
+      .logo-subtext i {
+        font-size: 0.75rem;
+      }
+      
+      .logo-separator {
+        opacity: 0.5;
+      }
+      
+      /* Desktop Navigation */
+      .nav-desktop {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-lg);
+      }
+      
+      .nav-desktop__links {
+        display: flex;
+        gap: var(--rccl-spacing-xs);
+        position: relative;
+      }
+      
+      .nav-desktop__links::before {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg,
+          transparent 0%,
+          color-mix(in srgb, var(--rccl-accent) 20%, transparent) 20%,
+          color-mix(in srgb, var(--rccl-accent) 40%, transparent) 50%,
+          color-mix(in srgb, var(--rccl-accent) 20%, transparent) 80%,
+          transparent 100%
+        );
+        border-radius: 2px;
+      }
+      
+      .nav-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        padding: var(--rccl-spacing-sm) var(--rccl-spacing-md);
+        border-radius: var(--rccl-border-radius-md);
+        text-decoration: none;
+        color: var(--rccl-text);
+        font-weight: 500;
+        font-size: var(--rccl-font-size-sm);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        z-index: 1;
+      }
+      
+      .nav-link::before {
         content: '';
         position: absolute;
         inset: 0;
+        border-radius: inherit;
         background: var(--rccl-gradient-primary);
         opacity: 0;
-        transition: opacity var(--transition-base);
         z-index: -1;
+        transition: opacity var(--rccl-transition-duration) var(--rccl-transition-timing);
       }
-
-      .logo--rccl.enhanced:hover::before { opacity: 0.12; }
-
-      .logo-icon.enhanced { box-shadow: var(--rccl-shadow-sm); }
-
-      .nav-link.enhanced {
-        border: 2px solid transparent;
-        border-radius: var(--radius-md);
-        margin: 0 var(--spacing-xs);
-        transition: all var(--transition-base);
+      
+      .nav-link:hover::before {
+        opacity: 0.08;
       }
-
-      .nav-link.enhanced:hover {
-        background: rgba(0, 82, 165, 0.05);
-        box-shadow: var(--rccl-shadow-sm);
+      
+      .nav-link:hover {
         transform: translateY(-2px);
       }
-
-      .nav-link.enhanced.active {
-        background: var(--rccl-gradient-primary);
-        color: #fff;
-        box-shadow: var(--rccl-shadow-md);
-        border-color: rgba(255, 255, 255, 0.2);
+      
+      .nav-link.active {
+        color: white;
       }
-
-      .nav-link__wave.enhanced {
-        bottom: -2px;
-        height: 3px;
-        border-radius: var(--radius-pill);
-        width: 0;
+      
+      .nav-link.active::before {
+        opacity: 1;
+        box-shadow: 
+          0 4px 12px rgba(var(--rccl-primary-rgb), 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      }
+      
+      .nav-link i {
+        font-size: 1rem;
+      }
+      
+      .nav-link__wave {
+        position: absolute;
+        bottom: -3px;
         left: 50%;
         transform: translateX(-50%);
-        transition: width var(--transition-base);
-      }
-
-      .nav-link.enhanced:hover .nav-link__wave.enhanced { width: 60%; }
-      .nav-link.enhanced.active .nav-link__wave.enhanced { width: 80%; background: #fff; }
-
-      .theme-toggle--rccl.enhanced {
-        border-radius: var(--radius-pill);
+        width: 0;
+        height: 3px;
         background: var(--rccl-gradient-primary);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        box-shadow: var(--rccl-shadow-sm);
+        border-radius: var(--rccl-border-radius-full);
+        transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
-
-      .theme-toggle__icons.enhanced { color: #fff; }
-      .toggle-track.enhanced { background: #fff; box-shadow: var(--rccl-shadow-sm); }
-
-      .user-menu-toggle.enhanced {
-        background: rgba(0, 82, 165, 0.05);
+      
+      .nav-link:hover .nav-link__wave {
+        width: 60%;
+      }
+      
+      .nav-link.active .nav-link__wave {
+        width: 80%;
+        background: rgba(255, 255, 255, 0.9);
+        height: 4px;
+        bottom: -4px;
+      }
+      
+      /* Badges */
+      .nav-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        min-width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        font-size: var(--rccl-font-size-xs);
+        font-weight: 700;
+        border-radius: var(--rccl-border-radius-full);
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 2;
+      }
+      
+      .badge--primary {
+        background: var(--rccl-primary);
+        border: 2px solid var(--rccl-primary);
+      }
+      
+      .badge--accent {
+        background: var(--rccl-accent);
+        border: 2px solid var(--rccl-accent);
+      }
+      
+      .badge--success {
+        background: var(--rccl-success);
+        border: 2px solid var(--rccl-success);
+      }
+      
+      .badge--warning {
+        background: var(--rccl-warning);
+        border: 2px solid var(--rccl-warning);
+        color: var(--rccl-dark);
+      }
+      
+      .badge--info {
+        background: #17a2b8;
+        border: 2px solid #17a2b8;
+      }
+      
+      /* Desktop Actions */
+      .nav-desktop__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+      }
+      
+      /* Theme Toggle */
+      .theme-toggle--rccl {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        border-radius: var(--rccl-border-radius-full);
+        background: linear-gradient(135deg, 
+          color-mix(in srgb, var(--rccl-primary) 70%, transparent),
+          color-mix(in srgb, var(--rccl-accent) 70%, transparent)
+        );
+        border: 2px solid color-mix(in srgb, var(--rccl-primary) 30%, transparent);
+        cursor: pointer;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        overflow: hidden;
+      }
+      
+      .theme-toggle--rccl::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        animation: var(--rccl-animation-shimmer);
+      }
+      
+      .theme-toggle--rccl:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb), 0.2);
+      }
+      
+      .toggle-track {
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        background: white;
+        border-radius: 50%;
+        left: 3px;
+        top: 3px;
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 
+          0 2px 8px rgba(0, 0, 0, 0.2),
+          0 0 0 1px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+      }
+      
+      .theme-toggle__icons {
+        display: flex;
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+      }
+      
+      .theme-toggle__icons i {
+        position: absolute;
+        font-size: 12px;
+        color: white;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+      }
+      
+      .theme-toggle__icons .fa-sun { 
+        left: 8px; 
+        top: 50%; 
+        transform: translateY(-50%); 
+      }
+      
+      .theme-toggle__icons .fa-moon { 
+        right: 8px; 
+        top: 50%; 
+        transform: translateY(-50%); 
+      }
+      
+      .theme-toggle__icons .fa-desktop { 
+        left: 50%; 
+        top: 50%; 
+        transform: translate(-50%, -50%); 
+      }
+      
+      [data-theme="light"] .toggle-track { transform: translateX(0); }
+      [data-theme="dark"] .toggle-track { transform: translateX(24px); }
+      [data-theme-mode="system"] .toggle-track { transform: translateX(12px); }
+      
+      /* User Menu */
+      .user-menu--rccl {
+        position: relative;
+      }
+      
+      .user-menu-toggle {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        padding: var(--rccl-spacing-xs) var(--rccl-spacing-sm);
+        background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
         border: 2px solid transparent;
-        border-radius: var(--radius-md);
-        transition: all var(--transition-base);
+        border-radius: var(--rccl-border-radius-md);
+        color: var(--rccl-text);
+        font-size: var(--rccl-font-size-sm);
+        cursor: pointer;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
       }
-
-      .user-menu-toggle.enhanced:hover {
-        background: rgba(0, 82, 165, 0.1);
-        border-color: rgba(0, 82, 165, 0.2);
+      
+      .user-menu-toggle:hover {
+        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
+        border-color: color-mix(in srgb, var(--rccl-primary) 20%, transparent);
       }
-
-      .user-dropdown.enhanced {
-        border-radius: var(--radius-lg);
-        background: var(--rccl-gradient-surface);
+      
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border-radius: 50%;
+      }
+      
+      .user-name {
+        font-weight: 500;
+      }
+      
+      .user-menu__chevron {
+        font-size: 0.75rem;
+        transition: transform var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .user-menu-toggle[aria-expanded="true"] .user-menu__chevron {
+        transform: rotate(180deg);
+      }
+      
+      .user-dropdown {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        width: 240px;
+        background: linear-gradient(180deg,
+          color-mix(in srgb, var(--rccl-surface) 98%, transparent),
+          color-mix(in srgb, var(--rccl-surface) 95%, transparent)
+        );
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(0, 82, 165, 0.1);
+        border: 1px solid color-mix(in srgb, var(--rccl-border) 50%, transparent);
+        border-radius: var(--rccl-border-radius-lg);
         box-shadow: var(--rccl-shadow-xl);
-        overflow: hidden;
+        padding: var(--rccl-spacing-sm);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        z-index: 1001;
       }
-
-      .nav-mobile--rccl.enhanced {
-        background: var(--rccl-gradient-surface);
-        backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(30px);
-        border-left: 1px solid rgba(0, 82, 165, 0.1);
-        box-shadow: var(--rccl-shadow-xl);
+      
+      .user-dropdown.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
       }
-
-      .mobile-nav-link.enhanced {
-        border-radius: var(--radius-md);
+      
+      .user-dropdown__header {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        padding: var(--rccl-spacing-sm);
+        border-bottom: 1px solid color-mix(in srgb, var(--rccl-border) 50%, transparent);
+        margin-bottom: var(--rccl-spacing-sm);
+      }
+      
+      .user-dropdown__avatar {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border-radius: 50%;
+        font-size: 1.5rem;
+      }
+      
+      .user-dropdown__header div {
+        flex: 1;
+      }
+      
+      .user-dropdown__header strong {
+        display: block;
+        font-weight: 600;
+      }
+      
+      .user-dropdown__header span {
+        font-size: var(--rccl-font-size-xs);
+        color: var(--rccl-gray);
+      }
+      
+      .dropdown-divider {
+        height: 1px;
+        background: color-mix(in srgb, var(--rccl-border) 50%, transparent);
+        margin: var(--rccl-spacing-sm) 0;
+      }
+      
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        width: 100%;
+        padding: var(--rccl-spacing-sm);
+        border: none;
+        background: none;
+        color: var(--rccl-text);
+        text-decoration: none;
+        font-size: var(--rccl-font-size-sm);
+        text-align: left;
+        border-radius: var(--rccl-border-radius-sm);
+        cursor: pointer;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .dropdown-item:hover {
+        background: color-mix(in srgb, var(--rccl-primary) 8%, transparent);
+      }
+      
+      .dropdown-item i {
+        width: 16px;
+        text-align: center;
+      }
+      
+      .dropdown-item--signout {
+        color: var(--rccl-danger);
+      }
+      
+      .dropdown-item--signout:hover {
+        background: color-mix(in srgb, var(--rccl-danger) 10%, transparent);
+      }
+      
+      /* Mobile Menu Toggle */
+      .mobile-menu-toggle {
+        display: none;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 32px;
+        height: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+      }
+      
+      .mobile-menu-toggle .hamburger-line {
+        width: 100%;
+        height: 3px;
+        background: var(--rccl-text);
+        border-radius: var(--rccl-border-radius-full);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .mobile-menu-toggle.active .hamburger-line:nth-child(1) {
+        transform: translateY(10px) rotate(45deg);
+      }
+      
+      .mobile-menu-toggle.active .hamburger-line:nth-child(2) {
+        opacity: 0;
+      }
+      
+      .mobile-menu-toggle.active .hamburger-line:nth-child(3) {
+        transform: translateY(-10px) rotate(-45deg);
+      }
+      
+      /* Mobile Navigation */
+      .nav-mobile-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        opacity: 0;
+        transition: opacity var(--rccl-transition-duration-slow) var(--rccl-transition-timing);
+      }
+      
+      .nav-mobile {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 320px;
+        max-width: 90vw;
+        background: linear-gradient(180deg,
+          color-mix(in srgb, var(--rccl-surface) 98%, transparent),
+          color-mix(in srgb, var(--rccl-surface) 95%, transparent)
+        );
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-left: 1px solid color-mix(in srgb, var(--rccl-border) 50%, transparent);
+        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.15);
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .nav-mobile__header {
+        padding: var(--rccl-spacing-lg);
+        background: linear-gradient(135deg,
+          color-mix(in srgb, var(--rccl-primary) 10%, transparent),
+          color-mix(in srgb, var(--rccl-accent) 5%, transparent)
+        );
+        border-bottom: 1px solid color-mix(in srgb, var(--rccl-border) 50%, transparent);
+      }
+      
+      .mobile-nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--rccl-spacing-sm);
+      }
+      
+      .mobile-nav-title {
+        flex: 1;
+      }
+      
+      .mobile-nav-title__eyebrow {
+        display: block;
+        font-size: var(--rccl-font-size-xs);
+        color: var(--rccl-accent);
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      
+      .mobile-nav-title__main {
+        font-size: var(--rccl-font-size-xl);
+        color: var(--rccl-text);
+        display: block;
+        line-height: 1.3;
+      }
+      
+      .mobile-nav-header__actions {
+        display: flex;
+        gap: var(--rccl-spacing-sm);
+      }
+      
+      .theme-toggle-mobile {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
         border: 2px solid transparent;
-        transition: all var(--transition-base);
+        border-radius: var(--rccl-border-radius-md);
+        color: var(--rccl-text);
+        cursor: pointer;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
       }
-
-      .mobile-nav-link.enhanced:hover {
-        background: rgba(0, 82, 165, 0.05);
+      
+      .theme-toggle-mobile:hover {
+        background: color-mix(in srgb, var(--rccl-primary) 15%, transparent);
+        transform: scale(1.05);
+      }
+      
+      .mobile-nav-close {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
+        border: 2px solid transparent;
+        border-radius: var(--rccl-border-radius-md);
+        color: var(--rccl-text);
+        cursor: pointer;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .mobile-nav-close:hover {
+        background: color-mix(in srgb, var(--rccl-danger) 10%, transparent);
+        color: var(--rccl-danger);
+      }
+      
+      .mobile-nav-ship-info {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        font-size: var(--rccl-font-size-sm);
+        color: var(--rccl-gray);
+      }
+      
+      .mobile-nav-ship-info i {
+        font-size: 0.875rem;
+      }
+      
+      .mobile-nav-links {
+        flex: 1;
+        padding: var(--rccl-spacing-md);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: var(--rccl-spacing-xs);
+      }
+      
+      .mobile-nav-link {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-md);
+        padding: var(--rccl-spacing-md);
+        border-radius: var(--rccl-border-radius-md);
+        text-decoration: none;
+        color: var(--rccl-text);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .mobile-nav-link:hover {
+        background: color-mix(in srgb, var(--rccl-primary) 8%, transparent);
         transform: translateX(4px);
       }
-
-      .mobile-nav-link.enhanced.active {
+      
+      .mobile-nav-link.active {
         background: var(--rccl-gradient-primary);
-        color: #fff;
-        box-shadow: var(--rccl-shadow-md);
+        color: white;
+        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb), 0.2);
       }
-
-      .app-footer--rccl.enhanced {
-        background: linear-gradient(180deg, var(--rccl-primary) 0%, var(--rccl-dark) 100%);
-        color: #fff;
+      
+      .mobile-nav-link__icon {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
+        border-radius: var(--rccl-border-radius-md);
+      }
+      
+      .mobile-nav-link.active .mobile-nav-link__icon {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      
+      .mobile-nav-link__icon i {
+        font-size: 1.25rem;
+      }
+      
+      .mobile-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        min-width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        font-size: var(--rccl-font-size-xs);
+        font-weight: 700;
+        border-radius: var(--rccl-border-radius-full);
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+      
+      .mobile-nav-link__text {
+        flex: 1;
+        font-weight: 500;
+      }
+      
+      .mobile-nav-link__chevron {
+        font-size: 0.75rem;
+        opacity: 0.5;
+      }
+      
+      .nav-mobile__footer {
+        padding: var(--rccl-spacing-lg);
+        border-top: 1px solid color-mix(in srgb, var(--rccl-border) 50%, transparent);
+      }
+      
+      .mobile-nav-shortcuts {
+        display: flex;
+        gap: var(--rccl-spacing-sm);
+        margin-bottom: var(--rccl-spacing-lg);
+      }
+      
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--rccl-spacing-xs);
+        padding: var(--rccl-spacing-sm) var(--rccl-spacing-md);
+        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
+        border: none;
+        border-radius: var(--rccl-border-radius-full);
+        color: var(--rccl-text);
+        font-size: var(--rccl-font-size-sm);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .chip:hover {
+        background: color-mix(in srgb, var(--rccl-primary) 15%, transparent);
+        transform: translateY(-2px);
+      }
+      
+      .mobile-nav-footer-legal {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--rccl-spacing-sm);
+        font-size: var(--rccl-font-size-xs);
+        color: var(--rccl-gray);
+      }
+      
+      .mobile-nav-footer-legal a {
+        color: var(--rccl-gray);
+        text-decoration: none;
+      }
+      
+      /* Header Progress */
+      .header-progress--rccl {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
         overflow: hidden;
       }
-
-      .footer-action-card--rccl.enhanced {
-        border-radius: var(--radius-lg);
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+      
+      .progress-bar {
+        width: 100%;
+        height: 100%;
+        transform-origin: left;
+        transform: scaleX(0);
+        transition: transform 0.1s linear;
+        background: linear-gradient(90deg,
+          var(--rccl-accent),
+          var(--rccl-primary),
+          var(--rccl-accent)
+        );
+        background-size: 200% 100%;
+        animation: wave-gradient 2s linear infinite;
+      }
+      
+      /* Footer Styles */
+      .app-footer--rccl {
+        position: relative;
+        background: linear-gradient(180deg, 
+          var(--rccl-primary) 0%, 
+          var(--rccl-dark) 100%
+        );
+        color: white;
+        overflow: hidden;
+        margin-top: auto;
+      }
+      
+      .footer-waves {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      
+      .footer-hero {
+        position: relative;
+        padding: var(--rccl-spacing-xl) var(--rccl-spacing-lg);
+        border-radius: var(--rccl-border-radius-xl);
+        background: linear-gradient(135deg,
+          color-mix(in srgb, var(--rccl-primary) 5%, transparent),
+          color-mix(in srgb, var(--rccl-accent) 10%, transparent)
+        );
+        border: 1px solid color-mix(in srgb, var(--rccl-primary) 15%, transparent);
+        margin: var(--rccl-spacing-xl) 0;
+        overflow: hidden;
+      }
+      
+      .footer-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(var(--rccl-accent-rgb), 0.05) 0%, transparent 50%);
+        pointer-events: none;
+      }
+      
+      .footer-hero__intro {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .footer-hero__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        padding: var(--rccl-spacing-sm) var(--rccl-spacing-md);
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border-radius: var(--rccl-border-radius-full);
+        font-weight: 600;
+        margin-bottom: var(--rccl-spacing-lg);
+        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb), 0.3);
+      }
+      
+      .footer-hero h3 {
+        font-size: var(--rccl-font-size-2xl);
+        margin-bottom: var(--rccl-spacing-sm);
+        font-weight: 700;
+      }
+      
+      .footer-hero p {
+        font-size: var(--rccl-font-size-lg);
+        opacity: 0.9;
+        max-width: 600px;
+        line-height: 1.6;
+      }
+      
+      .footer-hero__actions {
+        display: flex;
+        gap: var(--rccl-spacing-md);
+        margin-top: var(--rccl-spacing-lg);
+        flex-wrap: wrap;
+      }
+      
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        padding: var(--rccl-spacing-md) var(--rccl-spacing-lg);
+        border: none;
+        border-radius: var(--rccl-border-radius-md);
+        font-weight: 600;
+        font-size: var(--rccl-font-size-base);
+        cursor: pointer;
+        text-decoration: none;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .btn--primary {
+        background: var(--rccl-gradient-primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb), 0.3);
+      }
+      
+      .btn--secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(var(--rccl-primary-rgb), 0.4);
+      }
+      
+      .btn--icon i {
+        font-size: 1rem;
+      }
+      
+      .footer-hero__cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--rccl-spacing-lg);
+        margin-top: var(--rccl-spacing-xl);
+      }
+      
+      .footer-action-card--rccl {
+        position: relative;
+        padding: var(--rccl-spacing-lg);
+        background: linear-gradient(145deg,
+          rgba(255, 255, 255, 0.12),
+          rgba(255, 255, 255, 0.05)
+        );
         border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: var(--rccl-border-radius-lg);
         backdrop-filter: blur(10px);
         box-shadow: var(--rccl-shadow-md);
-        transition: all var(--transition-base);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        overflow: hidden;
+        text-decoration: none;
+        color: white;
       }
-
-      .footer-action-card--rccl.enhanced:hover {
+      
+      .footer-action-card--rccl:hover {
         transform: translateY(-8px);
         box-shadow: var(--rccl-shadow-xl);
+        border-color: var(--rccl-accent);
       }
-
-      .back-to-top--rccl.enhanced {
-        border-radius: var(--rccl-radius-full);
-        background: var(--rccl-gradient-primary);
-        color: #fff;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        box-shadow: var(--rccl-shadow-lg);
-        transform: translateY(20px);
-        opacity: 0;
-        transition: all var(--transition-base);
+      
+      .footer-action-card--rccl::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.7s ease;
       }
-
-      .back-to-top--rccl.enhanced.visible { opacity: 1; transform: translateY(0); }
-
-      .nav-tooltip--rccl.enhanced {
+      
+      .footer-action-card--rccl:hover::before {
+        left: 100%;
+      }
+      
+      .footer-action-card__content {
+        position: relative;
+        z-index: 1;
+      }
+      
+      .footer-action-card__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--rccl-spacing-md);
+      }
+      
+      .footer-action-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: var(--rccl-gradient-primary);
-        color: #fff;
-        border-radius: var(--radius-md);
+        color: white;
+        border-radius: var(--rccl-border-radius-lg);
+        font-size: 1.25rem;
+        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb), 0.2);
+      }
+      
+      .footer-action-badge {
+        padding: 4px 8px;
+        font-size: var(--rccl-font-size-xs);
+        font-weight: 700;
+        border-radius: var(--rccl-border-radius-full);
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+      }
+      
+      .footer-action-card__body h4 {
+        font-size: var(--rccl-font-size-lg);
+        margin-bottom: var(--rccl-spacing-xs);
+        font-weight: 600;
+      }
+      
+      .footer-action-card__body p {
+        font-size: var(--rccl-font-size-sm);
+        opacity: 0.8;
+        line-height: 1.5;
+      }
+      
+      .footer-action-card__footer {
+        margin-top: var(--rccl-spacing-md);
+      }
+      
+      .footer-action-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--rccl-spacing-xs);
+        font-size: var(--rccl-font-size-sm);
+        font-weight: 600;
+        color: var(--rccl-accent);
+      }
+      
+      .footer-action-card__wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg,
+          var(--rccl-accent),
+          var(--rccl-primary),
+          var(--rccl-accent)
+        );
+        background-size: 200% 100%;
+        animation: wave-gradient 3s linear infinite;
+      }
+      
+      /* Footer Grid */
+      .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--rccl-spacing-xl);
+        padding: var(--rccl-spacing-xl) 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      @media (max-width: 1024px) {
+        .footer-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      
+      @media (max-width: 640px) {
+        .footer-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      .footer-section {
+        padding: var(--rccl-spacing-sm);
+      }
+      
+      .footer-subtitle {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        margin-bottom: var(--rccl-spacing-lg);
+        font-size: var(--rccl-font-size-base);
+        color: white;
+        font-weight: 600;
+      }
+      
+      .footer-subtitle i {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+      
+      .footer-links {
+        display: flex;
+        flex-direction: column;
+        gap: var(--rccl-spacing-sm);
+      }
+      
+      .footer-link {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        padding: var(--rccl-spacing-sm);
+        border-radius: var(--rccl-border-radius-md);
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.9);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .footer-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
+        color: white;
+      }
+      
+      .footer-link__icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--rccl-border-radius-sm);
+        color: white;
+      }
+      
+      .footer-link__chevron {
+        margin-left: auto;
+        font-size: 0.75rem;
+        opacity: 0.5;
+      }
+      
+      /* Newsletter */
+      .footer-newsletter {
+        grid-column: span 1;
+      }
+      
+      .footer-newsletter__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--rccl-spacing-md);
+      }
+      
+      .footer-newsletter__icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border-radius: 50%;
+      }
+      
+      .footer-text {
+        font-size: var(--rccl-font-size-sm);
+        opacity: 0.8;
+        line-height: 1.6;
+        margin-bottom: var(--rccl-spacing-lg);
+      }
+      
+      .newsletter-form {
+        margin-bottom: var(--rccl-spacing-xl);
+      }
+      
+      .input-group {
+        display: flex;
+        gap: var(--rccl-spacing-xs);
+        margin-bottom: var(--rccl-spacing-sm);
+      }
+      
+      .newsletter-input {
+        flex: 1;
+        padding: var(--rccl-spacing-md);
+        background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: var(--rccl-shadow-lg);
+        border-radius: var(--rccl-border-radius-md);
+        color: white;
+        font-size: var(--rccl-font-size-base);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
       }
-
-      .header-progress--rccl.enhanced .progress-bar {
-        height: 4px;
-        border-radius: var(--radius-pill);
+      
+      .newsletter-input:focus {
+        outline: none;
+        border-color: var(--rccl-accent);
+        box-shadow: 0 0 0 3px rgba(var(--rccl-accent-rgb), 0.2);
+      }
+      
+      .newsletter-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+      
+      .newsletter-button {
+        padding: var(--rccl-spacing-md) var(--rccl-spacing-lg);
+        background: var(--rccl-gradient-primary);
+        border: none;
+        border-radius: var(--rccl-border-radius-md);
+        color: white;
+        cursor: pointer;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .newsletter-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb), 0.3);
+      }
+      
+      .newsletter-note {
+        font-size: var(--rccl-font-size-xs);
+        opacity: 0.6;
+      }
+      
+      /* Footer Support */
+      .footer-support {
+        display: flex;
+        flex-direction: column;
+        gap: var(--rccl-spacing-md);
+        margin-bottom: var(--rccl-spacing-xl);
+      }
+      
+      .footer-support__item {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-md);
+        padding: var(--rccl-spacing-md);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--rccl-border-radius-md);
+      }
+      
+      .footer-support__icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border-radius: 50%;
+      }
+      
+      .footer-support__content {
+        flex: 1;
+      }
+      
+      .footer-support__content strong {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+      
+      .footer-support__content span {
+        font-size: var(--rccl-font-size-sm);
+        opacity: 0.8;
+      }
+      
+      /* Footer Social */
+      .footer-social {
+        margin-top: var(--rccl-spacing-xl);
+      }
+      
+      .footer-social span {
+        display: block;
+        margin-bottom: var(--rccl-spacing-md);
+        font-weight: 600;
+      }
+      
+      .social-links {
+        display: flex;
+        gap: var(--rccl-spacing-sm);
+      }
+      
+      .social-link {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: white;
+        text-decoration: none;
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .social-link:hover {
+        background: var(--rccl-gradient-primary);
+        transform: translateY(-4px);
+      }
+      
+      /* Footer Bottom */
+      .footer-bottom--rccl {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--rccl-spacing-xl) 0;
+        position: relative;
+        flex-wrap: wrap;
+        gap: var(--rccl-spacing-lg);
+      }
+      
+      .footer-bottom__content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--rccl-spacing-sm);
+      }
+      
+      .footer-copyright {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        color: rgba(255, 255, 255, 0.7);
+        font-size: var(--rccl-font-size-sm);
+      }
+      
+      .footer-legal {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        flex-wrap: wrap;
+        font-size: var(--rccl-font-size-sm);
+      }
+      
+      .footer-legal a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: color var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .footer-legal a:hover {
+        color: white;
+      }
+      
+      .legal-separator {
+        color: rgba(255, 255, 255, 0.3);
+      }
+      
+      /* Back to Top */
+      .back-to-top--rccl {
+        position: fixed;
+        bottom: var(--rccl-spacing-xl);
+        right: var(--rccl-spacing-xl);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 
+          0 4px 20px rgba(var(--rccl-primary-rgb), 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        z-index: 1000;
+      }
+      
+      .back-to-top--rccl.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .back-to-top--rccl:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 
+          0 8px 32px rgba(var(--rccl-primary-rgb), 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+      }
+      
+      .back-to-top__text {
+        position: absolute;
+        right: 100%;
+        margin-right: var(--rccl-spacing-md);
+        background: var(--rccl-surface);
+        padding: var(--rccl-spacing-sm) var(--rccl-spacing-md);
+        border-radius: var(--rccl-border-radius-md);
+        color: var(--rccl-text);
+        font-size: var(--rccl-font-size-sm);
+        white-space: nowrap;
+        opacity: 0;
+        transform: translateX(10px);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        box-shadow: var(--rccl-shadow-md);
+        pointer-events: none;
+      }
+      
+      .back-to-top--rccl:hover .back-to-top__text {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      
+      /* Bottom Navigation */
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        background: var(--rccl-surface);
+        border-top: 1px solid var(--rccl-border);
+        z-index: 100;
+        padding: var(--rccl-spacing-xs) var(--rccl-spacing-sm);
+      }
+      
+      .mobile-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: var(--rccl-spacing-sm);
+        text-decoration: none;
+        color: var(--rccl-gray);
+        font-size: var(--rccl-font-size-xs);
+        border-radius: var(--rccl-border-radius-md);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+      
+      .mobile-nav-item:hover {
+        background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
+        color: var(--rccl-primary);
+      }
+      
+      .mobile-nav-item.active {
+        color: var(--rccl-primary);
+        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
+      }
+      
+      .mobile-nav-icon {
+        font-size: 1.25rem;
+      }
+      
+      /* Tooltips */
+      .nav-tooltip {
+        position: absolute;
+        padding: var(--rccl-spacing-sm) var(--rccl-spacing-md);
+        background: var(--rccl-gradient-primary);
+        color: white;
+        border-radius: var(--rccl-border-radius-md);
+        font-size: var(--rccl-font-size-sm);
+        white-space: nowrap;
+        z-index: 1002;
+        pointer-events: none;
+        box-shadow: var(--rccl-shadow-lg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .nav-tooltip__arrow {
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 6px solid var(--rccl-primary);
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .nav-desktop__links {
+          display: none;
+        }
+        
+        .mobile-menu-toggle {
+          display: flex;
+        }
+        
+        .nav-desktop__actions {
+          gap: var(--rccl-spacing-sm);
+        }
+      }
+      
+      @media (max-width: 768px) {
+        .footer-hero__actions {
+          flex-direction: column;
+        }
+        
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        
+        .footer-bottom--rccl {
+          flex-direction: column;
+          text-align: center;
+          gap: var(--rccl-spacing-md);
+        }
+        
+        .footer-copyright,
+        .footer-legal {
+          justify-content: center;
+        }
+        
+        .back-to-top--rccl {
+          bottom: var(--rccl-spacing-lg);
+          right: var(--rccl-spacing-lg);
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .logo-text {
+          font-size: var(--rccl-font-size-base);
+        }
+        
+        .logo-subtext {
+          font-size: 0.625rem;
+        }
+        
+        .footer-hero {
+          padding: var(--rccl-spacing-lg);
+        }
+        
+        .footer-hero h3 {
+          font-size: var(--rccl-font-size-xl);
+        }
+        
+        .footer-hero p {
+          font-size: var(--rccl-font-size-base);
+        }
+      }
+      
+      /* Print Styles */
+      @media print {
+        .app-header--rccl,
+        .mobile-nav,
+        .back-to-top--rccl,
+        .footer-hero__actions,
+        .newsletter-form,
+        .footer-social,
+        .footer-action-card--rccl {
+          display: none !important;
+        }
+        
+        .app-footer--rccl {
+          background: none;
+          color: black;
+          border-top: 2px solid #000;
+        }
+        
+        .footer-link,
+        .footer-subtitle,
+        .footer-text,
+        .footer-copyright,
+        .footer-legal a {
+          color: black !important;
+        }
+        
+        .footer-grid {
+          border: none;
+        }
       }
     `;
-    document.head.appendChild(styleEl);
-  }
 
-  function injectRippleStyles() {
-    const styleId = 'rccl-premium-ripples';
-    if (document.getElementById(styleId)) return;
     const styleEl = document.createElement('style');
     styleEl.id = styleId;
-    styleEl.textContent = `
-      @keyframes ripple { to { width: 280px; height: 280px; opacity: 0; } }
-      .btn--rccl.enhanced { position: relative; overflow: hidden; }
-    `;
+    styleEl.textContent = styles;
     document.head.appendChild(styleEl);
-  }
-
-  function renderEnhancedHeader() {
-    const headerMount = utils.qs('#sharedHeader') || utils.qs('.app-header');
-    if (!headerMount) return;
-
-    const currentPage = utils.getCurrentPage(headerMount);
-    const meta = getMetaFromMount(headerMount);
-
-    const enhancedNavItems = NAV_ITEMS.map(item => {
-      const isActive = currentPage === item.id;
-      const badge = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
-
-      return `
-        <a href="${item.href}"
-           class="nav-link enhanced${isActive ? ' active' : ''}"
-           ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
-           ${isActive ? 'aria-current="page"' : ''}
-           data-tooltip="${item.description || ''}"
-           data-delay="140">
-          <i class="fas ${item.icon}" aria-hidden="true"></i>
-          <span class="nav-text">${item.text}</span>
-          ${badge ? `
-            <span class="nav-badge enhanced ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}"
-                  aria-label="${badge.text} ${item.text}">
-              ${badge.text}
-            </span>
-          ` : ''}
-          <span class="nav-link__wave enhanced" aria-hidden="true"></span>
-        </a>
-      `;
-    }).join('');
-
-    const enhancedMobileItems = NAV_ITEMS.map(item => {
-      const isActive = currentPage === item.id;
-      const badge = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
-
-      return `
-        <a href="${item.href}"
-           class="mobile-nav-link enhanced${isActive ? ' active' : ''}"
-           ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
-           ${isActive ? 'aria-current="page"' : ''}>
-          <div class="mobile-nav-link__icon enhanced">
-            <i class="fas ${item.icon}" aria-hidden="true"></i>
-            ${badge ? `<span class="mobile-badge ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}">${badge.text}</span>` : ''}
-          </div>
-          <span class="mobile-nav-link__text">${item.text}</span>
-          <i class="fas fa-chevron-right mobile-nav-link__chevron" aria-hidden="true"></i>
-        </a>
-      `;
-    }).join('');
-
-    const headerHTML = `
-      <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
-
-      <header class="app-header app-header--rccl enhanced" role="banner" data-page="${currentPage}">
-        <div class="header-waves enhanced" aria-hidden="true">
-          <div class="wave wave-1"></div>
-          <div class="wave wave-2"></div>
-        </div>
-        
-        <div class="container">
-          <div class="header-content">
-            <a href="index.html" class="logo logo--rccl enhanced" aria-label="Go to dashboard">
-              <div class="logo-icon enhanced" aria-hidden="true">
-                <i class="fas fa-ship" aria-hidden="true"></i>
-                <div class="logo-icon__wave enhanced"></div>
-              </div>
-              <div class="logo-text-container">
-                <div class="logo-text">${escapeHtml(meta.brand)}</div>
-                <div class="logo-subtext">
-                  <i class="fas fa-anchor" aria-hidden="true"></i>
-                  <span>${escapeHtml(meta.ship)}</span>
-                  <span class="logo-separator">•</span>
-                  <span>${escapeHtml(meta.sailing)}</span>
-                </div>
-              </div>
-            </a>
-
-            <nav class="nav-desktop" aria-label="Main navigation">
-              <div class="nav-desktop__links">
-                ${enhancedNavItems}
-              </div>
-
-              <div class="nav-desktop__actions">
-                <button class="theme-toggle theme-toggle--rccl enhanced" id="themeToggle" type="button" aria-label="Toggle theme">
-                  <span class="theme-toggle__icons enhanced" aria-hidden="true">
-                    <i class="fas fa-sun"></i>
-                    <i class="fas fa-moon"></i>
-                    <i class="fas fa-desktop"></i>
-                  </span>
-                  <span class="toggle-track enhanced" aria-hidden="true"></span>
-                </button>
-
-                <div class="user-menu user-menu--rccl enhanced">
-                  <button class="user-menu-toggle enhanced" type="button" aria-label="User menu" aria-expanded="false">
-                    <div class="user-avatar enhanced">
-                      <i class="fas fa-user" aria-hidden="true"></i>
-                    </div>
-                    <span class="user-name">Guest</span>
-                    <i class="fas fa-chevron-down user-menu__chevron" aria-hidden="true"></i>
-                  </button>
-                  <div class="user-dropdown enhanced" role="menu" aria-label="User menu options">
-                    <div class="user-dropdown__header">
-                      <div class="user-dropdown__avatar enhanced">
-                        <i class="fas fa-user-circle" aria-hidden="true"></i>
-                      </div>
-                      <div>
-                        <strong>Guest</strong>
-                        <span>Welcome aboard!</span>
-                      </div>
-                    </div>
-                    <div class="dropdown-divider" role="separator"></div>
-                    <a href="profile.html" class="dropdown-item" role="menuitem">
-                      <i class="fas fa-user" aria-hidden="true"></i> My Profile
-                    </a>
-                    <a href="settings.html" class="dropdown-item" role="menuitem">
-                      <i class="fas fa-cog" aria-hidden="true"></i> Settings
-                    </a>
-                    <a href="help.html" class="dropdown-item" role="menuitem">
-                      <i class="fas fa-question-circle" aria-hidden="true"></i> Help Center
-                    </a>
-                    <div class="dropdown-divider" role="separator"></div>
-                    <button class="dropdown-item dropdown-item--signout" role="menuitem" type="button">
-                      <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sign Out
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </nav>
-
-            ${meta.showMenuToggle ? `
-              <button class="mobile-menu-toggle mobile-menu-toggle--rccl" type="button"
-                      aria-label="Open navigation menu"
-                      aria-expanded="false"
-                      aria-controls="navMobile">
-                <span class="hamburger-box" aria-hidden="true">
-                  <span class="hamburger-line enhanced"></span>
-                  <span class="hamburger-line enhanced"></span>
-                  <span class="hamburger-line enhanced"></span>
-                </span>
-              </button>
-            ` : ''}
-          </div>
-
-          ${meta.showMenuToggle ? `
-            <div class="nav-mobile-overlay" data-action="close-mobile" hidden></div>
-
-            <nav class="nav-mobile nav-mobile--rccl enhanced" id="navMobile" aria-label="Mobile navigation" hidden>
-              <div class="nav-mobile__header">
-                <div class="mobile-nav-header">
-                  <div class="mobile-nav-title">
-                    <span class="mobile-nav-title__eyebrow">${escapeHtml(meta.port)}</span>
-                    <strong class="mobile-nav-title__main">Welcome Aboard</strong>
-                  </div>
-                  <div class="mobile-nav-header__actions">
-                    <button class="theme-toggle-mobile theme-toggle-mobile--rccl" id="themeToggleMobile" type="button" aria-label="Toggle theme">
-                      <i class="fas fa-adjust" aria-hidden="true"></i>
-                    </button>
-                    <button class="mobile-nav-close" type="button" data-action="close-mobile" aria-label="Close menu">
-                      <i class="fas fa-times" aria-hidden="true"></i>
-                    </button>
-                  </div>
-                </div>
-                <div class="mobile-nav-ship-info">
-                  <i class="fas fa-ship" aria-hidden="true"></i>
-                  <span>${escapeHtml(meta.ship)} • ${escapeHtml(meta.sailing)}</span>
-                </div>
-              </div>
-
-              <div class="mobile-nav-links">
-                ${enhancedMobileItems}
-              </div>
-
-              <div class="nav-mobile__footer">
-                <div class="mobile-nav-shortcuts" aria-label="Shortcuts">
-                  <button type="button" class="chip chip--rccl enhanced" data-action="go" data-href="operations.html">
-                    <i class="fas fa-clipboard-check" aria-hidden="true"></i> Checklist
-                  </button>
-                  <button type="button" class="chip chip--rccl enhanced" data-action="go" data-href="itinerary.html">
-                    <i class="fas fa-route" aria-hidden="true"></i> Itinerary
-                  </button>
-                  <button type="button" class="chip chip--rccl enhanced" data-action="go" data-href="dining.html">
-                    <i class="fas fa-utensils" aria-hidden="true"></i> Dining
-                  </button>
-                </div>
-                <div class="mobile-nav-footer-legal">
-                  <span>© ${DEFAULT_META.year} Royal Caribbean</span>
-                  <span class="legal-separator">•</span>
-                  <a href="privacy.html">Privacy</a>
-                </div>
-              </div>
-            </nav>
-          ` : ''}
-        </div>
-
-        ${meta.showProgress ? `
-          <div class="header-progress header-progress--rccl enhanced" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" aria-hidden="true">
-              <div class="progress-wave shimmer-effect"></div>
-            </div>
-          </div>
-        ` : ''}
-      </header>
-    `;
-
-    headerMount.outerHTML = headerHTML;
-  }
-
-  function renderEnhancedFooter() {
-    let footerMount = utils.qs('#sharedFooter') || utils.qs('.app-footer');
-    if (!footerMount) {
-      footerMount = document.createElement('div');
-      footerMount.id = 'sharedFooter';
-      const main = utils.qs('main');
-      if (main && main.parentNode) {
-        main.insertAdjacentElement('afterend', footerMount);
-      } else {
-        document.body.appendChild(footerMount);
-      }
-    }
-
-    const nextPort = (() => {
-      const raw = localStorage.getItem('cruise-nextport');
-      const parsed = raw ? utils.safeJsonParse(raw, null) : null;
-      if (parsed?.name) return parsed;
-      return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
-    })();
-
-    const sectionsHTML = FOOTER_SECTIONS.map(section => `
-      <div class="footer-section">
-        <h4 class="footer-subtitle">
-          <i class="fas fa-compass" aria-hidden="true"></i>
-          ${escapeHtml(section.title)}
-        </h4>
-        <div class="footer-links">
-          ${section.links.map(link => `
-            <a href="${link.href}" class="footer-link">
-              <div class="footer-link__icon">
-                <i class="fas ${link.icon}" aria-hidden="true"></i>
-              </div>
-              <span>${escapeHtml(link.text)}</span>
-              <i class="fas fa-chevron-right footer-link__chevron" aria-hidden="true"></i>
-            </a>
-          `).join('')}
-        </div>
-      </div>
-    `).join('');
-
-    const quickActionsHTML = FOOTER_QUICK_ACTIONS.map(action => {
-      const badgeFromStorage = action.badgeKey ? BadgeProvider.resolve(action.badgeKey) : null;
-      const subtitle = badgeFromStorage?.text
-        ? `${action.subtitle} • ${badgeFromStorage.text} ${action.badgeKey === 'checklist' ? 'remaining' : 'saved'}`
-        : action.subtitle;
-
-      const badgeHTML = badgeFromStorage?.text ? `
-        <span class="footer-action-badge enhanced ${toneToClass(badgeFromStorage.tone)}">
-          ${badgeFromStorage.text}
-        </span>
-      ` : '';
-
-      return `
-        <a class="footer-action-card footer-action-card--rccl enhanced" href="${action.href}">
-          <div class="footer-action-card__content">
-            <div class="footer-action-card__header">
-              <div class="footer-action-icon enhanced" aria-hidden="true">
-                <i class="fas ${action.icon}"></i>
-              </div>
-              ${badgeHTML}
-            </div>
-            <div class="footer-action-card__body">
-              <h4>${escapeHtml(action.title)}</h4>
-              <p>${escapeHtml(subtitle)}</p>
-            </div>
-            <div class="footer-action-card__footer">
-              <span class="footer-action-cta">
-                ${escapeHtml(action.cta)}
-                <i class="fas fa-arrow-right" aria-hidden="true"></i>
-              </span>
-            </div>
-          </div>
-          <div class="footer-action-card__wave enhanced" aria-hidden="true"></div>
-        </a>
-      `;
-    }).join('');
-
-    const year = DEFAULT_META.year;
-
-    const footerHTML = `
-      <footer class="app-footer app-footer--rccl enhanced" role="contentinfo">
-        <div class="footer-waves enhanced" aria-hidden="true">
-          <div class="wave wave-1"></div>
-          <div class="wave wave-2"></div>
-        </div>
-        
-        <div class="container">
-          <div class="footer-hero">
-            <div class="footer-hero__intro">
-              <div class="footer-hero__badge">
-                <i class="fas fa-anchor" aria-hidden="true"></i>
-                <span>Onboard Guide</span>
-              </div>
-              <h3>Plan Clean. Sail Calmer.</h3>
-              <p>Your complete digital cruise companion — everything you need in one elegant, intuitive place.</p>
-            </div>
-
-            <div class="footer-hero__actions">
-              <a class="btn btn--primary btn--rccl enhanced btn--icon" href="operations.html">
-                <i class="fas fa-clipboard-check" aria-hidden="true"></i>
-                Finish Checklist
-              </a>
-              <a class="btn btn--secondary btn--rccl enhanced btn--icon" href="itinerary.html">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                View Itinerary
-              </a>
-            </div>
-
-            <div class="footer-hero__cards">
-              ${quickActionsHTML}
-            </div>
-          </div>
-
-          <div class="footer-grid">
-            ${sectionsHTML}
-
-            <div class="footer-section footer-newsletter footer-newsletter--rccl">
-              <div class="footer-newsletter__header">
-                <h4 class="footer-subtitle">
-                  <i class="fas fa-bell" aria-hidden="true"></i>
-                  Stay Updated
-                </h4>
-                <div class="footer-newsletter__icon">
-                  <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                </div>
-              </div>
-              <p class="footer-text">Get alerts for port updates, weather changes, and special offers.</p>
-
-              <form class="newsletter-form newsletter-form--rccl" aria-label="Newsletter signup">
-                <div class="input-group">
-                  <input type="email" placeholder="Enter your email" aria-label="Email address" class="newsletter-input" autocomplete="email" inputmode="email">
-                  <button type="submit" class="newsletter-button enhanced" aria-label="Subscribe">
-                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
-                  </button>
-                </div>
-                <p class="newsletter-note">No spam. Just useful updates.</p>
-              </form>
-
-              <div class="footer-support" aria-label="Support">
-                <div class="footer-support__item footer-support__item--rccl">
-                  <div class="footer-support__icon">
-                    <i class="fas fa-headset" aria-hidden="true"></i>
-                  </div>
-                  <div class="footer-support__content">
-                    <strong>Guest Services</strong>
-                    <span>24/7 onboard support</span>
-                  </div>
-                </div>
-
-                <div class="footer-support__item footer-support__item--rccl">
-                  <div class="footer-support__icon">
-                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                  </div>
-                  <div class="footer-support__content">
-                    <strong>Next Port</strong>
-                    <span>${escapeHtml(nextPort.name)} • ${escapeHtml(nextPort.time || '')}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="footer-social">
-                <span>Follow the journey:</span>
-                <div class="social-links">
-                  <a href="#" class="social-link" aria-label="Facebook">
-                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="Instagram">
-                    <i class="fab fa-instagram" aria-hidden="true"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="Twitter">
-                    <i class="fab fa-twitter" aria-hidden="true"></i>
-                  </a>
-                  <a href="#" class="social-link" aria-label="YouTube">
-                    <i class="fab fa-youtube" aria-hidden="true"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="footer-bottom footer-bottom--rccl">
-            <div class="footer-bottom__content">
-              <div class="footer-copyright">
-                <i class="fas fa-ship" aria-hidden="true"></i>
-                <span>© ${year} Royal Caribbean International. All rights reserved.</span>
-              </div>
-              <div class="footer-legal">
-                <a href="privacy.html">Privacy Policy</a>
-                <span class="legal-separator">•</span>
-                <a href="terms.html">Terms of Service</a>
-                <span class="legal-separator">•</span>
-                <a href="accessibility.html">Accessibility</a>
-                <span class="legal-separator">•</span>
-                <a href="cookies.html">Cookies</a>
-              </div>
-            </div>
-
-            <button class="back-to-top back-to-top--rccl enhanced" type="button" aria-label="Scroll to top">
-              <i class="fas fa-chevron-up" aria-hidden="true"></i>
-              <span class="back-to-top__text">Back to Top</span>
-            </button>
-          </div>
-        </div>
-      </footer>
-    `;
-
-    footerMount.outerHTML = footerHTML;
-  }
-
-  function initEnhancedInteractions() {
-    utils.qsa('.nav-link.enhanced').forEach(link => {
-      on(link, 'mouseenter', () => link.classList.add('hovering'));
-      on(link, 'mouseleave', () => link.classList.remove('hovering'));
-    });
-
-    utils.qsa('.btn--rccl.enhanced').forEach((button) => {
-      on(button, 'click', (e) => {
-        const rect = button.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const ripple = document.createElement('span');
-        ripple.style.position = 'absolute';
-        ripple.style.width = '0';
-        ripple.style.height = '0';
-        ripple.style.borderRadius = '50%';
-        ripple.style.background = 'rgba(255, 255, 255, 0.35)';
-        ripple.style.transform = 'translate(-50%, -50%)';
-        ripple.style.animation = 'ripple 0.6s linear';
-        ripple.style.left = `${x}px`;
-        ripple.style.top = `${y}px`;
-        button.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 600);
-      });
-    });
   }
 
   // ---------------------------
-  // Interactions (enhanced)
+  // Event Handler Utilities
   // ---------------------------
   let cleanupFns = [];
 
@@ -1484,6 +2453,425 @@
     cleanupFns.push(() => el.removeEventListener(evt, handler, opts));
   }
 
+  function off(el, evt, handler, opts) {
+    if (!el) return;
+    el.removeEventListener(evt, handler, opts);
+  }
+
+  // ---------------------------
+  // Header Component
+  // ---------------------------
+  function renderHeader() {
+    return safeMount('#sharedHeader', (mount) => {
+      const currentPage = utils.getCurrentPage(mount);
+      const meta = getMetaFromMount(mount);
+
+      const navLinks = NAV_ITEMS.map(item => 
+        buildNavLink(item, currentPage === item.id)
+      ).join('');
+      
+      const mobileLinks = NAV_ITEMS.map(item => 
+        buildMobileNavLink(item, currentPage === item.id)
+      ).join('');
+
+      const headerHTML = `
+        <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
+
+        <header class="app-header app-header--rccl" role="banner" data-page="${currentPage}">
+          <div class="header-waves" aria-hidden="true">
+            <div class="wave wave-1"></div>
+            <div class="wave wave-2"></div>
+          </div>
+          
+          <div class="container">
+            <div class="header-content">
+              <a href="${sanitizeHref('index.html')}" class="logo logo--rccl" aria-label="Go to dashboard">
+                <div class="logo-icon" aria-hidden="true">
+                  <i class="fas fa-ship" aria-hidden="true"></i>
+                  <div class="logo-icon__wave"></div>
+                </div>
+                <div class="logo-text-container">
+                  <div class="logo-text">${escapeHtml(meta.brand)}</div>
+                  <div class="logo-subtext">
+                    <i class="fas fa-anchor" aria-hidden="true"></i>
+                    <span>${escapeHtml(meta.ship)}</span>
+                    <span class="logo-separator">•</span>
+                    <span>${escapeHtml(meta.sailing)}</span>
+                  </div>
+                </div>
+              </a>
+
+              <nav class="nav-desktop" aria-label="Main navigation">
+                <div class="nav-desktop__links">
+                  ${navLinks}
+                </div>
+
+                <div class="nav-desktop__actions">
+                  <button class="theme-toggle theme-toggle--rccl" id="themeToggle" type="button" aria-label="Toggle theme">
+                    <span class="theme-toggle__icons" aria-hidden="true">
+                      <i class="fas fa-sun"></i>
+                      <i class="fas fa-moon"></i>
+                      <i class="fas fa-desktop"></i>
+                    </span>
+                    <span class="toggle-track" aria-hidden="true"></span>
+                  </button>
+
+                  <div class="user-menu user-menu--rccl">
+                    <button class="user-menu-toggle" type="button" aria-label="User menu" aria-expanded="false">
+                      <div class="user-avatar">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                      </div>
+                      <span class="user-name">Guest</span>
+                      <i class="fas fa-chevron-down user-menu__chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="user-dropdown" role="menu" aria-label="User menu options">
+                      <div class="user-dropdown__header">
+                        <div class="user-dropdown__avatar">
+                          <i class="fas fa-user-circle" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                          <strong>Guest</strong>
+                          <span>Welcome aboard!</span>
+                        </div>
+                      </div>
+                      <div class="dropdown-divider" role="separator"></div>
+                      <a href="${sanitizeHref('profile.html')}" class="dropdown-item" role="menuitem">
+                        <i class="fas fa-user" aria-hidden="true"></i> My Profile
+                      </a>
+                      <a href="${sanitizeHref('settings.html')}" class="dropdown-item" role="menuitem">
+                        <i class="fas fa-cog" aria-hidden="true"></i> Settings
+                      </a>
+                      <a href="${sanitizeHref('help.html')}" class="dropdown-item" role="menuitem">
+                        <i class="fas fa-question-circle" aria-hidden="true"></i> Help Center
+                      </a>
+                      <div class="dropdown-divider" role="separator"></div>
+                      <button class="dropdown-item dropdown-item--signout" role="menuitem" type="button">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sign Out
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </nav>
+
+              ${meta.showMenuToggle ? `
+                <button class="mobile-menu-toggle" type="button"
+                        aria-label="Open navigation menu"
+                        aria-expanded="false"
+                        aria-controls="navMobile">
+                  <span class="hamburger-box" aria-hidden="true">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                  </span>
+                </button>
+              ` : ''}
+            </div>
+
+            ${meta.showMenuToggle ? `
+              <div class="nav-mobile-overlay" data-action="close-mobile" hidden></div>
+
+              <nav class="nav-mobile" id="navMobile" aria-label="Mobile navigation" hidden>
+                <div class="nav-mobile__header">
+                  <div class="mobile-nav-header">
+                    <div class="mobile-nav-title">
+                      <span class="mobile-nav-title__eyebrow">${escapeHtml(meta.port)}</span>
+                      <strong class="mobile-nav-title__main">Welcome Aboard</strong>
+                    </div>
+                    <div class="mobile-nav-header__actions">
+                      <button class="theme-toggle-mobile" id="themeToggleMobile" type="button" aria-label="Toggle theme">
+                        <i class="fas fa-adjust" aria-hidden="true"></i>
+                      </button>
+                      <button class="mobile-nav-close" type="button" data-action="close-mobile" aria-label="Close menu">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mobile-nav-ship-info">
+                    <i class="fas fa-ship" aria-hidden="true"></i>
+                    <span>${escapeHtml(meta.ship)} • ${escapeHtml(meta.sailing)}</span>
+                  </div>
+                </div>
+
+                <div class="mobile-nav-links">
+                  ${mobileLinks}
+                </div>
+
+                <div class="nav-mobile__footer">
+                  <div class="mobile-nav-shortcuts" aria-label="Shortcuts">
+                    <button type="button" class="chip" data-action="go" data-href="${sanitizeHref('operations.html')}">
+                      <i class="fas fa-clipboard-check" aria-hidden="true"></i> Checklist
+                    </button>
+                    <button type="button" class="chip" data-action="go" data-href="${sanitizeHref('itinerary.html')}">
+                      <i class="fas fa-route" aria-hidden="true"></i> Itinerary
+                    </button>
+                    <button type="button" class="chip" data-action="go" data-href="${sanitizeHref('dining.html')}">
+                      <i class="fas fa-utensils" aria-hidden="true"></i> Dining
+                    </button>
+                  </div>
+                  <div class="mobile-nav-footer-legal">
+                    <span>© ${DEFAULT_META.year} Royal Caribbean</span>
+                    <span class="legal-separator">•</span>
+                    <a href="${sanitizeHref('privacy.html')}">Privacy</a>
+                  </div>
+                </div>
+              </nav>
+            ` : ''}
+          </div>
+
+          ${meta.showProgress ? `
+            <div class="header-progress header-progress--rccl" role="progressbar" 
+                 aria-label="Scroll progress" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+              <div class="progress-bar" aria-hidden="true">
+                <div class="progress-wave"></div>
+              </div>
+            </div>
+          ` : ''}
+        </header>
+      `;
+
+      mount.outerHTML = headerHTML;
+      return utils.qs('.app-header');
+    });
+  }
+
+  // ---------------------------
+  // Footer Component
+  // ---------------------------
+  function renderFooter() {
+    return safeMount('#sharedFooter', (mount) => {
+      const nextPort = CruiseState.get('cruise-nextport', { 
+        name: 'Perfect Day at CocoCay', 
+        time: '7:00 AM' 
+      });
+
+      const sectionsHTML = FOOTER_SECTIONS.map(section => `
+        <div class="footer-section">
+          <h4 class="footer-subtitle">
+            <i class="fas fa-compass" aria-hidden="true"></i>
+            ${escapeHtml(section.title)}
+          </h4>
+          <div class="footer-links">
+            ${section.links.map(link => `
+              <a href="${sanitizeHref(link.href)}" class="footer-link">
+                <div class="footer-link__icon">
+                  <i class="fas ${link.icon}" aria-hidden="true"></i>
+                </div>
+                <span>${escapeHtml(link.text)}</span>
+                <i class="fas fa-chevron-right footer-link__chevron" aria-hidden="true"></i>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      const quickActionsHTML = FOOTER_QUICK_ACTIONS.map(action => {
+        const badgeFromStorage = action.badgeKey ? BadgeProvider.resolve(action.badgeKey) : null;
+        const subtitle = badgeFromStorage?.text
+          ? `${action.subtitle} • ${badgeFromStorage.text} ${action.badgeKey === 'checklist' ? 'remaining' : 'saved'}`
+          : action.subtitle;
+
+        const badgeHTML = badgeFromStorage?.text ? `
+          <span class="footer-action-badge ${toneToClass(badgeFromStorage.tone)}">
+            ${escapeHtml(badgeFromStorage.text)}
+          </span>
+        ` : '';
+
+        return `
+          <a class="footer-action-card footer-action-card--rccl" href="${sanitizeHref(action.href)}">
+            <div class="footer-action-card__content">
+              <div class="footer-action-card__header">
+                <div class="footer-action-icon" aria-hidden="true">
+                  <i class="fas ${action.icon}"></i>
+                </div>
+                ${badgeHTML}
+              </div>
+              <div class="footer-action-card__body">
+                <h4>${escapeHtml(action.title)}</h4>
+                <p>${escapeHtml(subtitle)}</p>
+              </div>
+              <div class="footer-action-card__footer">
+                <span class="footer-action-cta">
+                  ${escapeHtml(action.cta)}
+                  <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </span>
+              </div>
+            </div>
+            <div class="footer-action-card__wave" aria-hidden="true"></div>
+          </a>
+        `;
+      }).join('');
+
+      const footerHTML = `
+        <footer class="app-footer app-footer--rccl" role="contentinfo">
+          <div class="footer-waves" aria-hidden="true">
+            <div class="wave wave-1"></div>
+            <div class="wave wave-2"></div>
+          </div>
+          
+          <div class="container">
+            <div class="footer-hero">
+              <div class="footer-hero__intro">
+                <div class="footer-hero__badge">
+                  <i class="fas fa-anchor" aria-hidden="true"></i>
+                  <span>Onboard Guide</span>
+                </div>
+                <h3>Plan Clean. Sail Calmer.</h3>
+                <p>Your complete digital cruise companion — everything you need in one elegant, intuitive place.</p>
+              </div>
+
+              <div class="footer-hero__actions">
+                <a class="btn btn--primary btn--icon" href="${sanitizeHref('operations.html')}">
+                  <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+                  Finish Checklist
+                </a>
+                <a class="btn btn--secondary btn--icon" href="${sanitizeHref('itinerary.html')}">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  View Itinerary
+                </a>
+              </div>
+
+              <div class="footer-hero__cards">
+                ${quickActionsHTML}
+              </div>
+            </div>
+
+            <div class="footer-grid">
+              ${sectionsHTML}
+
+              <div class="footer-section footer-newsletter">
+                <div class="footer-newsletter__header">
+                  <h4 class="footer-subtitle">
+                    <i class="fas fa-bell" aria-hidden="true"></i>
+                    Stay Updated
+                  </h4>
+                  <div class="footer-newsletter__icon">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                  </div>
+                </div>
+                <p class="footer-text">Get alerts for port updates, weather changes, and special offers.</p>
+
+                <form class="newsletter-form" aria-label="Newsletter signup">
+                  <div class="input-group">
+                    <input type="email" 
+                           placeholder="Enter your email" 
+                           aria-label="Email address" 
+                           class="newsletter-input" 
+                           autocomplete="email" 
+                           inputmode="email">
+                    <button type="submit" class="newsletter-button" aria-label="Subscribe">
+                      <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <p class="newsletter-note">No spam. Just useful updates.</p>
+                </form>
+
+                <div class="footer-support" aria-label="Support">
+                  <div class="footer-support__item">
+                    <div class="footer-support__icon">
+                      <i class="fas fa-headset" aria-hidden="true"></i>
+                    </div>
+                    <div class="footer-support__content">
+                      <strong>Guest Services</strong>
+                      <span>24/7 onboard support</span>
+                    </div>
+                  </div>
+
+                  <div class="footer-support__item">
+                    <div class="footer-support__icon">
+                      <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    </div>
+                    <div class="footer-support__content">
+                      <strong>Next Port</strong>
+                      <span>${escapeHtml(nextPort.name)}${nextPort.time ? ` • ${escapeHtml(nextPort.time)}` : ''}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="footer-social">
+                  <span>Follow the journey:</span>
+                  <div class="social-links">
+                    <a href="#" class="social-link" aria-label="Facebook">
+                      <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Instagram">
+                      <i class="fab fa-instagram" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="Twitter">
+                      <i class="fab fa-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" class="social-link" aria-label="YouTube">
+                      <i class="fab fa-youtube" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="footer-bottom footer-bottom--rccl">
+              <div class="footer-bottom__content">
+                <div class="footer-copyright">
+                  <i class="fas fa-ship" aria-hidden="true"></i>
+                  <span>© ${DEFAULT_META.year} Royal Caribbean International. All rights reserved.</span>
+                </div>
+                <div class="footer-legal">
+                  <a href="${sanitizeHref('privacy.html')}">Privacy Policy</a>
+                  <span class="legal-separator">•</span>
+                  <a href="${sanitizeHref('terms.html')}">Terms of Service</a>
+                  <span class="legal-separator">•</span>
+                  <a href="${sanitizeHref('accessibility.html')}">Accessibility</a>
+                  <span class="legal-separator">•</span>
+                  <a href="${sanitizeHref('cookies.html')}">Cookies</a>
+                </div>
+              </div>
+
+              <button class="back-to-top back-to-top--rccl" type="button" aria-label="Scroll to top">
+                <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                <span class="back-to-top__text">Back to Top</span>
+              </button>
+            </div>
+          </div>
+        </footer>
+      `;
+
+      mount.outerHTML = footerHTML;
+      return utils.qs('.app-footer');
+    });
+  }
+
+  // ---------------------------
+  // Bottom Navigation Component
+  // ---------------------------
+  function renderBottomNav() {
+    const mounts = utils.qsa('#sharedBottomNav');
+    mounts.forEach(mount => {
+      safeMount(null, () => {
+        const currentPage = utils.getCurrentPage(mount);
+        const links = NAV_ITEMS.map((item) => {
+          const isActive = currentPage === item.id;
+          return `
+            <a href="${sanitizeHref(item.href)}"
+               class="mobile-nav-item${isActive ? ' active' : ''}"
+               ${isActive ? 'aria-current="page"' : ''}>
+              <span class="mobile-nav-icon"><i class="fas ${item.icon}" aria-hidden="true"></i></span>
+              <span class="mobile-nav-text">${escapeHtml(item.text)}</span>
+            </a>
+          `;
+        }).join('');
+
+        mount.innerHTML = `
+          <nav class="mobile-nav" aria-label="Bottom navigation">
+            ${links}
+          </nav>
+        `;
+      }, '<nav class="mobile-nav" aria-label="Bottom navigation"></nav>')(mount);
+    });
+  }
+
+  // ---------------------------
+  // Event Interactions
+  // ---------------------------
   function initHeaderInteractions() {
     const toggle = utils.qs('.mobile-menu-toggle');
     const nav = utils.qs('.nav-mobile');
@@ -1493,6 +2881,7 @@
 
     function openMobile() {
       if (!toggle || !nav) return;
+      
       toggle.classList.add('active');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', 'Close navigation menu');
@@ -1503,17 +2892,23 @@
 
       // Animate in
       nav.style.transform = 'translateX(0)';
-      if (overlay) overlay.style.opacity = '1';
+      if (overlay) {
+        overlay.style.opacity = '1';
+        overlay.style.display = 'block';
+      }
 
       // Focus management
       const firstLink = utils.qs('.nav-mobile a, .nav-mobile button', nav);
       if (firstLink) firstLink.focus({ preventScroll: true });
 
       releaseTrap = utils.trapFocus(nav, true);
+      
+      Telemetry.trackMobileMenu(true);
     }
 
     function closeMobile() {
       if (!toggle || !nav) return;
+      
       toggle.classList.remove('active');
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', 'Open navigation menu');
@@ -1525,6 +2920,7 @@
       setTimeout(() => {
         nav.hidden = true;
         overlay && (overlay.hidden = true);
+        overlay && (overlay.style.display = 'none');
       }, 300);
 
       utils.lockBodyScroll(false);
@@ -1532,10 +2928,13 @@
       releaseTrap = () => {};
 
       toggle.focus({ preventScroll: true });
+      
+      Telemetry.trackMobileMenu(false);
     }
 
     // Mobile toggle click
-    on(toggle, 'click', () => {
+    on(toggle, 'click', (e) => {
+      e.stopPropagation();
       const expanded = toggle.getAttribute('aria-expanded') === 'true';
       expanded ? closeMobile() : openMobile();
     });
@@ -1553,7 +2952,10 @@
       }
       if (action === 'go') {
         const href = actionEl.getAttribute('data-href');
-        if (href) window.location.href = href;
+        if (href) {
+          Telemetry.trackNavigation(href, window.location.pathname);
+          window.location.href = href;
+        }
       }
     });
 
@@ -1571,8 +2973,16 @@
     on(document, 'keydown', (e) => {
       if (e.key !== 'Escape') return;
 
-      // close dropdowns
-      utils.qsa('[aria-expanded="true"]').forEach(el => el.setAttribute('aria-expanded', 'false'));
+      // Close dropdowns
+      utils.qsa('[aria-expanded="true"]').forEach(el => {
+        if (el !== toggle) {
+          el.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Close user dropdown
+      const userDropdown = utils.qs('.user-dropdown');
+      if (userDropdown) userDropdown.classList.remove('visible');
 
       if (nav && !nav.hidden) {
         e.preventDefault();
@@ -1581,8 +2991,20 @@
     });
 
     // Theme toggles
-    on(utils.qs('#themeToggle'), 'click', () => ThemeManager.toggle());
-    on(utils.qs('#themeToggleMobile'), 'click', () => ThemeManager.toggle());
+    const themeToggle = utils.qs('#themeToggle');
+    const themeToggleMobile = utils.qs('#themeToggleMobile');
+    
+    on(themeToggle, 'click', (e) => {
+      e.stopPropagation();
+      ThemeManager.toggle();
+      Telemetry.trackThemeChange(ThemeManager.current);
+    });
+    
+    on(themeToggleMobile, 'click', (e) => {
+      e.stopPropagation();
+      ThemeManager.toggle();
+      Telemetry.trackThemeChange(ThemeManager.current);
+    });
 
     // User dropdown
     const userToggle = utils.qs('.user-menu-toggle');
@@ -1597,10 +3019,11 @@
       }
     });
     
-    on(document, 'click', () => {
-      if (userToggle) {
+    // Close dropdown when clicking outside
+    on(document, 'click', (e) => {
+      if (userToggle && !userToggle.contains(e.target) && userDropdown && !userDropdown.contains(e.target)) {
         userToggle.setAttribute('aria-expanded', 'false');
-        if (userDropdown) userDropdown.classList.remove('visible');
+        userDropdown.classList.remove('visible');
       }
     });
 
@@ -1609,25 +3032,29 @@
     on(signOutBtn, 'click', () => {
       utils.announce('Signed out successfully');
       // Add your sign-out logic here
+      Telemetry.track('sign_out');
     });
 
-    // Desktop tooltips with enhanced styling
-    if (!utils.isMobile()) {
+    // Desktop tooltips
+    if (!utils.isMobile() && capabilities.hasHover) {
       let tipEl = null;
       let tipT = null;
 
       const showTip = (link) => {
         const text = link?.dataset?.tooltip;
         if (!text) return;
+        
         tipEl = document.createElement('div');
-        tipEl.className = 'nav-tooltip nav-tooltip--rccl';
+        tipEl.className = 'nav-tooltip';
         tipEl.textContent = text;
         document.body.appendChild(tipEl);
 
         const r = link.getBoundingClientRect();
-        tipEl.style.left = `${r.left + r.width / 2}px`;
+        const tipWidth = tipEl.offsetWidth;
+        const tipHeight = tipEl.offsetHeight;
+        
+        tipEl.style.left = `${r.left + r.width / 2 - tipWidth / 2}px`;
         tipEl.style.top = `${r.bottom + 10}px`;
-        tipEl.style.transform = 'translateX(-50%)';
         
         // Add arrow
         const arrow = document.createElement('div');
@@ -1637,8 +3064,10 @@
 
       const hideTip = () => {
         clearTimeout(tipT);
-        if (tipEl) tipEl.remove();
-        tipEl = null;
+        if (tipEl) {
+          tipEl.remove();
+          tipEl = null;
+        }
       };
 
       utils.qsa('.nav-link[data-tooltip]').forEach((link) => {
@@ -1654,15 +3083,15 @@
   }
 
   function initHeroObserver() {
-    const hero = utils.qs('.app-hero, .hero');
     const header = utils.qs('.app-header');
     const progressBar = utils.qs('.header-progress .progress-bar');
     const waves = utils.qs('.header-waves');
+    const hero = utils.qs('.app-hero, .hero, main > section:first-child');
 
-    if (!header) return () => {};
+    if (!header) return;
 
     const update = () => {
-      const y = window.scrollY || 0;
+      const y = utils.getScrollPosition();
 
       // Header scroll effect
       if (y > 100) {
@@ -1677,12 +3106,7 @@
         const max = Math.max(1, doc.scrollHeight - window.innerHeight);
         const p = utils.clamp(y / max, 0, 1);
         progressBar.style.transform = `scaleX(${p})`;
-        
-        // Animate progress wave
-        const wave = utils.qs('.progress-wave', progressBar);
-        if (wave) {
-          wave.style.transform = `translateX(${p * 100}%)`;
-        }
+        progressBar.setAttribute('aria-valuenow', Math.round(p * 100));
       }
 
       // Wave animation
@@ -1708,8 +3132,6 @@
     update();
     on(window, 'scroll', handler, { passive: true });
     on(window, 'resize', utils.debounce(update, 100), { passive: true });
-
-    return () => {};
   }
 
   function initFooterInteractions() {
@@ -1739,18 +3161,21 @@
       
       input.value = '';
       utils.announce('Subscribed! You\'ll receive updates via email.');
+      
+      Telemetry.track('newsletter_subscribe', { email: val });
     });
 
     // Back to top button
     const btn = utils.qs('.back-to-top');
     const updateVis = utils.debounce(() => {
       if (!btn) return;
-      const scrolled = (window.scrollY || 0) > 500;
+      const scrolled = utils.getScrollPosition() > 500;
       btn.classList.toggle('visible', scrolled);
       
-      // Update aria-label
       if (scrolled) {
         btn.setAttribute('aria-label', 'Scroll to top of page');
+      } else {
+        btn.setAttribute('aria-label', 'Back to top');
       }
     }, 80);
 
@@ -1760,6 +3185,8 @@
         behavior: utils.prefersReducedMotion() ? 'auto' : 'smooth' 
       });
       utils.announce('Returned to top of page');
+      
+      Telemetry.track('back_to_top');
     });
 
     updateVis();
@@ -1783,6 +3210,7 @@
         const idx = parseInt(e.key, 10) - 1;
         if (NAV_ITEMS[idx]) {
           e.preventDefault();
+          Telemetry.trackNavigation(NAV_ITEMS[idx].href, window.location.pathname);
           window.location.href = NAV_ITEMS[idx].href;
         }
       }
@@ -1791,12 +3219,14 @@
       if (e.key === 't' && (e.altKey || e.metaKey)) {
         e.preventDefault();
         ThemeManager.toggle();
+        Telemetry.trackThemeChange(ThemeManager.current);
       }
       
       // M = Toggle mobile menu
       if (e.key === 'm' && (e.altKey || e.metaKey)) {
         const toggle = utils.qs('.mobile-menu-toggle');
-        if (toggle && toggle.getAttribute('aria-expanded') === 'false') {
+        if (toggle) {
+          e.preventDefault();
           toggle.click();
         }
       }
@@ -1818,11 +3248,14 @@
       if (!href.includes('.html')) return;
       if (a.target === '_blank') return;
       if (a.hasAttribute('download')) return;
+      if (a.hasAttribute('data-no-transition')) return;
 
       e.preventDefault();
       
       // Add ocean wave transition effect
       document.body.classList.add('page-exiting', 'page-exiting--rccl');
+      
+      Telemetry.trackNavigation(href, window.location.pathname);
       
       setTimeout(() => { 
         window.location.href = href; 
@@ -1830,174 +3263,40 @@
     });
   }
 
-  // ---------------------------
-  // CSS Injection for RCCL styling
-  // ---------------------------
-  function injectRCClStyles() {
-    const styleId = 'rccl-styles';
-    if (document.getElementById(styleId)) return;
+  function initLazyEffects() {
+    if (!capabilities.hasIntersectionObserver) return;
 
-    const styles = `
-      /* RCCL Wave Animations */
-      .wave {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, transparent, var(--rccl-accent, ${RCCL_COLORS.accent}), transparent);
-        opacity: 0.6;
-      }
-      
-      .wave-1 {
-        animation: waveFlow 8s ease-in-out infinite;
-      }
-      
-      .wave-2 {
-        height: 2px;
-        animation: waveFlow 12s ease-in-out infinite reverse;
-        opacity: 0.4;
-      }
-      
-      @keyframes waveFlow {
-        0%, 100% { transform: translateX(0); }
-        50% { transform: translateX(20px); }
-      }
-      
-      /* RCCL Badge Styles */
-      .badge--primary {
-        background: var(--rccl-primary, ${RCCL_COLORS.primary});
-        color: white;
-        border: 2px solid var(--rccl-primary, ${RCCL_COLORS.primary});
-      }
-      
-      .badge--accent {
-        background: var(--rccl-accent, ${RCCL_COLORS.accent});
-        color: white;
-        border: 2px solid var(--rccl-accent, ${RCCL_COLORS.accent});
-      }
-      
-      .badge--success {
-        background: var(--rccl-success, ${RCCL_COLORS.success});
-        color: white;
-        border: 2px solid var(--rccl-success, ${RCCL_COLORS.success});
-      }
-      
-      .badge--warning {
-        background: var(--rccl-warning, ${RCCL_COLORS.warning});
-        color: var(--rccl-dark, ${RCCL_COLORS.dark});
-        border: 2px solid var(--rccl-warning, ${RCCL_COLORS.warning});
-      }
-      
-      .badge--pulse {
-        animation: pulse 2s infinite;
-      }
-      
-      @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(var(--rccl-warning-rgb, 255, 193, 7), 0.7); }
-        70% { box-shadow: 0 0 0 6px rgba(var(--rccl-warning-rgb, 255, 193, 7), 0); }
-        100% { box-shadow: 0 0 0 0 rgba(var(--rccl-warning-rgb, 255, 193, 7), 0); }
-      }
-      
-      /* RCCL Button Styles */
-      .btn--rccl {
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .btn--rccl:before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s;
-      }
-      
-      .btn--rccl:hover:before {
-        left: 100%;
-      }
-      
-      .btn--primary.btn--rccl {
-        background: linear-gradient(135deg, var(--rccl-primary, ${RCCL_COLORS.primary}), var(--rccl-accent, ${RCCL_COLORS.accent}));
-        border: none;
-        box-shadow: 0 4px 12px rgba(var(--rccl-primary-rgb, 0, 82, 165), 0.2);
-      }
-      
-      /* RCCL Card Styles */
-      .footer-action-card--rccl {
-        border-radius: 12px;
-        background: var(--rccl-surface, white);
-        border: 1px solid var(--rccl-border, #dee2e6);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .footer-action-card--rccl:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        border-color: var(--rccl-accent, ${RCCL_COLORS.accent});
-      }
-      
-      .footer-action-card__wave {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--rccl-accent, ${RCCL_COLORS.accent}), var(--rccl-primary, ${RCCL_COLORS.primary}));
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-      }
-      
-      .footer-action-card--rccl:hover .footer-action-card__wave {
-        transform: scaleX(1);
-      }
-      
-      /* Reduced motion support */
-      @media (prefers-reduced-motion: reduce) {
-        .badge--pulse,
-        .btn--rccl:before,
-        .wave-1,
-        .wave-2,
-        .footer-action-card--rccl,
-        .footer-action-card__wave {
-          animation: none;
-          transition: none;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          
+          // Load enhanced features only when needed
+          if (entry.target.classList.contains('footer-action-card--rccl')) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
         }
-      }
-    `;
-
-    const styleEl = document.createElement('style');
-    styleEl.id = styleId;
-    styleEl.textContent = styles;
-    document.head.appendChild(styleEl);
+      });
+    }, { 
+      threshold: 0.1,
+      rootMargin: '50px' 
+    });
+    
+    utils.qsa('[data-lazy-effect]').forEach(el => observer.observe(el));
+    utils.qsa('.footer-action-card--rccl').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      observer.observe(el);
+    });
   }
 
   // ---------------------------
-  // Escape helper
-  // ---------------------------
-  function escapeHtml(s) {
-    return String(s)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-  }
-
-  // ---------------------------
-  // Refresh badges
+  // Badge Refresh System
   // ---------------------------
   function refreshBadgesInDOM() {
-    // desktop badges
+    // Desktop badges
     utils.qsa('.nav-link').forEach((link) => {
       const textEl = utils.qs('.nav-text', link);
       if (!textEl) return;
@@ -2022,10 +3321,10 @@
       
       badgeEl.className = `nav-badge ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}`;
       badgeEl.textContent = badge.text;
-      badgeEl.setAttribute('aria-label', `${badge.text} ${label}`);
+      badgeEl.setAttribute('aria-label', badge.ariaLabel || `${badge.text} ${label}`);
     });
 
-    // mobile badges
+    // Mobile badges
     utils.qsa('.mobile-nav-link').forEach((link) => {
       const label = utils.qs('.mobile-nav-link__text', link)?.textContent?.trim();
       if (!label) return;
@@ -2044,90 +3343,195 @@
       if (!badgeEl) {
         badgeEl = document.createElement('span');
         badgeEl.className = 'mobile-badge';
-        link.appendChild(badgeEl);
+        const iconContainer = utils.qs('.mobile-nav-link__icon', link);
+        if (iconContainer) iconContainer.appendChild(badgeEl);
       }
       
       badgeEl.className = `mobile-badge ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}`;
       badgeEl.textContent = badge.text;
+      badgeEl.setAttribute('aria-label', badge.ariaLabel || `${badge.text} ${label}`);
+    });
+
+    // Footer badges
+    utils.qsa('.footer-action-card--rccl').forEach((card) => {
+      const href = card.getAttribute('href');
+      const action = FOOTER_QUICK_ACTIONS.find(a => a.href === href);
+      if (!action || !action.badgeKey) return;
+
+      const badge = BadgeProvider.resolve(action.badgeKey);
+      let badgeEl = utils.qs('.footer-action-badge', card);
+
+      if (!badge) {
+        if (badgeEl) badgeEl.remove();
+        return;
+      }
+
+      if (!badgeEl) {
+        const header = utils.qs('.footer-action-card__header', card);
+        if (!header) return;
+        
+        badgeEl = document.createElement('span');
+        badgeEl.className = 'footer-action-badge';
+        header.appendChild(badgeEl);
+      }
+      
+      badgeEl.className = `footer-action-badge ${toneToClass(badge.tone || 'primary')}`;
+      badgeEl.textContent = badge.text;
+      
+      // Update subtitle
+      const subtitleEl = utils.qs('.footer-action-card__body p', card);
+      if (subtitleEl && action.subtitle) {
+        const newSubtitle = badge?.text
+          ? `${action.subtitle} • ${badge.text} ${action.badgeKey === 'checklist' ? 'remaining' : 'saved'}`
+          : action.subtitle;
+        subtitleEl.textContent = newSubtitle;
+      }
     });
   }
 
   // ---------------------------
-  // Init / Cleanup
+  // Init & Cleanup
   // ---------------------------
   function cleanup() {
     cleanupFns.forEach(fn => {
-      try { fn(); } catch { /* no-op */ }
+      try { 
+        fn(); 
+      } catch (error) {
+        console.error('Cleanup error:', error);
+      }
     });
     cleanupFns = [];
+    
+    BadgeProvider.clearCache();
+    CruiseState.clearCache();
   }
 
-  function upgradeUI() {
-    init({ enhanced: true });
-  }
-
-  function init({ enhanced = true } = {}) {
+  function init({ enhanced = true, enableTelemetry = false } = {}) {
+    // Clean up any previous instances
     cleanup();
-
-    injectRCClStyles();
-    if (enhanced) {
-      injectEnhancedStyles();
-      injectRippleStyles();
-    }
+    
+    // Initialize systems
+    Telemetry.init(enableTelemetry);
     ThemeManager.init();
-    if (enhanced) {
-      renderEnhancedHeader();
-      renderEnhancedFooter();
-    } else {
-      renderHeader();
-      renderFooter();
-    }
+    
+    // Inject styles
+    injectRCCLStyles();
+    
+    // Render components
+    renderHeader();
+    renderFooter();
     renderBottomNav();
-
+    
+    // Initialize interactions
     initHeaderInteractions();
     initFooterInteractions();
     initHeroObserver();
     initKeyboardShortcuts();
-    if (enhanced) initEnhancedInteractions();
-
+    initLazyEffects();
+    
     const headerMount = utils.qs('.app-header');
-    const transitionsEnabled = document.body?.dataset?.transitions === 'true';
+    const transitionsEnabled = headerMount?.dataset?.transitions === 'true' || 
+                              document.body?.dataset?.transitions === 'true';
     initPageTransitions(transitionsEnabled);
-
+    
     ThemeManager.syncToggleUI();
     refreshBadgesInDOM();
-
-    // Auto-refresh on storage updates
-    const onStorage = (e) => {
-      if (!e || !e.key) return;
-      if (e.key === 'cruise-checklist' || e.key === 'cruise-dining') refreshBadgesInDOM();
-      if (e.key === ThemeManager.key) ThemeManager.apply(localStorage.getItem(ThemeManager.key) || 'system', { silent: true });
-    };
-    on(window, 'storage', onStorage);
-
+    
+    // Subscribe to storage updates
+    const unsubscribeState = CruiseState.subscribe((key) => {
+      if (key === 'cruise-checklist' || key === 'cruise-dining') {
+        BadgeProvider.refresh();
+        refreshBadgesInDOM();
+      }
+    });
+    
+    cleanupFns.push(() => CruiseState.unsubscribe(unsubscribeState));
+    
     // Expose API
-    window.SharedLayout = {
+    window.SharedLayoutRCCL = {
       utils,
       ThemeManager,
+      CruiseState,
+      BadgeProvider,
+      Telemetry,
       NAV_ITEMS,
       FOOTER_SECTIONS,
       RCCL_COLORS,
-      renderBottomNav: () => renderBottomNav(),
-      refresh: () => init({ enhanced: true }),
-      refreshBadges: () => refreshBadgesInDOM(),
-      destroy: () => cleanup(),
-      upgradeUI: () => upgradeUI(),
-      renderEnhancedHeader,
-      renderEnhancedFooter,
+      capabilities,
+      
+      // Public methods
+      refresh: () => init({ enhanced, enableTelemetry }),
+      refreshBadges: () => {
+        BadgeProvider.refresh();
+        refreshBadgesInDOM();
+      },
+      updateTheme: (theme) => ThemeManager.apply(theme),
+      openMobileMenu: () => {
+        const toggle = utils.qs('.mobile-menu-toggle');
+        if (toggle && toggle.getAttribute('aria-expanded') === 'false') {
+          toggle.click();
+        }
+      },
+      closeMobileMenu: () => {
+        const toggle = utils.qs('.mobile-menu-toggle');
+        if (toggle && toggle.getAttribute('aria-expanded') === 'true') {
+          toggle.click();
+        }
+      },
+      destroy: cleanup,
+      
+      // Version info
+      version: '2.0.0',
+      buildDate: '2024-01-15'
     };
+    
+    Telemetry.track('layout_loaded', {
+      enhanced,
+      theme: ThemeManager.current,
+      capabilities: Object.keys(capabilities).filter(k => capabilities[k] && typeof capabilities[k] !== 'function')
+    });
+  }
+
+  // ---------------------------
+  // Service Worker Registration (Optional)
+  // ---------------------------
+  function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', {
+          scope: '/',
+          updateViaCache: 'none'
+        }).then(reg => {
+          console.log('Service Worker registered for scope:', reg.scope);
+        }).catch(error => {
+          console.log('Service Worker registration failed:', error);
+        });
+      });
+    }
   }
 
   // ---------------------------
   // Boot
   // ---------------------------
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+      registerServiceWorker();
+    }, { once: true });
   } else {
     init();
+    registerServiceWorker();
   }
+
+  // Global error handler for layout
+  window.addEventListener('error', (event) => {
+    if (event.target && (event.target.tagName === 'LINK' || event.target.tagName === 'SCRIPT')) {
+      console.error('Layout resource failed to load:', event.target.src || event.target.href);
+    }
+  });
+
+  // Provide a way to reinitialize if needed
+  window.addEventListener('shared-layout:refresh', () => {
+    init();
+  });
 })();
