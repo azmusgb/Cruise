@@ -1,1218 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#0b1224" />
-<title>Dining | Adventure of the Seas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dining | Adventure of the Seas</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Fonts + Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<style>
-/* ==========================================================================
-   DINING — MOBILE-FIRST, CONTENT-FIRST
-   - Base: phones
-   - Desktop earns split layout + persistent map pane
-   ========================================================================== */
+  <!-- Shared Styles -->
+  <link rel="stylesheet" href="styles.css">
 
-:root{
-  --bg0:#070b16;
-  --bg1:#0b1224;
-  --panel:#0e1833;
-  --card:#0a1023;
-  --text:#e8edf7;
-  --muted:#9fb0d0;
-  --muted2:#7f92b5;
-  --accent:#43c7ff;
-  --accent2:#7c4dff;
-  --good:#37d67a;
-  --warn:#ffcc66;
-  --border:rgba(255,255,255,.09);
-
-  --shadow: 0 18px 40px rgba(0,0,0,.45);
-  --radius: 16px;
-  --radius-sm: 12px;
-
-  --s1:.5rem;
-  --s2:.75rem;
-  --s3:1rem;
-  --s4:1.5rem;
-  --s5:2.25rem;
-  --s6:3rem;
-
-  --container: 1180px;
-
-  --focus: 0 0 0 3px rgba(67,199,255,.28);
-}
-
-*{ box-sizing:border-box; }
-html, body{ height:100%; }
-body{
-  margin:0;
-  color:var(--text);
-  background:
-    radial-gradient(900px 500px at 15% -10%, rgba(124,77,255,.22), transparent 60%),
-    radial-gradient(900px 500px at 90% 0%, rgba(67,199,255,.18), transparent 60%),
-    linear-gradient(180deg, var(--bg0), var(--bg1));
-  font-family:"Source Sans Pro", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  line-height:1.45;
-}
-
-/* Accessibility */
-:focus-visible{ outline:none; box-shadow:var(--focus); border-radius:10px; }
-
-.container{
-  width:100%;
-  max-width:var(--container);
-  margin:0 auto;
-  padding: 0 var(--s3);
-}
-
-a{ color:inherit; }
-button{ font-family:inherit; }
-
-/* ==========================================================================
-   HERO (mobile-first: context + single primary action)
-   ========================================================================== */
-.hero{
-  padding: var(--s6) 0 var(--s4);
-}
-.hero__kicker{
-  display:inline-flex;
-  gap:.5rem;
-  align-items:center;
-  padding:.35rem .65rem;
-  border:1px solid var(--border);
-  border-radius:999px;
-  color:var(--muted);
-  background: rgba(255,255,255,.04);
-  font-weight:600;
-  font-size:.85rem;
-}
-.hero__kicker i{ color: var(--accent); }
-.hero h1{
-  font-family:Montserrat, system-ui, sans-serif;
-  letter-spacing:-.02em;
-  font-weight:800;
-  margin: var(--s3) 0 var(--s2);
-  font-size: 2.05rem;
-  line-height:1.08;
-}
-.hero p{
-  margin:0 0 var(--s3);
-  color:var(--muted);
-  max-width: 46rem;
-}
-.hero__actions{
-  display:flex;
-  flex-direction:column;
-  gap: var(--s2);
-}
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:.55rem;
-  border-radius: 14px;
-  padding: .95rem 1rem;
-  border:1px solid transparent;
-  cursor:pointer;
-  text-decoration:none;
-  user-select:none;
-  font-weight:700;
-}
-.btn--primary{
-  background: linear-gradient(135deg, rgba(67,199,255,1), rgba(124,77,255,1));
-  color: #050913;
-  box-shadow: 0 14px 28px rgba(67,199,255,.12), 0 14px 28px rgba(124,77,255,.10);
-}
-.btn--secondary{
-  background: rgba(255,255,255,.06);
-  border-color: var(--border);
-  color: var(--text);
-}
-.btn--ghost{
-  background: transparent;
-  border-color: var(--border);
-  color: var(--text);
-}
-.btn:active{ transform: translateY(1px); }
-
-/* ==========================================================================
-   TOOLBAR (search + filters) — phone-first vertical
-   ========================================================================== */
-.toolbar{
-  margin-top: var(--s4);
-  background: rgba(255,255,255,.035);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--s3);
-  box-shadow: var(--shadow);
-}
-
-.searchRow{
-  display:flex;
-  gap: var(--s2);
-  flex-direction: column;
-}
-.search{
-  display:flex;
-  gap:.65rem;
-  align-items:center;
-  padding: .9rem 1rem;
-  border-radius: 14px;
-  background: rgba(0,0,0,.22);
-  border: 1px solid rgba(255,255,255,.10);
-}
-.search i{ color: var(--muted2); }
-.search input{
-  flex:1;
-  background: transparent;
-  border:none;
-  outline:none;
-  color: var(--text);
-  font-size: 1rem;
-}
-.pills{
-  display:flex;
-  flex-wrap:wrap;
-  gap:.5rem;
-  margin-top: var(--s2);
-}
-.pill{
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.04);
-  color: var(--muted);
-  padding: .45rem .7rem;
-  border-radius: 999px;
-  font-weight:700;
-  font-size: .85rem;
-  cursor:pointer;
-}
-.pill[aria-pressed="true"]{
-  color: var(--text);
-  border-color: rgba(67,199,255,.55);
-  background: rgba(67,199,255,.12);
-}
-
-/* Filters */
-.filters{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: var(--s2);
-  margin-top: var(--s3);
-}
-.select{
-  background: rgba(0,0,0,.22);
-  border: 1px solid rgba(255,255,255,.10);
-  border-radius: 14px;
-  padding: .75rem .9rem;
-  color: var(--text);
-  font-weight:700;
-}
-.select label{
-  display:block;
-  font-size:.8rem;
-  color: var(--muted);
-  margin-bottom:.35rem;
-  font-weight:700;
-}
-.select select{
-  width:100%;
-  background: transparent;
-  border:none;
-  outline:none;
-  color: var(--text);
-  font-size: 1rem;
-  appearance: none;
-  cursor:pointer;
-}
-
-/* ==========================================================================
-   MAIN LAYOUT — phone = single column
-   ========================================================================== */
-.main{
-  padding: var(--s4) 0 var(--s6);
-}
-.layout{
-  display:block;
-}
-
-/* ==========================================================================
-   SECTION HEAD
-   ========================================================================== */
-.sectionHead{
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap: var(--s3);
-  margin: var(--s5) 0 var(--s3);
-}
-.sectionHead h2{
-  font-family:Montserrat, system-ui, sans-serif;
-  font-weight:800;
-  margin:0;
-  font-size: 1.35rem;
-}
-.sectionHead .hint{
-  color: var(--muted);
-  font-weight:700;
-  font-size: .9rem;
-}
-
-/* ==========================================================================
-   GRID — phone-first 1 col
-   ========================================================================== */
-.grid{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: var(--s4);
-}
-
-/* ==========================================================================
-   CARD — strict internal hierarchy (title → meta → summary → actions)
-   ========================================================================== */
-.card{
-  background: linear-gradient(180deg, rgba(14,24,51,.95), rgba(10,16,35,.98));
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow:hidden;
-}
-.card__top{
-  padding: var(--s3);
-  display:flex;
-  flex-direction:column;
-  gap: .45rem;
-}
-.card__titleRow{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap: var(--s2);
-}
-.card h3{
-  margin:0;
-  font-size: 1.15rem;
-  letter-spacing: -.01em;
-}
-.badges{
-  display:flex;
-  flex-wrap:wrap;
-  gap:.35rem;
-  justify-content:flex-end;
-}
-.badge{
-  padding:.25rem .55rem;
-  border-radius:999px;
-  font-weight:800;
-  font-size:.75rem;
-  border:1px solid var(--border);
-  background: rgba(255,255,255,.04);
-  color: var(--muted);
-  white-space: nowrap;
-}
-.badge--included{ border-color: rgba(55,214,122,.45); background: rgba(55,214,122,.12); color: #c9f8dd; }
-.badge--specialty{ border-color: rgba(255,204,102,.45); background: rgba(255,204,102,.12); color: #fff0cf; }
-.badge--quick{ border-color: rgba(67,199,255,.45); background: rgba(67,199,255,.10); color: #d8f5ff; }
-
-.meta{
-  display:flex;
-  flex-wrap:wrap;
-  gap: .5rem .75rem;
-  color: var(--muted);
-  font-weight:700;
-  font-size: .9rem;
-}
-.meta i{ color: var(--muted2); }
-
-.summary{
-  margin-top: .2rem;
-  color: var(--text);
-  opacity: .92;
-}
-
-.card__mid{
-  padding: 0 var(--s3) var(--s3);
-  display:grid;
-  gap: var(--s2);
-}
-.kv{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: var(--s2);
-}
-.kvRow{
-  display:flex;
-  gap: .6rem;
-  align-items:flex-start;
-  padding: .7rem .85rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(0,0,0,.20);
-}
-.kvRow i{ color: var(--accent); margin-top: .15rem; }
-.kvRow b{ display:block; }
-.kvRow span{ color: var(--muted); font-weight:600; }
-
-.card__actions{
-  padding: var(--s3);
-  border-top: 1px solid rgba(255,255,255,.08);
-  display:flex;
-  flex-direction:column;
-  gap: var(--s2);
-}
-.card__actions .btn{ width:100%; }
-
-/* ==========================================================================
-   EMPTY / LOADING
-   ========================================================================== */
-.state{
-  margin-top: var(--s3);
-  padding: var(--s4);
-  border-radius: var(--radius);
-  border: 1px dashed rgba(255,255,255,.16);
-  background: rgba(255,255,255,.03);
-  color: var(--muted);
-  font-weight:700;
-}
-
-/* ==========================================================================
-   MAP PANE — deferred on mobile
-   ========================================================================== */
-.mapLaunch{
-  margin-top: var(--s4);
-}
-.mapPane{
-  display:none;
-}
-
-/* ==========================================================================
-   MODAL
-   ========================================================================== */
-.modal{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  padding: var(--s3);
-  background: rgba(0,0,0,.55);
-  z-index: 50;
-}
-.modal[aria-hidden="false"]{ display:flex; }
-.modal__sheet{
-  width:100%;
-  max-width: 720px;
-  background: linear-gradient(180deg, rgba(16,26,52,.98), rgba(8,12,26,.98));
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 18px;
-  box-shadow: 0 30px 80px rgba(0,0,0,.65);
-  overflow:hidden;
-}
-.modal__head{
-  padding: var(--s3);
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap: var(--s2);
-  border-bottom: 1px solid rgba(255,255,255,.08);
-}
-.modal__head h3{
-  margin:0;
-  font-family:Montserrat, system-ui, sans-serif;
-  font-weight:800;
-}
-.modal__body{
-  padding: var(--s3);
-  color: var(--text);
-}
-.modal__body p{ margin: 0 0 var(--s2); color: var(--muted); }
-.modal__close{
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.12);
-  color: var(--text);
-  border-radius: 12px;
-  padding: .6rem .75rem;
-  cursor:pointer;
-}
-
-/* ==========================================================================
-   TABLET/DESKTOP ENHANCEMENTS
-   ========================================================================== */
-@media (min-width: 520px){
-  .searchRow{ flex-direction: row; align-items: stretch; }
-}
-
-@media (min-width: 768px){
-  .hero h1{ font-size: 2.6rem; }
-  .hero__actions{ flex-direction: row; }
-  .hero__actions .btn{ width:auto; }
-  .filters{ grid-template-columns: repeat(3, 1fr); }
-  .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .kv{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .modal{ align-items:center; }
-}
-
-@media (min-width: 1024px){
-  .layout{
-    display:grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2.25rem;
-    align-items:start;
-  }
-  .mapPane{
-    display:block;
-    position:sticky;
-    top: 18px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: rgba(255,255,255,.035);
-    box-shadow: var(--shadow);
-    overflow:hidden;
-  }
-  .mapPane__head{
-    padding: var(--s3);
-    border-bottom: 1px solid rgba(255,255,255,.08);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: var(--s2);
-  }
-  .mapPane__head b{ font-family:Montserrat, system-ui, sans-serif; }
-  .mapPane__body{
-    padding: var(--s3);
-  }
-  .mapLaunch{ display:none; }
-}
-</style>
+  <!-- Shared Layout -->
+  <script src="shared-layout.js" defer></script>
 </head>
 
 <body>
 
-<header class="hero">
-  <div class="container">
-    <div class="hero__kicker"><i class="fa-solid fa-compass"></i> Adventure of the Seas · Dining</div>
-    <h1>Eat like you planned this.</h1>
-    <p>Included dining, specialty restaurants, and quick bites—organized so you can pick fast and move on with your day (or your nap).</p>
+<!-- Shared Header -->
+<div id="sharedHeader"
+     data-page="dining"
+     data-brand="The Royal Way Hub"
+     data-ship="Adventure of the Seas"
+     data-sailing="Feb 14–20, 2026"
+     data-port="Port Canaveral"
+     data-hero-progress="true">
+</div>
 
-    <div class="hero__actions">
-      <button class="btn btn--primary" id="jumpToVenues"><i class="fa-solid fa-utensils"></i> Browse venues</button>
-      <button class="btn btn--secondary" id="openMap"><i class="fa-solid fa-map-location-dot"></i> Open dining map</button>
-    </div>
+<main id="main">
 
-    <div class="toolbar" id="toolbar">
-      <div class="searchRow">
-        <div class="search" role="search">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search: chops, pizza, sushi, coffee…" aria-label="Search dining venues">
-          <button class="btn btn--ghost" id="clearSearch" style="padding:.65rem .8rem;border-radius:12px;">
-            <i class="fa-solid fa-xmark"></i>
-            Clear
-          </button>
-        </div>
-        <button class="btn btn--secondary" id="resetAll"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-      </div>
+  <!-- HERO -->
+  <section class="app-hero">
+    <div class="app-hero__inner">
+      <span class="app-hero__context">
+        <i class="fas fa-utensils"></i>
+        Premium Dining Experience
+      </span>
 
-      <div class="pills" aria-label="Dining categories">
-        <button class="pill" data-tab="included" aria-pressed="true"><i class="fa-solid fa-circle-check"></i> Included</button>
-        <button class="pill" data-tab="specialty" aria-pressed="false"><i class="fa-solid fa-star"></i> Specialty</button>
-        <button class="pill" data-tab="quick" aria-pressed="false"><i class="fa-solid fa-bolt"></i> Quick bites</button>
-      </div>
+      <h1 class="app-hero__title">Savor Every Moment</h1>
 
-      <div class="filters" aria-label="Filters">
-        <div class="select">
-          <label for="meal">Meal</label>
-          <select id="meal">
-            <option value="">Any</option>
-            <option value="breakfast">Breakfast</option>
-            <option value="lunch">Lunch</option>
-            <option value="dinner">Dinner</option>
-            <option value="late">Late-night</option>
-          </select>
-        </div>
-        <div class="select">
-          <label for="deck">Deck</label>
-          <select id="deck">
-            <option value="">Any</option>
-          </select>
-        </div>
-        <div class="select">
-          <label for="type">Type</label>
-          <select id="type">
-            <option value="">Any</option>
-            <option value="table-service">Table service</option>
-            <option value="buffet">Buffet</option>
-            <option value="pizza">Pizza</option>
-            <option value="coffee">Coffee & snacks</option>
-            <option value="burger">Burgers & shakes</option>
-            <option value="sushi">Sushi / Japanese</option>
-            <option value="steakhouse">Steakhouse</option>
-            <option value="experience">Dining experience</option>
-            <option value="room-service">Room service</option>
-          </select>
-        </div>
+      <p class="app-hero__meta">
+        From elegant specialty restaurants to casual grab‑and‑go favorites,
+        explore every dining venue aboard <strong>Adventure of the Seas</strong>.
+      </p>
+
+      <div class="status-pill">
+        <i class="fas fa-clock"></i>
+        Upcoming: Chops Grille • Day 5 at 7:00 PM
       </div>
     </div>
-  </div>
-</header>
+  </section>
 
-<main class="main">
-  <div class="container layout">
-    <section aria-label="Dining venues">
-      <div class="sectionHead">
-        <h2 id="venuesTop">Venues</h2>
-        <div class="hint" id="resultsHint">—</div>
+  <!-- HERO SUPPORT -->
+  <section class="hero-support hero-support--compact">
+    <p class="hero-support__note">
+      Reservations confirmed: Main Dining Room nightly at 5:30 PM • Chops Grille Day 5 at 7:00 PM
+    </p>
+    <div class="hero-actions">
+      <button class="btn btn-primary">
+        <i class="fas fa-calendar-plus"></i>
+        Make Reservation
+      </button>
+      <button class="btn btn-secondary">
+        <i class="fas fa-book-open"></i>
+        View Menus
+      </button>
+    </div>
+  </section>
+
+  <!-- QUICK STATS -->
+  <section class="container">
+    <div class="quick-stats">
+      <div class="stat-card">
+        <i class="fas fa-utensils"></i>
+        <div><h3>14</h3><p>Restaurants & Cafés</p></div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-star"></i>
+        <div><h3>5</h3><p>Specialty Dining</p></div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-calendar-check"></i>
+        <div><h3>2</h3><p>Active Reservations</p></div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-mug-hot"></i>
+        <div><h3>24/7</h3><p>Café Access</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN LAYOUT -->
+  <section class="container main-layout">
+
+    <!-- LEFT COLUMN -->
+    <div class="main-content">
+
+      <!-- DINING TABS -->
+      <div class="dining-tabs">
+        <button class="dining-tab active" data-tab="included">Included</button>
+        <button class="dining-tab" data-tab="specialty">Specialty</button>
+        <button class="dining-tab" data-tab="casual">Cafés</button>
+        <button class="dining-tab" data-tab="reservations">Reservations</button>
+        <button class="dining-tab" data-tab="packages">Packages</button>
+        <button class="dining-tab" data-tab="info">Info</button>
       </div>
 
-      <div class="grid" id="grid"></div>
-      <div class="state" id="state" hidden></div>
-
-      <div class="mapLaunch">
-        <button class="btn btn--secondary" style="width:100%" id="openMap2">
-          <i class="fa-solid fa-map-location-dot"></i> Open dining map
-        </button>
-      </div>
-    </section>
-
-    <aside class="mapPane" aria-label="Dining map panel">
-      <div class="mapPane__head">
-        <b><i class="fa-solid fa-map"></i> Dining map</b>
-        <button class="btn btn--ghost" id="mapHow" style="padding:.55rem .7rem;border-radius:12px;">
-          <i class="fa-solid fa-circle-info"></i> How
-        </button>
-      </div>
-      <div class="mapPane__body">
-        <p style="margin:0 0 var(--s2); color: var(--muted); font-weight:700;">
-          This pane is the desktop “at-a-glance” locator. On mobile, use “Open dining map.”
-        </p>
-
-        <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18); padding:var(--s3);">
-          <div style="display:flex; gap:.6rem; align-items:flex-start;">
-            <i class="fa-solid fa-location-dot" style="color:var(--accent); margin-top:.15rem;"></i>
-            <div>
-              <b>Hook point</b>
-              <div style="color:var(--muted); font-weight:600;">
-                Wire this into your existing deck SVG modal/pan-zoom page. You can also deep-link to the official RC deck-plan view.
-              </div>
-            </div>
-          </div>
-          <div style="margin-top:var(--s3); display:flex; flex-direction:column; gap:.6rem;">
-            <a class="btn btn--secondary" href="#" id="jumpDeckPlans"><i class="fa-solid fa-up-right-from-square"></i> Deck plans</a>
-            <button class="btn btn--secondary" id="openMap3"><i class="fa-solid fa-layer-group"></i> Open map modal</button>
+      <!-- INCLUDED DINING -->
+      <section id="included-tab" class="dining-tab-content active">
+        <div class="card">
+          <div class="card-header"><h2>Included Dining</h2></div>
+          <div class="card-content list-spaced">
+            <ul>
+              <li><strong>Main Dining Room</strong> — Traditional seating • Decks 3–4 • 5:30 PM nightly</li>
+              <li><strong>Windjammer Marketplace</strong> — Global buffet • Deck 11 • Breakfast, Lunch & Dinner</li>
+              <li><strong>Sorrento’s Pizza</strong> — Late‑night pizza • Royal Promenade</li>
+              <li><strong>Café Promenade</strong> — Snacks & coffee • 24/7</li>
+              <li><strong>Room Service</strong> — Continental breakfast included</li>
+            </ul>
           </div>
         </div>
+      </section>
+
+      <!-- SPECIALTY DINING -->
+      <section id="specialty-tab" class="dining-tab-content">
+        <div class="card card--premium">
+          <div class="card-header"><h2>Specialty Dining</h2></div>
+          <div class="card-content list-spaced">
+            <ul>
+              <li><strong>Chops Grille</strong> — Premium steakhouse • Reserved Day 5 @ 7:00 PM</li>
+              <li><strong>Giovanni’s Table</strong> — Italian classics • Reservation recommended</li>
+              <li><strong>Izumi Hibachi & Sushi</strong> — Japanese cuisine • Extra charge</li>
+              <li><strong>Chef’s Table</strong> — Multi‑course tasting • Limited seating</li>
+              <li><strong>Johnny Rockets</strong> — Casual burgers • À la carte</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- CAFÉS -->
+      <section id="casual-tab" class="dining-tab-content">
+        <div class="card">
+          <div class="card-header"><h2>Cafés & Quick Bites</h2></div>
+          <div class="card-content list-spaced">
+            <ul>
+              <li>Café Promenade — Coffee, pastries, sandwiches</li>
+              <li>Ben & Jerry’s — Ice cream (extra charge)</li>
+              <li>Poolside Grill — Burgers, hot dogs, fries</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESERVATIONS -->
+      <section id="reservations-tab" class="dining-tab-content">
+        <div class="card">
+          <div class="card-header"><h2>My Reservations</h2></div>
+          <div class="card-content">
+            <table class="reservations-table">
+              <thead>
+                <tr>
+                  <th>Venue</th>
+                  <th>Day</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Main Dining Room</td>
+                  <td>Daily</td>
+                  <td>5:30 PM</td>
+                  <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                </tr>
+                <tr>
+                  <td>Chops Grille</td>
+                  <td>Day 5</td>
+                  <td>7:00 PM</td>
+                  <td><span class="status-badge status-confirmed">Confirmed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PACKAGES -->
+      <section id="packages-tab" class="dining-tab-content">
+        <div class="card">
+          <div class="card-header"><h2>Dining Packages</h2></div>
+          <div class="card-content list-spaced">
+            <ul>
+              <li><strong>Unlimited Dining Package</strong> — Access to multiple specialty venues</li>
+              <li><strong>3‑Night Dining Package</strong> — Discounted specialty dining</li>
+              <li><strong>À la carte</strong> — Pay per venue</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- INFO -->
+      <section id="info-tab" class="dining-tab-content">
+        <div class="card card--info">
+          <div class="card-header"><h2>Dietary, Dress Code & Notes</h2></div>
+          <div class="card-content list-spaced">
+            <h4>Dietary Accommodations</h4>
+            <p>Vegetarian, vegan, gluten‑free, and allergy‑friendly options are available. Notify dining staff in advance.</p>
+
+            <h4>Dress Code</h4>
+            <ul>
+              <li>Casual — Most nights</li>
+              <li>Smart Casual — Select evenings</li>
+              <li>Formal — Typically Day 2 & Day 5</li>
+            </ul>
+
+            <h4>Important Notes</h4>
+            <ul>
+              <li>Specialty dining reservations are highly recommended.</li>
+              <li>Arrival day dining may operate on modified hours.</li>
+              <li>Menus and hours subject to change.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="stack">
+      <div class="card card--highlight">
+        <h3>Tonight</h3>
+        <p>Main Dining Room • 5:30 PM</p>
+      </div>
+
+      <div class="card">
+        <h3>Next Reservation</h3>
+        <p>Chops Grille • Day 5</p>
+      </div>
+
+      <div class="card">
+        <h3>Quick Tips</h3>
+        <ul>
+          <li>Arrive early on formal nights</li>
+          <li>Check the app daily for menu updates</li>
+          <li>Room service available late night</li>
+        </ul>
       </div>
     </aside>
-  </div>
+
+  </section>
+
 </main>
 
-<!-- DETAILS MODAL -->
-<div class="modal" id="detailsModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Venue details">
-  <div class="modal__sheet">
-    <div class="modal__head">
-      <div>
-        <h3 id="mTitle">Venue</h3>
-        <div id="mMeta" style="color:var(--muted); font-weight:700; margin-top:.35rem;"></div>
-      </div>
-      <button class="modal__close" id="closeDetails"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal__body" id="mBody"></div>
-  </div>
-</div>
+<!-- Shared Footer -->
+<div id="sharedFooter"></div>
 
-<!-- MAP MODAL -->
-<div class="modal" id="mapModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Dining map">
-  <div class="modal__sheet">
-    <div class="modal__head">
-      <div>
-        <h3>Dining Map</h3>
-        <div style="color:var(--muted); font-weight:700; margin-top:.35rem;">Use your deck SVG viewer for true navigation.</div>
-      </div>
-      <button class="modal__close" id="closeMap"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal__body">
-      <p>Best practice: open your existing <b>Deck Plans</b> page and deep-link to the right deck + highlight the venue.</p>
-      <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18); padding:var(--s3);">
-        <b>Map integration slot</b>
-        <div style="color:var(--muted); font-weight:600; margin-top:.35rem;">
-          Drop your SVG deck viewer iframe / inline SVG here, or route to <code>decks.html#venue=izumi</code>.
-        </div>
-        <div style="margin-top:var(--s3); display:flex; flex-direction:column; gap:.6rem;">
-          <a class="btn btn--primary" href="#" id="goDecks"><i class="fa-solid fa-map"></i> Go to Deck Plans</a>
-          <button class="btn btn--secondary" id="copyVenueLink"><i class="fa-solid fa-link"></i> Copy venue deep-link</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-'use strict';
-
-/* ==========================================================================
-   DATA — ship-specific venues
-   Notes:
-   - Deck numbers included ONLY where we have strong source coverage.
-   - Hours can be updated from the Royal Caribbean app once onboard.
-   ========================================================================== */
-
-const VENUES = [
-  // INCLUDED
-  {
-    id: 'mdr',
-    name: 'Main Dining Room',
-    tab: 'included',
-    type: 'table-service',
-    deck: null,
-    meals: ['breakfast','lunch','dinner'],
-    hours: 'Varies by sailing (check RC app)',
-    tags: ['classic','rotating menu','assigned time'],
-    summary: 'Classic sit-down dining with nightly rotating menus.',
-    goodFor: 'A real dinner that feels like dinner.',
-    whatToOrder: 'Ask your server for the nightly favorites + dessert recommendations.',
-    notes: 'Some meals may be offered on select days only.',
-    sourceHint: 'RC ship dining guide lists Main Dining Room as a top option.'
-  },
-  {
-    id: 'windjammer',
-    name: 'Windjammer Café',
-    tab: 'included',
-    type: 'buffet',
-    deck: null,
-    meals: ['breakfast','lunch','dinner'],
-    hours: 'Open hours vary (check RC app)',
-    tags: ['buffet','variety','fast'],
-    summary: 'Global buffet with rotating stations and easy in-and-out meals.',
-    goodFor: 'Kids, picky eaters, and “I need food now.”',
-    whatToOrder: 'Do one “lap” to scout before committing.',
-    notes: 'Crowds spike right after shows and port returns.'
-  },
-  {
-    id: 'cafe-promenade',
-    name: 'Café Promenade',
-    tab: 'included',
-    type: 'coffee',
-    deck: 5,
-    meals: ['breakfast','lunch','dinner','late'],
-    hours: 'Often extended hours (check RC app)',
-    tags: ['snacks','sandwiches','coffee','24-ish'],
-    summary: 'Grab-and-go snacks, coffee, and small bites on the Promenade.',
-    goodFor: 'Between-meal hunger and “we missed dinner.”',
-    whatToOrder: 'Coffee + whatever snack looks freshest.',
-    notes: 'Great fallback when timing gets weird.',
-    verified: 'Deck 5 location'
-  },
-  {
-    id: 'sorrentos',
-    name: 'Sorrento’s Pizza',
-    tab: 'included',
-    type: 'pizza',
-    deck: null,
-    meals: ['lunch','dinner','late'],
-    hours: 'Late-night friendly (check RC app)',
-    tags: ['pizza','late-night','quick'],
-    summary: 'Classic slices and quick fuel—especially after shows.',
-    goodFor: 'Late-night cravings and post-activity refuel.',
-    whatToOrder: 'Grab two slices and pretend one is for later.',
-    notes: 'Lines move fast; seating comes and goes.'
-  },
-  {
-    id: 'room-service',
-    name: 'Room Service',
-    tab: 'included',
-    type: 'room-service',
-    deck: null,
-    meals: ['breakfast','lunch','dinner','late'],
-    hours: '24/7 availability (fees may apply)',
-    tags: ['in-room','lazy mode','family'],
-    summary: 'Food delivered to the room—perfect for regrouping or crashing early.',
-    goodFor: 'Kids, naps, and “do not perceive me” mornings.',
-    whatToOrder: 'Simple comfort items + breakfast basics.',
-    notes: 'Details/fees vary by sailing and menu.'
-  },
-
-  // SPECIALTY (paid / reservation)
-  {
-    id: 'chops',
-    name: 'Chops Grille',
-    tab: 'specialty',
-    type: 'steakhouse',
-    deck: 4,
-    meals: ['dinner'],
-    hours: 'Dinner (check RC app)',
-    tags: ['steakhouse','celebration','premium'],
-    summary: 'Signature Royal Caribbean steakhouse—your “big night” pick.',
-    goodFor: 'Celebrations and people who mean business about steak.',
-    whatToOrder: 'Steak + classic sides; ask about specialties.',
-    notes: 'Reservations recommended.',
-    verified: 'Deck 4 location'
-  },
-  {
-    id: 'izumi',
-    name: 'Izumi',
-    tab: 'specialty',
-    type: 'sushi',
-    deck: 5,
-    meals: ['lunch','dinner'],
-    hours: 'Lunch & dinner (check RC app)',
-    tags: ['sushi','japanese','small plates'],
-    summary: 'Sushi, sashimi, and Japanese small plates.',
-    goodFor: 'A lighter meal or a change from cruise-heavy.',
-    whatToOrder: 'Pick a roll + one warm dish; balance the textures.',
-    notes: 'Some sailings offer à la carte or package options.',
-    verified: 'Deck 5 location'
-  },
-  {
-    id: 'giovannis',
-    name: 'Giovanni’s Table',
-    tab: 'specialty',
-    type: 'table-service',
-    deck: 11,
-    meals: ['dinner'],
-    hours: 'Dinner (check RC app)',
-    tags: ['italian','family-style','comfort'],
-    summary: 'Rustic Italian favorites in a warm trattoria vibe.',
-    goodFor: 'Groups who want a “safe win” dinner.',
-    whatToOrder: 'Go family-style if offered; lean into pasta + mains.',
-    notes: 'Reservations recommended.',
-    verified: 'Deck 11 location'
-  },
-  {
-    id: 'johnny-rockets',
-    name: 'Johnny Rockets',
-    tab: 'specialty',
-    type: 'burger',
-    deck: 12,
-    meals: ['lunch','dinner'],
-    hours: 'Lunch & dinner (check RC app)',
-    tags: ['burgers','milkshakes','kids'],
-    summary: 'Burgers, fries, and shakes—classic diner comfort.',
-    goodFor: 'Kids and “I just want a burger” energy.',
-    whatToOrder: 'Burger + shake. No regrets.',
-    notes: 'May have a cover charge depending on sailing.'
-  },
-  {
-    id: 'chefs-table',
-    name: 'Chef’s Table',
-    tab: 'specialty',
-    type: 'experience',
-    deck: null,
-    meals: ['dinner'],
-    hours: 'Limited seatings (check RC app)',
-    tags: ['tasting','wine pairings','experience'],
-    summary: 'Multi-course tasting dinner—small group, higher ceremony.',
-    goodFor: 'Foodies and anniversary-energy.',
-    whatToOrder: 'You don’t order—you surrender to the chef.',
-    notes: 'Reserve early; limited seats.'
-  },
-
-  // QUICK BITES (fast + casual)
-  {
-    id: 'quick-rotation',
-    name: 'Quick bites (varies by area)',
-    tab: 'quick',
-    type: 'coffee',
-    deck: null,
-    meals: ['breakfast','lunch','late'],
-    hours: 'Varies by location',
-    tags: ['grab-and-go','snacks','flex'],
-    summary: 'Use this tab for the “we need something now” strategy.',
-    goodFor: 'When plans collapse and hunger wins.',
-    whatToOrder: 'Whatever is fastest and least messy.',
-    notes: 'You can expand this list with ship-specific spots you confirm in the RC app.'
-  }
-];
-
-/* ==========================================================================
-   STATE
-   ========================================================================== */
-const state = {
-  tab: 'included',
-  q: '',
-  meal: '',
-  deck: '',
-  type: '',
-  lastVenueId: null
-};
-
-const el = {
-  grid: document.getElementById('grid'),
-  hint: document.getElementById('resultsHint'),
-  empty: document.getElementById('state'),
-  q: document.getElementById('q'),
-  meal: document.getElementById('meal'),
-  deck: document.getElementById('deck'),
-  type: document.getElementById('type'),
-  pills: Array.from(document.querySelectorAll('.pill')),
-  clear: document.getElementById('clearSearch'),
-  reset: document.getElementById('resetAll'),
-
-  detailsModal: document.getElementById('detailsModal'),
-  mTitle: document.getElementById('mTitle'),
-  mMeta: document.getElementById('mMeta'),
-  mBody: document.getElementById('mBody'),
-  closeDetails: document.getElementById('closeDetails'),
-
-  mapModal: document.getElementById('mapModal'),
-  openMap: document.getElementById('openMap'),
-  openMap2: document.getElementById('openMap2'),
-  openMap3: document.getElementById('openMap3'),
-  closeMap: document.getElementById('closeMap'),
-  goDecks: document.getElementById('goDecks'),
-  jumpDeckPlans: document.getElementById('jumpDeckPlans'),
-  copyVenueLink: document.getElementById('copyVenueLink'),
-  mapHow: document.getElementById('mapHow'),
-
-  jumpToVenues: document.getElementById('jumpToVenues'),
-};
-
-function uniq(arr){ return Array.from(new Set(arr)).sort((a,b)=>String(a).localeCompare(String(b))); }
-
-function buildDeckFilter(){
-  const decks = uniq(VENUES.map(v => v.deck).filter(d => d !== null && d !== undefined));
-  const current = el.deck.value;
-  el.deck.innerHTML = '<option value="">Any</option>' + decks.map(d => `<option value="${d}">Deck ${d}</option>`).join('');
-  if (current) el.deck.value = current;
-}
-
-function setTab(tab){
-  state.tab = tab;
-  el.pills.forEach(p => p.setAttribute('aria-pressed', String(p.dataset.tab === tab)));
-  render();
-}
-
-function matchesVenue(v){
-  if (v.tab !== state.tab) return false;
-
-  const q = state.q.trim().toLowerCase();
-  if (q){
-    const hay = [
-      v.name, v.summary, v.type,
-      (v.tags||[]).join(' '),
-      (v.meals||[]).join(' '),
-      v.goodFor || '',
-      v.whatToOrder || '',
-      v.notes || ''
-    ].join(' ').toLowerCase();
-    if (!hay.includes(q)) return false;
-  }
-
-  if (state.meal && !(v.meals||[]).includes(state.meal)) return false;
-  if (state.type && v.type !== state.type) return false;
-
-  if (state.deck){
-    const deckNum = Number(state.deck);
-    if (Number.isFinite(deckNum)){
-      if (v.deck !== deckNum) return false;
-    }
-  }
-
-  return true;
-}
-
-function badgeFor(v){
-  if (v.tab === 'included') return `<span class="badge badge--included">Included</span>`;
-  if (v.tab === 'specialty') return `<span class="badge badge--specialty">Specialty</span>`;
-  return `<span class="badge badge--quick">Quick</span>`;
-}
-
-function iconForType(type){
-  const map = {
-    'table-service': 'fa-solid fa-cloche',
-    'buffet': 'fa-solid fa-layer-group',
-    'pizza': 'fa-solid fa-pizza-slice',
-    'coffee': 'fa-solid fa-mug-saucer',
-    'burger': 'fa-solid fa-burger',
-    'sushi': 'fa-solid fa-fish-fins',
-    'steakhouse': 'fa-solid fa-drumstick-bite',
-    'experience': 'fa-solid fa-champagne-glasses',
-    'room-service': 'fa-solid fa-bell-concierge'
-  };
-  return map[type] || 'fa-solid fa-utensils';
-}
-
-function render(){
-  const filtered = VENUES.filter(matchesVenue);
-
-  el.hint.textContent = `${filtered.length} venue${filtered.length === 1 ? '' : 's'} · ${labelTab(state.tab)}`;
-
-  if (!filtered.length){
-    el.grid.innerHTML = '';
-    el.empty.hidden = false;
-    el.empty.textContent = 'No matches. Try clearing filters or searching for a simpler keyword (e.g., “pizza”, “sushi”, “coffee”).';
-    return;
-  }
-  el.empty.hidden = true;
-
-  el.grid.innerHTML = filtered.map(v => {
-    const deckText = v.deck ? `Deck ${v.deck}` : 'Deck varies';
-    const mealsText = (v.meals||[]).map(m => m[0].toUpperCase() + m.slice(1)).join(' · ');
-    const tags = (v.tags||[]).slice(0,4).map(t => `<span class="badge">${escapeHtml(t)}</span>`).join('');
-
-    const primary = primaryAction(v);
-    const secondary = secondaryAction(v);
-
-    return `
-      <article class="card" data-id="${v.id}">
-        <div class="card__top">
-          <div class="card__titleRow">
-            <h3>${escapeHtml(v.name)}</h3>
-            <div class="badges">
-              ${badgeFor(v)}
-              ${tags}
-            </div>
-          </div>
-
-          <div class="meta">
-            <span><i class="${iconForType(v.type)}"></i> ${labelType(v.type)}</span>
-            <span><i class="fa-solid fa-layer-group"></i> ${deckText}</span>
-            <span><i class="fa-solid fa-clock"></i> ${escapeHtml(v.hours || 'Check RC app')}</span>
-            ${mealsText ? `<span><i class="fa-solid fa-calendar-day"></i> ${escapeHtml(mealsText)}</span>` : ''}
-          </div>
-
-          <div class="summary">${escapeHtml(v.summary)}</div>
-        </div>
-
-        <div class="card__mid">
-          <div class="kv">
-            ${v.goodFor ? kvRow('fa-solid fa-users', 'Good for', v.goodFor) : ''}
-            ${v.whatToOrder ? kvRow('fa-solid fa-wand-magic-sparkles', 'Move', v.whatToOrder) : ''}
-          </div>
-          ${v.notes ? `<div class="kvRow"><i class="fa-solid fa-note-sticky"></i><div><b>Notes</b><span>${escapeHtml(v.notes)}</span></div></div>` : ''}
-        </div>
-
-        <div class="card__actions">
-          ${primary}
-          ${secondary}
-          <button class="btn btn--ghost" data-action="details" data-id="${v.id}">
-            <i class="fa-solid fa-circle-info"></i> Details
-          </button>
-        </div>
-      </article>
-    `;
-  }).join('');
-
-  // Bind actions
-  el.grid.querySelectorAll('[data-action="details"]').forEach(btn => {
-    btn.addEventListener('click', () => openDetails(btn.dataset.id));
-  });
-  el.grid.querySelectorAll('[data-action="map"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.lastVenueId = btn.dataset.id || null;
-      openMap();
-    });
-  });
-  el.grid.querySelectorAll('[data-action="reserve"]').forEach(btn => {
-    btn.addEventListener('click', () => openDetails(btn.dataset.id));
-  });
-}
-
-function primaryAction(v){
-  if (v.tab === 'specialty'){
-    return `<button class="btn btn--primary" data-action="reserve" data-id="${v.id}">
-      <i class="fa-solid fa-calendar-check"></i> Plan / Reserve
-    </button>`;
-  }
-  return `<button class="btn btn--primary" data-action="details" data-id="${v.id}">
-    <i class="fa-solid fa-utensils"></i> See tips & best picks
-  </button>`;
-}
-
-function secondaryAction(v){
-  return `<button class="btn btn--secondary" data-action="map" data-id="${v.id}">
-    <i class="fa-solid fa-map"></i> Locate on ship
-  </button>`;
-}
-
-function kvRow(icon, label, value){
-  return `<div class="kvRow"><i class="${icon}"></i><div><b>${escapeHtml(label)}</b><span>${escapeHtml(value)}</span></div></div>`;
-}
-
-function labelTab(tab){
-  if (tab === 'included') return 'Included';
-  if (tab === 'specialty') return 'Specialty';
-  return 'Quick bites';
-}
-
-function labelType(type){
-  const map = {
-    'table-service': 'Table service',
-    'buffet': 'Buffet',
-    'pizza': 'Pizza',
-    'coffee': 'Coffee & snacks',
-    'burger': 'Burgers & shakes',
-    'sushi': 'Sushi / Japanese',
-    'steakhouse': 'Steakhouse',
-    'experience': 'Dining experience',
-    'room-service': 'Room service'
-  };
-  return map[type] || 'Dining';
-}
-
-function escapeHtml(s){
-  return String(s ?? '')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
-}
-
-/* ==========================================================================
-   MODALS
-   ========================================================================== */
-
-function openDetails(id){
-  const v = VENUES.find(x => x.id === id);
-  if (!v) return;
-
-  el.mTitle.textContent = v.name;
-
-  const metaBits = [];
-  metaBits.push(`${labelTab(v.tab)} · ${labelType(v.type)}`);
-  metaBits.push(v.deck ? `Deck ${v.deck}` : 'Deck varies');
-  if (v.hours) metaBits.push(v.hours);
-  el.mMeta.textContent = metaBits.join(' · ');
-
-  el.mBody.innerHTML = `
-    <div style="display:grid; gap: .75rem;">
-      <div style="padding:1rem; border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18);">
-        <b>Summary</b>
-        <div style="color: var(--muted); font-weight:600; margin-top:.35rem;">${escapeHtml(v.summary)}</div>
-      </div>
-
-      ${v.goodFor ? block('Good for', v.goodFor) : ''}
-      ${v.whatToOrder ? block('Move', v.whatToOrder) : ''}
-      ${v.notes ? block('Notes', v.notes) : ''}
-
-      <div style="display:flex; flex-direction:column; gap:.6rem; margin-top:.25rem;">
-        <button class="btn btn--primary" onclick="document.getElementById('detailsModal').setAttribute('aria-hidden','true'); document.body.style.overflow='';">
-          <i class="fa-solid fa-circle-check"></i> Done
-        </button>
-        <button class="btn btn--secondary" onclick="(function(){ window.__lastVenue='${escapeHtml(v.id)}'; document.getElementById('detailsModal').setAttribute('aria-hidden','true'); document.body.style.overflow=''; document.getElementById('mapModal').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; })()">
-          <i class="fa-solid fa-map"></i> Locate on ship
-        </button>
-      </div>
-    </div>
-  `;
-
-  el.detailsModal.setAttribute('aria-hidden','false');
-  document.body.style.overflow = 'hidden';
-}
-
-function block(title, text){
-  return `
-    <div style="padding:1rem; border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18);">
-      <b>${escapeHtml(title)}</b>
-      <div style="color: var(--muted); font-weight:600; margin-top:.35rem;">${escapeHtml(text)}</div>
-    </div>
-  `;
-}
-
-function closeDetails(){
-  el.detailsModal.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
-}
-function openMap(){
-  el.mapModal.setAttribute('aria-hidden','false');
-  document.body.style.overflow = 'hidden';
-}
-function closeMap(){
-  el.mapModal.setAttribute('aria-hidden','true');
-  document.body.style.overflow = '';
-}
-
-/* ==========================================================================
-   EVENTS
-   ========================================================================== */
-
-el.pills.forEach(p => p.addEventListener('click', () => setTab(p.dataset.tab)));
-
-el.q.addEventListener('input', () => { state.q = el.q.value; render(); });
-el.meal.addEventListener('change', () => { state.meal = el.meal.value; render(); });
-el.deck.addEventListener('change', () => { state.deck = el.deck.value; render(); });
-el.type.addEventListener('change', () => { state.type = el.type.value; render(); });
-
-el.clear.addEventListener('click', () => { el.q.value=''; state.q=''; render(); el.q.focus(); });
-
-el.reset.addEventListener('click', () => {
-  state.q=''; state.meal=''; state.deck=''; state.type='';
-  el.q.value=''; el.meal.value=''; el.deck.value=''; el.type.value='';
-  setTab('included');
-  render();
-});
-
-el.closeDetails.addEventListener('click', closeDetails);
-el.detailsModal.addEventListener('click', (e) => { if (e.target === el.detailsModal) closeDetails(); });
-
-el.openMap.addEventListener('click', openMap);
-el.openMap2.addEventListener('click', openMap);
-el.openMap3.addEventListener('click', openMap);
-el.closeMap.addEventListener('click', closeMap);
-el.mapModal.addEventListener('click', (e) => { if (e.target === el.mapModal) closeMap(); });
-
-el.mapHow.addEventListener('click', () => {
-  alert('Map best-practice: route to decks.html and highlight the venue. Mobile: open map modal. Desktop: map pane stays visible.');
-});
-
-el.jumpToVenues.addEventListener('click', () => {
-  document.getElementById('venuesTop').scrollIntoView({ behavior: 'smooth', block: 'start' });
-});
-
-el.goDecks.addEventListener('click', (e) => {
-  e.preventDefault();
-  // Replace with your real route (e.g., decks.html) and optional deep-link hash.
-  const id = state.lastVenueId || window.__lastVenue || '';
-  const url = id ? `decks.html#venue=${encodeURIComponent(id)}` : 'decks.html';
-  window.location.href = url;
-});
-
-el.jumpDeckPlans.addEventListener('click', (e) => {
-  e.preventDefault();
-  // Replace with your preferred RC deck-plan source or your own deck page.
-  window.location.href = 'decks.html';
-});
-
-el.copyVenueLink.addEventListener('click', () => {
-  const id = state.lastVenueId || window.__lastVenue || '';
-  const link = id ? `${location.origin}${location.pathname}#venue=${encodeURIComponent(id)}` : `${location.origin}${location.pathname}`;
-  navigator.clipboard?.writeText(link).then(() => {
-    alert('Copied venue deep-link.');
-  }).catch(() => alert('Copy failed (browser permission).'));
-});
-
-// Keyboard: ESC closes modals
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape'){
-    if (el.mapModal.getAttribute('aria-hidden') === 'false') closeMap();
-    if (el.detailsModal.getAttribute('aria-hidden') === 'false') closeDetails();
-  }
-});
-
-/* ==========================================================================
-   INIT
-   ========================================================================== */
-(function init(){
-  buildDeckFilter();
-
-  // Support deep-link (e.g., dining.html#venue=izumi)
-  const hash = new URLSearchParams(location.hash.replace('#','?'));
-  const venueId = hash.get('venue');
-  if (venueId){
-    const v = VENUES.find(x => x.id === venueId);
-    if (v){
-      setTab(v.tab);
-      openDetails(v.id);
-      return;
-    }
-  }
-
-  render();
-})();
-</script>
 </body>
 </html>
