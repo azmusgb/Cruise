@@ -3341,8 +3341,17 @@
   function init() {
     // Clean up any previous instances
     cleanup();
+    // Force light mode for consistency across pages
+    try {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.setAttribute('data-theme-mode', 'light');
+      localStorage.setItem('theme-preference', 'light');
+      localStorage.setItem('rccl-theme', 'light');
+    } catch (e) {
+      /* ignore storage issues */
+    }
     
-    // Initialize systems
+    // Initialize systems (theme manager will pick up forced light)
     ThemeManager.init();
     
     // Inject styles
