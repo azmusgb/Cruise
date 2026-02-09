@@ -1,3274 +1,1218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0A2D5E">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192.svg">
-    <title>Royal Caribbean Dining & Reservations | Adventure of the Seas</title>
-    <meta name="description" content="Explore Royal Caribbean dining from Main Dining Room classics to specialty venues with reservation strategy and package tips.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="shared-layout.js" defer></script>
-    <style>
-        /* ===== RCCL BRAND ENHANCEMENTS ===== */
-        :root {
-            --rc-blue: #0A2D5E;
-            --rc-blue-light: #1A4A8F;
-            --rc-blue-dark: #071F3F;
-            --rc-gold: #D4AF37;
-            --rc-gold-light: #E8C666;
-            --rc-gold-dark: #B8941F;
-            --rc-teal: #00A3E0;
-            --rc-teal-light: #33B5E6;
-            --rc-teal-dark: #0082B3;
-            --rc-white: #FFFFFF;
-            --rc-off-white: #F9FAFC;
-            --rc-gray-light: #E8ECF1;
-            --rc-gray: #C5D0DD;
-            --rc-gray-medium: #8A99AD;
-            --rc-gray-dark: #5A6C7D;
-            --rc-success: #2E7D32;
-            --rc-warning: #ED6C02;
-            --rc-error: #D32F2F;
-            --rc-shadow-light: 0 4px 12px rgba(10, 45, 94, 0.08);
-            --rc-shadow-medium: 0 8px 24px rgba(10, 45, 94, 0.12);
-            --rc-shadow-heavy: 0 12px 36px rgba(10, 45, 94, 0.16);
-            --border-radius-sm: 8px;
-            --border-radius-md: 12px;
-            --border-radius-lg: 16px;
-            --border-radius-xl: 24px;
-            --border-radius-full: 50px;
-            --transition-fast: 0.2s ease;
-            --transition-normal: 0.3s ease;
-            --transition-slow: 0.5s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            color: var(--rc-blue);
-            background: var(--rc-off-white);
-            line-height: 1.6;
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            color: var(--rc-blue);
-        }
-
-        /* ===== HERO SECTION ===== */
-        .app-hero {
-            background: linear-gradient(135deg, 
-                var(--rc-blue) 0%, 
-                var(--rc-blue-light) 30%, 
-                var(--rc-blue-dark) 100%);
-            color: var(--rc-white);
-            padding: 4rem 1.5rem;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .app-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 50%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 70% 30%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 30% 70%, rgba(0, 163, 224, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .app-hero__inner {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .app-hero__context {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--rc-gold), var(--rc-gold-light));
-            color: var(--rc-blue);
-            padding: 0.5rem 1.5rem;
-            border-radius: var(--border-radius-full);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 0.875rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--rc-shadow-light);
-        }
-
-        .app-hero__title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            line-height: 1.1;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, 
-                var(--rc-white) 0%, 
-                rgba(255, 255, 255, 0.9) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .app-hero__meta {
-            font-size: 1.25rem;
-            opacity: 0.9;
-            margin-bottom: 2.5rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            font-weight: 400;
-        }
-
-        .status-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: rgba(255, 255, 255, 0.95);
-            color: var(--rc-blue);
-            padding: 1rem 2rem;
-            border-radius: var(--border-radius-full);
-            font-weight: 600;
-            box-shadow: var(--rc-shadow-medium);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        .status-pill i {
-            color: var(--rc-gold);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* ===== QUICK STATS ===== */
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin: 3rem auto;
-            max-width: 1200px;
-        }
-
-        .stat-card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            padding: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            box-shadow: var(--rc-shadow-light);
-            border: 2px solid transparent;
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, var(--rc-teal), var(--rc-gold));
-        }
-
-        .stat-card:hover {
-            border-color: var(--rc-teal);
-            transform: translateY(-4px);
-            box-shadow: var(--rc-shadow-heavy);
-        }
-
-        .stat-card i {
-            font-size: 2.5rem;
-            color: var(--rc-teal);
-            background: linear-gradient(135deg, 
-                rgba(0, 163, 224, 0.1) 0%, 
-                rgba(212, 175, 55, 0.1) 100%);
-            padding: 1.25rem;
-            border-radius: var(--border-radius-md);
-        }
-
-        .stat-card h3 {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--rc-blue);
-            margin: 0;
-            line-height: 1;
-        }
-
-        .stat-card p {
-            color: var(--rc-gray-dark);
-            margin: 0.5rem 0 0 0;
-            font-size: 0.9375rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* ===== MAIN LAYOUT ===== */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
-
-        .main-layout {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 2.5rem;
-            margin: 3rem 0;
-        }
-
-        @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* ===== HERO SUPPORT ===== */
-        .hero-support {
-            background: linear-gradient(135deg, 
-                rgba(0, 163, 224, 0.05) 0%, 
-                rgba(212, 175, 55, 0.05) 100%);
-            border-radius: var(--border-radius-lg);
-            padding: 2rem;
-            margin: 2rem auto;
-            max-width: 1200px;
-            border: 2px solid rgba(0, 163, 224, 0.1);
-        }
-
-        .hero-support__note {
-            font-size: 1.125rem;
-            color: var(--rc-blue);
-            font-weight: 500;
-            margin-bottom: 1.5rem;
-            padding-left: 1rem;
-            border-left: 4px solid var(--rc-gold);
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        /* ===== BUTTONS ===== */
-        .btn {
-            padding: 1rem 2rem;
-            border-radius: var(--border-radius-full);
-            border: 2px solid transparent;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--rc-shadow-medium);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            border-color: var(--rc-blue);
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, var(--rc-blue-light), var(--rc-blue));
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--rc-gold), var(--rc-gold-light));
-            color: var(--rc-blue);
-            border-color: var(--rc-gold);
-        }
-
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, var(--rc-gold-light), var(--rc-gold));
-        }
-
-        .btn-outline {
-            background: transparent;
-            border-color: var(--rc-blue);
-            color: var(--rc-blue);
-        }
-
-        .btn-outline:hover {
-            background: var(--rc-blue);
-            color: var(--rc-white);
-        }
-
-        .btn-sm {
-            padding: 0.75rem 1.5rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-block {
-            display: block;
-            width: 100%;
-        }
-
-        /* ===== CARDS ===== */
-        .card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
-            box-shadow: var(--rc-shadow-light);
-            transition: all var(--transition-normal);
-            border: 2px solid transparent;
-        }
-
-        .card:hover {
-            border-color: var(--rc-teal);
-            box-shadow: var(--rc-shadow-medium);
-        }
-
-        .card--compact {
-            padding: 1.5rem;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            padding: 2rem;
-        }
-
-        .card-title {
-            font-size: 1.75rem;
-            margin: 0 0 0.5rem 0;
-            color: var(--rc-white);
-        }
-
-        .card-subtitle {
-            opacity: 0.9;
-            font-weight: 400;
-            margin: 0;
-        }
-
-        .card-content {
-            padding: 2rem;
-        }
-
-        /* ===== DINING BANNER ===== */
-        .dining-banner {
-            background: linear-gradient(135deg, 
-                rgba(212, 175, 55, 0.1) 0%, 
-                rgba(0, 163, 224, 0.1) 100%);
-            border-radius: var(--border-radius-lg);
-            padding: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin: 2rem 0;
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dining-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23D4AF37" opacity="0.1" d="M50,0 C77.6,0 100,22.4 100,50 C100,77.6 77.6,100 50,100 C22.4,100 0,77.6 0,50 C0,22.4 22.4,0 50,0 Z M50,20 C63.25,20 74,30.75 74,44 C74,57.25 63.25,68 50,68 C36.75,68 26,57.25 26,44 C26,30.75 36.75,20 50,20 Z"/></svg>') no-repeat;
-            background-size: contain;
-        }
-
-        .dining-banner__icon {
-            flex-shrink: 0;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--rc-gold), var(--rc-gold-light));
-            border-radius: var(--border-radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--rc-white);
-        }
-
-        .dining-banner__content {
-            flex: 1;
-        }
-
-        .dining-banner__title {
-            font-size: 1.5rem;
-            margin-bottom: 0.75rem;
-            color: var(--rc-blue);
-        }
-
-        .dining-banner__details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            color: var(--rc-gray-dark);
-        }
-
-        .dining-banner__details span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .dining-banner__details span::before {
-            content: '•';
-            color: var(--rc-teal);
-            font-weight: bold;
-        }
-
-        /* ===== DECK MAP CARD ===== */
-        .deck-map-card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
-            box-shadow: var(--rc-shadow-medium);
-            margin: 3rem 0;
-            border: 2px solid var(--rc-gray-light);
-        }
-
-        .deck-map-wrap {
-            padding: 0;
-        }
-
-        .deck-map-header {
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            padding: 2rem;
-        }
-
-        .deck-map-title {
-            font-size: 1.75rem;
-            margin: 0 0 0.5rem 0;
-            color: var(--rc-white);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .deck-map-title i {
-            color: var(--rc-gold);
-        }
-
-        .text-secondary {
-            color: rgba(255, 255, 255, 0.85);
-            margin-bottom: 1.5rem;
-        }
-
-        .deck-map-legend {
-            margin-top: 1.5rem;
-        }
-
-        .deck-map-legend summary {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            font-weight: 500;
-            color: var(--rc-white);
-            opacity: 0.9;
-            transition: opacity var(--transition-fast);
-        }
-
-        .deck-map-legend summary:hover {
-            opacity: 1;
-        }
-
-        .deck-map-legend div {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .deck-map-legend span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }
-
-        .legend-dot {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .legend-dot--included {
-            background: var(--rc-success);
-        }
-
-        .legend-dot--specialty {
-            background: var(--rc-gold);
-        }
-
-        .legend-dot--main {
-            background: var(--rc-teal);
-        }
-
-        #mapTooltip {
-            position: absolute;
-            background: var(--rc-blue);
-            color: var(--rc-white);
-            padding: 0.75rem 1rem;
-            border-radius: var(--border-radius-md);
-            font-size: 0.875rem;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all var(--transition-fast);
-            z-index: 100;
-            max-width: 200px;
-            box-shadow: var(--rc-shadow-medium);
-        }
-
-        #mapTooltip.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #diningMapSvg {
-            width: 100%;
-            height: auto;
-            display: block;
-            padding: 2rem;
-            background: var(--rc-off-white);
-        }
-
-        .map-hotspot {
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-
-        .map-hotspot:hover {
-            transform: scale(1.2);
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-        }
-
-        .map-hotspot[data-tab="included"] {
-            fill: var(--rc-success);
-        }
-
-        .map-hotspot[data-tab="specialty"] {
-            fill: var(--rc-gold);
-        }
-
-        .map-hotspot[data-tab="specialty"][data-target="mainDiningBanner"] {
-            fill: var(--rc-teal);
-        }
-
-        .map-muted .map-hotspot:not(:hover) {
-            opacity: 0.5;
-        }
-
-        /* ===== DINING TABS ===== */
-        .dining-tabs {
-            display: flex;
-            background: var(--rc-white);
-            border-radius: var(--border-radius-full);
-            padding: 0.5rem;
-            margin: 3rem 0;
-            box-shadow: var(--rc-shadow-light);
-            border: 2px solid var(--rc-gray-light);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .dining-tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .dining-tab {
-            flex: 1;
-            min-width: fit-content;
-            padding: 1rem 1.5rem;
-            border: none;
-            background: transparent;
-            border-radius: var(--border-radius-full);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            color: var(--rc-gray-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dining-tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            opacity: 0;
-            transition: opacity var(--transition-normal);
-            z-index: 0;
-        }
-
-        .dining-tab.active {
-            color: var(--rc-white);
-            box-shadow: var(--rc-shadow-light);
-        }
-
-        .dining-tab.active::before {
-            opacity: 1;
-        }
-
-        .dining-tab i,
-        .dining-tab span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .dining-tab:not(.active):hover {
-            background: var(--rc-off-white);
-            color: var(--rc-blue);
-        }
-
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-            transform: scale(0);
-            animation: ripple-animation 0.6s linear;
-            pointer-events: none;
-        }
-
-        @keyframes ripple-animation {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-
-        /* ===== TAB CONTENT ===== */
-        .dining-tab-content {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .dining-tab-content.active {
-            display: block;
-        }
-
-        .is-hidden {
-            display: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== RESTAURANTS GRID ===== */
-        .restaurants-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .restaurants-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .restaurant-card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
-            box-shadow: var(--rc-shadow-light);
-            transition: all var(--transition-normal);
-            border: 2px solid transparent;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .restaurant-card:hover {
-            border-color: var(--rc-teal);
-            transform: translateY(-4px);
-            box-shadow: var(--rc-shadow-heavy);
-        }
-
-        .restaurant-card--featured {
-            border: 2px solid var(--rc-gold);
-        }
-
-        .restaurant-card--featured::before {
-            content: 'FEATURED';
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: linear-gradient(135deg, var(--rc-gold), var(--rc-gold-light));
-            color: var(--rc-blue);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-full);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            z-index: 2;
-            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
-        }
-
-        .restaurant-card--included {
-            border: 2px solid var(--rc-success);
-        }
-
-        .restaurant-card__header {
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .restaurant-card__header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: translate(50px, -50px);
-        }
-
-        .restaurant-card__title {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--rc-white);
-            position: relative;
-            z-index: 1;
-        }
-
-        .restaurant-price {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-full);
-            font-size: 0.875rem;
-            margin-top: 0.75rem;
-            backdrop-filter: blur(5px);
-        }
-
-        .restaurant-badge {
-            display: inline-block;
-            background: rgba(46, 125, 50, 0.2);
-            color: var(--rc-success);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-full);
-            font-size: 0.875rem;
-            margin-top: 0.75rem;
-            font-weight: 600;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(46, 125, 50, 0.3);
-        }
-
-        .restaurant-card__details {
-            padding: 1.5rem;
-            flex: 1;
-        }
-
-        .detail-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 1.25rem;
-            color: var(--rc-gray-dark);
-        }
-
-        .detail-item i {
-            color: var(--rc-teal);
-            width: 1.25rem;
-            flex-shrink: 0;
-            margin-top: 0.125rem;
-        }
-
-        .detail-item span {
-            flex: 1;
-        }
-
-        .detail-item strong {
-            color: var(--rc-blue);
-            font-weight: 600;
-        }
-
-        .restaurant-card__description {
-            color: var(--rc-blue);
-            line-height: 1.6;
-            margin: 1.5rem 0;
-            padding: 1.25rem;
-            background: linear-gradient(135deg, 
-                rgba(0, 163, 224, 0.05) 0%, 
-                rgba(212, 175, 55, 0.05) 100%);
-            border-radius: var(--border-radius-md);
-            border-left: 4px solid var(--rc-teal);
-            font-style: italic;
-        }
-
-        .restaurant-card__tips {
-            background: linear-gradient(135deg, 
-                rgba(212, 175, 55, 0.1) 0%, 
-                rgba(212, 175, 55, 0.05) 100%);
-            padding: 1.25rem;
-            border-radius: var(--border-radius-md);
-            margin: 1.5rem 0;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .restaurant-card__tips strong {
-            color: var(--rc-gold-dark);
-        }
-
-        .restaurant-card__actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem;
-            border-top: 2px solid var(--rc-gray-light);
-            background: var(--rc-off-white);
-        }
-
-        /* ===== STATUS BADGES ===== */
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-full);
-            font-size: 0.875rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 2px solid transparent;
-        }
-
-        .status-confirmed {
-            background: rgba(46, 125, 50, 0.1);
-            color: var(--rc-success);
-            border-color: rgba(46, 125, 50, 0.3);
-        }
-
-        .status-confirmed i {
-            color: var(--rc-success);
-        }
-
-        .status-pending {
-            background: rgba(237, 108, 2, 0.1);
-            color: var(--rc-warning);
-            border-color: rgba(237, 108, 2, 0.3);
-        }
-
-        .status-pending i {
-            color: var(--rc-warning);
-        }
-
-        .status-waitlist {
-            background: rgba(90, 108, 125, 0.1);
-            color: var(--rc-gray-dark);
-            border-color: rgba(90, 108, 125, 0.3);
-        }
-
-        .status-waitlist i {
-            color: var(--rc-gray-dark);
-        }
-
-        /* ===== CASUAL GRID ===== */
-        .casual-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .casual-card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            box-shadow: var(--rc-shadow-light);
-            border: 2px solid transparent;
-            transition: all var(--transition-normal);
-        }
-
-        .casual-card:hover {
-            border-color: var(--rc-teal);
-            transform: translateY(-2px);
-            box-shadow: var(--rc-shadow-medium);
-        }
-
-        .casual-card__icon {
-            flex-shrink: 0;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--rc-teal), var(--rc-teal-light));
-            border-radius: var(--border-radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--rc-white);
-        }
-
-        .casual-card__content {
-            flex: 1;
-        }
-
-        .casual-card__content h4 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: var(--rc-blue);
-        }
-
-        .casual-card__content p {
-            color: var(--rc-gray-dark);
-            margin-bottom: 0.25rem;
-            font-size: 0.875rem;
-        }
-
-        /* ===== RESERVATIONS TABLE ===== */
-        .reservations-table {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
-            box-shadow: var(--rc-shadow-light);
-        }
-
-        .reservation-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
-            align-items: center;
-            padding: 1.5rem;
-            border-bottom: 2px solid var(--rc-gray-light);
-            transition: background-color var(--transition-fast);
-        }
-
-        .reservation-row:last-child {
-            border-bottom: none;
-        }
-
-        .reservation-row:hover {
-            background: var(--rc-off-white);
-        }
-
-        .reservation-row--header {
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            font-weight: 600;
-            padding: 1rem 1.5rem;
-        }
-
-        .reservation-row--header div {
-            color: var(--rc-white);
-        }
-
-        .reservation-cell {
-            padding: 0.5rem;
-        }
-
-        .reservation-cell[data-label="Actions"] {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        @media (max-width: 1024px) {
-            .reservation-row {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 1.5rem;
-            }
-            
-            .reservation-row--header {
-                display: none;
-            }
-            
-            .reservation-cell {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.5rem 0;
-                border-bottom: 1px solid var(--rc-gray-light);
-            }
-            
-            .reservation-cell:last-child {
-                border-bottom: none;
-            }
-            
-            .reservation-cell::before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: var(--rc-blue);
-            }
-        }
-
-        /* ===== PACKAGES GRID ===== */
-        .packages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-
-        .package-card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            padding: 2rem;
-            box-shadow: var(--rc-shadow-light);
-            border: 2px solid transparent;
-            transition: all var(--transition-normal);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .package-card:hover {
-            border-color: var(--rc-teal);
-            transform: translateY(-4px);
-            box-shadow: var(--rc-shadow-heavy);
-        }
-
-        .package-card--featured {
-            border: 2px solid var(--rc-gold);
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.95) 0%, 
-                rgba(255, 249, 237, 0.95) 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .package-card--featured::before {
-            content: 'BEST VALUE';
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: linear-gradient(135deg, var(--rc-gold), var(--rc-gold-light));
-            color: var(--rc-blue);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-full);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            z-index: 2;
-            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
-        }
-
-        .package-card h4 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--rc-blue);
-        }
-
-        .package-price {
-            color: var(--rc-gold-dark);
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-        }
-
-        .package-card p {
-            color: var(--rc-gray-dark);
-            margin-bottom: 2rem;
-            flex: 1;
-            line-height: 1.6;
-        }
-
-        /* ===== SECTION COLLAPSIBLE ===== */
-        .section-collapsible {
-            margin: 3rem 0;
-            border: 2px solid var(--rc-gray-light);
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
-        }
-
-        .section-collapsible summary {
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            padding: 1.5rem 2rem;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 1.125rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            list-style: none;
-            transition: background-color var(--transition-fast);
-        }
-
-        .section-collapsible summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .section-collapsible summary::after {
-            content: '+';
-            font-size: 1.5rem;
-            font-weight: 400;
-            margin-left: auto;
-            transition: transform var(--transition-fast);
-        }
-
-        .section-collapsible[open] summary {
-            background: linear-gradient(135deg, var(--rc-blue-light), var(--rc-blue));
-        }
-
-        .section-collapsible[open] summary::after {
-            content: '−';
-            transform: rotate(180deg);
-        }
-
-        .section-collapsible > div {
-            padding: 2rem;
-            background: var(--rc-white);
-        }
-
-        /* ===== DIETARY GRID ===== */
-        .dietary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .dietary-card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            padding: 1.5rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 1.5rem;
-            box-shadow: var(--rc-shadow-light);
-            border: 2px solid transparent;
-            transition: all var(--transition-normal);
-        }
-
-        .dietary-card:hover {
-            border-color: var(--rc-teal);
-            transform: translateY(-2px);
-            box-shadow: var(--rc-shadow-medium);
-        }
-
-        .dietary-icon {
-            flex-shrink: 0;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, 
-                rgba(0, 163, 224, 0.1) 0%, 
-                rgba(212, 175, 55, 0.1) 100%);
-            border-radius: var(--border-radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            color: var(--rc-teal);
-        }
-
-        .dietary-card h4 {
-            font-size: 1.125rem;
-            margin-bottom: 0.5rem;
-            color: var(--rc-blue);
-        }
-
-        .dietary-card p {
-            color: var(--rc-gray-dark);
-            margin: 0;
-            font-size: 0.9375rem;
-            line-height: 1.5;
-        }
-
-        /* ===== DRESS CODE GRID ===== */
-        .dress-code-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .dress-code-item {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            padding: 2rem;
-            text-align: center;
-            box-shadow: var(--rc-shadow-light);
-            border: 2px solid transparent;
-            transition: all var(--transition-normal);
-        }
-
-        .dress-code-item:hover {
-            border-color: var(--rc-teal);
-            transform: translateY(-2px);
-            box-shadow: var(--rc-shadow-medium);
-        }
-
-        .dress-code-badge {
-            display: inline-block;
-            padding: 0.5rem 1.5rem;
-            border-radius: var(--border-radius-full);
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 1.5rem;
-        }
-
-        .badge-casual {
-            background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
-            color: var(--rc-success);
-            border: 2px solid #A5D6A7;
-        }
-
-        .badge-smart {
-            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-            color: var(--rc-teal-dark);
-            border: 2px solid #90CAF9;
-        }
-
-        .badge-formal {
-            background: linear-gradient(135deg, #F3E5F5, #E1BEE7);
-            color: #7B1FA2;
-            border: 2px solid #CE93D8;
-        }
-
-        .dress-code-item p {
-            color: var(--rc-gray-dark);
-            margin: 0.5rem 0;
-        }
-
-        .dress-code-item p:first-of-type {
-            color: var(--rc-blue);
-            font-weight: 600;
-            margin-top: 1rem;
-        }
-
-        /* ===== IMPORTANT NOTES ===== */
-        .note {
-            background: linear-gradient(135deg, 
-                rgba(212, 175, 55, 0.1) 0%, 
-                rgba(212, 175, 55, 0.05) 100%);
-            border-radius: var(--border-radius-lg);
-            padding: 2rem;
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            margin-top: 3rem;
-        }
-
-        .note h4 {
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-            color: var(--rc-gold-dark);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .note h4 i {
-            color: var(--rc-gold);
-        }
-
-        .note ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .note li {
-            margin-bottom: 1rem;
-            padding-left: 2rem;
-            position: relative;
-            color: var(--rc-blue);
-            line-height: 1.6;
-        }
-
-        .note li::before {
-            content: '•';
-            color: var(--rc-gold);
-            font-size: 1.5rem;
-            position: absolute;
-            left: 0;
-            top: -0.25rem;
-        }
-
-        .note li strong {
-            color: var(--rc-blue);
-            font-weight: 600;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .sidebar-card {
-            background: var(--rc-white);
-            border-radius: var(--border-radius-lg);
-            padding: 2rem;
-            box-shadow: var(--rc-shadow-light);
-            border: 2px solid var(--rc-gray-light);
-            transition: all var(--transition-normal);
-        }
-
-        .sidebar-card:hover {
-            border-color: var(--rc-teal);
-            box-shadow: var(--rc-shadow-medium);
-        }
-
-        .sidebar-card--highlight {
-            border: 2px solid var(--rc-gold);
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.95) 0%, 
-                rgba(255, 249, 237, 0.95) 100%);
-        }
-
-        .sidebar-card__title {
-            font-size: 1.25rem;
-            margin: 0 0 1.5rem 0;
-            color: var(--rc-blue);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .sidebar-card__title i {
-            color: var(--rc-gold);
-        }
-
-        .guest-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .guest-list .detail-item {
-            margin: 0;
-        }
-
-        .text-light {
-            color: var(--rc-gray-medium);
-            font-size: 0.875rem;
-            font-weight: 400;
-        }
-
-        .mt-2 { margin-top: 0.5rem; }
-        .mt-4 { margin-top: 1rem; }
-        .mb-8 { margin-bottom: 2rem; }
-        .mb-16 { margin-bottom: 4rem; }
-
-        /* ===== QUICK ACTIONS ===== */
-        .quick-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        /* ===== TOAST NOTIFICATION ===== */
-        .toast {
-            position: fixed;
-            bottom: 6rem;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            padding: 1.25rem 2rem;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--rc-shadow-heavy);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1.5rem;
-            max-width: 500px;
-            width: 90%;
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast__message {
-            flex: 1;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .toast__message i {
-            color: var(--rc-gold);
-            font-size: 1.25rem;
-        }
-
-        .toast__close {
-            background: transparent;
-            border: none;
-            color: var(--rc-white);
-            font-size: 1.25rem;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity var(--transition-fast);
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .toast__close:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        /* ===== FLOATING ACTIONS ===== */
-        .floating-actions {
-            position: fixed;
-            bottom: 6rem;
-            right: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            z-index: 999;
-        }
-
-        @media (max-width: 768px) {
-            .floating-actions {
-                bottom: 5rem;
-                right: 1rem;
-            }
-        }
-
-        .fab {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-            color: var(--rc-white);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: var(--rc-shadow-heavy);
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .fab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
-            opacity: 0;
-            transition: opacity var(--transition-fast);
-        }
-
-        .fab:hover {
-            background: linear-gradient(135deg, var(--rc-blue-light), var(--rc-blue));
-            transform: scale(1.1) translateY(-2px);
-            box-shadow: 0 8px 20px rgba(10, 45, 94, 0.3);
-        }
-
-        .fab:hover::before {
-            opacity: 1;
-        }
-
-        .fab i {
-            font-size: 1.25rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .fab[title]::after {
-            content: attr(title);
-            position: absolute;
-            right: calc(100% + 1rem);
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--rc-blue);
-            color: var(--rc-white);
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-md);
-            font-size: 0.875rem;
-            font-weight: 500;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity var(--transition-fast);
-        }
-
-        .fab:hover::after {
-            opacity: 1;
-        }
-
-        /* ===== MOBILE NAVIGATION ===== */
-        .mobile-nav {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-nav {
-                display: flex;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: var(--rc-white);
-                border-top: 2px solid var(--rc-gray-light);
-                padding: 0.75rem 0;
-                z-index: 1000;
-                box-shadow: 0 -4px 12px rgba(10, 45, 94, 0.1);
-            }
-
-            .mobile-nav-item {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-decoration: none;
-                color: var(--rc-gray-medium);
-                padding: 0.5rem;
-                transition: all var(--transition-fast);
-            }
-
-            .mobile-nav-item.active {
-                color: var(--rc-blue);
-            }
-
-            .mobile-nav-item.active .mobile-nav-icon {
-                background: linear-gradient(135deg, var(--rc-blue), var(--rc-blue-light));
-                color: var(--rc-white);
-                transform: translateY(-4px);
-            }
-
-            .mobile-nav-icon {
-                width: 48px;
-                height: 48px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: var(--border-radius-md);
-                background: var(--rc-off-white);
-                margin-bottom: 0.25rem;
-                transition: all var(--transition-normal);
-            }
-
-            .mobile-nav-text {
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-align: center;
-            }
-        }
-
-        /* ===== RESPONSIVE ADJUSTMENTS ===== */
-        @media (max-width: 1200px) {
-            .app-hero__title {
-                font-size: 3rem;
-            }
-            
-            .container {
-                padding: 0 1rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .app-hero {
-                padding: 3rem 1rem;
-            }
-            
-            .app-hero__title {
-                font-size: 2.5rem;
-            }
-            
-            .app-hero__meta {
-                font-size: 1.125rem;
-            }
-            
-            .quick-stats {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-                margin: 2rem auto;
-            }
-            
-            .stat-card {
-                padding: 1.5rem;
-            }
-            
-            .stat-card h3 {
-                font-size: 2.5rem;
-            }
-            
-            .dining-tabs {
-                margin: 2rem 0;
-                border-radius: var(--border-radius-md);
-                padding: 0.5rem;
-            }
-            
-            .dining-tab {
-                padding: 0.875rem 1rem;
-                font-size: 0.875rem;
-            }
-            
-            .main-layout {
-                gap: 2rem;
-            }
-            
-            .hero-support {
-                padding: 1.5rem;
-            }
-            
-            .card-content {
-                padding: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .app-hero__title {
-                font-size: 2rem;
-            }
-            
-            .app-hero__meta {
-                font-size: 1rem;
-            }
-            
-            .quick-stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .status-pill {
-                padding: 0.875rem 1.5rem;
-                font-size: 0.875rem;
-            }
-            
-            .dining-banner {
-                flex-direction: column;
-                text-align: center;
-                gap: 1.5rem;
-            }
-            
-            .dining-banner__details {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .btn {
-                padding: 0.875rem 1.5rem;
-                font-size: 0.9375rem;
-            }
-            
-            .hero-actions {
-                flex-direction: column;
-            }
-            
-            .hero-actions .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* ===== UTILITY CLASSES ===== */
-        .text-center { text-align: center; }
-        .text-left { text-align: left; }
-        .text-right { text-align: right; }
-        .text-primary { color: var(--rc-blue); }
-        .text-secondary { color: var(--rc-gray-dark); }
-        .text-light { color: var(--rc-gray-medium); }
-        .text-white { color: var(--rc-white); }
-        .bg-primary { background: var(--rc-blue); }
-        .bg-secondary { background: var(--rc-gold); }
-        .bg-light { background: var(--rc-off-white); }
-        .p-4 { padding: 1rem; }
-        .px-4 { padding-left: 1rem; padding-right: 1rem; }
-        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
-        .m-4 { margin: 1rem; }
-        .mx-4 { margin-left: 1rem; margin-right: 1rem; }
-        .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
-   /* ==========================================================================
-   MOBILE-FIRST RESPONSIVE OVERRIDES (Dining)
-   Paste at END of the Dining <style> (or move to styles.css)
-   Base = phones; enhance upward with min-width queries.
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0b1224" />
+<title>Dining | Adventure of the Seas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+/* ==========================================================================
+   DINING — MOBILE-FIRST, CONTENT-FIRST
+   - Base: phones
+   - Desktop earns split layout + persistent map pane
    ========================================================================== */
 
-/* ---------- Base (0–479px): phone defaults ---------- */
 :root{
-  --container-pad: 1rem;
-  --hero-pad-y: 2.75rem;
-  --hero-pad-x: 1rem;
-  --section-gap: 1.25rem;
-  --card-pad: 1.25rem;
+  --bg0:#070b16;
+  --bg1:#0b1224;
+  --panel:#0e1833;
+  --card:#0a1023;
+  --text:#e8edf7;
+  --muted:#9fb0d0;
+  --muted2:#7f92b5;
+  --accent:#43c7ff;
+  --accent2:#7c4dff;
+  --good:#37d67a;
+  --warn:#ffcc66;
+  --border:rgba(255,255,255,.09);
+
+  --shadow: 0 18px 40px rgba(0,0,0,.45);
+  --radius: 16px;
+  --radius-sm: 12px;
+
+  --s1:.5rem;
+  --s2:.75rem;
+  --s3:1rem;
+  --s4:1.5rem;
+  --s5:2.25rem;
+  --s6:3rem;
+
+  --container: 1180px;
+
+  --focus: 0 0 0 3px rgba(67,199,255,.28);
 }
+
+*{ box-sizing:border-box; }
+html, body{ height:100%; }
+body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgba(124,77,255,.22), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(67,199,255,.18), transparent 60%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+  font-family:"Source Sans Pro", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height:1.45;
+}
+
+/* Accessibility */
+:focus-visible{ outline:none; box-shadow:var(--focus); border-radius:10px; }
 
 .container{
-  padding: 0 var(--container-pad);
+  width:100%;
+  max-width:var(--container);
+  margin:0 auto;
+  padding: 0 var(--s3);
 }
 
-.app-hero{
-  padding: var(--hero-pad-y) var(--hero-pad-x);
-  margin-bottom: 1.25rem;
+a{ color:inherit; }
+button{ font-family:inherit; }
+
+/* ==========================================================================
+   HERO (mobile-first: context + single primary action)
+   ========================================================================== */
+.hero{
+  padding: var(--s6) 0 var(--s4);
+}
+.hero__kicker{
+  display:inline-flex;
+  gap:.5rem;
+  align-items:center;
+  padding:.35rem .65rem;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--muted);
+  background: rgba(255,255,255,.04);
+  font-weight:600;
+  font-size:.85rem;
+}
+.hero__kicker i{ color: var(--accent); }
+.hero h1{
+  font-family:Montserrat, system-ui, sans-serif;
+  letter-spacing:-.02em;
+  font-weight:800;
+  margin: var(--s3) 0 var(--s2);
+  font-size: 2.05rem;
+  line-height:1.08;
+}
+.hero p{
+  margin:0 0 var(--s3);
+  color:var(--muted);
+  max-width: 46rem;
+}
+.hero__actions{
+  display:flex;
+  flex-direction:column;
+  gap: var(--s2);
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.55rem;
+  border-radius: 14px;
+  padding: .95rem 1rem;
+  border:1px solid transparent;
+  cursor:pointer;
+  text-decoration:none;
+  user-select:none;
+  font-weight:700;
+}
+.btn--primary{
+  background: linear-gradient(135deg, rgba(67,199,255,1), rgba(124,77,255,1));
+  color: #050913;
+  box-shadow: 0 14px 28px rgba(67,199,255,.12), 0 14px 28px rgba(124,77,255,.10);
+}
+.btn--secondary{
+  background: rgba(255,255,255,.06);
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn--ghost{
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn:active{ transform: translateY(1px); }
+
+/* ==========================================================================
+   TOOLBAR (search + filters) — phone-first vertical
+   ========================================================================== */
+.toolbar{
+  margin-top: var(--s4);
+  background: rgba(255,255,255,.035);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  box-shadow: var(--shadow);
 }
 
-.app-hero__inner{
-  text-align: left; /* mobile readability */
-}
-
-.app-hero__context{
-  margin-bottom: 1rem;
-}
-
-.app-hero__title{
-  font-size: 2rem; /* smaller by default */
-  line-height: 1.08;
-  margin-bottom: 0.75rem;
-}
-
-.app-hero__meta{
-  font-size: 1rem;
-  margin-bottom: 1.25rem;
-  max-width: 42rem;
-}
-
-.status-pill{
-  width: 100%;
-  justify-content: center;
-  padding: 0.875rem 1rem;
-  font-size: 0.9rem;
-  gap: 0.6rem;
-}
-
-.hero-support{
-  padding: 1.25rem;
-  margin: 1.25rem auto;
-}
-
-.hero-actions{
+.searchRow{
+  display:flex;
+  gap: var(--s2);
   flex-direction: column;
-  gap: 0.75rem;
 }
-
-.hero-actions .btn{
-  width: 100%;
-  justify-content: center;
+.search{
+  display:flex;
+  gap:.65rem;
+  align-items:center;
+  padding: .9rem 1rem;
+  border-radius: 14px;
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(255,255,255,.10);
 }
-
-.quick-stats{
-  grid-template-columns: 1fr; /* phone */
-  gap: 0.75rem;
-  margin: 1.5rem auto;
-}
-
-.stat-card{
-  padding: 1.25rem;
-  gap: 1rem;
-}
-
-.stat-card h3{
-  font-size: 2.25rem;
-}
-
-.main-layout{
-  grid-template-columns: 1fr; /* phone */
-  gap: var(--section-gap);
-  margin: 1.75rem 0;
-}
-
-.card-content{
-  padding: var(--card-pad);
-}
-
-.card-header{
-  padding: 1.5rem;
-}
-
-.card-title{
-  font-size: 1.5rem;
-}
-
-.dining-banner{
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.25rem;
-}
-
-.dining-banner__details{
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.deck-map-header{
-  padding: 1.5rem;
-}
-
-#diningMapSvg{
-  padding: 1rem; /* reduce big padding on small screens */
-}
-
-.dining-tabs{
-  margin: 1.5rem 0;
-  border-radius: var(--border-radius-md);
-  padding: 0.4rem;
-}
-
-.dining-tab{
-  padding: 0.85rem 1rem;
-  font-size: 0.875rem;
-}
-
-.restaurants-grid{
-  grid-template-columns: 1fr; /* phone */
-  gap: 1.25rem;
-}
-
-.restaurant-card__header{
-  padding: 1.25rem;
-}
-
-.restaurant-card__details,
-.restaurant-card__actions{
-  padding: 1.25rem;
-}
-
-.restaurant-card__actions{
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
-}
-
-.restaurant-card__actions .btn{
-  width: 100%;
-  justify-content: center;
-}
-
-.casual-grid{
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-.packages-grid{
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
-}
-
-.section-collapsible summary{
-  padding: 1.25rem 1.25rem;
+.search i{ color: var(--muted2); }
+.search input{
+  flex:1;
+  background: transparent;
+  border:none;
+  outline:none;
+  color: var(--text);
   font-size: 1rem;
 }
-
-.section-collapsible > div{
-  padding: 1.25rem;
+.pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  margin-top: var(--s2);
+}
+.pill{
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.04);
+  color: var(--muted);
+  padding: .45rem .7rem;
+  border-radius: 999px;
+  font-weight:700;
+  font-size: .85rem;
+  cursor:pointer;
+}
+.pill[aria-pressed="true"]{
+  color: var(--text);
+  border-color: rgba(67,199,255,.55);
+  background: rgba(67,199,255,.12);
 }
 
-/* Keep fixed UI from crushing content on phones */
-.mobile-nav{
-  display: flex;
+/* Filters */
+.filters{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: var(--s2);
+  margin-top: var(--s3);
+}
+.select{
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  padding: .75rem .9rem;
+  color: var(--text);
+  font-weight:700;
+}
+.select label{
+  display:block;
+  font-size:.8rem;
+  color: var(--muted);
+  margin-bottom:.35rem;
+  font-weight:700;
+}
+.select select{
+  width:100%;
+  background: transparent;
+  border:none;
+  outline:none;
+  color: var(--text);
+  font-size: 1rem;
+  appearance: none;
+  cursor:pointer;
 }
 
-body{
-  padding-bottom: 5.25rem; /* room for bottom nav on mobile */
+/* ==========================================================================
+   MAIN LAYOUT — phone = single column
+   ========================================================================== */
+.main{
+  padding: var(--s4) 0 var(--s6);
+}
+.layout{
+  display:block;
 }
 
-/* ---------- 480px+ (large phones) ---------- */
-@media (min-width: 480px){
-  :root{
-    --container-pad: 1.25rem;
-    --hero-pad-y: 3rem;
-    --hero-pad-x: 1.25rem;
-    --section-gap: 1.5rem;
-    --card-pad: 1.5rem;
-  }
-
-  .quick-stats{
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .app-hero__title{
-    font-size: 2.25rem;
-  }
-
-  #diningMapSvg{
-    padding: 1.5rem;
-  }
+/* ==========================================================================
+   SECTION HEAD
+   ========================================================================== */
+.sectionHead{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap: var(--s3);
+  margin: var(--s5) 0 var(--s3);
+}
+.sectionHead h2{
+  font-family:Montserrat, system-ui, sans-serif;
+  font-weight:800;
+  margin:0;
+  font-size: 1.35rem;
+}
+.sectionHead .hint{
+  color: var(--muted);
+  font-weight:700;
+  font-size: .9rem;
 }
 
-/* ---------- 768px+ (tablets) ---------- */
+/* ==========================================================================
+   GRID — phone-first 1 col
+   ========================================================================== */
+.grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: var(--s4);
+}
+
+/* ==========================================================================
+   CARD — strict internal hierarchy (title → meta → summary → actions)
+   ========================================================================== */
+.card{
+  background: linear-gradient(180deg, rgba(14,24,51,.95), rgba(10,16,35,.98));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+}
+.card__top{
+  padding: var(--s3);
+  display:flex;
+  flex-direction:column;
+  gap: .45rem;
+}
+.card__titleRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: var(--s2);
+}
+.card h3{
+  margin:0;
+  font-size: 1.15rem;
+  letter-spacing: -.01em;
+}
+.badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem;
+  justify-content:flex-end;
+}
+.badge{
+  padding:.25rem .55rem;
+  border-radius:999px;
+  font-weight:800;
+  font-size:.75rem;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,.04);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.badge--included{ border-color: rgba(55,214,122,.45); background: rgba(55,214,122,.12); color: #c9f8dd; }
+.badge--specialty{ border-color: rgba(255,204,102,.45); background: rgba(255,204,102,.12); color: #fff0cf; }
+.badge--quick{ border-color: rgba(67,199,255,.45); background: rgba(67,199,255,.10); color: #d8f5ff; }
+
+.meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap: .5rem .75rem;
+  color: var(--muted);
+  font-weight:700;
+  font-size: .9rem;
+}
+.meta i{ color: var(--muted2); }
+
+.summary{
+  margin-top: .2rem;
+  color: var(--text);
+  opacity: .92;
+}
+
+.card__mid{
+  padding: 0 var(--s3) var(--s3);
+  display:grid;
+  gap: var(--s2);
+}
+.kv{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: var(--s2);
+}
+.kvRow{
+  display:flex;
+  gap: .6rem;
+  align-items:flex-start;
+  padding: .7rem .85rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.20);
+}
+.kvRow i{ color: var(--accent); margin-top: .15rem; }
+.kvRow b{ display:block; }
+.kvRow span{ color: var(--muted); font-weight:600; }
+
+.card__actions{
+  padding: var(--s3);
+  border-top: 1px solid rgba(255,255,255,.08);
+  display:flex;
+  flex-direction:column;
+  gap: var(--s2);
+}
+.card__actions .btn{ width:100%; }
+
+/* ==========================================================================
+   EMPTY / LOADING
+   ========================================================================== */
+.state{
+  margin-top: var(--s3);
+  padding: var(--s4);
+  border-radius: var(--radius);
+  border: 1px dashed rgba(255,255,255,.16);
+  background: rgba(255,255,255,.03);
+  color: var(--muted);
+  font-weight:700;
+}
+
+/* ==========================================================================
+   MAP PANE — deferred on mobile
+   ========================================================================== */
+.mapLaunch{
+  margin-top: var(--s4);
+}
+.mapPane{
+  display:none;
+}
+
+/* ==========================================================================
+   MODAL
+   ========================================================================== */
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  padding: var(--s3);
+  background: rgba(0,0,0,.55);
+  z-index: 50;
+}
+.modal[aria-hidden="false"]{ display:flex; }
+.modal__sheet{
+  width:100%;
+  max-width: 720px;
+  background: linear-gradient(180deg, rgba(16,26,52,.98), rgba(8,12,26,.98));
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.65);
+  overflow:hidden;
+}
+.modal__head{
+  padding: var(--s3);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: var(--s2);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.modal__head h3{
+  margin:0;
+  font-family:Montserrat, system-ui, sans-serif;
+  font-weight:800;
+}
+.modal__body{
+  padding: var(--s3);
+  color: var(--text);
+}
+.modal__body p{ margin: 0 0 var(--s2); color: var(--muted); }
+.modal__close{
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  color: var(--text);
+  border-radius: 12px;
+  padding: .6rem .75rem;
+  cursor:pointer;
+}
+
+/* ==========================================================================
+   TABLET/DESKTOP ENHANCEMENTS
+   ========================================================================== */
+@media (min-width: 520px){
+  .searchRow{ flex-direction: row; align-items: stretch; }
+}
+
 @media (min-width: 768px){
-  :root{
-    --container-pad: 1.5rem;
-    --hero-pad-y: 3.5rem;
-    --hero-pad-x: 1.5rem;
-    --section-gap: 2rem;
-    --card-pad: 2rem;
-  }
-
-  .app-hero__inner{
-    text-align: center;
-  }
-
-  .status-pill{
-    width: auto;
-  }
-
-  .hero-actions{
-    flex-direction: row;
-    justify-content: center;
-  }
-
-  .hero-actions .btn{
-    width: auto;
-  }
-
-  .restaurants-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .packages-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .casual-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  body{
-    padding-bottom: 0; /* tablet+ can use shared header/nav */
-  }
-
-  .mobile-nav{
-    display: none;
-  }
+  .hero h1{ font-size: 2.6rem; }
+  .hero__actions{ flex-direction: row; }
+  .hero__actions .btn{ width:auto; }
+  .filters{ grid-template-columns: repeat(3, 1fr); }
+  .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .kv{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .modal{ align-items:center; }
 }
 
-/* ---------- 1024px+ (laptops) ---------- */
 @media (min-width: 1024px){
-  .main-layout{
-    grid-template-columns: 1fr 380px;
-    gap: 2.5rem;
-    margin: 3rem 0;
+  .layout{
+    display:grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2.25rem;
+    align-items:start;
   }
-
-  .restaurants-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .mapPane{
+    display:block;
+    position:sticky;
+    top: 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.035);
+    box-shadow: var(--shadow);
+    overflow:hidden;
   }
-
-  .packages-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .mapPane__head{
+    padding: var(--s3);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: var(--s2);
   }
-
-  .app-hero__title{
-    font-size: 3rem;
+  .mapPane__head b{ font-family:Montserrat, system-ui, sans-serif; }
+  .mapPane__body{
+    padding: var(--s3);
   }
+  .mapLaunch{ display:none; }
 }
-
-/* ---------- 1200px+ (desktops) ---------- */
-@media (min-width: 1200px){
-  .app-hero__title{
-    font-size: 3.5rem;
-  }
-
-  .restaurants-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-    
-     </style>
+</style>
 </head>
-<body class="hero-visible">
-    <!-- Header -->
-    <div id="sharedHeader" data-page="dining" data-menu-toggle="false"></div>
 
-    <section class="app-hero">
-        <div class="app-hero__inner">
-            <span class="app-hero__context">Premium Dining Experience</span>
-            <h1 class="app-hero__title">Savor Every Moment</h1>
-            <p class="app-hero__meta">
-                From gourmet specialties to casual bites – Your culinary journey awaits aboard Adventure of the Seas
-            </p>
-            <div class="status-pill pulse">
-                <i class="fas fa-clock"></i>
-                Upcoming: Chops Grille • Day 5 at 7:00 PM
-            </div>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="hero__kicker"><i class="fa-solid fa-compass"></i> Adventure of the Seas · Dining</div>
+    <h1>Eat like you planned this.</h1>
+    <p>Included dining, specialty restaurants, and quick bites—organized so you can pick fast and move on with your day (or your nap).</p>
+
+    <div class="hero__actions">
+      <button class="btn btn--primary" id="jumpToVenues"><i class="fa-solid fa-utensils"></i> Browse venues</button>
+      <button class="btn btn--secondary" id="openMap"><i class="fa-solid fa-map-location-dot"></i> Open dining map</button>
+    </div>
+
+    <div class="toolbar" id="toolbar">
+      <div class="searchRow">
+        <div class="search" role="search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Search: chops, pizza, sushi, coffee…" aria-label="Search dining venues">
+          <button class="btn btn--ghost" id="clearSearch" style="padding:.65rem .8rem;border-radius:12px;">
+            <i class="fa-solid fa-xmark"></i>
+            Clear
+          </button>
         </div>
+        <button class="btn btn--secondary" id="resetAll"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+      </div>
+
+      <div class="pills" aria-label="Dining categories">
+        <button class="pill" data-tab="included" aria-pressed="true"><i class="fa-solid fa-circle-check"></i> Included</button>
+        <button class="pill" data-tab="specialty" aria-pressed="false"><i class="fa-solid fa-star"></i> Specialty</button>
+        <button class="pill" data-tab="quick" aria-pressed="false"><i class="fa-solid fa-bolt"></i> Quick bites</button>
+      </div>
+
+      <div class="filters" aria-label="Filters">
+        <div class="select">
+          <label for="meal">Meal</label>
+          <select id="meal">
+            <option value="">Any</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="late">Late-night</option>
+          </select>
+        </div>
+        <div class="select">
+          <label for="deck">Deck</label>
+          <select id="deck">
+            <option value="">Any</option>
+          </select>
+        </div>
+        <div class="select">
+          <label for="type">Type</label>
+          <select id="type">
+            <option value="">Any</option>
+            <option value="table-service">Table service</option>
+            <option value="buffet">Buffet</option>
+            <option value="pizza">Pizza</option>
+            <option value="coffee">Coffee & snacks</option>
+            <option value="burger">Burgers & shakes</option>
+            <option value="sushi">Sushi / Japanese</option>
+            <option value="steakhouse">Steakhouse</option>
+            <option value="experience">Dining experience</option>
+            <option value="room-service">Room service</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="container layout">
+    <section aria-label="Dining venues">
+      <div class="sectionHead">
+        <h2 id="venuesTop">Venues</h2>
+        <div class="hint" id="resultsHint">—</div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+      <div class="state" id="state" hidden></div>
+
+      <div class="mapLaunch">
+        <button class="btn btn--secondary" style="width:100%" id="openMap2">
+          <i class="fa-solid fa-map-location-dot"></i> Open dining map
+        </button>
+      </div>
     </section>
 
-    <!-- Main Content -->
-    <main>
-        <div class="container">
-            <section class="hero-support hero-support--compact">
-                <p class="hero-support__note">Reservations: Main Dining nightly at 5:30 PM • Chops Grille Day 5 at 7:00 PM.</p>
-                <div class="hero-actions">
-                    <button class="btn btn-primary" id="makeReservationBtn">
-                        <i class="fas fa-calendar-plus"></i>
-                        Make Reservation
-                    </button>
-                    <button class="btn btn-secondary" id="viewMenusBtn">
-                        <i class="fas fa-book-open"></i>
-                        View Menus
-                    </button>
-                </div>
-            </section>
+    <aside class="mapPane" aria-label="Dining map panel">
+      <div class="mapPane__head">
+        <b><i class="fa-solid fa-map"></i> Dining map</b>
+        <button class="btn btn--ghost" id="mapHow" style="padding:.55rem .7rem;border-radius:12px;">
+          <i class="fa-solid fa-circle-info"></i> How
+        </button>
+      </div>
+      <div class="mapPane__body">
+        <p style="margin:0 0 var(--s2); color: var(--muted); font-weight:700;">
+          This pane is the desktop “at-a-glance” locator. On mobile, use “Open dining map.”
+        </p>
 
-            <div class="quick-stats">
-                <div class="stat-card">
-                    <i class="fas fa-utensils"></i>
-                    <div>
-                        <h3>14</h3>
-                        <p>Restaurants & Cafés</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-star"></i>
-                    <div>
-                        <h3>5</h3>
-                        <p>Specialty Dining</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-clock"></i>
-                    <div>
-                        <h3>24/7</h3>
-                        <p>Café Access</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-calendar-check"></i>
-                    <div>
-                        <h3>2</h3>
-                        <p>Active Reservations</p>
-                    </div>
-                </div>
+        <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18); padding:var(--s3);">
+          <div style="display:flex; gap:.6rem; align-items:flex-start;">
+            <i class="fa-solid fa-location-dot" style="color:var(--accent); margin-top:.15rem;"></i>
+            <div>
+              <b>Hook point</b>
+              <div style="color:var(--muted); font-weight:600;">
+                Wire this into your existing deck SVG modal/pan-zoom page. You can also deep-link to the official RC deck-plan view.
+              </div>
             </div>
-
-            <div class="main-layout">
-                <!-- Main Content -->
-                <div class="main-content">
-                    <div class="card card--compact mb-16">
-                        <div class="action-group">
-                            <button class="btn btn-outline" id="printDiningBtn">
-                                <i class="fas fa-print"></i>
-                                Print Royal Dining Guide
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Dining Banner -->
-                    <div class="dining-banner" id="mainDiningBanner">
-                        <div class="dining-banner__icon">
-                            <i class="fas fa-crown"></i>
-                        </div>
-                        <div class="dining-banner__content">
-                            <h3 class="dining-banner__title">Main Dining Room • Traditional Seating</h3>
-                            <div class="dining-banner__details">
-                                <span><strong>Decks 3–4 • Aft</strong></span>
-                                <span>Dinner: 5:30 PM (typical) • Table #423</span>
-                                <span>Formal nights: Typically Day 2 & Day 5</span>
-                            </div>
-                        </div>
-                        <div class="status-badge status-confirmed">
-                            <i class="fas fa-check"></i> Confirmed
-                        </div>
-                    </div>
-
-                    <section class="card deck-map-card" aria-label="Interactive dining deck map">
-                        <div class="card-content">
-                            <div class="deck-map-wrap">
-                                <div class="deck-map-header">
-                                    <h2 class="deck-map-title">
-                                        <i class="fas fa-map-marked-alt"></i>
-                                        Interactive Dining Map
-                                    </h2>
-                                    <p class="text-secondary">Click any restaurant to view details and make reservations</p>
-                                    <details class="section-collapsible deck-map-legend" aria-hidden="true">
-                                        <summary>Legend & Details</summary>
-                                        <div>
-                                            <span><i class="legend-dot legend-dot--included"></i> Included Dining</span>
-                                            <span><i class="legend-dot legend-dot--specialty"></i> Specialty Dining</span>
-                                            <span><i class="legend-dot legend-dot--main"></i> Main Dining Room</span>
-                                        </div>
-                                    </details>
-                                </div>
-                                <div id="mapTooltip" role="status" aria-live="polite"></div>
-                                <svg id="diningMapSvg" viewBox="0 0 440 340" aria-label="Dining deck map with clickable restaurants">
-                                    <text x="12" y="36" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 12</text>
-                                    <text x="12" y="120" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 11</text>
-                                    <text x="12" y="210" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 5</text>
-                                    <text x="12" y="300" fill="var(--rc-blue)" font-size="18" font-weight="700">Deck 4</text>
-                                    <line x1="0" y1="50" x2="440" y2="50" stroke="#cbd5e1" stroke-width="1"></line>
-                                    <line x1="0" y1="132" x2="440" y2="132" stroke="#cbd5e1" stroke-width="1"></line>
-                                    <line x1="0" y1="222" x2="440" y2="222" stroke="#cbd5e1" stroke-width="1"></line>
-                                    <circle class="map-hotspot" cx="290" cy="115" r="10" fill="var(--rc-warning)" tabindex="0" role="button" data-tab="specialty" data-target="izumiCard" data-tooltip="Izumi Hibachi & Sushi • Deck 12 • Specialty • À la carte"></circle>
-                                    <text x="308" y="120" fill="var(--rc-blue)" font-size="12" font-weight="600">Izumi</text>
-                                    <circle class="map-hotspot" cx="110" cy="115" r="10" fill="var(--rc-success)" tabindex="0" role="button" data-tab="included" data-target="windjammerCard" data-tooltip="Windjammer Marketplace • Deck 11 • Included • Buffet"></circle>
-                                    <text x="128" y="120" fill="var(--rc-blue)" font-size="12" font-weight="600">Windjammer</text>
-                                    <circle class="map-hotspot" cx="280" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button" data-tab="included" data-target="sorrentosCard" data-tooltip="Sorrento's Pizza • Deck 5 • Included • 24/7 Pizza"></circle>
-                                    <text x="298" y="210" fill="var(--rc-blue)" font-size="12" font-weight="600">Sorrento's</text>
-                                    <circle class="map-hotspot" cx="110" cy="205" r="10" fill="var(--rc-success)" tabindex="0" role="button" data-tab="included" data-target="cafePromenadeCard" data-tooltip="Café Promenade • Deck 5 • Included • Coffee & Pastries"></circle>
-                                    <text x="128" y="210" fill="var(--rc-blue)" font-size="12" font-weight="600">Café Promenade</text>
-                                    <circle class="map-hotspot" cx="90" cy="294" r="10" fill="var(--rc-gold)" tabindex="0" role="button" data-tab="specialty" data-target="chopsCard" data-tooltip="Chops Grille • Deck 4 • Specialty • Steakhouse"></circle>
-                                    <text x="108" y="299" fill="var(--rc-blue)" font-size="12" font-weight="600">Chops</text>
-                                    <circle class="map-hotspot" cx="210" cy="294" r="10" fill="var(--rc-gold)" tabindex="0" role="button" data-tab="specialty" data-target="giovannisCard" data-tooltip="Giovanni's Table • Deck 4 • Specialty • Italian"></circle>
-                                    <text x="228" y="299" fill="var(--rc-blue)" font-size="12" font-weight="600">Giovanni's</text>
-                                    <circle class="map-hotspot" cx="350" cy="294" r="10" fill="var(--rc-teal)" tabindex="0" role="button" data-tab="specialty" data-target="mainDiningBanner" data-tooltip="Main Dining Room • Decks 3–4 • Included • Traditional Seating"></circle>
-                                    <text x="368" y="299" fill="var(--rc-blue)" font-size="12" font-weight="600">Main Dining</text>
-                                </svg>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Dining Tabs -->
-                    <div class="dining-tabs horizontal-scroll">
-                        <button class="dining-tab active" data-tab="included">
-                            <i class="fas fa-check-circle"></i> Included Dining
-                        </button>
-                        <button class="dining-tab" data-tab="specialty">
-                            <i class="fas fa-crown"></i> Specialty
-                        </button>
-                        <button class="dining-tab" data-tab="casual">
-                            <i class="fas fa-coffee"></i> Cafés & Bars
-                        </button>
-                        <button class="dining-tab" data-tab="reservations">
-                            <i class="fas fa-calendar-alt"></i> My Reservations
-                        </button>
-                        <button class="dining-tab" data-tab="packages">
-                            <i class="fas fa-tags"></i> Packages
-                        </button>
-                    </div>
-
-                    <!-- Specialty Dining Tab -->
-                    <div class="dining-tab-content is-hidden" id="specialty-tab">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Specialty Dining Restaurants</h2>
-                                <p class="card-subtitle">Additional charge • Reservations recommended</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="restaurants-grid">
-                                    <!-- Chops Grille -->
-                                    <div class="restaurant-card restaurant-card--featured" id="chopsCard" style="animation-delay: 0s;">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Chops Grille</h3>
-                                            <div class="restaurant-price">Price varies by sailing</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 4 • Aft</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 6:00 PM - 10:00 PM • Nightly</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Classic Steakhouse</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-user-friends"></i>
-                                                <span><strong>Dress Code:</strong> Smart Casual</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Premium steaks, fresh seafood, and signature sides in an upscale setting. Perfect for celebrating special occasions or enjoying a gourmet dinner at sea.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Tip:</strong> Try the 16oz Prime New York Strip Steak and don't miss the Gruyère cheese tater tots.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-confirmed">
-                                                <i class="fas fa-check"></i> Reservation: Day 5, 7:00 PM
-                                            </span>
-                                            <button class="btn btn-outline btn-sm" data-action="modify" data-restaurant="Chops Grille">
-                                                <i class="fas fa-edit"></i> Modify
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Izumi Hibachi & Sushi -->
-                                    <div class="restaurant-card" id="izumiCard" style="animation-delay: 0.1s;">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Izumi Hibachi & Sushi</h3>
-                                            <div class="restaurant-price">À la carte / Cover charge</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 12 • Midship</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 5:30 PM - 10:30 PM • Nightly</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Japanese</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-user-friends"></i>
-                                                <span><strong>Dress Code:</strong> Casual / Smart Casual</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Teppanyaki tables with entertaining chef performances and fresh sushi prepared by expert chefs. Choose from à la carte or set menu options.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Tip:</strong> Hibachi tables book quickly - reserve early. The Rainbow Roll and Spicy Tuna Tartare are guest favorites.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-pending">Available</span>
-                                            <button class="btn btn-primary btn-sm" data-action="book" data-restaurant="Izumi">
-                                                <i class="fas fa-plus"></i> Book
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Giovanni's Table -->
-                                    <div class="restaurant-card" id="giovannisCard" style="animation-delay: 0.2s;">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Giovanni's Table</h3>
-                                            <div class="restaurant-price">Price varies by sailing</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 4 • Aft</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 6:00 PM - 9:30 PM • Nightly</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Italian</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-user-friends"></i>
-                                                <span><strong>Dress Code:</strong> Smart Casual</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Family-style Italian dining with pasta made fresh daily. Rustic ambiance with dishes designed for sharing, perfect for groups and families.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Tip:</strong> The Osso Buco and Tiramisu are exceptional. Ask about wine pairings with your meal.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-pending">Available</span>
-                                            <button class="btn btn-primary btn-sm" data-action="book" data-restaurant="Giovanni's">
-                                                <i class="fas fa-plus"></i> Book
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Chef's Table -->
-                                    <div class="restaurant-card" style="animation-delay: 0.3s;">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Chef's Table</h3>
-                                            <div class="restaurant-price">Premium experience</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 5 • Private Dining Room</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> Select nights • 7:00 PM start</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Multi-course Tasting</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-user-friends"></i>
-                                                <span><strong>Dress Code:</strong> Formal / Smart Casual</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Exclusive 5-course gourmet meal with wine pairings, hosted by the ship's executive chef. Limited to 16 guests per evening for an intimate experience.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Tip:</strong> Book well in advance - this exclusive experience sells out quickly. Includes a galley tour and chef's introduction.
-                                        </div>
-                                        <div class="restaurant-card__actions">
-                                            <span class="status-badge status-waitlist">
-                                                <i class="fas fa-user-clock"></i> Waitlist Only
-                                            </span>
-                                            <button class="btn btn-outline btn-sm" data-action="waitlist" data-restaurant="Chef's Table">
-                                                <i class="fas fa-user-plus"></i> Join Waitlist
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Included Dining Tab -->
-                    <div class="dining-tab-content active" id="included-tab">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Complimentary Dining</h2>
-                                <p class="card-subtitle">No additional charge • Open seating • Included in your cruise fare</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="restaurants-grid">
-                                    <!-- Windjammer Marketplace -->
-                                    <div class="restaurant-card restaurant-card--included" id="windjammerCard" style="animation-delay: 0.4s;">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Windjammer Marketplace</h3>
-                                            <div class="restaurant-badge">Buffet • All-day dining</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 11 • Forward</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> Breakfast: 7:00 AM - 11:00 AM • Lunch: 12:00 PM - 3:00 PM • Dinner: 6:00 PM - 9:00 PM</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> International buffet</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-user-friends"></i>
-                                                <span><strong>Dress Code:</strong> Casual</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Casual buffet-style dining with multiple stations offering international cuisine. Perfect for quick meals, families, and casual dining with ocean views.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Pro Tip:</strong> Less crowded during port days and off-peak hours (early breakfast, late lunch). Open for embarkation lunch when you board.
-                                        </div>
-                                    </div>
-
-                                    <!-- Café Promenade -->
-                                    <div class="restaurant-card restaurant-card--included" id="cafePromenadeCard" style="animation-delay: 0.5s;">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Café Promenade</h3>
-                                            <div class="restaurant-badge">24/7 • Quick bites</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 5 • Royal Promenade</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 24 hours daily</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Coffee, pastries, sandwiches</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-user-friends"></i>
-                                                <span><strong>Dress Code:</strong> Casual</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Complimentary coffee, tea, pastries, small sandwiches, and cookies available around the clock. Perfect for quick snacks, late-night cravings, or morning coffee.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Pro Tip:</strong> Try the complimentary cookies in the afternoon. Great spot for people-watching on the Royal Promenade.
-                                        </div>
-                                    </div>
-
-                                    <!-- Sorrento's Pizza -->
-                                    <div class="restaurant-card restaurant-card--included" id="sorrentosCard" style="animation-delay: 0.6s;">
-                                        <div class="restaurant-card__header">
-                                            <h3 class="restaurant-card__title">Sorrento's Pizza</h3>
-                                            <div class="restaurant-badge">Pizza • Late night</div>
-                                        </div>
-                                        <div class="restaurant-card__details">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <span><strong>Location:</strong> Deck 5 • Royal Promenade</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-clock"></i>
-                                                <span><strong>Hours:</strong> 11:00 AM - 3:00 AM daily</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-utensils"></i>
-                                                <span><strong>Cuisine:</strong> Pizza by the slice</span>
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-user-friends"></i>
-                                                <span><strong>Dress Code:</strong> Casual</span>
-                                            </div>
-                                        </div>
-                                        <div class="restaurant-card__description">
-                                            Freshly made pizza by the slice with daily changing specials alongside classic favorites like pepperoni and margherita.
-                                        </div>
-                                        <div class="restaurant-card__tips">
-                                            <strong>Pro Tip:</strong> Grab a slice after evening shows for a quick late-night bite. Less crowded during early dinner hours.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Casual Dining Tab -->
-                    <div class="dining-tab-content is-hidden" id="casual-tab">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Casual Dining & Cafés</h2>
-                                <p class="card-subtitle">Quick bites, snacks, and specialty drinks</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="casual-grid">
-                                    <!-- Ben & Jerry's -->
-                                    <div class="casual-card" style="animation-delay: 0.7s;">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-ice-cream"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Ben & Jerry's</h4>
-                                            <p><strong>Location:</strong> Deck 5 • Royal Promenade</p>
-                                            <p><strong>Hours:</strong> 11:00 AM - 11:00 PM daily</p>
-                                            <p><strong>Cost:</strong> À la carte</p>
-                                            <p><strong>Specialty:</strong> Ice cream, milkshakes, sundaes</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Starbucks -->
-                                    <div class="casual-card" style="animation-delay: 0.8s;">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-coffee"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Starbucks</h4>
-                                            <p><strong>Location:</strong> Deck 5 • Royal Promenade</p>
-                                            <p><strong>Hours:</strong> 7:00 AM - 10:00 PM daily</p>
-                                            <p><strong>Cost:</strong> À la carte</p>
-                                            <p><strong>Specialty:</strong> Coffee, tea, pastries</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Pool Bar -->
-                                    <div class="casual-card" style="animation-delay: 0.9s;">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-cocktail"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Pool Bar & Mast Bar</h4>
-                                            <p><strong>Location:</strong> Deck 11 • Main Pool Area</p>
-                                            <p><strong>Hours:</strong> 10:00 AM - 8:00 PM daily</p>
-                                            <p><strong>Cost:</strong> Drinks extra (packages available)</p>
-                                            <p><strong>Specialty:</strong> Cocktails, beer, non-alcoholic drinks</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Vitality Café -->
-                                    <div class="casual-card" style="animation-delay: 1s;">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-apple-alt"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>Vitality Café</h4>
-                                            <p><strong>Location:</strong> Deck 11 • Spa & Fitness Center</p>
-                                            <p><strong>Hours:</strong> 7:00 AM - 7:00 PM daily</p>
-                                            <p><strong>Cost:</strong> Smoothies extra • Snacks complimentary</p>
-                                            <p><strong>Specialty:</strong> Healthy snacks, smoothies, juices</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Room Service -->
-                                    <div class="casual-card" style="animation-delay: 1.1s;">
-                                        <div class="casual-card__icon">
-                                            <i class="fas fa-concierge-bell"></i>
-                                        </div>
-                                        <div class="casual-card__content">
-                                            <h4>24-Hour Room Service</h4>
-                                            <p><strong>Location:</strong> Delivered to your stateroom</p>
-                                            <p><strong>Hours:</strong> 24 hours daily</p>
-                                            <p><strong>Cost:</strong> $7.95 service fee per order</p>
-                                            <p><strong>Specialty:</strong> Continental breakfast, sandwiches, desserts</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Reservations Tab -->
-                    <div class="dining-tab-content is-hidden" id="reservations-tab">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Your Dining Reservations</h2>
-                                <p class="card-subtitle">Manage and modify your dining reservations</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="reservations-table">
-                                    <div class="reservation-row reservation-row--header">
-                                        <div>Restaurant</div>
-                                        <div>Date</div>
-                                        <div>Time</div>
-                                        <div>Guests</div>
-                                        <div>Status</div>
-                                        <div>Actions</div>
-                                    </div>
-                                    <div class="reservation-row">
-                                        <div class="reservation-cell" data-label="Restaurant">
-                                            <strong>Chops Grille</strong>
-                                            <div class="text-light">Deck 4 • Specialty</div>
-                                        </div>
-                                        <div class="reservation-cell" data-label="Date">Day 5 (Feb 18)</div>
-                                        <div class="reservation-cell" data-label="Time">7:00 PM</div>
-                                        <div class="reservation-cell" data-label="Guests">8 guests</div>
-                                        <div class="reservation-cell" data-label="Status">
-                                            <span class="status-badge status-confirmed">Confirmed</span>
-                                        </div>
-                                        <div class="reservation-cell" data-label="Actions">
-                                            <button class="btn btn-outline btn-sm" data-action="modify" data-reservation="chops" title="Modify reservation">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline btn-sm" data-action="cancel" data-reservation="chops" title="Cancel reservation">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="reservation-row">
-                                        <div class="reservation-cell" data-label="Restaurant">
-                                            <strong>Main Dining Room</strong>
-                                            <div class="text-light">Deck 3-4 • Traditional</div>
-                                        </div>
-                                        <div class="reservation-cell" data-label="Date">Every night</div>
-                                        <div class="reservation-cell" data-label="Time">5:30 PM</div>
-                                        <div class="reservation-cell" data-label="Guests">14 guests</div>
-                                        <div class="reservation-cell" data-label="Status">
-                                            <span class="status-badge status-confirmed">Assigned</span>
-                                        </div>
-                                        <div class="reservation-cell" data-label="Actions">
-                                            <button class="btn btn-outline btn-sm" data-action="info" data-reservation="main" title="View details">
-                                                <i class="fas fa-info-circle"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="reservation-row">
-                                        <div class="reservation-cell" data-label="Restaurant">
-                                            <strong>Chef's Table</strong>
-                                            <div class="text-light">Deck 5 • Exclusive</div>
-                                        </div>
-                                        <div class="reservation-cell" data-label="Date">Day 3</div>
-                                        <div class="reservation-cell" data-label="Time">7:00 PM</div>
-                                        <div class="reservation-cell" data-label="Guests">2 guests</div>
-                                        <div class="reservation-cell" data-label="Status">
-                                            <span class="status-badge status-waitlist">Waitlist #3</span>
-                                        </div>
-                                        <div class="reservation-cell" data-label="Actions">
-                                            <button class="btn btn-outline btn-sm" data-action="waitlist" data-reservation="chefs" title="Waitlist options">
-                                                <i class="fas fa-user-clock"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="quick-actions mt-4">
-                                    <button class="btn btn-primary btn-block" id="makeNewReservationBtn">
-                                        <i class="fas fa-plus"></i> Make New Reservation
-                                    </button>
-                                    <button class="btn btn-outline btn-block mt-2" id="refreshReservationsBtn">
-                                        <i class="fas fa-sync-alt"></i> Refresh Status
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Packages Tab -->
-                    <div class="dining-tab-content is-hidden" id="packages-tab">
-                        <div class="card mb-8">
-                            <div class="card-header">
-                                <h2 class="card-title">Dining Packages</h2>
-                                <p class="card-subtitle">Save with pre-booked dining experiences</p>
-                            </div>
-                            <div class="card-content">
-                                <div class="packages-grid">
-                                    <div class="package-card" style="animation-delay: 1.2s;">
-                                        <h4>3-Night Dining Package</h4>
-                                        <div class="package-price">From $99 per person</div>
-                                        <p>Enjoy any 3 specialty restaurants of your choice. Save 30% compared to individual restaurant bookings. Can be used on any nights of your cruise.</p>
-                                        <ul style="margin: 1rem 0; color: var(--rc-gray-dark); font-size: 0.875rem; padding-left: 1.5rem;">
-                                            <li>Choose from all specialty restaurants</li>
-                                            <li>Flexible scheduling</li>
-                                            <li>Perfect for sampling multiple venues</li>
-                                        </ul>
-                                        <button class="btn btn-outline btn-block mt-4" data-package="3-night">
-                                            <i class="fas fa-info-circle"></i> View Details & Book
-                                        </button>
-                                    </div>
-                                    <div class="package-card package-card--featured" style="animation-delay: 1.3s;">
-                                        <h4>Unlimited Dining Package</h4>
-                                        <div class="package-price">From $199 per person</div>
-                                        <p>Unlimited specialty dining for the entire cruise. Includes lunch on sea days. The best value for food enthusiasts who want to try everything.</p>
-                                        <ul style="margin: 1rem 0; color: var(--rc-gray-dark); font-size: 0.875rem; padding-left: 1.5rem;">
-                                            <li>All specialty restaurants included</li>
-                                            <li>Lunch at specialty venues on sea days</li>
-                                            <li>40% savings vs individual bookings</li>
-                                            <li>Priority seating at some venues</li>
-                                        </ul>
-                                        <button class="btn btn-secondary btn-block mt-4" data-package="unlimited">
-                                            <i class="fas fa-crown"></i> Purchase Now
-                                        </button>
-                                    </div>
-                                    <div class="package-card" style="animation-delay: 1.4s;">
-                                        <h4>Izumi Hibachi Experience</h4>
-                                        <div class="package-price">From $45 per person</div>
-                                        <p>One hibachi dinner experience including chef's performance. Sake pairing available. Perfect for a fun, interactive dining experience.</p>
-                                        <ul style="margin: 1rem 0; color: var(--rc-gray-dark); font-size: 0.875rem; padding-left: 1.5rem;">
-                                            <li>Includes chef's entertaining performance</li>
-                                            <li>Multi-course hibachi meal</li>
-                                            <li>Sake pairing options available</li>
-                                            <li>Great for groups and celebrations</li>
-                                        </ul>
-                                        <button class="btn btn-outline btn-block mt-4" data-package="izumi">
-                                            <i class="fas fa-info-circle"></i> View Details
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Collapsible Additional Sections -->
-                    <details class="section-collapsible">
-                        <summary>Additional Dining Information & Services</summary>
-                        <div class="dining-shared-sections">
-                            <!-- Dietary Information -->
-                            <div class="card mb-8">
-                                <div class="card-header">
-                                    <h2 class="card-title">Dietary Needs & Allergies</h2>
-                                    <p class="card-subtitle">Special accommodations available • Notify us in advance</p>
-                                </div>
-                                <div class="card-content">
-                                    <div class="dietary-grid">
-                                        <div class="dietary-card">
-                                            <div class="dietary-icon">
-                                                <i class="fas fa-seedling"></i>
-                                            </div>
-                                            <div>
-                                                <h4>Vegetarian & Vegan</h4>
-                                                <p>Notify your server for special menus. Available in all restaurants. Vegan options clearly marked on menus.</p>
-                                            </div>
-                                        </div>
-                                        <div class="dietary-card">
-                                            <div class="dietary-icon">
-                                                <i class="fas fa-bread-slice"></i>
-                                            </div>
-                                            <div>
-                                                <h4>Gluten-Free</h4>
-                                                <p>Pre-order meals 24 hours in advance. Dedicated preparation area. Extensive gluten-free options available.</p>
-                                            </div>
-                                        </div>
-                                        <div class="dietary-card">
-                                            <div class="dietary-icon">
-                                                <i class="fas fa-pepper-hot"></i>
-                                            </div>
-                                            <div>
-                                                <h4>Food Allergies</h4>
-                                                <p>Inform dining staff of any allergies. Chefs can prepare separate meals. Notify us during booking for best service.</p>
-                                            </div>
-                                        </div>
-                                        <div class="dietary-card">
-                                            <div class="dietary-icon">
-                                                <i class="fas fa-star-of-life"></i>
-                                            </div>
-                                            <div>
-                                                <h4>Special Requests</h4>
-                                                <p>Contact head waiter for special arrangements. Kosher/Halal meals available with 60 days advance notice.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Dress Code -->
-                            <div class="card mb-8">
-                                <div class="card-header">
-                                    <h2 class="card-title">Dress Code Guide</h2>
-                                    <p class="card-subtitle">What to wear for each dining occasion</p>
-                                </div>
-                                <div class="card-content">
-                                    <div class="dress-code-grid">
-                                        <div class="dress-code-item">
-                                            <div class="dress-code-badge badge-casual">Casual</div>
-                                            <p><strong>Most nights & Windjammer/Cafés</strong></p>
-                                            <p>Resort wear, sundresses, polo shirts, khakis, nice jeans, casual skirts</p>
-                                            <p class="text-light mt-2">Applies to: Windjammer, Café Promenade, Sorrento's, Pool Bars</p>
-                                        </div>
-                                        <div class="dress-code-item">
-                                            <div class="dress-code-badge badge-smart">Smart Casual</div>
-                                            <p><strong>Specialty restaurants & Main Dining (most nights)</strong></p>
-                                            <p>Dress pants, blouses, jackets, cocktail dresses, button-down shirts</p>
-                                            <p class="text-light mt-2">Applies to: Chops Grille, Giovanni's, Izumi, Main Dining Room</p>
-                                        </div>
-                                        <div class="dress-code-item">
-                                            <div class="dress-code-badge badge-formal">Formal</div>
-                                            <p><strong>Typically Day 2 & 5 (formal nights)</strong></p>
-                                            <p>Suits, tuxedos, cocktail dresses, gowns, evening wear</p>
-                                            <p class="text-light mt-2">Applies to: Main Dining Room & Specialty restaurants on formal nights</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Important Notes -->
-                            <div class="note">
-                                <h4><i class="fas fa-info-circle"></i> Important Dining Information</h4>
-                                <ul>
-                                    <li><strong>Reservations:</strong> Specialty dining can be booked via Royal Caribbean app, cabin TV, or at restaurant podium. Pre-cruise booking recommended.</li>
-                                    <li><strong>Cancellation Policy:</strong> 24-hour cancellation policy for specialty restaurants to avoid charges. No-shows may be charged full price.</li>
-                                    <li><strong>Formal Nights:</strong> Professional photography available throughout ship on formal nights (typically Day 2 & 5).</li>
-                                    <li><strong>Gratuities:</strong> Included in specialty dining packages. Additional tipping at guest discretion for exceptional service.</li>
-                                    <li><strong>Children:</strong> Kids' menus available in Main Dining Room and Windjammer. Children under 12 dine at reduced price in specialty restaurants.</li>
-                                    <li><strong>Special Diets:</strong> Notify Royal Caribbean of dietary restrictions at least 30 days before sailing for best accommodations.</li>
-                                    <li><strong>Disclaimer:</strong> Dining venues, menus, pricing, and hours are subject to change without notice. Confirm details onboard.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </details>
-                </div>
-
-                <!-- Sidebar -->
-                <aside class="sidebar">
-                    <!-- Quick Actions -->
-                    <div class="sidebar-card sidebar-card--highlight">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-bolt"></i>
-                            Quick Actions
-                        </h3>
-                        <div class="quick-actions">
-                            <button class="btn btn-primary btn-block" id="viewMenusBtn">
-                                <i class="fas fa-book-open"></i>
-                                View Digital Menus
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="bookSpecialtyBtn">
-                                <i class="fas fa-star"></i>
-                                Book Specialty Dining
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="contactMaitreDBtn">
-                                <i class="fas fa-user-tie"></i>
-                                Contact Maître D'
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Formal Nights -->
-                    <div class="sidebar-card">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-crown"></i>
-                            Formal Nights Schedule
-                        </h3>
-                        <div class="guest-list">
-                            <div class="detail-item">
-                                <i class="fas fa-calendar-day"></i>
-                                <div>
-                                    <strong>Day 2: First Formal Night</strong>
-                                    <div class="text-light">At sea • Suggested attire: Formal</div>
-                                    <div class="text-light">Special menu: Lobster & Beef Wellington</div>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-calendar-day"></i>
-                                <div>
-                                    <strong>Day 5: Second Formal Night</strong>
-                                    <div class="text-light">At sea • Suggested attire: Formal</div>
-                                    <div class="text-light">Special menu: Prime Rib & Baked Alaska</div>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="mt-4 text-secondary">Photography stations available throughout the ship on formal nights. Reservations recommended for specialty restaurants.</p>
-                    </div>
-
-                    <!-- Dining Hours -->
-                    <div class="sidebar-card">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-clock"></i>
-                            Typical Dining Hours
-                        </h3>
-                        <div class="guest-list">
-                            <div class="detail-item">
-                                <i class="fas fa-utensils"></i>
-                                <div>
-                                    <strong>Main Dining Room</strong>
-                                    <div class="text-light">Breakfast: 7:30 AM - 9:30 AM</div>
-                                    <div class="text-light">Lunch: 12:00 PM - 1:30 PM (sea days)</div>
-                                    <div class="text-light">Dinner: 5:30 PM & 8:00 PM seatings</div>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-utensils"></i>
-                                <div>
-                                    <strong>Windjammer Marketplace</strong>
-                                    <div class="text-light">Breakfast: 7:00 AM - 11:00 AM</div>
-                                    <div class="text-light">Lunch: 12:00 PM - 3:00 PM</div>
-                                    <div class="text-light">Dinner: 6:00 PM - 9:00 PM</div>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="fas fa-pizza-slice"></i>
-                                <div>
-                                    <strong>Sorrento's Pizza</strong>
-                                    <div class="text-light">11:00 AM - 3:00 AM daily</div>
-                                    <div class="text-light">Late-night dining available</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Save & Print -->
-                    <div class="sidebar-card">
-                        <h3 class="sidebar-card__title">
-                            <i class="fas fa-download"></i>
-                            Save & Print
-                        </h3>
-                        <div class="quick-actions">
-                            <button class="btn btn-primary btn-block" id="printPlanBtn">
-                                <i class="fas fa-print"></i>
-                                Print Dining Plan
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="saveOfflineBtn">
-                                <i class="fas fa-download"></i>
-                                Save Guide Offline
-                            </button>
-                            <button class="btn btn-primary btn-block mt-2" id="emailReservationsBtn">
-                                <i class="fas fa-envelope"></i>
-                                Email Reservations
-                            </button>
-                        </div>
-                    </div>
-                </aside>
-            </div>
+          </div>
+          <div style="margin-top:var(--s3); display:flex; flex-direction:column; gap:.6rem;">
+            <a class="btn btn--secondary" href="#" id="jumpDeckPlans"><i class="fa-solid fa-up-right-from-square"></i> Deck plans</a>
+            <button class="btn btn--secondary" id="openMap3"><i class="fa-solid fa-layer-group"></i> Open map modal</button>
+          </div>
         </div>
-    </main>
+      </div>
+    </aside>
+  </div>
+</main>
 
-    <!-- Toast Notification -->
-    <div class="toast" id="toast">
-        <span class="toast__message"><i class="fas fa-sparkles"></i> Welcome to your premium dining experience! Explore our culinary journey.</span>
-        <button class="toast__close" id="toastClose" aria-label="Close notification">
-            <i class="fas fa-times"></i>
-        </button>
+<!-- DETAILS MODAL -->
+<div class="modal" id="detailsModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Venue details">
+  <div class="modal__sheet">
+    <div class="modal__head">
+      <div>
+        <h3 id="mTitle">Venue</h3>
+        <div id="mMeta" style="color:var(--muted); font-weight:700; margin-top:.35rem;"></div>
+      </div>
+      <button class="modal__close" id="closeDetails"><i class="fa-solid fa-xmark"></i></button>
     </div>
+    <div class="modal__body" id="mBody"></div>
+  </div>
+</div>
 
-    <!-- Floating Actions -->
-    <div class="floating-actions">
-        <button class="fab" id="quickReservationBtn" title="Quick reservation">
-            <i class="fas fa-calendar-plus"></i>
-        </button>
-        <button class="fab" id="favoritesBtn" title="Favorites">
-            <i class="fas fa-heart"></i>
-        </button>
-        <button class="fab" id="helpBtn" title="Help & Support">
-            <i class="fas fa-question"></i>
-        </button>
+<!-- MAP MODAL -->
+<div class="modal" id="mapModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Dining map">
+  <div class="modal__sheet">
+    <div class="modal__head">
+      <div>
+        <h3>Dining Map</h3>
+        <div style="color:var(--muted); font-weight:700; margin-top:.35rem;">Use your deck SVG viewer for true navigation.</div>
+      </div>
+      <button class="modal__close" id="closeMap"><i class="fa-solid fa-xmark"></i></button>
     </div>
+    <div class="modal__body">
+      <p>Best practice: open your existing <b>Deck Plans</b> page and deep-link to the right deck + highlight the venue.</p>
+      <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18); padding:var(--s3);">
+        <b>Map integration slot</b>
+        <div style="color:var(--muted); font-weight:600; margin-top:.35rem;">
+          Drop your SVG deck viewer iframe / inline SVG here, or route to <code>decks.html#venue=izumi</code>.
+        </div>
+        <div style="margin-top:var(--s3); display:flex; flex-direction:column; gap:.6rem;">
+          <a class="btn btn--primary" href="#" id="goDecks"><i class="fa-solid fa-map"></i> Go to Deck Plans</a>
+          <button class="btn btn--secondary" id="copyVenueLink"><i class="fa-solid fa-link"></i> Copy venue deep-link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <!-- Mobile Navigation -->
-    <div id="sharedFooter"></div>
+<script>
+'use strict';
 
-    <nav class="mobile-nav" aria-label="Bottom navigation">
-        <a href="index.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-home"></i></span>
-            <span class="mobile-nav-text">Dashboard</span>
-        </a>
-        <a href="operations.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span>
-            <span class="mobile-nav-text">Checklist</span>
-        </a>
-        <a href="itinerary.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-route"></i></span>
-            <span class="mobile-nav-text">Itinerary</span>
-        </a>
-        <a href="rooms.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-bed"></i></span>
-            <span class="mobile-nav-text">Rooms</span>
-        </a>
-        <a href="decks.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-map"></i></span>
-            <span class="mobile-nav-text">Decks</span>
-        </a>
-        <a href="dining.html" class="mobile-nav-item active" aria-current="page">
-            <span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span>
-            <span class="mobile-nav-text">Dining</span>
-        </a>
-        <a href="tips.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></span>
-            <span class="mobile-nav-text">Tips</span>
-        </a>
-    </nav>
+/* ==========================================================================
+   DATA — ship-specific venues
+   Notes:
+   - Deck numbers included ONLY where we have strong source coverage.
+   - Hours can be updated from the Royal Caribbean app once onboard.
+   ========================================================================== */
 
-    <!-- JavaScript remains exactly the same as your original -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show toast notification
-            const toast = document.getElementById('toast');
-            const toastClose = document.getElementById('toastClose');
-            
-            setTimeout(() => {
-                showToast('Welcome to your premium dining experience! Explore our culinary journey.', 'success');
-            }, 1000);
-            
-            toastClose.addEventListener('click', () => {
-                toast.classList.remove('show');
-            });
-            
-            // Tab functionality
-            const tabs = document.querySelectorAll('.dining-tab');
-            const tabContents = document.querySelectorAll('.dining-tab-content');
-        
-            function activateDiningTab(tabId) {
-                tabs.forEach(t => t.classList.toggle('active', t.getAttribute('data-tab') === tabId));
-              tabContents.forEach(content => {
-                    const isActive = content.id === `${tabId}-tab`;
-                    content.classList.toggle('is-hidden', !isActive);
-              });
-            }
-        
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(event) {
-                    activateDiningTab(this.getAttribute('data-tab'));
-        
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    ripple.style.width = `${size}px`;
-                    ripple.style.height = `${size}px`;
-                    ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
-                    ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
-                    ripple.classList.add('ripple');
-                    this.appendChild(ripple);
-        
-                    setTimeout(() => ripple.remove(), 600);
-                    showToast(`Showing ${this.textContent.trim()} options`);
-                });
-            });
-        
-            // Dining map interactions
-            const mapTooltip = document.getElementById('mapTooltip');
-            const mapWrap = document.querySelector('.deck-map-wrap');
-            const hotspots = document.querySelectorAll('.map-hotspot');
-            const diningMapSvg = document.getElementById('diningMapSvg');
-        
-            function onMapInteraction() {
-                diningMapSvg?.classList.add('map-muted');
-            }
-        
-            function moveTooltip(evt) {
-                if (!mapTooltip || !mapWrap) return;
-                const box = mapWrap.getBoundingClientRect();
-                mapTooltip.style.left = `${evt.clientX - box.left}px`;
-                mapTooltip.style.top = `${evt.clientY - box.top}px`;
-            }
-        
-            hotspots.forEach(hotspot => {
-                const targetId = hotspot.getAttribute('data-target');
-                const targetTab = hotspot.getAttribute('data-tab');
-                const tooltipText = hotspot.getAttribute('data-tooltip');
-        
-                const openTarget = () => {
-                    onMapInteraction();
-                    if (targetTab) activateDiningTab(targetTab);
-                    const targetEl = document.getElementById(targetId);
-                    if (targetEl) {
-                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        targetEl.style.boxShadow = '0 0 0 3px rgba(0, 163, 224, 0.35)';
-                        setTimeout(() => { targetEl.style.boxShadow = ''; }, 1200);
-                    }
-                };
-        
-                hotspot.addEventListener('click', openTarget);
-                hotspot.addEventListener('keydown', (evt) => {
-                    if (evt.key === 'Enter' || evt.key === ' ') {
-                        evt.preventDefault();
-                        openTarget();
-                    }
-                });
-        
-                hotspot.addEventListener('mousemove', (evt) => {
-                    onMapInteraction();
-                    if (mapTooltip && tooltipText) {
-                        mapTooltip.textContent = tooltipText;
-                        mapTooltip.classList.add('visible');
-                        moveTooltip(evt);
-                    }
-                });
-                hotspot.addEventListener('focus', () => {
-                    onMapInteraction();
-                    if (mapTooltip && tooltipText) {
-                        mapTooltip.textContent = tooltipText;
-                        mapTooltip.classList.add('visible');
-                    }
-                });
-                hotspot.addEventListener('mouseleave', () => mapTooltip?.classList.remove('visible'));
-                hotspot.addEventListener('blur', () => mapTooltip?.classList.remove('visible'));
-            });
-            
-            // Print functionality
-            const printButtons = ['printDiningBtn', 'printPlanBtn'];
-            printButtons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', function() {
-                        if (window.innerWidth < 768) {
-                            showToast('Print option selected. On mobile, use browser share → Print.');
-                        } else {
-                            window.print();
-                        }
-                    });
-                }
-            });
-            
-            // Save offline functionality
-            const saveButtons = ['saveOfflineBtn'];
-            saveButtons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', function() {
-                        this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                        this.style.background = 'var(--rc-success)';
-                        
-                        setTimeout(() => {
-                            this.innerHTML = '<i class="fas fa-download"></i> Save Offline';
-                            this.style.background = '';
-                        }, 2000);
-                        
-                        showToast('Dining guide saved offline!');
-                    });
-                }
-            });
-            
-            // Email functionality
-            const emailBtn = document.getElementById('emailReservationsBtn');
-            if (emailBtn) {
-                emailBtn.addEventListener('click', function() {
-                    const email = 'mailto:?subject=Royal Caribbean Dining Reservations&body=Check out our dining reservations! ' + encodeURIComponent(window.location.href);
-                    window.location.href = email;
-                });
-            }
-            
-            // Restaurant booking functionality
-            const bookButtons = document.querySelectorAll('[data-action="book"]');
-            bookButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const restaurant = this.getAttribute('data-restaurant');
-                    showToast(`Opening reservation for ${restaurant}...`);
-                    
-                    // Simulate booking animation
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Booking...';
-                    this.disabled = true;
-                    
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-check"></i> Booked!';
-                        this.style.background = 'var(--rc-success)';
-                        this.style.borderColor = 'var(--rc-success)';
-                        this.style.color = 'white';
-                        
-                        // Update status badge
-                        const statusBadge = this.closest('.restaurant-card__actions').querySelector('.status-badge');
-                        if (statusBadge) {
-                            statusBadge.className = 'status-badge status-confirmed';
-                            statusBadge.innerHTML = '<i class="fas fa-check"></i> Booked';
-                        }
-                        
-                        setTimeout(() => {
-                            this.innerHTML = '<i class="fas fa-plus"></i> Book';
-                            this.disabled = false;
-                            this.style.background = '';
-                            this.style.borderColor = '';
-                            this.style.color = '';
-                        }, 2000);
-                    }, 1500);
-                });
-            });
-            
-            // Modify reservation buttons
-            const modifyButtons = document.querySelectorAll('[data-action="modify"]');
-            modifyButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const restaurant = this.getAttribute('data-restaurant') || 
-                                      this.closest('.reservation-row')?.querySelector('strong')?.textContent ||
-                                      'Unknown Restaurant';
-                    showToast(`Opening modification for ${restaurant} reservation...`);
-                });
-            });
-            
-            // Cancel reservation buttons
-            const cancelButtons = document.querySelectorAll('[data-action="cancel"]');
-            cancelButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to cancel this reservation?\n\nCancellations within 24 hours may incur charges.')) {
-                        const row = this.closest('.reservation-row');
-                        row.style.opacity = '0.5';
-                        row.style.textDecoration = 'line-through';
-                        
-                        setTimeout(() => {
-                            row.remove();
-                            showToast('Reservation cancelled successfully.');
-                        }, 500);
-                    }
-                });
-            });
-            
-            // Waitlist buttons
-            const waitlistButtons = document.querySelectorAll('[data-action="waitlist"]');
-            waitlistButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const restaurant = this.getAttribute('data-restaurant') || 'Chef\'s Table';
-                    showToast(`Added to waitlist for ${restaurant}. You'll be notified if a spot opens.`);
-                    
-                    this.innerHTML = '<i class="fas fa-user-clock"></i> On Waitlist';
-                    this.disabled = true;
-                });
-            });
-            
-            // Package buttons
-            const packageButtons = document.querySelectorAll('[data-package]');
-            packageButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const package = this.getAttribute('data-package');
-                    let message = '';
-                    
-                    switch(package) {
-                        case '3-night':
-                            message = '3-Night Dining Package\n\n• Any 3 specialty restaurants\n• Save 30% vs individual bookings\n• Can be used on any nights';
-                            break;
-                        case 'unlimited':
-                            message = 'Unlimited Dining Package\n\n• All specialty restaurants\n• Lunch included on sea days\n• 40% savings\n• Best for food enthusiasts';
-                            break;
-                        case 'izumi':
-                            message = 'Izumi Hibachi Experience\n\n• One hibachi dinner\n• Chef\'s performance included\n• Sake pairing available';
-                            break;
-                    }
-                    
-                    if (message) showToast(message);
-                });
-            });
-            
-            // Main action buttons
-            const actionButtons = {
-                'makeReservationBtn': 'Opening reservation system...',
-                'makeNewReservationBtn': 'Opening new reservation form...',
-                'viewMenusBtn': 'Opening sample menus...',
-                'bookSpecialtyBtn': 'Browsing specialty restaurants...',
-                'contactMaitreDBtn': 'Contact Maître D\' Information:\n\n• Visit: Main Dining Room, Decks 3–4 (aft)\n• Hours: Typical evenings • Varies by day\n• Phone: Ext. 7000 from cabin',
-                'refreshReservationsBtn': 'Refreshing reservation status...'
-            };
-            
-            Object.keys(actionButtons).forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) {
-                    btn.addEventListener('click', function() {
-                        showToast(actionButtons[id]);
-                    });
-                }
-            });
-            
-            // Floating action buttons
-            document.getElementById('quickReservationBtn').addEventListener('click', function() {
-                showToast('Quick reservation: Browse available times for tonight.', 'success');
-            });
-            
-            document.getElementById('favoritesBtn').addEventListener('click', function() {
-                showToast('Favorites saved! We’ll highlight your top picks.', 'success');
-            });
-            
-            document.getElementById('helpBtn').addEventListener('click', function() {
-                showToast('Need help? Visit the host stand or call extension 7000.', 'info');
-            });
-            
-            // Show toast helper
-            function showToast(message, type = 'info') {
-                const toast = document.getElementById('toast');
-                const toastMessage = toast.querySelector('.toast__message');
-                const icon = type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'sparkles';
-                const formattedMessage = message.replace(/\n/g, '<br>');
-                
-                toastMessage.innerHTML = `<i class="fas fa-${icon}"></i> ${formattedMessage}`;
-                toast.classList.add('show');
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Add animations to cards
-            const cards = document.querySelectorAll('.restaurant-card, .casual-card, .package-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-                
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-4px)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-            
-            // Initialize with included dining visible
-            activateDiningTab('included');
-        });
-    </script>
-    <script src="service-worker-registration.js" defer></script>
+const VENUES = [
+  // INCLUDED
+  {
+    id: 'mdr',
+    name: 'Main Dining Room',
+    tab: 'included',
+    type: 'table-service',
+    deck: null,
+    meals: ['breakfast','lunch','dinner'],
+    hours: 'Varies by sailing (check RC app)',
+    tags: ['classic','rotating menu','assigned time'],
+    summary: 'Classic sit-down dining with nightly rotating menus.',
+    goodFor: 'A real dinner that feels like dinner.',
+    whatToOrder: 'Ask your server for the nightly favorites + dessert recommendations.',
+    notes: 'Some meals may be offered on select days only.',
+    sourceHint: 'RC ship dining guide lists Main Dining Room as a top option.'
+  },
+  {
+    id: 'windjammer',
+    name: 'Windjammer Café',
+    tab: 'included',
+    type: 'buffet',
+    deck: null,
+    meals: ['breakfast','lunch','dinner'],
+    hours: 'Open hours vary (check RC app)',
+    tags: ['buffet','variety','fast'],
+    summary: 'Global buffet with rotating stations and easy in-and-out meals.',
+    goodFor: 'Kids, picky eaters, and “I need food now.”',
+    whatToOrder: 'Do one “lap” to scout before committing.',
+    notes: 'Crowds spike right after shows and port returns.'
+  },
+  {
+    id: 'cafe-promenade',
+    name: 'Café Promenade',
+    tab: 'included',
+    type: 'coffee',
+    deck: 5,
+    meals: ['breakfast','lunch','dinner','late'],
+    hours: 'Often extended hours (check RC app)',
+    tags: ['snacks','sandwiches','coffee','24-ish'],
+    summary: 'Grab-and-go snacks, coffee, and small bites on the Promenade.',
+    goodFor: 'Between-meal hunger and “we missed dinner.”',
+    whatToOrder: 'Coffee + whatever snack looks freshest.',
+    notes: 'Great fallback when timing gets weird.',
+    verified: 'Deck 5 location'
+  },
+  {
+    id: 'sorrentos',
+    name: 'Sorrento’s Pizza',
+    tab: 'included',
+    type: 'pizza',
+    deck: null,
+    meals: ['lunch','dinner','late'],
+    hours: 'Late-night friendly (check RC app)',
+    tags: ['pizza','late-night','quick'],
+    summary: 'Classic slices and quick fuel—especially after shows.',
+    goodFor: 'Late-night cravings and post-activity refuel.',
+    whatToOrder: 'Grab two slices and pretend one is for later.',
+    notes: 'Lines move fast; seating comes and goes.'
+  },
+  {
+    id: 'room-service',
+    name: 'Room Service',
+    tab: 'included',
+    type: 'room-service',
+    deck: null,
+    meals: ['breakfast','lunch','dinner','late'],
+    hours: '24/7 availability (fees may apply)',
+    tags: ['in-room','lazy mode','family'],
+    summary: 'Food delivered to the room—perfect for regrouping or crashing early.',
+    goodFor: 'Kids, naps, and “do not perceive me” mornings.',
+    whatToOrder: 'Simple comfort items + breakfast basics.',
+    notes: 'Details/fees vary by sailing and menu.'
+  },
+
+  // SPECIALTY (paid / reservation)
+  {
+    id: 'chops',
+    name: 'Chops Grille',
+    tab: 'specialty',
+    type: 'steakhouse',
+    deck: 4,
+    meals: ['dinner'],
+    hours: 'Dinner (check RC app)',
+    tags: ['steakhouse','celebration','premium'],
+    summary: 'Signature Royal Caribbean steakhouse—your “big night” pick.',
+    goodFor: 'Celebrations and people who mean business about steak.',
+    whatToOrder: 'Steak + classic sides; ask about specialties.',
+    notes: 'Reservations recommended.',
+    verified: 'Deck 4 location'
+  },
+  {
+    id: 'izumi',
+    name: 'Izumi',
+    tab: 'specialty',
+    type: 'sushi',
+    deck: 5,
+    meals: ['lunch','dinner'],
+    hours: 'Lunch & dinner (check RC app)',
+    tags: ['sushi','japanese','small plates'],
+    summary: 'Sushi, sashimi, and Japanese small plates.',
+    goodFor: 'A lighter meal or a change from cruise-heavy.',
+    whatToOrder: 'Pick a roll + one warm dish; balance the textures.',
+    notes: 'Some sailings offer à la carte or package options.',
+    verified: 'Deck 5 location'
+  },
+  {
+    id: 'giovannis',
+    name: 'Giovanni’s Table',
+    tab: 'specialty',
+    type: 'table-service',
+    deck: 11,
+    meals: ['dinner'],
+    hours: 'Dinner (check RC app)',
+    tags: ['italian','family-style','comfort'],
+    summary: 'Rustic Italian favorites in a warm trattoria vibe.',
+    goodFor: 'Groups who want a “safe win” dinner.',
+    whatToOrder: 'Go family-style if offered; lean into pasta + mains.',
+    notes: 'Reservations recommended.',
+    verified: 'Deck 11 location'
+  },
+  {
+    id: 'johnny-rockets',
+    name: 'Johnny Rockets',
+    tab: 'specialty',
+    type: 'burger',
+    deck: 12,
+    meals: ['lunch','dinner'],
+    hours: 'Lunch & dinner (check RC app)',
+    tags: ['burgers','milkshakes','kids'],
+    summary: 'Burgers, fries, and shakes—classic diner comfort.',
+    goodFor: 'Kids and “I just want a burger” energy.',
+    whatToOrder: 'Burger + shake. No regrets.',
+    notes: 'May have a cover charge depending on sailing.'
+  },
+  {
+    id: 'chefs-table',
+    name: 'Chef’s Table',
+    tab: 'specialty',
+    type: 'experience',
+    deck: null,
+    meals: ['dinner'],
+    hours: 'Limited seatings (check RC app)',
+    tags: ['tasting','wine pairings','experience'],
+    summary: 'Multi-course tasting dinner—small group, higher ceremony.',
+    goodFor: 'Foodies and anniversary-energy.',
+    whatToOrder: 'You don’t order—you surrender to the chef.',
+    notes: 'Reserve early; limited seats.'
+  },
+
+  // QUICK BITES (fast + casual)
+  {
+    id: 'quick-rotation',
+    name: 'Quick bites (varies by area)',
+    tab: 'quick',
+    type: 'coffee',
+    deck: null,
+    meals: ['breakfast','lunch','late'],
+    hours: 'Varies by location',
+    tags: ['grab-and-go','snacks','flex'],
+    summary: 'Use this tab for the “we need something now” strategy.',
+    goodFor: 'When plans collapse and hunger wins.',
+    whatToOrder: 'Whatever is fastest and least messy.',
+    notes: 'You can expand this list with ship-specific spots you confirm in the RC app.'
+  }
+];
+
+/* ==========================================================================
+   STATE
+   ========================================================================== */
+const state = {
+  tab: 'included',
+  q: '',
+  meal: '',
+  deck: '',
+  type: '',
+  lastVenueId: null
+};
+
+const el = {
+  grid: document.getElementById('grid'),
+  hint: document.getElementById('resultsHint'),
+  empty: document.getElementById('state'),
+  q: document.getElementById('q'),
+  meal: document.getElementById('meal'),
+  deck: document.getElementById('deck'),
+  type: document.getElementById('type'),
+  pills: Array.from(document.querySelectorAll('.pill')),
+  clear: document.getElementById('clearSearch'),
+  reset: document.getElementById('resetAll'),
+
+  detailsModal: document.getElementById('detailsModal'),
+  mTitle: document.getElementById('mTitle'),
+  mMeta: document.getElementById('mMeta'),
+  mBody: document.getElementById('mBody'),
+  closeDetails: document.getElementById('closeDetails'),
+
+  mapModal: document.getElementById('mapModal'),
+  openMap: document.getElementById('openMap'),
+  openMap2: document.getElementById('openMap2'),
+  openMap3: document.getElementById('openMap3'),
+  closeMap: document.getElementById('closeMap'),
+  goDecks: document.getElementById('goDecks'),
+  jumpDeckPlans: document.getElementById('jumpDeckPlans'),
+  copyVenueLink: document.getElementById('copyVenueLink'),
+  mapHow: document.getElementById('mapHow'),
+
+  jumpToVenues: document.getElementById('jumpToVenues'),
+};
+
+function uniq(arr){ return Array.from(new Set(arr)).sort((a,b)=>String(a).localeCompare(String(b))); }
+
+function buildDeckFilter(){
+  const decks = uniq(VENUES.map(v => v.deck).filter(d => d !== null && d !== undefined));
+  const current = el.deck.value;
+  el.deck.innerHTML = '<option value="">Any</option>' + decks.map(d => `<option value="${d}">Deck ${d}</option>`).join('');
+  if (current) el.deck.value = current;
+}
+
+function setTab(tab){
+  state.tab = tab;
+  el.pills.forEach(p => p.setAttribute('aria-pressed', String(p.dataset.tab === tab)));
+  render();
+}
+
+function matchesVenue(v){
+  if (v.tab !== state.tab) return false;
+
+  const q = state.q.trim().toLowerCase();
+  if (q){
+    const hay = [
+      v.name, v.summary, v.type,
+      (v.tags||[]).join(' '),
+      (v.meals||[]).join(' '),
+      v.goodFor || '',
+      v.whatToOrder || '',
+      v.notes || ''
+    ].join(' ').toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+
+  if (state.meal && !(v.meals||[]).includes(state.meal)) return false;
+  if (state.type && v.type !== state.type) return false;
+
+  if (state.deck){
+    const deckNum = Number(state.deck);
+    if (Number.isFinite(deckNum)){
+      if (v.deck !== deckNum) return false;
+    }
+  }
+
+  return true;
+}
+
+function badgeFor(v){
+  if (v.tab === 'included') return `<span class="badge badge--included">Included</span>`;
+  if (v.tab === 'specialty') return `<span class="badge badge--specialty">Specialty</span>`;
+  return `<span class="badge badge--quick">Quick</span>`;
+}
+
+function iconForType(type){
+  const map = {
+    'table-service': 'fa-solid fa-cloche',
+    'buffet': 'fa-solid fa-layer-group',
+    'pizza': 'fa-solid fa-pizza-slice',
+    'coffee': 'fa-solid fa-mug-saucer',
+    'burger': 'fa-solid fa-burger',
+    'sushi': 'fa-solid fa-fish-fins',
+    'steakhouse': 'fa-solid fa-drumstick-bite',
+    'experience': 'fa-solid fa-champagne-glasses',
+    'room-service': 'fa-solid fa-bell-concierge'
+  };
+  return map[type] || 'fa-solid fa-utensils';
+}
+
+function render(){
+  const filtered = VENUES.filter(matchesVenue);
+
+  el.hint.textContent = `${filtered.length} venue${filtered.length === 1 ? '' : 's'} · ${labelTab(state.tab)}`;
+
+  if (!filtered.length){
+    el.grid.innerHTML = '';
+    el.empty.hidden = false;
+    el.empty.textContent = 'No matches. Try clearing filters or searching for a simpler keyword (e.g., “pizza”, “sushi”, “coffee”).';
+    return;
+  }
+  el.empty.hidden = true;
+
+  el.grid.innerHTML = filtered.map(v => {
+    const deckText = v.deck ? `Deck ${v.deck}` : 'Deck varies';
+    const mealsText = (v.meals||[]).map(m => m[0].toUpperCase() + m.slice(1)).join(' · ');
+    const tags = (v.tags||[]).slice(0,4).map(t => `<span class="badge">${escapeHtml(t)}</span>`).join('');
+
+    const primary = primaryAction(v);
+    const secondary = secondaryAction(v);
+
+    return `
+      <article class="card" data-id="${v.id}">
+        <div class="card__top">
+          <div class="card__titleRow">
+            <h3>${escapeHtml(v.name)}</h3>
+            <div class="badges">
+              ${badgeFor(v)}
+              ${tags}
+            </div>
+          </div>
+
+          <div class="meta">
+            <span><i class="${iconForType(v.type)}"></i> ${labelType(v.type)}</span>
+            <span><i class="fa-solid fa-layer-group"></i> ${deckText}</span>
+            <span><i class="fa-solid fa-clock"></i> ${escapeHtml(v.hours || 'Check RC app')}</span>
+            ${mealsText ? `<span><i class="fa-solid fa-calendar-day"></i> ${escapeHtml(mealsText)}</span>` : ''}
+          </div>
+
+          <div class="summary">${escapeHtml(v.summary)}</div>
+        </div>
+
+        <div class="card__mid">
+          <div class="kv">
+            ${v.goodFor ? kvRow('fa-solid fa-users', 'Good for', v.goodFor) : ''}
+            ${v.whatToOrder ? kvRow('fa-solid fa-wand-magic-sparkles', 'Move', v.whatToOrder) : ''}
+          </div>
+          ${v.notes ? `<div class="kvRow"><i class="fa-solid fa-note-sticky"></i><div><b>Notes</b><span>${escapeHtml(v.notes)}</span></div></div>` : ''}
+        </div>
+
+        <div class="card__actions">
+          ${primary}
+          ${secondary}
+          <button class="btn btn--ghost" data-action="details" data-id="${v.id}">
+            <i class="fa-solid fa-circle-info"></i> Details
+          </button>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  // Bind actions
+  el.grid.querySelectorAll('[data-action="details"]').forEach(btn => {
+    btn.addEventListener('click', () => openDetails(btn.dataset.id));
+  });
+  el.grid.querySelectorAll('[data-action="map"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.lastVenueId = btn.dataset.id || null;
+      openMap();
+    });
+  });
+  el.grid.querySelectorAll('[data-action="reserve"]').forEach(btn => {
+    btn.addEventListener('click', () => openDetails(btn.dataset.id));
+  });
+}
+
+function primaryAction(v){
+  if (v.tab === 'specialty'){
+    return `<button class="btn btn--primary" data-action="reserve" data-id="${v.id}">
+      <i class="fa-solid fa-calendar-check"></i> Plan / Reserve
+    </button>`;
+  }
+  return `<button class="btn btn--primary" data-action="details" data-id="${v.id}">
+    <i class="fa-solid fa-utensils"></i> See tips & best picks
+  </button>`;
+}
+
+function secondaryAction(v){
+  return `<button class="btn btn--secondary" data-action="map" data-id="${v.id}">
+    <i class="fa-solid fa-map"></i> Locate on ship
+  </button>`;
+}
+
+function kvRow(icon, label, value){
+  return `<div class="kvRow"><i class="${icon}"></i><div><b>${escapeHtml(label)}</b><span>${escapeHtml(value)}</span></div></div>`;
+}
+
+function labelTab(tab){
+  if (tab === 'included') return 'Included';
+  if (tab === 'specialty') return 'Specialty';
+  return 'Quick bites';
+}
+
+function labelType(type){
+  const map = {
+    'table-service': 'Table service',
+    'buffet': 'Buffet',
+    'pizza': 'Pizza',
+    'coffee': 'Coffee & snacks',
+    'burger': 'Burgers & shakes',
+    'sushi': 'Sushi / Japanese',
+    'steakhouse': 'Steakhouse',
+    'experience': 'Dining experience',
+    'room-service': 'Room service'
+  };
+  return map[type] || 'Dining';
+}
+
+function escapeHtml(s){
+  return String(s ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+
+/* ==========================================================================
+   MODALS
+   ========================================================================== */
+
+function openDetails(id){
+  const v = VENUES.find(x => x.id === id);
+  if (!v) return;
+
+  el.mTitle.textContent = v.name;
+
+  const metaBits = [];
+  metaBits.push(`${labelTab(v.tab)} · ${labelType(v.type)}`);
+  metaBits.push(v.deck ? `Deck ${v.deck}` : 'Deck varies');
+  if (v.hours) metaBits.push(v.hours);
+  el.mMeta.textContent = metaBits.join(' · ');
+
+  el.mBody.innerHTML = `
+    <div style="display:grid; gap: .75rem;">
+      <div style="padding:1rem; border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18);">
+        <b>Summary</b>
+        <div style="color: var(--muted); font-weight:600; margin-top:.35rem;">${escapeHtml(v.summary)}</div>
+      </div>
+
+      ${v.goodFor ? block('Good for', v.goodFor) : ''}
+      ${v.whatToOrder ? block('Move', v.whatToOrder) : ''}
+      ${v.notes ? block('Notes', v.notes) : ''}
+
+      <div style="display:flex; flex-direction:column; gap:.6rem; margin-top:.25rem;">
+        <button class="btn btn--primary" onclick="document.getElementById('detailsModal').setAttribute('aria-hidden','true'); document.body.style.overflow='';">
+          <i class="fa-solid fa-circle-check"></i> Done
+        </button>
+        <button class="btn btn--secondary" onclick="(function(){ window.__lastVenue='${escapeHtml(v.id)}'; document.getElementById('detailsModal').setAttribute('aria-hidden','true'); document.body.style.overflow=''; document.getElementById('mapModal').setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; })()">
+          <i class="fa-solid fa-map"></i> Locate on ship
+        </button>
+      </div>
+    </div>
+  `;
+
+  el.detailsModal.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+
+function block(title, text){
+  return `
+    <div style="padding:1rem; border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.18);">
+      <b>${escapeHtml(title)}</b>
+      <div style="color: var(--muted); font-weight:600; margin-top:.35rem;">${escapeHtml(text)}</div>
+    </div>
+  `;
+}
+
+function closeDetails(){
+  el.detailsModal.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+function openMap(){
+  el.mapModal.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+function closeMap(){
+  el.mapModal.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+
+/* ==========================================================================
+   EVENTS
+   ========================================================================== */
+
+el.pills.forEach(p => p.addEventListener('click', () => setTab(p.dataset.tab)));
+
+el.q.addEventListener('input', () => { state.q = el.q.value; render(); });
+el.meal.addEventListener('change', () => { state.meal = el.meal.value; render(); });
+el.deck.addEventListener('change', () => { state.deck = el.deck.value; render(); });
+el.type.addEventListener('change', () => { state.type = el.type.value; render(); });
+
+el.clear.addEventListener('click', () => { el.q.value=''; state.q=''; render(); el.q.focus(); });
+
+el.reset.addEventListener('click', () => {
+  state.q=''; state.meal=''; state.deck=''; state.type='';
+  el.q.value=''; el.meal.value=''; el.deck.value=''; el.type.value='';
+  setTab('included');
+  render();
+});
+
+el.closeDetails.addEventListener('click', closeDetails);
+el.detailsModal.addEventListener('click', (e) => { if (e.target === el.detailsModal) closeDetails(); });
+
+el.openMap.addEventListener('click', openMap);
+el.openMap2.addEventListener('click', openMap);
+el.openMap3.addEventListener('click', openMap);
+el.closeMap.addEventListener('click', closeMap);
+el.mapModal.addEventListener('click', (e) => { if (e.target === el.mapModal) closeMap(); });
+
+el.mapHow.addEventListener('click', () => {
+  alert('Map best-practice: route to decks.html and highlight the venue. Mobile: open map modal. Desktop: map pane stays visible.');
+});
+
+el.jumpToVenues.addEventListener('click', () => {
+  document.getElementById('venuesTop').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+el.goDecks.addEventListener('click', (e) => {
+  e.preventDefault();
+  // Replace with your real route (e.g., decks.html) and optional deep-link hash.
+  const id = state.lastVenueId || window.__lastVenue || '';
+  const url = id ? `decks.html#venue=${encodeURIComponent(id)}` : 'decks.html';
+  window.location.href = url;
+});
+
+el.jumpDeckPlans.addEventListener('click', (e) => {
+  e.preventDefault();
+  // Replace with your preferred RC deck-plan source or your own deck page.
+  window.location.href = 'decks.html';
+});
+
+el.copyVenueLink.addEventListener('click', () => {
+  const id = state.lastVenueId || window.__lastVenue || '';
+  const link = id ? `${location.origin}${location.pathname}#venue=${encodeURIComponent(id)}` : `${location.origin}${location.pathname}`;
+  navigator.clipboard?.writeText(link).then(() => {
+    alert('Copied venue deep-link.');
+  }).catch(() => alert('Copy failed (browser permission).'));
+});
+
+// Keyboard: ESC closes modals
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape'){
+    if (el.mapModal.getAttribute('aria-hidden') === 'false') closeMap();
+    if (el.detailsModal.getAttribute('aria-hidden') === 'false') closeDetails();
+  }
+});
+
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+(function init(){
+  buildDeckFilter();
+
+  // Support deep-link (e.g., dining.html#venue=izumi)
+  const hash = new URLSearchParams(location.hash.replace('#','?'));
+  const venueId = hash.get('venue');
+  if (venueId){
+    const v = VENUES.find(x => x.id === venueId);
+    if (v){
+      setTab(v.tab);
+      openDetails(v.id);
+      return;
+    }
+  }
+
+  render();
+})();
+</script>
 </body>
 </html>
