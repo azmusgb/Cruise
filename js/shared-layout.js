@@ -823,6 +823,656 @@
     footerMount.outerHTML = footerHTML;
   }
 
+  /* ============================================================================
+   * Enhanced RCCL Premium UI (optional upgrade)
+   * ========================================================================== */
+  function injectEnhancedStyles() {
+    const styleId = 'rccl-premium-styles';
+    if (document.getElementById(styleId)) return;
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = `
+      :root {
+        --rccl-gradient-primary: linear-gradient(135deg, var(--rccl-primary) 0%, var(--rccl-accent) 100%);
+        --rccl-gradient-gold: linear-gradient(135deg, #ffc91a 0%, #e6a200 100%);
+        --rccl-gradient-surface: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+        --rccl-shadow-sm: 0 2px 8px rgba(0, 82, 165, 0.08);
+        --rccl-shadow-md: 0 4px 20px rgba(0, 82, 165, 0.12);
+        --rccl-shadow-lg: 0 8px 32px rgba(0, 82, 165, 0.16);
+        --rccl-shadow-xl: 0 12px 48px rgba(0, 82, 165, 0.2);
+        --rccl-radius-full: 9999px;
+      }
+
+      .app-header--rccl.enhanced {
+        background: var(--rccl-gradient-surface);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0, 82, 165, 0.1);
+        box-shadow: var(--rccl-shadow-md);
+        transition: all var(--transition-base);
+      }
+
+      .app-header--rccl.enhanced.scrolled {
+        background: color-mix(in srgb, var(--rccl-surface) 98%, transparent);
+        box-shadow: var(--rccl-shadow-lg);
+      }
+
+      .logo--rccl.enhanced {
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-md);
+        position: relative;
+        overflow: hidden;
+        transition: all var(--transition-base);
+      }
+
+      .logo--rccl.enhanced::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--rccl-gradient-primary);
+        opacity: 0;
+        transition: opacity var(--transition-base);
+        z-index: -1;
+      }
+
+      .logo--rccl.enhanced:hover::before { opacity: 0.12; }
+
+      .logo-icon.enhanced { box-shadow: var(--rccl-shadow-sm); }
+
+      .nav-link.enhanced {
+        border: 2px solid transparent;
+        border-radius: var(--radius-md);
+        margin: 0 var(--spacing-xs);
+        transition: all var(--transition-base);
+      }
+
+      .nav-link.enhanced:hover {
+        background: rgba(0, 82, 165, 0.05);
+        box-shadow: var(--rccl-shadow-sm);
+        transform: translateY(-2px);
+      }
+
+      .nav-link.enhanced.active {
+        background: var(--rccl-gradient-primary);
+        color: #fff;
+        box-shadow: var(--rccl-shadow-md);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .nav-link__wave.enhanced {
+        bottom: -2px;
+        height: 3px;
+        border-radius: var(--radius-pill);
+        width: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: width var(--transition-base);
+      }
+
+      .nav-link.enhanced:hover .nav-link__wave.enhanced { width: 60%; }
+      .nav-link.enhanced.active .nav-link__wave.enhanced { width: 80%; background: #fff; }
+
+      .theme-toggle--rccl.enhanced {
+        border-radius: var(--radius-pill);
+        background: var(--rccl-gradient-primary);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: var(--rccl-shadow-sm);
+      }
+
+      .theme-toggle__icons.enhanced { color: #fff; }
+      .toggle-track.enhanced { background: #fff; box-shadow: var(--rccl-shadow-sm); }
+
+      .user-menu-toggle.enhanced {
+        background: rgba(0, 82, 165, 0.05);
+        border: 2px solid transparent;
+        border-radius: var(--radius-md);
+        transition: all var(--transition-base);
+      }
+
+      .user-menu-toggle.enhanced:hover {
+        background: rgba(0, 82, 165, 0.1);
+        border-color: rgba(0, 82, 165, 0.2);
+      }
+
+      .user-dropdown.enhanced {
+        border-radius: var(--radius-lg);
+        background: var(--rccl-gradient-surface);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 82, 165, 0.1);
+        box-shadow: var(--rccl-shadow-xl);
+        overflow: hidden;
+      }
+
+      .nav-mobile--rccl.enhanced {
+        background: var(--rccl-gradient-surface);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border-left: 1px solid rgba(0, 82, 165, 0.1);
+        box-shadow: var(--rccl-shadow-xl);
+      }
+
+      .mobile-nav-link.enhanced {
+        border-radius: var(--radius-md);
+        border: 2px solid transparent;
+        transition: all var(--transition-base);
+      }
+
+      .mobile-nav-link.enhanced:hover {
+        background: rgba(0, 82, 165, 0.05);
+        transform: translateX(4px);
+      }
+
+      .mobile-nav-link.enhanced.active {
+        background: var(--rccl-gradient-primary);
+        color: #fff;
+        box-shadow: var(--rccl-shadow-md);
+      }
+
+      .app-footer--rccl.enhanced {
+        background: linear-gradient(180deg, var(--rccl-primary) 0%, var(--rccl-dark) 100%);
+        color: #fff;
+        overflow: hidden;
+      }
+
+      .footer-action-card--rccl.enhanced {
+        border-radius: var(--radius-lg);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(10px);
+        box-shadow: var(--rccl-shadow-md);
+        transition: all var(--transition-base);
+      }
+
+      .footer-action-card--rccl.enhanced:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--rccl-shadow-xl);
+      }
+
+      .back-to-top--rccl.enhanced {
+        border-radius: var(--rccl-radius-full);
+        background: var(--rccl-gradient-primary);
+        color: #fff;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: var(--rccl-shadow-lg);
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all var(--transition-base);
+      }
+
+      .back-to-top--rccl.enhanced.visible { opacity: 1; transform: translateY(0); }
+
+      .nav-tooltip--rccl.enhanced {
+        background: var(--rccl-gradient-primary);
+        color: #fff;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: var(--rccl-shadow-lg);
+      }
+
+      .header-progress--rccl.enhanced .progress-bar {
+        height: 4px;
+        border-radius: var(--radius-pill);
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
+
+  function injectRippleStyles() {
+    const styleId = 'rccl-premium-ripples';
+    if (document.getElementById(styleId)) return;
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = `
+      @keyframes ripple { to { width: 280px; height: 280px; opacity: 0; } }
+      .btn--rccl.enhanced { position: relative; overflow: hidden; }
+    `;
+    document.head.appendChild(styleEl);
+  }
+
+  function renderEnhancedHeader() {
+    const headerMount = utils.qs('#sharedHeader') || utils.qs('.app-header');
+    if (!headerMount) return;
+
+    const currentPage = utils.getCurrentPage(headerMount);
+    const meta = getMetaFromMount(headerMount);
+
+    const enhancedNavItems = NAV_ITEMS.map(item => {
+      const isActive = currentPage === item.id;
+      const badge = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
+
+      return `
+        <a href="${item.href}"
+           class="nav-link enhanced${isActive ? ' active' : ''}"
+           ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
+           ${isActive ? 'aria-current="page"' : ''}
+           data-tooltip="${item.description || ''}"
+           data-delay="140">
+          <i class="fas ${item.icon}" aria-hidden="true"></i>
+          <span class="nav-text">${item.text}</span>
+          ${badge ? `
+            <span class="nav-badge enhanced ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}"
+                  aria-label="${badge.text} ${item.text}">
+              ${badge.text}
+            </span>
+          ` : ''}
+          <span class="nav-link__wave enhanced" aria-hidden="true"></span>
+        </a>
+      `;
+    }).join('');
+
+    const enhancedMobileItems = NAV_ITEMS.map(item => {
+      const isActive = currentPage === item.id;
+      const badge = item.badgeKey ? BadgeProvider.resolve(item.badgeKey) : null;
+
+      return `
+        <a href="${item.href}"
+           class="mobile-nav-link enhanced${isActive ? ' active' : ''}"
+           ${item.ariaLabel ? `aria-label="${item.ariaLabel}"` : ''}
+           ${isActive ? 'aria-current="page"' : ''}>
+          <div class="mobile-nav-link__icon enhanced">
+            <i class="fas ${item.icon}" aria-hidden="true"></i>
+            ${badge ? `<span class="mobile-badge ${toneToClass(badge.tone || 'primary')} ${badge.pulse ? 'badge--pulse' : ''}">${badge.text}</span>` : ''}
+          </div>
+          <span class="mobile-nav-link__text">${item.text}</span>
+          <i class="fas fa-chevron-right mobile-nav-link__chevron" aria-hidden="true"></i>
+        </a>
+      `;
+    }).join('');
+
+    const headerHTML = `
+      <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
+
+      <header class="app-header app-header--rccl enhanced" role="banner" data-page="${currentPage}">
+        <div class="header-waves enhanced" aria-hidden="true">
+          <div class="wave wave-1"></div>
+          <div class="wave wave-2"></div>
+        </div>
+        
+        <div class="container">
+          <div class="header-content">
+            <a href="index.html" class="logo logo--rccl enhanced" aria-label="Go to dashboard">
+              <div class="logo-icon enhanced" aria-hidden="true">
+                <i class="fas fa-ship" aria-hidden="true"></i>
+                <div class="logo-icon__wave enhanced"></div>
+              </div>
+              <div class="logo-text-container">
+                <div class="logo-text">${escapeHtml(meta.brand)}</div>
+                <div class="logo-subtext">
+                  <i class="fas fa-anchor" aria-hidden="true"></i>
+                  <span>${escapeHtml(meta.ship)}</span>
+                  <span class="logo-separator">•</span>
+                  <span>${escapeHtml(meta.sailing)}</span>
+                </div>
+              </div>
+            </a>
+
+            <nav class="nav-desktop" aria-label="Main navigation">
+              <div class="nav-desktop__links">
+                ${enhancedNavItems}
+              </div>
+
+              <div class="nav-desktop__actions">
+                <button class="theme-toggle theme-toggle--rccl enhanced" id="themeToggle" type="button" aria-label="Toggle theme">
+                  <span class="theme-toggle__icons enhanced" aria-hidden="true">
+                    <i class="fas fa-sun"></i>
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-desktop"></i>
+                  </span>
+                  <span class="toggle-track enhanced" aria-hidden="true"></span>
+                </button>
+
+                <div class="user-menu user-menu--rccl enhanced">
+                  <button class="user-menu-toggle enhanced" type="button" aria-label="User menu" aria-expanded="false">
+                    <div class="user-avatar enhanced">
+                      <i class="fas fa-user" aria-hidden="true"></i>
+                    </div>
+                    <span class="user-name">Guest</span>
+                    <i class="fas fa-chevron-down user-menu__chevron" aria-hidden="true"></i>
+                  </button>
+                  <div class="user-dropdown enhanced" role="menu" aria-label="User menu options">
+                    <div class="user-dropdown__header">
+                      <div class="user-dropdown__avatar enhanced">
+                        <i class="fas fa-user-circle" aria-hidden="true"></i>
+                      </div>
+                      <div>
+                        <strong>Guest</strong>
+                        <span>Welcome aboard!</span>
+                      </div>
+                    </div>
+                    <div class="dropdown-divider" role="separator"></div>
+                    <a href="profile.html" class="dropdown-item" role="menuitem">
+                      <i class="fas fa-user" aria-hidden="true"></i> My Profile
+                    </a>
+                    <a href="settings.html" class="dropdown-item" role="menuitem">
+                      <i class="fas fa-cog" aria-hidden="true"></i> Settings
+                    </a>
+                    <a href="help.html" class="dropdown-item" role="menuitem">
+                      <i class="fas fa-question-circle" aria-hidden="true"></i> Help Center
+                    </a>
+                    <div class="dropdown-divider" role="separator"></div>
+                    <button class="dropdown-item dropdown-item--signout" role="menuitem" type="button">
+                      <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </nav>
+
+            ${meta.showMenuToggle ? `
+              <button class="mobile-menu-toggle mobile-menu-toggle--rccl" type="button"
+                      aria-label="Open navigation menu"
+                      aria-expanded="false"
+                      aria-controls="navMobile">
+                <span class="hamburger-box" aria-hidden="true">
+                  <span class="hamburger-line enhanced"></span>
+                  <span class="hamburger-line enhanced"></span>
+                  <span class="hamburger-line enhanced"></span>
+                </span>
+              </button>
+            ` : ''}
+          </div>
+
+          ${meta.showMenuToggle ? `
+            <div class="nav-mobile-overlay" data-action="close-mobile" hidden></div>
+
+            <nav class="nav-mobile nav-mobile--rccl enhanced" id="navMobile" aria-label="Mobile navigation" hidden>
+              <div class="nav-mobile__header">
+                <div class="mobile-nav-header">
+                  <div class="mobile-nav-title">
+                    <span class="mobile-nav-title__eyebrow">${escapeHtml(meta.port)}</span>
+                    <strong class="mobile-nav-title__main">Welcome Aboard</strong>
+                  </div>
+                  <div class="mobile-nav-header__actions">
+                    <button class="theme-toggle-mobile theme-toggle-mobile--rccl" id="themeToggleMobile" type="button" aria-label="Toggle theme">
+                      <i class="fas fa-adjust" aria-hidden="true"></i>
+                    </button>
+                    <button class="mobile-nav-close" type="button" data-action="close-mobile" aria-label="Close menu">
+                      <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="mobile-nav-ship-info">
+                  <i class="fas fa-ship" aria-hidden="true"></i>
+                  <span>${escapeHtml(meta.ship)} • ${escapeHtml(meta.sailing)}</span>
+                </div>
+              </div>
+
+              <div class="mobile-nav-links">
+                ${enhancedMobileItems}
+              </div>
+
+              <div class="nav-mobile__footer">
+                <div class="mobile-nav-shortcuts" aria-label="Shortcuts">
+                  <button type="button" class="chip chip--rccl enhanced" data-action="go" data-href="operations.html">
+                    <i class="fas fa-clipboard-check" aria-hidden="true"></i> Checklist
+                  </button>
+                  <button type="button" class="chip chip--rccl enhanced" data-action="go" data-href="itinerary.html">
+                    <i class="fas fa-route" aria-hidden="true"></i> Itinerary
+                  </button>
+                  <button type="button" class="chip chip--rccl enhanced" data-action="go" data-href="dining.html">
+                    <i class="fas fa-utensils" aria-hidden="true"></i> Dining
+                  </button>
+                </div>
+                <div class="mobile-nav-footer-legal">
+                  <span>© ${DEFAULT_META.year} Royal Caribbean</span>
+                  <span class="legal-separator">•</span>
+                  <a href="privacy.html">Privacy</a>
+                </div>
+              </div>
+            </nav>
+          ` : ''}
+        </div>
+
+        ${meta.showProgress ? `
+          <div class="header-progress header-progress--rccl enhanced" role="progressbar" aria-label="Scroll progress" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" aria-hidden="true">
+              <div class="progress-wave shimmer-effect"></div>
+            </div>
+          </div>
+        ` : ''}
+      </header>
+    `;
+
+    headerMount.outerHTML = headerHTML;
+  }
+
+  function renderEnhancedFooter() {
+    let footerMount = utils.qs('#sharedFooter') || utils.qs('.app-footer');
+    if (!footerMount) {
+      footerMount = document.createElement('div');
+      footerMount.id = 'sharedFooter';
+      const main = utils.qs('main');
+      if (main && main.parentNode) {
+        main.insertAdjacentElement('afterend', footerMount);
+      } else {
+        document.body.appendChild(footerMount);
+      }
+    }
+
+    const nextPort = (() => {
+      const raw = localStorage.getItem('cruise-nextport');
+      const parsed = raw ? utils.safeJsonParse(raw, null) : null;
+      if (parsed?.name) return parsed;
+      return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
+    })();
+
+    const sectionsHTML = FOOTER_SECTIONS.map(section => `
+      <div class="footer-section">
+        <h4 class="footer-subtitle">
+          <i class="fas fa-compass" aria-hidden="true"></i>
+          ${escapeHtml(section.title)}
+        </h4>
+        <div class="footer-links">
+          ${section.links.map(link => `
+            <a href="${link.href}" class="footer-link">
+              <div class="footer-link__icon">
+                <i class="fas ${link.icon}" aria-hidden="true"></i>
+              </div>
+              <span>${escapeHtml(link.text)}</span>
+              <i class="fas fa-chevron-right footer-link__chevron" aria-hidden="true"></i>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    const quickActionsHTML = FOOTER_QUICK_ACTIONS.map(action => {
+      const badgeFromStorage = action.badgeKey ? BadgeProvider.resolve(action.badgeKey) : null;
+      const subtitle = badgeFromStorage?.text
+        ? `${action.subtitle} • ${badgeFromStorage.text} ${action.badgeKey === 'checklist' ? 'remaining' : 'saved'}`
+        : action.subtitle;
+
+      const badgeHTML = badgeFromStorage?.text ? `
+        <span class="footer-action-badge enhanced ${toneToClass(badgeFromStorage.tone)}">
+          ${badgeFromStorage.text}
+        </span>
+      ` : '';
+
+      return `
+        <a class="footer-action-card footer-action-card--rccl enhanced" href="${action.href}">
+          <div class="footer-action-card__content">
+            <div class="footer-action-card__header">
+              <div class="footer-action-icon enhanced" aria-hidden="true">
+                <i class="fas ${action.icon}"></i>
+              </div>
+              ${badgeHTML}
+            </div>
+            <div class="footer-action-card__body">
+              <h4>${escapeHtml(action.title)}</h4>
+              <p>${escapeHtml(subtitle)}</p>
+            </div>
+            <div class="footer-action-card__footer">
+              <span class="footer-action-cta">
+                ${escapeHtml(action.cta)}
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
+              </span>
+            </div>
+          </div>
+          <div class="footer-action-card__wave enhanced" aria-hidden="true"></div>
+        </a>
+      `;
+    }).join('');
+
+    const year = DEFAULT_META.year;
+
+    const footerHTML = `
+      <footer class="app-footer app-footer--rccl enhanced" role="contentinfo">
+        <div class="footer-waves enhanced" aria-hidden="true">
+          <div class="wave wave-1"></div>
+          <div class="wave wave-2"></div>
+        </div>
+        
+        <div class="container">
+          <div class="footer-hero">
+            <div class="footer-hero__intro">
+              <div class="footer-hero__badge">
+                <i class="fas fa-anchor" aria-hidden="true"></i>
+                <span>Onboard Guide</span>
+              </div>
+              <h3>Plan Clean. Sail Calmer.</h3>
+              <p>Your complete digital cruise companion — everything you need in one elegant, intuitive place.</p>
+            </div>
+
+            <div class="footer-hero__actions">
+              <a class="btn btn--primary btn--rccl enhanced btn--icon" href="operations.html">
+                <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+                Finish Checklist
+              </a>
+              <a class="btn btn--secondary btn--rccl enhanced btn--icon" href="itinerary.html">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                View Itinerary
+              </a>
+            </div>
+
+            <div class="footer-hero__cards">
+              ${quickActionsHTML}
+            </div>
+          </div>
+
+          <div class="footer-grid">
+            ${sectionsHTML}
+
+            <div class="footer-section footer-newsletter footer-newsletter--rccl">
+              <div class="footer-newsletter__header">
+                <h4 class="footer-subtitle">
+                  <i class="fas fa-bell" aria-hidden="true"></i>
+                  Stay Updated
+                </h4>
+                <div class="footer-newsletter__icon">
+                  <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                </div>
+              </div>
+              <p class="footer-text">Get alerts for port updates, weather changes, and special offers.</p>
+
+              <form class="newsletter-form newsletter-form--rccl" aria-label="Newsletter signup">
+                <div class="input-group">
+                  <input type="email" placeholder="Enter your email" aria-label="Email address" class="newsletter-input" autocomplete="email" inputmode="email">
+                  <button type="submit" class="newsletter-button enhanced" aria-label="Subscribe">
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <p class="newsletter-note">No spam. Just useful updates.</p>
+              </form>
+
+              <div class="footer-support" aria-label="Support">
+                <div class="footer-support__item footer-support__item--rccl">
+                  <div class="footer-support__icon">
+                    <i class="fas fa-headset" aria-hidden="true"></i>
+                  </div>
+                  <div class="footer-support__content">
+                    <strong>Guest Services</strong>
+                    <span>24/7 onboard support</span>
+                  </div>
+                </div>
+
+                <div class="footer-support__item footer-support__item--rccl">
+                  <div class="footer-support__icon">
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                  </div>
+                  <div class="footer-support__content">
+                    <strong>Next Port</strong>
+                    <span>${escapeHtml(nextPort.name)} • ${escapeHtml(nextPort.time || '')}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="footer-social">
+                <span>Follow the journey:</span>
+                <div class="social-links">
+                  <a href="#" class="social-link" aria-label="Facebook">
+                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                  </a>
+                  <a href="#" class="social-link" aria-label="Instagram">
+                    <i class="fab fa-instagram" aria-hidden="true"></i>
+                  </a>
+                  <a href="#" class="social-link" aria-label="Twitter">
+                    <i class="fab fa-twitter" aria-hidden="true"></i>
+                  </a>
+                  <a href="#" class="social-link" aria-label="YouTube">
+                    <i class="fab fa-youtube" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-bottom footer-bottom--rccl">
+            <div class="footer-bottom__content">
+              <div class="footer-copyright">
+                <i class="fas fa-ship" aria-hidden="true"></i>
+                <span>© ${year} Royal Caribbean International. All rights reserved.</span>
+              </div>
+              <div class="footer-legal">
+                <a href="privacy.html">Privacy Policy</a>
+                <span class="legal-separator">•</span>
+                <a href="terms.html">Terms of Service</a>
+                <span class="legal-separator">•</span>
+                <a href="accessibility.html">Accessibility</a>
+                <span class="legal-separator">•</span>
+                <a href="cookies.html">Cookies</a>
+              </div>
+            </div>
+
+            <button class="back-to-top back-to-top--rccl enhanced" type="button" aria-label="Scroll to top">
+              <i class="fas fa-chevron-up" aria-hidden="true"></i>
+              <span class="back-to-top__text">Back to Top</span>
+            </button>
+          </div>
+        </div>
+      </footer>
+    `;
+
+    footerMount.outerHTML = footerHTML;
+  }
+
+  function initEnhancedInteractions() {
+    utils.qsa('.nav-link.enhanced').forEach(link => {
+      on(link, 'mouseenter', () => link.classList.add('hovering'));
+      on(link, 'mouseleave', () => link.classList.remove('hovering'));
+    });
+
+    utils.qsa('.btn--rccl.enhanced').forEach((button) => {
+      on(button, 'click', (e) => {
+        const rect = button.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const ripple = document.createElement('span');
+        ripple.style.position = 'absolute';
+        ripple.style.width = '0';
+        ripple.style.height = '0';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'rgba(255, 255, 255, 0.35)';
+        ripple.style.transform = 'translate(-50%, -50%)';
+        ripple.style.animation = 'ripple 0.6s linear';
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        button.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+      });
+    });
+  }
+
   // ---------------------------
   // Interactions (enhanced)
   // ---------------------------
@@ -1412,19 +2062,33 @@
     cleanupFns = [];
   }
 
-  function init() {
+  function upgradeUI() {
+    init({ enhanced: true });
+  }
+
+  function init({ enhanced = true } = {}) {
     cleanup();
 
     injectRCClStyles();
+    if (enhanced) {
+      injectEnhancedStyles();
+      injectRippleStyles();
+    }
     ThemeManager.init();
-    renderHeader();
-    renderFooter();
+    if (enhanced) {
+      renderEnhancedHeader();
+      renderEnhancedFooter();
+    } else {
+      renderHeader();
+      renderFooter();
+    }
     renderBottomNav();
 
     initHeaderInteractions();
     initFooterInteractions();
     initHeroObserver();
     initKeyboardShortcuts();
+    if (enhanced) initEnhancedInteractions();
 
     const headerMount = utils.qs('.app-header');
     const transitionsEnabled = document.body?.dataset?.transitions === 'true';
@@ -1449,9 +2113,12 @@
       FOOTER_SECTIONS,
       RCCL_COLORS,
       renderBottomNav: () => renderBottomNav(),
-      refresh: () => init(),
+      refresh: () => init({ enhanced: true }),
       refreshBadges: () => refreshBadgesInDOM(),
       destroy: () => cleanup(),
+      upgradeUI: () => upgradeUI(),
+      renderEnhancedHeader,
+      renderEnhancedFooter,
     };
   }
 
