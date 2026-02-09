@@ -623,6 +623,13 @@
     }
   };
 
+  function resolveNextPort() {
+    const raw = localStorage.getItem('cruise-nextport');
+    const parsed = raw ? utils.safeJsonParse(raw, null) : null;
+    if (parsed && typeof parsed === 'object' && parsed.name) return parsed;
+    return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
+  }
+
   // ---------------------------
   // Rendering Helpers
   // ---------------------------
