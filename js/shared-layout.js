@@ -16,17 +16,12 @@
   // ---------------------------
   function safeMount(selector, renderFn, fallbackHTML = '<div class="layout-error">Layout component failed to load</div>') {
     try {
-      const mount = document.querySelector(selector);
-      if (!mount) {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn(`Mount point ${selector} not found`);
-        }
-        return null;
-      }
+      const mount = selector ? document.querySelector(selector) : null;
+      if (!mount) return null;
       return renderFn(mount);
     } catch (error) {
       console.error(`Failed to render ${selector}:`, error);
-      const mount = document.querySelector(selector);
+      const mount = selector ? document.querySelector(selector) : null;
       if (mount) {
         mount.innerHTML = fallbackHTML;
       }
@@ -2676,10 +2671,8 @@
   // ---------------------------
   function renderFooter() {
     return safeMount('#sharedFooter', (mount) => {
-      const nextPort = CruiseState.get('cruise-nextport', { 
-        name: 'Perfect Day at CocoCay', 
-        time: '7:00 AM' 
-      });
+      const stored = CruiseState.get('cruise-nextport', null);
+      const nextPort = (stored && typeof stored === 'object' && stored.name) ? stored : resolveNextPort();
 
       const sectionsHTML = FOOTER_SECTIONS.map(section => `
         <div class="footer-section">
@@ -2880,8 +2873,8 @@
   // ---------------------------
   function renderBottomNav() {
     const mounts = utils.qsa('#sharedBottomNav');
-    mounts.forEach(mount => {
-      safeMount(null, () => {
+    mounts.forEach((mount) => {
+      try {
         const currentPage = utils.getCurrentPage(mount);
         const links = NAV_ITEMS.map((item) => {
           const isActive = currentPage === item.id;
@@ -2900,7 +2893,10 @@
             ${links}
           </nav>
         `;
-      }, '<nav class="mobile-nav" aria-label="Bottom navigation"></nav>')(mount);
+      } catch (err) {
+        console.error('Failed to render bottom nav:', err);
+        mount.innerHTML = '<nav class="mobile-nav" aria-label="Bottom navigation"></nav>';
+      }
     });
   }
 
