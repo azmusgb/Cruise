@@ -7,41 +7,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
-  <!-- Print-specific styles -->
-  <style>
-    @media print {
-      .mobile-nav,
-      .action-buttons,
-      .copy-quick,
-      .room-tag,
-      .room-header button,
-      .important-notes {
-        display: none !important;
-      }
-      
-      .room-card {
-        break-inside: avoid;
-        border: 1px solid #ddd !important;
-        box-shadow: none !important;
-        margin-bottom: 20px;
-      }
-      
-      body {
-        font-size: 12pt;
-        background: white !important;
-        color: black !important;
-      }
-      
-      .app-hero__title {
-        color: black !important;
-      }
-      
-      .guest-list li::before {
-        content: "• ";
-      }
-    }
-  </style>
-
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.svg">
 
@@ -57,10 +22,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- Shared styles -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/styles.css">
 
   <!-- Shared layout injector -->
-  <script src="shared-layout.js" defer></script>
+  <script src="js/shared-layout.js?v=2" defer></script>
 </head>
 
 <body>
@@ -320,118 +285,11 @@
   <!-- Shared footer injected here -->
   <div id="sharedFooter"></div>
 
-  <!-- Mobile bottom nav (simplified) -->
-  <nav class="mobile-nav" aria-label="Bottom navigation">
-    <a class="mobile-nav-item" href="index.html">
-      <span class="mobile-nav-icon"><i class="fas fa-home" aria-hidden="true"></i></span>
-      <span class="mobile-nav-text">Dashboard</span>
-    </a>
-    <a class="mobile-nav-item" href="operations.html">
-      <span class="mobile-nav-icon"><i class="fas fa-tasks" aria-hidden="true"></i></span>
-      <span class="mobile-nav-text">Checklist</span>
-    </a>
-    <a class="mobile-nav-item" href="itinerary.html">
-      <span class="mobile-nav-icon"><i class="fas fa-route" aria-hidden="true"></i></span>
-      <span class="mobile-nav-text">Itinerary</span>
-    </a>
-    <a class="mobile-nav-item active" aria-current="page" href="rooms.html">
-      <span class="mobile-nav-icon"><i class="fas fa-bed" aria-hidden="true"></i></span>
-      <span class="mobile-nav-text">Rooms</span>
-    </a>
-    <a class="mobile-nav-item" href="decks.html">
-      <span class="mobile-nav-icon"><i class="fas fa-map" aria-hidden="true"></i></span>
-      <span class="mobile-nav-text">Decks</span>
-    </a>
-    <div class="mobile-nav-more">
-      <button class="mobile-nav-item" type="button" id="moreMenuButton" aria-expanded="false" aria-haspopup="true">
-        <span class="mobile-nav-icon"><i class="fas fa-ellipsis-h" aria-hidden="true"></i></span>
-        <span class="mobile-nav-text">More</span>
-      </button>
-      <div class="mobile-nav-dropdown" id="moreMenuDropdown">
-        <a class="mobile-nav-dropdown-item" href="dining.html">
-          <i class="fas fa-utensils" aria-hidden="true"></i>
-          Dining
-        </a>
-        <a class="mobile-nav-dropdown-item" href="tips.html">
-          <i class="fas fa-lightbulb" aria-hidden="true"></i>
-          Tips
-        </a>
-      </div>
-    </div>
-  </nav>
+  <div id="sharedBottomNav" data-page="rooms"></div>
 
-  <script>
-    // Simplified copy functionality with toast notification
-    document.addEventListener('DOMContentLoaded', () => {
-      const toast = document.getElementById('toast');
-      const liveAnnouncement = document.getElementById('liveAnnouncement');
-      const moreMenuButton = document.getElementById('moreMenuButton');
-      const moreMenuDropdown = document.getElementById('moreMenuDropdown');
-      
-      // Copy room number functionality
-      document.querySelectorAll('[data-copy-room]').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          const room = btn.getAttribute('data-copy-room');
-          if (!room) return;
-          
-          try {
-            await navigator.clipboard.writeText(room);
-            showToast(`Room ${room} copied to clipboard`);
-            if (liveAnnouncement) {
-              liveAnnouncement.textContent = `Room ${room} copied to clipboard`;
-            }
-          } catch (err) {
-            showToast('Failed to copy room number');
-          }
-        });
-      });
-      
-      // Toast notification function
-      function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add('show');
-        
-        setTimeout(() => {
-          toast.classList.remove('show');
-        }, 3000);
-      }
-      
-      // Mobile more menu toggle
-      if (moreMenuButton && moreMenuDropdown) {
-        moreMenuButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isExpanded = moreMenuButton.getAttribute('aria-expanded') === 'true';
-          moreMenuButton.setAttribute('aria-expanded', !isExpanded);
-          moreMenuDropdown.classList.toggle('show');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', () => {
-          moreMenuButton.setAttribute('aria-expanded', 'false');
-          moreMenuDropdown.classList.remove('show');
-        });
-      }
-      
-      // Set consistent min-height for feature lists
-      const featureLists = document.querySelectorAll('.features-list');
-      let maxHeight = 0;
-      
-      // Calculate max height
-      featureLists.forEach(list => {
-        list.style.height = 'auto';
-        const height = list.offsetHeight;
-        if (height > maxHeight) maxHeight = height;
-      });
-      
-      // Apply min-height to all (optional - can be done in CSS instead)
-      // featureLists.forEach(list => {
-      //   list.style.minHeight = maxHeight + 'px';
-      // });
-    });
-  </script>
+  <script src="js/rooms.js" defer></script>
 
-  <script src="service-worker-registration.js" defer></script>
+  <script src="js/service-worker-registration.js" defer></script>
 
 </body>
 </html>

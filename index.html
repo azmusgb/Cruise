@@ -13,10 +13,11 @@
     <title>Royal Caribbean Voyage Hub | Adventure of the Seas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="shared-layout.js" defer></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/shared-layout.js?v=2" defer></script>
 </head>
 <body class="dashboard-page">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <!-- Header -->
     <div id="sharedHeader" data-page="index" data-menu-toggle="false"></div>
 
@@ -56,7 +57,7 @@
     </section>
 
     <!-- Main Content -->
-    <main class="main">
+    <main class="main" id="main-content">
         <div class="container">
             <!-- Priority Alert -->
             <div class="alert alert--info mb-8">
@@ -488,134 +489,8 @@
     <!-- Footer -->
     <div id="sharedFooter"></div>
 
-    <!-- Mobile Navigation -->
-    <nav class="mobile-nav" aria-label="Bottom navigation">
-        <a href="index.html" class="mobile-nav-item active" aria-current="page">
-            <span class="mobile-nav-icon"><i class="fas fa-home"></i></span>
-            <span class="mobile-nav-text">Dashboard</span>
-        </a>
-        <a href="operations.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span>
-            <span class="mobile-nav-text">Checklist</span>
-        </a>
-        <a href="itinerary.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-route"></i></span>
-            <span class="mobile-nav-text">Itinerary</span>
-        </a>
-        <a href="rooms.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-bed"></i></span>
-            <span class="mobile-nav-text">Rooms</span>
-        </a>
-        <a href="decks.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-map"></i></span>
-            <span class="mobile-nav-text">Decks</span>
-        </a>
-        <a href="dining.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span>
-            <span class="mobile-nav-text">Dining</span>
-        </a>
-        <a href="tips.html" class="mobile-nav-item">
-            <span class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></span>
-            <span class="mobile-nav-text">Tips</span>
-        </a>
-    </nav>
+    <div id="sharedBottomNav" data-page="index"></div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Save Contacts Button
-            const saveButton = document.getElementById('saveContacts');
-
-            if (saveButton) {
-                saveButton.addEventListener('click', function() {
-                    saveButton.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                    saveButton.classList.add('btn--success');
-                    saveButton.disabled = true;
-
-                    setTimeout(() => {
-                        saveButton.innerHTML = '<i class="fas fa-download"></i> Save to Phone';
-                        saveButton.classList.remove('btn--success');
-                        saveButton.disabled = false;
-                    }, 2000);
-                });
-            }
-
-            // Countdown Function
-            function updateCountdown() {
-                const now = new Date();
-                const embarkationDate = new Date('2026-02-14T15:00:00');
-                const timeDiff = embarkationDate - now;
-
-                if (timeDiff <= 0) {
-                    // Update all countdown displays
-                    document.querySelectorAll('.countdown__value').forEach(el => {
-                        el.textContent = '00';
-                    });
-                    return;
-                }
-
-                const totalHours = Math.floor(timeDiff / (1000 * 60 * 60));
-                const days = Math.floor(totalHours / 24);
-                const hours = totalHours % 24;
-
-                // Update main hero countdown
-                const mainDays = document.getElementById('countdown-days');
-                const mainHours = document.getElementById('countdown-hours');
-                
-                if (mainDays) mainDays.textContent = days.toString().padStart(2, '0');
-                if (mainHours) mainHours.textContent = hours.toString().padStart(2, '0');
-
-                // Update sidebar countdown
-                const sidebarDays = document.getElementById('sidebar-countdown-days');
-                const sidebarHours = document.getElementById('sidebar-countdown-hours');
-                
-                if (sidebarDays) sidebarDays.textContent = days.toString().padStart(2, '0');
-                if (sidebarHours) sidebarHours.textContent = hours.toString().padStart(2, '0');
-            }
-
-            // Initialize countdown
-            updateCountdown();
-            setInterval(updateCountdown, 60000); // Update every minute
-
-            // Task button interactions
-            document.querySelectorAll('.task-list__item .btn').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const taskItem = this.closest('.task-list__item');
-                    const taskTitle = taskItem.querySelector('.task-list__title').textContent;
-                    
-                    // Show completion feedback
-                    const originalText = this.textContent;
-                    this.innerHTML = '<i class="fas fa-check"></i> Done';
-                    this.classList.add('btn--success');
-                    this.disabled = true;
-                    
-                    // Remove badge if exists
-                    const badge = taskItem.querySelector('.badge');
-                    if (badge) {
-                        badge.style.display = 'none';
-                    }
-
-                    // Update urgent count badge
-                    const urgentBadge = document.querySelector('.badge--critical');
-                    if (urgentBadge) {
-                        const currentCount = parseInt(urgentBadge.textContent);
-                        if (currentCount > 0) {
-                            urgentBadge.textContent = (currentCount - 1) + ' Urgent';
-                            if (currentCount - 1 === 0) {
-                                urgentBadge.style.display = 'none';
-                            }
-                        }
-                    }
-
-                    // Reset button after delay
-                    setTimeout(() => {
-                        this.textContent = originalText;
-                        this.classList.remove('btn--success');
-                        this.disabled = false;
-                    }, 3000);
-                });
-            });
-        });
-    </script>
+    <script src="js/index.js" defer></script>
 </body>
 </html>

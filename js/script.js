@@ -1,282 +1,28 @@
-  // ============================================================================
+        // ============================================================================
          // CRUISE COMPANION APPLICATION - PRODUCTION READY
          // Version: 2.0.0
          // Date: 2026-01-15
+         // 
+         // MODULE STRUCTURE:
+         // - config.js: Shared cruise metadata and configuration (CONFIG, CRUISE_METADATA)
+         // - errors.js: ErrorHandler class for centralized error handling
+         // - storage.js: StorageManager class for localStorage abstraction
+         // - script.js: Main application logic (this file)
+         // 
+         // This file should be loaded as an ES module: <script type="module" src="script.js">
          // ============================================================================
          
          'use strict';
          
-         // ============================================================================
-         // CONFIGURATION & CONSTANTS
-         // ============================================================================
+         // Import shared modules (all in js/ directory)
+         import { CONFIG } from './config.js';
+         import { ErrorHandler } from './errors.js';
+         import { StorageManager } from './storage.js';
          
-         const CONFIG = {
-          // Application
-          APP_NAME: 'Cruise Companion',
-          APP_VERSION: '2.0.0',
-          
-          // Cruise Details
-          CRUISE_DATE: '2026-02-14T14:00:00-05:00',
-          CRUISE_DURATION: 6,
-          SHIP_NAME: 'Adventure of the Seas',
-          SAILING_NUMBER: '12345678',
-          MUSTER_STATION: 'F6',
-          EMBARKATION_TIME: '2:00 PM',
-          
-          // Ports
-          PORTS: [
-              { id: 'georgetown', name: 'George Town, Grand Cayman', day: 3, arrival: '11:00 AM', departure: '5:15 PM', latitude: 19.2866, longitude: -81.3744 },
-              { id: 'falmouth', name: 'Falmouth, Jamaica', day: 4, arrival: '8:30 AM', departure: '4:30 PM', latitude: 18.4937, longitude: -77.6559 },
-              { id: 'cococay', name: 'Perfect Day at CocoCay', day: 6, arrival: '7:30 AM', departure: '4:30 PM', latitude: 25.8186, longitude: -77.9520 }
-          ],
-          
-          // Styling
-          BREAKPOINTS: {
-              MOBILE: 768,
-              TABLET: 1024,
-              DESKTOP: 1280
-          },
-          
-          // Performance
-          DEBOUNCE_DELAY: 300,
-          TOAST_DURATION: 3000,
-          LOADING_DELAY: 1000,
-          
-         // Offline Caching
-         OFFLINE_CACHE_NAME: 'cruise_companion_offline_v1',
-         SHARED_DECK_PLANS_MANIFEST: 'deck-plans/index.json',
-         
-         // Storage Keys
-         STORAGE_KEYS: {
-              PREFERENCES: 'cruise_preferences_v2',
-              SEARCH_HISTORY: 'cruise_search_history_v2',
-              COMPACT_MODE: 'cruise_compact_mode',
-              CRITICAL_FILTER: 'cruise_critical_filter',
-              HINT_DISMISSED: 'cruise_hint_dismissed',
-              DECK_PLANS: 'cruise_deck_plans_v1',
-              OFFLINE_READY: 'cruise_offline_ready_v1'
-         },
-          
-          // API Endpoints (Placeholders for future expansion)
-          API_ENDPOINTS: {
-              WEATHER: 'https://api.example.com/weather',
-              UPDATES: 'https://api.example.com/cruise-updates',
-              SYNC: 'https://api.example.com/sync'
-          }
-         };
-         
-         // ============================================================================
-         // ERROR HANDLER
-         // ============================================================================
-         
-         class ErrorHandler {
-          constructor() {
-              this.errors = [];
-              this.maxErrors = 50;
-          }
-          
-          log(error, context = 'Unknown') {
-              const errorObj = {
-                  timestamp: new Date().toISOString(),
-                  context: context,
-                  message: error.message || String(error),
-                  stack: error.stack,
-                  userAgent: navigator.userAgent,
-                  url: window.location.href
-              };
-              
-              console.error(`[${context}]`, error);
-              this.errors.push(errorObj);
-              
-              // Keep only recent errors
-              if (this.errors.length > this.maxErrors) {
-                  this.errors.shift();
-              }
-              
-              // Send to analytics if available
-              this.sendToAnalytics(errorObj);
-              
-              return errorObj;
-          }
-          
-          sendToAnalytics(error) {
-              // Google Analytics
-              if (typeof gtag === 'function') {
-                  gtag('event', 'exception', {
-                      description: `${error.context}: ${error.message}`,
-                      fatal: false
-                  });
-              }
-              
-              // Sentry.io (example)
-              if (typeof Sentry !== 'undefined') {
-                  Sentry.captureException(new Error(`${error.context}: ${error.message}`));
-              }
-          }
-          
-          getErrors() {
-              return [...this.errors];
-          }
-          
-          clearErrors() {
-              this.errors = [];
-          }
-          
-          showUserFriendlyError(message, duration = 5000) {
-              const errorDiv = document.createElement('div');
-              errorDiv.className = 'error-toast';
-              errorDiv.innerHTML = `
-                  <div class="error-content">
-                      <i class="fas fa-exclamation-circle"></i>
-                      <span>${message}</span>
-                      <button class="error-close"><i class="fas fa-times"></i></button>
-                  </div>
-              `;
-              
-              document.body.appendChild(errorDiv);
-              
-              setTimeout(() => {
-                  errorDiv.classList.add('show');
-              }, 10);
-              
-              const closeBtn = errorDiv.querySelector('.error-close');
-              closeBtn.addEventListener('click', () => {
-                  errorDiv.classList.remove('show');
-                  setTimeout(() => {
-                      if (errorDiv.parentNode) {
-                          errorDiv.parentNode.removeChild(errorDiv);
-                      }
-                  }, 300);
-              });
-              
-              if (duration > 0) {
-                  setTimeout(() => {
-                      if (errorDiv.parentNode) {
-                          errorDiv.classList.remove('show');
-                          setTimeout(() => {
-                              if (errorDiv.parentNode) {
-                                  errorDiv.parentNode.removeChild(errorDiv);
-                              }
-                          }, 300);
-                      }
-                  }, duration);
-              }
-              
-              return errorDiv;
-          }
-         }
-         
-         // ============================================================================
-         // STORAGE MANAGER
-         // ============================================================================
-         
-         class StorageManager {
-          constructor() {
-              this.errorHandler = new ErrorHandler();
-              this.isAvailable = this.checkAvailability();
-          }
-          
-          checkAvailability() {
-              try {
-                  const testKey = '__storage_test__';
-                  localStorage.setItem(testKey, testKey);
-                  localStorage.removeItem(testKey);
-                  return true;
-              } catch (e) {
-                  this.errorHandler.log(e, 'StorageManager.checkAvailability');
-                  return false;
-              }
-          }
-          
-          set(key, value) {
-              if (!this.isAvailable) {
-                  console.warn('LocalStorage is not available');
-                  return false;
-              }
-              
-              try {
-                  const serialized = JSON.stringify(value);
-                  localStorage.setItem(key, serialized);
-                  return true;
-              } catch (e) {
-                  this.errorHandler.log(e, `StorageManager.set(${key})`);
-                  return false;
-              }
-          }
-          
-          get(key, defaultValue = null) {
-              if (!this.isAvailable) {
-                  return defaultValue;
-              }
-              
-              try {
-                  const item = localStorage.getItem(key);
-                  return item ? JSON.parse(item) : defaultValue;
-              } catch (e) {
-                  this.errorHandler.log(e, `StorageManager.get(${key})`);
-                  return defaultValue;
-              }
-          }
-          
-          remove(key) {
-              if (!this.isAvailable) return false;
-              
-              try {
-                  localStorage.removeItem(key);
-                  return true;
-              } catch (e) {
-                  this.errorHandler.log(e, `StorageManager.remove(${key})`);
-                  return false;
-              }
-          }
-          
-          clear() {
-              if (!this.isAvailable) return false;
-              
-              try {
-                  localStorage.clear();
-                  return true;
-              } catch (e) {
-                  this.errorHandler.log(e, 'StorageManager.clear');
-                  return false;
-              }
-          }
-          
-          // Application-specific methods
-          savePreferences(preferences) {
-              return this.set(CONFIG.STORAGE_KEYS.PREFERENCES, preferences);
-          }
-          
-          loadPreferences() {
-              return this.get(CONFIG.STORAGE_KEYS.PREFERENCES, {
-                  compactMode: false,
-                  criticalFilter: false,
-                  theme: 'light',
-                  fontSize: 'medium',
-                  notifications: true
-              });
-          }
-          
-          saveSearchHistory(history) {
-              return this.set(CONFIG.STORAGE_KEYS.SEARCH_HISTORY, history);
-          }
-          
-          loadSearchHistory() {
-              return this.get(CONFIG.STORAGE_KEYS.SEARCH_HISTORY, []);
-          }
-
-          saveDeckPlans(plans) {
-              return this.set(CONFIG.STORAGE_KEYS.DECK_PLANS, plans);
-          }
-          
-          loadDeckPlans() {
-              return this.get(CONFIG.STORAGE_KEYS.DECK_PLANS, []);
-          }
-          
-          clearDeckPlans() {
-              return this.remove(CONFIG.STORAGE_KEYS.DECK_PLANS);
-          }
-         }
+         // Re-export for backward compatibility (if other code expects global access)
+         window.CONFIG = CONFIG;
+         window.ErrorHandler = ErrorHandler;
+         window.StorageManager = StorageManager;
          
          // ============================================================================
          // DEBOUNCE & THROTTLE UTILITIES
@@ -2102,6 +1848,8 @@
               this.isFetching = false;
               this.errorHandler = new ErrorHandler();
               this.observers = new Set();
+              // NOTE: Weather service uses Open-Meteo API directly (not CONFIG.API_ENDPOINTS.WEATHER)
+              // CONFIG.API_ENDPOINTS.WEATHER is a placeholder for future custom API integration
               this.useMockData = false; // Uses Open-Meteo when available; falls back to mock data
               
               // DOM elements
@@ -2473,13 +2221,29 @@
          }
          
          // ============================================================================
-         // APPLICATION MAIN
+         // APPLICATION MAIN - CruiseCompanionApp
+         // ============================================================================
+         // 
+         // This is the main application orchestrator. It coordinates:
+         // - Navigation between sections
+         // - Search functionality
+         // - Countdown timer
+         // - Weather service
+         // - UI components (toasts, modals, etc.)
+         // 
+         // NOTE: This class is tightly coupled to specific DOM structure and pages.
+         // For new pages (index.html, itinerary.html, rooms.html), prefer using
+         // page-specific scripts (index.js, itinerary.js, rooms.js) that import
+         // shared utilities from config.js, errors.js, and storage.js.
          // ============================================================================
          
          class CruiseCompanionApp {
          constructor() {
+         // Core managers (using shared modules)
          this.errorHandler = new ErrorHandler();
          this.storage = new StorageManager();
+         
+         // Feature managers (legacy - tightly coupled to old page structure)
          this.navigation = new NavigationManager();
          this.search = new SearchManager();
          this.ui = new UIComponentsManager();
@@ -3176,7 +2940,7 @@
          async initializeServiceWorker() {
          if ('serviceWorker' in navigator) {
          try {
-            const registration = await navigator.serviceWorker.register('sw.js');
+            const registration = await navigator.serviceWorker.register('js/sw.js');
             console.log('ServiceWorker registration successful with scope:', registration.scope);
          } catch (error) {
             console.warn('ServiceWorker registration failed:', error);
@@ -3777,7 +3541,7 @@
          
          urls.add(currentUrl.href);
          urls.add(new URL('index.html', baseUrl).href);
-         urls.add(new URL('sw.js', baseUrl).href);
+         urls.add(new URL('js/sw.js', baseUrl).href);
          
          document.querySelectorAll('link[rel="stylesheet"], link[rel="icon"], script[src], img[src], source[src]').forEach((el) => {
          const attr = el.getAttribute('href') || el.getAttribute('src');
@@ -4201,12 +3965,41 @@
          }
          
          // ============================================================================
-         // APPLICATION INITIALIZATION
+         // APPLICATION BOOTSTRAP & INITIALIZATION
+         // ============================================================================
+         // 
+         // Bootstrap function: Conditionally initializes features based on page context.
+         // This allows script.js to work on pages that may not have all expected DOM elements.
+         // 
+         // USAGE:
+         //   - Load script.js as ES module: <script type="module" src="script.js">
+         //   - For pages using new page-specific scripts (index.js, itinerary.js, rooms.js),
+         //     you may not need to load script.js at all.
          // ============================================================================
          
-         // Create and initialize the application
-         document.addEventListener('DOMContentLoaded', async () => {
+         /**
+          * Bootstrap the Cruise Companion application
+          * Only initializes features that are relevant to the current page
+          */
+         async function bootstrapCruiseApp() {
          try {
+         // Detect which page we're on
+         const currentPage = document.body.getAttribute('data-page') || 
+                            document.querySelector('[data-page]')?.getAttribute('data-page') ||
+                            window.location.pathname.split('/').pop()?.replace('.html', '') || 
+                            'index';
+         
+         // Check if this page needs the legacy CruiseCompanionApp
+         // (Pages with new scripts like index.js/itinerary.js/rooms.js may not need this)
+         const needsLegacyApp = document.querySelector('section[id]') || 
+                               document.querySelector('.nav-day-btn') ||
+                               document.getElementById('searchInput');
+         
+         if (!needsLegacyApp) {
+            console.log(`[Cruise Companion] Page "${currentPage}" uses page-specific scripts. Skipping legacy app initialization.`);
+            return null;
+         }
+         
          // Create app instance
          const app = new CruiseCompanionApp();
          
@@ -4216,12 +4009,15 @@
          // Initialize app
          await app.initialize();
          
+         // Initialize mobile UX enhancements
          MobileUXEnhancements.init();
          
          // Add beforeunload handler for cleanup
          window.addEventListener('beforeunload', () => {
-         app.destroy();
+            app.destroy();
          });
+         
+         return app;
          
          } catch (error) {
          console.error('Failed to initialize Cruise Companion:', error);
@@ -4241,13 +4037,17 @@
          `;
          
          document.body.appendChild(errorScreen);
+         return null;
          }
-         });
+         }
+         
+         // Auto-initialize on DOM ready
+         document.addEventListener('DOMContentLoaded', bootstrapCruiseApp);
          
          // Service Worker registration (simplified)
          if ('serviceWorker' in navigator) {
          window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(error => {
+        navigator.serviceWorker.register('js/sw.js').catch(error => {
          console.log('ServiceWorker registration failed:', error);
          });
          });
@@ -4266,6 +4066,12 @@
          ╔══════════════════════════════════════════════════════════╗
          ║                CRUISE COMPANION v2.0.0                   ║
          ║          Adventure of the Seas • Feb 14-20, 2026         ║
+         ║                                                          ║
+         ║   Module Structure:                                      ║
+         ║   - config.js: Shared cruise metadata                    ║
+         ║   - errors.js: ErrorHandler class                        ║
+         ║   - storage.js: StorageManager class                    ║
+         ║   - script.js: Legacy app orchestrator (this file)       ║
          ║                                                          ║
          ║   Type 'cruiseApp' in console for debugging controls.    ║
          ║   Press '?' to view keyboard shortcuts.                  ║

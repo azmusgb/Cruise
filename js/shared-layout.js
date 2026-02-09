@@ -10,6 +10,7 @@
  * Expected mounts in each page:
  *   <div id="sharedHeader" data-page="index"></div>
  *   <div id="sharedFooter"></div>
+ *   <div id="sharedBottomNav" data-page="index"></div> (optional)
  *
  * Optional dataset knobs on #sharedHeader:
  *   data-menu-toggle="false"   -> hide mobile menu toggle
@@ -579,6 +580,35 @@
     `;
 
     headerMount.outerHTML = headerHTML;
+  }
+
+  // ---------------------------
+  // Bottom navigation (shared)
+  // ---------------------------
+  function renderBottomNav() {
+    const mounts = utils.qsa('#sharedBottomNav');
+    if (!mounts.length) return;
+
+    mounts.forEach((mount) => {
+      const currentPage = utils.getCurrentPage(mount);
+      const links = NAV_ITEMS.map((item) => {
+        const isActive = currentPage === item.id;
+        return `
+          <a href="${item.href}"
+             class="mobile-nav-item${isActive ? ' active' : ''}"
+             ${isActive ? 'aria-current="page"' : ''}>
+            <span class="mobile-nav-icon"><i class="fas ${item.icon}" aria-hidden="true"></i></span>
+            <span class="mobile-nav-text">${item.text}</span>
+          </a>
+        `;
+      }).join('');
+
+      mount.innerHTML = `
+        <nav class="mobile-nav" aria-label="Bottom navigation">
+          ${links}
+        </nav>
+      `;
+    });
   }
 
   // ---------------------------
@@ -1389,6 +1419,7 @@
     ThemeManager.init();
     renderHeader();
     renderFooter();
+    renderBottomNav();
 
     initHeaderInteractions();
     initFooterInteractions();
@@ -1417,6 +1448,7 @@
       NAV_ITEMS,
       FOOTER_SECTIONS,
       RCCL_COLORS,
+      renderBottomNav: () => renderBottomNav(),
       refresh: () => init(),
       refreshBadges: () => refreshBadgesInDOM(),
       destroy: () => cleanup(),
@@ -1432,4 +1464,3 @@
     init();
   }
 })();
-[file content end]
