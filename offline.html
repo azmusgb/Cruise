@@ -1,857 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" data-theme-mode="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0066b2">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192.svg">
-    <title>Offline - Royal Caribbean Voyage Hub</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="js/shared-layout.js?v=2" defer></script>
-    <style>
-        /* Offline Page Specific Styles */
-        :root {
-            --offline-gradient: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%);
-            --offline-accent: #ed8936;
-            --offline-light: #f7fafc;
-            --offline-dark: #2d3748;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .connection-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-            font-size: 1.1rem;
-        }
-
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #fc8181;
-            animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* Main Content */
-        .offline-main {
-            flex: 1;
-            padding: 3rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .offline-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 3rem;
-            margin-bottom: 3rem;
-        }
-
-        @media (min-width: 768px) {
-            .offline-content {
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            }
-        }
-
-        .offline-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-top: 5px solid var(--offline-accent);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .offline-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            color: var(--offline-accent);
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--offline-dark);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .card-content {
-            color: #4a5568;
-            line-height: 1.6;
-            flex: 1;
-        }
-
-        .card-list {
-            list-style: none;
-            padding: 0;
-            margin: 1.5rem 0;
-        }
-
-        .card-list li {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .card-list li:last-child {
-            border-bottom: none;
-        }
-
-        .card-list li i {
-            color: #48bb78;
-            font-size: 1rem;
-        }
-
-        .card-actions {
-            margin-top: 2rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        /* Retry Button */
-        .retry-container {
-            text-align: center;
-            margin: 3rem 0;
-            padding: 2rem;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .retry-button {
-            background: var(--offline-gradient);
-            color: white;
-            border: none;
-            padding: 1.25rem 2.5rem;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 4px 15px rgba(90, 103, 216, 0.4);
-        }
-
-        .retry-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(90, 103, 216, 0.6);
-        }
-
-        .retry-button:active {
-            transform: translateY(-1px);
-        }
-
-        .retry-button i {
-            font-size: 1.2rem;
-        }
-
-        .auto-retry-note {
-            margin-top: 1rem;
-            color: #718096;
-            font-size: 0.9rem;
-        }
-
-        .auto-retry-note i {
-            color: var(--offline-accent);
-            margin-right: 0.5rem;
-        }
-
-        /* Connection Tips */
-        .connection-tips {
-            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
-            border-radius: 20px;
-            padding: 2.5rem;
-            margin: 3rem 0;
-            border-left: 6px solid #fc8181;
-        }
-
-        .tips-title {
-            color: #c53030;
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .tips-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .tip-item {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .tip-number {
-            background: #fc8181;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            flex-shrink: 0;
-        }
-
-        .tip-content h4 {
-            color: #2d3748;
-            margin: 0 0 0.5rem 0;
-            font-size: 1.1rem;
-        }
-
-        .tip-content p {
-            color: #4a5568;
-            margin: 0;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        /* Progress Bar */
-        .reconnect-progress {
-            margin: 2rem auto;
-            max-width: 500px;
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.75rem;
-            font-size: 0.9rem;
-            color: #4a5568;
-        }
-
-        .progress-bar {
-            height: 10px;
-            background: #e2e8f0;
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--offline-gradient);
-            border-radius: 5px;
-            width: 0%;
-            transition: width 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255,255,255,0.4) 50%, 
-                transparent 100%);
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        /* Cached Pages */
-        .cached-pages {
-            margin: 3rem 0;
-        }
-
-        .pages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .page-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            text-decoration: none;
-            color: var(--offline-dark);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .page-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--offline-accent);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .page-card i {
-            font-size: 2rem;
-            color: var(--offline-accent);
-            margin-bottom: 1rem;
-        }
-
-        .page-card h4 {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        /* Network Status Widget */
-        .network-widget {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            max-width: 300px;
-            border-left: 5px solid #fc8181;
-            animation: slideIn 0.5s ease;
-            display: none;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .widget-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .widget-title {
-            font-weight: 700;
-            color: var(--offline-dark);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .close-widget {
-            background: none;
-            border: none;
-            color: #a0aec0;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: color 0.2s ease;
-        }
-
-        .close-widget:hover {
-            color: #e53e3e;
-        }
-
-        .widget-content {
-            color: #4a5568;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .offline-card {
-                padding: 2rem;
-            }
-            
-            .network-widget {
-                bottom: 80px;
-                right: 10px;
-                left: 10px;
-                max-width: none;
-            }
-            
-            .pages-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-        }
-
-        @media (max-width: 480px) {
-            .offline-main {
-                padding: 2rem 1rem;
-            }
-            
-            .card-actions {
-                flex-direction: column;
-            }
-            
-            .retry-button {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* Accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-    </style>
-    <script src="js/shared-layout.js?v=2" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7fbff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+  <title>Offline | Adventure of the Seas</title>
+  <meta name="description" content="Offline-ready checklist, itinerary, and contacts in the new light layout.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/shared-layout.js?v=2" defer></script>
 </head>
-<body class="offline-mode">
-    <!-- Screen Reader Announcement -->
-    <div class="sr-only" id="offlineAnnouncement" aria-live="assertive">
-        You are currently offline. Limited functionality is available.
-    </div>
+<body class="decks-shell page-shell">
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="sharedHeader" data-page="offline"></div>
 
-    <!-- Network Status Widget -->
-    <div class="network-widget" id="networkWidget" role="alert">
-        <div class="widget-header">
-            <div class="widget-title">
-                <i class="fas fa-wifi-slash"></i>
-                <span>Network Status</span>
-            </div>
-            <button class="close-widget" aria-label="Close network status" onclick="closeWidget()">
-                <i class="fas fa-times"></i>
-            </button>
+  <main id="main" aria-label="Offline mode">
+    <section class="deck-hero">
+      <div class="container">
+        <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
+        <h1 class="deck-hero__title">Offline Ready</h1>
+        <p class="deck-hero__subtitle">Cached essentials for when connectivity drops—checklist, itinerary, dining, and contacts.</p>
+        <div class="deck-hero__actions">
+          <a class="btn btn--primary" href="#offline-grid">View offline items</a>
+          <a class="btn btn--secondary" href="index.html">Back to dashboard</a>
         </div>
-        <div class="widget-content">
-            <p>You're currently offline. Some features may be limited.</p>
-            <div class="connection-status" style="margin-top: 1rem; justify-content: flex-start;">
-                <span class="status-dot"></span>
-                <span>Attempting to reconnect...</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hero Section -->
-    <section class="offline-hero">
-        <div class="offline-hero__inner">
-            <span class="offline-hero__context">
-                <i class="fas fa-wifi-slash"></i> Offline Mode
-            </span>
-            <h1 class="offline-hero__title">No Internet Connection</h1>
-            <p class="offline-hero__meta">
-                You're currently sailing in offline waters. Your saved voyage essentials are still available.
-            </p>
-            <div class="connection-status">
-                <span class="status-dot"></span>
-                <span>Checking for connection...</span>
-            </div>
-        </div>
+      </div>
     </section>
 
-    <main class="offline-main container">
-        <div class="offline-content">
-            <!-- What's Available Card -->
-            <div class="offline-card">
-                <div class="card-icon">
-                    <i class="fas fa-ship"></i>
-                </div>
-                <h2 class="card-title">
-                    <i class="fas fa-check-circle"></i>
-                    Available Offline
-                </h2>
-                <div class="card-content">
-                    <p>Essential voyage information has been saved for offline access:</p>
-                    <ul class="card-list">
-                        <li><i class="fas fa-check"></i> Your stateroom details & assignments</li>
-                        <li><i class="fas fa-check"></i> Deck plans & ship layout</li>
-                        <li><i class="fas fa-check"></i> Pre-cruise checklist & documents</li>
-                        <li><i class="fas fa-check"></i> Dining reservations & times</li>
-                        <li><i class="fas fa-check"></i> Emergency contact information</li>
-                        <li><i class="fas fa-check"></i> Travel tips & packing list</li>
-                    </ul>
-                </div>
-                <div class="card-actions">
-                    <a href="index.html" class="btn btn-secondary" style="flex: 1;">
-                        <i class="fas fa-home"></i> Go to Dashboard
-                    </a>
-                    <a href="rooms.html" class="btn btn-secondary" style="flex: 1;">
-                        <i class="fas fa-bed"></i> View Rooms
-                    </a>
-                </div>
-            </div>
-
-            <!-- What's Limited Card -->
-            <div class="offline-card">
-                <div class="card-icon">
-                    <i class="fas fa-cloud-slash"></i>
-                </div>
-                <h2 class="card-title">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Limited Access
-                </h2>
-                <div class="card-content">
-                    <p>The following features require an internet connection:</p>
-                    <ul class="card-list">
-                        <li><i class="fas fa-times"></i> Live weather updates & forecasts</li>
-                        <li><i class="fas fa-times"></i> Real-time ship location tracking</li>
-                        <li><i class="fas fa-times"></i> Current account balance & charges</li>
-                        <li><i class="fas fa-times"></i> Last-minute activity bookings</li>
-                        <li><i class="fas fa-times"></i> Latest cruise announcements</li>
-                        <li><i class="fas fa-times"></i> Chat & messaging features</li>
-                    </ul>
-                    <p class="card-note" style="margin-top: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px; font-size: 0.9rem;">
-                        <i class="fas fa-info-circle"></i> These features will be restored once you reconnect.
-                    </p>
-                </div>
-            </div>
+    <section class="main-navigation" aria-label="Quick navigation">
+      <div class="container main-navigation__inner">
+        <div class="main-navigation__search" role="search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input type="search" placeholder="Search offline content" aria-label="Search offline content" />
+          <span class="main-navigation__hint">Press / to focus</span>
         </div>
-
-        <!-- Reconnection Progress -->
-        <div class="reconnect-progress">
-            <h3><i class="fas fa-sync-alt"></i> Automatic Reconnection</h3>
-            <div class="progress-info">
-                <span>Attempting to reconnect</span>
-                <span id="retryCount">0 attempts</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="auto-retry-note">
-                <i class="fas fa-redo"></i> Will automatically retry every 5 seconds
-            </div>
+        <div class="main-navigation__filters" aria-label="Shortcuts">
+          <a class="pill-btn" href="#offline-grid">All</a>
+          <a class="pill-btn" href="#checklist">Checklist</a>
+          <a class="pill-btn" href="#itinerary">Itinerary</a>
+          <a class="pill-btn" href="#contacts">Contacts</a>
         </div>
+      </div>
+    </section>
 
-        <!-- Connection Tips -->
-        <div class="connection-tips">
-            <h3 class="tips-title">
-                <i class="fas fa-life-ring"></i>
-                Connection Troubleshooting
-            </h3>
-            <div class="tips-grid">
-                <div class="tip-item">
-                    <div class="tip-number">1</div>
-                    <div class="tip-content">
-                        <h4>Check Wi-Fi</h4>
-                        <p>Ensure you're connected to the ship's Wi-Fi network "Royal-WiFi" or have cellular data enabled.</p>
-                    </div>
-                </div>
-                <div class="tip-item">
-                    <div class="tip-number">2</div>
-                    <div class="tip-content">
-                        <h4>Airplane Mode</h4>
-                        <p>Toggle Airplane mode off and on to reset your device's network connections.</p>
-                    </div>
-                </div>
-                <div class="tip-item">
-                    <div class="tip-number">3</div>
-                    <div class="tip-content">
-                        <h4>Restart App</h4>
-                        <p>Close and reopen the Royal Caribbean app to refresh the connection.</p>
-                    </div>
-                </div>
-                <div class="tip-item">
-                    <div class="tip-number">4</div>
-                    <div class="tip-content">
-                        <h4>Move Locations</h4>
-                        <p>Try moving to a different area of the ship for better signal reception.</p>
-                    </div>
-                </div>
+    <section class="deck-directory container" aria-label="Offline categories">
+      <article class="category-card" id="checklist">
+        <div class="category-card__heading">✅ Checklist</div>
+        <div class="deck-pills">
+          <div class="deck-pill"><span class="deck-pill__number">1</span><span class="deck-pill__text">Current tasks</span></div>
+          <div class="deck-pill"><span class="deck-pill__number">2</span><span class="deck-pill__text">Completed</span></div>
+        </div>
+      </article>
+      <article class="category-card" id="itinerary">
+        <div class="category-card__heading">🗺️ Itinerary</div>
+        <div class="deck-pills">
+          <div class="deck-pill"><span class="deck-pill__number">3</span><span class="deck-pill__text">Port times</span></div>
+          <div class="deck-pill"><span class="deck-pill__number">4</span><span class="deck-pill__text">Sea days</span></div>
+        </div>
+      </article>
+      <article class="category-card" id="contacts">
+        <div class="category-card__heading">📞 Contacts</div>
+        <div class="deck-pills">
+          <div class="deck-pill"><span class="deck-pill__number">5</span><span class="deck-pill__text">Guest services</span></div>
+          <div class="deck-pill"><span class="deck-pill__number">6</span><span class="deck-pill__text">Ship security</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="deck-grid container" aria-label="Offline content" id="offline-grid">
+      <div class="deck-grid__header">
+        <div>
+          <h2 class="deck-grid__title">Cached essentials</h2>
+          <p class="deck-grid__subtitle">Use these when signal is weak—content is stored locally.</p>
+        </div>
+        <div class="deck-grid__counts">
+          <div class="count-chip"><span>6</span> items</div>
+        </div>
+      </div>
+      <div class="deck-cards" role="list">
+        <article class="deck-card" role="listitem">
+          <div class="deck-visual">
+            <span class="deck-number">1</span>
+            <img src="https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80" alt="Checklist" />
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Checklist snapshot</h3>
+              <p class="deck-subtitle">Current items cached for offline use</p>
             </div>
-        </div>
-
-        <!-- Cached Pages -->
-        <div class="cached-pages">
-            <h3 style="color: var(--offline-dark); margin-bottom: 1rem;">
-                <i class="fas fa-download"></i> Available Offline Pages
-            </h3>
-            <p style="color: #4a5568; margin-bottom: 1.5rem;">These pages are saved and available without internet:</p>
-            <div class="pages-grid">
-                <a href="index.html" class="page-card">
-                    <i class="fas fa-home"></i>
-                    <h4>Dashboard</h4>
-                </a>
-                <a href="rooms.html" class="page-card">
-                    <i class="fas fa-bed"></i>
-                    <h4>Staterooms</h4>
-                </a>
-                <a href="decks.html" class="page-card">
-                    <i class="fas fa-map"></i>
-                    <h4>Deck Plans</h4>
-                </a>
-                <a href="operations.html" class="page-card">
-                    <i class="fas fa-tasks"></i>
-                    <h4>Checklist</h4>
-                </a>
-                <a href="dining.html" class="page-card">
-                    <i class="fas fa-utensils"></i>
-                    <h4>Dining</h4>
-                </a>
-                <a href="tips.html" class="page-card">
-                    <i class="fas fa-lightbulb"></i>
-                    <h4>Tips</h4>
-                </a>
+            <div class="deck-highlights">
+              <span>Sync on Wi‑Fi</span>
+              <span>Tap to open</span>
+              <span>Auto cache</span>
             </div>
-        </div>
+            <a class="deck-card__cta" href="#">Open checklist →</a>
+          </div>
+        </article>
 
-        <!-- Retry Button -->
-        <div class="retry-container">
-            <h3 style="color: var(--offline-dark); margin-bottom: 1.5rem;">
-                <i class="fas fa-bolt"></i> Ready to Reconnect?
-            </h3>
-            <button class="retry-button" onclick="attemptReconnect()" id="retryButton">
-                <i class="fas fa-redo"></i>
-                <span>Retry Connection</span>
-            </button>
-            <p class="auto-retry-note">
-                <i class="fas fa-clock"></i> Auto-retry in <span id="countdown">5</span> seconds
-            </p>
-        </div>
-    </main>
+        <article class="deck-card" role="listitem">
+          <div class="deck-visual">
+            <span class="deck-number">2</span>
+            <img src="https://images.unsplash.com/photo-1519677100203-6f5d4c7a08c9?auto=format&fit=crop&w=900&q=80" alt="Itinerary" />
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Itinerary PDF</h3>
+              <p class="deck-subtitle">Offline copy of your 7-day plan</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Ports & times</span>
+              <span>Download</span>
+              <span>Print friendly</span>
+            </div>
+            <a class="deck-card__cta" href="#">Open itinerary →</a>
+          </div>
+        </article>
 
-    <div id="sharedFooter"></div>
+        <article class="deck-card" role="listitem">
+          <div class="deck-visual">
+            <span class="deck-number">3</span>
+            <img src="https://images.unsplash.com/photo-1558478551-1a378f63328e?auto=format&fit=crop&w=900&q=80" alt="Ports" />
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Port details</h3>
+              <p class="deck-subtitle">Arrival, all aboard, and contact info</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Emergency numbers</span>
+              <span>All aboard</span>
+              <span>Maps</span>
+            </div>
+            <a class="deck-card__cta" href="#">View ports →</a>
+          </div>
+        </article>
 
-    <div id="sharedBottomNav" data-page="offline"></div>
+        <article class="deck-card" role="listitem">
+          <div class="deck-visual">
+            <span class="deck-number">4</span>
+            <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&q=80" alt="Dining" />
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Dining hours</h3>
+              <p class="deck-subtitle">Cached hours and menus</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Main & Windjammer</span>
+              <span>Specialty highlights</span>
+              <span>Allergy notes</span>
+            </div>
+            <a class="deck-card__cta" href="#">See dining →</a>
+          </div>
+        </article>
 
-    <script>
-        // Enhanced offline functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            let retryCount = 0;
-            let countdown = 5;
-            let autoRetryInterval;
-            let progressInterval;
-            
-            const elements = {
-                retryButton: document.getElementById('retryButton'),
-                retryCount: document.getElementById('retryCount'),
-                countdown: document.getElementById('countdown'),
-                progressFill: document.getElementById('progressFill'),
-                networkWidget: document.getElementById('networkWidget')
-            };
+        <article class="deck-card" role="listitem">
+          <div class="deck-visual">
+            <span class="deck-number">5</span>
+            <img src="https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80" alt="Contacts" />
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Key contacts</h3>
+              <p class="deck-subtitle">Guest services, security, medical</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Tap to call</span>
+              <span>Works offline</span>
+              <span>Emergency ready</span>
+            </div>
+            <a class="deck-card__cta" href="#">View contacts →</a>
+          </div>
+        </article>
 
-            // Show network widget after a delay
-            setTimeout(() => {
-                elements.networkWidget.style.display = 'block';
-            }, 2000);
+        <article class="deck-card" role="listitem">
+          <div class="deck-visual">
+            <span class="deck-number">6</span>
+            <img src="https://images.unsplash.com/photo-1502920514313-52581002a659?auto=format&fit=crop&w=900&q=80" alt="Support" />
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Support</h3>
+              <p class="deck-subtitle">How to get help when offline</p>
+            </div>
+            <div class="deck-highlights">
+              <span>FAQs cached</span>
+              <span>Offline tips</span>
+              <span>Re-sync steps</span>
+            </div>
+            <a class="deck-card__cta" href="#">Open support →</a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
 
-            // Function to update progress bar
-            function updateProgress() {
-                let width = 0;
-                progressInterval = setInterval(() => {
-                    if (width >= 100) {
-                        width = 0;
-                    } else {
-                        width += 10;
-                        elements.progressFill.style.width = width + '%';
-                    }
-                }, 500);
-            }
-
-            // Function to update countdown
-            function updateCountdown() {
-                countdown = 5;
-                elements.countdown.textContent = countdown;
-                
-                clearInterval(autoRetryInterval);
-                autoRetryInterval = setInterval(() => {
-                    countdown--;
-                    elements.countdown.textContent = countdown;
-                    
-                    if (countdown <= 0) {
-                        attemptReconnect();
-                    }
-                }, 1000);
-            }
-
-            // Enhanced reconnect function
-            function attemptReconnect() {
-                retryCount++;
-                elements.retryCount.textContent = retryCount + ' attempt' + (retryCount !== 1 ? 's' : '');
-                
-                // Visual feedback
-                elements.retryButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Checking connection...</span>';
-                elements.retryButton.disabled = true;
-                
-                // Reset progress animation
-                clearInterval(progressInterval);
-                updateProgress();
-                
-                // Check connection
-                if (navigator.onLine) {
-                    // Connection restored
-                    elements.retryButton.innerHTML = '<i class="fas fa-check"></i><span>Connected! Redirecting...</span>';
-                    elements.retryButton.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
-                    
-                    // Show success message
-                    showNotification('Connection restored! Loading latest updates...', 'success');
-                    
-                    // Redirect to dashboard after short delay
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1500);
-                } else {
-                    // Still offline
-                    setTimeout(() => {
-                        elements.retryButton.innerHTML = '<i class="fas fa-redo"></i><span>Retry Connection</span>';
-                        elements.retryButton.disabled = false;
-                        
-                        // Show error notification
-                        showNotification('Still offline. Please check your connection.', 'error');
-                        
-                        // Reset countdown
-                        updateCountdown();
-                    }, 1000);
-                }
-            }
-
-            // Function to show notifications
-            function showNotification(message, type) {
-                const notification = document.createElement('div');
-                notification.className = `notification notification-${type}`;
-                notification.innerHTML = `
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                    <span>${message}</span>
-                    <button onclick="this.parentElement.remove()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                
-                // Add styles
-                notification.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: ${type === 'success' ? '#48bb78' : '#fc8181'};
-                    color: white;
-                    padding: 1rem 1.5rem;
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-                    z-index: 1001;
-                    animation: slideIn 0.3s ease;
-                `;
-                
-                document.body.appendChild(notification);
-                
-                // Auto-remove after 5 seconds
-                setTimeout(() => {
-                    if (notification.parentElement) {
-                        notification.style.animation = 'slideOut 0.3s ease';
-                        setTimeout(() => notification.remove(), 300);
-                    }
-                }, 5000);
-                
-                // Add animation keyframes
-                const style = document.createElement('style');
-                style.textContent = `
-                    @keyframes slideOut {
-                        from { transform: translateX(0); opacity: 1; }
-                        to { transform: translateX(100%); opacity: 0; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-
-            // Widget close function
-            window.closeWidget = function() {
-                elements.networkWidget.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => {
-                    elements.networkWidget.style.display = 'none';
-                }, 300);
-            };
-
-            // Check connection status periodically
-            setInterval(() => {
-                if (navigator.onLine) {
-                    showNotification('Connection restored!', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 2000);
-                }
-            }, 5000);
-
-            // Initialize
-            updateProgress();
-            updateCountdown();
-            
-            // Set initial retry count display
-            elements.retryCount.textContent = retryCount + ' attempts';
-            
-            // Add event listener for manual retry
-            elements.retryButton.addEventListener('click', attemptReconnect);
-            
-            // Listen for online/offline events
-            window.addEventListener('online', () => {
-                showNotification('You are back online!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-            });
-            
-            window.addEventListener('offline', () => {
-                showNotification('You lost internet connection.', 'error');
-                retryCount++;
-                elements.retryCount.textContent = retryCount + ' attempt' + (retryCount !== 1 ? 's' : '');
-            });
-        });
-    </script>
-    <script src="js/service-worker-registration.js" defer></script>
+  <div id="sharedFooter"></div>
+  <div id="sharedBottomNav" data-page="offline"></div>
 </body>
 </html>
