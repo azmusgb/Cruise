@@ -624,6 +624,15 @@
     }
   };
 
+  function resolveNextPort() {
+    const raw = localStorage.getItem('cruise-nextport');
+    const parsed = raw ? utils.safeJsonParse(raw, null) : null;
+    if (parsed && typeof parsed === 'object' && parsed.name) {
+      return parsed;
+    }
+    return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
+  }
+
   // ---------------------------
   // Rendering Helpers
   // ---------------------------
@@ -2641,10 +2650,10 @@
   // ---------------------------
   function renderFooter() {
     return safeMount('#sharedFooter', (mount) => {
-      const nextPort = CruiseState.get('cruise-nextport', { 
-        name: 'Perfect Day at CocoCay', 
-        time: '7:00 AM' 
-      });
+      const fromStore = CruiseState.get('cruise-nextport', null);
+      const nextPort = fromStore && typeof fromStore === 'object' && fromStore.name
+        ? fromStore
+        : resolveNextPort();
 
       const sectionsHTML = FOOTER_SECTIONS.map(section => `
         <div class="footer-section">
