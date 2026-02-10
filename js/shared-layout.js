@@ -63,6 +63,8 @@
     { id: 'tips',       href: 'tips.html',       icon: 'fa-suitcase',   text: 'Packing', ariaLabel: 'View tips and packing guide', description: 'Cruise advice and packing list' },
   ];
 
+  const MOBILE_NAV_PRIORITY = ['index', 'operations', 'itinerary', 'dining', 'decks'];
+
   const FOOTER_SECTIONS = [
     {
       title: 'Plan & Prepare',
@@ -2370,14 +2372,20 @@
       /* Bottom Navigation */
       .mobile-nav {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        left: max(12px, env(safe-area-inset-left));
+        right: max(12px, env(safe-area-inset-right));
+        bottom: max(10px, env(safe-area-inset-bottom));
         display: flex;
-        background: var(--rccl-surface);
-        border-top: 1px solid var(--rccl-border);
+        gap: 6px;
+        background: color-mix(in srgb, var(--rccl-surface) 92%, white 8%);
+        border: 1px solid color-mix(in srgb, var(--rccl-border) 88%, white 12%);
+        border-radius: 18px;
         z-index: 100;
-        padding: var(--rccl-spacing-xs) var(--rccl-spacing-sm);
+        padding: 6px;
+        box-shadow:
+          0 14px 30px rgba(var(--rccl-dark-rgb), 0.16),
+          0 2px 8px rgba(var(--rccl-primary-rgb), 0.08);
+        backdrop-filter: blur(14px);
       }
       
       .mobile-nav-item {
@@ -2385,13 +2393,15 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 4px;
-        padding: var(--rccl-spacing-sm);
+        gap: 3px;
+        padding: 8px 4px;
         text-decoration: none;
         color: var(--rccl-gray);
-        font-size: var(--rccl-font-size-xs);
-        border-radius: var(--rccl-border-radius-md);
+        font-size: 10px;
+        line-height: 1.1;
+        border-radius: 12px;
         transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+        min-width: 0;
       }
       
       .mobile-nav-item:hover {
@@ -2401,11 +2411,24 @@
       
       .mobile-nav-item.active {
         color: var(--rccl-primary);
-        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
+        background: linear-gradient(180deg, rgba(var(--rccl-primary-rgb), 0.15), rgba(var(--rccl-accent-rgb), 0.1));
+        box-shadow: inset 0 0 0 1px rgba(var(--rccl-primary-rgb), 0.2);
       }
       
       .mobile-nav-icon {
-        font-size: 1.25rem;
+        font-size: 1.1rem;
+      }
+
+      .mobile-nav-text {
+        display: block;
+        width: 100%;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
       }
       
       /* Tooltips */
@@ -2478,6 +2501,25 @@
       }
       
       @media (max-width: 480px) {
+        .mobile-nav {
+          left: max(8px, env(safe-area-inset-left));
+          right: max(8px, env(safe-area-inset-right));
+          gap: 2px;
+          padding: 4px;
+        }
+
+        .mobile-nav-item {
+          padding: 7px 2px;
+        }
+
+        .mobile-nav-icon {
+          font-size: 1rem;
+        }
+
+        .mobile-nav-text {
+          font-size: 10px;
+        }
+
         .logo-text {
           font-size: var(--rccl-font-size-base);
         }
@@ -2912,7 +2954,16 @@
     mounts.forEach((mount) => {
       try {
         const currentPage = utils.getCurrentPage(mount);
-        const links = NAV_ITEMS.map((item) => {
+        const priorityItems = MOBILE_NAV_PRIORITY
+          .map((id) => NAV_ITEMS.find((item) => item.id === id))
+          .filter(Boolean);
+        const currentItem = NAV_ITEMS.find((item) => item.id === currentPage);
+
+        if (currentItem && !priorityItems.some((item) => item.id === currentItem.id)) {
+          priorityItems[priorityItems.length - 1] = currentItem;
+        }
+
+        const links = priorityItems.map((item) => {
           const isActive = currentPage === item.id;
           return `
             <a href="${sanitizeHref(item.href)}"
