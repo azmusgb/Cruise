@@ -3347,6 +3347,7 @@
       document.documentElement.setAttribute('data-theme-mode', 'light');
       localStorage.setItem('theme-preference', 'light');
       localStorage.setItem('rccl-theme', 'light');
+      CruiseState.set('cruise-theme', 'light');
     } catch (e) {
       /* ignore storage issues */
     }
