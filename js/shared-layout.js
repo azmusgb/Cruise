@@ -1094,6 +1094,106 @@
           gap: 0.42rem;
         }
 
+        body.app-theme-rcc .container {
+          padding-left: 14px !important;
+          padding-right: 14px !important;
+        }
+
+        body.app-theme-rcc main > section,
+        body.app-theme-rcc main > div {
+          margin-top: 14px;
+        }
+
+        body.app-theme-rcc .deck-grid,
+        body.app-theme-rcc .main-navigation,
+        body.app-theme-rcc .category-card,
+        body.app-theme-rcc .quick-actions,
+        body.app-theme-rcc .stats-section,
+        body.app-theme-rcc .rooms-section {
+          border-radius: 16px !important;
+        }
+
+        body.app-theme-rcc .deck-grid__header,
+        body.app-theme-rcc .section-header {
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+
+        body.app-theme-rcc .deck-grid__title,
+        body.app-theme-rcc .section-title {
+          font-size: clamp(1.38rem, 6.2vw, 1.76rem) !important;
+          line-height: 1.16 !important;
+        }
+
+        body.app-theme-rcc .deck-grid__subtitle,
+        body.app-theme-rcc .section-subtitle {
+          font-size: 0.96rem !important;
+          line-height: 1.45 !important;
+        }
+
+        body.app-theme-rcc .main-navigation__search,
+        body.app-theme-rcc .search-box {
+          min-height: 52px;
+        }
+
+        body.app-theme-rcc .main-navigation__search input,
+        body.app-theme-rcc .search-box input,
+        body.app-theme-rcc input[type="search"],
+        body.app-theme-rcc input[type="text"],
+        body.app-theme-rcc select {
+          min-height: 52px !important;
+          font-size: 16px !important;
+          line-height: 1.2 !important;
+        }
+
+        body.app-theme-rcc .pill-btn,
+        body.app-theme-rcc .filter-btn,
+        body.app-theme-rcc .room-type-filter,
+        body.app-theme-rcc .btn,
+        body.app-theme-rcc .deck-card__cta,
+        body.app-theme-rcc .view-deck-btn,
+        body.app-theme-rcc .action-item {
+          min-height: 44px !important;
+          font-size: 0.96rem !important;
+        }
+
+        body.app-theme-rcc .count-chip,
+        body.app-theme-rcc .feature-tag,
+        body.app-theme-rcc .chip {
+          min-height: 38px !important;
+          padding-top: 7px !important;
+          padding-bottom: 7px !important;
+          font-size: 0.93rem !important;
+        }
+
+        body.app-theme-rcc .deck-cards,
+        body.app-theme-rcc .rooms-grid,
+        body.app-theme-rcc .actions-grid {
+          gap: 14px !important;
+        }
+
+        body.app-theme-rcc .deck-card,
+        body.app-theme-rcc .room-card,
+        body.app-theme-rcc .action-item {
+          border-radius: 16px !important;
+        }
+
+        body.app-theme-rcc .room-card__header,
+        body.app-theme-rcc .deck-info,
+        body.app-theme-rcc .room-card__content,
+        body.app-theme-rcc .quick-actions,
+        body.app-theme-rcc .nav-bar {
+          padding-left: 16px !important;
+          padding-right: 16px !important;
+        }
+
+        body.app-theme-rcc .room-number,
+        body.app-theme-rcc .deck-number {
+          width: 40px !important;
+          height: 40px !important;
+          font-size: 1rem !important;
+        }
+
         body.app-theme-rcc .main-navigation__filters {
           overflow-x: auto;
           padding-bottom: 6px;
@@ -1262,6 +1362,34 @@
 
         .footer-meta {
           gap: 0.7rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body.app-theme-rcc .container {
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+        }
+
+        body.app-theme-rcc .deck-grid__title,
+        body.app-theme-rcc .section-title {
+          font-size: clamp(1.24rem, 7.2vw, 1.48rem) !important;
+        }
+
+        body.app-theme-rcc .pill-btn,
+        body.app-theme-rcc .filter-btn,
+        body.app-theme-rcc .btn,
+        body.app-theme-rcc .deck-card__cta,
+        body.app-theme-rcc .view-deck-btn {
+          min-height: 42px !important;
+          font-size: 0.92rem !important;
+        }
+
+        body.app-theme-rcc .count-chip,
+        body.app-theme-rcc .feature-tag,
+        body.app-theme-rcc .chip {
+          min-height: 36px !important;
+          font-size: 0.88rem !important;
         }
       }
       
