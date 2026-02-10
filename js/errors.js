@@ -16,16 +16,24 @@ export class ErrorHandler {
     }
     
     log(error, context = 'Unknown') {
+        const safeError = error ?? new Error('Unknown error');
+        const message = safeError instanceof Error
+            ? safeError.message
+            : (typeof safeError?.message === 'string' && safeError.message) || String(safeError);
+        const stack = safeError instanceof Error
+            ? safeError.stack
+            : (typeof safeError?.stack === 'string' ? safeError.stack : undefined);
+
         const errorObj = {
             timestamp: new Date().toISOString(),
             context: context,
-            message: error.message || String(error),
-            stack: error.stack,
+            message,
+            stack,
             userAgent: navigator.userAgent,
             url: window.location.href
         };
         
-        console.error(`[${context}]`, error);
+        console.error(`[${context}]`, safeError);
         this.errors.push(errorObj);
         
         // Keep only recent errors
