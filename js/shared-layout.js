@@ -581,6 +581,11 @@
         color: var(--royal-ink) !important;
       }
 
+      body.app-theme-rcc,
+      body.app-theme-rcc.page-shell {
+        padding-top: 0 !important;
+      }
+
       body.app-theme-rcc {
         font-family: 'Inter', sans-serif;
         line-height: 1.6;
@@ -1410,6 +1415,18 @@
 
         .footer-meta {
           gap: 0.7rem;
+        }
+
+        .footer-nav__link:nth-child(n + 5) {
+          display: none;
+        }
+
+        .footer-social {
+          display: none;
+        }
+
+        .footer-legal {
+          font-size: 0.82rem;
         }
       }
 
