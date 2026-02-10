@@ -74,7 +74,9 @@ export class StorageManager {
         if (!this.isAvailable) return false;
         
         try {
-            localStorage.clear();
+            Object.values(CONFIG.STORAGE_KEYS).forEach((key) => {
+                localStorage.removeItem(key);
+            });
             return true;
         } catch (e) {
             this.errorHandler.log(e, 'StorageManager.clear');

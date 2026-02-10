@@ -73,6 +73,7 @@
   }
 
   function toggleSheet() {
+    if (!deckSheet) return;
     state.sheetExpanded = !state.sheetExpanded;
     deckSheet.dataset.state = state.sheetExpanded ? 'full' : 'partial';
     deckSheet.style.bottom = state.sheetExpanded ? '1rem' : '4.5rem';
@@ -81,10 +82,17 @@
 
   function updateShipStatus() {
     const mockProgress = 65 + Math.floor(Math.random() * 8);
-    progress.style.setProperty('--progress', `${mockProgress}%`);
-    speed.textContent = `${(18 + Math.random() * 2).toFixed(1)} knots`;
-    nextPort.textContent = `Falmouth • ${Math.max(90, 124 - mockProgress)} NM`;
-    announce(`Ship status updated. ${nextPort.textContent}.`);
+    if (progress) {
+      progress.style.setProperty('--progress', `${mockProgress}%`);
+    }
+    if (speed) {
+      speed.textContent = `${(18 + Math.random() * 2).toFixed(1)} knots`;
+    }
+    const nextPortText = `Falmouth • ${Math.max(90, 124 - mockProgress)} NM`;
+    if (nextPort) {
+      nextPort.textContent = nextPortText;
+    }
+    announce(`Ship status updated. ${nextPort ? nextPort.textContent : nextPortText}.`);
   }
 
   document.querySelectorAll('[data-action="previous-day"]').forEach((button) => {
@@ -146,7 +154,9 @@
 
   function renderOfflineState() {
     const isOffline = !navigator.onLine;
-    offlineIndicator.hidden = !isOffline;
+    if (offlineIndicator) {
+      offlineIndicator.hidden = !isOffline;
+    }
     if (!isOffline) {
       saveOfflineSnapshot();
     }

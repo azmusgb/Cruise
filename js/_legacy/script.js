@@ -712,7 +712,6 @@
                   '.nav-link',
                   '.sidebar-link',
                   '.drawer-nav-item',
-                  '.bottom-nav .nav-item[data-section]',
                   '.quick-start__link'
               ];
               
@@ -3076,7 +3075,7 @@
             
             // Add specific details for each day
             const dayDetails = {
-                1: 'Depart Port Canaveral at 2:00 PM',
+                1: 'Check-in 12:00 PM, all aboard 2:00 PM, sail away ~4:00 PM',
                 2: 'Cruising day with onboard highlights',
                 3: 'George Town, Grand Cayman gangway 11:00 AM - 5:15 PM',
                 4: 'Falmouth, Jamaica gangway 8:30 AM - 4:30 PM',
@@ -3254,13 +3253,23 @@
          showSearchError(message) {
          const searchResults = document.getElementById('searchResults');
          if (!searchResults) return;
-         
-         searchResults.innerHTML = `
-         <div class="no-results">
-            <p><i class="fas fa-exclamation-circle"></i> ${message}</p>
-            <p>Please try again or check your connection.</p>
-         </div>
-         `;
+
+         const wrapper = document.createElement('div');
+         wrapper.className = 'no-results';
+
+         const errorLine = document.createElement('p');
+         const icon = document.createElement('i');
+         icon.className = 'fas fa-exclamation-circle';
+         icon.setAttribute('aria-hidden', 'true');
+         errorLine.appendChild(icon);
+         errorLine.appendChild(document.createTextNode(` ${String(message || 'Unable to load results.')}`));
+
+         const helpLine = document.createElement('p');
+         helpLine.textContent = 'Please try again or check your connection.';
+
+         wrapper.appendChild(errorLine);
+         wrapper.appendChild(helpLine);
+         searchResults.replaceChildren(wrapper);
          }
          
          displaySearchResults(searchResult) {
@@ -3268,12 +3277,18 @@
          if (!searchResults) return;
          
          if (searchResult.count === 0) {
-         searchResults.innerHTML = `
-            <div class="no-results">
-                <p>No results found for "${searchResult.query}"</p>
-                <p>Try different keywords or check the quick search chips above.</p>
-            </div>
-         `;
+         const noResults = document.createElement('div');
+         noResults.className = 'no-results';
+
+         const title = document.createElement('p');
+         title.textContent = `No results found for "${String(searchResult.query || '')}"`;
+
+         const hint = document.createElement('p');
+         hint.textContent = 'Try different keywords or check the quick search chips above.';
+
+         noResults.appendChild(title);
+         noResults.appendChild(hint);
+         searchResults.replaceChildren(noResults);
          return;
          }
          
@@ -3399,18 +3414,22 @@
          }
          
          recentSearchesGroup.removeAttribute('hidden');
-         
-         let chipsHTML = '';
+
+         recentSearchChips.innerHTML = '';
          history.slice(0, 5).forEach(query => {
-         chipsHTML += `
-            <button type="button" class="search-chip" data-query="${query}">
-                <i class="fas fa-history"></i>
-                ${query}
-            </button>
-         `;
+         const chip = document.createElement('button');
+         chip.type = 'button';
+         chip.className = 'search-chip';
+         chip.dataset.query = String(query);
+
+         const icon = document.createElement('i');
+         icon.className = 'fas fa-history';
+         icon.setAttribute('aria-hidden', 'true');
+
+         chip.appendChild(icon);
+         chip.appendChild(document.createTextNode(` ${String(query)}`));
+         recentSearchChips.appendChild(chip);
          });
-         
-         recentSearchChips.innerHTML = chipsHTML;
          
          // Add click handlers to recent search chips
          recentSearchChips.querySelectorAll('.search-chip').forEach(chip => {
@@ -4025,16 +4044,32 @@
          // Show error screen
          const errorScreen = document.createElement('div');
          errorScreen.className = 'error-screen';
-         errorScreen.innerHTML = `
-         <div class="error-content">
-            <h1>🚨 Critical Error</h1>
-            <p>Failed to initialize the Cruise Companion application.</p>
-            <p>Error: ${error.message}</p>
-            <button onclick="window.location.reload()" class="rc-btn">
-                <i class="fas fa-redo"></i> Reload Application
-            </button>
-         </div>
-         `;
+
+         const errorContent = document.createElement('div');
+         errorContent.className = 'error-content';
+
+         const heading = document.createElement('h1');
+         heading.textContent = 'Critical Error';
+
+         const description = document.createElement('p');
+         description.textContent = 'Failed to initialize the Cruise Companion application.';
+
+         const details = document.createElement('p');
+         details.textContent = `Error: ${String(error?.message || 'Unknown error')}`;
+
+         const reloadButton = document.createElement('button');
+         reloadButton.className = 'rc-btn';
+         reloadButton.type = 'button';
+         reloadButton.innerHTML = '<i class="fas fa-redo" aria-hidden="true"></i> Reload Application';
+         reloadButton.addEventListener('click', () => {
+           window.location.reload();
+         });
+
+         errorContent.appendChild(heading);
+         errorContent.appendChild(description);
+         errorContent.appendChild(details);
+         errorContent.appendChild(reloadButton);
+         errorScreen.appendChild(errorContent);
          
          document.body.appendChild(errorScreen);
          return null;
@@ -4043,15 +4078,6 @@
          
          // Auto-initialize on DOM ready
          document.addEventListener('DOMContentLoaded', bootstrapCruiseApp);
-         
-         // Service Worker registration (simplified)
-         if ('serviceWorker' in navigator) {
-         window.addEventListener('load', () => {
-        navigator.serviceWorker.register('js/sw.js').catch(error => {
-         console.log('ServiceWorker registration failed:', error);
-         });
-         });
-         }
          
          // Add polyfills for older browsers
          if (!window.Promise) {

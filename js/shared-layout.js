@@ -43,17 +43,20 @@
   const NAV_ITEMS = [
     { id: 'index', href: 'index.html', icon: 'fa-home', text: 'Dashboard' },
     { id: 'itinerary', href: 'itinerary.html', icon: 'fa-route', text: 'Itinerary' },
+    { id: 'rooms', href: 'rooms.html', icon: 'fa-bed', text: 'Rooms' },
     { id: 'dining', href: 'dining.html', icon: 'fa-utensils', text: 'Dining' },
+    { id: 'contacts', href: 'contacts.html', icon: 'fa-phone-volume', text: 'Contacts' },
     { id: 'decks', href: 'decks.html', icon: 'fa-map', text: 'Decks' },
-    { id: 'checklist', href: 'operations.html', icon: 'fa-clipboard-check', text: 'Checklist' },
+    { id: 'operations', href: 'operations.html', icon: 'fa-clipboard-check', text: 'Checklist' },
+    { id: 'tips', href: 'tips.html', icon: 'fa-suitcase-rolling', text: 'Tips' },
   ];
 
   const BOTTOM_NAV_ITEMS = [
     { id: 'index', icon: 'fa-home', text: 'Home', href: 'index.html' },
-    { id: 'today', icon: 'fa-compass', text: 'Today', href: 'itinerary.html' },
+    { id: 'itinerary', icon: 'fa-compass', text: 'Today', href: 'itinerary.html' },
     { id: 'quick', icon: 'fa-plus', text: 'Quick', action: 'quick-actions' },
-    { id: 'ship', icon: 'fa-ship', text: 'Ship', href: 'decks.html' },
-    { id: 'eat', icon: 'fa-utensils', text: 'Eat', href: 'dining.html' },
+    { id: 'decks', icon: 'fa-ship', text: 'Ship', href: 'decks.html' },
+    { id: 'dining', icon: 'fa-utensils', text: 'Eat', href: 'dining.html' },
   ];
 
   const RCCL_COLORS = {
@@ -125,8 +128,12 @@
       :root {
         --rccl-primary: #0052a5;
         --rccl-primary-rgb: 0, 82, 165;
-        --rccl-accent: #00a8e8;
-        --rccl-accent-rgb: 0, 168, 232;
+        --rccl-navy: #003b75;
+        --rccl-navy-rgb: 0, 59, 117;
+        --rccl-accent: #19c2ff;
+        --rccl-accent-rgb: 25, 194, 255;
+        --rccl-gold: #ffc93a;
+        --rccl-gold-rgb: 255, 201, 58;
         --rccl-dark: #1a1a2e;
         --rccl-dark-rgb: 26, 26, 46;
         --rccl-light: #f8f9fa;
@@ -154,6 +161,36 @@
         --rccl-spacing-md: 1rem;
         --rccl-spacing-lg: 1.5rem;
         --rccl-spacing-xl: 2rem;
+
+        /* Bridge legacy page tokens so all pages share one palette */
+        --royal-blue: #0079d4;
+        --royal-navy: #0b4f90;
+        --royal-sky: #19c2ff;
+        --royal-foam: #eef9ff;
+        --royal-light: #f3fbff;
+        --royal-gold: #ffc93a;
+        --royal-ink: #11385f;
+        --royal-white: #ffffff;
+        --royal-border: rgba(0, 121, 212, 0.16);
+        --royal-border-light: rgba(0, 121, 212, 0.08);
+        --royal-shadow-lg: 0 14px 30px rgba(11, 79, 144, 0.12);
+        --royal-shadow-xl: 0 20px 40px rgba(11, 79, 144, 0.14);
+        --royal-transition: all 0.24s ease;
+
+        /* Shared helper tokens used by legacy page modules */
+        --ocean-gradient: linear-gradient(135deg, #0b4f90 0%, #0079d4 54%, #19c2ff 100%);
+        --sky-gradient: linear-gradient(135deg, #eef9ff 0%, #ffffff 100%);
+        --gold-gradient: linear-gradient(135deg, #ffe389 0%, #ffc93a 52%, #ffb020 100%);
+        --shadow-light: 0 4px 12px rgba(11, 79, 144, 0.08);
+        --shadow-medium: 0 8px 24px rgba(11, 79, 144, 0.12);
+        --shadow-floating: 0 12px 36px rgba(11, 79, 144, 0.16);
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --radius-full: 9999px;
       }
 /* Base */
       .sr-only {
@@ -170,22 +207,62 @@
       
       /* Header - Minimal */
       .app-header--minimal {
-        position: sticky;
-        top: 0;
+        position: relative;
         z-index: 100;
-        background: var(--rccl-surface);
+        background: linear-gradient(180deg, #ffffff 0%, #eff8ff 100%);
         border-bottom: 1px solid var(--rccl-border);
+        box-shadow: 0 10px 26px rgba(var(--rccl-navy-rgb), 0.1);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        overflow: hidden;
+      }
+
+      .app-header--minimal::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #0b4f90 0%, var(--rccl-primary) 35%, #00b6ff 70%, var(--rccl-gold) 100%);
       }
       
       .header-container {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.85rem 1rem 1rem;
         max-width: 1280px;
         margin: 0 auto;
+      }
+
+      .header-context {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.25rem 0 0.15rem;
+        margin-bottom: 0.15rem;
+      }
+
+      .header-context__meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.72rem;
+        color: #35557f;
+        white-space: nowrap;
+      }
+
+      .header-context__meta i {
+        color: var(--rccl-primary);
+      }
+
+      .header-context__divider {
+        opacity: 0.45;
       }
       
       .header-brand {
@@ -202,6 +279,8 @@
         color: var(--rccl-text);
         padding: 0.5rem;
         border-radius: var(--rccl-radius-md);
+        border: 1px solid rgba(var(--rccl-primary-rgb), 0.12);
+        background: linear-gradient(180deg, #ffffff 0%, #eef8ff 100%);
         transition: var(--rccl-transition);
       }
       
@@ -211,7 +290,15 @@
       
       .header-logo i {
         font-size: 1.5rem;
-        color: var(--rccl-primary);
+        color: #ffffff;
+        background: linear-gradient(135deg, #0b4f90 0%, #0079d4 54%, var(--rccl-accent) 100%);
+        border-radius: 0.75rem;
+        width: 2.15rem;
+        height: 2.15rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 16px rgba(var(--rccl-primary-rgb), 0.28);
       }
       
       .header-logo-text {
@@ -234,9 +321,10 @@
       }
       
       .header-nav {
-        display: flex;
+        display: none;
         align-items: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
       }
       
       .header-nav__link {
@@ -247,7 +335,7 @@
         text-decoration: none;
         color: var(--rccl-text);
         font-weight: 500;
-        font-size: 0.875rem;
+        font-size: 0.84rem;
         border-radius: var(--rccl-radius-md);
         transition: var(--rccl-transition);
         white-space: nowrap;
@@ -259,7 +347,7 @@
       }
       
       .header-nav__link.active {
-        background: var(--rccl-primary);
+        background: linear-gradient(135deg, #0b4f90 0%, #0079d4 54%, var(--rccl-accent) 100%);
         color: white;
         box-shadow: var(--rccl-shadow-sm);
       }
@@ -273,7 +361,7 @@
       }
       
       .header-actions {
-        display: flex;
+        display: none;
         align-items: center;
         gap: 0.5rem;
       }
@@ -299,7 +387,7 @@
       
       /* Mobile Navigation */
       .mobile-nav-toggle {
-        display: none;
+        display: flex;
         width: 2.5rem;
         height: 2.5rem;
         align-items: center;
@@ -310,27 +398,303 @@
         color: var(--rccl-text);
         cursor: pointer;
       }
+
+      .mobile-quick-nav {
+        width: 100%;
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-top: 0.5rem;
+      }
+
+      .mobile-quick-nav__link {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--rccl-border);
+        border-radius: var(--rccl-radius-full);
+        text-decoration: none;
+        color: var(--rccl-text);
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .mobile-quick-nav__link.active {
+        color: #fff;
+        background: linear-gradient(135deg, #0b4f90 0%, #0079d4 54%, var(--rccl-accent) 100%);
+        border-color: transparent;
+      }
+
+      /* Global page color normalization (theme lock) */
+      body.app-theme-rcc {
+        background: linear-gradient(180deg, #f4fbff 0%, #eaf6ff 100%) !important;
+        color: var(--royal-ink) !important;
+      }
+
+      body.app-theme-rcc {
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body.app-theme-rcc *,
+      body.app-theme-rcc *::before,
+      body.app-theme-rcc *::after {
+        box-sizing: border-box;
+      }
+
+      body.app-theme-rcc h1,
+      body.app-theme-rcc h2,
+      body.app-theme-rcc h3,
+      body.app-theme-rcc h4 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: var(--royal-navy);
+      }
+
+      body.app-theme-rcc .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      body.app-theme-rcc .main-navigation,
+      body.app-theme-rcc .category-card,
+      body.app-theme-rcc .deck-grid,
+      body.app-theme-rcc .deck-card,
+      body.app-theme-rcc .reservation-panel,
+      body.app-theme-rcc .day-navigation,
+      body.app-theme-rcc .port-item,
+      body.app-theme-rcc .room-card,
+      body.app-theme-rcc .quick-action-item,
+      body.app-theme-rcc .stat-card,
+      body.app-theme-rcc .card,
+      body.app-theme-rcc .info-card,
+      body.app-theme-rcc .checklist-card {
+        background: #ffffff !important;
+        border: 1px solid var(--royal-border) !important;
+        box-shadow: var(--royal-shadow-lg) !important;
+      }
+
+      body.app-theme-rcc .main-navigation__search,
+      body.app-theme-rcc .pill-btn,
+      body.app-theme-rcc .deck-pill,
+      body.app-theme-rcc .count-chip,
+      body.app-theme-rcc .feature-tag,
+      body.app-theme-rcc .tag,
+      body.app-theme-rcc .room-type-filter,
+      body.app-theme-rcc .quick-filter-btn {
+        background: var(--royal-foam) !important;
+        border-color: var(--royal-border) !important;
+        color: var(--royal-ink) !important;
+      }
+
+      body.app-theme-rcc .deck-grid__title,
+      body.app-theme-rcc .section-title,
+      body.app-theme-rcc h2,
+      body.app-theme-rcc h3 {
+        color: var(--royal-navy) !important;
+      }
+
+      body.app-theme-rcc .deck-grid__subtitle,
+      body.app-theme-rcc .section-subtitle,
+      body.app-theme-rcc p {
+        color: #2d557f;
+      }
+
+      body.app-theme-rcc .btn--primary {
+        background: linear-gradient(135deg, #ffe389 0%, #ffc93a 52%, #ffb020 100%) !important;
+        color: #0b3664 !important;
+        border-color: rgba(255, 176, 32, 0.5) !important;
+      }
+
+      body.app-theme-rcc .btn--secondary {
+        background: #ffffff !important;
+        color: #0b4f90 !important;
+        border-color: rgba(11, 79, 144, 0.32) !important;
+      }
+
+      body.app-theme-rcc .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: var(--radius-lg);
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      /* Hero Standardization */
+      body.app-theme-rcc .deck-hero,
+      body.app-theme-rcc .hero.hero--rooms,
+      body.app-theme-rcc .hero.hero--itinerary {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(125deg, #0069bf 0%, #0099ea 54%, #29d2ff 100%) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+        box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.2) !important;
+      }
+
+      body.app-theme-rcc .deck-hero::before,
+      body.app-theme-rcc .hero.hero--rooms::before,
+      body.app-theme-rcc .hero.hero--itinerary::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.3), transparent 32%),
+          radial-gradient(circle at 88% 84%, rgba(255, 255, 255, 0.2), transparent 38%),
+          linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.02) 60%, rgba(0, 0, 0, 0.12) 100%);
+        pointer-events: none;
+      }
+
+      body.app-theme-rcc .deck-hero::after,
+      body.app-theme-rcc .hero.hero--rooms::after,
+      body.app-theme-rcc .hero.hero--itinerary::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 8px;
+        background: linear-gradient(90deg, rgba(255, 201, 58, 0.18) 0%, rgba(255, 201, 58, 0.7) 50%, rgba(255, 201, 58, 0.18) 100%);
+      }
+
+      body.app-theme-rcc .deck-hero .container,
+      body.app-theme-rcc .hero .container {
+        position: relative;
+        z-index: 1;
+      }
+
+      body.app-theme-rcc .deck-hero__eyebrow,
+      body.app-theme-rcc .deck-hero__title,
+      body.app-theme-rcc .deck-hero__subtitle,
+      body.app-theme-rcc .hero__badge,
+      body.app-theme-rcc .hero__title,
+      body.app-theme-rcc .hero__description,
+      body.app-theme-rcc .hero__status {
+        color: #ffffff !important;
+      }
+
+      body.app-theme-rcc .deck-hero__eyebrow,
+      body.app-theme-rcc .hero__eyebrow,
+      body.app-theme-rcc .hero__badge {
+        background: rgba(255, 255, 255, 0.16) !important;
+        border: 1px solid rgba(255, 255, 255, 0.34) !important;
+        backdrop-filter: blur(4px);
+      }
+
+      body.app-theme-rcc .deck-hero__subtitle,
+      body.app-theme-rcc .hero__description {
+        color: rgba(247, 252, 255, 0.94) !important;
+      }
+
+      body.app-theme-rcc .deck-hero__actions .btn--primary,
+      body.app-theme-rcc .hero__actions .btn--primary {
+        background: linear-gradient(135deg, #ffe389 0%, #ffc93a 52%, #ffb020 100%) !important;
+        border: none !important;
+        color: #06264b !important;
+        box-shadow: 0 10px 20px rgba(var(--rccl-gold-rgb), 0.34) !important;
+      }
+
+      body.app-theme-rcc .deck-hero__actions .btn--secondary,
+      body.app-theme-rcc .hero__actions .btn--secondary {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border: 1px solid rgba(255, 255, 255, 0.42) !important;
+        color: #ffffff !important;
+      }
+
+      body .deck-hero__actions .btn:hover,
+      body .hero__actions .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      /* Rooms/Itinerary component-level color lock */
+      body.app-theme-rcc .room-card__header,
+      body.app-theme-rcc .view-deck-btn,
+      body.app-theme-rcc .room-number,
+      body.app-theme-rcc .timeline__icon,
+      body.app-theme-rcc .itinerary-day__number {
+        background: linear-gradient(135deg, #0b4f90 0%, #0079d4 54%, #19c2ff 100%) !important;
+        color: #ffffff !important;
+      }
+
+      body.app-theme-rcc .room-card__preview {
+        background: linear-gradient(135deg, #eff8ff 0%, #ddf2ff 100%) !important;
+      }
+
+      body.app-theme-rcc .nav-bar {
+        background: #ffffff !important;
+        border-bottom: 1px solid var(--royal-border) !important;
+        box-shadow: var(--royal-shadow-lg) !important;
+      }
+
+      body.app-theme-rcc .search-box input,
+      body.app-theme-rcc .search-box select,
+      body.app-theme-rcc .search-input {
+        background: var(--royal-foam) !important;
+        border: 1px solid var(--royal-border) !important;
+        color: var(--royal-ink) !important;
+      }
+
+      body.app-theme-rcc .room-card--ocean-view {
+        border-left-color: #19c2ff !important;
+      }
+
+      body.app-theme-rcc .room-card--balcony {
+        border-left-color: #ffc93a !important;
+      }
+
+      body.app-theme-rcc .room-card--interior {
+        border-left-color: #7e9dbd !important;
+      }
+
+      .header-nav__link:focus-visible,
+      .header-action:focus-visible,
+      .mobile-nav-toggle:focus-visible,
+      .mobile-quick-nav__link:focus-visible,
+      .footer-cta:focus-visible,
+      .footer-nav__link:focus-visible,
+      .footer-legal__link:focus-visible,
+      .footer-social__link:focus-visible,
+      .quick-action:focus-visible,
+      .sheet-close:focus-visible {
+        outline: 3px solid rgba(var(--rccl-accent-rgb), 0.35);
+        outline-offset: 2px;
+      }
       
       /* Footer - Minimal */
       .app-footer--minimal {
-        background: var(--rccl-surface);
-        border-top: 1px solid var(--rccl-border);
-        color: var(--rccl-text);
+        background: linear-gradient(180deg, #0d61a8 0%, #0a4e8f 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        color: #f4fbff;
         margin-top: auto;
       }
       
       .footer-container {
-        padding: 2rem 1rem;
+        padding: 2rem 1rem 2.25rem;
         max-width: 1280px;
         margin: 0 auto;
       }
       
       .footer-primary {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--rccl-border);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
         margin-bottom: 1.5rem;
       }
       
@@ -346,8 +710,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--rccl-primary);
-        color: white;
+        background: linear-gradient(135deg, var(--rccl-gold) 0%, #ff8f00 100%);
+        color: #072b53;
         border-radius: var(--rccl-radius-md);
         font-size: 1.25rem;
       }
@@ -360,14 +724,13 @@
       .footer-heading {
         font-size: 1.125rem;
         font-weight: 700;
-        color: var(--rccl-primary);
+        color: #ffffff;
         margin: 0;
       }
       
       .footer-subheading {
-        font-size: 0.75rem;
-        color: var(--rccl-text);
-        opacity: 0.7;
+        font-size: 0.8rem;
+        color: rgba(234, 243, 255, 0.86);
         margin: 0.25rem 0 0;
       }
       
@@ -375,6 +738,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
       }
       
       .footer-cta {
@@ -382,23 +746,35 @@
         align-items: center;
         gap: 0.5rem;
         padding: 0.75rem 1.25rem;
-        background: var(--rccl-primary);
-        color: white;
+        background: linear-gradient(135deg, #ffe389 0%, #ffc93a 52%, #ffb020 100%);
+        color: #0b3664;
         text-decoration: none;
         font-weight: 600;
         font-size: 0.875rem;
         border-radius: var(--rccl-radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.22);
         transition: var(--rccl-transition);
+      }
+
+      .footer-cta--secondary {
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.32);
+      }
+
+      .footer-cta--secondary:hover {
+        background: rgba(255, 255, 255, 0.22);
+        border-color: rgba(255, 255, 255, 0.58);
       }
       
       .footer-cta:hover {
-        background: color-mix(in srgb, var(--rccl-primary) 90%, black);
+        background: linear-gradient(135deg, #ffe9a8 0%, #ffd15b 52%, #ffb83a 100%);
         transform: translateY(-1px);
       }
       
       .footer-essentials {
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--rccl-border);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
         margin-bottom: 1.5rem;
       }
       
@@ -410,21 +786,21 @@
       }
       
       .footer-nav__link {
-        color: var(--rccl-text);
+        color: #eef7ff;
         text-decoration: none;
         font-size: 0.875rem;
         transition: var(--rccl-transition);
       }
       
       .footer-nav__link:hover {
-        color: var(--rccl-primary);
+        color: #ffffff;
       }
       
       .footer-meta {
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        text-align: center;
         gap: 1rem;
       }
       
@@ -433,8 +809,9 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.75rem;
-        color: var(--rccl-text);
-        opacity: 0.7;
+        color: rgba(239, 247, 255, 0.95);
+        flex-wrap: wrap;
+        justify-content: center;
       }
       
       .footer-legal__link {
@@ -444,8 +821,12 @@
       }
       
       .footer-legal__link:hover {
-        color: var(--rccl-primary);
+        color: #ffffff;
         opacity: 1;
+      }
+
+      .footer-legal__text {
+        color: inherit;
       }
       
       .footer-separator {
@@ -464,189 +845,73 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid var(--rccl-border);
+        border: 1px solid rgba(255, 255, 255, 0.28);
         border-radius: var(--rccl-radius-md);
-        background: none;
-        color: var(--rccl-text);
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
         text-decoration: none;
         transition: var(--rccl-transition);
         cursor: pointer;
       }
       
       .footer-social__link:hover {
-        background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
-        border-color: var(--rccl-primary);
-      }
-      
-      /* Bottom Navigation */
-      .bottom-nav {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 100;
-        background: var(--rccl-surface);
-        border-top: 1px solid var(--rccl-border);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 0.5rem;
-        padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
-      }
-      
-      .bottom-nav__list {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-      
-      .bottom-nav__item {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .bottom-nav__link,
-      .bottom-nav__button {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-decoration: none;
-        color: var(--rccl-text);
-        padding: 0.5rem;
-        border-radius: var(--rccl-radius-md);
-        transition: var(--rccl-transition);
-        width: 100%;
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 0.75rem;
-      }
-      
-      .bottom-nav__link:hover,
-      .bottom-nav__button:hover {
-        background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
-      }
-      
-      .bottom-nav__link.active {
-        color: var(--rccl-primary);
-      }
-      
-      .bottom-nav__icon {
-        font-size: 1.25rem;
-        margin-bottom: 0.25rem;
-      }
-      
-      .bottom-nav__label {
-        font-size: 0.625rem;
-        font-weight: 500;
-      }
-      
-      /* Quick Actions Sheet */
-      .quick-actions-sheet {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: var(--rccl-surface);
-        border-top: 1px solid var(--rccl-border);
-        border-radius: var(--rccl-radius-xl) var(--rccl-radius-xl) 0 0;
-        box-shadow: var(--rccl-shadow-lg);
-        transform: translateY(100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 101;
-        padding: 1rem;
-        padding-bottom: max(1rem, env(safe-area-inset-bottom));
-      }
-      
-      .quick-actions-sheet.open {
-        transform: translateY(0);
-      }
-      
-      .sheet-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-      }
-      
-      .sheet-title {
-        font-size: 1rem;
-        font-weight: 600;
-        margin: 0;
-      }
-      
-      .sheet-close {
-        width: 2rem;
-        height: 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: none;
-        border: none;
-        color: var(--rccl-text);
-        cursor: pointer;
-        border-radius: var(--rccl-radius-md);
-      }
-      
-      .sheet-close:hover {
-        background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
-      }
-      
-      .quick-actions-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-      }
-      
-      .quick-action {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 1rem;
-        background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
-        border: 1px solid var(--rccl-border);
-        border-radius: var(--rccl-radius-md);
-        color: var(--rccl-text);
-        text-decoration: none;
-        transition: var(--rccl-transition);
-      }
-      
-      .quick-action:hover {
-        background: color-mix(in srgb, var(--rccl-primary) 10%, transparent);
-        border-color: var(--rccl-primary);
-      }
-      
-      .quick-action__icon {
-        font-size: 1.25rem;
-        color: var(--rccl-primary);
-      }
-      
-      .quick-action__text {
-        font-size: 0.875rem;
-        font-weight: 500;
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.52);
       }
       
       /* Responsive */
       @media (max-width: 768px) {
-        .header-nav,
-        .header-actions {
+        body.app-theme-rcc .main-navigation__filters {
+          overflow-x: auto;
+          padding-bottom: 6px;
+        }
+
+        body.app-theme-rcc .pill-btn {
+          white-space: nowrap;
+        }
+
+        body.app-theme-rcc .main-navigation__hint {
           display: none;
         }
-        
-        .mobile-nav-toggle {
-          display: flex;
+
+        .header-context {
+          flex-wrap: wrap;
+          margin-bottom: 0.35rem;
         }
-        
-        .footer-primary {
+
+        .header-context__meta {
+          white-space: normal;
+          font-size: 0.68rem;
+        }
+
+        .header-brand {
+          flex: 1;
+        }
+
+        .header-nav {
+          width: 100%;
           flex-direction: column;
-          align-items: flex-start;
-          gap: 1rem;
+          align-items: stretch;
+          gap: 0.35rem;
+          padding-top: 0.35rem;
         }
-        
+
+        .header-nav__link {
+          width: 100%;
+          justify-content: flex-start;
+        }
+
+        .header-actions {
+          width: 100%;
+          justify-content: flex-end;
+          padding-top: 0.25rem;
+        }
+
+        .header-nav[aria-hidden="true"],
+        .header-actions[aria-hidden="true"] {
+          display: none !important;
+        }
+
         .footer-actions {
           width: 100%;
         }
@@ -655,17 +920,39 @@
           flex: 1;
           justify-content: center;
         }
-        
-        .footer-meta {
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
       }
       
       @media (min-width: 769px) {
-        .bottom-nav {
+        .header-nav,
+        .header-actions {
+          display: flex;
+        }
+
+        .mobile-nav-toggle {
           display: none;
+        }
+
+        .mobile-quick-nav {
+          display: none;
+        }
+
+        .footer-primary {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0;
+        }
+
+        .footer-meta {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+          text-align: left;
+          flex-wrap: wrap;
+        }
+
+        .footer-actions {
+          width: auto;
         }
       }
       
@@ -705,6 +992,18 @@
       return `
         <header class="app-header--minimal" role="banner">
           <div class="header-container">
+            <div class="header-context" aria-label="Sailing context">
+              <span class="header-context__meta">
+                <i class="fas fa-ship" aria-hidden="true"></i>
+                ${utils.escapeHtml(DEFAULT_META.ship)}
+              </span>
+              <span class="header-context__meta">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                ${utils.escapeHtml(DEFAULT_META.sailing)}
+                <span class="header-context__divider" aria-hidden="true">•</span>
+                ${utils.escapeHtml(DEFAULT_META.port)}
+              </span>
+            </div>
             <div class="header-brand">
               <a href="${sanitizeHref('index.html')}" class="header-logo">
                 <i class="fas fa-ship" aria-hidden="true"></i>
@@ -715,19 +1014,30 @@
               </a>
             </div>
             
-            <nav class="header-nav" aria-label="Primary navigation">
+            <nav class="header-nav" id="headerPrimaryNav" aria-label="Primary navigation">
               ${navLinks}
             </nav>
             
-            <div class="header-actions">
+            <div class="header-actions" id="headerHeaderActions">
               <button class="header-action" id="notificationsToggle" aria-label="Notifications">
                 <i class="fas fa-bell" aria-hidden="true"></i>
               </button>
             </div>
             
-            <button class="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false">
+            <button class="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="headerPrimaryNav">
               <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
+
+            <nav class="mobile-quick-nav" aria-label="Mobile quick navigation">
+              ${NAV_ITEMS.slice(0, 5).map(item => `
+                <a href="${sanitizeHref(item.href)}"
+                   class="mobile-quick-nav__link ${currentPage === item.id ? 'active' : ''}"
+                   ${currentPage === item.id ? 'aria-current="page"' : ''}>
+                  <i class="fas ${item.icon}" aria-hidden="true"></i>
+                  <span>${utils.escapeHtml(item.text)}</span>
+                </a>
+              `).join('')}
+            </nav>
           </div>
         </header>
       `;
@@ -760,6 +1070,10 @@
                   <span>Complete Checklist</span>
                   <i class="fas fa-arrow-right" aria-hidden="true"></i>
                 </a>
+                <a href="${sanitizeHref('rooms.html')}" class="footer-cta footer-cta--secondary">
+                  <span>Open Cabin Manifest</span>
+                  <i class="fas fa-bed" aria-hidden="true"></i>
+                </a>
               </div>
             </div>
             
@@ -767,9 +1081,12 @@
               <nav class="footer-nav" aria-label="Essential links">
                 <a href="${sanitizeHref('index.html')}" class="footer-nav__link">Dashboard</a>
                 <a href="${sanitizeHref('itinerary.html')}" class="footer-nav__link">Itinerary</a>
+                <a href="${sanitizeHref('rooms.html')}" class="footer-nav__link">Rooms</a>
                 <a href="${sanitizeHref('dining.html')}" class="footer-nav__link">Dining</a>
+                <a href="${sanitizeHref('contacts.html')}" class="footer-nav__link">Contacts</a>
                 <a href="${sanitizeHref('decks.html')}" class="footer-nav__link">Ship Map</a>
-                <a href="${sanitizeHref('help.html')}" class="footer-nav__link">Help</a>
+                <a href="${sanitizeHref('operations.html')}" class="footer-nav__link">Checklist</a>
+                <a href="${sanitizeHref('tips.html')}" class="footer-nav__link">Tips</a>
               </nav>
             </div>
             
@@ -777,9 +1094,9 @@
               <div class="footer-legal">
                 <span class="footer-copyright">© ${DEFAULT_META.year} ${utils.escapeHtml(DEFAULT_META.brand)}</span>
                 <span class="footer-separator" aria-hidden="true">•</span>
-                <a href="${sanitizeHref('privacy.html')}" class="footer-legal__link">Privacy</a>
+                <span class="footer-legal__text">Privacy</span>
                 <span class="footer-separator" aria-hidden="true">•</span>
-                <a href="${sanitizeHref('terms.html')}" class="footer-legal__link">Terms</a>
+                <span class="footer-legal__text">Terms</span>
               </div>
               
               <div class="footer-social">
@@ -802,110 +1119,73 @@
   // Bottom Navigation
   // ---------------------------
   function renderBottomNav() {
-    return safeMount('#sharedBottomNav', () => {
-      const currentPage = utils.getCurrentPage();
-      
-      const navItems = BOTTOM_NAV_ITEMS.map(item => {
-        if (item.action) {
-          return `
-            <li class="bottom-nav__item">
-              <button class="bottom-nav__button" data-action="${item.action}">
-                <i class="fas ${item.icon} bottom-nav__icon" aria-hidden="true"></i>
-                <span class="bottom-nav__label">${utils.escapeHtml(item.text)}</span>
-              </button>
-            </li>
-          `;
-        }
-        
-        return `
-          <li class="bottom-nav__item">
-            <a href="${sanitizeHref(item.href)}" 
-               class="bottom-nav__link ${currentPage === item.id ? 'active' : ''}"
-               ${currentPage === item.id ? 'aria-current="page"' : ''}>
-              <i class="fas ${item.icon} bottom-nav__icon" aria-hidden="true"></i>
-              <span class="bottom-nav__label">${utils.escapeHtml(item.text)}</span>
-            </a>
-          </li>
-        `;
-      }).join('');
-
-      return `
-        <nav class="bottom-nav" aria-label="Mobile navigation">
-          <ul class="bottom-nav__list">
-            ${navItems}
-          </ul>
-        </nav>
-        
-        <div class="quick-actions-sheet" id="quickActionsSheet">
-          <div class="sheet-header">
-            <h3 class="sheet-title">Quick Actions</h3>
-            <button class="sheet-close" data-action="close-sheet" aria-label="Close">
-              <i class="fas fa-times" aria-hidden="true"></i>
-            </button>
-          </div>
-          <div class="quick-actions-grid">
-            <a href="${sanitizeHref('operations.html')}" class="quick-action">
-              <i class="fas fa-clipboard-check quick-action__icon" aria-hidden="true"></i>
-              <span class="quick-action__text">Checklist</span>
-            </a>
-            <a href="${sanitizeHref('dining.html')}" class="quick-action">
-              <i class="fas fa-utensils quick-action__icon" aria-hidden="true"></i>
-              <span class="quick-action__text">Dining</span>
-            </a>
-            <a href="${sanitizeHref('decks.html')}" class="quick-action">
-              <i class="fas fa-map quick-action__icon" aria-hidden="true"></i>
-              <span class="quick-action__text">Ship Map</span>
-            </a>
-            <a href="${sanitizeHref('help.html')}" class="quick-action">
-              <i class="fas fa-question-circle quick-action__icon" aria-hidden="true"></i>
-              <span class="quick-action__text">Help</span>
-            </a>
-          </div>
-        </div>
-      `;
+    return safeMount('#sharedBottomNav', (mount) => {
+      mount.innerHTML = '';
+      return '';
     });
+  }
+
+  // ---------------------------
+  // Mount Normalization
+  // ---------------------------
+  function ensureSharedMounts() {
+    if (!document.body) return;
+
+    let headerMount = document.getElementById('sharedHeader');
+    if (!headerMount) {
+      headerMount = document.createElement('div');
+      headerMount.id = 'sharedHeader';
+      const primaryMain = document.querySelector('main');
+      if (primaryMain && primaryMain.parentNode) {
+        primaryMain.parentNode.insertBefore(headerMount, primaryMain);
+      } else {
+        document.body.insertBefore(headerMount, document.body.firstChild);
+      }
+    }
+
+    let footerMount = document.getElementById('sharedFooter');
+    if (!footerMount) {
+      footerMount = document.createElement('div');
+      footerMount.id = 'sharedFooter';
+      const bodyScripts = Array.from(document.body.querySelectorAll('script'));
+      const insertionTarget = bodyScripts.length ? bodyScripts[0] : null;
+      if (insertionTarget && insertionTarget.parentNode) {
+        insertionTarget.parentNode.insertBefore(footerMount, insertionTarget);
+      } else {
+        document.body.appendChild(footerMount);
+      }
+    }
+
+    if (!document.getElementById('sharedBottomNav')) {
+      const bottomNavMount = document.createElement('div');
+      bottomNavMount.id = 'sharedBottomNav';
+      document.body.appendChild(bottomNavMount);
+    }
   }
 
   // ---------------------------
   // Event Handlers
   // ---------------------------
   function initEventHandlers() {
-    // Quick actions sheet
-    const quickButton = utils.qs('[data-action="quick-actions"]');
-    const closeSheet = utils.qs('[data-action="close-sheet"]');
-    const sheet = utils.qs('#quickActionsSheet');
-    
-    if (quickButton && sheet) {
-      quickButton.addEventListener('click', () => {
-        sheet.classList.add('open');
-        document.body.style.overflow = 'hidden';
+    function showToast(message) {
+      let live = utils.qs('#sharedStatusLive');
+      if (!live) {
+        live = document.createElement('div');
+        live.id = 'sharedStatusLive';
+        live.className = 'sr-only';
+        live.setAttribute('role', 'status');
+        live.setAttribute('aria-live', 'polite');
+        document.body.appendChild(live);
+      }
+      live.textContent = message;
+    }
+
+    const notificationsToggle = utils.qs('#notificationsToggle');
+    if (notificationsToggle) {
+      notificationsToggle.addEventListener('click', () => {
+        showToast('Notifications center coming soon.');
       });
     }
-    
-    if (closeSheet && sheet) {
-      closeSheet.addEventListener('click', () => {
-        sheet.classList.remove('open');
-        document.body.style.overflow = '';
-      });
-    }
-    
-    // Close sheet when clicking outside
-    document.addEventListener('click', (e) => {
-      if (sheet && sheet.classList.contains('open')) {
-        if (!sheet.contains(e.target) && !quickButton.contains(e.target)) {
-          sheet.classList.remove('open');
-          document.body.style.overflow = '';
-        }
-      }
-    });
-    
-    // Escape key closes sheet
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && sheet && sheet.classList.contains('open')) {
-        sheet.classList.remove('open');
-        document.body.style.overflow = '';
-      }
-    });
     
     // Mobile menu toggle
     const mobileToggle = utils.qs('.mobile-nav-toggle');
@@ -913,31 +1193,51 @@
     const headerActions = utils.qs('.header-actions');
     
     if (mobileToggle && headerNav && headerActions) {
-      mobileToggle.addEventListener('click', () => {
-        const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
-        mobileToggle.setAttribute('aria-expanded', String(!expanded));
-        
-        if (!expanded) {
+      function setMobileMenuOpen(isOpen) {
+        mobileToggle.setAttribute('aria-expanded', String(isOpen));
+
+        if (window.innerWidth <= 768) {
+          headerNav.style.display = isOpen ? 'flex' : 'none';
+          headerActions.style.display = isOpen ? 'flex' : 'none';
+          headerNav.setAttribute('aria-hidden', String(!isOpen));
+          headerActions.setAttribute('aria-hidden', String(!isOpen));
+        } else {
           headerNav.style.display = 'flex';
           headerActions.style.display = 'flex';
+          headerNav.setAttribute('aria-hidden', 'false');
+          headerActions.setAttribute('aria-hidden', 'false');
+        }
+      }
+
+      setMobileMenuOpen(false);
+
+      mobileToggle.addEventListener('click', () => {
+        const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+        setMobileMenuOpen(!expanded);
+        if (!expanded) {
           headerNav.classList.add('animate-fade-in');
           headerActions.classList.add('animate-fade-in');
-        } else {
-          headerNav.style.display = 'none';
-          headerActions.style.display = 'none';
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (window.innerWidth > 768) return;
+        const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+        if (!expanded) return;
+        if (!e.target.closest('.header-container')) {
+          setMobileMenuOpen(false);
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileToggle.getAttribute('aria-expanded') === 'true') {
+          setMobileMenuOpen(false);
         }
       });
       
       // Close mobile menu on resize
       window.addEventListener('resize', utils.debounce(() => {
-        if (window.innerWidth > 768) {
-          headerNav.style.display = 'flex';
-          headerActions.style.display = 'flex';
-          mobileToggle.setAttribute('aria-expanded', 'false');
-        } else {
-          headerNav.style.display = 'none';
-          headerActions.style.display = 'none';
-        }
+        setMobileMenuOpen(false);
       }, 250));
     }
   }
@@ -945,35 +1245,28 @@
   // ---------------------------
   // Scroll Behavior
   // ---------------------------
-  function initScrollBehavior() {
-    let lastScroll = 0;
-    const header = utils.qs('.app-header--minimal');
-    const bottomNav = utils.qs('.bottom-nav');
-    
-    if (!header) return;
-    
-    const handleScroll = utils.debounce(() => {
-      const currentScroll = window.pageYOffset;
-      
-      // Hide/show header on scroll
-      if (currentScroll > lastScroll && currentScroll > 100) {
-        header.style.transform = 'translateY(-100%)';
-        if (bottomNav) bottomNav.style.transform = 'translateY(100%)';
-      } else {
-        header.style.transform = 'translateY(0)';
-        if (bottomNav) bottomNav.style.transform = 'translateY(0)';
-      }
-      
-      lastScroll = currentScroll;
-    }, 50);
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
+  function initScrollBehavior() {}
+
+  // ---------------------------
+  // Service Worker
+  // ---------------------------
+  function initServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('js/sw.js').catch((error) => {
+        console.warn('Service worker registration failed:', error);
+      });
+    });
   }
 
   // ---------------------------
   // Initialize
   // ---------------------------
   function init() {
+    ensureSharedMounts();
+    document.body.classList.add('app-theme-rcc');
+
     // Inject styles
     injectMinimalStyles();
     
@@ -984,19 +1277,16 @@
     renderHeader();
     renderFooter();
     
-    // Only render bottom nav on mobile
-    if (utils.isMobile()) {
-      renderBottomNav();
-    }
+    // Keep this mount empty to avoid floating mobile bars.
+    renderBottomNav();
     
     // Initialize event handlers
     initEventHandlers();
     initScrollBehavior();
+    initServiceWorker();
     
-    // Add padding for fixed bottom nav
-    if (utils.isMobile()) {
-      document.body.style.paddingBottom = 'calc(4rem + env(safe-area-inset-bottom))';
-    }
+    // No floating bottom navigation: keep default page flow and spacing.
+    document.body.style.paddingBottom = '';
   }
 
   // Start

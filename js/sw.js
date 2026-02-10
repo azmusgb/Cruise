@@ -9,8 +9,9 @@ const CORE_ASSETS = [
   '../dining.html',
   '../tips.html',
   './shared-layout.js',
-  './service-worker-registration.js',
-  '../css/styles.css',
+  '../css/base.css',
+  '../css/utilities.css',
+  '../css/components.css',
   '../offline.html',
   '../manifest.json',
   '../icons/icon-192.svg',
@@ -144,7 +145,7 @@ async function handleNavigationRequest(event) {
       return cachedResponse;
     }
     // Fallback to offline page
-    const offlinePage = await cache.match('offline.html');
+    const offlinePage = await cache.match('../offline.html');
     if (offlinePage) {
       return offlinePage;
     }

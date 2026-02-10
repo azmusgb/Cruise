@@ -73,15 +73,27 @@ export class ErrorHandler {
     showUserFriendlyError(message, duration = 5000) {
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-toast';
-        errorDiv.innerHTML = `
-            <div class="error-content">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>${message}</span>
-                <button class="error-close" aria-label="Close error message">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+        const content = document.createElement('div');
+        content.className = 'error-content';
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-exclamation-circle';
+
+        const text = document.createElement('span');
+        text.textContent = String(message ?? 'Something went wrong.');
+
+        const close = document.createElement('button');
+        close.className = 'error-close';
+        close.setAttribute('aria-label', 'Close error message');
+
+        const closeIcon = document.createElement('i');
+        closeIcon.className = 'fas fa-times';
+        close.appendChild(closeIcon);
+
+        content.appendChild(icon);
+        content.appendChild(text);
+        content.appendChild(close);
+        errorDiv.appendChild(content);
         
         document.body.appendChild(errorDiv);
         

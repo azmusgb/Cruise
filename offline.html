@@ -12,7 +12,10 @@
   <meta name="description" content="Offline-ready checklist, itinerary, and contacts in the new light layout.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/utilities.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/mobile-first.css">
   <script src="js/shared-layout.js?v=2" defer></script>
 </head>
 <body class="decks-shell page-shell">
@@ -24,7 +27,21 @@
       <div class="container">
         <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
         <h1 class="deck-hero__title">Offline Ready</h1>
-        <p class="deck-hero__subtitle">Cached essentials for when connectivity drops—checklist, itinerary, dining, and contacts.</p>
+        <p class="deck-hero__subtitle">Access checklist, itinerary, dining, and contacts from local cache when connectivity drops.</p>
+        <div class="page-spine" aria-label="Offline coverage guide">
+          <div class="page-spine__item">
+            <span class="page-spine__label">Prep essentials</span>
+            <span class="page-spine__meta">Checklist and documents stay available</span>
+          </div>
+          <div class="page-spine__item">
+            <span class="page-spine__label">Daily planning</span>
+            <span class="page-spine__meta">Itinerary and dining survive weak signal</span>
+          </div>
+          <div class="page-spine__item">
+            <span class="page-spine__label">Emergency path</span>
+            <span class="page-spine__meta">Contacts and fallback instructions offline</span>
+          </div>
+        </div>
         <div class="deck-hero__actions">
           <a class="btn btn--primary" href="#offline-grid">View offline items</a>
           <a class="btn btn--secondary" href="index.html">Back to dashboard</a>
@@ -36,7 +53,7 @@
       <div class="container main-navigation__inner">
         <div class="main-navigation__search" role="search">
           <i class="fas fa-search" aria-hidden="true"></i>
-          <input type="search" placeholder="Search offline content" aria-label="Search offline content" />
+          <input id="offlineSearchInput" type="search" placeholder="Search offline content" aria-label="Search offline content" />
           <span class="main-navigation__hint">Press / to focus</span>
         </div>
         <div class="main-navigation__filters" aria-label="Shortcuts">
@@ -45,6 +62,50 @@
           <a class="pill-btn" href="#itinerary">Itinerary</a>
           <a class="pill-btn" href="#contacts">Contacts</a>
         </div>
+        <p id="offlineSearchStatus" style="width:100%; margin:4px 0 0; font-weight:600; color:#003b75;">Showing 6 of 6 items</p>
+      </div>
+    </section>
+
+    <section class="deck-grid container" aria-label="Offline system status">
+      <div class="deck-grid__header">
+        <div>
+          <h2 class="deck-grid__title">Offline Status</h2>
+          <p class="deck-grid__subtitle">Check sync health before leaving Wi-Fi coverage. Source: device cache metadata.</p>
+        </div>
+        <div class="deck-grid__counts">
+          <div class="count-chip"><span id="lastSyncLabel">--</span> last sync</div>
+          <div class="count-chip"><button id="refreshOfflineStatus" class="link-button" type="button">Refresh status</button></div>
+        </div>
+      </div>
+      <div class="deck-cards" role="list">
+        <article class="deck-card" role="listitem">
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Cache health by module</h3>
+              <p class="deck-subtitle">Green modules are available without signal</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Checklist: Cached</span>
+              <span>Itinerary: Cached</span>
+              <span>Dining: Cached</span>
+              <span>Contacts: Cached</span>
+            </div>
+          </div>
+        </article>
+        <article class="deck-card" role="listitem">
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Emergency contact readiness</h3>
+              <p class="deck-subtitle">One page with onboard and port-day contact paths</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Ship security + medical</span>
+              <span>Port emergency numbers</span>
+              <span>Guest services fallback path</span>
+            </div>
+            <a class="deck-card__cta" href="contacts.html">Open emergency contacts</a>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -75,7 +136,7 @@
     <section class="deck-grid container" aria-label="Offline content" id="offline-grid">
       <div class="deck-grid__header">
         <div>
-          <h2 class="deck-grid__title">Cached essentials</h2>
+          <h2 class="deck-grid__title">Cached Essentials</h2>
           <p class="deck-grid__subtitle">Use these when signal is weak—content is stored locally.</p>
         </div>
         <div class="deck-grid__counts">
@@ -98,7 +159,7 @@
               <span>Tap to open</span>
               <span>Auto cache</span>
             </div>
-            <a class="deck-card__cta" href="#">Open checklist →</a>
+            <a class="deck-card__cta" href="operations.html">Open checklist</a>
           </div>
         </article>
 
@@ -117,7 +178,7 @@
               <span>Download</span>
               <span>Print friendly</span>
             </div>
-            <a class="deck-card__cta" href="#">Open itinerary →</a>
+            <a class="deck-card__cta" href="itinerary.html">Open itinerary</a>
           </div>
         </article>
 
@@ -136,7 +197,7 @@
               <span>All aboard</span>
               <span>Maps</span>
             </div>
-            <a class="deck-card__cta" href="#">View ports →</a>
+            <a class="deck-card__cta" href="itinerary.html">View ports</a>
           </div>
         </article>
 
@@ -155,7 +216,7 @@
               <span>Specialty highlights</span>
               <span>Allergy notes</span>
             </div>
-            <a class="deck-card__cta" href="#">See dining →</a>
+            <a class="deck-card__cta" href="dining.html">See dining</a>
           </div>
         </article>
 
@@ -174,7 +235,7 @@
               <span>Works offline</span>
               <span>Emergency ready</span>
             </div>
-            <a class="deck-card__cta" href="#">View contacts →</a>
+            <a class="deck-card__cta" href="contacts.html">View contacts</a>
           </div>
         </article>
 
@@ -193,14 +254,67 @@
               <span>Offline tips</span>
               <span>Re-sync steps</span>
             </div>
-            <a class="deck-card__cta" href="#">Open support →</a>
+            <a class="deck-card__cta" href="tips.html">Open support</a>
           </div>
         </article>
       </div>
+      <p id="offlineSearchEmpty" style="margin-top:12px; padding:12px 14px; border:1px dashed #bcd2ea; border-radius:12px; background:#fff; color:#10233d;" hidden>No offline modules match your search.</p>
     </section>
   </main>
 
   <div id="sharedFooter"></div>
   <div id="sharedBottomNav" data-page="offline"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const lastSync = document.getElementById('lastSyncLabel');
+      const refreshOfflineStatus = document.getElementById('refreshOfflineStatus');
+      function updateSyncLabel() {
+        if (!lastSync) return;
+        const stored = localStorage.getItem('offline_last_sync_at');
+        if (stored) {
+          const at = new Date(stored);
+          lastSync.textContent = at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+          return;
+        }
+        lastSync.textContent = 'Unknown';
+      }
+      if (refreshOfflineStatus) {
+        refreshOfflineStatus.addEventListener('click', function () {
+          localStorage.setItem('offline_last_sync_at', new Date().toISOString());
+          updateSyncLabel();
+        });
+      }
+      updateSyncLabel();
+
+      const input = document.getElementById('offlineSearchInput');
+      const status = document.getElementById('offlineSearchStatus');
+      const empty = document.getElementById('offlineSearchEmpty');
+      const cards = Array.from(document.querySelectorAll('#offline-grid .deck-card'));
+      const total = cards.length;
+      if (!input || !status || !empty || total === 0) return;
+
+      function update() {
+        const q = input.value.toLowerCase().trim();
+        let shown = 0;
+        cards.forEach((card) => {
+          const match = !q || card.textContent.toLowerCase().includes(q);
+          card.hidden = !match;
+          card.style.display = match ? 'flex' : 'none';
+          if (match) shown += 1;
+        });
+        status.textContent = `Showing ${shown} of ${total} items`;
+        empty.hidden = shown !== 0;
+      }
+
+      input.addEventListener('input', update);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === '/' && e.target !== input) {
+          e.preventDefault();
+          input.focus();
+        }
+      });
+      update();
+    });
+  </script>
 </body>
 </html>
