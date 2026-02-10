@@ -26,6 +26,20 @@
     touchStartX: 0
   };
 
+  function initializeStatusVisuals() {
+    document.querySelectorAll('[data-speed]').forEach((node) => {
+      node.style.setProperty('--speed', node.dataset.speed);
+    });
+
+    document.querySelectorAll('[data-progress]').forEach((node) => {
+      node.style.setProperty('--progress', node.dataset.progress);
+    });
+
+    document.querySelectorAll('[data-position]').forEach((node) => {
+      node.style.setProperty('--position', node.dataset.position);
+    });
+  }
+
   function haptic(eventName) {
     if ('vibrate' in navigator && HAPTICS[eventName]) {
       navigator.vibrate(HAPTICS[eventName]);
@@ -143,6 +157,7 @@
 
   renderOfflineState();
   saveOfflineSnapshot();
+  initializeStatusVisuals();
   updateShipStatus();
   setInterval(updateShipStatus, 15000);
 })();
