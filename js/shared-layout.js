@@ -61,8 +61,6 @@
     primaryRgb: '0, 82, 165',
     accent: '#00a8e8',
     accentRgb: '0, 168, 232',
-    dark: '#1a1a2e',
-    darkRgb: '26, 26, 46',
     light: '#f8f9fa',
     lightRgb: '248, 249, 250',
   };
@@ -101,39 +99,14 @@
   // Theme Manager
   // ---------------------------
   const ThemeManager = {
-    key: 'cruise-theme',
-    current: 'light',
+    applyLight() {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.setAttribute('data-theme-mode', 'light');
+      localStorage.setItem('cruise-theme', 'light');
+    },
 
     init() {
-      const saved = localStorage.getItem(this.key);
-      if (saved) {
-        this.apply(saved, true);
-      }
-    },
-
-    apply(theme, silent = false) {
-      this.current = theme;
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem(this.key, theme);
-      
-      if (!silent) {
-        const label = theme === 'dark' ? 'Dark theme' : 'Light theme';
-        this.announce(`${label} activated`);
-      }
-    },
-
-    toggle() {
-      const next = this.current === 'dark' ? 'light' : 'dark';
-      this.apply(next);
-    },
-
-    announce(message) {
-      const announcer = document.createElement('div');
-      announcer.setAttribute('aria-live', 'polite');
-      announcer.className = 'sr-only';
-      announcer.textContent = message;
-      document.body.appendChild(announcer);
-      setTimeout(() => announcer.remove(), 1000);
+      this.applyLight();
     },
   };
 
@@ -182,17 +155,7 @@
         --rccl-spacing-lg: 1.5rem;
         --rccl-spacing-xl: 2rem;
       }
-      
-      [data-theme="dark"] {
-        --rccl-surface: #1a1a2e;
-        --rccl-surface-rgb: 26, 26, 46;
-        --rccl-text: #f8f9fa;
-        --rccl-text-rgb: 248, 249, 250;
-        --rccl-border: #2d3047;
-        --rccl-border-rgb: 45, 48, 71;
-      }
-      
-      /* Base */
+/* Base */
       .sr-only {
         position: absolute;
         width: 1px;
@@ -495,8 +458,7 @@
         gap: 0.5rem;
       }
       
-      .footer-social__link,
-      .footer-theme-toggle {
+      .footer-social__link {
         width: 2rem;
         height: 2rem;
         display: flex;
@@ -511,8 +473,7 @@
         cursor: pointer;
       }
       
-      .footer-social__link:hover,
-      .footer-theme-toggle:hover {
+      .footer-social__link:hover {
         background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
         border-color: var(--rccl-primary);
       }
@@ -759,9 +720,6 @@
             </nav>
             
             <div class="header-actions">
-              <button class="header-action" id="themeToggle" aria-label="Toggle theme">
-                <i class="fas fa-adjust" aria-hidden="true"></i>
-              </button>
               <button class="header-action" id="notificationsToggle" aria-label="Notifications">
                 <i class="fas fa-bell" aria-hidden="true"></i>
               </button>
@@ -832,9 +790,6 @@
                    aria-label="Visit Royal Caribbean website">
                   <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                 </a>
-                <button class="footer-theme-toggle" aria-label="Toggle theme">
-                  <i class="fas fa-adjust" aria-hidden="true"></i>
-                </button>
               </div>
             </div>
           </div>
@@ -915,18 +870,6 @@
   // Event Handlers
   // ---------------------------
   function initEventHandlers() {
-    // Theme toggle
-    const themeToggle = utils.qs('#themeToggle');
-    const footerThemeToggle = utils.qs('.footer-theme-toggle');
-    
-    if (themeToggle) {
-      themeToggle.addEventListener('click', () => ThemeManager.toggle());
-    }
-    
-    if (footerThemeToggle) {
-      footerThemeToggle.addEventListener('click', () => ThemeManager.toggle());
-    }
-    
     // Quick actions sheet
     const quickButton = utils.qs('[data-action="quick-actions"]');
     const closeSheet = utils.qs('[data-action="close-sheet"]');
