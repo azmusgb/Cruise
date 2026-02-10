@@ -653,6 +653,54 @@
         color: #1f4f78;
       }
 
+      /* Card readability normalization across page-level style variants */
+      body.app-theme-rcc .deck-card,
+      body.app-theme-rcc .room-card,
+      body.app-theme-rcc .category-card,
+      body.app-theme-rcc .stat-card,
+      body.app-theme-rcc .summary-card,
+      body.app-theme-rcc .info-card,
+      body.app-theme-rcc .checklist-card,
+      body.app-theme-rcc .port-item,
+      body.app-theme-rcc .reservation-panel,
+      body.app-theme-rcc .action-item,
+      body.app-theme-rcc .quick-action-item {
+        color: #123f66 !important;
+      }
+
+      body.app-theme-rcc .deck-card h3,
+      body.app-theme-rcc .room-card h3,
+      body.app-theme-rcc .category-card h3,
+      body.app-theme-rcc .stat-card h3,
+      body.app-theme-rcc .summary-card h3,
+      body.app-theme-rcc .info-card h3,
+      body.app-theme-rcc .checklist-card h3,
+      body.app-theme-rcc .action-item h4,
+      body.app-theme-rcc .deck-info__heading h3 {
+        color: #0b4f90 !important;
+      }
+
+      body.app-theme-rcc .deck-card p,
+      body.app-theme-rcc .room-card p,
+      body.app-theme-rcc .category-card p,
+      body.app-theme-rcc .stat-card p,
+      body.app-theme-rcc .summary-card p,
+      body.app-theme-rcc .info-card p,
+      body.app-theme-rcc .checklist-card p,
+      body.app-theme-rcc .action-item p,
+      body.app-theme-rcc .deck-subtitle,
+      body.app-theme-rcc .room-meta-details {
+        color: #1f537f !important;
+      }
+
+      body.app-theme-rcc .feature-tag,
+      body.app-theme-rcc .count-chip,
+      body.app-theme-rcc .chip,
+      body.app-theme-rcc .tag,
+      body.app-theme-rcc .room-location {
+        color: #11416d !important;
+      }
+
       body.app-theme-rcc .btn--primary {
         background: linear-gradient(135deg, #ffe389 0%, #ffc93a 52%, #ffb020 100%) !important;
         color: #0b3664 !important;
