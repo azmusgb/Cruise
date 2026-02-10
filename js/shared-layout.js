@@ -40,7 +40,10 @@
     brand: 'Royal Caribbean',
     ship: 'Adventure of the Seas',
     sailing: 'Feb 14–20, 2026',
+    sailingLabel: '6-Night Western Caribbean & Perfect Day',
     port: 'Port Canaveral',
+    checkIn: '12:00 PM',
+    allAboard: '2:00 PM',
     tagline: 'Experience WOW',
     year: new Date().getFullYear(),
   };
@@ -100,6 +103,17 @@
         clearTimeout(timeout);
         timeout = setTimeout(() => fn(...args), wait);
       };
+    },
+    getCruiseStatus: () => {
+      const embarkation = new Date('2026-02-14T14:00:00-05:00').getTime();
+      const now = Date.now();
+      const diff = embarkation - now;
+      if (diff <= 0) {
+        return { label: 'Sailing in progress', detail: 'Use itinerary for today\'s plan' };
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      return { label: `${days}d ${hours}h to sail away`, detail: 'Complete checklist before embarkation' };
     },
   };
 
@@ -231,6 +245,35 @@
         height: 4px;
         background: linear-gradient(90deg, #0b4f90 0%, var(--rccl-primary) 35%, #00b6ff 70%, var(--rccl-gold) 100%);
       }
+
+      .header-alert {
+        width: 100%;
+        background: linear-gradient(90deg, rgba(11, 79, 144, 0.1) 0%, rgba(25, 194, 255, 0.12) 60%, rgba(255, 201, 58, 0.18) 100%);
+        border: 1px solid rgba(var(--rccl-primary-rgb), 0.14);
+        border-radius: 14px;
+        padding: 0.45rem 0.7rem;
+        margin: 0.35rem 0 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      .header-alert__main {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: #0d4f88;
+      }
+
+      .header-alert__meta {
+        font-size: 0.73rem;
+        color: #2d557f;
+        opacity: 0.9;
+        white-space: nowrap;
+      }
       
       .header-container {
         display: flex;
@@ -344,11 +387,31 @@
         border-radius: var(--rccl-radius-md);
         transition: var(--rccl-transition);
         white-space: nowrap;
+        position: relative;
       }
       
       .header-nav__link:hover {
         background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
         color: var(--rccl-primary);
+      }
+
+      .header-nav__link::after {
+        content: '';
+        position: absolute;
+        left: 1rem;
+        right: 1rem;
+        bottom: 0.42rem;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--rccl-primary) 0%, var(--rccl-accent) 100%);
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.2s ease;
+      }
+
+      .header-nav__link:hover::after,
+      .header-nav__link.active::after {
+        transform: scaleX(1);
       }
       
       .header-nav__link.active {
@@ -388,6 +451,21 @@
       .header-action:hover {
         background: color-mix(in srgb, var(--rccl-primary) 5%, transparent);
         border-color: var(--rccl-primary);
+      }
+
+      .header-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.6rem 0.95rem;
+        border-radius: var(--rccl-radius-full);
+        border: 1px solid rgba(var(--rccl-primary-rgb), 0.2);
+        background: #fff;
+        color: var(--rccl-primary);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
       }
       
       /* Mobile Navigation */
@@ -685,6 +763,20 @@
         border-top: 1px solid rgba(255, 255, 255, 0.2);
         color: #f4fbff;
         margin-top: auto;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .app-footer--minimal::before {
+        content: '';
+        position: absolute;
+        top: -25%;
+        right: -8%;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 70%);
+        pointer-events: none;
       }
       
       .footer-container {
@@ -781,6 +873,33 @@
         padding-bottom: 1.5rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.16);
         margin-bottom: 1.5rem;
+      }
+
+      .footer-columns {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+        margin-bottom: 1.15rem;
+      }
+
+      .footer-panel {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        padding: 0.8rem 0.9rem;
+      }
+
+      .footer-panel__title {
+        margin: 0 0 0.35rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .footer-panel__meta {
+        margin: 0;
+        font-size: 0.75rem;
+        color: rgba(239, 247, 255, 0.95);
       }
       
       .footer-nav {
@@ -884,6 +1003,16 @@
           margin-bottom: 0.35rem;
         }
 
+        .header-alert {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.2rem;
+        }
+
+        .header-alert__meta {
+          white-space: normal;
+        }
+
         .header-context__meta {
           white-space: normal;
           font-size: 0.68rem;
@@ -910,6 +1039,11 @@
           width: 100%;
           justify-content: flex-end;
           padding-top: 0.25rem;
+        }
+
+        .header-cta {
+          width: 100%;
+          justify-content: center;
         }
 
         .header-nav[aria-hidden="true"],
@@ -959,6 +1093,10 @@
         .footer-actions {
           width: auto;
         }
+
+        .footer-columns {
+          grid-template-columns: repeat(3, minmax(180px, 1fr));
+        }
       }
       
       /* Animations */
@@ -969,6 +1107,33 @@
       
       .animate-fade-in {
         animation: fadeIn 0.3s ease-out;
+      }
+
+      @keyframes riseIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      body.app-theme-rcc main > section,
+      body.app-theme-rcc main > div {
+        animation: riseIn 0.45s ease both;
+      }
+
+      body.app-theme-rcc main > section:nth-of-type(2),
+      body.app-theme-rcc main > div:nth-of-type(2) {
+        animation-delay: 0.05s;
+      }
+
+      body.app-theme-rcc main > section:nth-of-type(3),
+      body.app-theme-rcc main > div:nth-of-type(3) {
+        animation-delay: 0.1s;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body.app-theme-rcc main > section,
+        body.app-theme-rcc main > div {
+          animation: none;
+        }
       }
     `;
 
@@ -984,6 +1149,7 @@
   function renderHeader() {
     return safeMount('#sharedHeader', () => {
       const currentPage = utils.getCurrentPage();
+      const cruiseStatus = utils.getCruiseStatus();
       
       const navLinks = NAV_ITEMS.map(item => `
         <a href="${sanitizeHref(item.href)}"
@@ -997,6 +1163,15 @@
       return `
         <header class="app-header--minimal" role="banner">
           <div class="header-container">
+            <div class="header-alert" role="status" aria-live="polite">
+              <span class="header-alert__main">
+                <i class="fas fa-compass" aria-hidden="true"></i>
+                ${utils.escapeHtml(cruiseStatus.label)}
+              </span>
+              <span class="header-alert__meta">
+                ${utils.escapeHtml(DEFAULT_META.sailingLabel)} · Check-in ${utils.escapeHtml(DEFAULT_META.checkIn)} · All aboard ${utils.escapeHtml(DEFAULT_META.allAboard)}
+              </span>
+            </div>
             <div class="header-context" aria-label="Sailing context">
               <span class="header-context__meta">
                 <i class="fas fa-ship" aria-hidden="true"></i>
@@ -1024,6 +1199,10 @@
             </nav>
             
             <div class="header-actions" id="headerHeaderActions">
+              <a href="${sanitizeHref('itinerary.html')}" class="header-cta">
+                <i class="fas fa-route" aria-hidden="true"></i>
+                <span>Today&apos;s Plan</span>
+              </a>
               <button class="header-action" id="notificationsToggle" aria-label="Notifications">
                 <i class="fas fa-bell" aria-hidden="true"></i>
               </button>
@@ -1083,6 +1262,20 @@
             </div>
             
             <div class="footer-essentials">
+              <div class="footer-columns" aria-label="Sailing essentials">
+                <article class="footer-panel">
+                  <h4 class="footer-panel__title">Embarkation</h4>
+                  <p class="footer-panel__meta">Port Canaveral • Check-in ${utils.escapeHtml(DEFAULT_META.checkIn)} • All aboard ${utils.escapeHtml(DEFAULT_META.allAboard)}</p>
+                </article>
+                <article class="footer-panel">
+                  <h4 class="footer-panel__title">Primary Focus</h4>
+                  <p class="footer-panel__meta">Muster by stateroom, daily itinerary alignment, and family regroup points.</p>
+                </article>
+                <article class="footer-panel">
+                  <h4 class="footer-panel__title">Need Help Fast?</h4>
+                  <p class="footer-panel__meta">Use Contacts for emergency numbers and Rooms for cabin-specific details.</p>
+                </article>
+              </div>
               <nav class="footer-nav" aria-label="Essential links">
                 <a href="${sanitizeHref('index.html')}" class="footer-nav__link">Dashboard</a>
                 <a href="${sanitizeHref('itinerary.html')}" class="footer-nav__link">Itinerary</a>
