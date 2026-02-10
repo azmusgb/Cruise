@@ -42,6 +42,10 @@
       color: var(--royal-navy);
     }
 
+    .dining-page .search-status.is-loading {
+      opacity: 0.72;
+    }
+
     .dining-page .reservation-panel {
       background: #fff;
       border: 1px solid var(--royal-border);
@@ -185,10 +189,10 @@
           <input id="diningSearchInput" type="search" placeholder="Search restaurants, cuisines, hours, or deck" aria-label="Search dining venues and details" />
           <span class="main-navigation__hint">Press / to focus</span>
         </div>
-        <div class="main-navigation__filters" aria-label="Shortcuts">
-          <button class="pill-btn is-active" type="button" data-filter="all">All</button>
-          <button class="pill-btn" type="button" data-filter="included">Included</button>
-          <button class="pill-btn" type="button" data-filter="specialty">Specialty</button>
+        <div class="main-navigation__filters" aria-label="Shortcuts" data-filter-group="diningType" role="radiogroup">
+          <button class="pill-btn is-active" type="button" data-filter="all" data-filter-option data-filter-value="all" role="radio" aria-checked="true">All</button>
+          <button class="pill-btn" type="button" data-filter="included" data-filter-option data-filter-value="included" role="radio" aria-checked="false">Included</button>
+          <button class="pill-btn" type="button" data-filter="specialty" data-filter-option data-filter-value="specialty" role="radio" aria-checked="false">Specialty</button>
           <a class="pill-btn" href="#reservations">Reservations</a>
         </div>
         <p id="diningSearchStatus" class="search-status" role="status" aria-live="polite">Showing 6 of 6 venues</p>
@@ -491,6 +495,8 @@
       const countChipValue = document.querySelector('.count-chip span');
       const total = cards.length;
       let activeFilter = 'all';
+      let searchTimer;
+      const SEARCH_DELAY_MS = 120;
 
       if (!searchInput || !searchStatus || !emptyState || total === 0) {
         return;
@@ -500,33 +506,38 @@
         const term = searchInput.value.toLowerCase().trim();
         let visible = 0;
 
-        cards.forEach((card) => {
-          const venueType = card.dataset.venueType || '';
-          const searchableText = `${card.dataset.search || ''} ${card.textContent || ''}`.toLowerCase();
-          const matchesFilter = activeFilter === 'all' || venueType === activeFilter;
-          const matchesSearch = !term || searchableText.includes(term);
-          const shouldShow = matchesFilter && matchesSearch;
+        searchStatus.classList.add('is-loading');
+        searchStatus.textContent = 'Filtering dining options...';
+        clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(() => {
+          cards.forEach((card) => {
+            const venueType = card.dataset.venueType || '';
+            const searchableText = `${card.dataset.search || ''} ${card.textContent || ''}`.toLowerCase();
+            const matchesFilter = activeFilter === 'all' || venueType === activeFilter;
+            const matchesSearch = !term || searchableText.includes(term);
+            const shouldShow = matchesFilter && matchesSearch;
 
-          card.hidden = !shouldShow;
-          card.style.display = shouldShow ? 'flex' : 'none';
-          if (shouldShow) visible += 1;
-        });
+            card.hidden = !shouldShow;
+            card.style.display = shouldShow ? 'flex' : 'none';
+            if (shouldShow) visible += 1;
+          });
 
-        searchStatus.textContent = `Showing ${visible} of ${total} venues`;
-        emptyState.hidden = visible !== 0;
-        if (countChipValue) {
-          countChipValue.textContent = String(visible);
-        }
+          searchStatus.textContent = `Showing ${visible} of ${total} venues`;
+          searchStatus.classList.remove('is-loading');
+          emptyState.hidden = visible !== 0;
+          if (countChipValue) {
+            countChipValue.textContent = String(visible);
+          }
+        }, SEARCH_DELAY_MS);
       }
 
-      filterButtons.forEach((button) => {
-        button.addEventListener('click', function () {
-          activeFilter = button.dataset.filter || 'all';
-          filterButtons.forEach((item) => {
-            item.classList.toggle('is-active', item === button);
-          });
-          updateDiningView();
+      document.addEventListener('rccl:filter-change', function (event) {
+        if (!event.detail || event.detail.group !== 'diningType') return;
+        activeFilter = event.detail.value || 'all';
+        filterButtons.forEach((item) => {
+          item.classList.toggle('is-active', (item.dataset.filter || '') === activeFilter);
         });
+        updateDiningView();
       });
 
       searchInput.addEventListener('input', updateDiningView);

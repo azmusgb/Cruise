@@ -312,6 +312,57 @@
       .header-context__divider {
         opacity: 0.45;
       }
+
+      .header-timeline {
+        width: 100%;
+        border: 1px solid rgba(var(--rccl-primary-rgb), 0.14);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(236, 247, 255, 0.96) 100%);
+        padding: 0.55rem 0.7rem;
+        margin: 0.1rem 0 0.65rem;
+      }
+
+      .header-timeline__title {
+        margin: 0 0 0.45rem;
+        font-size: 0.73rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: #0b4f90;
+      }
+
+      .header-timeline__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.4rem;
+      }
+
+      .header-timeline__item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        min-width: 0;
+        padding: 0.42rem 0.5rem;
+        border-radius: 10px;
+        border: 1px solid rgba(var(--rccl-primary-rgb), 0.12);
+        background: #ffffff;
+      }
+
+      .header-timeline__time {
+        font-size: 0.69rem;
+        font-weight: 800;
+        color: #0b4f90;
+        line-height: 1.2;
+      }
+
+      .header-timeline__event {
+        font-size: 0.7rem;
+        color: #1f4f78;
+        line-height: 1.25;
+      }
       
       .header-brand {
         display: flex;
@@ -495,7 +546,8 @@
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
-        padding: 0.5rem 0.75rem;
+        min-height: 44px;
+        padding: 0.65rem 0.95rem;
         border: 1px solid var(--rccl-border);
         border-radius: var(--rccl-radius-full);
         text-decoration: none;
@@ -586,7 +638,7 @@
       body.app-theme-rcc .deck-grid__subtitle,
       body.app-theme-rcc .section-subtitle,
       body.app-theme-rcc p {
-        color: #2d557f;
+        color: #1f4f78;
       }
 
       body.app-theme-rcc .btn--primary {
@@ -741,6 +793,46 @@
 
       body.app-theme-rcc .room-card--interior {
         border-left-color: #7e9dbd !important;
+      }
+
+      body.app-theme-rcc .deck-cards {
+        align-items: stretch;
+      }
+
+      body.app-theme-rcc .deck-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      }
+
+      body.app-theme-rcc .deck-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 30px rgba(11, 79, 144, 0.18) !important;
+        border-color: rgba(25, 194, 255, 0.7) !important;
+      }
+
+      body.app-theme-rcc .deck-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      body.app-theme-rcc .deck-card__cta {
+        margin-top: auto;
+      }
+
+      body.app-theme-rcc .pill-btn,
+      body.app-theme-rcc .deck-card__cta,
+      body.app-theme-rcc .group-link {
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      }
+
+      body.app-theme-rcc .pill-btn:hover,
+      body.app-theme-rcc .deck-card__cta:hover,
+      body.app-theme-rcc .group-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(11, 79, 144, 0.18);
       }
 
       .header-nav__link:focus-visible,
@@ -1022,6 +1114,19 @@
           flex: 1;
         }
 
+        .header-timeline__list {
+          display: flex;
+          overflow-x: auto;
+          padding-bottom: 0.15rem;
+          gap: 0.35rem;
+          scroll-snap-type: x proximity;
+        }
+
+        .header-timeline__item {
+          min-width: 124px;
+          scroll-snap-align: start;
+        }
+
         .header-nav {
           width: 100%;
           flex-direction: column;
@@ -1160,6 +1265,18 @@
         </a>
       `).join('');
 
+      const timelineItems = [
+        { time: 'Day 1 · 2:00 PM', event: 'All aboard' },
+        { time: 'Day 3 · 11:00 AM', event: 'Grand Cayman tender opens' },
+        { time: 'Day 4 · 8:30 AM', event: 'Falmouth gangway' },
+        { time: 'Day 6 · 7:30 AM', event: 'CocoCay gangway' },
+      ].map(item => `
+        <li class="header-timeline__item">
+          <span class="header-timeline__time">${utils.escapeHtml(item.time)}</span>
+          <span class="header-timeline__event">${utils.escapeHtml(item.event)}</span>
+        </li>
+      `).join('');
+
       return `
         <header class="app-header--minimal" role="banner">
           <div class="header-container">
@@ -1184,6 +1301,12 @@
                 ${utils.escapeHtml(DEFAULT_META.port)}
               </span>
             </div>
+            <section class="header-timeline" aria-label="Critical cruise timeline">
+              <h2 class="header-timeline__title">Critical Timeline</h2>
+              <ul class="header-timeline__list">
+                ${timelineItems}
+              </ul>
+            </section>
             <div class="header-brand">
               <a href="${sanitizeHref('index.html')}" class="header-logo">
                 <i class="fas fa-ship" aria-hidden="true"></i>
@@ -1445,6 +1568,155 @@
   // ---------------------------
   function initScrollBehavior() {}
 
+  function initImageOptimization() {
+    utils.qsa('img').forEach((img, index) => {
+      if (!img.hasAttribute('loading')) {
+        img.setAttribute('loading', index < 2 ? 'eager' : 'lazy');
+      }
+      if (!img.hasAttribute('decoding')) {
+        img.setAttribute('decoding', 'async');
+      }
+    });
+  }
+
+  function initReusableUiComponents() {
+    const filterToggles = utils.qsa('[data-filter-toggle]');
+    const filterPanels = utils.qsa('[data-filter-panel]');
+
+    function closeAllPanels() {
+      filterPanels.forEach((panel) => panel.classList.remove('is-open'));
+      filterToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', 'false'));
+    }
+
+    filterToggles.forEach((toggle) => {
+      const panelId = toggle.getAttribute('aria-controls');
+      const panel = panelId ? document.getElementById(panelId) : null;
+      if (!panel) return;
+
+      toggle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const isOpen = panel.classList.contains('is-open');
+        closeAllPanels();
+        if (!isOpen) {
+          panel.classList.add('is-open');
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('[data-filter-root]')) {
+        closeAllPanels();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeAllPanels();
+      }
+    });
+
+    utils.qsa('[data-filter-group]').forEach((group) => {
+      const options = utils.qsa('[data-filter-option]', group);
+      options.forEach((option) => {
+        option.addEventListener('click', () => {
+          options.forEach((item) => {
+            const isActive = item === option;
+            item.classList.toggle('is-active', isActive);
+            item.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          });
+
+          const groupName = group.dataset.filterGroup || '';
+          const value = option.dataset.filterValue || '';
+          document.dispatchEvent(new CustomEvent('rccl:filter-change', {
+            detail: { group: groupName, value }
+          }));
+        });
+      });
+    });
+
+    const modalRegistry = new Map();
+    utils.qsa('[data-modal]').forEach((modal) => {
+      if (modal.id) modalRegistry.set(modal.id, modal);
+    });
+
+    let lastTrigger = null;
+
+    function getFocusableElements(container) {
+      return utils.qsa('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])', container);
+    }
+
+    function closeModal(modal) {
+      if (!modal) return;
+      modal.classList.remove('rccl-modal--open', 'room-modal--open');
+      modal.setAttribute('aria-hidden', 'true');
+      if (lastTrigger && typeof lastTrigger.focus === 'function') {
+        lastTrigger.focus();
+      }
+      lastTrigger = null;
+    }
+
+    function openModal(modal, trigger = null) {
+      if (!modal) return;
+      lastTrigger = trigger || document.activeElement;
+      modal.classList.add('rccl-modal--open', 'room-modal--open');
+      modal.setAttribute('aria-hidden', 'false');
+      const focusable = getFocusableElements(modal);
+      focusable[0]?.focus();
+    }
+
+    window.RCCLModal = {
+      open: (id, trigger) => openModal(modalRegistry.get(id), trigger || null),
+      close: (id) => closeModal(modalRegistry.get(id)),
+    };
+
+    utils.qsa('[data-modal-open]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const targetId = trigger.dataset.modalOpen;
+        if (!targetId) return;
+        openModal(modalRegistry.get(targetId), trigger);
+      });
+    });
+
+    utils.qsa('[data-modal-close]').forEach((closeBtn) => {
+      closeBtn.addEventListener('click', () => {
+        const modal = closeBtn.closest('[data-modal]');
+        closeModal(modal);
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      const modal = event.target.closest('[data-modal]');
+      if (!modal) return;
+      if (event.target === modal) closeModal(modal);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const openModalEl = utils.qs('[data-modal].rccl-modal--open, [data-modal].room-modal--open');
+      if (openModalEl) {
+        closeModal(openModalEl);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return;
+      const openModalEl = utils.qs('[data-modal].rccl-modal--open, [data-modal].room-modal--open');
+      if (!openModalEl) return;
+      const focusable = getFocusableElements(openModalEl);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
   // ---------------------------
   // Service Worker
   // ---------------------------
@@ -1481,6 +1753,8 @@
     // Initialize event handlers
     initEventHandlers();
     initScrollBehavior();
+    initImageOptimization();
+    initReusableUiComponents();
     initServiceWorker();
     
     // No floating bottom navigation: keep default page flow and spacing.
