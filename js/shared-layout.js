@@ -252,6 +252,24 @@
         rect.bottom >= offset
       );
     },
+    optimizeForMobile() {
+      if (this.isMobile()) {
+        document.documentElement.style.setProperty('--rccl-transition-duration', '0.2s');
+      }
+
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (!connection) return;
+
+      const saveData = Boolean(connection.saveData);
+      const effectiveType = String(connection.effectiveType || '').toLowerCase();
+      if (saveData || effectiveType === '2g' || effectiveType === 'slow-2g') {
+        this.qsa('img[data-src-low]').forEach((img) => {
+          if (img.dataset.srcLow) {
+            img.src = img.dataset.srcLow;
+          }
+        });
+      }
+    },
     // Countdown utility for dashboard
     updateCountdown() {
       const targetDate = new Date('February 14, 2026 15:00:00').getTime();
@@ -330,6 +348,93 @@
     
     clearCache() {
       this.cache.clear();
+    },
+
+    cruiseFeatures: {
+      getCrownTier() {
+        return CruiseState.get('crown-tier', 'gold');
+      },
+      getShipPosition() {
+        const fallback = {
+          latitude: 28.4106,
+          longitude: -80.6186,
+          speed: 18.5,
+          course: 145,
+          nextPort: 'Falmouth, Jamaica',
+          eta: '2026-02-16T07:00:00',
+        };
+        return CruiseState.get('ship-position', fallback);
+      },
+      getBookedActivities() {
+        return CruiseState.get('booked-activities', []);
+      },
+      getDiningReservations() {
+        return CruiseState.get('dining-reservations', []);
+      },
+      getCruiseProgress() {
+        const start = new Date('2026-02-14T15:00:00').getTime();
+        const end = new Date('2026-02-20T08:00:00').getTime();
+        const now = Date.now();
+        if (now <= start) return 0;
+        if (now >= end) return 100;
+        return Math.round(((now - start) / (end - start)) * 100);
+      }
+    }
+  };
+
+  const MobileInteractionManager = {
+    gestures: {
+      initSwipeNavigation(container, callback) {
+        if (!container || typeof callback !== 'function') return;
+
+        let startX = 0;
+        let startY = 0;
+        let isSwiping = false;
+
+        on(container, 'touchstart', (e) => {
+          if (e.touches.length !== 1) return;
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          isSwiping = true;
+        }, { passive: true });
+
+        on(container, 'touchmove', (e) => {
+          if (!isSwiping || e.touches.length !== 1) return;
+          const deltaX = e.touches[0].clientX - startX;
+          const deltaY = e.touches[0].clientY - startY;
+          if (Math.abs(deltaX) > Math.abs(deltaY) * 2) {
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        on(container, 'touchend', (e) => {
+          if (!isSwiping || e.changedTouches.length !== 1) return;
+
+          const endX = e.changedTouches[0].clientX;
+          const endY = e.changedTouches[0].clientY;
+          const deltaX = endX - startX;
+          const deltaY = endY - startY;
+
+          if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) * 2) {
+            callback(deltaX > 0 ? 'swipe-right' : 'swipe-left');
+            MobileInteractionManager.haptic('swipe');
+          }
+
+          isSwiping = false;
+        }, { passive: true });
+      }
+    },
+    haptic(type) {
+      if (!('vibrate' in navigator)) return;
+      const patterns = {
+        tap: [50],
+        swipe: [30, 40, 30],
+        success: [100, 50, 100],
+        warning: [200, 100],
+        error: [300],
+        refresh: [50, 30, 50],
+      };
+      if (patterns[type]) navigator.vibrate(patterns[type]);
     }
   };
 
@@ -2606,6 +2711,137 @@
     document.head.appendChild(styleEl);
   }
 
+
+  function injectMobileEnhancementStyles() {
+    const styleId = 'rccl-mobile-enhancements';
+    if (document.getElementById(styleId)) return;
+
+    const styles = `
+      :root {
+        --rccl-spacing-unit: 4px;
+        --rccl-font-size-base: 14px;
+      }
+
+      .container {
+        container-type: inline-size;
+        width: 100%;
+        padding-left: var(--rccl-spacing-sm);
+        padding-right: var(--rccl-spacing-sm);
+      }
+
+      .rccl-offline-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, var(--rccl-warning), color-mix(in srgb, var(--rccl-warning) 60%, var(--rccl-dark)));
+        color: #fff;
+        padding: var(--rccl-spacing-sm);
+        text-align: center;
+        z-index: 1100;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+      }
+
+      .rccl-offline-banner.visible {
+        transform: translateY(0);
+      }
+
+      .rccl-quick-actions-sheet {
+        position: fixed;
+        left: var(--rccl-spacing-sm);
+        right: var(--rccl-spacing-sm);
+        bottom: calc(env(safe-area-inset-bottom) + 76px);
+        background: var(--rccl-surface);
+        border: 1px solid var(--rccl-border);
+        border-radius: var(--rccl-border-radius-lg) var(--rccl-border-radius-lg) 0 0;
+        box-shadow: var(--rccl-shadow-xl);
+        transform: translateY(115%);
+        transition: transform 0.35s var(--rccl-transition-timing);
+        z-index: 999;
+      }
+
+      .rccl-quick-actions-sheet[data-state="partial"] {
+        transform: translateY(0);
+      }
+
+      .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--rccl-spacing-sm);
+        padding: var(--rccl-spacing-md);
+      }
+
+      .quick-action {
+        min-height: 44px;
+        border: 1px solid var(--rccl-border);
+        border-radius: var(--rccl-border-radius-md);
+        background: var(--rccl-bg);
+        color: var(--rccl-text);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font: inherit;
+      }
+
+      .sheet-handle {
+        width: 40px;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--rccl-border);
+        margin: var(--rccl-spacing-sm) auto;
+      }
+
+      .rccl-ship-nav {
+        display: none;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+      }
+
+      .rccl-ship-position-mobile {
+        display: none;
+      }
+
+      @media (min-width: 360px) {
+        :root {
+          --rccl-font-size-base: 15px;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .rccl-ship-nav {
+          display: inline-flex;
+        }
+
+        .rccl-ship-position-mobile {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: var(--rccl-font-size-sm);
+          color: color-mix(in srgb, var(--rccl-text) 75%, var(--rccl-primary));
+        }
+      }
+
+      @media (min-width: 1024px) {
+        :root {
+          --rccl-spacing-unit: 8px;
+          --rccl-font-size-base: 16px;
+        }
+
+        .container {
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+      }
+    `;
+
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = styles;
+    document.head.appendChild(styleEl);
+  }
+
   // ---------------------------
   // Event Handler Utilities
   // ---------------------------
@@ -2635,6 +2871,25 @@
 
       const showMenuToggle = meta.showMenuToggle;
       const toggleClass = showMenuToggle ? 'enabled' : '';
+      const shipPosition = CruiseState.cruiseFeatures.getShipPosition();
+      const shipControls = `
+        <div class="rccl-ship-nav" aria-label="Ship navigation">
+          <button class="rccl-ship-nav__btn" data-action="prev-deck" aria-label="Previous deck">
+            <i class="fas fa-chevron-up" aria-hidden="true"></i>
+          </button>
+          <div class="rccl-ship-nav__info">
+            <span class="rccl-ship-nav__current">Deck 5</span>
+            <span class="rccl-ship-nav__venue">Royal Promenade</span>
+          </div>
+          <button class="rccl-ship-nav__btn" data-action="next-deck" aria-label="Next deck">
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="rccl-ship-position-mobile">
+          <i class="fas fa-ship" aria-hidden="true"></i>
+          <span>${escapeHtml(String(shipPosition.speed))} kn • ${escapeHtml(shipPosition.nextPort)}</span>
+        </div>
+      `;
 
       const headerHTML = `
         <a class="skip-link sr-only-focusable" href="#main">Skip to content</a>
@@ -2667,6 +2922,8 @@
                   <div class="ship-class-line">${escapeHtml(meta.shipClass)}</div>
                 </div>
               </a>
+
+              ${shipControls}
 
               <nav class="nav-desktop" aria-label="Main navigation">
                 <div class="nav-desktop__links">
@@ -2798,6 +3055,7 @@
       `;
 
       mount.outerHTML = headerHTML;
+      initShipNavigation();
       return utils.qs('.app-header');
     });
   }
@@ -2954,21 +3212,27 @@
     mounts.forEach((mount) => {
       try {
         const currentPage = utils.getCurrentPage(mount);
-        const priorityItems = MOBILE_NAV_PRIORITY
-          .map((id) => NAV_ITEMS.find((item) => item.id === id))
-          .filter(Boolean);
-        const currentItem = NAV_ITEMS.find((item) => item.id === currentPage);
+        const navItems = [
+          { id: 'index', icon: 'fa-home', text: 'Dashboard', href: 'index.html' },
+          { id: 'itinerary', icon: 'fa-route', text: 'Today', href: 'itinerary.html' },
+          { id: 'actions', icon: 'fa-bolt', text: 'Quick', action: 'open-quick-actions' },
+          { id: 'decks', icon: 'fa-map', text: 'Decks', href: 'decks.html' },
+          { id: 'dining', icon: 'fa-utensils', text: 'Dining', href: 'dining.html' },
+        ];
 
-        if (currentItem && !priorityItems.some((item) => item.id === currentItem.id)) {
-          priorityItems[priorityItems.length - 1] = currentItem;
-        }
-
-        const links = priorityItems.map((item) => {
+        const links = navItems.map((item) => {
           const isActive = currentPage === item.id;
+          if (item.action) {
+            return `
+              <button class="mobile-nav-item ${isActive ? 'active' : ''}" data-action="${item.action}" aria-label="${item.text}" type="button">
+                <span class="mobile-nav-icon"><i class="fas ${item.icon}" aria-hidden="true"></i></span>
+                <span class="mobile-nav-text">${escapeHtml(item.text)}</span>
+              </button>
+            `;
+          }
+
           return `
-            <a href="${sanitizeHref(item.href)}"
-               class="mobile-nav-item${isActive ? ' active' : ''}"
-               ${isActive ? 'aria-current="page"' : ''}>
+            <a href="${sanitizeHref(item.href)}" class="mobile-nav-item${isActive ? ' active' : ''}" ${isActive ? 'aria-current="page"' : ''}>
               <span class="mobile-nav-icon"><i class="fas ${item.icon}" aria-hidden="true"></i></span>
               <span class="mobile-nav-text">${escapeHtml(item.text)}</span>
             </a>
@@ -2979,7 +3243,18 @@
           <nav class="mobile-nav" aria-label="Bottom navigation">
             ${links}
           </nav>
+          <div class="rccl-quick-actions-sheet" data-state="hidden" aria-label="Quick actions">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="quick-actions-grid">
+              <button class="quick-action" data-action="find-restroom" type="button"><i class="fas fa-restroom" aria-hidden="true"></i><span>Restroom</span></button>
+              <button class="quick-action" data-action="call-steward" type="button"><i class="fas fa-phone-alt" aria-hidden="true"></i><span>Steward</span></button>
+              <button class="quick-action" data-action="show-menu" type="button"><i class="fas fa-utensils" aria-hidden="true"></i><span>Menu</span></button>
+              <button class="quick-action" data-action="emergency" type="button"><i class="fas fa-first-aid" aria-hidden="true"></i><span>Emergency</span></button>
+            </div>
+          </div>
         `;
+
+        initQuickActions();
       } catch (err) {
         console.error('Failed to render bottom nav:', err);
         mount.innerHTML = '<nav class="mobile-nav" aria-label="Bottom navigation"></nav>';
@@ -3469,6 +3744,49 @@
     });
   }
 
+
+  function updateOnlineStatus() {
+    const isOnline = navigator.onLine;
+    let banner = utils.qs('.rccl-offline-banner');
+
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.className = 'rccl-offline-banner';
+      banner.innerHTML = "<i class=\"fas fa-wifi-slash\" aria-hidden=\"true\"></i> <span>You're offline. Some features may be limited.</span>";
+      document.body.appendChild(banner);
+    }
+
+    banner.classList.toggle('visible', !isOnline);
+    document.documentElement.setAttribute('data-connection', isOnline ? 'online' : 'offline');
+  }
+
+  function initShipNavigation() {
+    const prevBtn = utils.qs('[data-action="prev-deck"]');
+    const nextBtn = utils.qs('[data-action="next-deck"]');
+
+    on(prevBtn, 'click', () => MobileInteractionManager.haptic('tap'));
+    on(nextBtn, 'click', () => MobileInteractionManager.haptic('tap'));
+  }
+
+  function initQuickActions() {
+    const quickActionBtn = utils.qs('[data-action="open-quick-actions"]');
+    const quickActionsSheet = utils.qs('.rccl-quick-actions-sheet');
+    if (!quickActionBtn || !quickActionsSheet) return;
+
+    on(quickActionBtn, 'click', () => {
+      const next = quickActionsSheet.getAttribute('data-state') === 'partial' ? 'hidden' : 'partial';
+      quickActionsSheet.setAttribute('data-state', next);
+      MobileInteractionManager.haptic('tap');
+    });
+
+    utils.qsa('.quick-action', quickActionsSheet).forEach((btn) => {
+      on(btn, 'click', () => {
+        MobileInteractionManager.haptic('success');
+        utils.announce(`${btn.textContent.trim()} selected`);
+      });
+    });
+  }
+
   // ---------------------------
   // Init & Cleanup
   // ---------------------------
@@ -3505,6 +3823,7 @@
     
     // Inject styles
     injectRCCLStyles();
+    injectMobileEnhancementStyles();
     
     // Render components
     renderHeader();
@@ -3517,9 +3836,24 @@
     initHeroObserver();
     initEnhancedButtonEffects();
     initCountdownTimer();
+
+    MobileInteractionManager.gestures.initSwipeNavigation(document.body, (direction) => {
+      document.documentElement.setAttribute('data-last-swipe', direction);
+    });
     
     // Add page-shell class to body for proper padding
     document.body.classList.add('page-shell');
+    utils.optimizeForMobile();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/rccl-sw.js').catch((err) => {
+        console.warn('Service Worker registration failed:', err);
+      });
+    }
+
+    updateOnlineStatus();
+    on(window, 'online', updateOnlineStatus);
+    on(window, 'offline', updateOnlineStatus);
     
     // Update countdown immediately
     utils.updateCountdown();
