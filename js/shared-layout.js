@@ -76,6 +76,8 @@
     lightRgb: '248, 249, 250',
   };
 
+  let deferredInstallPromptEvent = null;
+
   // ---------------------------
   // Utilities
   // ---------------------------
@@ -517,6 +519,16 @@
         font-weight: 700;
         text-decoration: none;
         white-space: nowrap;
+      }
+
+      .header-cta--install {
+        background: linear-gradient(135deg, #ffe389 0%, #ffc93a 52%, #ffb020 100%);
+        border-color: rgba(255, 201, 58, 0.6);
+        color: #0b3664;
+      }
+
+      .header-cta--install[hidden] {
+        display: none !important;
       }
       
       /* Mobile Navigation */
@@ -1606,6 +1618,10 @@
                 <i class="fas fa-route" aria-hidden="true"></i>
                 <span>Today&apos;s Plan</span>
               </a>
+              <button type="button" class="header-cta header-cta--install" id="pwaInstallButton" hidden aria-hidden="true">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                <span>Install App</span>
+              </button>
               <button class="header-action" id="notificationsToggle" aria-label="Notifications">
                 <i class="fas fa-bell" aria-hidden="true"></i>
               </button>
@@ -1785,6 +1801,52 @@
     if (notificationsToggle) {
       notificationsToggle.addEventListener('click', () => {
         showToast('Notifications center coming soon.');
+      });
+    }
+
+    const installBtn = utils.qs('#pwaInstallButton');
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const setInstallButtonVisible = (visible) => {
+      if (!installBtn) return;
+      installBtn.hidden = !visible;
+      installBtn.setAttribute('aria-hidden', String(!visible));
+    };
+
+    if (installBtn && isStandalone) {
+      setInstallButtonVisible(false);
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPromptEvent = event;
+      if (!isStandalone) {
+        setInstallButtonVisible(true);
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPromptEvent = null;
+      setInstallButtonVisible(false);
+      localStorage.setItem('pwa_installed_at', new Date().toISOString());
+      showToast('App installed successfully.');
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredInstallPromptEvent) {
+          showToast('Install option is not available yet on this device.');
+          return;
+        }
+
+        deferredInstallPromptEvent.prompt();
+        const choice = await deferredInstallPromptEvent.userChoice.catch(() => null);
+        if (choice && choice.outcome === 'accepted') {
+          showToast('Install started.');
+          setInstallButtonVisible(false);
+        } else {
+          showToast('Install dismissed. You can try again anytime.');
+          setInstallButtonVisible(true);
+        }
       });
     }
     
@@ -2004,9 +2066,47 @@
     if (!('serviceWorker' in navigator)) return;
 
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('js/sw.js').catch((error) => {
-        console.warn('Service worker registration failed:', error);
+      let refreshing = false;
+
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
       });
+
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        const data = event.data;
+        if (!data || typeof data !== 'object') return;
+        if (data.type === 'CACHE_UPDATED') {
+          localStorage.setItem('offline_last_sync_at', data.at || new Date().toISOString());
+          localStorage.setItem('offline_sw_version', data.version || 'unknown');
+        }
+      });
+
+      navigator.serviceWorker
+        .register('js/sw.js', { scope: './' })
+        .then((registration) => {
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+
+          registration.addEventListener('updatefound', () => {
+            const nextWorker = registration.installing;
+            if (!nextWorker) return;
+            nextWorker.addEventListener('statechange', () => {
+              if (nextWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                nextWorker.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          });
+
+          window.setInterval(() => {
+            registration.update().catch(() => {});
+          }, 60 * 60 * 1000);
+        })
+        .catch((error) => {
+          console.warn('Service worker registration failed:', error);
+        });
     });
   }
 
