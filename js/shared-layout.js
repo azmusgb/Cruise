@@ -42,10 +42,14 @@
   // Configuration
   // ---------------------------
   const DEFAULT_META = {
-    brand: 'The Royal Way Hub',
+    brand: 'Royal Caribbean International',
     ship: 'Adventure of the Seas',
+    shipClass: 'Voyager Class • 138,193 GT • 3,114 Guests',
     sailing: 'Feb 14–20, 2026',
     port: 'Port Canaveral',
+    daysAtSea: '6 Nights',
+    registry: 'The Bahamas',
+    tagline: 'Experience WOW',
     year: new Date().getFullYear(),
   };
 
@@ -675,6 +679,7 @@
          data-delay="140">
         <i class="fas ${item.icon}" aria-hidden="true"></i>
         <span class="nav-text">${escapeHtml(item.text)}</span>
+        ${isActive ? '<i class="fas fa-compass nav-active-compass" aria-hidden="true"></i>' : ''}
         ${badgeHTML}
         <span class="nav-link__wave" aria-hidden="true"></span>
       </a>
@@ -713,8 +718,12 @@
     return {
       brand: ds.brand || DEFAULT_META.brand,
       ship: ds.ship || DEFAULT_META.ship,
+      shipClass: ds.shipClass || DEFAULT_META.shipClass,
       sailing: ds.sailing || DEFAULT_META.sailing,
       port: ds.port || DEFAULT_META.port,
+      daysAtSea: ds.daysAtSea || DEFAULT_META.daysAtSea,
+      registry: ds.registry || DEFAULT_META.registry,
+      tagline: ds.tagline || DEFAULT_META.tagline,
       year: DEFAULT_META.year,
       showMenuToggle: ds.menuToggle !== 'false',
       showProgress: ds.heroProgress === 'true',
@@ -990,6 +999,32 @@
       .logo-separator {
         opacity: 0.5;
       }
+
+      .brand-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--rccl-spacing-xs);
+        margin-top: 4px;
+      }
+
+      .brand-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: color-mix(in srgb, var(--rccl-primary) 80%, black);
+        background: color-mix(in srgb, var(--rccl-secondary) 16%, white);
+        border: 1px solid color-mix(in srgb, var(--rccl-secondary) 40%, white);
+        border-radius: 999px;
+        padding: 0.18rem 0.48rem;
+      }
+
+      .ship-class-line {
+        margin-top: 2px;
+        font-size: 0.7rem;
+        color: color-mix(in srgb, var(--rccl-gray) 85%, var(--rccl-primary));
+      }
       
       /* Desktop Navigation */
       .nav-desktop {
@@ -1068,6 +1103,18 @@
       
       .nav-link i {
         font-size: 1rem;
+      }
+
+      .nav-active-compass {
+        font-size: 0.78rem;
+        opacity: 0;
+        transform: translateY(2px) scale(0.9);
+        transition: all var(--rccl-transition-duration) var(--rccl-transition-timing);
+      }
+
+      .nav-link.active .nav-active-compass {
+        opacity: 0.92;
+        transform: translateY(0) scale(1);
       }
       
       .nav-link__wave {
@@ -2161,6 +2208,41 @@
         display: flex;
         gap: var(--rccl-spacing-sm);
       }
+
+      .footer-brand-lines {
+        display: grid;
+        gap: 0.35rem;
+        margin-top: var(--rccl-spacing-sm);
+        font-size: var(--rccl-font-size-sm);
+        color: color-mix(in srgb, var(--rccl-light) 82%, transparent);
+      }
+
+      .footer-brand-lines strong {
+        color: white;
+      }
+
+      .footer-social-links {
+        display: flex;
+        align-items: center;
+        gap: var(--rccl-spacing-sm);
+        margin-top: var(--rccl-spacing-md);
+      }
+
+      .footer-social-links a {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: white;
+        text-decoration: none;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .footer-social-links a:hover {
+        background: rgba(var(--rccl-accent-rgb), 0.32);
+      }
       
       .social-link {
         width: 40px;
@@ -2525,7 +2607,7 @@
             <div class="header-content">
               <a href="${sanitizeHref('index.html')}" class="logo logo--rccl" aria-label="Go to dashboard">
                 <div class="logo-icon" aria-hidden="true">
-                  <i class="fas fa-ship" aria-hidden="true"></i>
+                  <i class="fas fa-crown" aria-hidden="true"></i>
                   <div class="logo-icon__wave"></div>
                 </div>
                 <div class="logo-text-container">
@@ -2536,6 +2618,11 @@
                     <span class="logo-separator">•</span>
                     <span>${escapeHtml(meta.sailing)}</span>
                   </div>
+                  <div class="brand-meta" aria-label="Cruise summary">
+                    <span class="brand-chip"><i class="fas fa-compass" aria-hidden="true"></i> Embark: ${escapeHtml(meta.port)}</span>
+                    <span class="brand-chip"><i class="fas fa-water" aria-hidden="true"></i> ${escapeHtml(meta.daysAtSea)}</span>
+                  </div>
+                  <div class="ship-class-line">${escapeHtml(meta.shipClass)}</div>
                 </div>
               </a>
 
@@ -2754,6 +2841,16 @@
                 </div>
                 <h3>Plan Clean. Sail Calmer.</h3>
                 <p>Your complete digital cruise companion — everything you need in one elegant, intuitive place.</p>
+                <div class="footer-brand-lines">
+                  <div><strong>Royal Caribbean International</strong> • ${escapeHtml(meta.tagline)}</div>
+                  <div>Ships Registry: ${escapeHtml(meta.registry)}</div>
+                </div>
+                <div class="footer-social-links" aria-label="Royal Caribbean social media">
+                  <a href="https://www.facebook.com/royalcaribbean" target="_blank" rel="noopener noreferrer" aria-label="Royal Caribbean on Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                  <a href="https://www.instagram.com/royalcaribbean" target="_blank" rel="noopener noreferrer" aria-label="Royal Caribbean on Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+                  <a href="https://x.com/RoyalCaribbean" target="_blank" rel="noopener noreferrer" aria-label="Royal Caribbean on X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+                  <a href="https://www.youtube.com/royalcaribbean" target="_blank" rel="noopener noreferrer" aria-label="Royal Caribbean on YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+                </div>
               </div>
 
               <div class="footer-hero__actions">
