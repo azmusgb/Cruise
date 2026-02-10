@@ -482,7 +482,16 @@
           nextPort: 'Falmouth, Jamaica',
           eta: '2026-02-16T07:00:00',
         };
-        return CruiseState.get('ship-position', fallback);
+        const stored = CruiseState.get('ship-position', fallback);
+
+        if (!stored || typeof stored !== 'object' || Array.isArray(stored)) {
+          return { ...fallback };
+        }
+
+        return {
+          ...fallback,
+          ...stored,
+        };
       },
       getBookedActivities() {
         return CruiseState.get('booked-activities', []);
