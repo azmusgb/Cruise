@@ -13,6 +13,11 @@
       const mount = document.querySelector(selector);
       if (!mount) return null;
       const result = renderFn(mount);
+      if (typeof result === 'string') {
+        mount.innerHTML = result;
+      } else if (result instanceof Node) {
+        mount.replaceChildren(result);
+      }
       return result;
     } catch (error) {
       console.error(`Failed to render ${selector}:`, error);
