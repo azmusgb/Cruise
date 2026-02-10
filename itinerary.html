@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-theme-mode="light">
+<html lang="en" data-theme="light" data-theme-mode="light" data-user-tier="diamond-plus" data-user-experience="first-cruise">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,214 +9,137 @@
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.svg">
   <title>Itinerary | Adventure of the Seas</title>
-  <meta name="description" content="Day-by-day itinerary, ports, and onboard plans in one light, consistent layout.">
+  <meta name="description" content="Mobile-first Royal Caribbean itinerary timeline with deck navigation, live ship status, and offline support.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/shared-layout.js?v=2" defer></script>
+  <script src="js/service-worker-registration.js" defer></script>
+  <script src="js/itinerary-experience.js" defer></script>
 </head>
 <body class="decks-shell page-shell">
   <a href="#main" class="skip-link">Skip to main content</a>
   <div id="sharedHeader" data-page="itinerary"></div>
 
-  <main id="main" aria-label="Itinerary">
-    <section class="deck-hero">
+  <main id="main" aria-label="Itinerary" class="rccl-itinerary-app">
+    <section class="rccl-hero rccl-wave-border">
       <div class="container">
-        <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
-        <h1 class="deck-hero__title">Daily Itinerary</h1>
-        <p class="deck-hero__subtitle">Ports, sea days, and daily highlights in a single, light-mode view.</p>
-        <div class="deck-hero__actions">
-          <a class="btn btn--primary" href="#itinerary-grid">See all days</a>
-          <a class="btn btn--secondary" href="operations.html">Checklist</a>
-        </div>
+        <p class="rccl-hero__eyebrow">Adventure of the Seas • Feb 14–20, 2026</p>
+        <h1 class="rccl-hero__title">Your Ship Is Your Co-Pilot</h1>
+        <p class="rccl-hero__subtitle">A touch-first itinerary designed for life onboard: swipe by day, track deck context, and keep plans available offline.</p>
       </div>
     </section>
 
-    <section class="main-navigation" aria-label="Quick navigation">
-      <div class="container main-navigation__inner">
-        <div class="main-navigation__search" role="search">
-          <i class="fas fa-search" aria-hidden="true"></i>
-          <input type="search" placeholder="Search ports or days" aria-label="Search itinerary" />
-          <span class="main-navigation__hint">Press / to focus</span>
+    <section class="container rccl-status-grid" aria-label="Live ship status">
+      <article class="rccl-live-status" aria-label="Ship progress">
+        <div class="status-line">
+          <span class="status-label">Current Speed</span>
+          <span class="status-value" id="ship-speed">18.5 knots</span>
+          <div class="status-wave" style="--speed: 18.5"></div>
         </div>
-        <div class="main-navigation__filters" aria-label="Shortcuts">
-          <a class="pill-btn" href="#itinerary-grid">All days</a>
-          <a class="pill-btn" href="#ports">Ports</a>
-          <a class="pill-btn" href="tips.html">Packing</a>
+        <div class="status-line">
+          <span class="status-label">Next Port</span>
+          <span class="status-value" id="next-port">Falmouth • 124 NM</span>
+          <div class="status-progress" id="port-progress" style="--progress: 65%"></div>
         </div>
+      </article>
+      <div class="rccl-crown-pulse" data-tier="diamond" aria-label="Crown and Anchor perks active">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring" style="animation-delay: .5s"></div>
+        <i class="fas fa-crown" aria-hidden="true"></i>
+        <span class="tier-badge">Diamond Plus</span>
       </div>
     </section>
 
-    <section class="deck-directory container" aria-label="Itinerary categories" id="ports">
-      <article class="category-card">
-        <div class="category-card__heading">⚓ Ports</div>
-        <div class="deck-pills">
-          <div class="deck-pill"><span class="deck-pill__number">D4</span><span class="deck-pill__text">Falmouth</span></div>
-          <div class="deck-pill"><span class="deck-pill__number">D6</span><span class="deck-pill__text">CocoCay</span></div>
-        </div>
-      </article>
-      <article class="category-card">
-        <div class="category-card__heading">🌊 Sea days</div>
-        <div class="deck-pills">
-          <div class="deck-pill"><span class="deck-pill__number">D2</span><span class="deck-pill__text">Sea day</span></div>
-          <div class="deck-pill"><span class="deck-pill__number">D3</span><span class="deck-pill__text">Sea day</span></div>
-        </div>
-      </article>
-      <article class="category-card">
-        <div class="category-card__heading">🎟️ Key events</div>
-        <div class="deck-pills">
-          <div class="deck-pill"><span class="deck-pill__number">D2</span><span class="deck-pill__text">Formal night</span></div>
-          <div class="deck-pill"><span class="deck-pill__number">D5</span><span class="deck-pill__text">Showtime</span></div>
-        </div>
-      </article>
+    <section class="container rccl-swipe-zones" aria-label="Swipe shortcuts">
+      <button class="swipe-left" data-action="previous-day" type="button">← Prev Day</button>
+      <button class="swipe-center" data-action="toggle-sheet" type="button">Pull for Deck Map</button>
+      <button class="swipe-right" data-action="next-day" type="button">Next Day →</button>
     </section>
 
-    <section class="deck-grid container" aria-label="Itinerary days" id="itinerary-grid">
-      <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">7-day overview</h2>
-          <p class="deck-grid__subtitle">Tap a day to see highlights and port times.</p>
-        </div>
-        <div class="deck-grid__counts">
-          <div class="count-chip"><span>7</span> days</div>
-        </div>
-      </div>
-      <div class="deck-cards" role="list">
-        <article class="deck-card" role="listitem">
-          <div class="deck-visual">
-            <span class="deck-number">1</span>
-            <img src="https://images.unsplash.com/photo-1519677100203-6f5d4c7a08c9?auto=format&fit=crop&w=900&q=80" alt="Day 1 embarkation" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Day 1 · Embarkation</h3>
-              <p class="deck-subtitle">Port Canaveral • Sail away 4:00 PM</p>
-            </div>
-            <div class="deck-highlights">
-              <span>Boarding window</span>
-              <span>Muster drill</span>
-              <span>Sail away</span>
-            </div>
-            <a class="deck-card__cta" href="#">View details →</a>
-          </div>
-        </article>
+    <section class="container rccl-timeline" id="itinerary-grid" aria-label="Experience timeline">
+      <p class="rccl-tip"><strong>First cruise tip:</strong> long-press activities for quick actions and reminders.</p>
 
-        <article class="deck-card" role="listitem">
-          <div class="deck-visual">
-            <span class="deck-number">2</span>
-            <img src="https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=900&q=80" alt="Day 2 sea day" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Day 2 · Sea day</h3>
-              <p class="deck-subtitle">Formal night</p>
+      <article class="rccl-experience-card" data-day="4" data-port="falmouth" data-activity-id="activity-123">
+        <header class="experience-header">
+          <div class="day-marker">
+            <span class="day-number">4</span>
+            <div class="day-status">
+              <div class="ship-icon" style="--position: 65%"><i class="fas fa-ship" aria-hidden="true"></i></div>
             </div>
-            <div class="deck-highlights">
-              <span>Formal night</span>
-              <span>Showtime</span>
-              <span>Dining 6:00 PM</span>
-            </div>
-            <a class="deck-card__cta" href="#">View details →</a>
           </div>
-        </article>
 
-        <article class="deck-card" role="listitem">
-          <div class="deck-visual">
-            <span class="deck-number">3</span>
-            <img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb210af?auto=format&fit=crop&w=900&q=80" alt="Day 3 sea day" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Day 3 · Sea day</h3>
-              <p class="deck-subtitle">Dining 6:00 PM</p>
+          <div class="port-info">
+            <h2><i class="fas fa-anchor" aria-hidden="true"></i> Falmouth, Jamaica</h2>
+            <div class="port-times">
+              <span class="time-badge arrived">Docked • 7:00 AM</span>
+              <span class="time-badge departure">All Aboard • 4:30 PM</span>
             </div>
-            <div class="deck-highlights">
-              <span>Relaxed day</span>
-              <span>Specialty dining</span>
-              <span>Evening show</span>
-            </div>
-            <a class="deck-card__cta" href="#">View details →</a>
+            <div class="weather-chip"><i class="fas fa-sun" aria-hidden="true"></i> 84°F • Mostly Sunny</div>
           </div>
-        </article>
 
-        <article class="deck-card" role="listitem">
-          <div class="deck-visual">
-            <span class="deck-number">4</span>
-            <img src="https://images.unsplash.com/photo-1558478551-1a378f63328e?auto=format&fit=crop&w=900&q=80" alt="Day 4 Falmouth" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Day 4 · Falmouth</h3>
-              <p class="deck-subtitle">All aboard 4:30 PM</p>
-            </div>
-            <div class="deck-highlights">
-              <span>Shore excursions</span>
-              <span>Shopping</span>
-              <span>Evening sail</span>
-            </div>
-            <a class="deck-card__cta" href="#">View details →</a>
-          </div>
-        </article>
+          <aside class="crown-offer" data-tier="gold-plus">
+            <i class="fas fa-gem" aria-hidden="true"></i>
+            <span>Diamond Lounge Access 5-8 PM</span>
+          </aside>
+        </header>
 
-        <article class="deck-card" role="listitem">
-          <div class="deck-visual">
-            <span class="deck-number">5</span>
-            <img src="https://images.unsplash.com/photo-1473186578172-c141e6798cf4?auto=format&fit=crop&w=900&q=80" alt="Day 5 sea day" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Day 5 · Sea day</h3>
-              <p class="deck-subtitle">Dressed to Impress</p>
+        <section class="booked-activities" aria-labelledby="activity-123-title">
+          <h3><i class="fas fa-calendar-check" aria-hidden="true"></i> Your Plans</h3>
+          <article class="activity booked rccl-activity" role="article" aria-labelledby="activity-123-title" aria-describedby="activity-123-desc" tabindex="0">
+            <div class="activity-header">
+              <span class="activity-time">9:30 AM - 2:00 PM</span>
+              <span class="activity-badge rccl-official">RCCL EXCURSION</span>
             </div>
-            <div class="deck-highlights">
-              <span>Formal optional</span>
-              <span>Showtime</span>
-              <span>Dining 6:00 PM</span>
+            <h4 id="activity-123-title">Dunn's River Falls &amp; Bamboo Beach</h4>
+            <p id="activity-123-desc" class="sr-only">Excursion in Falmouth Jamaica. Duration: 4.5 hours. Activity level: Moderate. Price: $89 per person.</p>
+            <div class="activity-meta">
+              <span><i class="fas fa-walking" aria-hidden="true"></i> Moderate Activity</span>
+              <span><i class="fas fa-tag" aria-hidden="true"></i> $89/person</span>
+              <span><i class="fas fa-ticket-alt" aria-hidden="true"></i> Ticket: EXC-2371</span>
             </div>
-            <a class="deck-card__cta" href="#">View details →</a>
-          </div>
-        </article>
+            <div class="activity-actions">
+              <button class="rccl-btn outline" data-action="view-ticket" type="button" aria-label="View QR code ticket for Dunn's River Falls excursion"><i class="fas fa-qrcode" aria-hidden="true"></i> View Ticket</button>
+              <button class="rccl-btn" data-action="add-to-calendar" type="button"><i class="fas fa-calendar-plus" aria-hidden="true"></i> Reminder</button>
+            </div>
+          </article>
+        </section>
 
-        <article class="deck-card" role="listitem">
-          <div class="deck-visual">
-            <span class="deck-number">6</span>
-            <img src="https://images.unsplash.com/photo-1566073771259-6f5d4c7a08c9?auto=format&fit=crop&w=900&q=80" alt="Day 6 CocoCay" />
+        <section class="recommendations" aria-label="Recommended add-ons">
+          <h3><i class="fas fa-compass" aria-hidden="true"></i> Explore More</h3>
+          <div class="recommendation-scroller">
+            <article class="rec-card" data-type="dining">
+              <div class="rec-badge"><i class="fas fa-utensils" aria-hidden="true"></i> Dining</div>
+              <h4>Izumi Hibachi Experience</h4>
+              <p>7:00 PM • Deck 11</p>
+              <button class="rccl-btn small" data-action="book-now" type="button">Reserve Table</button>
+            </article>
           </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Day 6 · Perfect Day at CocoCay</h3>
-              <p class="deck-subtitle">All aboard 5:00 PM</p>
-            </div>
-            <div class="deck-highlights">
-              <span>Thrill waterpark</span>
-              <span>Oasis Lagoon</span>
-              <span>Beach club</span>
-            </div>
-            <a class="deck-card__cta" href="#">View details →</a>
-          </div>
-        </article>
-
-        <article class="deck-card" role="listitem">
-          <div class="deck-visual">
-            <span class="deck-number">7</span>
-            <img src="https://images.unsplash.com/photo-1521292270410-a8c2e4c1c3c5?auto=format&fit=crop&w=900&q=80" alt="Day 7 sea day" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Day 7 · Sea day</h3>
-              <p class="deck-subtitle">Farewell</p>
-            </div>
-            <div class="deck-highlights">
-              <span>Relax & pack</span>
-              <span>Last specialty</span>
-              <span>Showtime</span>
-            </div>
-            <a class="deck-card__cta" href="#">View details →</a>
-          </div>
-        </article>
-      </div>
+        </section>
+      </article>
     </section>
   </main>
+
+  <nav class="rccl-deck-sheet" data-state="partial" aria-label="Deck quick actions">
+    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="deck-tracker">
+      <div class="deck-progress" data-current="5" data-target="14"></div>
+      <span id="deck-label">Deck 5 • Royal Promenade</span>
+    </div>
+    <div class="deck-actions">
+      <button class="rccl-action" data-action="find-elevator" type="button">
+        <i class="fas fa-elevator" aria-hidden="true"></i>
+        <span>Nearest Elevator</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="rccl-offline-indicator" id="offline-indicator" hidden>
+    <i class="fas fa-ship" aria-hidden="true"></i>
+    <span>Offline Mode • Last updated: <time id="last-sync"></time></span>
+  </div>
+
+  <div class="sr-only" aria-live="polite" aria-atomic="true" id="ship-status-announcement"></div>
 
   <div id="sharedFooter"></div>
   <div id="sharedBottomNav" data-page="itinerary"></div>
