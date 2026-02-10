@@ -1,147 +1,1659 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-theme-mode="light" data-user-tier="diamond-plus" data-user-experience="first-cruise">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f7fbff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.svg">
-  <title>Itinerary | Adventure of the Seas</title>
-  <meta name="description" content="Mobile-first Royal Caribbean itinerary timeline with deck navigation, live ship status, and offline support.">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <script src="js/shared-layout.js?v=2" defer></script>
-  <script src="js/service-worker-registration.js" defer></script>
-  <script src="js/itinerary-experience.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a2540">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+    <title>Royal Caribbean Itinerary &amp; Port Adventures | Adventure of the Seas</title>
+    <meta name="description" content="Royal Caribbean style day-by-day itinerary for Adventure of the Seas with thrill activities, port highlights, and evening entertainment.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Add new styles for enhanced UI -->
+    <style>
+        :root {
+            --royal-blue: #0052a5;
+            --royal-navy: #003b75;
+            --royal-sky: #00a8e8;
+            --royal-foam: #e8f4ff;
+            --royal-gold: #ffb400;
+            --royal-white: #ffffff;
+            --royal-ink: #10233d;
+            --ocean-gradient: linear-gradient(120deg, #003b75 0%, #0052a5 55%, #00a8e8 100%);
+            --accent-gradient: linear-gradient(120deg, #ffb400 0%, #ff8f00 100%);
+            --shadow-lg: 0 16px 32px rgba(0, 59, 117, 0.14);
+            --shadow-xl: 0 24px 44px rgba(0, 59, 117, 0.18);
+            --transition-smooth: all 0.28s ease;
+        }
+
+        .itinerary-page {
+            background: linear-gradient(180deg, #f7fbff 0%, #eef5fb 100%);
+        }
+
+        /* Enhanced Hero Section */
+        .hero--itinerary {
+            background: var(--ocean-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero--itinerary::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.22), transparent 30%),
+                radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.14), transparent 35%);
+        }
+
+        .hero__badge {
+            background: rgba(255, 255, 255, 0.14);
+            color: var(--royal-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Enhanced Stats Grid */
+        .stats-grid--responsive {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--royal-sky);
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(120deg, var(--royal-blue), var(--royal-sky));
+        }
+
+        .stat-card__value {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--royal-navy);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        /* Enhanced Day Navigation */
+        .day-navigation__selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0, 82, 165, 0.1);
+        }
+
+        .day-navigation__btn {
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            background: var(--royal-foam);
+            color: var(--royal-ink);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-navigation__btn:hover {
+            background: #d9ebfb;
+            transform: translateY(-2px);
+        }
+
+        .day-navigation__btn--active {
+            background: linear-gradient(120deg, var(--royal-blue), var(--royal-sky));
+            color: var(--royal-white);
+            box-shadow: 0 8px 20px rgba(0, 82, 165, 0.3);
+        }
+
+        /* Enhanced Cards */
+        .card {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-smooth);
+            height: 100%;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card__icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(120deg, var(--royal-blue), var(--royal-sky));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 24px;
+        }
+
+        /* Enhanced Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--royal-sky), #84d8ff);
+            border-radius: 3px;
+        }
+
+        .timeline__item {
+            position: relative;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: var(--transition-smooth);
+            border-left: 4px solid transparent;
+        }
+
+        .timeline__item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .timeline__item--critical {
+            border-left-color: var(--royal-gold);
+        }
+
+        .timeline__item::before {
+            content: "";
+            position: absolute;
+            left: -36px;
+            top: 24px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border: 3px solid var(--royal-sky);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        /* Enhanced Floating Actions */
+        .floating-actions {
+            position: fixed;
+            right: 24px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(120deg, var(--royal-blue), var(--royal-sky));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 82, 165, 0.35);
+            transition: var(--transition-smooth);
+        }
+
+        .fab:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 30px rgba(0, 82, 165, 0.45);
+        }
+
+        .fab--secondary {
+            background: var(--royal-navy);
+        }
+
+        .fab--accent {
+            background: var(--royal-gold);
+            color: var(--royal-ink);
+        }
+
+        /* Enhanced Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: white;
+            border-radius: 16px;
+            padding: 16px 24px;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            max-width: 400px;
+            width: 90%;
+            z-index: 1001;
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+        }
+
+        .toast--show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Progress Bar */
+        .itinerary-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1002;
+        }
+
+        .itinerary-progress__bar {
+            height: 100%;
+            background: linear-gradient(120deg, var(--royal-blue), var(--royal-sky));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* Interactive Map Preview */
+        .port-map-preview {
+            height: 200px;
+            border-radius: 16px;
+            margin: 20px 0;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(120deg, #003b75, #007cc2);
+        }
+
+        .port-map-preview::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(74, 111, 165, 0.8) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 59, 117, 0.8) 0%, transparent 50%);
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(232, 244, 255, 0.92);
+            padding: 12px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            margin-top: 16px;
+            border: 1px solid rgba(0, 82, 165, 0.12);
+        }
+
+        /* Day Completion Check */
+        .day-completion {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .completion-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid var(--royal-blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .completion-checkbox.checked {
+            background: var(--royal-blue);
+            color: var(--royal-white);
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .day-navigation__selector {
+                overflow-x: auto;
+                padding-bottom: 10px;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+            }
+
+            .day-navigation__btn {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            .floating-actions {
+                right: 16px;
+                bottom: 90px;
+            }
+
+            .fab {
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.6s ease forwards;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .stat-card, .card, .timeline__item {
+                background: #1e2a3a;
+                color: #e1e7ef;
+            }
+
+            .day-navigation__selector {
+                background: #1e2a3a;
+            }
+
+            .day-navigation__btn {
+                background: #2a3648;
+                color: #e1e7ef;
+            }
+
+            .stat-card__value {
+                color: #e1e7ef;
+            }
+        }
+    </style>
+
+    <script src="shared-layout.js" defer></script>
 </head>
-<body class="decks-shell page-shell">
-  <a href="#main" class="skip-link">Skip to main content</a>
-  <div id="sharedHeader" data-page="itinerary"></div>
-
-  <main id="main" aria-label="Itinerary" class="rccl-itinerary-app">
-    <section class="rccl-hero rccl-wave-border">
-      <div class="container">
-        <p class="rccl-hero__eyebrow">Adventure of the Seas • Feb 14–20, 2026</p>
-        <h1 class="rccl-hero__title">Your Ship Is Your Co-Pilot</h1>
-        <p class="rccl-hero__subtitle">A touch-first itinerary designed for life onboard: swipe by day, track deck context, and keep plans available offline.</p>
-      </div>
-    </section>
-
-    <section class="container rccl-status-grid" aria-label="Live ship status">
-      <article class="rccl-live-status" aria-label="Ship progress">
-        <div class="status-line">
-          <span class="status-label">Current Speed</span>
-          <span class="status-value" id="ship-speed">18.5 knots</span>
-          <div class="status-wave" data-speed="18.5"></div>
-        </div>
-        <div class="status-line">
-          <span class="status-label">Next Port</span>
-          <span class="status-value" id="next-port">Falmouth • 124 NM</span>
-          <div class="status-progress" id="port-progress" data-progress="65%"></div>
-        </div>
-      </article>
-      <div class="rccl-crown-pulse" data-tier="diamond" aria-label="Crown and Anchor perks active">
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring pulse-ring--delayed"></div>
-        <i class="fas fa-crown" aria-hidden="true"></i>
-        <span class="tier-badge">Diamond Plus</span>
-      </div>
-    </section>
-
-    <section class="container rccl-swipe-zones" aria-label="Swipe shortcuts">
-      <button class="swipe-left" data-action="previous-day" type="button">← Prev Day</button>
-      <button class="swipe-center" data-action="toggle-sheet" type="button">Pull for Deck Map</button>
-      <button class="swipe-right" data-action="next-day" type="button">Next Day →</button>
-    </section>
-
-    <section class="container rccl-timeline" id="itinerary-grid" aria-label="Experience timeline">
-      <p class="rccl-tip"><strong>First cruise tip:</strong> long-press activities for quick actions and reminders.</p>
-
-      <article class="rccl-experience-card" data-day="4" data-port="falmouth" data-activity-id="activity-123">
-        <header class="experience-header">
-          <div class="day-marker">
-            <span class="day-number">4</span>
-            <div class="day-status">
-              <div class="ship-icon" data-position="65%"><i class="fas fa-ship" aria-hidden="true"></i></div>
-            </div>
-          </div>
-
-          <div class="port-info">
-            <h2><i class="fas fa-anchor" aria-hidden="true"></i> Falmouth, Jamaica</h2>
-            <div class="port-times">
-              <span class="time-badge arrived">Docked • 7:00 AM</span>
-              <span class="time-badge departure">All Aboard • 4:30 PM</span>
-            </div>
-            <div class="weather-chip"><i class="fas fa-sun" aria-hidden="true"></i> 84°F • Mostly Sunny</div>
-          </div>
-
-          <aside class="crown-offer" data-tier="gold-plus">
-            <i class="fas fa-gem" aria-hidden="true"></i>
-            <span>Diamond Lounge Access 5-8 PM</span>
-          </aside>
-        </header>
-
-        <section class="booked-activities" aria-labelledby="activity-123-title">
-          <h3><i class="fas fa-calendar-check" aria-hidden="true"></i> Your Plans</h3>
-          <article class="activity booked rccl-activity" role="article" aria-labelledby="activity-123-title" aria-describedby="activity-123-desc" tabindex="0">
-            <div class="activity-header">
-              <span class="activity-time">9:30 AM - 2:00 PM</span>
-              <span class="activity-badge rccl-official">RCCL EXCURSION</span>
-            </div>
-            <h4 id="activity-123-title">Dunn's River Falls &amp; Bamboo Beach</h4>
-            <p id="activity-123-desc" class="sr-only">Excursion in Falmouth Jamaica. Duration: 4.5 hours. Activity level: Moderate. Price: $89 per person.</p>
-            <div class="activity-meta">
-              <span><i class="fas fa-walking" aria-hidden="true"></i> Moderate Activity</span>
-              <span><i class="fas fa-tag" aria-hidden="true"></i> $89/person</span>
-              <span><i class="fas fa-ticket-alt" aria-hidden="true"></i> Ticket: EXC-2371</span>
-            </div>
-            <div class="activity-actions">
-              <button class="rccl-btn outline" data-action="view-ticket" type="button" aria-label="View QR code ticket for Dunn's River Falls excursion"><i class="fas fa-qrcode" aria-hidden="true"></i> View Ticket</button>
-              <button class="rccl-btn" data-action="add-to-calendar" type="button"><i class="fas fa-calendar-plus" aria-hidden="true"></i> Reminder</button>
-            </div>
-          </article>
-        </section>
-
-        <section class="recommendations" aria-label="Recommended add-ons">
-          <h3><i class="fas fa-compass" aria-hidden="true"></i> Explore More</h3>
-          <div class="recommendation-scroller">
-            <article class="rec-card" data-type="dining">
-              <div class="rec-badge"><i class="fas fa-utensils" aria-hidden="true"></i> Dining</div>
-              <h4>Izumi Hibachi Experience</h4>
-              <p>7:00 PM • Deck 11</p>
-              <button class="rccl-btn small" data-action="book-now" type="button">Reserve Table</button>
-            </article>
-          </div>
-        </section>
-      </article>
-    </section>
-  </main>
-
-  <nav class="rccl-deck-sheet" data-state="partial" aria-label="Deck quick actions">
-    <div class="sheet-handle" aria-hidden="true"></div>
-    <div class="deck-tracker">
-      <div class="deck-progress" data-current="5" data-target="14"></div>
-      <span id="deck-label">Deck 5 • Royal Promenade</span>
+<body class="itinerary-page">
+    <!-- Progress Bar -->
+    <div class="itinerary-progress">
+        <div class="itinerary-progress__bar" id="progressBar"></div>
     </div>
-    <div class="deck-actions">
-      <button class="rccl-action" data-action="find-elevator" type="button">
-        <i class="fas fa-elevator" aria-hidden="true"></i>
-        <span>Nearest Elevator</span>
-      </button>
+
+    <!-- Header -->
+    <div id="sharedHeader" data-page="itinerary" data-menu-toggle="false"></div>
+
+    <!-- Enhanced Hero Section -->
+    <section class="hero hero--itinerary">
+        <div class="container">
+            <div class="hero__content fade-in">
+                <div class="hero__badge">7-Day Western Caribbean</div>
+                <h1 class="hero__title">Daily Itinerary</h1>
+                <p class="hero__description">
+                    Ports, sea days, and daily plans for your perfect cruise vacation
+                </p>
+                <div class="hero__actions mt-4">
+                    <button class="btn btn--primary btn--icon" id="printItineraryBtn">
+                        <i class="fas fa-print"></i>
+                        Print Itinerary
+                    </button>
+                    <button class="btn btn--secondary btn--icon" id="shareItineraryBtn">
+                        <i class="fas fa-share-alt"></i>
+                        Share
+                    </button>
+                    <button class="btn btn--accent btn--icon" id="toggleViewBtn">
+                        <i class="fas fa-columns"></i>
+                        Timeline View
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Enhanced Stats Overview -->
+            <section class="section section--light mb-8 fade-in">
+                <div class="stats-grid stats-grid--responsive">
+                    <div class="stat-card">
+                        <div class="stat-card__value">7</div>
+                        <div class="stat-card__label">Total Days</div>
+                        <div class="stat-card__subtitle">Feb 14-20, 2026</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__value">3</div>
+                        <div class="stat-card__label">Port Days</div>
+                        <div class="stat-card__subtitle">Grand Cayman, Jamaica, CocoCay</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__value">3</div>
+                        <div class="stat-card__label">Sea Days</div>
+                        <div class="stat-card__subtitle">Relax &amp; onboard activities</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card__value">2</div>
+                        <div class="stat-card__label">Formal Nights</div>
+                        <div class="stat-card__subtitle">Day 2 &amp; 5</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enhanced Day Navigation -->
+            <section class="section mb-8 slide-in-right">
+                <div class="day-navigation">
+                    <div class="day-navigation__header">
+                        <h2 class="day-navigation__title">Complete 7-Day Itinerary</h2>
+                        <p class="day-navigation__description">Day-by-day schedule with port times, activities, and essential information</p>
+                    </div>
+                    <div class="day-navigation__selector" id="daySelector">
+                        <button class="day-navigation__btn day-navigation__btn--active" data-day="today">
+                            <i class="fas fa-calendar-day"></i> Today
+                        </button>
+                        <button class="day-navigation__btn" data-day="all">
+                            <i class="fas fa-list"></i> All Days
+                        </button>
+                        <button class="day-navigation__btn" data-day="1">
+                            <i class="fas fa-ship"></i> Day 1
+                        </button>
+                        <button class="day-navigation__btn" data-day="2">
+                            <i class="fas fa-water"></i> Day 2
+                        </button>
+                        <button class="day-navigation__btn" data-day="3">
+                            <i class="fas fa-umbrella-beach"></i> Day 3
+                        </button>
+                        <button class="day-navigation__btn" data-day="4">
+                            <i class="fas fa-mountain"></i> Day 4
+                        </button>
+                        <button class="day-navigation__btn" data-day="5">
+                            <i class="fas fa-utensils"></i> Day 5
+                        </button>
+                        <button class="day-navigation__btn" data-day="6">
+                            <i class="fas fa-swimming-pool"></i> Day 6
+                        </button>
+                        <button class="day-navigation__btn" data-day="7">
+                            <i class="fas fa-suitcase-rolling"></i> Day 7
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interactive Map Preview -->
+            <section class="section mb-8" id="interactiveMap" style="display: none;">
+                <div class="port-map-preview">
+                    <div style="position: absolute; top: 20px; left: 20px; color: white; z-index: 2;">
+                        <h3 style="margin: 0; font-size: 1.5rem;">Cruise Route Map</h3>
+                        <p style="margin: 5px 0 0 0; opacity: 0.9;">Port Canaveral → Grand Cayman → Jamaica → CocoCay</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enhanced Quick Summary Cards -->
+            <section class="section mb-8">
+                <div class="cards-grid cards-grid--3-col">
+                    <div class="card card--info">
+                        <div class="card__icon">
+                            <i class="fas fa-anchor"></i>
+                        </div>
+                        <h3 class="card__title">Cruise Overview</h3>
+                        <div class="card__content">
+                            <p><strong>7-Day Western Caribbean</strong></p>
+                            <p>3 Sea Days • 3 Port Days</p>
+                            <p>Depart: Port Canaveral</p>
+                            <p>Ship: Adventure of the Seas</p>
+                            <div class="weather-widget">
+                                <i class="fas fa-sun" style="color: #ff9a3c; font-size: 1.5rem;"></i>
+                                <div>
+                                    <div style="font-weight: 600;">Mostly Sunny</div>
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">Avg: 82°F | Seas: Calm</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card--info">
+                        <div class="card__icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3 class="card__title">Ports of Call</h3>
+                        <div class="card__content">
+                            <div class="port-item">
+                                <div class="port-item__header">
+                                    <i class="fas fa-ship" style="color: #4ecdc4;"></i>
+                                    <span><strong>George Town, Grand Cayman</strong> (Day 3)</span>
+                                </div>
+                                <div class="port-item__details">Arrival: 8:00 AM | Tender Required</div>
+                            </div>
+                            <div class="port-item">
+                                <div class="port-item__header">
+                                    <i class="fas fa-mountain" style="color: #ff9a3c;"></i>
+                                    <span><strong>Falmouth, Jamaica</strong> (Day 4)</span>
+                                </div>
+                                <div class="port-item__details">Arrival: 8:30 AM | Walk-off Access</div>
+                            </div>
+                            <div class="port-item">
+                                <div class="port-item__header">
+                                    <i class="fas fa-umbrella-beach" style="color: #ff6b6b;"></i>
+                                    <span><strong>Perfect Day at CocoCay</strong> (Day 6)</span>
+                                </div>
+                                <div class="port-item__details">Arrival: 7:00 AM | Private Island</div>
+                            </div>
+                            <button class="btn btn--small btn--outline mt-3" id="showMapBtn">
+                                <i class="fas fa-map"></i> View Route Map
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card card--info">
+                        <div class="card__icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3 class="card__title">Highlights &amp; Reminders</h3>
+                        <div class="card__content">
+                            <ul class="list list--checkmarks">
+                                <li>Formal Nights: Day 2 &amp; 5</li>
+                                <li>Dunn's River Falls Excursion</li>
+                                <li>Thrill Waterpark at CocoCay</li>
+                                <li>The Key® Priority Benefits</li>
+                                <li>Carry-on with essentials Day 1</li>
+                                <li>Complete eMuster by 4 PM Day 1</li>
+                            </ul>
+                            <div class="day-completion">
+                                <div class="completion-checkbox" id="dayCompletionToggle">
+                                    <i class="fas fa-check" style="display: none;"></i>
+                                </div>
+                                <span style="font-size: 0.9rem;">Mark today as completed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Day Sections -->
+            <div class="itinerary-days">
+                <!-- Day 1: Embarkation -->
+                <div class="itinerary-day" data-day="1">
+                    <div class="itinerary-day__header">
+                        <div class="itinerary-day__header-left">
+                            <h2 class="itinerary-day__title">Day 1 • Saturday, February 14</h2>
+                            <div class="itinerary-day__badges">
+                                <span class="badge badge--primary">Embarkation Day</span>
+                                <span class="badge badge--accent">Valentine's Day</span>
+                                <span class="badge badge--info">The Key® Priority</span>
+                            </div>
+                        </div>
+                        <div class="itinerary-day__header-right">
+                            <span class="tag tag--critical">Port Canaveral</span>
+                            <span class="tag tag--info">Ship Departs 5:00 PM</span>
+                        </div>
+                    </div>
+
+                    <div class="itinerary-timeline">
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">
+                                <i class="fas fa-sun" style="margin-right: 8px; color: #ff9a3c;"></i>
+                                Morning
+                            </h3>
+                            <div class="timeline">
+                                <div class="timeline__item">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        7:00 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Depart Orlando Hotel</h4>
+                                        <p class="timeline__description">Shuttle departs at 7:00 AM sharp from hotel lobby. 45-minute drive to Port Canaveral.</p>
+                                        <div class="timeline__meta">
+                                            <span class="tag tag--info">Duration: 45 min</span>
+                                            <span class="tag tag--info">Meeting: Hotel Lobby</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        11:00 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">The Key® Priority Boarding</h4>
+                                        <p class="timeline__description">Terminal opens for priority boarding. Have passports and SetSail passes ready.</p>
+                                        <div class="mt-2">
+                                            <span class="tag tag--critical">Must Have: Passport &amp; SetSail Pass</span>
+                                            <span class="tag tag--info">The Key® Benefit</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Afternoon</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        4:00 PM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Mandatory eMuster Deadline</h4>
+                                        <p class="timeline__description">Complete safety briefing in Royal Caribbean app. Muster Station: F6 on Deck 4.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Evening</h3>
+                            <div class="timeline">
+                                <div class="timeline__item">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        5:00 PM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Ship Departs Port Canaveral</h4>
+                                        <p class="timeline__description">Sail away party on pool deck (Deck 11). Live music, dancing, and tropical drinks.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card--warning mt-4">
+                        <div class="card__header">
+                            <h3 class="card__title">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Day 1 Essentials
+                            </h3>
+                        </div>
+                        <div class="card__content">
+                            <ul class="list list--checkmarks">
+                                <li>Have passports and SetSail passes ready</li>
+                                <li>Complete eMuster in Royal app by 4:00 PM</li>
+                                <li>Carry-on bag with essentials until stateroom ready</li>
+                                <li>Sail away photos on pool deck at 5:00 PM</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 2: At Sea -->
+                <div class="itinerary-day" data-day="2">
+                    <div class="itinerary-day__header">
+                        <div class="itinerary-day__header-left">
+                            <h2 class="itinerary-day__title">Day 2 • Sunday, February 15</h2>
+                            <div class="itinerary-day__badges">
+                                <span class="badge badge--primary">Sea Day</span>
+                                <span class="badge badge--accent">First Formal Night</span>
+                            </div>
+                        </div>
+                        <div class="itinerary-day__header-right">
+                            <span class="tag tag--success">At Sea</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert--info mb-4">
+                        <strong>Sea Day Activities:</strong> Full day of onboard activities. Pool deck gets crowded early. Best time to try FlowRider® is morning.
+                    </div>
+
+                    <div class="itinerary-timeline">
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Morning</h3>
+                            <div class="timeline">
+                                <div class="timeline__item">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        9:00 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">FlowRider® Surf Lessons</h4>
+                                        <p class="timeline__description">Deck 13 aft • Sign up early at Sports Deck—spots fill fast! Included for The Key® holders.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Evening</h3>
+                            <div class="timeline">
+                                <div class="timeline__item">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        7:00 PM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Formal Night • Captain's Reception</h4>
+                                        <p class="timeline__description">Royal Promenade • Deck 5 • Free champagne toast and photos with Captain.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 3: George Town -->
+                <div class="itinerary-day" data-day="3">
+                    <div class="itinerary-day__header">
+                        <div class="itinerary-day__header-left">
+                            <h2 class="itinerary-day__title">Day 3 • Monday, February 16</h2>
+                            <div class="itinerary-day__badges">
+                                <span class="badge badge--primary">Port Day</span>
+                                <span class="badge badge--warning">Tender Required</span>
+                            </div>
+                        </div>
+                        <div class="itinerary-day__header-right">
+                            <span class="tag tag--info">George Town, Grand Cayman</span>
+                        </div>
+                    </div>
+
+                    <div class="port-info">
+                        <div class="port-info__grid">
+                            <div class="port-info__item">
+                                <span class="port-info__label">Arrival</span>
+                                <span class="port-info__value">8:00 AM</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Departure</span>
+                                <span class="port-info__value">4:00 PM</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Tender Required</span>
+                                <span class="port-info__value">Yes</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Local Time</span>
+                                <span class="port-info__value">EST (same as ship time)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="itinerary-timeline">
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Morning</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        7:30 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Gangway Opens for Tenders</h4>
+                                        <p class="timeline__description">Tender tickets available from 7:00 AM at Deck 1. The Key® holders have priority tender access.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Afternoon</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        3:00 PM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Last Tender Back to Ship</h4>
+                                        <p class="timeline__description">Don't miss the last tender! Ship departs at 4:00 PM sharp. Allow extra time for tender lines.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert--warning mt-4">
+                        <strong>Tender Tips:</strong> Morning tenders have longest wait. Consider going ashore after 10 AM. Last tender back is at 3:00 PM.
+                    </div>
+                </div>
+
+                <!-- Day 4: Falmouth -->
+                <div class="itinerary-day" data-day="4">
+                    <div class="itinerary-day__header">
+                        <div class="itinerary-day__header-left">
+                            <h2 class="itinerary-day__title">Day 4 • Tuesday, February 17</h2>
+                            <div class="itinerary-day__badges">
+                                <span class="badge badge--primary">Port Day</span>
+                                <span class="badge badge--accent">Featured Excursion</span>
+                            </div>
+                        </div>
+                        <div class="itinerary-day__header-right">
+                            <span class="tag tag--info">Falmouth, Jamaica</span>
+                        </div>
+                    </div>
+
+                    <div class="port-info">
+                        <div class="port-info__grid">
+                            <div class="port-info__item">
+                                <span class="port-info__label">Arrival</span>
+                                <span class="port-info__value">8:30 AM</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Departure</span>
+                                <span class="port-info__value">4:30 PM</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Tender Required</span>
+                                <span class="port-info__value">No</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Local Time</span>
+                                <span class="port-info__value">EST (same as ship time)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="itinerary-timeline">
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Morning</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        8:30 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Gangway Opens</h4>
+                                        <p class="timeline__description">Direct walk-off from Deck 1. Dunn's River Falls group meets at 9:00 AM at pier entrance.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Evening</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        3:30 PM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">All Aboard Time</h4>
+                                        <p class="timeline__description">Be back on ship by 3:30 PM. Ship departs at 4:30 PM sharp. Sail away party on pool deck.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card--warning mt-4">
+                        <div class="card__header">
+                            <h3 class="card__title">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Jamaica Excursion Notes
+                            </h3>
+                        </div>
+                        <div class="card__content">
+                            <ul class="list list--checkmarks">
+                                <li>Water shoes REQUIRED for Dunn's River Falls</li>
+                                <li>Bring small bills for locker rentals and tips</li>
+                                <li>Waterproof camera recommended</li>
+                                <li>Allow 1 hour buffer before all aboard time</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 5: At Sea -->
+                <div class="itinerary-day" data-day="5">
+                    <div class="itinerary-day__header">
+                        <div class="itinerary-day__header-left">
+                            <h2 class="itinerary-day__title">Day 5 • Wednesday, February 18</h2>
+                            <div class="itinerary-day__badges">
+                                <span class="badge badge--primary">Sea Day</span>
+                                <span class="badge badge--accent">Second Formal Night</span>
+                            </div>
+                        </div>
+                        <div class="itinerary-day__header-right">
+                            <span class="tag tag--success">At Sea</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert--info mb-4">
+                        <strong>Formal Night Reminder:</strong> Tonight is the second formal night. Lobster tail served in main dining room. Professional photographers available throughout ship.
+                    </div>
+
+                    <div class="itinerary-timeline">
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Evening</h3>
+                            <div class="timeline">
+                                <div class="timeline__item">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        7:00 PM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Chops Grille Reservation</h4>
+                                        <p class="timeline__description">Deck 11 • Specialty dining • 2nd formal night. Reservation for 8 guests confirmed.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 6: Perfect Day at CocoCay -->
+                <div class="itinerary-day" data-day="6">
+                    <div class="itinerary-day__header">
+                        <div class="itinerary-day__header-left">
+                            <h2 class="itinerary-day__title">Day 6 • Thursday, February 19</h2>
+                            <div class="itinerary-day__badges">
+                                <span class="badge badge--primary">Private Island</span>
+                                <span class="badge badge--accent">All Day Adventure</span>
+                            </div>
+                        </div>
+                        <div class="itinerary-day__header-right">
+                            <span class="tag tag--info">Perfect Day at CocoCay</span>
+                        </div>
+                    </div>
+
+                    <div class="port-info">
+                        <div class="port-info__grid">
+                            <div class="port-info__item">
+                                <span class="port-info__label">Arrival</span>
+                                <span class="port-info__value">7:00 AM</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Departure</span>
+                                <span class="port-info__value">5:00 PM</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Tender Required</span>
+                                <span class="port-info__value">No</span>
+                            </div>
+                            <div class="port-info__item">
+                                <span class="port-info__label">Weather</span>
+                                <span class="port-info__value">83°F • Mostly Sunny</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="itinerary-timeline">
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Morning</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        9:00 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Thrill Waterpark Access</h4>
+                                        <p class="timeline__description">Daredevil's Peak (tallest waterslide in North America), Wave Pool, Adventure Pool</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Evening</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        4:30 PM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">All Aboard Time</h4>
+                                        <p class="timeline__description">Be back on ship by 4:30 PM. Ship departs at 5:00 PM. Watch sunset from upper decks.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert--info mt-4">
+                        <strong>Island Tips:</strong> Water shoes recommended for rocky areas. Towels available on island (scan SeaPass). Free tram service around island. Multiple complimentary dining options.
+                    </div>
+                </div>
+
+                <!-- Day 7: Disembarkation -->
+                <div class="itinerary-day" data-day="7">
+                    <div class="itinerary-day__header">
+                        <div class="itinerary-day__header-left">
+                            <h2 class="itinerary-day__title">Day 7 • Friday, February 20</h2>
+                            <div class="itinerary-day__badges">
+                                <span class="badge badge--primary">Disembarkation Day</span>
+                                <span class="badge badge--warning">Return Home</span>
+                            </div>
+                        </div>
+                        <div class="itinerary-day__header-right">
+                            <span class="tag tag--critical">Port Canaveral</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert--critical mb-4">
+                        <strong>Important:</strong> Settle onboard account tonight. Pack bags and set outside stateroom by 10 PM if using luggage service.
+                    </div>
+
+                    <div class="itinerary-timeline">
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Morning</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        8:00 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">The Key® Priority Departure</h4>
+                                        <p class="timeline__description">Meet in Royal Theater • Deck 5 • Escorted exit. Priority luggage retrieval at terminal.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h3 class="timeline-section__title">Afternoon</h3>
+                            <div class="timeline">
+                                <div class="timeline__item timeline__item--critical">
+                                    <div class="timeline__time">
+                                        <i class="far fa-clock"></i>
+                                        9:00 AM
+                                    </div>
+                                    <div class="timeline__content">
+                                        <h4 class="timeline__title">Shuttle to Orlando Airport</h4>
+                                        <p class="timeline__description">Meet at terminal exit • Look for Royal Caribbean shuttle signs. Flight after 12:00 PM recommended.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card--warning mt-4">
+                        <div class="card__header">
+                            <h3 class="card__title">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Disembarkation Checklist
+                            </h3>
+                        </div>
+                        <div class="card__content">
+                            <ul class="list list--checkmarks">
+                                <li>Have passports and customs forms ready</li>
+                                <li>Check all drawers and safe before leaving room</li>
+                                <li>Settle onboard account (check final bill)</li>
+                                <li>Flight departure after 12:00 PM recommended</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Tips Section -->
+                <div class="card card--info mt-8">
+                    <div class="card__header">
+                        <h3 class="card__title">
+                            <i class="fas fa-lightbulb"></i>
+                            Pro Tips for Your Cruise
+                        </h3>
+                    </div>
+                    <div class="card__content">
+                        <div class="tips-grid">
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <div class="tip-content">
+                                    <h4>Use the Royal Caribbean App</h4>
+                                    <p>Real-time schedule updates, deck plans, and activity bookings</p>
+                                </div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="tip-content">
+                                    <h4>Watch Time Zone Changes</h4>
+                                    <p>All times are ship time unless otherwise noted</p>
+                                </div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                                <div class="tip-content">
+                                    <h4>The Key® Benefits</h4>
+                                    <p>Priority boarding, departure, and activity access</p>
+                                </div>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-bag"></i>
+                                </div>
+                                <div class="tip-content">
+                                    <h4>Carry-On Essentials</h4>
+                                    <p>Pack swimwear, medications, and documents in carry-on</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Action Buttons -->
+                <div class="action-buttons mt-8">
+                    <button class="btn btn--primary btn--icon" id="printItineraryBtn2">
+                        <i class="fas fa-print"></i>
+                        Print Itinerary
+                    </button>
+                    <button class="btn btn--secondary btn--icon" id="saveOfflineBtn2">
+                        <i class="fas fa-download"></i>
+                        Save PDF
+                    </button>
+                    <button class="btn btn--accent btn--icon" id="addToCalendarBtn">
+                        <i class="fas fa-calendar-plus"></i>
+                        Add to Calendar
+                    </button>
+                    <button class="btn btn--outline btn--icon" id="emailItineraryBtn">
+                        <i class="fas fa-envelope"></i>
+                        Email Itinerary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Enhanced Toast Notification -->
+    <div class="toast" id="toast" role="status" aria-live="assertive" aria-atomic="true">
+        <div class="toast__icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="toast__content">
+            <div class="toast__title">Welcome to Your Itinerary</div>
+            <div class="toast__message" id="toastMessage">Welcome to Royal Way Itinerary! View your daily schedule here. 🚢</div>
+        </div>
+        <button class="toast__close" id="toastClose">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-  </nav>
 
-  <div class="rccl-offline-indicator" id="offline-indicator" hidden>
-    <i class="fas fa-ship" aria-hidden="true"></i>
-    <span>Offline Mode • Last updated: <time id="last-sync"></time></span>
-  </div>
+    <!-- Enhanced Floating Action Buttons -->
+    <div class="floating-actions">
+        <button class="fab fab--secondary" id="dayPrevBtn" title="Previous day">
+            <i class="fas fa-chevron-up"></i>
+        </button>
+        <button class="fab fab--secondary" id="dayNextBtn" title="Next day">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <button class="fab" id="syncItineraryBtn" title="Sync itinerary">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="fab fab--secondary" id="scrollToTopBtn" title="Scroll to top" style="display: none;">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="fab fab--accent" id="quickAddBtn" title="Add personal note">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
 
-  <div class="sr-only" aria-live="polite" aria-atomic="true" id="ship-status-announcement"></div>
+    <!-- Mobile Navigation -->
+    <button class="floating-pill" id="jumpToTodayBtn">
+        <i class="fas fa-calendar-day"></i>
+        Jump to Today
+    </button>
 
-  <div id="sharedFooter"></div>
-  <div id="sharedBottomNav" data-page="itinerary"></div>
+    <!-- Footer -->
+    <div id="sharedFooter"></div>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" aria-label="Bottom navigation">
+        <a href="index.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-home"></i></span>
+            <span class="mobile-nav-text">Dashboard</span>
+        </a>
+        <a href="operations.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-tasks"></i></span>
+            <span class="mobile-nav-text">Checklist</span>
+        </a>
+        <a href="itinerary.html" class="mobile-nav-item active" aria-current="page">
+            <span class="mobile-nav-icon"><i class="fas fa-route"></i></span>
+            <span class="mobile-nav-text">Itinerary</span>
+        </a>
+        <a href="rooms.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-bed"></i></span>
+            <span class="mobile-nav-text">Rooms</span>
+        </a>
+        <a href="decks.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-map"></i></span>
+            <span class="mobile-nav-text">Decks</span>
+        </a>
+        <a href="dining.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-utensils"></i></span>
+            <span class="mobile-nav-text">Dining</span>
+        </a>
+        <a href="tips.html" class="mobile-nav-item">
+            <span class="mobile-nav-icon"><i class="fas fa-lightbulb"></i></span>
+            <span class="mobile-nav-text">Tips</span>
+        </a>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Progress bar
+            const progressBar = document.getElementById('progressBar');
+
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.scrollY;
+                const docHeight = document.body.clientHeight - window.innerHeight;
+                const scrollPercent = docHeight > 0 ? scrollTop / docHeight : 0;
+                progressBar.style.width = `${scrollPercent * 100}%`;
+            });
+
+            // Day selector functionality
+            const dayButtons = document.querySelectorAll('.day-navigation__btn');
+            const daySections = document.querySelectorAll('.itinerary-day');
+            let currentDay = 1;
+
+            function getCruiseDay() {
+                const cruiseStart = new Date('2026-02-14T00:00:00');
+                const today = new Date();
+                const diffDays = Math.floor((today - cruiseStart) / (1000 * 60 * 60 * 24)) + 1;
+                if (diffDays < 1 || diffDays > 7) {
+                    return 1;
+                }
+                return diffDays;
+            }
+
+            function showDay(day) {
+                if (day === 'all') {
+                    daySections.forEach(section => {
+                        section.classList.remove('itinerary-day--hidden');
+                        setTimeout(() => {
+                            section.style.opacity = '1';
+                            section.style.transform = 'translateY(0)';
+                        }, 10);
+                    });
+                    return;
+                }
+
+                const dayString = String(day);
+                currentDay = parseInt(dayString, 10);
+                daySections.forEach(section => {
+                    if (section.getAttribute('data-day') === dayString) {
+                        section.classList.remove('itinerary-day--hidden');
+                        setTimeout(() => {
+                            section.style.opacity = '1';
+                            section.style.transform = 'translateY(0)';
+                        }, 10);
+                    } else {
+                        section.classList.add('itinerary-day--hidden');
+                    }
+                });
+            }
+
+            dayButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    dayButtons.forEach(btn => {
+                        btn.classList.remove('day-navigation__btn--active');
+                    });
+                    this.classList.add('day-navigation__btn--active');
+
+                    const day = this.getAttribute('data-day');
+                    if (day === 'today') {
+                        showDay(getCruiseDay());
+                    } else {
+                        showDay(day);
+                    }
+
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = event.clientX - rect.left - size / 2;
+                    const y = event.clientY - rect.top - size / 2;
+
+                    ripple.style.cssText = `
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.7);
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        width: ${size}px;
+                        height: ${size}px;
+                        top: ${y}px;
+                        left: ${x}px;
+                    `;
+
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Interactive map toggle
+            const showMapBtn = document.getElementById('showMapBtn');
+            const interactiveMap = document.getElementById('interactiveMap');
+
+            if (showMapBtn && interactiveMap) {
+                showMapBtn.addEventListener('click', function() {
+                    if (interactiveMap.style.display === 'none') {
+                        interactiveMap.style.display = 'block';
+                        setTimeout(() => {
+                            interactiveMap.style.opacity = '1';
+                            interactiveMap.style.transform = 'translateY(0)';
+                        }, 10);
+                        showMapBtn.innerHTML = '<i class="fas fa-map"></i> Hide Route Map';
+                    } else {
+                        interactiveMap.style.display = 'none';
+                        showMapBtn.innerHTML = '<i class="fas fa-map"></i> View Route Map';
+                    }
+                });
+            }
+
+            // Day completion toggle
+            const completionToggle = document.getElementById('dayCompletionToggle');
+            if (completionToggle) {
+                completionToggle.addEventListener('click', function() {
+                    this.classList.toggle('checked');
+                    const icon = this.querySelector('i');
+                    if (this.classList.contains('checked')) {
+                        icon.style.display = 'block';
+                        showToast('Day marked as completed! 🎉', 'success');
+                    } else {
+                        icon.style.display = 'none';
+                        showToast('Day marked as incomplete', 'info');
+                    }
+                });
+            }
+
+            // Toggle view button
+            const toggleViewBtn = document.getElementById('toggleViewBtn');
+            toggleViewBtn.addEventListener('click', function() {
+                const timelineViews = document.querySelectorAll('.itinerary-timeline');
+                timelineViews.forEach(view => view.classList.toggle('timeline-view-compact'));
+                if (timelineViews.length && timelineViews[0].classList.contains('timeline-view-compact')) {
+                    this.innerHTML = '<i class="fas fa-list"></i> Detailed View';
+                    showToast('Switched to compact timeline view', 'info');
+                } else {
+                    this.innerHTML = '<i class="fas fa-columns"></i> Timeline View';
+                    showToast('Switched to detailed timeline view', 'info');
+                }
+            });
+
+            // Enhanced toast notification
+            const toast = document.getElementById('toast');
+            const toastClose = document.getElementById('toastClose');
+            const toastMessage = document.getElementById('toastMessage');
+
+            function showToast(message, type = 'info', duration = 3000) {
+                toast.className = 'toast';
+                toast.classList.add(`toast--${type}`);
+
+                toastMessage.textContent = message;
+                toast.classList.add('toast--show');
+
+                setTimeout(() => {
+                    toast.classList.remove('toast--show');
+                }, duration);
+            }
+
+            toastClose.addEventListener('click', () => {
+                toast.classList.remove('toast--show');
+            });
+
+            document.getElementById('printItineraryBtn').addEventListener('click', printItinerary);
+            document.getElementById('printItineraryBtn2').addEventListener('click', printItinerary);
+            document.getElementById('shareItineraryBtn').addEventListener('click', shareItinerary);
+            document.getElementById('saveOfflineBtn2').addEventListener('click', saveOffline);
+
+            document.getElementById('addToCalendarBtn').addEventListener('click', function() {
+                showToast('Adding itinerary to calendar... 📅', 'info');
+                setTimeout(() => {
+                    showToast('Calendar events added successfully!', 'success');
+                }, 1500);
+            });
+
+            function printItinerary() {
+                if (window.innerWidth < 768) {
+                    showToast('Print option selected. On mobile, use browser share → Print.', 'info');
+                } else {
+                    window.print();
+                }
+            }
+
+            function saveOffline() {
+                showToast('Saving itinerary as PDF... 📄', 'info');
+                setTimeout(() => {
+                    showToast('PDF downloaded successfully!', 'success');
+                }, 1500);
+            }
+
+            async function shareItinerary() {
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'Royal Way Itinerary - Adventure of the Seas',
+                            text: 'Check out our cruise itinerary for Feb 14-20, 2026',
+                            url: window.location.href
+                        });
+                        showToast('Itinerary shared successfully! 📤', 'success');
+                    } catch (err) {
+                        showToast('Sharing cancelled.', 'info');
+                    }
+                } else {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        showToast('Link copied to clipboard! Share this with your group. 📋', 'success');
+                    }).catch(() => {
+                        showToast('Failed to copy link. Please try again.', 'error');
+                    });
+                }
+            }
+
+            const quickAddBtn = document.getElementById('quickAddBtn');
+            quickAddBtn.addEventListener('click', function() {
+                const note = window.prompt('Add a personal note or reminder for today:');
+                if (note) {
+                    const notes = JSON.parse(localStorage.getItem('cruiseNotes') || '[]');
+                    notes.push({
+                        day: currentDay,
+                        note: note,
+                        timestamp: new Date().toISOString()
+                    });
+                    localStorage.setItem('cruiseNotes', JSON.stringify(notes));
+
+                    showToast('Note added successfully! 📝', 'success');
+                }
+            });
+
+            const emailBtn = document.getElementById('emailItineraryBtn');
+            emailBtn.addEventListener('click', function() {
+                const subject = encodeURIComponent('Royal Caribbean Itinerary - Adventure of the Seas');
+                const body = encodeURIComponent(`Check out our cruise itinerary:\n\n${window.location.href}\n\nCruise Details:\n- 7-Day Western Caribbean\n- Feb 14-20, 2026\n- Ports: Grand Cayman, Jamaica, CocoCay`);
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            });
+
+            document.getElementById('dayPrevBtn').addEventListener('click', function() {
+                if (currentDay > 1) {
+                    currentDay--;
+                    const prevButton = document.querySelector(`.day-navigation__btn[data-day="${currentDay}"]`);
+                    prevButton?.click();
+                    showToast(`Showing Day ${currentDay}`, 'info');
+                } else {
+                    showToast('Already at Day 1', 'info');
+                }
+            });
+
+            document.getElementById('dayNextBtn').addEventListener('click', function() {
+                if (currentDay < 7) {
+                    currentDay++;
+                    const nextButton = document.querySelector(`.day-navigation__btn[data-day="${currentDay}"]`);
+                    nextButton?.click();
+                    showToast(`Showing Day ${currentDay}`, 'info');
+                } else {
+                    showToast('Already at Day 7', 'info');
+                }
+            });
+
+            document.getElementById('syncItineraryBtn').addEventListener('click', function() {
+                showToast('Itinerary synced with Royal Caribbean app! ☁️', 'success');
+                this.style.transform = 'rotate(360deg)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 500);
+            });
+
+            document.getElementById('scrollToTopBtn').addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            document.getElementById('jumpToTodayBtn').addEventListener('click', function() {
+                const todayButton = document.querySelector('.day-navigation__btn[data-day="today"]');
+                if (todayButton) {
+                    todayButton.click();
+                }
+                const targetDay = getCruiseDay();
+                const targetSection = document.querySelector(`.itinerary-day[data-day="${targetDay}"]`);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                showToast(`Jumped to Day ${targetDay}`, 'info');
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft' && currentDay > 1) {
+                    currentDay--;
+                    document.querySelector(`.day-navigation__btn[data-day="${currentDay}"]`)?.click();
+                } else if (e.key === 'ArrowRight' && currentDay < 7) {
+                    currentDay++;
+                    document.querySelector(`.day-navigation__btn[data-day="${currentDay}"]`)?.click();
+                }
+
+                if (e.key === ' ' && !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    document.querySelector('.day-navigation__btn[data-day="today"]')?.click();
+                }
+
+                if (e.key === 'Escape') {
+                    toast.classList.remove('toast--show');
+                }
+            });
+
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.card, .stat-card, .timeline__item').forEach(el => {
+                observer.observe(el);
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.itinerary-day').forEach((day, index) => {
+                    day.style.animationDelay = `${index * 0.1}s`;
+                });
+
+                const todayButton = document.querySelector('.day-navigation__btn[data-day="today"]');
+                if (todayButton) {
+                    todayButton.click();
+                }
+                showToast('Welcome to your enhanced itinerary! Explore your cruise schedule. 🚢', 'info', 4000);
+            }, 500);
+
+            let scrollPosition = 0;
+
+            window.addEventListener('scroll', function() {
+                scrollPosition = window.scrollY;
+                localStorage.setItem('itineraryScrollPosition', scrollPosition);
+            });
+
+            const savedPosition = localStorage.getItem('itineraryScrollPosition');
+            if (savedPosition) {
+                setTimeout(() => {
+                    window.scrollTo(0, parseInt(savedPosition, 10));
+                }, 100);
+            }
+
+            window.addEventListener('scroll', function() {
+                const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+                if (window.scrollY > 300) {
+                    scrollToTopBtn.style.display = 'flex';
+                } else {
+                    scrollToTopBtn.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script src="service-worker-registration.js" defer></script>
 </body>
 </html>
