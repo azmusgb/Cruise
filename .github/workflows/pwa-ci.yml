@@ -29,9 +29,9 @@ jobs:
 
       - name: JavaScript syntax checks
         run: |
-          node --check sw.js
-          node --check service-worker-registration.js
-          node --check script.js
+          node --check js/sw.js
+          node --check js/shared-layout.js
+          node --check js/_legacy/service-worker-registration.js
 
       - name: Static PWA consistency checks
         run: |
@@ -41,31 +41,29 @@ jobs:
 
           html_files = [
               'index.html', 'itinerary.html', 'operations.html',
-              'rooms.html', 'dining.html', 'tips.html', 'offline.html'
+              'rooms.html', 'dining.html', 'tips.html', 'offline.html',
+              'contacts.html', 'decks.html'
           ]
-
-          sw_files = ['index.html', 'itinerary.html', 'operations.html', 'rooms.html', 'dining.html', 'tips.html']
 
           class LinkParser(HTMLParser):
               def __init__(self):
                   super().__init__()
                   self.manifest_found = False
-                  self.sw_script_found = False
+                  self.shared_layout_found = False
 
               def handle_starttag(self, tag, attrs):
                   attrs = dict(attrs)
-                  if tag == 'link' and attrs.get('rel') == 'manifest' and attrs.get('href') == 'manifest.json':
+                  manifest_href = attrs.get('href', '')
+                  if tag == 'link' and attrs.get('rel') == 'manifest' and manifest_href.startswith('manifest.json'):
                       self.manifest_found = True
-                  if tag == 'script' and attrs.get('src') == 'service-worker-registration.js':
-                      self.sw_script_found = True
+                  if tag == 'script' and attrs.get('src', '').startswith('js/shared-layout.js'):
+                      self.shared_layout_found = True
 
           for file in html_files:
               parser = LinkParser()
               parser.feed(Path(file).read_text(encoding='utf-8'))
               assert parser.manifest_found, f"Missing manifest link in {file}"
-
-              if file in sw_files:
-                  assert parser.sw_script_found, f"Missing SW registration script in {file}"
+              assert parser.shared_layout_found, f"Missing shared-layout script in {file}"
 
           print('Static checks passed')
           PY
@@ -91,4 +89,4 @@ jobs:
           done
 
           curl -fsS http://127.0.0.1:8080/manifest.json >/dev/null
-          curl -fsS http://127.0.0.1:8080/sw.js >/dev/null
+          curl -fsS http://127.0.0.1:8080/js/sw.js >/dev/null
