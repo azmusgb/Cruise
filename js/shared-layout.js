@@ -403,12 +403,35 @@
   const CruiseState = {
     listeners: new Set(),
     cache: new Map(),
+
+    storage: {
+      memory: new Map(),
+
+      getItem(key) {
+        try {
+          return localStorage.getItem(key);
+        } catch (error) {
+          console.warn('localStorage getItem unavailable, using memory fallback:', error);
+          return this.memory.has(key) ? this.memory.get(key) : null;
+        }
+      },
+
+      setItem(key, value) {
+        try {
+          localStorage.setItem(key, value);
+          this.memory.set(key, value);
+        } catch (error) {
+          console.warn('localStorage setItem unavailable, using memory fallback:', error);
+          this.memory.set(key, value);
+        }
+      }
+    },
     
     get(key, fallback) {
       if (this.cache.has(key)) {
         return this.cache.get(key);
       }
-      const value = utils.safeJsonParse(localStorage.getItem(key), fallback);
+      const value = utils.safeJsonParse(this.storage.getItem(key), fallback);
       this.cache.set(key, value);
       return value;
     },
@@ -418,7 +441,7 @@
       if (JSON.stringify(oldValue) === JSON.stringify(value)) {
         return; // No change
       }
-      localStorage.setItem(key, JSON.stringify(value));
+      this.storage.setItem(key, JSON.stringify(value));
       this.cache.set(key, value);
       this.notify(key, value);
     },
@@ -835,7 +858,7 @@
   };
 
   function resolveNextPort() {
-    const raw = localStorage.getItem('cruise-nextport');
+    const raw = CruiseState.storage.getItem('cruise-nextport');
     const parsed = raw ? utils.safeJsonParse(raw, null) : null;
     if (parsed && typeof parsed === 'object' && parsed.name) return parsed;
     return { name: 'Perfect Day at CocoCay', time: '7:00 AM' };
