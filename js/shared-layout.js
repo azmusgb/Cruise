@@ -270,35 +270,131 @@
         });
       }
     },
-    // Countdown utility for dashboard
+    // Countdown utility for dashboard - Enhanced with better error handling
     updateCountdown() {
-      const targetDate = new Date('February 14, 2026 15:00:00').getTime();
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-      
-      if (distance < 0) {
-        // Countdown finished
-        utils.qsa('.countdown__value, .countdown-display__value').forEach(el => {
-          el.textContent = '00';
+      try {
+        const targetDate = new Date('February 14, 2026 15:00:00').getTime();
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+        
+        // If countdown has finished
+        if (distance < 0) {
+          // Update all countdown elements to show completed state
+          utils.qsa('.countdown__value, .countdown-display__value, .sidebar-countdown-value').forEach(el => {
+            el.textContent = '00';
+            el.classList.add('countdown-complete');
+          });
+          
+          // Update text elements
+          const completedElements = utils.qsa('.countdown-label, .countdown-days-label, .countdown-hours-label');
+          completedElements.forEach(el => {
+            if (el.textContent.includes('Days') || el.textContent.includes('Hours')) {
+              el.textContent = el.textContent.replace(/Days|Hours/, 'Ready');
+            }
+          });
+          
+          // Dispatch event for countdown completion
+          window.dispatchEvent(new CustomEvent('countdownComplete'));
+          return;
+        }
+        
+        // Calculate time components
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        
+        // Format with leading zeros
+        const daysStr = days.toString().padStart(2, '0');
+        const hoursStr = hours.toString().padStart(2, '0');
+        const minutesStr = minutes.toString().padStart(2, '0');
+        
+        // Update main hero countdown
+        const daysEl = document.getElementById('countdown-days');
+        const hoursEl = document.getElementById('countdown-hours');
+        const minutesEl = document.getElementById('countdown-minutes');
+        
+        if (daysEl) {
+          daysEl.textContent = daysStr;
+          daysEl.setAttribute('aria-label', `${days} days remaining`);
+        }
+        if (hoursEl) {
+          hoursEl.textContent = hoursStr;
+          hoursEl.setAttribute('aria-label', `${hours} hours remaining`);
+        }
+        if (minutesEl) {
+          minutesEl.textContent = minutesStr;
+          minutesEl.setAttribute('aria-label', `${minutes} minutes remaining`);
+        }
+        
+        // Update sidebar countdown
+        const sidebarDays = document.getElementById('sidebar-countdown-days');
+        const sidebarHours = document.getElementById('sidebar-countdown-hours');
+        if (sidebarDays) {
+          sidebarDays.textContent = daysStr;
+          sidebarDays.setAttribute('aria-label', `${days} days remaining`);
+        }
+        if (sidebarHours) {
+          sidebarHours.textContent = hoursStr;
+          sidebarHours.setAttribute('aria-label', `${hours} hours remaining`);
+        }
+        
+        // Update countdown labels if they exist
+        const dayLabel = document.getElementById('countdown-days-label');
+        const hourLabel = document.getElementById('countdown-hours-label');
+        if (dayLabel) dayLabel.textContent = days === 1 ? 'Day' : 'Days';
+        if (hourLabel) hourLabel.textContent = hours === 1 ? 'Hour' : 'Hours';
+        
+        // Update progress indicators if they exist
+        const progressBars = utils.qsa('.countdown-progress-bar');
+        progressBars.forEach(bar => {
+          const totalDays = 60; // Assuming 60 days total countdown
+          const progress = Math.min(100, ((totalDays - days) / totalDays) * 100);
+          bar.style.width = `${progress}%`;
+          bar.setAttribute('aria-valuenow', Math.round(progress));
         });
-        return;
+        
+        // Dispatch update event
+        window.dispatchEvent(new CustomEvent('countdownUpdate', {
+          detail: { days, hours, minutes, distance }
+        }));
+        
+      } catch (error) {
+        console.error('Countdown update failed:', error);
+        // Fallback to static values if calculation fails
+        utils.qsa('.countdown__value, .countdown-display__value').forEach(el => {
+          el.textContent = '--';
+        });
       }
-      
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      
-      // Update main hero countdown
-      const daysEl = document.getElementById('countdown-days');
-      const hoursEl = document.getElementById('countdown-hours');
-      if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
-      if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
-      
-      // Update sidebar countdown
-      const sidebarDays = document.getElementById('sidebar-countdown-days');
-      const sidebarHours = document.getElementById('sidebar-countdown-hours');
-      if (sidebarDays) sidebarDays.textContent = days.toString().padStart(2, '0');
-      if (sidebarHours) sidebarHours.textContent = hours.toString().padStart(2, '0');
     },
+    
+    // Add missing utility functions
+    escapeHtml: function(s) {
+      if (s === null || s === undefined) return '';
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    },
+    
+    // Add viewport utilities
+    getViewportHeight: function() {
+      return window.innerHeight || document.documentElement.clientHeight;
+    },
+    
+    getViewportWidth: function() {
+      return window.innerWidth || document.documentElement.clientWidth;
+    },
+    
+    // Add CSS variable utilities
+    setCssVariable: function(name, value) {
+      document.documentElement.style.setProperty(name, value);
+    },
+    
+    getCssVariable: function(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
   };
 
   // ---------------------------
@@ -478,7 +574,11 @@
     apply(theme, opts = {}) {
       const normalized = (theme === 'dark' || theme === 'light') ? theme : 'system';
       this.current = normalized;
-      CruiseState.set(this.key, normalized);
+      
+      // Only save if not silent mode
+      if (!opts.silent) {
+        CruiseState.set(this.key, normalized);
+      }
 
       const resolved = this.resolve(normalized);
       document.documentElement.setAttribute('data-theme', resolved);
@@ -745,12 +845,13 @@
   // Rendering Helpers
   // ---------------------------
   function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
     return String(s)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   function toneToClass(tone) {
@@ -889,6 +990,17 @@
       @keyframes wave-gradient {
         0% { background-position: 200% 0; }
         100% { background-position: -200% 0; }
+      }
+      
+      /* Countdown Animations */
+      @keyframes countdownPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      
+      .countdown-complete {
+        animation: countdownPulse 1s ease-in-out 3;
+        color: var(--rccl-success) !important;
       }
       
       /* Base Layout */
@@ -3068,6 +3180,9 @@
       const stored = CruiseState.get('cruise-nextport', null);
       const nextPort = (stored && typeof stored === 'object' && stored.name) ? stored : resolveNextPort();
 
+      // Get meta for footer - use DEFAULT_META as fallback
+      const meta = DEFAULT_META;
+
       const sectionsHTML = FOOTER_SECTIONS.map(section => `
         <div class="footer-section">
           <h4 class="footer-subtitle">
@@ -3171,7 +3286,7 @@
 
             <div class="footer-grid">
               ${sectionsHTML}
-               
+            </div>
 
             <div class="footer-bottom footer-bottom--rccl">
               <div class="footer-bottom__content">
@@ -3807,18 +3922,9 @@
   function init() {
     // Clean up any previous instances
     cleanup();
-    // Force light mode for consistency across pages
-    try {
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.setAttribute('data-theme-mode', 'light');
-      localStorage.setItem('theme-preference', 'light');
-      localStorage.setItem('rccl-theme', 'light');
-      CruiseState.set('cruise-theme', 'light');
-    } catch (e) {
-      /* ignore storage issues */
-    }
     
-    // Initialize systems (theme manager will pick up forced light)
+    // REMOVED: Forced theme setting - respect user preferences
+    // Initialize systems with user's saved preference
     ThemeManager.init();
     
     // Inject styles
