@@ -201,6 +201,86 @@
             border-color: var(--royal-sky);
         }
 
+        .family-finder {
+            margin: 0 0 20px;
+            padding: 14px;
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(0, 82, 165, 0.2);
+            background: linear-gradient(135deg, rgba(11, 79, 144, 0.95), rgba(0, 121, 212, 0.92));
+            color: #fff;
+            display: grid;
+            gap: 10px;
+        }
+
+        .family-finder__title {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+        }
+
+        .family-finder__subtitle {
+            margin: 0;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .family-finder__controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .family-finder__controls input {
+            flex: 1;
+            min-width: 220px;
+            min-height: 42px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+            padding: 10px 14px;
+        }
+
+        .family-finder__controls input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .family-finder__controls input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+        }
+
+        .family-finder__quick {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .family-finder__quick-btn {
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 7px 11px;
+            cursor: pointer;
+        }
+
+        .family-finder__quick-btn:hover {
+            background: rgba(255, 255, 255, 0.24);
+        }
+
+        .family-finder__status {
+            margin: 0;
+            min-height: 1.2em;
+            font-size: 0.84rem;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
         /* Stats Overview */
         .stats-section {
             margin-bottom: 40px;
@@ -1125,6 +1205,11 @@
             box-shadow: 0 10px 18px rgba(0, 0, 0, 0.05);
         }
 
+        body.app-theme-rcc.rooms-page .room-card--person-match {
+            border-color: rgba(255, 201, 58, 0.65) !important;
+            box-shadow: 0 12px 30px rgba(255, 201, 58, 0.28), inset 0 0 0 2px rgba(255, 201, 58, 0.42) !important;
+        }
+
         body.app-theme-rcc.rooms-page .feature-tag {
             padding: 6px 12px;
             min-height: 0;
@@ -1381,6 +1466,14 @@
                 min-height: 54px;
                 font-size: 16px;
                 padding: 14px 16px 14px 46px;
+            }
+
+            .family-finder {
+                margin-bottom: 14px;
+            }
+
+            .family-finder__controls input {
+                min-width: 180px;
             }
 
             .filter-control .filter-btn {
@@ -1695,6 +1788,19 @@
                     </div>
                 </div>
             </nav>
+
+            <section class="family-finder" aria-label="Find family members by name">
+                <h2 class="family-finder__title">Find My People</h2>
+                <p class="family-finder__subtitle">Jump straight to a guest's room and highlight the matching card.</p>
+                <div class="family-finder__controls">
+                    <label class="sr-only" for="guestFinderInput">Search guest name</label>
+                    <input id="guestFinderInput" type="search" placeholder="Type a guest name (for example: Melissa)" list="guestFinderList" enterkeyhint="search" inputmode="search" autocapitalize="words" />
+                    <button id="guestFinderClear" type="button" class="filter-btn">Clear</button>
+                </div>
+                <datalist id="guestFinderList"></datalist>
+                <div id="guestFinderQuick" class="family-finder__quick" aria-label="Quick family picks"></div>
+                <p id="guestFinderStatus" class="family-finder__status" role="status" aria-live="polite"></p>
+            </section>
 
             <!-- Statistics Overview -->
             <section class="stats-section" aria-labelledby="overviewTitle">
@@ -2160,6 +2266,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('roomSearchInput');
+            const guestFinderInput = document.getElementById('guestFinderInput');
+            const guestFinderList = document.getElementById('guestFinderList');
+            const guestFinderQuick = document.getElementById('guestFinderQuick');
+            const guestFinderStatus = document.getElementById('guestFinderStatus');
+            const guestFinderClear = document.getElementById('guestFinderClear');
             const roomCards = Array.from(document.querySelectorAll('#roomsGridSource .room-card'));
             const focusGrid = document.getElementById('focusGrid');
             const allSetGrid = document.getElementById('allSetGrid');
@@ -2189,6 +2300,7 @@
             let keyboardRoomIndex = 0;
             let currentModalRoomIndex = -1;
             const compareSet = new Set();
+            const guestToCards = new Map();
 
             function computeRoomPriority(card) {
                 const musterComplete = card.dataset.musterComplete === 'true';
@@ -2196,6 +2308,120 @@
                 if (!musterComplete || explicitPriority === 'urgent') return 3;
                 if (card.dataset.linkedRoom || explicitPriority === 'attention') return 2;
                 return 1;
+            }
+
+            function clearPersonHighlights() {
+                roomCards.forEach((card) => card.classList.remove('room-card--person-match'));
+            }
+
+            function setGuestFinderStatus(message) {
+                if (guestFinderStatus) {
+                    guestFinderStatus.textContent = message;
+                }
+            }
+
+            function collectGuestsFromCard(card) {
+                return Array.from(card.querySelectorAll('.guest-pill'))
+                    .map((pill) => (pill.textContent || '').trim())
+                    .filter(Boolean);
+            }
+
+            function indexGuests() {
+                roomCards.forEach((card) => {
+                    collectGuestsFromCard(card).forEach((name) => {
+                        const key = name.toLowerCase();
+                        const cards = guestToCards.get(key) || [];
+                        cards.push(card);
+                        guestToCards.set(key, cards);
+                    });
+                });
+            }
+
+            function setRoomTypeFilterAll() {
+                activeType = 'all';
+                document.querySelectorAll('.room-type-filter').forEach((button) => {
+                    const isAll = (button.dataset.roomType || '') === 'all';
+                    button.classList.toggle('is-active', isAll);
+                    button.setAttribute('aria-checked', String(isAll));
+                });
+                filterToggle?.classList.remove('filter-btn--active');
+                closeFilterPanel();
+            }
+
+            function runGuestLookup(rawValue, options = {}) {
+                const value = String(rawValue || '').trim();
+                if (!value) {
+                    clearPersonHighlights();
+                    setGuestFinderStatus('');
+                    if (options.clearSearch) {
+                        searchInput.value = '';
+                        updateRoomVisibility();
+                    }
+                    return;
+                }
+
+                setRoomTypeFilterAll();
+                searchInput.value = value;
+                updateRoomVisibility();
+
+                const normalized = value.toLowerCase();
+                const matches = guestToCards.get(normalized) || [];
+                const visibleMatches = matches.filter((card) => currentVisibleCards.includes(card));
+                const targetCard = visibleMatches[0];
+
+                clearPersonHighlights();
+                if (!targetCard) {
+                    setGuestFinderStatus(`No room match found for "${value}".`);
+                    return;
+                }
+
+                targetCard.classList.add('room-card--person-match');
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetCard.setAttribute('tabindex', '-1');
+                targetCard.focus({ preventScroll: true });
+                const roomNumber = targetCard.dataset.room || '';
+                setGuestFinderStatus(`${value} is in room ${roomNumber}.`);
+            }
+
+            function initGuestFinder() {
+                if (!guestFinderInput || !guestFinderList) return;
+
+                const allGuestNames = Array.from(guestToCards.keys())
+                    .map((key) => key.charAt(0).toUpperCase() + key.slice(1))
+                    .sort((a, b) => a.localeCompare(b));
+
+                guestFinderList.innerHTML = allGuestNames
+                    .map((name) => `<option value="${name}"></option>`)
+                    .join('');
+
+                if (guestFinderQuick) {
+                    guestFinderQuick.innerHTML = allGuestNames.slice(0, 8).map((name) => (
+                        `<button type="button" class="family-finder__quick-btn" data-guest-name="${name}">${name}</button>`
+                    )).join('');
+                    guestFinderQuick.querySelectorAll('[data-guest-name]').forEach((button) => {
+                        button.addEventListener('click', function() {
+                            const name = this.getAttribute('data-guest-name') || '';
+                            guestFinderInput.value = name;
+                            runGuestLookup(name);
+                        });
+                    });
+                }
+
+                guestFinderInput.addEventListener('change', function() {
+                    runGuestLookup(this.value);
+                });
+
+                guestFinderInput.addEventListener('keydown', function(event) {
+                    if (event.key !== 'Enter') return;
+                    event.preventDefault();
+                    runGuestLookup(this.value);
+                });
+
+                guestFinderClear?.addEventListener('click', function() {
+                    guestFinderInput.value = '';
+                    runGuestLookup('', { clearSearch: true });
+                    guestFinderInput.focus();
+                });
             }
 
             function getRoomFacts(card) {
@@ -2278,6 +2504,8 @@
                 renderStatusBadges(card);
                 ensureCompareButton(card);
             });
+            indexGuests();
+            initGuestFinder();
 
             function updateRoomVisibility() {
                 const searchTerm = searchInput.value.toLowerCase().trim();
@@ -2289,8 +2517,9 @@
                     const roomName = card.querySelector('.room-type__name')?.textContent || '';
                     const roomLocation = card.querySelector('.room-location')?.textContent || '';
                     const roomFeatures = card.querySelector('.room-features')?.textContent || '';
+                    const roomGuests = collectGuestsFromCard(card).join(' ');
                     const roomType = card.dataset.roomType || 'all';
-                    const searchableText = `${roomNumber} ${roomName} ${roomLocation} ${roomFeatures}`.toLowerCase();
+                    const searchableText = `${roomNumber} ${roomName} ${roomLocation} ${roomFeatures} ${roomGuests}`.toLowerCase();
 
                     const matchesSearch = !searchTerm || searchableText.includes(searchTerm);
                     const matchesType = activeType === 'all' || roomType === activeType;
@@ -2354,10 +2583,15 @@
                 activeType = event.detail.value || 'all';
                 filterToggle.classList.toggle('filter-btn--active', activeType !== 'all');
                 closeFilterPanel();
+                clearPersonHighlights();
                 updateRoomVisibility();
             });
 
-            searchInput.addEventListener('input', updateRoomVisibility);
+            searchInput.addEventListener('input', function() {
+                clearPersonHighlights();
+                setGuestFinderStatus('');
+                updateRoomVisibility();
+            });
 
             function focusedRoomCard() {
                 return currentVisibleCards[keyboardRoomIndex] || null;

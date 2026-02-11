@@ -152,6 +152,54 @@
       outline-offset: 2px;
     }
 
+    .dining-page .dining-context {
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 82, 165, 0.2);
+      background: linear-gradient(135deg, rgba(11, 79, 144, 0.94), rgba(0, 121, 212, 0.92));
+      color: #fff;
+      display: grid;
+      gap: 8px;
+    }
+
+    .dining-page .dining-context__title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .dining-page .dining-context__body {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.91rem;
+    }
+
+    .dining-page .dining-context__action {
+      justify-self: start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.44);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.84rem;
+      padding: 7px 12px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .dining-page .dining-context__action:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .dining-page .deck-card--context-pick {
+      border-color: rgba(255, 201, 58, 0.65) !important;
+      box-shadow: 0 12px 26px rgba(11, 79, 144, 0.16), inset 0 0 0 2px rgba(255, 201, 58, 0.32);
+    }
+
   </style>
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
   <script src="js/shared-layout.js?v=16" defer></script>
@@ -209,6 +257,15 @@
         </div>
         <p id="diningSearchStatus" class="search-status" role="status" aria-live="polite">Showing 6 of 6 venues</p>
       </div>
+    </section>
+
+    <section class="container dining-context" id="diningContext" aria-live="polite">
+      <h2 class="dining-context__title" id="diningContextTitle">Dining Focus</h2>
+      <p class="dining-context__body" id="diningContextBody">Loading recommendations for your current cruise day and time.</p>
+      <a class="dining-context__action" id="diningContextAction" href="#reservations">
+        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        <span id="diningContextActionText">Open reservations</span>
+      </a>
     </section>
 
     <section id="reservations" class="container reservation-panel" aria-label="Tonight reservation snapshot">
@@ -277,7 +334,7 @@
             </div>
           </article>
 
-          <article class="deck-card" role="listitem" data-venue-type="included" data-search="windjammer marketplace included buffet deck 11 breakfast dinner kids varied cuisines">
+          <article id="venue-windjammer" class="deck-card" role="listitem" data-venue-type="included" data-search="windjammer marketplace included buffet deck 11 breakfast dinner kids varied cuisines">
             <span class="venue-type">Included</span>
             <div class="deck-visual">
               <span class="deck-number">2</span>
@@ -303,7 +360,7 @@
             </div>
           </article>
 
-          <article class="deck-card" role="listitem" data-venue-type="included" data-search="cafe promenade included snacks coffee promenade 24 7 grab and go">
+          <article id="venue-cafe" class="deck-card" role="listitem" data-venue-type="included" data-search="cafe promenade included snacks coffee promenade 24 7 grab and go">
             <span class="venue-type">Included</span>
             <div class="deck-visual">
               <span class="deck-number">3</span>
@@ -463,6 +520,11 @@
       const cards = Array.from(document.querySelectorAll('.deck-card[data-venue-type]'));
       const filterButtons = Array.from(document.querySelectorAll('.main-navigation__filters button[data-filter]'));
       const countChipValue = document.querySelector('.count-chip span');
+      const contextCard = document.getElementById('diningContext');
+      const contextTitle = document.getElementById('diningContextTitle');
+      const contextBody = document.getElementById('diningContextBody');
+      const contextAction = document.getElementById('diningContextAction');
+      const contextActionText = document.getElementById('diningContextActionText');
       const total = cards.length;
       let activeFilter = 'all';
       let searchTimer;
@@ -470,6 +532,73 @@
 
       if (!searchInput || !searchStatus || !emptyState || total === 0) {
         return;
+      }
+
+      function getCruiseContext() {
+        const cruiseStart = new Date('2026-02-14T00:00:00');
+        const cruiseEnd = new Date('2026-02-20T23:59:59');
+        const now = new Date();
+        const hour = now.getHours();
+        const portDays = new Set([3, 4, 6]);
+
+        if (now < cruiseStart) {
+          return {
+            title: 'Pre-Cruise Dining Setup',
+            body: 'Start with specialty reservations before sail day to secure premium evening windows.',
+            target: '#venue-chops',
+            actionLabel: 'Open Chops Grille'
+          };
+        }
+
+        if (now > cruiseEnd) {
+          return {
+            title: 'Post-Cruise Recap',
+            body: 'Save your favorite dining picks for the next sailing plan.',
+            target: '#specialty-group',
+            actionLabel: 'Review specialty venues'
+          };
+        }
+
+        const diffDays = Math.floor((now - cruiseStart) / (1000 * 60 * 60 * 24)) + 1;
+        const day = Math.max(1, Math.min(7, diffDays));
+
+        if (hour >= 16 && hour <= 21) {
+          return {
+            title: `Tonight's Pick · Day ${day}`,
+            body: 'Dinner booking window is active. Specialty tables tighten quickly after 7:00 PM.',
+            target: '#venue-chops',
+            actionLabel: 'Book Chops tonight'
+          };
+        }
+
+        if (portDays.has(day)) {
+          return {
+            title: `Port Day Fuel Plan · Day ${day}`,
+            body: 'Favor quick service before and after shore time to avoid missing all-aboard buffers.',
+            target: '#venue-cafe',
+            actionLabel: 'Open Café Promenade'
+          };
+        }
+
+        return {
+          title: `Sea Day Dining Rhythm · Day ${day}`,
+          body: 'Use Windjammer earlier in the day, then lock a dinner slot before evening venue peaks.',
+          target: '#venue-windjammer',
+          actionLabel: 'Open Windjammer'
+        };
+      }
+
+      function applyDiningContext() {
+        if (!contextCard || !contextTitle || !contextBody || !contextAction || !contextActionText) return;
+        const context = getCruiseContext();
+        contextTitle.textContent = context.title;
+        contextBody.textContent = context.body;
+        contextAction.setAttribute('href', context.target);
+        contextActionText.textContent = context.actionLabel;
+
+        cards.forEach((card) => card.classList.remove('deck-card--context-pick'));
+        const targetCard = document.querySelector(context.target);
+        targetCard?.classList.add('deck-card--context-pick');
       }
 
       function updateDiningView() {
@@ -520,6 +649,7 @@
       });
 
       updateDiningView();
+      applyDiningContext();
     });
   </script>
 </body>
