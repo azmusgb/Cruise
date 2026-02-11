@@ -2414,7 +2414,7 @@
     }
 
     if (currentPage === 'itinerary' && window.location.hash === '#today') {
-      const todayTarget = document.getElementById('today-card') || document.querySelector('[data-today="true"]');
+      const todayTarget = document.getElementById('today') || document.getElementById('today-card') || document.querySelector('[data-today="true"]');
       if (todayTarget) {
         window.requestAnimationFrame(() => {
           todayTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
