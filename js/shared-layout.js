@@ -141,7 +141,16 @@
   // ---------------------------
   function injectMinimalStyles() {
     const styleId = 'rccl-minimal-styles';
-    if (document.getElementById(styleId)) return;
+    const stylesheetId = 'rccl-minimal-stylesheet';
+    if (document.getElementById(styleId) || document.getElementById(stylesheetId)) return;
+
+    const cssHref = 'css/shared-layout.css?v=4';
+    const linkEl = document.createElement('link');
+    linkEl.id = stylesheetId;
+    linkEl.rel = 'stylesheet';
+    linkEl.href = cssHref;
+    document.head.appendChild(linkEl);
+    return;
 
     const styles = `
       /* ============================================================================
@@ -1812,53 +1821,47 @@
       `).join('');
 
       return `
-        <header class="app-header--minimal" role="banner">
+        <header class="app-header--minimal app-header--rccl-site" role="banner">
+          <div class="header-utility">
+            <div class="header-utility__inner">
+              <div class="header-utility__left">
+                <span class="header-utility__crumb">Photo Library | ${utils.escapeHtml(DEFAULT_META.ship)}</span>
+              </div>
+              <a href="https://www.royalcaribbean.com/cruise-deals" target="_blank" rel="noopener noreferrer" class="header-utility__promo">
+                <i class="fas fa-crown" aria-hidden="true"></i>
+                Cruises - Amazing Cruise Deals
+              </a>
+            </div>
+          </div>
+
           <div class="header-container">
-            <div class="header-alert" role="status" aria-live="polite">
-              <span class="header-alert__main">
-                <i class="fas fa-compass" aria-hidden="true"></i>
-                ${utils.escapeHtml(cruiseStatus.label)}
-              </span>
-              <span class="header-alert__meta">
-                ${utils.escapeHtml(DEFAULT_META.sailingLabel)} · Check-in ${utils.escapeHtml(DEFAULT_META.checkIn)} · All aboard ${utils.escapeHtml(DEFAULT_META.allAboard)}
-              </span>
-            </div>
-            <div class="header-context" aria-label="Sailing context">
-              <span class="header-context__meta">
-                <i class="fas fa-ship" aria-hidden="true"></i>
-                ${utils.escapeHtml(DEFAULT_META.ship)}
-              </span>
-              <span class="header-context__meta">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                ${utils.escapeHtml(DEFAULT_META.sailing)}
-                <span class="header-context__divider" aria-hidden="true">•</span>
-                ${utils.escapeHtml(DEFAULT_META.port)}
-              </span>
-            </div>
-            <section class="header-timeline" aria-label="Critical cruise timeline">
-              <h2 class="header-timeline__title">Critical Timeline</h2>
-              <ul class="header-timeline__list">
-                ${timelineItems}
-              </ul>
-            </section>
             <div class="header-brand">
               <a href="${sanitizeHref('index.html')}" class="header-logo">
-                <i class="fas fa-ship" aria-hidden="true"></i>
+                <i class="fas fa-crown" aria-hidden="true"></i>
                 <div class="header-logo-text">
                   <span class="header-logo-title">${utils.escapeHtml(DEFAULT_META.brand)}</span>
-                  <span class="header-logo-subtitle">${utils.escapeHtml(DEFAULT_META.ship)}</span>
+                  <span class="header-logo-subtitle">${utils.escapeHtml(DEFAULT_META.ship)} · ${utils.escapeHtml(cruiseStatus.label)}</span>
                 </div>
               </a>
             </div>
-            
+
             <nav class="header-nav" id="headerPrimaryNav" aria-label="Primary navigation">
               ${navLinks}
             </nav>
-            
+
             <div class="header-actions" id="headerHeaderActions">
-              <a href="${sanitizeHref('itinerary.html')}" class="header-cta">
-                <i class="fas fa-route" aria-hidden="true"></i>
-                <span>Today&apos;s Plan</span>
+              <a href="${sanitizeHref('contacts.html')}" class="header-cta header-cta--help">
+                <span>Need help?</span>
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+              </a>
+              <a href="${sanitizeHref('index.html')}" class="header-action" aria-label="Search">
+                <i class="fas fa-search" aria-hidden="true"></i>
+              </a>
+              <a href="${sanitizeHref('photos.html')}" class="header-action" aria-label="Favorites">
+                <i class="fas fa-heart" aria-hidden="true"></i>
+              </a>
+              <a href="${sanitizeHref('operations.html')}" class="header-cta header-cta--signin">
+                <span>Sign In</span>
               </a>
               <button type="button" class="header-cta header-cta--install" id="pwaInstallButton" hidden aria-hidden="true">
                 <i class="fas fa-download" aria-hidden="true"></i>
@@ -1868,7 +1871,7 @@
                 <i class="fas fa-bell" aria-hidden="true"></i>
               </button>
             </div>
-            
+
             <button class="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="headerPrimaryNav">
               <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
@@ -1895,79 +1898,40 @@
   function renderFooter() {
     return safeMount('#sharedFooter', () => {
       return `
-        <footer class="app-footer--minimal" role="contentinfo">
+        <footer class="app-footer--minimal app-footer--rccl-site" role="contentinfo">
           <div class="footer-container">
-            <div class="footer-primary">
-              <div class="footer-brand">
-                <div class="footer-logo" aria-hidden="true">
-                  <i class="fas fa-crown"></i>
-                </div>
-                <div class="footer-tagline">
-                  <h3 class="footer-heading">${utils.escapeHtml(DEFAULT_META.tagline)}</h3>
-                  <p class="footer-subheading">
-                    ${utils.escapeHtml(DEFAULT_META.ship)} • ${utils.escapeHtml(DEFAULT_META.sailing)}
-                  </p>
-                </div>
-              </div>
-              
-              <div class="footer-actions">
-                <a href="${sanitizeHref('operations.html')}" class="footer-cta">
-                  <span>Complete Checklist</span>
-                  <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                </a>
-                <a href="${sanitizeHref('rooms.html')}" class="footer-cta footer-cta--secondary">
-                  <span>Open Cabin Manifest</span>
-                  <i class="fas fa-bed" aria-hidden="true"></i>
-                </a>
-              </div>
+            <div class="footer-social-row" aria-label="Social links">
+              <a href="https://facebook.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+              <a href="https://instagram.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+              <a href="https://tiktok.com/@royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok" aria-hidden="true"></i></a>
+              <a href="https://youtube.com/@RoyalCaribbeanInternational" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+              <a href="https://x.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+              <a href="https://pinterest.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><i class="fab fa-pinterest-p" aria-hidden="true"></i></a>
             </div>
-            
-            <div class="footer-essentials">
-              <div class="footer-columns" aria-label="Sailing essentials">
-                <article class="footer-panel">
-                  <h4 class="footer-panel__title">Embarkation</h4>
-                  <p class="footer-panel__meta">Port Canaveral • Check-in ${utils.escapeHtml(DEFAULT_META.checkIn)} • All aboard ${utils.escapeHtml(DEFAULT_META.allAboard)}</p>
-                </article>
-                <article class="footer-panel">
-                  <h4 class="footer-panel__title">Primary Focus</h4>
-                  <p class="footer-panel__meta">Muster by stateroom, daily itinerary alignment, and family regroup points.</p>
-                </article>
-                <article class="footer-panel">
-                  <h4 class="footer-panel__title">Need Help Fast?</h4>
-                  <p class="footer-panel__meta">Use Contacts for emergency numbers and Rooms for cabin-specific details.</p>
-                </article>
-              </div>
-              <nav class="footer-nav" aria-label="Essential links">
-                <a href="${sanitizeHref('index.html')}" class="footer-nav__link">Dashboard</a>
-                <a href="${sanitizeHref('itinerary.html')}" class="footer-nav__link">Itinerary</a>
-                <a href="${sanitizeHref('rooms.html')}" class="footer-nav__link">Rooms</a>
-                <a href="${sanitizeHref('dining.html')}" class="footer-nav__link">Dining</a>
-                <a href="${sanitizeHref('photos.html')}" class="footer-nav__link">Photos</a>
-                <a href="${sanitizeHref('contacts.html')}" class="footer-nav__link">Contacts</a>
-                <a href="${sanitizeHref('decks.html')}" class="footer-nav__link">Ship Map</a>
-                <a href="${sanitizeHref('operations.html')}" class="footer-nav__link">Checklist</a>
-                <a href="${sanitizeHref('tips.html')}" class="footer-nav__link">Tips</a>
-              </nav>
+
+            <div class="footer-country">
+              <button type="button" class="footer-country__btn" aria-label="Country: United States">
+                <span>🇺🇸</span>
+                <span>United States</span>
+              </button>
             </div>
-            
-            <div class="footer-meta">
-              <div class="footer-legal">
-                <span class="footer-copyright">© ${DEFAULT_META.year} ${utils.escapeHtml(DEFAULT_META.brand)}</span>
-                <span class="footer-separator" aria-hidden="true">•</span>
-                <span class="footer-legal__text">Privacy</span>
-                <span class="footer-separator" aria-hidden="true">•</span>
-                <span class="footer-legal__text">Terms</span>
-              </div>
-              
-              <div class="footer-social">
-                <a href="https://www.royalcaribbean.com" 
-                   class="footer-social__link" 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   aria-label="Visit Royal Caribbean website">
-                  <i class="fas fa-external-link-alt" aria-hidden="true"></i>
-                </a>
-              </div>
+
+            <p class="footer-copyright">© ${DEFAULT_META.year} Royal Caribbean Cruises</p>
+
+            <nav class="footer-legal-links" aria-label="Legal links">
+              <a href="https://www.royalcaribbean.com/resources/guest-terms" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Cruise contract</a>
+              <a href="https://www.royalcaribbean.com/company/about-us" class="footer-legal__link" target="_blank" rel="noopener noreferrer">About us</a>
+              <a href="https://www.royalcaribbean.com/resources/privacy-policy" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Privacy policy</a>
+              <a href="https://www.royalcaribbean.com/resources/terms-and-conditions" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Terms of use</a>
+              <a href="https://www.royalcaribbeangroup.com/careers/" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Careers</a>
+              <a href="https://www.royalcaribbean.com/resources/travel-updates" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Travel updates</a>
+            </nav>
+
+            <div class="footer-brands" aria-label="Royal Caribbean brands">
+              <span class="footer-brand-mark">Royal Caribbean Group</span>
+              <span class="footer-brand-mark">Royal Caribbean</span>
+              <span class="footer-brand-mark">Celebrity Cruises</span>
+              <span class="footer-brand-mark">Silversea</span>
             </div>
           </div>
         </footer>
