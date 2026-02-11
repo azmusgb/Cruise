@@ -1175,7 +1175,7 @@
       /* =========================================================
          Data (kept compatible with your current structure)
          ========================================================= */
-      const defaultPhotoData = [
+      let photoData = [
         {
           id: 1,
           title: "Adventure Exterior at Sea",
@@ -1367,66 +1367,6 @@
           tags: ["thrill", "slides"],
         },
       ];
-
-
-      const PHOTO_LIBRARY_STORAGE_KEY = "cruise.photoLibrary.customData.v1";
-
-      function getDefaultPhotoData() {
-        return defaultPhotoData.map((photo) => ({ ...photo }));
-      }
-
-      function canUseLocalStorage() {
-        try {
-          if (!window.localStorage) return false;
-          const testKey = `${PHOTO_LIBRARY_STORAGE_KEY}.test`;
-          window.localStorage.setItem(testKey, "1");
-          window.localStorage.removeItem(testKey);
-          return true;
-        } catch {
-          return false;
-        }
-      }
-
-      function loadPhotoData() {
-        if (!canUseLocalStorage()) return getDefaultPhotoData();
-
-        try {
-          const raw = window.localStorage.getItem(PHOTO_LIBRARY_STORAGE_KEY);
-          if (!raw) return getDefaultPhotoData();
-          const parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed)) return getDefaultPhotoData();
-
-          return parsed
-            .filter((photo) => photo && typeof photo === "object")
-            .map((photo, index) => ({
-              id: Number(photo.id) || index + 1,
-              title: String(photo.title || "Untitled photo"),
-              src: String(photo.src || ""),
-              category: String(photo.category || "decks"),
-              deck: photo.deck == null ? "" : String(photo.deck),
-              source: photo.source === "passenger" ? "passenger" : "official",
-              description: String(photo.description || "Added from manage photos panel."),
-              notes: photo.notes == null ? "" : String(photo.notes),
-              tags: Array.isArray(photo.tags)
-                ? photo.tags.map((tag) => String(tag).trim()).filter(Boolean)
-                : [],
-            }));
-        } catch {
-          return getDefaultPhotoData();
-        }
-      }
-
-      function savePhotoData() {
-        if (!canUseLocalStorage()) return false;
-        try {
-          window.localStorage.setItem(PHOTO_LIBRARY_STORAGE_KEY, JSON.stringify(photoData));
-          return true;
-        } catch {
-          return false;
-        }
-      }
-
-      let photoData = loadPhotoData();
 
       function getValidPhotoData() {
         return photoData.filter(
@@ -1705,52 +1645,6 @@
           return photoData.filter((photo) => selectedPhotoIds.has(photo.id));
         }
 
-        function purgePhotoReferences(photoIds) {
-          const removeIds = new Set(Array.from(photoIds, (id) => Number(id)));
-          const selectedPhotos = photoData.filter((photo) => removeIds.has(Number(photo.id)));
-          const removeSources = new Set(
-            selectedPhotos
-              .map((photo) => String(photo.src || "").trim().toLowerCase())
-              .filter(Boolean),
-          );
-          const removeTitleKeys = new Set(
-            selectedPhotos
-              .map((photo) => `${String(photo.source || "").trim().toLowerCase()}::${String(photo.title || "").trim().toLowerCase()}`)
-              .filter((key) => key !== "::"),
-          );
-
-          const shouldRemove = (photo) => {
-            const source = String(photo.source || "").trim().toLowerCase();
-            const title = String(photo.title || "").trim().toLowerCase();
-            const src = String(photo.src || "").trim().toLowerCase();
-            return (
-              removeIds.has(Number(photo.id))
-              || removeSources.has(src)
-              || removeTitleKeys.has(`${source}::${title}`)
-            );
-          };
-
-          photoData = photoData.filter((photo) => !shouldRemove(photo));
-          filteredPhotos = filteredPhotos.filter((photo) => !shouldRemove(photo));
-
-          for (let index = defaultPhotoData.length - 1; index >= 0; index -= 1) {
-            if (shouldRemove(defaultPhotoData[index])) defaultPhotoData.splice(index, 1);
-          }
-
-          document
-            .querySelectorAll("#photoGrid [data-id], #photoList [data-id], #featuredRail [data-photo-id]")
-            .forEach((card) => {
-              const id = Number(card.dataset.id || card.dataset.photoId);
-              if (removeIds.has(id)) card.remove();
-            });
-
-          const activePhoto = filteredPhotos[currentIndex] || photoData[currentIndex];
-          if (!activePhoto || shouldRemove(activePhoto)) {
-            closeLightbox();
-            currentIndex = 0;
-          }
-        }
-
         /* -----------------------------
            Lightbox
            ----------------------------- */
@@ -1970,11 +1864,8 @@
           };
 
           photoData.push(newPhoto);
-          const saved = savePhotoData();
           updateHeroStats();
-          manageStatus.textContent = saved
-            ? `Added ${newPhoto.title}.`
-            : `Added ${newPhoto.title}, but browser storage is unavailable so it may not persist.`;
+          manageStatus.textContent = `Added ${newPhoto.title}.`;
           resetManageForm();
           render();
         });
@@ -1998,10 +1889,7 @@
           selected.notes = notes;
           selected.description = notes || selected.description;
 
-          const saved = savePhotoData();
-          manageStatus.textContent = saved
-            ? `Updated ${selected.title}.`
-            : `Updated ${selected.title}, but browser storage is unavailable so it may not persist.`;
+          manageStatus.textContent = `Updated ${selected.title}.`;
           updateHeroStats();
           render();
         });
@@ -2009,12 +1897,9 @@
         deletePhotoBtn.addEventListener("click", () => {
           const toDelete = new Set(selectedPhotoIds);
           if (!toDelete.size) return;
-          purgePhotoReferences(toDelete);
-          const saved = savePhotoData();
+          photoData = photoData.filter((photo) => !toDelete.has(photo.id));
           selectedPhotoIds = new Set();
-          manageStatus.textContent = saved
-            ? `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}.`
-            : `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}, but browser storage is unavailable so it may not persist.`;
+          manageStatus.textContent = `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}.`;
           updateHeroStats();
           render();
         });
