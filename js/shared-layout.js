@@ -230,7 +230,8 @@
       
       /* Header - Minimal */
       .app-header--minimal {
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 100;
         background: linear-gradient(180deg, #ffffff 0%, #eff8ff 100%);
         border-bottom: 1px solid var(--rccl-border);
@@ -675,6 +676,60 @@
         color: #123f66 !important;
       }
 
+      body.app-theme-rcc .deck-card,
+      body.app-theme-rcc .room-card,
+      body.app-theme-rcc .category-card,
+      body.app-theme-rcc .stat-card,
+      body.app-theme-rcc .summary-card,
+      body.app-theme-rcc .info-card,
+      body.app-theme-rcc .checklist-card,
+      body.app-theme-rcc .action-item,
+      body.app-theme-rcc .quick-action-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px !important;
+        transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease !important;
+      }
+
+      body.app-theme-rcc .deck-card::before,
+      body.app-theme-rcc .room-card::before,
+      body.app-theme-rcc .category-card::before,
+      body.app-theme-rcc .stat-card::before,
+      body.app-theme-rcc .summary-card::before,
+      body.app-theme-rcc .info-card::before,
+      body.app-theme-rcc .checklist-card::before,
+      body.app-theme-rcc .action-item::before,
+      body.app-theme-rcc .quick-action-item::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(145deg, rgba(25, 194, 255, 0.08) 0%, rgba(255, 255, 255, 0) 38%);
+      }
+
+      body.app-theme-rcc .deck-card:hover,
+      body.app-theme-rcc .room-card:hover,
+      body.app-theme-rcc .category-card:hover,
+      body.app-theme-rcc .stat-card:hover,
+      body.app-theme-rcc .summary-card:hover,
+      body.app-theme-rcc .info-card:hover,
+      body.app-theme-rcc .checklist-card:hover,
+      body.app-theme-rcc .action-item:hover,
+      body.app-theme-rcc .quick-action-item:hover,
+      body.app-theme-rcc .deck-card:focus-within,
+      body.app-theme-rcc .room-card:focus-within,
+      body.app-theme-rcc .category-card:focus-within,
+      body.app-theme-rcc .stat-card:focus-within,
+      body.app-theme-rcc .summary-card:focus-within,
+      body.app-theme-rcc .info-card:focus-within,
+      body.app-theme-rcc .checklist-card:focus-within,
+      body.app-theme-rcc .action-item:focus-within,
+      body.app-theme-rcc .quick-action-item:focus-within {
+        transform: translateY(-4px);
+        box-shadow: var(--royal-shadow-xl) !important;
+        border-color: rgba(0, 121, 212, 0.28) !important;
+      }
+
       body.app-theme-rcc .deck-card h3,
       body.app-theme-rcc .room-card h3,
       body.app-theme-rcc .category-card h3,
@@ -697,7 +752,7 @@
       body.app-theme-rcc .action-item p,
       body.app-theme-rcc .deck-subtitle,
       body.app-theme-rcc .room-meta-details {
-        color: #1f537f !important;
+        color: #174d7b !important;
       }
 
       body.app-theme-rcc .feature-tag,
@@ -1389,10 +1444,6 @@
           margin-bottom: 0.85rem;
         }
 
-        .footer-columns .footer-panel:nth-child(n + 2) {
-          display: none;
-        }
-
         .footer-panel {
           background: rgba(255, 255, 255, 0.16);
           border-color: rgba(255, 255, 255, 0.28);
@@ -1417,10 +1468,6 @@
 
         .footer-meta {
           gap: 0.7rem;
-        }
-
-        .footer-nav__link:nth-child(n + 5) {
-          display: none;
         }
 
         .footer-social {
@@ -1827,7 +1874,7 @@
             </button>
 
             <nav class="mobile-quick-nav" aria-label="Mobile quick navigation">
-              ${NAV_ITEMS.slice(0, 5).map(item => `
+              ${NAV_ITEMS.map(item => `
                 <a href="${sanitizeHref(item.href)}"
                    class="mobile-quick-nav__link ${currentPage === item.id ? 'active' : ''}"
                    ${currentPage === item.id ? 'aria-current="page"' : ''}>
