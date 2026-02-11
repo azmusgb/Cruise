@@ -58,6 +58,60 @@
       margin-bottom: 14px;
     }
 
+    .contact-context {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 82, 165, 0.18);
+      background: linear-gradient(135deg, rgba(11, 79, 144, 0.95), rgba(0, 121, 212, 0.92));
+      color: #fff;
+    }
+
+    .contact-context__title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .contact-context__body {
+      margin: 0;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .contact-context__action {
+      justify-self: start;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 0.84rem;
+      font-weight: 700;
+      padding: 7px 11px;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .contact-context__action:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .contact-context--port {
+      border-color: rgba(255, 201, 58, 0.45);
+      background: linear-gradient(135deg, rgba(11, 79, 144, 0.94), rgba(0, 88, 153, 0.95));
+    }
+
+    .contact-context--sea {
+      border-color: rgba(25, 194, 255, 0.45);
+    }
+
     .contact-sections {
       display: grid;
       gap: 14px;
@@ -75,6 +129,11 @@
     .contact-section:focus {
       outline: 2px solid rgba(0, 121, 212, 0.5);
       outline-offset: 2px;
+    }
+
+    .contact-section--priority {
+      box-shadow: 0 0 0 3px rgba(0, 121, 212, 0.14);
+      border-color: rgba(0, 121, 212, 0.35);
     }
 
     .contact-section__header {
@@ -264,6 +323,10 @@
         font-size: 0.95rem;
       }
 
+      .contact-context {
+        margin-bottom: 12px;
+      }
+
       .contact-row {
         grid-template-columns: 1fr;
         align-items: flex-start;
@@ -298,6 +361,15 @@
         <h1 class="hero__title">Contacts & Emergency</h1>
         <p class="hero__description">Verified call paths for onboard incidents and clear shore-side fallback when you are in port.</p>
       </div>
+    </section>
+
+    <section class="container contact-context contact-context--sea" id="contactContext" aria-live="polite">
+      <h2 class="contact-context__title" id="contactContextTitle">Sea Day Support Mode</h2>
+      <p class="contact-context__body" id="contactContextBody">Prioritize onboard emergency and guest services channels first.</p>
+      <a class="contact-context__action" id="contactContextAction" href="#urgent">
+        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        <span id="contactContextActionText">Go to Immediate Emergency</span>
+      </a>
     </section>
 
     <section class="main-navigation" aria-label="Quick navigation">
@@ -526,11 +598,75 @@
     document.addEventListener('DOMContentLoaded', function () {
       const statusEl = document.getElementById('contactsStatus');
       const BACKUP_STORAGE_KEY = 'contacts-backup-v1';
+      const contextCard = document.getElementById('contactContext');
+      const contextTitle = document.getElementById('contactContextTitle');
+      const contextBody = document.getElementById('contactContextBody');
+      const contextAction = document.getElementById('contactContextAction');
+      const contextActionText = document.getElementById('contactContextActionText');
 
       function setStatus(message) {
         if (statusEl) {
           statusEl.textContent = message;
         }
+      }
+
+      function getCruiseContext() {
+        const cruiseStart = new Date('2026-02-14T00:00:00');
+        const cruiseEnd = new Date('2026-02-20T23:59:59');
+        const now = new Date();
+        if (now < cruiseStart) {
+          return {
+            mode: 'prep',
+            title: 'Pre-Cruise Contact Prep',
+            body: 'Save port agent and insurance numbers now so they are ready before embarkation day.',
+            target: '#backup',
+            actionLabel: 'Open Backup & Recovery'
+          };
+        }
+        if (now > cruiseEnd) {
+          return {
+            mode: 'post',
+            title: 'Post-Cruise Support Mode',
+            body: 'Use shore support and guest relations for follow-up, claims, and service issues.',
+            target: '#shore-support',
+            actionLabel: 'Open Shore Support'
+          };
+        }
+
+        const diffDays = Math.floor((now - cruiseStart) / (1000 * 60 * 60 * 24)) + 1;
+        const day = Math.max(1, Math.min(7, diffDays));
+        const portDays = new Set([3, 4, 6]);
+        if (portDays.has(day)) {
+          return {
+            mode: 'port',
+            title: `Port Day Mode · Day ${day}`,
+            body: 'Local emergency services and port contacts become priority while ashore.',
+            target: '#ports',
+            actionLabel: 'Open Port-Day Contacts'
+          };
+        }
+        return {
+          mode: 'sea',
+          title: `Sea Day Mode · Day ${day}`,
+          body: 'Route urgent issues through onboard channels first, starting with ship Security or Guest Services.',
+          target: '#urgent',
+          actionLabel: 'Open Immediate Emergency'
+        };
+      }
+
+      function applyCruiseContext() {
+        if (!contextCard || !contextTitle || !contextBody || !contextAction || !contextActionText) return;
+        const context = getCruiseContext();
+        contextCard.classList.remove('contact-context--sea', 'contact-context--port');
+        contextCard.classList.add(context.mode === 'port' ? 'contact-context--port' : 'contact-context--sea');
+        contextTitle.textContent = context.title;
+        contextBody.textContent = context.body;
+        contextAction.setAttribute('href', context.target);
+        contextActionText.textContent = context.actionLabel;
+
+        document.querySelectorAll('.contact-section').forEach((section) => {
+          section.classList.toggle('contact-section--priority', `#${section.id}` === context.target);
+        });
       }
 
       function flashCopySuccess(button) {
@@ -610,6 +746,8 @@
           history.replaceState(null, '', targetId);
         });
       });
+
+      applyCruiseContext();
     });
   </script>
 </body>
