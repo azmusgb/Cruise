@@ -1,583 +1,1187 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light" data-theme-mode="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0079d4">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="manifest" href="manifest.json?v=2">
-  <meta name="description" content="Your personal cruise planning hub for Adventure of the Seas sailing Feb 14–20, 2026. Manage itinerary, checklists, dining, and more.">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
-  <title>Royal Caribbean Voyage Hub | Adventure of the Seas</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=3">
-  <link rel="stylesheet" href="css/utilities.css?v=3">
-  <link rel="stylesheet" href="css/components.css?v=3">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0079d4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="manifest" href="manifest.json?v=2" />
+    <meta
+      name="description"
+      content="Your personal cruise planning hub for Adventure of the Seas sailing Feb 14–20, 2026. Manage itinerary, checklists, dining, and more."
+    />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="icons/icon-192.png"
+    />
+    <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg" />
+    <title>Royal Caribbean Voyage Hub | Adventure of the Seas</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/base.css?v=3" />
+    <link rel="stylesheet" href="css/utilities.css?v=3" />
+    <link rel="stylesheet" href="css/components.css?v=3" />
 
-  <style>
-    .dashboard-page .search-status {
-      width: 100%;
-      margin: 4px 0 0;
-      font-size: 0.9rem;
-      color: var(--royal-navy);
-      font-weight: 600;
-    }
+    <style>
+      .dashboard-page .search-status {
+        width: 100%;
+        margin: 4px 0 0;
+        font-size: 0.9rem;
+        color: var(--royal-navy);
+        font-weight: 600;
+      }
 
-    .dashboard-page .secondary-groups {
-      margin-bottom: 28px;
-    }
+      .dashboard-page .secondary-groups {
+        margin-bottom: 28px;
+      }
 
-    .dashboard-page .secondary-groups__inner {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
-    }
+      .dashboard-page .secondary-groups__inner {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+      }
 
-    .dashboard-page .secondary-group {
-      background: #fff;
-      border: 1px solid var(--royal-border);
-      border-radius: 14px;
-      padding: 14px 16px;
-      box-shadow: 0 8px 20px rgba(0, 59, 117, 0.08);
-    }
+      .dashboard-page .secondary-group {
+        background: #fff;
+        border: 1px solid var(--royal-border);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 0 8px 20px rgba(0, 59, 117, 0.08);
+      }
 
-    .dashboard-page .secondary-group h3 {
-      margin: 0 0 4px;
-      color: var(--royal-navy);
-      font-size: 1rem;
-    }
+      .dashboard-page .secondary-group h3 {
+        margin: 0 0 4px;
+        color: var(--royal-navy);
+        font-size: 1rem;
+      }
 
-    .dashboard-page .secondary-group__title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+      .dashboard-page .secondary-group__title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-    .dashboard-page .secondary-group__icon {
-      width: 28px;
-      height: 28px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #0b4f90, #19c2ff);
-      color: #fff;
-      font-size: 0.8rem;
-    }
+      .dashboard-page .secondary-group__icon {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0b4f90, #19c2ff);
+        color: #fff;
+        font-size: 0.8rem;
+      }
 
-    .dashboard-page .secondary-group p {
-      margin: 0 0 10px;
-      font-size: 0.9rem;
-      color: var(--royal-ink);
-      opacity: 0.85;
-    }
+      .dashboard-page .secondary-group p {
+        margin: 0 0 10px;
+        font-size: 0.9rem;
+        color: var(--royal-ink);
+        opacity: 0.85;
+      }
 
-    .dashboard-page .group-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      font-weight: 700;
-      color: var(--royal-blue);
-      font-size: 0.9rem;
-    }
-
-    .dashboard-page .deck-grid__header {
-      margin-bottom: 10px;
-    }
-
-    .dashboard-page .priority-note {
-      margin: 0 0 16px;
-      color: var(--royal-ink);
-      opacity: 0.82;
-      font-size: 0.95rem;
-    }
-
-    .dashboard-page .deck-card {
-      position: relative;
-    }
-
-    .dashboard-page .priority-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 2;
-      border-radius: 999px;
-      padding: 4px 9px;
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #fff;
-      background: #d73f4a;
-      box-shadow: 0 6px 16px rgba(215, 63, 74, 0.35);
-    }
-
-    .dashboard-page .priority-badge--normal {
-      background: #2f7d62;
-      box-shadow: 0 6px 16px rgba(47, 125, 98, 0.35);
-    }
-
-    .dashboard-page .search-empty {
-      margin-top: 12px;
-      background: #fff;
-      border: 1px dashed var(--royal-border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      font-size: 0.95rem;
-      color: var(--royal-ink);
-    }
-
-    .dashboard-page .tour-card {
-      margin: 16px auto 28px;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid var(--royal-border);
-      background: linear-gradient(135deg, #ffffff, #eef8ff);
-      box-shadow: var(--shadow-light);
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .dashboard-page .tour-card h3 {
-      margin: 0 0 6px;
-      color: var(--royal-navy);
-      font-size: 1rem;
-    }
-
-    .dashboard-page .tour-card p {
-      margin: 0;
-      font-size: 0.92rem;
-    }
-
-    .dashboard-page .tour-card__actions {
-      display: inline-flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .dashboard-page .tour-btn {
-      border: 1px solid var(--royal-border);
-      background: #fff;
-      color: var(--royal-navy);
-      font-size: 0.82rem;
-      font-weight: 700;
-      border-radius: 999px;
-      padding: 6px 10px;
-      cursor: pointer;
-    }
-
-    .dashboard-page .search-status.is-loading {
-      opacity: 0.7;
-    }
-
-    .term-help {
-      border-bottom: 1px dotted rgba(17, 56, 95, 0.35);
-      cursor: help;
-      text-decoration: none;
-    }
-
-    .mobile-collapse-toggle {
-      display: none;
-    }
-
-    @media (max-width: 768px) {
-      .mobile-collapse-toggle {
+      .dashboard-page .group-link {
         display: inline-flex;
         align-items: center;
         gap: 6px;
+        text-decoration: none;
+        font-weight: 700;
+        color: var(--royal-blue);
+        font-size: 0.9rem;
+      }
+
+      .dashboard-page .deck-grid__header {
+        margin-bottom: 10px;
+      }
+
+      .dashboard-page .priority-note {
+        margin: 0 0 16px;
+        color: var(--royal-ink);
+        opacity: 0.82;
+        font-size: 0.95rem;
+      }
+
+      .dashboard-page .deck-card {
+        position: relative;
+      }
+
+      .dashboard-page .priority-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #fff;
+        background: #d73f4a;
+        box-shadow: 0 6px 16px rgba(215, 63, 74, 0.35);
+      }
+
+      .dashboard-page .priority-badge--normal {
+        background: #2f7d62;
+        box-shadow: 0 6px 16px rgba(47, 125, 98, 0.35);
+      }
+
+      .dashboard-page .search-empty {
+        margin-top: 12px;
+        background: #fff;
+        border: 1px dashed var(--royal-border);
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 0.95rem;
+        color: var(--royal-ink);
+      }
+
+      .dashboard-page .tour-card {
+        margin: 16px auto 28px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid var(--royal-border);
+        background: linear-gradient(135deg, #ffffff, #eef8ff);
+        box-shadow: var(--shadow-light);
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .dashboard-page .tour-card h3 {
+        margin: 0 0 6px;
+        color: var(--royal-navy);
+        font-size: 1rem;
+      }
+
+      .dashboard-page .tour-card p {
+        margin: 0;
+        font-size: 0.92rem;
+      }
+
+      .dashboard-page .tour-card__actions {
+        display: inline-flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      .dashboard-page .tour-btn {
         border: 1px solid var(--royal-border);
         background: #fff;
         color: var(--royal-navy);
+        font-size: 0.82rem;
+        font-weight: 700;
         border-radius: 999px;
         padding: 6px 10px;
-        font-size: 0.8rem;
-        font-weight: 700;
+        cursor: pointer;
       }
 
-      .mobile-collapsible.is-collapsed .deck-cards,
-      .mobile-collapsible.is-collapsed .priority-note {
+      .dashboard-page .search-status.is-loading {
+        opacity: 0.7;
+      }
+
+      .term-help {
+        border-bottom: 1px dotted rgba(17, 56, 95, 0.35);
+        cursor: help;
+        text-decoration: none;
+      }
+
+      .mobile-collapse-toggle {
         display: none;
       }
-    }
 
-  </style>
-  <link rel="stylesheet" href="css/mobile-first.css?v=3">
+      @media (max-width: 768px) {
+        .mobile-collapse-toggle {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border: 1px solid var(--royal-border);
+          background: #fff;
+          color: var(--royal-navy);
+          border-radius: 999px;
+          padding: 6px 10px;
+          font-size: 0.8rem;
+          font-weight: 700;
+        }
 
-  <script src="js/shared-layout.js?v=9" defer></script>
-</head>
-<body class="decks-shell page-shell dashboard-page">
-  <a href="#main" class="skip-link">Skip to main content</a>
-  <div id="sharedHeader" data-page="index"></div>
-
-  <main id="main" aria-label="Dashboard">
-    <section class="deck-hero">
-      <div class="container">
-        <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
-        <h1 class="deck-hero__title">Your Cruise HQ</h1>
-        <p class="deck-hero__subtitle">Your command center for pre-cruise prep, onboard plans, and fast decisions.</p>
-        <div class="page-spine" aria-label="Dashboard decision guide">
-          <div class="page-spine__item">
-            <span class="page-spine__label">Plan & prepare</span>
-            <span class="page-spine__meta">Checklist, packing, docs</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Onboard essentials</span>
-            <span class="page-spine__meta">Itinerary, dining, daily plans</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Staterooms & decks</span>
-            <span class="page-spine__meta">Cabins, deck plans, locations</span>
-          </div>
-        </div>
-        <div class="deck-hero__actions">
-          <a class="btn btn--primary" href="operations.html">Complete checklist</a>
-          <a class="btn btn--secondary" href="itinerary.html">View itinerary</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="main-navigation" aria-label="Quick navigation">
-      <div class="container main-navigation__inner">
-        <div class="main-navigation__search" role="search">
-          <i class="fas fa-search" aria-hidden="true"></i>
-          <input id="dashboardSearchInput" type="search" placeholder="Search tasks, ports, dining, or staterooms" aria-label="Search your cruise dashboard" />
-          <span class="main-navigation__hint">Press / to focus</span>
-        </div>
-        <div class="main-navigation__filters" aria-label="Key shortcuts">
-          <a class="pill-btn" href="operations.html">Checklist</a>
-          <a class="pill-btn" href="itinerary.html">Itinerary</a>
-          <a class="pill-btn" href="dining.html">Dining</a>
-          <a class="pill-btn" href="rooms.html">Staterooms</a>
-        </div>
-        <p id="dashboardSearchStatus" class="search-status" role="status" aria-live="polite">Showing 4 of 4 priorities</p>
-      </div>
-    </section>
-
-    <section class="container" id="dashboardTour" aria-label="Quick start guide">
-      <div class="tour-card">
-        <div>
-          <h3>First time here? Start with this flow.</h3>
-          <p>1) Complete checklist, 2) verify itinerary call times, 3) confirm rooms and muster locations.</p>
-          <div class="tour-card__actions">
-            <a class="tour-btn" href="operations.html">Open checklist</a>
-            <a class="tour-btn" href="itinerary.html">Open itinerary</a>
-          </div>
-        </div>
-        <button type="button" class="tour-btn" id="dismissDashboardTour">Dismiss</button>
-      </div>
-    </section>
-
-    <section class="secondary-groups container" aria-label="Browse by category">
-      <div class="secondary-groups__inner">
-        <article class="secondary-group">
-          <h3 class="secondary-group__title"><span class="secondary-group__icon"><i class="fas fa-clipboard-check" aria-hidden="true"></i></span>Plan and prepare</h3>
-          <p>Checklist and travel-readiness tasks before embarkation.</p>
-          <a class="group-link" href="operations.html">Open checklist <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
-        </article>
-        <article class="secondary-group">
-          <h3 class="secondary-group__title"><span class="secondary-group__icon"><i class="fas fa-compass" aria-hidden="true"></i></span>Onboard essentials</h3>
-          <p>Daily schedule, dining times, and key onboard planning.</p>
-          <a class="group-link" href="itinerary.html">Open itinerary <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
-        </article>
-        <article class="secondary-group">
-          <h3 class="secondary-group__title"><span class="secondary-group__icon"><i class="fas fa-bed" aria-hidden="true"></i></span>Staterooms and decks</h3>
-          <p>Room assignments, deck plans, and location lookups.</p>
-          <a class="group-link" href="rooms.html">Open staterooms <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
-        </article>
-      </div>
-    </section>
-
-    <section class="deck-grid container" aria-label="RCCL baseline details">
-      <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">RCCL Baseline (Confirmed)</h2>
-          <p class="deck-grid__subtitle">Known details for the Feb 14, 2026 Adventure sailing from Port Canaveral.</p>
-        </div>
-      </div>
-      <div class="deck-cards" role="list">
-        <article class="deck-card" role="listitem">
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Confirmed baseline</h3>
-            </div>
-            <div class="deck-highlights">
-              <span>Ship: Adventure of the Seas</span>
-              <span>Sailing window: Feb 14–20, 2026</span>
-              <span>Port: Orlando (Port Canaveral)</span>
-              <span>Typical departure: 4:00 PM</span>
-              <span>Typical return: 7:00 AM</span>
-            </div>
-          </div>
-        </article>
-        <article class="deck-card" role="listitem">
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Still verify in booking docs</h3>
-            </div>
-            <div class="deck-highlights">
-              <span>Exact terminal assignment (T1/T5/T6 can vary)</span>
-              <span>Final call times and itinerary order</span>
-              <span>Any last-minute operational updates</span>
-            </div>
-            <a class="deck-card__cta" href="operations.html#arrival">Open arrival checklist</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section class="deck-grid container" aria-label="Dashboard tiles">
-      <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">Today's Priorities</h2>
-          <p class="deck-grid__subtitle">Stay on top of what matters before embarkation.</p>
-        </div>
-        <div class="deck-grid__counts">
-          <div class="count-chip"><span>3</span> urgent</div>
-          <div class="count-chip"><span>4</span> total</div>
-        </div>
-      </div>
-      <p class="priority-note">Urgent items are marked directly on each card for faster scanning.</p>
-      <div class="deck-cards" role="list">
-        <article class="deck-card" role="listitem" data-search="itinerary ports activities call times falmouth all aboard formal night">
-          <span class="priority-badge">Urgent</span>
-          <div class="deck-visual">
-            <span class="deck-number">A</span>
-            <img src="images/ports/grand-cayman-card.jpg" alt="Grand Cayman port call preview" onerror="this.onerror=null;this.src='deck-plans/deck-12.png';" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Itinerary</h3>
-              <div class="deck-meta">
-                <span class="deck-meta__item">Ports & activities</span>
-                <span class="deck-meta__item">Call times</span>
-              </div>
-            </div>
-            <div class="deck-highlights">
-              <span>Falmouth • Day 4</span>
-              <span>Day 1 all aboard 2:00 PM</span>
-              <span>Formal night: Day 2</span>
-            </div>
-            <a class="deck-card__cta" href="itinerary.html">View itinerary</a>
-          </div>
-        </article>
-
-        <article class="deck-card" role="listitem" data-search="checklist check in ids luggage tags urgent setsail photo id travel documents">
-          <span class="priority-badge">Urgent</span>
-          <div class="deck-visual">
-            <span class="deck-number">B</span>
-            <img src="images/heroes/hero-port-canaveral.jpg" alt="Port Canaveral embarkation checklist preview" onerror="this.onerror=null;this.src='deck-plans/deck-12.png';" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Checklist</h3>
-              <div class="deck-meta">
-                <span class="deck-meta__item">Check-in</span>
-                <span class="deck-meta__item">IDs</span>
-                <span class="deck-meta__item">Luggage tags</span>
-              </div>
-            </div>
-            <div class="deck-highlights">
-              <span>3 urgent</span>
-              <span><abbr class="term-help" title="Royal Caribbean digital boarding pass and check-in flow">SetSail</abbr> passes</span>
-              <span>Photo IDs</span>
-            </div>
-            <a class="deck-card__cta" href="operations.html">Finish checklist</a>
-          </div>
-        </article>
-
-        <article class="deck-card" role="listitem" data-search="dining reservations traditional 6:00 pm specialty my time allergy notes">
-          <span class="priority-badge">Urgent</span>
-          <div class="deck-visual">
-            <span class="deck-number">C</span>
-            <img src="images/venues/main-dining-card.jpg" alt="Main dining room reservation preview" onerror="this.onerror=null;this.src='deck-plans/deck-14.png';" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Dining</h3>
-              <div class="deck-meta">
-                <span class="deck-meta__item">Traditional dining</span>
-                <span class="deck-meta__item">6:00 PM</span>
-              </div>
-            </div>
-            <div class="deck-highlights">
-              <span>Reserve specialties</span>
-              <span>My Time waitlist</span>
-              <span>Allergy notes</span>
-            </div>
-            <a class="deck-card__cta" href="dining.html">Manage dining</a>
-          </div>
-        </article>
-
-        <article class="deck-card" role="listitem" data-search="stateroom assignments key details rooms diamond deck plan">
-          <span class="priority-badge priority-badge--normal">On track</span>
-          <div class="deck-visual">
-            <span class="deck-number">D</span>
-            <img src="images/rooms/promenade-view-card.jpg" alt="Promenade-view stateroom planning preview" onerror="this.onerror=null;this.src='deck-plans/deck-12.png';" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Staterooms</h3>
-              <div class="deck-meta">
-                <span class="deck-meta__item">Assignments</span>
-                <span class="deck-meta__item">Key details</span>
-              </div>
-            </div>
-            <div class="deck-highlights">
-              <span>5 rooms confirmed</span>
-              <span>Diamond benefits</span>
-              <span>Show on deck plan</span>
-            </div>
-            <a class="deck-card__cta" href="rooms.html">View staterooms</a>
-          </div>
-        </article>
-      </div>
-      <p id="dashboardSearchEmpty" class="search-empty" hidden>No priorities match your search yet.</p>
-    </section>
-
-    <section class="deck-grid container mobile-collapsible" aria-label="Upcoming deadlines">
-      <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">Upcoming Deadlines</h2>
-          <p class="deck-grid__subtitle">Owner-tagged actions that should be closed before embarkation.</p>
-        </div>
-      </div>
-      <div class="deck-cards" role="list">
-        <article class="deck-card" role="listitem">
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>SetSail Check-In</h3>
-              <p class="deck-subtitle">Due Dec 31, 2025 · Owner: Trip lead</p>
-            </div>
-            <div class="deck-highlights">
-              <span>All travelers</span>
-              <span>Passes downloaded</span>
-            </div>
-            <a class="deck-card__cta" href="operations.html#tasks">Open checklist task</a>
-          </div>
-        </article>
-        <article class="deck-card" role="listitem">
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Specialty Dining Lock-In</h3>
-              <p class="deck-subtitle">Due sailing week · Owner: Dining planner</p>
-            </div>
-            <div class="deck-highlights">
-              <span>Chops waitlist</span>
-              <span>Allergy notes confirmed</span>
-            </div>
-            <a class="deck-card__cta" href="dining.html#reservations">Review reservations</a>
-          </div>
-        </article>
-        <article class="deck-card" role="listitem">
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Changed Since Last Review</h3>
-              <p class="deck-subtitle">Last 24 hours summary</p>
-            </div>
-            <div class="deck-highlights">
-              <span>Day 4 excursion meet-up updated</span>
-              <span>Chops waitlist moved to 7:15 PM</span>
-            </div>
-            <a class="deck-card__cta" href="itinerary.html">See latest updates</a>
-          </div>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <div id="sharedFooter"></div>
-  <div id="sharedBottomNav" data-page="index"></div>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const searchInput = document.getElementById('dashboardSearchInput');
-      const searchStatus = document.getElementById('dashboardSearchStatus');
-      const emptyState = document.getElementById('dashboardSearchEmpty');
-      const tour = document.getElementById('dashboardTour');
-      const dismissTour = document.getElementById('dismissDashboardTour');
-      const collapsibleSections = Array.from(document.querySelectorAll('.mobile-collapsible'));
-      const cards = Array.from(document.querySelectorAll('.deck-cards .deck-card'));
-      const total = cards.length;
-
-      if (!searchInput || !searchStatus || !emptyState || total === 0) {
-        return;
+        .mobile-collapsible.is-collapsed .deck-cards,
+        .mobile-collapsible.is-collapsed .priority-note {
+          display: none;
+        }
       }
 
-      const SEARCH_DELAY_MS = 130;
-      let searchTimer;
+      .dashboard-page .image-library {
+        margin-top: 24px;
+      }
 
-      function updateDashboardSearch() {
-        const term = searchInput.value.toLowerCase().trim();
-        let visible = 0;
+      .dashboard-page .image-library__intro {
+        margin: 0 0 18px;
+        color: var(--royal-ink);
+        opacity: 0.85;
+      }
 
-        searchStatus.classList.add('is-loading');
-        searchStatus.textContent = 'Filtering priorities...';
+      .dashboard-page .image-library__group {
+        margin-bottom: 22px;
+      }
 
-        clearTimeout(searchTimer);
-        searchTimer = window.setTimeout(function () {
-        cards.forEach((card) => {
-          const cardText = `${card.dataset.search || ''} ${card.textContent || ''}`.toLowerCase();
-          const match = !term || cardText.includes(term);
-          card.hidden = !match;
-          card.style.display = match ? 'flex' : 'none';
-          if (match) visible += 1;
+      .dashboard-page .image-library__group h3 {
+        margin: 0 0 10px;
+        color: var(--royal-navy);
+        font-size: 1.05rem;
+      }
+
+      .dashboard-page .image-library__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+      }
+
+      .dashboard-page .image-library__item {
+        margin: 0;
+        background: #fff;
+        border: 1px solid var(--royal-border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-light);
+      }
+
+      .dashboard-page .image-library__item img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+      }
+
+      .dashboard-page .image-library__item figcaption {
+        padding: 8px 10px;
+        font-size: 0.76rem;
+        color: var(--royal-ink);
+        word-break: break-word;
+        border-top: 1px solid var(--royal-border-light);
+      }
+    </style>
+    <link rel="stylesheet" href="css/mobile-first.css?v=3" />
+
+    <script src="js/shared-layout.js?v=9" defer></script>
+  </head>
+  <body class="decks-shell page-shell dashboard-page">
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <div id="sharedHeader" data-page="index"></div>
+
+    <main id="main" aria-label="Dashboard">
+      <section class="deck-hero">
+        <div class="container">
+          <div class="deck-hero__eyebrow">
+            Adventure of the Seas · Feb 14–20, 2026
+          </div>
+          <h1 class="deck-hero__title">Your Cruise HQ</h1>
+          <p class="deck-hero__subtitle">
+            Your command center for pre-cruise prep, onboard plans, and fast
+            decisions.
+          </p>
+          <div class="page-spine" aria-label="Dashboard decision guide">
+            <div class="page-spine__item">
+              <span class="page-spine__label">Plan & prepare</span>
+              <span class="page-spine__meta">Checklist, packing, docs</span>
+            </div>
+            <div class="page-spine__item">
+              <span class="page-spine__label">Onboard essentials</span>
+              <span class="page-spine__meta"
+                >Itinerary, dining, daily plans</span
+              >
+            </div>
+            <div class="page-spine__item">
+              <span class="page-spine__label">Staterooms & decks</span>
+              <span class="page-spine__meta"
+                >Cabins, deck plans, locations</span
+              >
+            </div>
+          </div>
+          <div class="deck-hero__actions">
+            <a class="btn btn--primary" href="operations.html"
+              >Complete checklist</a
+            >
+            <a class="btn btn--secondary" href="itinerary.html"
+              >View itinerary</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="main-navigation" aria-label="Quick navigation">
+        <div class="container main-navigation__inner">
+          <div class="main-navigation__search" role="search">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input
+              id="dashboardSearchInput"
+              type="search"
+              placeholder="Search tasks, ports, dining, or staterooms"
+              aria-label="Search your cruise dashboard"
+            />
+            <span class="main-navigation__hint">Press / to focus</span>
+          </div>
+          <div class="main-navigation__filters" aria-label="Key shortcuts">
+            <a class="pill-btn" href="operations.html">Checklist</a>
+            <a class="pill-btn" href="itinerary.html">Itinerary</a>
+            <a class="pill-btn" href="dining.html">Dining</a>
+            <a class="pill-btn" href="rooms.html">Staterooms</a>
+          </div>
+          <p
+            id="dashboardSearchStatus"
+            class="search-status"
+            role="status"
+            aria-live="polite"
+          >
+            Showing 4 of 4 priorities
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="container"
+        id="dashboardTour"
+        aria-label="Quick start guide"
+      >
+        <div class="tour-card">
+          <div>
+            <h3>First time here? Start with this flow.</h3>
+            <p>
+              1) Complete checklist, 2) verify itinerary call times, 3) confirm
+              rooms and muster locations.
+            </p>
+            <div class="tour-card__actions">
+              <a class="tour-btn" href="operations.html">Open checklist</a>
+              <a class="tour-btn" href="itinerary.html">Open itinerary</a>
+            </div>
+          </div>
+          <button type="button" class="tour-btn" id="dismissDashboardTour">
+            Dismiss
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="secondary-groups container"
+        aria-label="Browse by category"
+      >
+        <div class="secondary-groups__inner">
+          <article class="secondary-group">
+            <h3 class="secondary-group__title">
+              <span class="secondary-group__icon"
+                ><i class="fas fa-clipboard-check" aria-hidden="true"></i></span
+              >Plan and prepare
+            </h3>
+            <p>Checklist and travel-readiness tasks before embarkation.</p>
+            <a class="group-link" href="operations.html"
+              >Open checklist
+              <i class="fas fa-arrow-right" aria-hidden="true"></i
+            ></a>
+          </article>
+          <article class="secondary-group">
+            <h3 class="secondary-group__title">
+              <span class="secondary-group__icon"
+                ><i class="fas fa-compass" aria-hidden="true"></i></span
+              >Onboard essentials
+            </h3>
+            <p>Daily schedule, dining times, and key onboard planning.</p>
+            <a class="group-link" href="itinerary.html"
+              >Open itinerary
+              <i class="fas fa-arrow-right" aria-hidden="true"></i
+            ></a>
+          </article>
+          <article class="secondary-group">
+            <h3 class="secondary-group__title">
+              <span class="secondary-group__icon"
+                ><i class="fas fa-bed" aria-hidden="true"></i></span
+              >Staterooms and decks
+            </h3>
+            <p>Room assignments, deck plans, and location lookups.</p>
+            <a class="group-link" href="rooms.html"
+              >Open staterooms
+              <i class="fas fa-arrow-right" aria-hidden="true"></i
+            ></a>
+          </article>
+        </div>
+      </section>
+
+      <section class="deck-grid container" aria-label="RCCL baseline details">
+        <div class="deck-grid__header">
+          <div>
+            <h2 class="deck-grid__title">RCCL Baseline (Confirmed)</h2>
+            <p class="deck-grid__subtitle">
+              Known details for the Feb 14, 2026 Adventure sailing from Port
+              Canaveral.
+            </p>
+          </div>
+        </div>
+        <div class="deck-cards" role="list">
+          <article class="deck-card" role="listitem">
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Confirmed baseline</h3>
+              </div>
+              <div class="deck-highlights">
+                <span>Ship: Adventure of the Seas</span>
+                <span>Sailing window: Feb 14–20, 2026</span>
+                <span>Port: Orlando (Port Canaveral)</span>
+                <span>Typical departure: 4:00 PM</span>
+                <span>Typical return: 7:00 AM</span>
+              </div>
+            </div>
+          </article>
+          <article class="deck-card" role="listitem">
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Still verify in booking docs</h3>
+              </div>
+              <div class="deck-highlights">
+                <span>Exact terminal assignment (T1/T5/T6 can vary)</span>
+                <span>Final call times and itinerary order</span>
+                <span>Any last-minute operational updates</span>
+              </div>
+              <a class="deck-card__cta" href="operations.html#arrival"
+                >Open arrival checklist</a
+              >
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="deck-grid container" aria-label="Dashboard tiles">
+        <div class="deck-grid__header">
+          <div>
+            <h2 class="deck-grid__title">Today's Priorities</h2>
+            <p class="deck-grid__subtitle">
+              Stay on top of what matters before embarkation.
+            </p>
+          </div>
+          <div class="deck-grid__counts">
+            <div class="count-chip"><span>3</span> urgent</div>
+            <div class="count-chip"><span>4</span> total</div>
+          </div>
+        </div>
+        <p class="priority-note">
+          Urgent items are marked directly on each card for faster scanning.
+        </p>
+        <div class="deck-cards" role="list">
+          <article
+            class="deck-card"
+            role="listitem"
+            data-search="itinerary ports activities call times falmouth all aboard formal night"
+          >
+            <span class="priority-badge">Urgent</span>
+            <div class="deck-visual">
+              <span class="deck-number">A</span>
+              <img
+                src="images/ports/grand-cayman-card.jpg"
+                alt="Grand Cayman port call preview"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'deck-plans/deck-12.png';
+                "
+              />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Itinerary</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Ports & activities</span>
+                  <span class="deck-meta__item">Call times</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>Falmouth • Day 4</span>
+                <span>Day 1 all aboard 2:00 PM</span>
+                <span>Formal night: Day 2</span>
+              </div>
+              <a class="deck-card__cta" href="itinerary.html">View itinerary</a>
+            </div>
+          </article>
+
+          <article
+            class="deck-card"
+            role="listitem"
+            data-search="checklist check in ids luggage tags urgent setsail photo id travel documents"
+          >
+            <span class="priority-badge">Urgent</span>
+            <div class="deck-visual">
+              <span class="deck-number">B</span>
+              <img
+                src="images/heroes/hero-port-canaveral.jpg"
+                alt="Port Canaveral embarkation checklist preview"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'deck-plans/deck-12.png';
+                "
+              />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Checklist</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Check-in</span>
+                  <span class="deck-meta__item">IDs</span>
+                  <span class="deck-meta__item">Luggage tags</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>3 urgent</span>
+                <span
+                  ><abbr
+                    class="term-help"
+                    title="Royal Caribbean digital boarding pass and check-in flow"
+                    >SetSail</abbr
+                  >
+                  passes</span
+                >
+                <span>Photo IDs</span>
+              </div>
+              <a class="deck-card__cta" href="operations.html"
+                >Finish checklist</a
+              >
+            </div>
+          </article>
+
+          <article
+            class="deck-card"
+            role="listitem"
+            data-search="dining reservations traditional 6:00 pm specialty my time allergy notes"
+          >
+            <span class="priority-badge">Urgent</span>
+            <div class="deck-visual">
+              <span class="deck-number">C</span>
+              <img
+                src="images/venues/main-dining-card.jpg"
+                alt="Main dining room reservation preview"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'deck-plans/deck-14.png';
+                "
+              />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Dining</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Traditional dining</span>
+                  <span class="deck-meta__item">6:00 PM</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>Reserve specialties</span>
+                <span>My Time waitlist</span>
+                <span>Allergy notes</span>
+              </div>
+              <a class="deck-card__cta" href="dining.html">Manage dining</a>
+            </div>
+          </article>
+
+          <article
+            class="deck-card"
+            role="listitem"
+            data-search="stateroom assignments key details rooms diamond deck plan"
+          >
+            <span class="priority-badge priority-badge--normal">On track</span>
+            <div class="deck-visual">
+              <span class="deck-number">D</span>
+              <img
+                src="images/rooms/promenade-view-card.jpg"
+                alt="Promenade-view stateroom planning preview"
+                onerror="
+                  this.onerror = null;
+                  this.src = 'deck-plans/deck-12.png';
+                "
+              />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Staterooms</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Assignments</span>
+                  <span class="deck-meta__item">Key details</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>5 rooms confirmed</span>
+                <span>Diamond benefits</span>
+                <span>Show on deck plan</span>
+              </div>
+              <a class="deck-card__cta" href="rooms.html">View staterooms</a>
+            </div>
+          </article>
+        </div>
+        <p id="dashboardSearchEmpty" class="search-empty" hidden>
+          No priorities match your search yet.
+        </p>
+      </section>
+
+      <section
+        class="deck-grid container mobile-collapsible"
+        aria-label="Upcoming deadlines"
+      >
+        <div class="deck-grid__header">
+          <div>
+            <h2 class="deck-grid__title">Upcoming Deadlines</h2>
+            <p class="deck-grid__subtitle">
+              Owner-tagged actions that should be closed before embarkation.
+            </p>
+          </div>
+        </div>
+        <div class="deck-cards" role="list">
+          <article class="deck-card" role="listitem">
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>SetSail Check-In</h3>
+                <p class="deck-subtitle">Due Dec 31, 2025 · Owner: Trip lead</p>
+              </div>
+              <div class="deck-highlights">
+                <span>All travelers</span>
+                <span>Passes downloaded</span>
+              </div>
+              <a class="deck-card__cta" href="operations.html#tasks"
+                >Open checklist task</a
+              >
+            </div>
+          </article>
+          <article class="deck-card" role="listitem">
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Specialty Dining Lock-In</h3>
+                <p class="deck-subtitle">
+                  Due sailing week · Owner: Dining planner
+                </p>
+              </div>
+              <div class="deck-highlights">
+                <span>Chops waitlist</span>
+                <span>Allergy notes confirmed</span>
+              </div>
+              <a class="deck-card__cta" href="dining.html#reservations"
+                >Review reservations</a
+              >
+            </div>
+          </article>
+          <article class="deck-card" role="listitem">
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Changed Since Last Review</h3>
+                <p class="deck-subtitle">Last 24 hours summary</p>
+              </div>
+              <div class="deck-highlights">
+                <span>Day 4 excursion meet-up updated</span>
+                <span>Chops waitlist moved to 7:15 PM</span>
+              </div>
+              <a class="deck-card__cta" href="itinerary.html"
+                >See latest updates</a
+              >
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="deck-grid container image-library"
+        aria-label="Cruise image library"
+      >
+        <div class="deck-grid__header">
+          <div>
+            <h2 class="deck-grid__title">Cruise Image Library</h2>
+            <p class="deck-grid__subtitle">
+              All packaged images are wired directly from
+              <code>/images</code> using the organized folder structure.
+            </p>
+          </div>
+        </div>
+        <p class="image-library__intro">
+          This gallery uses every image asset currently available in the
+          repository so previews stay in sync with the recommended folder paths.
+        </p>
+
+        <div class="image-library__group">
+          <h3>Hero visuals</h3>
+          <div class="image-library__grid">
+            <figure class="image-library__item">
+              <img
+                src="images/heroes/hero-adventure-exterior.jpg"
+                alt="Adventure of the Seas exterior hero"
+                loading="lazy"
+              />
+              <figcaption>hero-adventure-exterior.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/heroes/hero-cococay.jpg"
+                alt="Perfect Day at CocoCay hero"
+                loading="lazy"
+              />
+              <figcaption>hero-cococay.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/heroes/hero-port-canaveral.jpg"
+                alt="Port Canaveral embarkation hero"
+                loading="lazy"
+              />
+              <figcaption>hero-port-canaveral.jpg</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="image-library__group">
+          <h3>Port visuals</h3>
+          <div class="image-library__grid">
+            <figure class="image-library__item">
+              <img
+                src="images/ports/cococay-card.jpg"
+                alt="CocoCay card visual"
+                loading="lazy"
+              />
+              <figcaption>cococay-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/cococay-thumb.jpg"
+                alt="CocoCay thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>cococay-thumb.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/falmouth-card.jpg"
+                alt="Falmouth card visual"
+                loading="lazy"
+              />
+              <figcaption>falmouth-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/falmouth-thumb.jpg"
+                alt="Falmouth thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>falmouth-thumb.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/grand-cayman-card.jpg"
+                alt="Grand Cayman card visual"
+                loading="lazy"
+              />
+              <figcaption>grand-cayman-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/grand-cayman-thumb.jpg"
+                alt="Grand Cayman thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>grand-cayman-thumb.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/rccl-perfect-day-cococay-aerial-balloon.webp"
+                alt="CocoCay aerial balloon view"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-perfect-day-cococay-aerial-balloon.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/rccl-perfect-day-cococay-thrill-tower.webp"
+                alt="CocoCay thrill tower"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-perfect-day-cococay-thrill-tower.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ports/rccl-perfect-day-cococay-thrill-waterpark-aerial.webp"
+                alt="CocoCay waterpark aerial view"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-perfect-day-cococay-thrill-waterpark-aerial.webp
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="image-library__group">
+          <h3>Room visuals</h3>
+          <div class="image-library__grid">
+            <figure class="image-library__item">
+              <img
+                src="images/rooms/interior-card.jpg"
+                alt="Interior room card visual"
+                loading="lazy"
+              />
+              <figcaption>interior-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/rooms/interior-thumb.jpg"
+                alt="Interior room thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>interior-thumb.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/rooms/promenade-view-card.jpg"
+                alt="Promenade view room card visual"
+                loading="lazy"
+              />
+              <figcaption>promenade-view-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/rooms/promenade-view-thumb.jpg"
+                alt="Promenade view room thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>promenade-view-thumb.jpg</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="image-library__group">
+          <h3>Ship visuals</h3>
+          <div class="image-library__grid">
+            <figure class="image-library__item">
+              <img
+                src="images/ship/rccl-adventure-of-the-seas-exterior-at-sea.webp"
+                alt="Adventure of the Seas exterior at sea"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-exterior-at-sea.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ship/rccl-adventure-of-the-seas-family-deck-activities.jpeg"
+                alt="Family deck activities onboard"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-family-deck-activities.jpeg
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/ship/rccl-adventure-of-the-seas-pool-deck.webp"
+                alt="Adventure of the Seas pool deck"
+                loading="lazy"
+              />
+              <figcaption>rccl-adventure-of-the-seas-pool-deck.webp</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="image-library__group">
+          <h3>Venue visuals</h3>
+          <div class="image-library__grid">
+            <figure class="image-library__item">
+              <img
+                src="images/venues/cafe-promenade-card.jpg"
+                alt="Café Promenade card visual"
+                loading="lazy"
+              />
+              <figcaption>cafe-promenade-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/cafe-promenade-thumb.jpg"
+                alt="Café Promenade thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>cafe-promenade-thumb.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/main-dining-card.jpg"
+                alt="Main dining room card visual"
+                loading="lazy"
+              />
+              <figcaption>main-dining-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/main-dining-thumb.jpg"
+                alt="Main dining room thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>main-dining-thumb.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-ben-and-jerrys.webp"
+                alt="Ben and Jerry's venue"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-ben-and-jerrys.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-ice-skating-rink.jpeg"
+                alt="Ice skating rink venue"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-ice-skating-rink.jpeg
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-johnny-rockets.jpeg"
+                alt="Johnny Rockets venue"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-johnny-rockets.jpeg
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-main-dining-room.webp"
+                alt="Main dining room onboard photo"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-main-dining-room.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-main-theater-seating.webp"
+                alt="Main theater seating"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-main-theater-seating.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-main-theater-stage-2.webp"
+                alt="Main theater stage alternate view"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-main-theater-stage-2.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-main-theater-stage.webp"
+                alt="Main theater stage view"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-main-theater-stage.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-royal-promenade-arch.jpeg"
+                alt="Royal Promenade arch"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-royal-promenade-arch.jpeg
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-royal-promenade-classic-car.webp"
+                alt="Royal Promenade classic car"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-royal-promenade-classic-car.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-spa-treatment-2.webp"
+                alt="Spa treatment room alternate"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-spa-treatment-2.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-spa-treatment.webp"
+                alt="Spa treatment room"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-spa-treatment.webp
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-specialty-dining-entree.jpeg"
+                alt="Specialty dining entree"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-specialty-dining-entree.jpeg
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-windjammer-buffet-2.jpeg"
+                alt="Windjammer buffet alternate"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-windjammer-buffet-2.jpeg
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/rccl-adventure-of-the-seas-windjammer-buffet.jpeg"
+                alt="Windjammer buffet"
+                loading="lazy"
+              />
+              <figcaption>
+                rccl-adventure-of-the-seas-windjammer-buffet.jpeg
+              </figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/windjammer-card.jpg"
+                alt="Windjammer card visual"
+                loading="lazy"
+              />
+              <figcaption>windjammer-card.jpg</figcaption>
+            </figure>
+            <figure class="image-library__item">
+              <img
+                src="images/venues/windjammer-thumb.jpg"
+                alt="Windjammer thumbnail visual"
+                loading="lazy"
+              />
+              <figcaption>windjammer-thumb.jpg</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="sharedFooter"></div>
+    <div id="sharedBottomNav" data-page="index"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("dashboardSearchInput");
+        const searchStatus = document.getElementById("dashboardSearchStatus");
+        const emptyState = document.getElementById("dashboardSearchEmpty");
+        const tour = document.getElementById("dashboardTour");
+        const dismissTour = document.getElementById("dismissDashboardTour");
+        const collapsibleSections = Array.from(
+          document.querySelectorAll(".mobile-collapsible"),
+        );
+        const cards = Array.from(
+          document.querySelectorAll(".deck-cards .deck-card"),
+        );
+        const total = cards.length;
+
+        if (!searchInput || !searchStatus || !emptyState || total === 0) {
+          return;
+        }
+
+        const SEARCH_DELAY_MS = 130;
+        let searchTimer;
+
+        function updateDashboardSearch() {
+          const term = searchInput.value.toLowerCase().trim();
+          let visible = 0;
+
+          searchStatus.classList.add("is-loading");
+          searchStatus.textContent = "Filtering priorities...";
+
+          clearTimeout(searchTimer);
+          searchTimer = window.setTimeout(function () {
+            cards.forEach((card) => {
+              const cardText =
+                `${card.dataset.search || ""} ${card.textContent || ""}`.toLowerCase();
+              const match = !term || cardText.includes(term);
+              card.hidden = !match;
+              card.style.display = match ? "flex" : "none";
+              if (match) visible += 1;
+            });
+
+            searchStatus.textContent = `Showing ${visible} of ${total} priorities`;
+            searchStatus.classList.remove("is-loading");
+            emptyState.hidden = visible !== 0;
+          }, SEARCH_DELAY_MS);
+        }
+
+        searchInput.addEventListener("input", updateDashboardSearch);
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "/" && e.target !== searchInput) {
+            e.preventDefault();
+            searchInput.focus();
+          }
         });
 
-        searchStatus.textContent = `Showing ${visible} of ${total} priorities`;
-        searchStatus.classList.remove('is-loading');
-        emptyState.hidden = visible !== 0;
-        }, SEARCH_DELAY_MS);
-      }
-
-      searchInput.addEventListener('input', updateDashboardSearch);
-
-      document.addEventListener('keydown', function (e) {
-        if (e.key === '/' && e.target !== searchInput) {
-          e.preventDefault();
-          searchInput.focus();
-        }
-      });
-
-      if (tour && dismissTour) {
-        const dismissed = localStorage.getItem('dashboard-tour-dismissed') === '1';
-        if (dismissed) {
-          tour.hidden = true;
-        }
-        dismissTour.addEventListener('click', function () {
-          localStorage.setItem('dashboard-tour-dismissed', '1');
-          tour.hidden = true;
-        });
-      }
-
-      if (window.matchMedia('(max-width: 768px)').matches) {
-        collapsibleSections.forEach((section) => {
-          const header = section.querySelector('.deck-grid__header');
-          if (!header) return;
-          const toggle = document.createElement('button');
-          toggle.type = 'button';
-          toggle.className = 'mobile-collapse-toggle';
-          toggle.innerHTML = '<i class="fas fa-chevron-down" aria-hidden="true"></i> Collapse';
-          header.appendChild(toggle);
-
-          toggle.addEventListener('click', function () {
-            section.classList.toggle('is-collapsed');
-            const collapsed = section.classList.contains('is-collapsed');
-            toggle.innerHTML = collapsed
-              ? '<i class="fas fa-chevron-right" aria-hidden="true"></i> Expand'
-              : '<i class="fas fa-chevron-down" aria-hidden="true"></i> Collapse';
+        if (tour && dismissTour) {
+          const dismissed =
+            localStorage.getItem("dashboard-tour-dismissed") === "1";
+          if (dismissed) {
+            tour.hidden = true;
+          }
+          dismissTour.addEventListener("click", function () {
+            localStorage.setItem("dashboard-tour-dismissed", "1");
+            tour.hidden = true;
           });
-        });
-      }
+        }
 
-      updateDashboardSearch();
-    });
-  </script>
-</body>
+        if (window.matchMedia("(max-width: 768px)").matches) {
+          collapsibleSections.forEach((section) => {
+            const header = section.querySelector(".deck-grid__header");
+            if (!header) return;
+            const toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "mobile-collapse-toggle";
+            toggle.innerHTML =
+              '<i class="fas fa-chevron-down" aria-hidden="true"></i> Collapse';
+            header.appendChild(toggle);
+
+            toggle.addEventListener("click", function () {
+              section.classList.toggle("is-collapsed");
+              const collapsed = section.classList.contains("is-collapsed");
+              toggle.innerHTML = collapsed
+                ? '<i class="fas fa-chevron-right" aria-hidden="true"></i> Expand'
+                : '<i class="fas fa-chevron-down" aria-hidden="true"></i> Collapse';
+            });
+          });
+        }
+
+        updateDashboardSearch();
+      });
+    </script>
+  </body>
 </html>
