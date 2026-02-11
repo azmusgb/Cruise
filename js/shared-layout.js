@@ -1808,6 +1808,16 @@
         </a>
       `).join('');
 
+      const helpCta = currentPage === 'contacts'
+        ? `<span class="header-cta header-cta--help header-cta--static" aria-current="page">
+             <span>Need help?</span>
+             <i class="fas fa-circle-check" aria-hidden="true"></i>
+           </span>`
+        : `<a href="${sanitizeHref('contacts.html')}" class="header-cta header-cta--help">
+             <span>Need help?</span>
+             <i class="fas fa-chevron-down" aria-hidden="true"></i>
+           </a>`;
+
       const timelineItems = [
         { time: 'Day 1 · 2:00 PM', event: 'All aboard' },
         { time: 'Day 3 · 11:00 AM', event: 'Grand Cayman tender opens' },
@@ -1850,10 +1860,7 @@
             </nav>
 
             <div class="header-actions" id="headerHeaderActions">
-              <a href="${sanitizeHref('contacts.html')}" class="header-cta header-cta--help">
-                <span>Need help?</span>
-                <i class="fas fa-chevron-down" aria-hidden="true"></i>
-              </a>
+              ${helpCta}
               <a href="${sanitizeHref('index.html')}" class="header-action" aria-label="Search">
                 <i class="fas fa-search" aria-hidden="true"></i>
               </a>

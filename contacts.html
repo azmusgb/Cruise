@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
   <title>Contacts & Emergency | Adventure of the Seas</title>
-  <meta name="description" content="Emergency contacts, onboard support, and port-day communication details for your sailing.">
+  <meta name="description" content="Verified onboard support, emergency paths, and port-day recovery contacts for your sailing.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css?v=3">
@@ -19,124 +19,443 @@
   <link rel="stylesheet" href="css/components.css?v=3">
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
   <script src="js/shared-layout.js?v=16" defer></script>
+  <style>
+    .contacts-page .header-utility__promo {
+      display: none;
+    }
+
+    .hero--contacts {
+      background: var(--ocean-gradient);
+      padding: 36px 0 22px;
+      margin-bottom: 18px;
+      color: #fff;
+    }
+
+    .hero--contacts .hero__title {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: clamp(1.7rem, 4vw, 2.3rem);
+    }
+
+    .hero--contacts .hero__description {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.92);
+      max-width: 64ch;
+    }
+
+    .contacts-page .main-navigation {
+      margin-bottom: 14px;
+    }
+
+    .contacts-note {
+      margin: 10px 0 0;
+      font-size: 0.9rem;
+      color: #315a80;
+    }
+
+    .contact-sections {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .contact-section {
+      background: #fff;
+      border: 1px solid var(--royal-border);
+      border-radius: 16px;
+      padding: 14px;
+      scroll-margin-top: 104px;
+    }
+
+    .contact-section:focus {
+      outline: 2px solid rgba(0, 121, 212, 0.5);
+      outline-offset: 2px;
+    }
+
+    .contact-section__header {
+      margin-bottom: 8px;
+    }
+
+    .contact-section__title {
+      margin: 0 0 4px;
+      font-size: 1.1rem;
+      color: var(--royal-navy);
+    }
+
+    .contact-section__subtitle {
+      margin: 0;
+      color: #355b7d;
+      font-size: 0.92rem;
+    }
+
+    .contact-section--emergency {
+      border-left: 4px solid #d73f4a;
+      background: #fff8f8;
+    }
+
+    .contact-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .contact-row {
+      border: 1px solid rgba(0, 82, 165, 0.12);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fff;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    .contact-row--emergency {
+      border-left: 4px solid #d73f4a;
+      background: #fff5f5;
+    }
+
+    .contact-row__main {
+      min-width: 0;
+    }
+
+    .contact-row__name {
+      margin: 0 0 4px;
+      font-size: 0.98rem;
+      color: #0f3e68;
+    }
+
+    .contact-row__value {
+      margin: 0;
+      color: #294f70;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .contact-row__meta {
+      margin: 4px 0 0;
+      color: #4e6e89;
+      font-size: 0.84rem;
+    }
+
+    .contact-row__actions {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .contact-btn,
+    .copy-btn {
+      min-height: 38px;
+      border-radius: 999px;
+      border: 1px solid var(--royal-border);
+      background: #fff;
+      color: #0b4f90;
+      font-weight: 700;
+      font-size: 0.86rem;
+      padding: 8px 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .contact-btn--primary {
+      background: #005fb0;
+      color: #fff;
+      border-color: #005fb0;
+    }
+
+    .copy-btn:hover,
+    .contact-btn:hover {
+      background: #f0f7ff;
+    }
+
+    .contact-btn--primary:hover {
+      background: #004c8d;
+    }
+
+    .verification-note {
+      margin: 12px 0 0;
+      font-size: 0.84rem;
+      color: #5b7288;
+    }
+
+    .resources-list {
+      margin: 10px 0 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .resource-item {
+      padding: 10px 12px;
+      border: 1px dashed rgba(0, 82, 165, 0.26);
+      border-radius: 12px;
+      background: #fcfeff;
+    }
+
+    .resource-item p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #244a6b;
+    }
+
+    .resource-item strong {
+      color: #0c456f;
+    }
+
+    @media (max-width: 768px) {
+      .hero--contacts {
+        padding: 24px 0 14px;
+        margin-bottom: 12px;
+      }
+
+      .hero--contacts .hero__description {
+        font-size: 0.95rem;
+      }
+
+      .contact-row {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      .contact-row__actions {
+        justify-content: flex-start;
+        width: 100%;
+      }
+
+      .contact-btn,
+      .copy-btn {
+        min-height: 42px;
+        font-size: 0.92rem;
+      }
+
+      .contact-section {
+        padding: 12px;
+      }
+    }
+  </style>
 </head>
 <body class="app-theme-rcc decks-shell page-shell contacts-page">
   <a href="#main" class="skip-link">Skip to main content</a>
   <div id="sharedHeader" data-page="contacts"></div>
 
   <main id="main" aria-label="Contacts and emergency">
-    <section class="deck-hero">
+    <section class="hero hero--contacts">
       <div class="container">
-        <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
-        <h1 class="deck-hero__title">Emergency & Support Contacts</h1>
-        <p class="deck-hero__subtitle">Fast call paths for onboard incidents, medical needs, and port-day disruptions.</p>
-        <div class="deck-hero__highlights" aria-label="Contact priorities">
-          <span class="deck-hero__tag"><i class="fas fa-phone-volume" aria-hidden="true"></i> Emergency call order</span>
-          <span class="deck-hero__tag"><i class="fas fa-ship" aria-hidden="true"></i> Onboard escalation chain</span>
-          <span class="deck-hero__tag"><i class="fas fa-globe" aria-hidden="true"></i> Port-day return backup</span>
-        </div>
-
-        <div class="page-spine" aria-label="Contact readiness guide">
-          <div class="page-spine__item">
-            <span class="page-spine__label">Emergency first</span>
-            <span class="page-spine__meta">Security and medical response flow</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Onboard support</span>
-            <span class="page-spine__meta">Guest services and room support</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Port-day backup</span>
-            <span class="page-spine__meta">Local numbers and ship rejoin path</span>
-          </div>
-        </div>
-        <div class="deck-hero__actions">
-          <a class="btn btn--primary" href="#contacts-grid">Open contact matrix</a>
-          <a class="btn btn--secondary" href="offline.html">Open offline copy</a>
-        </div>
+        <h1 class="hero__title">Contacts & Emergency</h1>
+        <p class="hero__description">Verified call paths for onboard incidents and clear shore-side fallback when you are in port.</p>
       </div>
     </section>
 
     <section class="main-navigation" aria-label="Quick navigation">
       <div class="container main-navigation__inner">
         <div class="main-navigation__filters" aria-label="Contact sections">
-          <a class="pill-btn" href="#urgent">Emergency</a>
+          <a class="pill-btn" href="#urgent">Immediate Emergency</a>
           <a class="pill-btn" href="#onboard">Onboard Support</a>
           <a class="pill-btn" href="#ports">Port-Day Contacts</a>
+          <a class="pill-btn" href="#backup">Backup & Recovery</a>
         </div>
+        <p id="offlineStamp" class="contacts-note" role="status" aria-live="polite">Offline sync status unavailable.</p>
       </div>
     </section>
 
-    <section class="deck-grid container" aria-label="Fast contact actions">
-      <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">Call Actions</h2>
-          <p class="deck-grid__subtitle">Tap-to-call options with fallback paths if the first contact is unavailable.</p>
+    <section class="container contact-sections" aria-label="Contact categories" id="contacts-grid">
+      <article class="contact-section contact-section--emergency" id="urgent" tabindex="-1" aria-labelledby="urgent-title">
+        <div class="contact-section__header">
+          <h2 class="contact-section__title" id="urgent-title">Immediate Emergency</h2>
+          <p class="contact-section__subtitle">Start with ship emergency channels first. Use local emergency services in port only when ship channels are unavailable.</p>
         </div>
-      </div>
-      <div class="deck-cards" role="list">
-        <article class="deck-card" role="listitem">
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Urgent onboard support</h3>
-              <p class="deck-subtitle">24/7 while sailing</p>
+        <div class="contact-list" role="list">
+          <div class="contact-row contact-row--emergency" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Ship Security Desk</h3>
+              <p class="contact-row__value">+1-888-724-7447</p>
+              <p class="contact-row__meta">Verify this number in your booking documents before sailing.</p>
             </div>
-            <div class="deck-highlights">
-              <span>Step 1: Ship Security Desk</span>
-              <span>Step 2: Medical Center</span>
-              <span>Step 3: Guest Services escalation</span>
+            <div class="contact-row__actions">
+              <a class="contact-btn contact-btn--primary" href="tel:+18887247447"><i class="fas fa-phone" aria-hidden="true"></i>Call</a>
+              <button class="copy-btn" type="button" data-copy="Ship Security Desk +1-888-724-7447"><i class="fas fa-copy" aria-hidden="true"></i>Copy</button>
             </div>
-            <a class="deck-card__cta" href="tel:+18887247447">Call Ship Security</a>
           </div>
-        </article>
-        <article class="deck-card" role="listitem">
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Port-day emergency</h3>
-              <p class="deck-subtitle">Local numbers + return-to-ship fallback</p>
+          <div class="contact-row contact-row--emergency" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Medical Center</h3>
+              <p class="contact-row__value">Deck 2 Midship</p>
+              <p class="contact-row__meta">Use ship phone from your stateroom to request immediate medical assistance.</p>
             </div>
-            <div class="deck-highlights">
-              <span>Grand Cayman: 911</span>
-              <span>Jamaica: 119</span>
-              <span>If no answer: return to pier info desk</span>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="Medical Center, Deck 2 Midship"><i class="fas fa-copy" aria-hidden="true"></i>Copy location</button>
             </div>
-            <a class="deck-card__cta" href="tel:911">Call Local Emergency</a>
           </div>
-        </article>
-      </div>
+          <div class="contact-row" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Emergency phrase for escalations</h3>
+              <p class="contact-row__value">"Need immediate onboard assistance."</p>
+            </div>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="Need immediate onboard assistance"><i class="fas fa-copy" aria-hidden="true"></i>Copy phrase</button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="contact-section" id="onboard" tabindex="-1" aria-labelledby="onboard-title">
+        <div class="contact-section__header">
+          <h2 class="contact-section__title" id="onboard-title">Onboard Support</h2>
+          <p class="contact-section__subtitle">Operational support during sailing and while docked.</p>
+        </div>
+        <div class="contact-list" role="list">
+          <div class="contact-row" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Guest Services</h3>
+              <p class="contact-row__value">Deck 5 Promenade</p>
+            </div>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="Guest Services, Deck 5 Promenade"><i class="fas fa-copy" aria-hidden="true"></i>Copy</button>
+            </div>
+          </div>
+          <div class="contact-row" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Dining Reservations Desk</h3>
+              <p class="contact-row__value">Deck 5</p>
+            </div>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="Dining Reservations Desk, Deck 5"><i class="fas fa-copy" aria-hidden="true"></i>Copy</button>
+            </div>
+          </div>
+          <div class="contact-row" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Stateroom Support / Housekeeping</h3>
+              <p class="contact-row__value">Use stateroom guest phone (housekeeping extension)</p>
+            </div>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="Stateroom Support via guest phone"><i class="fas fa-copy" aria-hidden="true"></i>Copy</button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="contact-section" id="ports" tabindex="-1" aria-labelledby="ports-title">
+        <div class="contact-section__header">
+          <h2 class="contact-section__title" id="ports-title">Port-Day Contacts</h2>
+          <p class="contact-section__subtitle">These connect to local emergency services in port countries, not ship security.</p>
+        </div>
+        <div class="contact-list" role="list">
+          <div class="contact-row" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Grand Cayman local emergency</h3>
+              <p class="contact-row__value">911 (local services)</p>
+            </div>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="Grand Cayman emergency 911"><i class="fas fa-copy" aria-hidden="true"></i>Copy</button>
+            </div>
+          </div>
+          <div class="contact-row" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Jamaica local emergency</h3>
+              <p class="contact-row__value">119 (local services)</p>
+            </div>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="Jamaica emergency 119"><i class="fas fa-copy" aria-hidden="true"></i>Copy</button>
+            </div>
+          </div>
+          <div class="contact-row" role="listitem">
+            <div class="contact-row__main">
+              <h3 class="contact-row__name">Perfect Day at CocoCay</h3>
+              <p class="contact-row__value">Pier information desk / island staff radios</p>
+              <p class="contact-row__meta">Use nearest staff member for urgent island incidents.</p>
+            </div>
+            <div class="contact-row__actions">
+              <button class="copy-btn" type="button" data-copy="CocoCay pier information desk"><i class="fas fa-copy" aria-hidden="true"></i>Copy</button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="contact-section" id="backup" tabindex="-1" aria-labelledby="backup-title">
+        <div class="contact-section__header">
+          <h2 class="contact-section__title" id="backup-title">Backup & Recovery</h2>
+          <p class="contact-section__subtitle">Critical references if you miss a return window or need non-ship emergency escalation.</p>
+        </div>
+        <div class="resources-list">
+          <div class="resource-item">
+            <p><strong>Port agent contacts:</strong> Use the daily Cruise Compass / gangway handout for port-specific phone numbers. Copy them into this app before leaving ship.</p>
+          </div>
+          <div class="resource-item">
+            <p><strong>Travel insurance emergency line:</strong> Add your policy hotline from your insurance card/documents.</p>
+          </div>
+          <div class="resource-item">
+            <p><strong>U.S. Embassy references:</strong> Save destination-specific contacts from <a href="https://travel.state.gov" target="_blank" rel="noopener noreferrer">travel.state.gov</a> before departure.</p>
+          </div>
+          <div class="resource-item">
+            <p><strong>Royal Caribbean emergency assistance:</strong> Add the emergency number from your booking confirmation and invoice documents.</p>
+          </div>
+        </div>
+        <p class="verification-note">Only use tap-to-call for numbers you have verified for this specific sailing.</p>
+      </article>
     </section>
 
-    <section class="deck-directory container" aria-label="Contact categories" id="contacts-grid">
-      <article class="category-card" id="urgent">
-        <div class="category-card__heading">Emergency First</div>
-        <div class="deck-pills">
-          <div class="deck-pill"><span class="deck-pill__number">1</span><span class="deck-pill__text">Ship Security Desk: <a href="tel:+18887247447">+1-888-724-7447</a></span></div>
-          <div class="deck-pill"><span class="deck-pill__number">2</span><span class="deck-pill__text">Medical Center: Deck 2 Midship</span></div>
-          <div class="deck-pill"><span class="deck-pill__number">3</span><span class="deck-pill__text">Emergency phrase: "Need immediate onboard assistance"</span></div>
-        </div>
-      </article>
-
-      <article class="category-card" id="onboard">
-        <div class="category-card__heading">Onboard Support</div>
-        <div class="deck-pills">
-          <div class="deck-pill"><span class="deck-pill__number">4</span><span class="deck-pill__text">Guest Services: Deck 5 Promenade</span></div>
-          <div class="deck-pill"><span class="deck-pill__number">5</span><span class="deck-pill__text">Dining Reservations Desk: Deck 5</span></div>
-          <div class="deck-pill"><span class="deck-pill__number">6</span><span class="deck-pill__text">Stateroom Support: Housekeeping via guest phone</span></div>
-        </div>
-      </article>
-
-      <article class="category-card" id="ports">
-        <div class="category-card__heading">Port-Day Communication</div>
-        <div class="deck-pills">
-          <div class="deck-pill"><span class="deck-pill__number">7</span><span class="deck-pill__text">Grand Cayman local emergency: <a href="tel:911">911</a></span></div>
-          <div class="deck-pill"><span class="deck-pill__number">8</span><span class="deck-pill__text">Jamaica local emergency: <a href="tel:119">119</a></span></div>
-          <div class="deck-pill"><span class="deck-pill__number">9</span><span class="deck-pill__text">CocoCay: return to ship info desk at pier</span></div>
-        </div>
-      </article>
-    </section>
+    <p id="contactsStatus" class="sr-only" role="status" aria-live="polite"></p>
   </main>
 
   <div id="sharedFooter"></div>
   <div id="sharedBottomNav" data-page="contacts"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const statusEl = document.getElementById('contactsStatus');
+      const offlineStamp = document.getElementById('offlineStamp');
+
+      function setStatus(message) {
+        if (statusEl) {
+          statusEl.textContent = message;
+        }
+      }
+
+      document.querySelectorAll('.copy-btn').forEach((button) => {
+        button.addEventListener('click', async function () {
+          const value = this.getAttribute('data-copy') || '';
+          try {
+            await navigator.clipboard.writeText(value);
+            setStatus('Copied to clipboard.');
+          } catch (error) {
+            setStatus('Copy failed.');
+          }
+        });
+      });
+
+      document.querySelectorAll('.main-navigation__filters a[href^="#"]').forEach((link) => {
+        link.addEventListener('click', function (event) {
+          const targetId = this.getAttribute('href');
+          const target = targetId ? document.querySelector(targetId) : null;
+          if (!target) return;
+          event.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          target.focus({ preventScroll: true });
+          history.replaceState(null, '', targetId);
+        });
+      });
+
+      if (offlineStamp) {
+        const lastSync = localStorage.getItem('offline_last_sync_at');
+        if (!lastSync) {
+          offlineStamp.textContent = 'Offline cache status: load this page once while online before sailing.';
+        } else {
+          const date = new Date(lastSync);
+          if (Number.isNaN(date.getTime())) {
+            offlineStamp.textContent = 'Offline cache status: last sync timestamp unavailable.';
+          } else {
+            offlineStamp.textContent = `Offline cache last synced: ${date.toLocaleString()}`;
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
