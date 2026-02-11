@@ -1,6 +1,8 @@
-# Image Asset Placeholders
+# Image Asset Organization
 
-This directory now contains the requested placeholder image structure:
+The image library is organized by content type so pages can reference stable, descriptive paths.
+
+## Core placeholder sets
 
 - `heroes/`
   - `hero-adventure-exterior.jpg`
@@ -25,3 +27,13 @@ This directory now contains the requested placeholder image structure:
   - `grand-cayman-thumb.jpg`
   - `falmouth-card.jpg`
   - `falmouth-thumb.jpg`
+
+## Reorganized source imagery
+
+Additional Royal Caribbean photos were moved out of the `images/` root and grouped into:
+
+- `ship/` for ship-wide exterior/deck visuals
+- `venues/` for onboard venue and dining visuals
+- `ports/` for destination-specific visuals
+
+This keeps the root directory clean and makes HTML wiring easier to maintain.
