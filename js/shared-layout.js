@@ -1942,6 +1942,7 @@
                 <a href="${sanitizeHref('itinerary.html')}" class="footer-nav__link">Itinerary</a>
                 <a href="${sanitizeHref('rooms.html')}" class="footer-nav__link">Rooms</a>
                 <a href="${sanitizeHref('dining.html')}" class="footer-nav__link">Dining</a>
+                <a href="${sanitizeHref('photos.html')}" class="footer-nav__link">Photos</a>
                 <a href="${sanitizeHref('contacts.html')}" class="footer-nav__link">Contacts</a>
                 <a href="${sanitizeHref('decks.html')}" class="footer-nav__link">Ship Map</a>
                 <a href="${sanitizeHref('operations.html')}" class="footer-nav__link">Checklist</a>

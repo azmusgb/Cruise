@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="css/base.css?v=3" />
     <link rel="stylesheet" href="css/utilities.css?v=3" />
     <link rel="stylesheet" href="css/components.css?v=3" />
-    <script src="js/shared-layout.js?v=9" defer></script>
+    <script src="js/shared-layout.js?v=10" defer></script>
 
     <style>
       /* ==========================================================================
@@ -1414,6 +1414,112 @@
         },
       ];
 
+      const IMAGE_MANIFEST = [
+        "images/ports/rccl-perfect-day-cococay-aerial-balloon.jpeg",
+        "images/ports/rccl-perfect-day-cococay-thrill-tower.jpeg",
+        "images/ports/rccl-perfect-day-cococay-thrill-waterpark-aerial.webp",
+        "images/ship/rccl-adventure-of-the-seas-exterior-at-sea.webp",
+        "images/ship/rccl-adventure-of-the-seas-family-deck-activities.jpeg",
+        "images/ship/rccl-adventure-of-the-seas-pool-deck.webp",
+        "images/venues/rccl-adventure-of-the-seas-ben-and-jerrys.webp",
+        "images/venues/rccl-adventure-of-the-seas-ice-skating-rink.jpeg",
+        "images/venues/rccl-adventure-of-the-seas-johnny-rockets.jpeg",
+        "images/venues/rccl-adventure-of-the-seas-main-dining-room.webp",
+        "images/venues/rccl-adventure-of-the-seas-main-theater-seating.webp",
+        "images/venues/rccl-adventure-of-the-seas-main-theater-stage-2.webp",
+        "images/venues/rccl-adventure-of-the-seas-main-theater-stage.webp",
+        "images/venues/rccl-adventure-of-the-seas-royal-promenade-arch.jpeg",
+        "images/venues/rccl-adventure-of-the-seas-royal-promenade-classic-car.webp",
+        "images/venues/rccl-adventure-of-the-seas-spa-treatment-2.webp",
+        "images/venues/rccl-adventure-of-the-seas-spa-treatment.webp",
+        "images/venues/rccl-adventure-of-the-seas-specialty-dining-entree.jpeg",
+        "images/venues/rccl-adventure-of-the-seas-windjammer-buffet-2.jpeg",
+        "images/venues/rccl-adventure-of-the-seas-windjammer-buffet.jpeg",
+      ];
+
+      function toTitleCase(value) {
+        return String(value || "")
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(" ");
+      }
+
+      function deriveTitleFromSrc(src) {
+        const fileName = src.split("/").pop() || src;
+        const baseName = fileName.replace(/\.[^.]+$/, "");
+        const cleaned = baseName
+          .replace(/^rccl-/, "")
+          .replace(/adventure-of-the-seas/g, "")
+          .replace(/cococay/g, "CocoCay")
+          .replace(/-/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        return toTitleCase(cleaned || baseName);
+      }
+
+      function inferCategoryFromSrc(src) {
+        if (src.includes("/ports/")) return "ports";
+        if (src.includes("/ship/")) return "decks";
+        if (src.includes("/venues/")) {
+          const lower = src.toLowerCase();
+          if (/(windjammer|dining|johnny-rockets|ben-and-jerrys|specialty)/.test(lower)) return "dining";
+          if (/(theater|ice-skating|spa)/.test(lower)) return "activities";
+          if (/promenade/.test(lower)) return "decks";
+          return "activities";
+        }
+        return "decks";
+      }
+
+      function inferTagsFromSrc(src) {
+        const fileName = (src.split("/").pop() || "").replace(/\.[^.]+$/, "");
+        return fileName
+          .replace(/^rccl-/, "")
+          .split("-")
+          .filter(Boolean)
+          .filter((token) => !["adventure", "of", "the", "seas"].includes(token));
+      }
+
+      function syncPhotoDataFromManifest() {
+        const imageBySrc = new Map(
+          photoData
+            .filter((photo) => typeof photo.src === "string" && photo.src.startsWith("images/"))
+            .map((photo) => [photo.src, photo]),
+        );
+
+        const nonImageRecords = photoData.filter(
+          (photo) => typeof photo.src === "string" && !photo.src.startsWith("images/"),
+        );
+
+        photoData = IMAGE_MANIFEST.map((src, idx) => {
+          const existing = imageBySrc.get(src) || {};
+          const defaultTitle = deriveTitleFromSrc(src);
+          const defaultCategory = inferCategoryFromSrc(src);
+          return {
+            id: idx + 1,
+            title: defaultTitle,
+            src,
+            category: defaultCategory,
+            deck: "",
+            source: "official",
+            description: `Official cruise image: ${defaultTitle}.`,
+            tags: inferTagsFromSrc(src),
+            ...existing,
+            id: idx + 1,
+            src,
+          };
+        });
+
+        if (nonImageRecords.length > 0) {
+          const startId = photoData.length + 1;
+          nonImageRecords.forEach((record, index) => {
+            photoData.push({ ...record, id: startId + index });
+          });
+        }
+      }
+
+      syncPhotoDataFromManifest();
+
       function getValidPhotoData() {
         return photoData.filter((photo) => {
           if (typeof photo.src !== "string") return false;
@@ -1425,27 +1531,7 @@
         });
       }
 
-      const requiredPhotoFiles = [
-        "rccl-adventure-of-the-seas-ben-and-jerrys.webp",
-        "rccl-adventure-of-the-seas-ice-skating-rink.jpeg",
-        "rccl-adventure-of-the-seas-johnny-rockets.jpeg",
-        "rccl-adventure-of-the-seas-main-dining-room.webp",
-        "rccl-adventure-of-the-seas-main-theater-seating.webp",
-        "rccl-adventure-of-the-seas-main-theater-stage-2.webp",
-        "rccl-adventure-of-the-seas-main-theater-stage.webp",
-        "rccl-adventure-of-the-seas-royal-promenade-arch.jpeg",
-        "rccl-adventure-of-the-seas-royal-promenade-classic-car.webp",
-        "rccl-adventure-of-the-seas-spa-treatment-2.webp",
-        "rccl-adventure-of-the-seas-spa-treatment.webp",
-        "rccl-adventure-of-the-seas-specialty-dining-entree.jpeg",
-        "rccl-adventure-of-the-seas-windjammer-buffet-2.jpeg",
-        "rccl-adventure-of-the-seas-exterior-at-sea.webp",
-        "rccl-adventure-of-the-seas-family-deck-activities.jpeg",
-        "rccl-adventure-of-the-seas-pool-deck.webp",
-        "rccl-perfect-day-cococay-aerial-balloon.jpeg",
-        "rccl-perfect-day-cococay-thrill-tower.jpeg",
-        "rccl-perfect-day-cococay-thrill-waterpark-aerial.webp",
-      ];
+      const requiredPhotoFiles = IMAGE_MANIFEST.map((path) => path.split("/").pop()).filter(Boolean);
 
       function validateRequiredPhotos() {
         const availableFiles = new Set(
