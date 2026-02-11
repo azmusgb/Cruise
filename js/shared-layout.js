@@ -2259,6 +2259,17 @@
     }
   }
 
+  function promoteMoreDrawerToBody() {
+    const backdrop = document.getElementById('moreDrawerBackdrop');
+    const drawer = document.getElementById('moreDrawer');
+    if (backdrop && backdrop.parentNode !== document.body) {
+      document.body.appendChild(backdrop);
+    }
+    if (drawer && drawer.parentNode !== document.body) {
+      document.body.appendChild(drawer);
+    }
+  }
+
   // ---------------------------
   // Event Handlers
   // ---------------------------
@@ -2420,6 +2431,12 @@
 
     moreOpenButtons.forEach((btn) => {
       btn.addEventListener('click', () => openMoreDrawer(btn));
+    });
+    document.addEventListener('click', (event) => {
+      const trigger = event.target?.closest?.('[data-bottom-action="open-more-drawer"]');
+      if (!trigger) return;
+      event.preventDefault();
+      openMoreDrawer(trigger);
     });
     moreDrawerClose?.addEventListener('click', closeMoreDrawer);
     moreDrawerBackdrop?.addEventListener('click', closeMoreDrawer);
@@ -2750,6 +2767,10 @@
     
     // Keep this mount empty to avoid floating mobile bars.
     renderBottomNav();
+
+    // Keep drawer/backdrop outside header so mobile Safari can render
+    // fixed overlays correctly even when header has visual effects.
+    promoteMoreDrawerToBody();
     
     // Initialize event handlers
     initEventHandlers();
