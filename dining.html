@@ -536,13 +536,12 @@
       }
 
       function getCruiseContext() {
-        const cruiseStart = new Date('2026-02-14T00:00:00');
-        const cruiseEnd = new Date('2026-02-20T23:59:59');
+        const shared = window.RCCLModeContext;
         const now = new Date();
         const hour = now.getHours();
-        const portDays = new Set([3, 4, 6]);
+        const sharedDay = shared && typeof shared.day === 'number' ? shared.day : 1;
 
-        if (now < cruiseStart) {
+        if (shared?.mode === 'before') {
           return {
             title: 'Pre-Cruise Dining Setup',
             body: 'Start with specialty reservations before sail day to secure premium evening windows.',
@@ -551,7 +550,7 @@
           };
         }
 
-        if (now > cruiseEnd) {
+        if (shared?.mode === 'post') {
           return {
             title: 'Post-Cruise Recap',
             body: 'Save your favorite dining picks for the next sailing plan.',
@@ -560,21 +559,18 @@
           };
         }
 
-        const diffDays = Math.floor((now - cruiseStart) / (1000 * 60 * 60 * 24)) + 1;
-        const day = Math.max(1, Math.min(7, diffDays));
-
         if (hour >= 16 && hour <= 21) {
           return {
-            title: `Tonight's Pick · Day ${day}`,
+            title: `Tonight's Pick · Day ${sharedDay}`,
             body: 'Dinner booking window is active. Specialty tables tighten quickly after 7:00 PM.',
             target: '#venue-chops',
             actionLabel: 'Book Chops tonight'
           };
         }
 
-        if (portDays.has(day)) {
+        if (shared?.mode === 'port') {
           return {
-            title: `Port Day Fuel Plan · Day ${day}`,
+            title: `Port Day Fuel Plan · Day ${sharedDay}`,
             body: 'Favor quick service before and after shore time to avoid missing all-aboard buffers.',
             target: '#venue-cafe',
             actionLabel: 'Open Café Promenade'
@@ -582,7 +578,7 @@
         }
 
         return {
-          title: `Sea Day Dining Rhythm · Day ${day}`,
+          title: `${shared?.mode === 'boarding' ? 'Boarding Day Dining Rhythm' : `Sea Day Dining Rhythm · Day ${sharedDay}`}`,
           body: 'Use Windjammer earlier in the day, then lock a dinner slot before evening venue peaks.',
           target: '#venue-windjammer',
           actionLabel: 'Open Windjammer'
@@ -692,6 +688,11 @@
       updateDiningView();
       applyDiningContext();
       applyPickFromDeepLink();
+
+      document.addEventListener('rccl:mode-change', function () {
+        applyDiningContext();
+        if (deepLinkPick) applyPickFromDeepLink();
+      });
     });
   </script>
 </body>

@@ -611,6 +611,44 @@
       }
 
       function getCruiseContext() {
+        const shared = window.RCCLModeContext;
+        if (shared && typeof shared === 'object' && typeof shared.mode === 'string') {
+          if (shared.mode === 'before') {
+            return {
+              mode: 'prep',
+              title: 'Pre-Cruise Contact Prep',
+              body: 'Save port agent and insurance numbers now so they are ready before embarkation day.',
+              target: '#backup',
+              actionLabel: 'Open Backup & Recovery'
+            };
+          }
+          if (shared.mode === 'post') {
+            return {
+              mode: 'post',
+              title: 'Post-Cruise Support Mode',
+              body: 'Use shore support and guest relations for follow-up, claims, and service issues.',
+              target: '#shore-support',
+              actionLabel: 'Open Shore Support'
+            };
+          }
+          if (shared.mode === 'port') {
+            return {
+              mode: 'port',
+              title: `Port Day Mode · Day ${shared.day || 1}`,
+              body: 'Local emergency services and port contacts become priority while ashore.',
+              target: '#ports',
+              actionLabel: 'Open Port-Day Contacts'
+            };
+          }
+          return {
+            mode: 'sea',
+            title: `${shared.mode === 'boarding' ? 'Boarding Day' : 'Sea Day'} Mode · Day ${shared.day || 1}`,
+            body: 'Route urgent issues through onboard channels first, starting with ship Security or Guest Services.',
+            target: '#urgent',
+            actionLabel: 'Open Immediate Emergency'
+          };
+        }
+
         const cruiseStart = new Date('2026-02-14T00:00:00');
         const cruiseEnd = new Date('2026-02-20T23:59:59');
         const now = new Date();
@@ -748,6 +786,7 @@
       });
 
       applyCruiseContext();
+      document.addEventListener('rccl:mode-change', applyCruiseContext);
     });
   </script>
 </body>
