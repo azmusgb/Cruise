@@ -2702,6 +2702,26 @@
     });
   }
 
+  function initMotionSystem() {
+    const revealItems = utils.qsa('[data-reveal]');
+    if (!revealItems.length) return;
+
+    if (utils.prefersReducedMotion()) {
+      revealItems.forEach((el) => el.classList.add('is-revealed'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-revealed');
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+
+    revealItems.forEach((el) => observer.observe(el));
+  }
+
   // ---------------------------
   // Service Worker
   // ---------------------------
@@ -2783,6 +2803,7 @@
     initScrollBehavior();
     initImageOptimization();
     initReusableUiComponents();
+    initMotionSystem();
     initServiceWorker();
     
     // Bottom navigation spacing is handled responsively via injected styles.
