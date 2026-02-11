@@ -1885,8 +1885,20 @@
                     const isOpen = statsGridWrap.classList.toggle('is-open');
                     mobileStatsToggle.setAttribute('aria-expanded', String(isOpen));
                     const label = mobileStatsToggle.querySelector('span');
+                    const icon = mobileStatsToggle.querySelector('i');
                     if (label) {
                         label.textContent = isOpen ? 'Hide summary' : 'Show summary';
+                    }
+                    if (icon) {
+                        icon.classList.toggle('fa-chevron-down', !isOpen);
+                        icon.classList.toggle('fa-chevron-up', isOpen);
+                    }
+                    if (isOpen) {
+                        const firstStat = statsGridWrap.querySelector('.stat-card');
+                        if (firstStat) {
+                            firstStat.setAttribute('tabindex', '-1');
+                            firstStat.focus();
+                        }
                     }
                 });
             }
@@ -1906,9 +1918,18 @@
 
             // Room modal functions
             function showRoomModal(roomNumber, roomName, location) {
-                const isInterior = roomName.includes('Interior');
-                const hasBalcony = roomName.includes('Balcony');
+                const roomCard = roomCards.find((card) => card.dataset.room === roomNumber);
+                const guestCount = roomCard ? roomCard.querySelectorAll('.guest-pill').length : 2;
+                const featureTags = roomCard ? Array.from(roomCard.querySelectorAll('.feature-tag')) : [];
+                const sqftTag = featureTags.find((tag) => /sq\s*ft/i.test(tag.textContent || ''));
+                const sqftText = sqftTag ? (sqftTag.textContent || '').trim() : 'Size varies by stateroom';
+                const hasBalcony = roomCard ? roomCard.dataset.roomType === 'balcony' : roomName.includes('Balcony');
+                const highlights = featureTags
+                    .map((tag) => (tag.textContent || '').trim())
+                    .filter(Boolean)
+                    .slice(0, 3);
                 modalTitle.textContent = `Room ${roomNumber} · ${roomName}`;
+                closeFilterPanel();
                 
                 modalBody.innerHTML = `
                     <div style="margin-bottom: 12px;">
@@ -1921,16 +1942,21 @@
                         <h4 style="margin-bottom: 12px; color: var(--royal-navy);">Room highlights</h4>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px;">
                             <span style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; background: var(--royal-foam); border-radius: var(--radius-full); font-size: 0.88rem;">
-                                <i class="fas fa-user"></i> 2 guests
+                                <i class="fas fa-user"></i> ${guestCount} ${guestCount === 1 ? 'guest' : 'guests'}
                             </span>
                             <span style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; background: var(--royal-foam); border-radius: var(--radius-full); font-size: 0.88rem;">
-                                <i class="fas fa-expand"></i> ${isInterior ? '149' : '182'} sq ft
+                                <i class="fas fa-expand"></i> ${sqftText}
                             </span>
                             ${hasBalcony ? `
                             <span style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; background: var(--royal-foam); border-radius: var(--radius-full); font-size: 0.88rem;">
                                 <i class="fas fa-wind"></i> Private balcony
                             </span>
                             ` : ''}
+                            ${highlights.map((text) => `
+                            <span style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; background: #fff; border: 1px solid rgba(10, 96, 166, 0.18); border-radius: var(--radius-full); font-size: 0.82rem;">
+                                <i class="fas fa-check-circle"></i> ${text}
+                            </span>
+                            `).join('')}
                         </div>
 
                         <p style="margin: 0 0 16px; color: var(--royal-ink); opacity: 0.82; font-size: 0.9rem;">Use deck view to confirm nearby elevators and venue access before arrival.</p>
@@ -1995,11 +2021,13 @@
                     if (entry.isIntersecting) {
                         entry.target.classList.remove('is-reveal-pending');
                         entry.target.classList.add('animate-fade-in');
+                        observer.unobserve(entry.target);
                     }
                 });
             }, observerOptions);
 
             document.querySelectorAll('.stat-card, .room-card, .action-item').forEach(el => {
+                el.classList.remove('animate-fade-in');
                 el.classList.add('is-reveal-pending');
                 observer.observe(el);
             });
