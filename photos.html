@@ -1542,24 +1542,6 @@
             .join("");
 
           featuredRail.querySelectorAll("img").forEach(injectShimmer);
-
-          featuredRail.addEventListener("click", (e) => {
-            const card = e.target.closest("[data-photo-id]");
-            if (!card) return;
-            const id = Number(card.dataset.photoId);
-            const idx = filteredPhotos.findIndex((p) => p.id === id);
-            openLightbox(idx >= 0 ? idx : photoData.findIndex((p) => p.id === id));
-          });
-
-          featuredRail.addEventListener("keydown", (e) => {
-            if (e.key !== "Enter" && e.key !== " ") return;
-            const card = e.target.closest("[data-photo-id]");
-            if (!card) return;
-            e.preventDefault();
-            const id = Number(card.dataset.photoId);
-            const idx = filteredPhotos.findIndex((p) => p.id === id);
-            openLightbox(idx >= 0 ? idx : photoData.findIndex((p) => p.id === id));
-          });
         }
 
         /* -----------------------------
@@ -1567,6 +1549,7 @@
            ----------------------------- */
         function render() {
           filterAndSort();
+          buildFeatured();
 
           photoCount.textContent = String(filteredPhotos.length);
           activeFilterPill.innerHTML = `<i class="fas fa-filter" aria-hidden="true"></i> ${prettyFilterLabel(currentFilter)}`;
@@ -1723,6 +1706,24 @@
           }
           openLightbox(Number(card.dataset.index));
         }
+
+        featuredRail.addEventListener("click", (e) => {
+          const card = e.target.closest("[data-photo-id]");
+          if (!card) return;
+          const id = Number(card.dataset.photoId);
+          const idx = filteredPhotos.findIndex((p) => p.id === id);
+          openLightbox(idx >= 0 ? idx : photoData.findIndex((p) => p.id === id));
+        });
+
+        featuredRail.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          const card = e.target.closest("[data-photo-id]");
+          if (!card) return;
+          e.preventDefault();
+          const id = Number(card.dataset.photoId);
+          const idx = filteredPhotos.findIndex((p) => p.id === id);
+          openLightbox(idx >= 0 ? idx : photoData.findIndex((p) => p.id === id));
+        });
 
         [galleryGrid, galleryList].forEach((container) => {
           container.addEventListener("click", activateCard);
@@ -1928,7 +1929,6 @@
         });
 
         /* Boot */
-        buildFeatured();
         render();
       });
     </script>
