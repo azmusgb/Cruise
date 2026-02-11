@@ -1175,7 +1175,7 @@
       /* =========================================================
          Data (kept compatible with your current structure)
          ========================================================= */
-      const defaultPhotoData = [
+      let photoData = [
         {
           id: 1,
           title: "Adventure Exterior at Sea",
@@ -1367,66 +1367,6 @@
           tags: ["thrill", "slides"],
         },
       ];
-
-
-      const PHOTO_LIBRARY_STORAGE_KEY = "cruise.photoLibrary.customData.v1";
-
-      function getDefaultPhotoData() {
-        return defaultPhotoData.map((photo) => ({ ...photo }));
-      }
-
-      function canUseLocalStorage() {
-        try {
-          if (!window.localStorage) return false;
-          const testKey = `${PHOTO_LIBRARY_STORAGE_KEY}.test`;
-          window.localStorage.setItem(testKey, "1");
-          window.localStorage.removeItem(testKey);
-          return true;
-        } catch {
-          return false;
-        }
-      }
-
-      function loadPhotoData() {
-        if (!canUseLocalStorage()) return getDefaultPhotoData();
-
-        try {
-          const raw = window.localStorage.getItem(PHOTO_LIBRARY_STORAGE_KEY);
-          if (!raw) return getDefaultPhotoData();
-          const parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed)) return getDefaultPhotoData();
-
-          return parsed
-            .filter((photo) => photo && typeof photo === "object")
-            .map((photo, index) => ({
-              id: Number(photo.id) || index + 1,
-              title: String(photo.title || "Untitled photo"),
-              src: String(photo.src || ""),
-              category: String(photo.category || "decks"),
-              deck: photo.deck == null ? "" : String(photo.deck),
-              source: photo.source === "passenger" ? "passenger" : "official",
-              description: String(photo.description || "Added from manage photos panel."),
-              notes: photo.notes == null ? "" : String(photo.notes),
-              tags: Array.isArray(photo.tags)
-                ? photo.tags.map((tag) => String(tag).trim()).filter(Boolean)
-                : [],
-            }));
-        } catch {
-          return getDefaultPhotoData();
-        }
-      }
-
-      function savePhotoData() {
-        if (!canUseLocalStorage()) return false;
-        try {
-          window.localStorage.setItem(PHOTO_LIBRARY_STORAGE_KEY, JSON.stringify(photoData));
-          return true;
-        } catch {
-          return false;
-        }
-      }
-
-      let photoData = loadPhotoData();
 
       function getValidPhotoData() {
         return photoData.filter(
@@ -1923,11 +1863,8 @@
           };
 
           photoData.push(newPhoto);
-          const saved = savePhotoData();
           updateHeroStats();
-          manageStatus.textContent = saved
-            ? `Added ${newPhoto.title}.`
-            : `Added ${newPhoto.title}, but browser storage is unavailable so it may not persist.`;
+          manageStatus.textContent = `Added ${newPhoto.title}.`;
           resetManageForm();
           render();
         });
@@ -1951,10 +1888,7 @@
           selected.notes = notes;
           selected.description = notes || selected.description;
 
-          const saved = savePhotoData();
-          manageStatus.textContent = saved
-            ? `Updated ${selected.title}.`
-            : `Updated ${selected.title}, but browser storage is unavailable so it may not persist.`;
+          manageStatus.textContent = `Updated ${selected.title}.`;
           updateHeroStats();
           render();
         });
@@ -1963,11 +1897,8 @@
           const toDelete = new Set(selectedPhotoIds);
           if (!toDelete.size) return;
           photoData = photoData.filter((photo) => !toDelete.has(photo.id));
-          const saved = savePhotoData();
           selectedPhotoIds = new Set();
-          manageStatus.textContent = saved
-            ? `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}.`
-            : `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}, but browser storage is unavailable so it may not persist.`;
+          manageStatus.textContent = `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}.`;
           updateHeroStats();
           render();
         });
