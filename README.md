@@ -65,3 +65,31 @@ This repository now includes:
 - `.github/workflows/pages.yml` for GitHub Pages deployment from the `main` branch.
 
 If your default branch is not `main`, update `pages.yml` accordingly.
+
+## Design System Foundation
+
+This project now uses shared primitives so pages behave like one system, not isolated templates.
+
+### Core primitives
+
+- `card`: base container language used by `.deck-card`, `.room-card`, and `.itinerary-day`
+- `pill`: base token language used by badges/tags/features/priorities
+- Shared focus-visible treatment for links, buttons, summary toggles, and form controls
+
+### Mobile hero rule (system-wide)
+
+For viewport `< 768px`, heroes are condensed to context + title:
+
+- hide descriptive/support blocks: `.hero__description`, `.hero__highlights`, `.hero__actions`, `.page-spine`
+- hide deck-hero equivalents: `.deck-hero__subtitle`, `.deck-hero__highlights`, `.deck-hero__actions`
+- keep title visible and tighten hero spacing
+
+### Interaction standards
+
+- Room cards: explicit primary/secondary buttons only (no card-level click trap)
+- Dashboard cards: CTA link pattern
+- Itinerary cards: day selector drives content; day cards are display-first
+
+### Naming direction
+
+Use `card-*` and `pill-*` as canonical patterns for new work. Existing legacy names (`deck-card`, `tag`, `badge`, `priority-badge`, etc.) are currently mapped to these primitives for compatibility.
