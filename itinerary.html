@@ -249,6 +249,11 @@
             transform: translateY(0);
         }
 
+        .itinerary-day--today {
+            border-color: rgba(255, 201, 58, 0.56);
+            box-shadow: 0 16px 34px rgba(11, 79, 144, 0.16), inset 0 0 0 2px rgba(255, 201, 58, 0.26);
+        }
+
         .itinerary-day__header {
             display: flex;
             justify-content: space-between;
@@ -287,6 +292,16 @@
         .badge--accent {
             background: var(--gold-gradient);
             color: var(--royal-navy);
+        }
+
+        .badge--today {
+            background: linear-gradient(135deg, #ffe389, #ffc93a 58%, #ffb020);
+            color: #143e66;
+            border: 1px solid rgba(255, 176, 32, 0.5);
+            box-shadow: 0 8px 18px rgba(255, 176, 32, 0.28);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
         .badge--info {
@@ -1055,6 +1070,21 @@
                 daySections.forEach(section => {
                     const isToday = section.dataset.day === todayDay;
                     section.setAttribute('data-today', isToday ? 'true' : 'false');
+                    section.classList.toggle('itinerary-day--today', isToday);
+                    if (isToday) {
+                        section.id = 'today-card';
+                    } else if (section.id === 'today-card') {
+                        section.removeAttribute('id');
+                    }
+                    const badgeContainer = section.querySelector('.itinerary-day__badges');
+                    if (badgeContainer) {
+                        const existingTodayBadge = badgeContainer.querySelector('.badge--today');
+                        if (isToday && !existingTodayBadge) {
+                            badgeContainer.insertAdjacentHTML('afterbegin', '<span class="badge badge--today">Today</span>');
+                        } else if (!isToday && existingTodayBadge) {
+                            existingTodayBadge.remove();
+                        }
+                    }
                     if (section.dataset.day === normalizedDay) {
                         section.style.display = 'block';
                         requestAnimationFrame(() => section.classList.add('itinerary-day--visible'));
@@ -1136,7 +1166,7 @@
             setStatus(context.label);
 
             if (window.location.hash === '#today') {
-                window.requestAnimationFrame(() => scrollToDay(context.day));
+                window.setTimeout(() => scrollToDay(context.day, 'smooth'), 120);
             }
 
             document.addEventListener('keydown', (e) => {
