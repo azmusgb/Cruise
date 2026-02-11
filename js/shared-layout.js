@@ -1818,6 +1818,13 @@
              <i class="fas fa-chevron-down" aria-hidden="true"></i>
            </a>`;
 
+      const utilityPromo = currentPage === 'contacts'
+        ? ''
+        : `<a href="https://www.royalcaribbean.com/cruise-deals" target="_blank" rel="noopener noreferrer" class="header-utility__promo">
+             <i class="fas fa-crown" aria-hidden="true"></i>
+             Cruises - Amazing Cruise Deals
+           </a>`;
+
       const timelineItems = [
         { time: 'Day 1 · 2:00 PM', event: 'All aboard' },
         { time: 'Day 3 · 11:00 AM', event: 'Grand Cayman tender opens' },
@@ -1837,10 +1844,7 @@
               <div class="header-utility__left">
                 <span class="header-utility__crumb">Photo Library | ${utils.escapeHtml(DEFAULT_META.ship)}</span>
               </div>
-              <a href="https://www.royalcaribbean.com/cruise-deals" target="_blank" rel="noopener noreferrer" class="header-utility__promo">
-                <i class="fas fa-crown" aria-hidden="true"></i>
-                Cruises - Amazing Cruise Deals
-              </a>
+              ${utilityPromo}
             </div>
           </div>
 
