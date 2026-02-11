@@ -1198,6 +1198,10 @@
         },
       ];
 
+      const validPhotoData = photoData.filter(
+        (photo) => typeof photo.src === "string" && photo.src.startsWith("images/"),
+      );
+
       document.addEventListener("DOMContentLoaded", () => {
         const galleryGrid = document.getElementById("photoGrid");
         const galleryList = document.getElementById("photoList");
@@ -1234,7 +1238,7 @@
         let currentSearch = "";
         let currentSort = "relevance";
         let currentIndex = 0;
-        let filteredPhotos = [...photoData];
+        let filteredPhotos = [...validPhotoData];
 
         /* -----------------------------
            Hero stats
@@ -1275,7 +1279,7 @@
 
         function filterAndSort() {
           const term = currentSearch.trim().toLowerCase();
-          filteredPhotos = photoData
+          filteredPhotos = validPhotoData
             .filter((photo) => matchesFilter(photo))
             .map((photo) => ({ photo, relevance: score(photo, term) }))
             .filter((item) => item.relevance >= (term ? 0 : -1));
