@@ -544,11 +544,17 @@
       .header-nav__link.active::after {
         transform: scaleX(1);
       }
+
+      .header-nav__link.active::after {
+        background: linear-gradient(90deg, rgba(255, 223, 137, 0.24) 0%, rgba(255, 223, 137, 0.95) 50%, rgba(255, 223, 137, 0.24) 100%);
+        height: 3px;
+      }
       
       .header-nav__link.active {
-        background: linear-gradient(135deg, #0b4f90 0%, #0079d4 54%, var(--rccl-accent) 100%);
+        background: linear-gradient(180deg, rgba(255, 223, 137, 0.2) 0%, rgba(255, 223, 137, 0.06) 100%);
+        border: 1px solid rgba(255, 223, 137, 0.42);
         color: white;
-        box-shadow: var(--rccl-shadow-sm);
+        box-shadow: 0 0 0 1px rgba(255, 223, 137, 0.22), 0 8px 16px rgba(3, 20, 40, 0.32);
       }
       
       .header-nav__link.active i {
