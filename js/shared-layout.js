@@ -144,7 +144,7 @@
     const stylesheetId = 'rccl-minimal-stylesheet';
     if (document.getElementById(styleId) || document.getElementById(stylesheetId)) return;
 
-    const cssHref = 'css/shared-layout.css?v=7';
+    const cssHref = 'css/shared-layout.css?v=8';
     const linkEl = document.createElement('link');
     linkEl.id = stylesheetId;
     linkEl.rel = 'stylesheet';
