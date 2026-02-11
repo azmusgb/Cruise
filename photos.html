@@ -1748,6 +1748,13 @@
 
         let uploadObjectUrl = "";
 
+        function clearUploadObjectUrl() {
+          if (uploadObjectUrl && uploadObjectUrl.startsWith("blob:")) {
+            URL.revokeObjectURL(uploadObjectUrl);
+          }
+          uploadObjectUrl = "";
+        }
+
         let currentFilter = "all";
         let currentView = "grid";
         let currentSearch = "";
@@ -1977,7 +1984,9 @@
         function getUploadSrc() {
           const file = manageFile.files?.[0];
           if (!file) return "";
-          return URL.createObjectURL(file);
+          clearUploadObjectUrl();
+          uploadObjectUrl = URL.createObjectURL(file);
+          return uploadObjectUrl;
         }
 
         function getManageSourcePath() {
