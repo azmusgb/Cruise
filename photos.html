@@ -1106,7 +1106,11 @@
             </label>
             <label>
               Image path
-              <input id="manageSrc" type="text" placeholder="images/..." required />
+              <input id="manageSrc" type="text" placeholder="images/... or leave empty when picking a file" />
+            </label>
+            <label>
+              Upload from your device
+              <input id="manageFile" type="file" accept="image/*" />
             </label>
             <label>
               Tags (comma separated)
@@ -1411,9 +1415,14 @@
       ];
 
       function getValidPhotoData() {
-        return photoData.filter(
-          (photo) => typeof photo.src === "string" && photo.src.startsWith("images/"),
-        );
+        return photoData.filter((photo) => {
+          if (typeof photo.src !== "string") return false;
+          return (
+            photo.src.startsWith("images/")
+            || photo.src.startsWith("blob:")
+            || photo.src.startsWith("data:image/")
+          );
+        });
       }
 
       const requiredPhotoFiles = [
@@ -1492,6 +1501,7 @@
         const manageDeck = document.getElementById("manageDeck");
         const manageSource = document.getElementById("manageSource");
         const manageSrc = document.getElementById("manageSrc");
+        const manageFile = document.getElementById("manageFile");
         const manageTags = document.getElementById("manageTags");
         const manageNotes = document.getElementById("manageNotes");
         const cancelManageBtn = document.getElementById("cancelManageBtn");
@@ -1722,6 +1732,35 @@
             .filter(Boolean);
         }
 
+        function getUploadSrc() {
+          const file = manageFile.files?.[0];
+          if (!file) return "";
+          return URL.createObjectURL(file);
+        }
+
+        function getManageSourcePath() {
+          const uploadedSrc = getUploadSrc();
+          if (uploadedSrc) {
+            if (manageSource.value === "official") {
+              manageSource.value = "passenger";
+            }
+            return uploadedSrc;
+          }
+
+          const srcInput = manageSrc.value.trim();
+          if (!srcInput) {
+            manageStatus.textContent = "Add an images/ path or choose an image file from your device.";
+            return "";
+          }
+
+          if (!srcInput.startsWith("images/")) {
+            manageStatus.textContent = "Image path must start with images/ unless you pick a local image file.";
+            return "";
+          }
+
+          return srcInput;
+        }
+
         function getSelectedPhotos() {
           return photoData.filter((photo) => selectedPhotoIds.has(photo.id));
         }
@@ -1853,6 +1892,17 @@
         /* -----------------------------
            Control wiring
            ----------------------------- */
+        manageFile.addEventListener("change", () => {
+          const file = manageFile.files?.[0];
+          if (!file) return;
+
+          if (!manageTitle.value.trim()) {
+            manageTitle.value = file.name.replace(/\.[^/.]+$/, "");
+          }
+
+          manageStatus.textContent = `Selected local file: ${file.name}`;
+        });
+
         searchInput.addEventListener("input", (event) => {
           currentSearch = event.target.value;
           render();
@@ -1924,9 +1974,8 @@
 
         manageForm.addEventListener("submit", (event) => {
           event.preventDefault();
-          const src = manageSrc.value.trim();
-          if (!src.startsWith("images/")) {
-            manageStatus.textContent = "Image path must start with images/.";
+          const src = getManageSourcePath();
+          if (!src) {
             return;
           }
 
@@ -1954,9 +2003,8 @@
         replacePhotoBtn.addEventListener("click", () => {
           const [selected] = getSelectedPhotos();
           if (!selected) return;
-          const src = manageSrc.value.trim();
-          if (!src.startsWith("images/")) {
-            manageStatus.textContent = "Image path must start with images/.";
+          const src = getManageSourcePath();
+          if (!src) {
             return;
           }
 
