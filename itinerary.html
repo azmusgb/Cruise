@@ -638,7 +638,7 @@
             <!-- Itinerary Days -->
             <div class="itinerary-days">
                 <!-- Day 1 -->
-                <div class="itinerary-day" data-day="1" data-today="true">
+                <div class="itinerary-day" data-day="1">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 1 • Saturday, February 14</h2>
@@ -1027,6 +1027,7 @@
             const emailButton = document.getElementById('emailItineraryBtn');
             const itineraryStatus = document.getElementById('itineraryStatus');
             let currentDay = 1;
+            let todayDay = '1';
 
             function setStatus(message) {
                 if (itineraryStatus) {
@@ -1052,6 +1053,8 @@
             function showDay(day) {
                 const normalizedDay = String(day);
                 daySections.forEach(section => {
+                    const isToday = section.dataset.day === todayDay;
+                    section.setAttribute('data-today', isToday ? 'true' : 'false');
                     if (section.dataset.day === normalizedDay) {
                         section.style.display = 'block';
                         requestAnimationFrame(() => section.classList.add('itinerary-day--visible'));
@@ -1064,6 +1067,12 @@
                 dayButtons.forEach(btn => btn.classList.remove('day-btn--active'));
                 document.querySelector(`.day-btn[data-day="${normalizedDay}"]`)?.classList.add('day-btn--active');
                 currentDay = Number(day);
+            }
+
+            function scrollToDay(day, behavior = 'smooth') {
+                const target = document.querySelector(`.itinerary-day[data-day="${String(day)}"]`);
+                if (!target) return;
+                target.scrollIntoView({ behavior, block: 'start' });
             }
 
             dayButtons.forEach(btn => {
@@ -1122,8 +1131,13 @@
             }
 
             const context = getCruiseDayContext();
+            todayDay = String(context.day);
             showDay(context.day);
             setStatus(context.label);
+
+            if (window.location.hash === '#today') {
+                window.requestAnimationFrame(() => scrollToDay(context.day));
+            }
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowLeft' && currentDay > 1) {
