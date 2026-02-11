@@ -2295,10 +2295,40 @@
     ].filter(Boolean);
     const moreDrawerClose = utils.qs('#moreDrawerClose');
     let moreLastFocus = null;
+    let drawerScrollY = 0;
+    let drawerScrollLocked = false;
 
     function getDrawerFocusable() {
       if (!moreDrawer) return [];
       return utils.qsa('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])', moreDrawer);
+    }
+
+    function lockBackgroundScroll() {
+      if (drawerScrollLocked) return;
+      drawerScrollY = window.scrollY || window.pageYOffset || 0;
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${drawerScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+      document.body.style.touchAction = 'none';
+      drawerScrollLocked = true;
+    }
+
+    function unlockBackgroundScroll() {
+      if (!drawerScrollLocked) return;
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.touchAction = '';
+      drawerScrollLocked = false;
+      window.scrollTo(0, drawerScrollY);
     }
 
     function setMoreOpen(open) {
@@ -2308,10 +2338,14 @@
       moreDrawer.classList.toggle('is-open', open);
       moreOpenButtons.forEach((btn) => btn.setAttribute('aria-expanded', String(open)));
       if (open) {
+        lockBackgroundScroll();
         const [first] = getDrawerFocusable();
         first?.focus();
       } else if (moreLastFocus && typeof moreLastFocus.focus === 'function') {
+        unlockBackgroundScroll();
         moreLastFocus.focus();
+      } else {
+        unlockBackgroundScroll();
       }
     }
 
