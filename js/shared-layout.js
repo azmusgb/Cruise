@@ -49,24 +49,39 @@
   };
 
   const NAV_ITEMS = [
-    { id: 'index', href: 'index.html', icon: 'fa-home', text: 'Dashboard' },
-    { id: 'itinerary', href: 'itinerary.html', icon: 'fa-route', text: 'Itinerary' },
-    { id: 'rooms', href: 'rooms.html', icon: 'fa-bed', text: 'Rooms' },
-    { id: 'dining', href: 'dining.html', icon: 'fa-utensils', text: 'Dining' },
-    { id: 'photos', href: 'photos.html', icon: 'fa-images', text: 'Photos' },
-    { id: 'contacts', href: 'contacts.html', icon: 'fa-phone-volume', text: 'Contacts' },
-    { id: 'decks', href: 'decks.html', icon: 'fa-map', text: 'Decks' },
-    { id: 'operations', href: 'operations.html', icon: 'fa-clipboard-check', text: 'Checklist' },
-    { id: 'tips', href: 'tips.html', icon: 'fa-suitcase-rolling', text: 'Tips' },
+    { id: 'index', navKey: 'home', href: 'index.html', icon: 'fa-home', text: 'Home', hint: 'The Countdown' },
+    { id: 'plan', navKey: 'plan', href: 'plan.html', icon: 'fa-compass', text: 'Game Plan', hint: 'What To Do Next' },
+    { id: 'itinerary', navKey: 'today', href: 'itinerary.html#today', icon: 'fa-calendar-day', text: 'Today', hint: 'Right Now' },
+    { id: 'decks', navKey: 'map', href: 'decks.html', icon: 'fa-map', text: 'Ship Map', hint: 'Find Anything' },
+    { id: 'dining', navKey: 'food', href: 'dining.html', icon: 'fa-utensils', text: 'Food', hint: "Tonight's Pick" },
+    { id: 'rooms', navKey: 'family', href: 'rooms.html', icon: 'fa-users', text: 'Family', hint: "Who's Where" },
+  ];
+
+  const MORE_DRAWER_GROUPS = [
+    {
+      title: 'Explore',
+      items: [
+        { id: 'ports', href: 'ports.html', icon: 'fa-map-location-dot', text: 'Ports' },
+        { id: 'tips', href: 'tips.html', icon: 'fa-lightbulb', text: 'Pro Moves' },
+        { id: 'photos', href: 'photos.html', icon: 'fa-images', text: 'Photos' },
+      ],
+    },
+    {
+      title: 'Utility',
+      items: [
+        { id: 'operations', href: 'operations.html', icon: 'fa-clipboard-check', text: 'Checklist' },
+        { id: 'contacts', href: 'contacts.html', icon: 'fa-phone-volume', text: 'Contacts' },
+        { id: 'offline', href: 'offline.html', icon: 'fa-wifi', text: 'Offline' },
+      ],
+    },
   ];
 
   const BOTTOM_NAV_ITEMS = [
-    { id: 'index', icon: 'fa-home', text: 'Home', href: 'index.html' },
-    { id: 'itinerary', icon: 'fa-compass', text: 'Today', href: 'itinerary.html' },
-    { id: 'quick', icon: 'fa-plus', text: 'Quick', action: 'quick-actions' },
-    { id: 'decks', icon: 'fa-ship', text: 'Ship', href: 'decks.html' },
-    { id: 'photos', icon: 'fa-images', text: 'Photos', href: 'photos.html' },
-    { id: 'dining', icon: 'fa-utensils', text: 'Eat', href: 'dining.html' },
+    { id: 'index', navKey: 'home', icon: 'fa-home', text: 'Home', href: 'index.html' },
+    { id: 'plan', navKey: 'plan', icon: 'fa-compass', text: 'Plan', href: 'plan.html' },
+    { id: 'itinerary', navKey: 'today', icon: 'fa-calendar-day', text: 'Today', href: 'itinerary.html#today' },
+    { id: 'decks', navKey: 'map', icon: 'fa-ship', text: 'Map', href: 'decks.html' },
+    { id: 'more', navKey: 'more', icon: 'fa-ellipsis', text: 'More', action: 'open-more-drawer' },
   ];
 
   const RCCL_COLORS = {
@@ -98,6 +113,8 @@
         .replace(/'/g, '&#039;');
     },
     getCurrentPage: () => {
+      const mountPage = document.getElementById('sharedHeader')?.dataset?.page;
+      if (mountPage) return String(mountPage).trim();
       const file = window.location.pathname.split('/').pop() || 'index.html';
       return file.replace('.html', '');
     },
@@ -1791,6 +1808,201 @@
     document.head.appendChild(styleEl);
   }
 
+  function injectNavV2Styles() {
+    const styleId = 'rccl-nav-v2-overrides';
+    if (document.getElementById(styleId)) return;
+
+    const styles = `
+      .app-header--rccl-site .header-utility__promo {
+        font-weight: 700;
+        color: #cbe6ff;
+        font-size: 0.78rem;
+      }
+
+      .app-header--rccl-site .header-nav {
+        gap: 2px;
+      }
+
+      .app-header--rccl-site .header-nav__link {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        min-width: 96px;
+        padding: 9px 12px 10px;
+      }
+
+      .app-header--rccl-site .header-nav__link i {
+        font-size: 0.86rem;
+      }
+
+      .app-header--rccl-site .header-nav__label {
+        font-size: 0.88rem;
+        line-height: 1.2;
+        font-weight: 700;
+      }
+
+      .app-header--rccl-site .header-nav__hint {
+        font-size: 0.68rem;
+        line-height: 1.2;
+        color: rgba(208, 229, 249, 0.82);
+      }
+
+      .app-header--rccl-site .header-nav__link.active .header-nav__hint {
+        color: #ffe5a6;
+      }
+
+      .app-header--rccl-site .header-cta--help {
+        min-height: 36px;
+      }
+
+      .more-drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 12, 26, 0.56);
+        z-index: 1050;
+      }
+
+      .more-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(360px, 92vw);
+        height: 100dvh;
+        background: linear-gradient(180deg, rgba(7, 33, 68, 0.98) 0%, rgba(6, 24, 49, 0.98) 100%);
+        color: #f4f8ff;
+        border-left: 1px solid rgba(255, 255, 255, 0.16);
+        box-shadow: -16px 0 44px rgba(2, 12, 26, 0.44);
+        z-index: 1051;
+        padding: 14px 14px 18px;
+        overflow-y: auto;
+      }
+
+      .more-drawer__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .more-drawer__header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #fff;
+      }
+
+      .more-drawer__close {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+
+      .more-drawer__group {
+        margin-top: 16px;
+      }
+
+      .more-drawer__group-title {
+        margin: 0 0 8px;
+        padding: 0 4px;
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #ffe7a6;
+      }
+
+      .more-drawer__group-links {
+        display: grid;
+        gap: 6px;
+      }
+
+      .more-drawer__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 42px;
+        padding: 9px 12px;
+        border-radius: 11px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #f4f8ff;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .more-drawer__link:hover,
+      .more-drawer__link.active {
+        border-color: rgba(255, 223, 137, 0.44);
+        background: rgba(255, 223, 137, 0.14);
+      }
+
+      .bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 990;
+        display: none;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        background: rgba(5, 20, 40, 0.95);
+        border-top: 1px solid rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(8px);
+      }
+
+      .bottom-nav__item {
+        min-height: 44px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        color: #f0f7ff;
+        text-decoration: none;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        font-size: 0.67rem;
+        font-weight: 700;
+      }
+
+      .bottom-nav__item i {
+        font-size: 0.8rem;
+      }
+
+      .bottom-nav__item.active {
+        border-color: rgba(255, 223, 137, 0.56);
+        color: #ffe7a8;
+        background: rgba(255, 223, 137, 0.16);
+      }
+
+      @media (max-width: 767px) {
+        body.app-theme-rcc {
+          padding-bottom: 84px;
+        }
+
+        .bottom-nav {
+          display: grid;
+        }
+
+        .app-header--rccl-site .header-nav__hint {
+          display: none;
+        }
+
+        .app-header--rccl-site .header-actions .header-cta--help {
+          display: none;
+        }
+      }
+    `;
+
+    const styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = styles;
+    document.head.appendChild(styleEl);
+  }
+
   // ---------------------------
   // Header Component
   // ---------------------------
@@ -1798,53 +2010,40 @@
     return safeMount('#sharedHeader', () => {
       const currentPage = utils.getCurrentPage();
       const cruiseStatus = utils.getCruiseStatus();
-      
       const navLinks = NAV_ITEMS.map(item => `
         <a href="${sanitizeHref(item.href)}"
            class="header-nav__link ${currentPage === item.id ? 'active' : ''}"
+           data-nav="${utils.escapeHtml(item.navKey)}"
            ${currentPage === item.id ? 'aria-current="page"' : ''}>
           <i class="fas ${item.icon}" aria-hidden="true"></i>
-          <span>${utils.escapeHtml(item.text)}</span>
+          <span class="header-nav__label">${utils.escapeHtml(item.text)}</span>
+          <span class="header-nav__hint">${utils.escapeHtml(item.hint)}</span>
         </a>
       `).join('');
+      const drawerGroups = MORE_DRAWER_GROUPS.map((group) => {
+        const groupItems = group.items.map((item) => `
+          <a href="${sanitizeHref(item.href)}" class="more-drawer__link ${currentPage === item.id ? 'active' : ''}">
+            <i class="fas ${item.icon}" aria-hidden="true"></i>
+            <span>${utils.escapeHtml(item.text)}</span>
+          </a>
+        `).join('');
 
-      const helpCta = currentPage === 'contacts'
-        ? `<span class="header-cta header-cta--help header-cta--static" aria-current="page">
-             <span>Need help?</span>
-             <i class="fas fa-circle-check" aria-hidden="true"></i>
-           </span>`
-        : `<a href="${sanitizeHref('contacts.html')}" class="header-cta header-cta--help">
-             <span>Need help?</span>
-             <i class="fas fa-chevron-down" aria-hidden="true"></i>
-           </a>`;
-
-      const utilityPromo = currentPage === 'contacts'
-        ? ''
-        : `<a href="https://www.royalcaribbean.com/cruise-deals" target="_blank" rel="noopener noreferrer" class="header-utility__promo">
-             <i class="fas fa-crown" aria-hidden="true"></i>
-             Cruises - Amazing Cruise Deals
-           </a>`;
-
-      const timelineItems = [
-        { time: 'Day 1 · 2:00 PM', event: 'All aboard' },
-        { time: 'Day 3 · 11:00 AM', event: 'Grand Cayman tender opens' },
-        { time: 'Day 4 · 8:30 AM', event: 'Falmouth gangway' },
-        { time: 'Day 6 · 7:30 AM', event: 'CocoCay gangway' },
-      ].map(item => `
-        <li class="header-timeline__item">
-          <span class="header-timeline__time">${utils.escapeHtml(item.time)}</span>
-          <span class="header-timeline__event">${utils.escapeHtml(item.event)}</span>
-        </li>
-      `).join('');
+        return `
+          <section class="more-drawer__group" aria-label="${utils.escapeHtml(group.title)}">
+            <h3 class="more-drawer__group-title">${utils.escapeHtml(group.title)}</h3>
+            <div class="more-drawer__group-links">${groupItems}</div>
+          </section>
+        `;
+      }).join('');
 
       return `
         <header class="app-header--minimal app-header--rccl-site" role="banner">
           <div class="header-utility">
             <div class="header-utility__inner">
               <div class="header-utility__left">
-                <span class="header-utility__crumb">Photo Library | ${utils.escapeHtml(DEFAULT_META.ship)}</span>
+                <span class="header-utility__crumb">${utils.escapeHtml(DEFAULT_META.ship)}</span>
               </div>
-              ${utilityPromo}
+              <span class="header-utility__promo" id="navContextLine">${utils.escapeHtml(cruiseStatus.label)}</span>
             </div>
           </div>
 
@@ -1854,7 +2053,7 @@
                 <i class="fas fa-crown" aria-hidden="true"></i>
                 <div class="header-logo-text">
                   <span class="header-logo-title">${utils.escapeHtml(DEFAULT_META.brand)}</span>
-                  <span class="header-logo-subtitle">${utils.escapeHtml(DEFAULT_META.ship)} · ${utils.escapeHtml(cruiseStatus.label)}</span>
+                  <span class="header-logo-subtitle">${utils.escapeHtml(DEFAULT_META.ship)} · Cruise Companion</span>
                 </div>
               </a>
             </div>
@@ -1864,22 +2063,13 @@
             </nav>
 
             <div class="header-actions" id="headerHeaderActions">
-              ${helpCta}
-              <a href="${sanitizeHref('index.html')}" class="header-action" aria-label="Search">
-                <i class="fas fa-search" aria-hidden="true"></i>
-              </a>
-              <a href="${sanitizeHref('photos.html')}" class="header-action" aria-label="Favorites">
-                <i class="fas fa-heart" aria-hidden="true"></i>
-              </a>
-              <a href="${sanitizeHref('operations.html')}" class="header-cta header-cta--signin">
-                <span>Sign In</span>
-              </a>
+              <button type="button" class="header-cta header-cta--help" id="headerMoreButton" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
+                <span>More</span>
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+              </button>
               <button type="button" class="header-cta header-cta--install" id="pwaInstallButton" hidden aria-hidden="true">
                 <i class="fas fa-download" aria-hidden="true"></i>
                 <span>Install App</span>
-              </button>
-              <button class="header-action" id="notificationsToggle" aria-label="Notifications">
-                <i class="fas fa-bell" aria-hidden="true"></i>
               </button>
             </div>
 
@@ -1887,6 +2077,17 @@
               <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
           </div>
+
+          <div class="more-drawer-backdrop" id="moreDrawerBackdrop" hidden></div>
+          <aside class="more-drawer" id="moreDrawer" role="dialog" aria-modal="true" aria-label="More menu" hidden>
+            <div class="more-drawer__header">
+              <h2>More</h2>
+              <button type="button" class="more-drawer__close" id="moreDrawerClose" aria-label="Close menu">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+            ${drawerGroups}
+          </aside>
         </header>
       `;
     });
@@ -1944,8 +2145,29 @@
   // ---------------------------
   function renderBottomNav() {
     return safeMount('#sharedBottomNav', (mount) => {
-      mount.innerHTML = '';
-      return '';
+      const currentPage = utils.getCurrentPage();
+      const links = BOTTOM_NAV_ITEMS.map((item) => {
+        if (item.action) {
+          return `
+            <button type="button" class="bottom-nav__item bottom-nav__item--more" data-nav="${utils.escapeHtml(item.navKey)}" data-bottom-action="${utils.escapeHtml(item.action)}" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
+              <i class="fas ${item.icon}" aria-hidden="true"></i>
+              <span>${utils.escapeHtml(item.text)}</span>
+            </button>
+          `;
+        }
+        return `
+          <a href="${sanitizeHref(item.href)}" class="bottom-nav__item ${currentPage === item.id ? 'active' : ''}" data-nav="${utils.escapeHtml(item.navKey)}" ${currentPage === item.id ? 'aria-current="page"' : ''}>
+            <i class="fas ${item.icon}" aria-hidden="true"></i>
+            <span>${utils.escapeHtml(item.text)}</span>
+          </a>
+        `;
+      }).join('');
+
+      return `
+        <nav class="bottom-nav" aria-label="Bottom navigation">
+          ${links}
+        </nav>
+      `;
     });
   }
 
@@ -2004,13 +2226,6 @@
       live.textContent = message;
     }
 
-    const notificationsToggle = utils.qs('#notificationsToggle');
-    if (notificationsToggle) {
-      notificationsToggle.addEventListener('click', () => {
-        showToast('Notifications center coming soon.');
-      });
-    }
-
     const installBtn = utils.qs('#pwaInstallButton');
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const setInstallButtonVisible = (visible) => {
@@ -2056,6 +2271,92 @@
         }
       });
     }
+
+    const currentPage = utils.getCurrentPage();
+    const contextLine = utils.qs('#navContextLine');
+    if (contextLine) {
+      const now = new Date();
+      const embarkation = new Date('2026-02-14T14:00:00-05:00');
+      const disembarkation = new Date('2026-02-20T09:00:00-05:00');
+      if (now < embarkation) {
+        contextLine.textContent = cruiseStatusText(now, embarkation);
+      } else if (now >= embarkation && now <= disembarkation) {
+        contextLine.textContent = 'Onboard now · Use Today for live flow';
+      } else {
+        contextLine.textContent = 'Relive the voyage';
+      }
+    }
+
+    const moreDrawer = utils.qs('#moreDrawer');
+    const moreDrawerBackdrop = utils.qs('#moreDrawerBackdrop');
+    const moreOpenButtons = [
+      utils.qs('#headerMoreButton'),
+      ...utils.qsa('[data-bottom-action="open-more-drawer"]'),
+    ].filter(Boolean);
+    const moreDrawerClose = utils.qs('#moreDrawerClose');
+    let moreLastFocus = null;
+
+    function getDrawerFocusable() {
+      if (!moreDrawer) return [];
+      return utils.qsa('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])', moreDrawer);
+    }
+
+    function setMoreOpen(open) {
+      if (!moreDrawer || !moreDrawerBackdrop) return;
+      moreDrawer.hidden = !open;
+      moreDrawerBackdrop.hidden = !open;
+      moreDrawer.classList.toggle('is-open', open);
+      moreOpenButtons.forEach((btn) => btn.setAttribute('aria-expanded', String(open)));
+      if (open) {
+        const [first] = getDrawerFocusable();
+        first?.focus();
+      } else if (moreLastFocus && typeof moreLastFocus.focus === 'function') {
+        moreLastFocus.focus();
+      }
+    }
+
+    function openMoreDrawer(trigger) {
+      moreLastFocus = trigger || document.activeElement;
+      setMoreOpen(true);
+    }
+
+    function closeMoreDrawer() {
+      setMoreOpen(false);
+    }
+
+    moreOpenButtons.forEach((btn) => {
+      btn.addEventListener('click', () => openMoreDrawer(btn));
+    });
+    moreDrawerClose?.addEventListener('click', closeMoreDrawer);
+    moreDrawerBackdrop?.addEventListener('click', closeMoreDrawer);
+
+    if (moreDrawer) {
+      moreDrawer.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMoreDrawer();
+          return;
+        }
+        if (event.key !== 'Tab') return;
+        const focusable = getDrawerFocusable();
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      if (moreDrawer && !moreDrawer.hidden) {
+        closeMoreDrawer();
+      }
+    });
     
     // Mobile menu toggle
     const mobileToggle = utils.qs('.mobile-nav-toggle');
@@ -2111,6 +2412,23 @@
         setMobileMenuOpen(false);
       }, 250));
     }
+
+    if (currentPage === 'itinerary' && window.location.hash === '#today') {
+      const todayTarget = document.getElementById('today-card') || document.querySelector('[data-today="true"]');
+      if (todayTarget) {
+        window.requestAnimationFrame(() => {
+          todayTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    }
+  }
+
+  function cruiseStatusText(now, embarkation) {
+    const diff = embarkation.getTime() - now.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    if (days >= 2) return `${days}d ${hours}h to sail away`;
+    return 'Boarding soon · lock final details';
   }
 
   // ---------------------------
@@ -2327,6 +2645,7 @@
 
     // Inject styles
     injectMinimalStyles();
+    injectNavV2Styles();
     
     // Initialize theme
     ThemeManager.init();
@@ -2345,8 +2664,7 @@
     initReusableUiComponents();
     initServiceWorker();
     
-    // No floating bottom navigation: keep default page flow and spacing.
-    document.body.style.paddingBottom = '';
+    // Bottom navigation spacing is handled responsively via injected styles.
   }
 
   // Start
