@@ -1175,7 +1175,7 @@
       /* =========================================================
          Data (kept compatible with your current structure)
          ========================================================= */
-      const defaultPhotoData = [
+      let photoData = [
         {
           id: 1,
           title: "Adventure Exterior at Sea",
@@ -1367,42 +1367,6 @@
           tags: ["thrill", "slides"],
         },
       ];
-
-
-      const PHOTO_LIBRARY_STORAGE_KEY = "cruise.photoLibrary.customData.v1";
-
-      function loadPhotoData() {
-        try {
-          const raw = window.localStorage.getItem(PHOTO_LIBRARY_STORAGE_KEY);
-          if (!raw) return defaultPhotoData.map((photo) => ({ ...photo }));
-          const parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed)) return defaultPhotoData.map((photo) => ({ ...photo }));
-
-          return parsed
-            .filter((photo) => photo && typeof photo === "object")
-            .map((photo, index) => ({
-              id: Number(photo.id) || index + 1,
-              title: String(photo.title || "Untitled photo"),
-              src: String(photo.src || ""),
-              category: String(photo.category || "decks"),
-              deck: photo.deck == null ? "" : String(photo.deck),
-              source: photo.source === "passenger" ? "passenger" : "official",
-              description: String(photo.description || "Added from manage photos panel."),
-              notes: photo.notes == null ? "" : String(photo.notes),
-              tags: Array.isArray(photo.tags)
-                ? photo.tags.map((tag) => String(tag).trim()).filter(Boolean)
-                : [],
-            }));
-        } catch {
-          return defaultPhotoData.map((photo) => ({ ...photo }));
-        }
-      }
-
-      function savePhotoData() {
-        window.localStorage.setItem(PHOTO_LIBRARY_STORAGE_KEY, JSON.stringify(photoData));
-      }
-
-      let photoData = loadPhotoData();
 
       function getValidPhotoData() {
         return photoData.filter(
@@ -1899,7 +1863,6 @@
           };
 
           photoData.push(newPhoto);
-          savePhotoData();
           updateHeroStats();
           manageStatus.textContent = `Added ${newPhoto.title}.`;
           resetManageForm();
@@ -1925,7 +1888,6 @@
           selected.notes = notes;
           selected.description = notes || selected.description;
 
-          savePhotoData();
           manageStatus.textContent = `Updated ${selected.title}.`;
           updateHeroStats();
           render();
@@ -1935,7 +1897,6 @@
           const toDelete = new Set(selectedPhotoIds);
           if (!toDelete.size) return;
           photoData = photoData.filter((photo) => !toDelete.has(photo.id));
-          savePhotoData();
           selectedPhotoIds = new Set();
           manageStatus.textContent = `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}.`;
           updateHeroStats();
