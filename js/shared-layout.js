@@ -144,7 +144,7 @@
     const stylesheetId = 'rccl-minimal-stylesheet';
     if (document.getElementById(styleId) || document.getElementById(stylesheetId)) return;
 
-    const cssHref = 'css/shared-layout.css?v=4';
+    const cssHref = 'css/shared-layout.css?v=5';
     const linkEl = document.createElement('link');
     linkEl.id = stylesheetId;
     linkEl.rel = 'stylesheet';
@@ -2067,10 +2067,10 @@
         mobileToggle.setAttribute('aria-expanded', String(isOpen));
 
         if (window.innerWidth <= 768) {
-          headerNav.style.display = isOpen ? 'flex' : 'none';
-          headerActions.style.display = isOpen ? 'flex' : 'none';
+          headerNav.style.display = isOpen ? 'grid' : 'none';
+          headerActions.style.display = 'none';
           headerNav.setAttribute('aria-hidden', String(!isOpen));
-          headerActions.setAttribute('aria-hidden', String(!isOpen));
+          headerActions.setAttribute('aria-hidden', 'true');
         } else {
           headerNav.style.display = 'flex';
           headerActions.style.display = 'flex';
