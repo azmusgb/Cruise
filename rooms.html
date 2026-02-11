@@ -259,6 +259,12 @@
             flex-wrap: wrap;
         }
 
+        .family-finder__favorites {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .family-finder__quick-btn {
             border-radius: 999px;
             border: 1px solid rgba(255, 255, 255, 0.42);
@@ -272,6 +278,11 @@
 
         .family-finder__quick-btn:hover {
             background: rgba(255, 255, 255, 0.24);
+        }
+
+        .family-finder__quick-btn--favorite {
+            border-color: rgba(255, 223, 137, 0.7);
+            background: rgba(255, 223, 137, 0.26);
         }
 
         .family-finder__status {
@@ -1795,10 +1806,12 @@
                 <div class="family-finder__controls">
                     <label class="sr-only" for="guestFinderInput">Search guest name</label>
                     <input id="guestFinderInput" type="search" placeholder="Type a guest name (for example: Melissa)" list="guestFinderList" enterkeyhint="search" inputmode="search" autocapitalize="words" />
+                    <button id="guestFinderFavorite" type="button" class="filter-btn">Save favorite</button>
                     <button id="guestFinderClear" type="button" class="filter-btn">Clear</button>
                 </div>
                 <datalist id="guestFinderList"></datalist>
                 <div id="guestFinderQuick" class="family-finder__quick" aria-label="Quick family picks"></div>
+                <div id="guestFinderFavorites" class="family-finder__favorites" aria-label="Favorite people"></div>
                 <p id="guestFinderStatus" class="family-finder__status" role="status" aria-live="polite"></p>
             </section>
 
@@ -2270,6 +2283,8 @@
             const guestFinderList = document.getElementById('guestFinderList');
             const guestFinderQuick = document.getElementById('guestFinderQuick');
             const guestFinderStatus = document.getElementById('guestFinderStatus');
+            const guestFinderFavorite = document.getElementById('guestFinderFavorite');
+            const guestFinderFavorites = document.getElementById('guestFinderFavorites');
             const guestFinderClear = document.getElementById('guestFinderClear');
             const roomCards = Array.from(document.querySelectorAll('#roomsGridSource .room-card'));
             const focusGrid = document.getElementById('focusGrid');
@@ -2301,6 +2316,8 @@
             let currentModalRoomIndex = -1;
             const compareSet = new Set();
             const guestToCards = new Map();
+            const GUEST_FAVORITES_KEY = 'rooms-favorite-guests-v1';
+            let favoriteGuests = [];
 
             function computeRoomPriority(card) {
                 const musterComplete = card.dataset.musterComplete === 'true';
@@ -2318,6 +2335,56 @@
                 if (guestFinderStatus) {
                     guestFinderStatus.textContent = message;
                 }
+            }
+
+            function normalizeGuestName(name) {
+                return String(name || '')
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .toLowerCase();
+            }
+
+            function toDisplayGuestName(name) {
+                return String(name || '')
+                    .trim()
+                    .replace(/\s+/g, ' ')
+                    .split(' ')
+                    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                    .join(' ');
+            }
+
+            function readFavoriteGuests() {
+                try {
+                    const raw = localStorage.getItem(GUEST_FAVORITES_KEY);
+                    const parsed = raw ? JSON.parse(raw) : [];
+                    return Array.isArray(parsed) ? parsed.map(normalizeGuestName).filter(Boolean) : [];
+                } catch (_error) {
+                    return [];
+                }
+            }
+
+            function writeFavoriteGuests(names) {
+                localStorage.setItem(GUEST_FAVORITES_KEY, JSON.stringify(names));
+            }
+
+            function renderFavoriteGuests() {
+                if (!guestFinderFavorites) return;
+                if (!favoriteGuests.length) {
+                    guestFinderFavorites.innerHTML = '';
+                    return;
+                }
+
+                guestFinderFavorites.innerHTML = favoriteGuests.map((name) => (
+                    `<button type="button" class="family-finder__quick-btn family-finder__quick-btn--favorite" data-favorite-name="${toDisplayGuestName(name)}">★ ${toDisplayGuestName(name)}</button>`
+                )).join('');
+
+                guestFinderFavorites.querySelectorAll('[data-favorite-name]').forEach((button) => {
+                    button.addEventListener('click', function() {
+                        const name = this.getAttribute('data-favorite-name') || '';
+                        guestFinderInput.value = name;
+                        runGuestLookup(name);
+                    });
+                });
             }
 
             function collectGuestsFromCard(card) {
@@ -2387,7 +2454,7 @@
                 if (!guestFinderInput || !guestFinderList) return;
 
                 const allGuestNames = Array.from(guestToCards.keys())
-                    .map((key) => key.charAt(0).toUpperCase() + key.slice(1))
+                    .map((key) => toDisplayGuestName(key))
                     .sort((a, b) => a.localeCompare(b));
 
                 guestFinderList.innerHTML = allGuestNames
@@ -2421,6 +2488,29 @@
                     guestFinderInput.value = '';
                     runGuestLookup('', { clearSearch: true });
                     guestFinderInput.focus();
+                });
+
+                favoriteGuests = readFavoriteGuests().filter((name) => guestToCards.has(name));
+                writeFavoriteGuests(favoriteGuests);
+                renderFavoriteGuests();
+
+                guestFinderFavorite?.addEventListener('click', function() {
+                    const normalized = normalizeGuestName(guestFinderInput.value);
+                    if (!normalized) {
+                        setGuestFinderStatus('Enter a guest name before saving a favorite.');
+                        return;
+                    }
+                    if (!guestToCards.has(normalized)) {
+                        setGuestFinderStatus(`"${guestFinderInput.value.trim()}" is not in the guest list.`);
+                        return;
+                    }
+                    if (!favoriteGuests.includes(normalized)) {
+                        favoriteGuests.unshift(normalized);
+                        favoriteGuests = favoriteGuests.slice(0, 8);
+                        writeFavoriteGuests(favoriteGuests);
+                        renderFavoriteGuests();
+                    }
+                    setGuestFinderStatus(`${toDisplayGuestName(normalized)} saved to favorites.`);
                 });
             }
 

@@ -2042,6 +2042,7 @@
             <div class="header-utility__inner">
               <div class="header-utility__left">
                 <span class="header-utility__crumb">${utils.escapeHtml(DEFAULT_META.ship)}</span>
+                <span class="header-utility__mode" id="navModeBadge">Before Sail</span>
               </div>
               <span class="header-utility__promo" id="navContextLine">${utils.escapeHtml(cruiseStatus.label)}</span>
             </div>
@@ -2274,16 +2275,46 @@
 
     const currentPage = utils.getCurrentPage();
     const contextLine = utils.qs('#navContextLine');
+    const modeBadge = utils.qs('#navModeBadge');
     if (contextLine) {
       const now = new Date();
       const embarkation = new Date('2026-02-14T14:00:00-05:00');
       const disembarkation = new Date('2026-02-20T09:00:00-05:00');
+      const cruiseStart = new Date('2026-02-14T00:00:00-05:00');
+      const cruiseEnd = new Date('2026-02-20T23:59:59-05:00');
       if (now < embarkation) {
         contextLine.textContent = cruiseStatusText(now, embarkation);
       } else if (now >= embarkation && now <= disembarkation) {
         contextLine.textContent = 'Onboard now · Use Today for live flow';
       } else {
         contextLine.textContent = 'Relive the voyage';
+      }
+
+      if (modeBadge) {
+        let badgeText = 'Before Sail';
+        let badgeClass = 'mode-before';
+        if (now < cruiseStart) {
+          badgeText = 'Before Sail';
+          badgeClass = 'mode-before';
+        } else if (now > cruiseEnd) {
+          badgeText = 'Memories';
+          badgeClass = 'mode-post';
+        } else {
+          const day = Math.max(1, Math.min(7, Math.floor((now - cruiseStart) / (1000 * 60 * 60 * 24)) + 1));
+          const portDays = new Set([3, 4, 6]);
+          if (day === 1) {
+            badgeText = 'Boarding Day';
+            badgeClass = 'mode-boarding';
+          } else if (portDays.has(day)) {
+            badgeText = 'Port Day';
+            badgeClass = 'mode-port';
+          } else {
+            badgeText = 'Sea Day';
+            badgeClass = 'mode-sea';
+          }
+        }
+        modeBadge.textContent = badgeText;
+        modeBadge.className = `header-utility__mode ${badgeClass}`;
       }
     }
 

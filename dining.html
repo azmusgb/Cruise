@@ -420,7 +420,7 @@
             </div>
           </article>
 
-          <article class="deck-card" role="listitem" data-venue-type="specialty" data-search="giovanni specialty italian trattoria reservations family style wine list house pastas">
+          <article id="venue-giovanni" class="deck-card" role="listitem" data-venue-type="specialty" data-search="giovanni specialty italian trattoria reservations family style wine list house pastas">
             <span class="venue-type venue-type--specialty">Specialty</span>
             <div class="deck-visual">
               <span class="deck-number">5</span>
@@ -446,7 +446,7 @@
             </div>
           </article>
 
-          <article class="deck-card" role="listitem" data-venue-type="specialty" data-search="izumi specialty sushi hibachi reservations hibachi show sushi bar omakase">
+          <article id="venue-izumi" class="deck-card" role="listitem" data-venue-type="specialty" data-search="izumi specialty sushi hibachi reservations hibachi show sushi bar omakase">
             <span class="venue-type venue-type--specialty">Specialty</span>
             <div class="deck-visual">
               <span class="deck-number">6</span>
@@ -529,6 +529,7 @@
       let activeFilter = 'all';
       let searchTimer;
       const SEARCH_DELAY_MS = 120;
+      const deepLinkPick = new URLSearchParams(window.location.search).get('pick');
 
       if (!searchInput || !searchStatus || !emptyState || total === 0) {
         return;
@@ -601,6 +602,46 @@
         targetCard?.classList.add('deck-card--context-pick');
       }
 
+      function applyPickFromDeepLink() {
+        if (!deepLinkPick) return;
+        const pickMap = {
+          chops: '#venue-chops',
+          windjammer: '#venue-windjammer',
+          cafe: '#venue-cafe',
+          giovanni: '#venue-giovanni',
+          izumi: '#venue-izumi',
+          'main-dining': '#venue-main-dining',
+        };
+        const targetSelector = pickMap[deepLinkPick.toLowerCase()];
+        if (!targetSelector) return;
+        const target = document.querySelector(targetSelector);
+        if (!target) return;
+
+        const targetType = target.dataset.venueType || 'all';
+        activeFilter = targetType;
+        filterButtons.forEach((button) => {
+          const isActive = (button.dataset.filter || '') === activeFilter;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-checked', String(isActive));
+        });
+
+        searchInput.value = '';
+        updateDiningView();
+        cards.forEach((card) => card.classList.remove('deck-card--context-pick'));
+        target.classList.add('deck-card--context-pick');
+
+        if (contextTitle && contextBody && contextAction && contextActionText) {
+          contextTitle.textContent = "Tonight's Pick from Home";
+          contextBody.textContent = 'Opened from dashboard shortcut with this venue preselected.';
+          contextAction.setAttribute('href', targetSelector);
+          contextActionText.textContent = `Jump to ${target.querySelector('h3')?.textContent || 'venue'}`;
+        }
+
+        window.requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
+
       function updateDiningView() {
         const term = searchInput.value.toLowerCase().trim();
         let visible = 0;
@@ -650,6 +691,7 @@
 
       updateDiningView();
       applyDiningContext();
+      applyPickFromDeepLink();
     });
   </script>
 </body>
