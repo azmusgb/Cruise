@@ -426,6 +426,90 @@
         font-weight: 700;
       }
 
+      .manage-actions {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .manage-btn {
+        border: 1px solid var(--royal-border);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--royal-navy);
+        font-weight: 800;
+        padding: 0.42rem 0.7rem;
+        cursor: pointer;
+      }
+
+      .manage-btn.active {
+        background: var(--royal-blue);
+        border-color: var(--royal-blue);
+        color: #fff;
+      }
+
+      .manage-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .manage-panel {
+        display: grid;
+        gap: 0.75rem;
+        background: #fff;
+        border: 1px solid var(--royal-border);
+        border-radius: 14px;
+        padding: 0.9rem;
+        margin-bottom: 1rem;
+        box-shadow: var(--royal-shadow-lg);
+      }
+
+      .manage-panel[hidden] {
+        display: none;
+      }
+
+      .manage-panel__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.6rem;
+      }
+
+      .manage-panel label {
+        display: grid;
+        gap: 0.3rem;
+        font-weight: 700;
+        color: var(--royal-navy);
+      }
+
+      .manage-panel input,
+      .manage-panel textarea,
+      .manage-panel select {
+        border: 1px solid var(--royal-border);
+        border-radius: 10px;
+        padding: 0.5rem 0.6rem;
+        font: inherit;
+        background: #fff;
+      }
+
+      .manage-panel textarea {
+        min-height: 70px;
+        resize: vertical;
+      }
+
+      .manage-panel__actions {
+        display: flex;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+      }
+
+      .manage-help {
+        margin: 0;
+        color: var(--royal-ink);
+        font-size: 0.87rem;
+        font-weight: 700;
+      }
+
       .gallery-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -465,6 +549,28 @@
         display: flex;
         flex-direction: column;
         cursor: pointer;
+      }
+
+      .select-photo {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        z-index: 4;
+        width: 20px;
+        height: 20px;
+        accent-color: var(--royal-blue);
+      }
+
+      .photo-card.selected,
+      .list-item.selected {
+        box-shadow: 0 0 0 3px rgba(0, 121, 212, 0.35), var(--royal-shadow-xl);
+      }
+
+      .photo-card__notes {
+        margin: 0.5rem 0 0;
+        color: #38566f;
+        font-size: 0.84rem;
+        font-style: italic;
       }
 
       /* Category accent band (data-category applied by JS) */
@@ -922,7 +1028,71 @@
               <option value="deck">Deck</option>
             </select>
           </div>
+
+          <div class="manage-actions" aria-label="Manage photo actions">
+            <button class="manage-btn" id="toggleManageMode" type="button">
+              <i class="fas fa-pen-to-square" aria-hidden="true"></i> Manage photos
+            </button>
+            <button class="manage-btn" id="addPhotoBtn" type="button">
+              <i class="fas fa-plus" aria-hidden="true"></i> Add
+            </button>
+            <button class="manage-btn" id="replacePhotoBtn" type="button" disabled>
+              <i class="fas fa-arrows-rotate" aria-hidden="true"></i> Replace
+            </button>
+            <button class="manage-btn" id="deletePhotoBtn" type="button" disabled>
+              <i class="fas fa-trash" aria-hidden="true"></i> Delete
+            </button>
+          </div>
         </div>
+
+        <form class="manage-panel" id="managePanel" hidden>
+          <div class="manage-panel__grid">
+            <label>
+              Name
+              <input id="manageTitle" type="text" placeholder="Photo name" />
+            </label>
+            <label>
+              Category
+              <select id="manageCategory">
+                <option value="staterooms">Staterooms</option>
+                <option value="dining">Dining</option>
+                <option value="decks">Decks</option>
+                <option value="ports">Ports</option>
+                <option value="activities">Activities</option>
+              </select>
+            </label>
+            <label>
+              Deck
+              <input id="manageDeck" type="text" placeholder="e.g. 12" />
+            </label>
+            <label>
+              Source
+              <select id="manageSource">
+                <option value="official">Official</option>
+                <option value="passenger">Passenger</option>
+              </select>
+            </label>
+            <label>
+              Image path
+              <input id="manageSrc" type="text" placeholder="images/..." required />
+            </label>
+            <label>
+              Tags (comma separated)
+              <input id="manageTags" type="text" placeholder="hero, deck-12" />
+            </label>
+          </div>
+
+          <label>
+            Notes / description
+            <textarea id="manageNotes" placeholder="Notes about this photo"></textarea>
+          </label>
+
+          <div class="manage-panel__actions">
+            <button class="manage-btn" id="saveNewPhotoBtn" type="submit">Save new photo</button>
+            <button class="manage-btn" id="cancelManageBtn" type="button">Cancel</button>
+          </div>
+          <p class="manage-help" id="manageStatus">Manage mode is off.</p>
+        </form>
 
         <div class="gallery-grid" id="photoGrid" role="list" aria-label="Photo grid"></div>
         <div class="gallery-list" id="photoList" role="list" aria-label="Photo list"></div>
@@ -1005,7 +1175,7 @@
       /* =========================================================
          Data (kept compatible with your current structure)
          ========================================================= */
-      const photoData = [
+      const defaultPhotoData = [
         {
           id: 1,
           title: "Adventure Exterior at Sea",
@@ -1198,9 +1368,71 @@
         },
       ];
 
-      const validPhotoData = photoData.filter(
-        (photo) => typeof photo.src === "string" && photo.src.startsWith("images/"),
-      );
+
+      const PHOTO_LIBRARY_STORAGE_KEY = "cruise.photoLibrary.customData.v1";
+
+      function getDefaultPhotoData() {
+        return defaultPhotoData.map((photo) => ({ ...photo }));
+      }
+
+      function canUseLocalStorage() {
+        try {
+          if (!window.localStorage) return false;
+          const testKey = `${PHOTO_LIBRARY_STORAGE_KEY}.test`;
+          window.localStorage.setItem(testKey, "1");
+          window.localStorage.removeItem(testKey);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      function loadPhotoData() {
+        if (!canUseLocalStorage()) return getDefaultPhotoData();
+
+        try {
+          const raw = window.localStorage.getItem(PHOTO_LIBRARY_STORAGE_KEY);
+          if (!raw) return getDefaultPhotoData();
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return getDefaultPhotoData();
+
+          return parsed
+            .filter((photo) => photo && typeof photo === "object")
+            .map((photo, index) => ({
+              id: Number(photo.id) || index + 1,
+              title: String(photo.title || "Untitled photo"),
+              src: String(photo.src || ""),
+              category: String(photo.category || "decks"),
+              deck: photo.deck == null ? "" : String(photo.deck),
+              source: photo.source === "passenger" ? "passenger" : "official",
+              description: String(photo.description || "Added from manage photos panel."),
+              notes: photo.notes == null ? "" : String(photo.notes),
+              tags: Array.isArray(photo.tags)
+                ? photo.tags.map((tag) => String(tag).trim()).filter(Boolean)
+                : [],
+            }));
+        } catch {
+          return getDefaultPhotoData();
+        }
+      }
+
+      function savePhotoData() {
+        if (!canUseLocalStorage()) return false;
+        try {
+          window.localStorage.setItem(PHOTO_LIBRARY_STORAGE_KEY, JSON.stringify(photoData));
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      let photoData = loadPhotoData();
+
+      function getValidPhotoData() {
+        return photoData.filter(
+          (photo) => typeof photo.src === "string" && photo.src.startsWith("images/"),
+        );
+      }
 
       document.addEventListener("DOMContentLoaded", () => {
         const galleryGrid = document.getElementById("photoGrid");
@@ -1233,20 +1465,42 @@
         const nextButton = document.getElementById("nextPhoto");
         const closeButton = document.getElementById("closeLightbox");
 
+        const toggleManageMode = document.getElementById("toggleManageMode");
+        const addPhotoBtn = document.getElementById("addPhotoBtn");
+        const replacePhotoBtn = document.getElementById("replacePhotoBtn");
+        const deletePhotoBtn = document.getElementById("deletePhotoBtn");
+        const managePanel = document.getElementById("managePanel");
+        const manageForm = managePanel;
+        const manageTitle = document.getElementById("manageTitle");
+        const manageCategory = document.getElementById("manageCategory");
+        const manageDeck = document.getElementById("manageDeck");
+        const manageSource = document.getElementById("manageSource");
+        const manageSrc = document.getElementById("manageSrc");
+        const manageTags = document.getElementById("manageTags");
+        const manageNotes = document.getElementById("manageNotes");
+        const cancelManageBtn = document.getElementById("cancelManageBtn");
+        const manageStatus = document.getElementById("manageStatus");
+
         let currentFilter = "all";
         let currentView = "grid";
         let currentSearch = "";
         let currentSort = "relevance";
         let currentIndex = 0;
-        let filteredPhotos = [...validPhotoData];
+        let filteredPhotos = getValidPhotoData();
+        let manageMode = false;
+        let selectedPhotoIds = new Set();
 
         /* -----------------------------
            Hero stats
            ----------------------------- */
-        const categories = new Set(photoData.map((p) => p.category));
-        heroTotal.textContent = String(photoData.length);
-        heroCats.textContent = String(categories.size);
-        heroOfficial.textContent = String(photoData.filter((p) => p.source === "official").length);
+        function updateHeroStats() {
+          const categories = new Set(photoData.map((p) => p.category));
+          heroTotal.textContent = String(photoData.length);
+          heroCats.textContent = String(categories.size);
+          heroOfficial.textContent = String(photoData.filter((p) => p.source === "official").length);
+        }
+
+        updateHeroStats();
 
         /* -----------------------------
            Helpers
@@ -1270,16 +1524,16 @@
         function score(photo, searchTerm) {
           if (!searchTerm) return 0;
           const haystack =
-            `${photo.title} ${photo.description} ${photo.category} ${photo.deck || ""} ${photo.tags.join(" ")}`.toLowerCase();
+            `${photo.title} ${photo.description} ${photo.notes || ""} ${photo.category} ${photo.deck || ""} ${(photo.tags || []).join(" ")}`.toLowerCase();
           if (!haystack.includes(searchTerm)) return -1;
           if (photo.title.toLowerCase().includes(searchTerm)) return 3;
-          if (photo.tags.join(" ").includes(searchTerm)) return 2;
+          if ((photo.tags || []).join(" ").includes(searchTerm)) return 2;
           return 1;
         }
 
         function filterAndSort() {
           const term = currentSearch.trim().toLowerCase();
-          filteredPhotos = validPhotoData
+          filteredPhotos = getValidPhotoData()
             .filter((photo) => matchesFilter(photo))
             .map((photo) => ({ photo, relevance: score(photo, term) }))
             .filter((item) => item.relevance >= (term ? 0 : -1));
@@ -1320,10 +1574,10 @@
            ----------------------------- */
         function buildFeatured() {
           // Pick “hero-ish” images first; otherwise top few official.
-          const heroish = photoData.filter((p) => p.tags.includes("hero") || p.category === "ports" || p.category === "decks");
+          const heroish = photoData.filter((p) => (p.tags || []).includes("hero") || p.category === "ports" || p.category === "decks");
           const picks = (heroish.length ? heroish : photoData)
             .slice()
-            .sort((a, b) => (b.tags.includes("hero") ? 1 : 0) - (a.tags.includes("hero") ? 1 : 0))
+            .sort((a, b) => (((b.tags || []).includes("hero") ? 1 : 0) - ((a.tags || []).includes("hero") ? 1 : 0)))
             .slice(0, 6);
 
           featuredRail.innerHTML = picks
@@ -1389,13 +1643,15 @@
           galleryGrid.innerHTML = filteredPhotos
             .map(
               (photo, idx) => `
-                <article class="photo-card" role="listitem" tabindex="0" data-index="${idx}" data-category="${photo.category}">
+                <article class="photo-card ${selectedPhotoIds.has(photo.id) ? "selected" : ""}" role="listitem" tabindex="0" data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
+                  ${manageMode ? `<input class="select-photo" type="checkbox" data-select-id="${photo.id}" aria-label="Select ${photo.title}" ${selectedPhotoIds.has(photo.id) ? "checked" : ""} />` : ""}
                   <span class="source-badge"><i class="fas fa-${photo.source === "official" ? "crown" : "camera"}"></i> ${photo.source}</span>
                   <img class="photo-card__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
                   <div class="photo-card__content">
                     <h3 class="photo-card__title">${photo.title}</h3>
                     <div class="photo-card__meta">${renderMeta(photo)}</div>
                     <p class="photo-card__description">${photo.description}</p>
+                    ${photo.notes ? `<p class="photo-card__notes">${photo.notes}</p>` : ""}
                   </div>
                 </article>
               `
@@ -1405,13 +1661,15 @@
           galleryList.innerHTML = filteredPhotos
             .map(
               (photo, idx) => `
-                <article class="list-item" role="listitem" tabindex="0" data-index="${idx}" data-category="${photo.category}">
+                <article class="list-item ${selectedPhotoIds.has(photo.id) ? "selected" : ""}" role="listitem" tabindex="0" data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
+                  ${manageMode ? `<input class="select-photo" type="checkbox" data-select-id="${photo.id}" aria-label="Select ${photo.title}" ${selectedPhotoIds.has(photo.id) ? "checked" : ""} />` : ""}
                   <span class="source-badge"><i class="fas fa-${photo.source === "official" ? "crown" : "camera"}"></i> ${photo.source}</span>
                   <img class="list-item__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
                   <div class="list-item__content">
                     <h3 class="photo-card__title">${photo.title}</h3>
                     <div class="photo-card__meta">${renderMeta(photo)}</div>
                     <p class="photo-card__description">${photo.description}</p>
+                    ${photo.notes ? `<p class="photo-card__notes">${photo.notes}</p>` : ""}
                   </div>
                 </article>
               `
@@ -1420,6 +1678,48 @@
 
           // Shimmer all newly rendered images
           document.querySelectorAll("#photoGrid img, #photoList img").forEach(injectShimmer);
+          syncManageButtons();
+        }
+
+        function syncManageButtons() {
+          const selectedCount = selectedPhotoIds.size;
+          replacePhotoBtn.disabled = selectedCount !== 1;
+          deletePhotoBtn.disabled = selectedCount < 1;
+          if (manageMode && selectedCount === 1) {
+            fillManageForm(getSelectedPhotos()[0]);
+          }
+          manageStatus.textContent = manageMode
+            ? `${selectedCount} selected. Add, replace, delete, and edit names/tags/notes.`
+            : "Manage mode is off.";
+        }
+
+        function resetManageForm() {
+          manageForm.reset();
+          manageStatus.textContent = manageMode
+            ? `${selectedPhotoIds.size} selected. Add, replace, delete, and edit names/tags/notes.`
+            : "Manage mode is off.";
+        }
+
+        function fillManageForm(photo) {
+          if (!photo) return;
+          manageTitle.value = photo.title || "";
+          manageCategory.value = photo.category || "decks";
+          manageDeck.value = photo.deck || "";
+          manageSource.value = photo.source || "official";
+          manageSrc.value = photo.src || "";
+          manageTags.value = (photo.tags || []).join(", ");
+          manageNotes.value = photo.notes || photo.description || "";
+        }
+
+        function parseTags(rawTags) {
+          return rawTags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean);
+        }
+
+        function getSelectedPhotos() {
+          return photoData.filter((photo) => selectedPhotoIds.has(photo.id));
         }
 
         /* -----------------------------
@@ -1470,8 +1770,17 @@
         }
 
         function activateCard(event) {
+          if (event.target.closest(".select-photo")) return;
           const card = event.target.closest("[data-index]");
           if (!card) return;
+          if (manageMode) {
+            const photoId = Number(card.dataset.id);
+            if (!photoId) return;
+            if (selectedPhotoIds.has(photoId)) selectedPhotoIds.delete(photoId);
+            else selectedPhotoIds.add(photoId);
+            render();
+            return;
+          }
           openLightbox(Number(card.dataset.index));
         }
 
@@ -1481,6 +1790,18 @@
             if (event.key !== "Enter" && event.key !== " ") return;
             event.preventDefault();
             activateCard(event);
+          });
+          container.addEventListener("change", (event) => {
+            const checkbox = event.target.closest(".select-photo");
+            if (!checkbox) return;
+            const id = Number(checkbox.dataset.selectId);
+            if (!id) return;
+            if (checkbox.checked) selectedPhotoIds.add(id);
+            else selectedPhotoIds.delete(id);
+            syncManageButtons();
+            document.querySelectorAll(`.select-photo[data-select-id="${id}"]`).forEach((input) => {
+              input.checked = selectedPhotoIds.has(id);
+            });
           });
         });
 
@@ -1555,6 +1876,108 @@
         clearSearchBtn.addEventListener("click", () => {
           currentSearch = "";
           searchInput.value = "";
+          render();
+        });
+
+        toggleManageMode.addEventListener("click", () => {
+          manageMode = !manageMode;
+          managePanel.hidden = !manageMode;
+          toggleManageMode.classList.toggle("active", manageMode);
+          if (!manageMode) {
+            selectedPhotoIds = new Set();
+            resetManageForm();
+          }
+          render();
+        });
+
+        addPhotoBtn.addEventListener("click", () => {
+          manageMode = true;
+          managePanel.hidden = false;
+          toggleManageMode.classList.add("active");
+          selectedPhotoIds = new Set();
+          resetManageForm();
+          manageStatus.textContent = "Adding a new photo. Fill out name, tags, notes, and image path.";
+          render();
+        });
+
+        manageForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const src = manageSrc.value.trim();
+          if (!src.startsWith("images/")) {
+            manageStatus.textContent = "Image path must start with images/.";
+            return;
+          }
+
+          const nextId = photoData.reduce((max, photo) => Math.max(max, Number(photo.id) || 0), 0) + 1;
+          const notes = manageNotes.value.trim();
+          const newPhoto = {
+            id: nextId,
+            title: manageTitle.value.trim() || "Untitled photo",
+            src,
+            category: manageCategory.value,
+            deck: manageDeck.value.trim(),
+            source: manageSource.value,
+            description: notes || "Added from manage photos panel.",
+            notes,
+            tags: parseTags(manageTags.value),
+          };
+
+          photoData.push(newPhoto);
+          const saved = savePhotoData();
+          updateHeroStats();
+          manageStatus.textContent = saved
+            ? `Added ${newPhoto.title}.`
+            : `Added ${newPhoto.title}, but browser storage is unavailable so it may not persist.`;
+          resetManageForm();
+          render();
+        });
+
+        replacePhotoBtn.addEventListener("click", () => {
+          const [selected] = getSelectedPhotos();
+          if (!selected) return;
+          const src = manageSrc.value.trim();
+          if (!src.startsWith("images/")) {
+            manageStatus.textContent = "Image path must start with images/.";
+            return;
+          }
+
+          selected.title = manageTitle.value.trim() || selected.title;
+          selected.category = manageCategory.value;
+          selected.deck = manageDeck.value.trim();
+          selected.source = manageSource.value;
+          selected.src = src;
+          selected.tags = parseTags(manageTags.value);
+          const notes = manageNotes.value.trim();
+          selected.notes = notes;
+          selected.description = notes || selected.description;
+
+          const saved = savePhotoData();
+          manageStatus.textContent = saved
+            ? `Updated ${selected.title}.`
+            : `Updated ${selected.title}, but browser storage is unavailable so it may not persist.`;
+          updateHeroStats();
+          render();
+        });
+
+        deletePhotoBtn.addEventListener("click", () => {
+          const toDelete = new Set(selectedPhotoIds);
+          if (!toDelete.size) return;
+          photoData = photoData.filter((photo) => !toDelete.has(photo.id));
+          const saved = savePhotoData();
+          selectedPhotoIds = new Set();
+          manageStatus.textContent = saved
+            ? `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}.`
+            : `Deleted ${toDelete.size} photo${toDelete.size === 1 ? "" : "s"}, but browser storage is unavailable so it may not persist.`;
+          updateHeroStats();
+          render();
+        });
+
+        cancelManageBtn.addEventListener("click", () => {
+          manageMode = false;
+          managePanel.hidden = true;
+          toggleManageMode.classList.remove("active");
+          selectedPhotoIds = new Set();
+          resetManageForm();
           render();
         });
 
