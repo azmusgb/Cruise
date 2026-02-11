@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-theme-mode="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0079d4" />
+    <title>Photo Library | Adventure of the Seas</title>
+    <meta
+      name="description"
+      content="Searchable photo library for dining, deck spaces, activities, and ports on Adventure of the Seas."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/base.css?v=3" />
+    <link rel="stylesheet" href="css/utilities.css?v=3" />
+    <link rel="stylesheet" href="css/components.css?v=3" />
+    <script src="js/shared-layout.js?v=9" defer></script>
+    <style>
+      .photo-library-page {
+        --gallery-gap: 14px;
+      }
+
+      .photo-hero {
+        background: linear-gradient(
+          130deg,
+          var(--royal-navy) 0%,
+          var(--royal-blue) 52%,
+          #129bd8 100%
+        );
+        color: #fff;
+        margin-bottom: 1.2rem;
+      }
+
+      .photo-hero__inner,
+      .gallery-controls__inner,
+      .gallery-main,
+      .quick-links {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.2rem 1.2rem;
+      }
+
+      .photo-hero h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 5vw, 2.6rem);
+      }
+
+      .photo-hero__subtitle {
+        margin: 0.55rem 0 1rem;
+        opacity: 0.92;
+        max-width: 70ch;
+      }
+
+      .hero-category-shortcuts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+      }
+
+      .gallery-controls {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        backdrop-filter: blur(8px);
+        background: rgba(255, 255, 255, 0.94);
+        border-bottom: 1px solid var(--royal-border);
+      }
+
+      .gallery-controls__inner {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto auto;
+        align-items: center;
+        gap: 0.8rem;
+        padding-top: 0.8rem;
+        padding-bottom: 0.8rem;
+      }
+
+      .gallery-search {
+        position: relative;
+      }
+
+      .gallery-search i {
+        position: absolute;
+        top: 50%;
+        left: 0.85rem;
+        transform: translateY(-50%);
+        color: var(--royal-ink);
+        opacity: 0.7;
+      }
+
+      .gallery-search input {
+        width: 100%;
+        border: 2px solid var(--royal-border);
+        border-radius: 10px;
+        padding: 0.7rem 0.85rem 0.7rem 2.25rem;
+        font: inherit;
+      }
+
+      .gallery-filters,
+      .gallery-view-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-btn,
+      .view-btn {
+        border: 2px solid var(--royal-border);
+        background: #fff;
+        color: var(--royal-navy);
+        padding: 0.55rem 0.85rem;
+        border-radius: 999px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--royal-transition);
+        text-decoration: none;
+      }
+
+      .view-btn {
+        border-radius: 10px;
+        min-width: 42px;
+        text-align: center;
+      }
+
+      .filter-btn:is(:hover, :focus-visible),
+      .view-btn:is(:hover, :focus-visible) {
+        border-color: var(--royal-blue);
+        outline: none;
+      }
+
+      .filter-btn.active,
+      .view-btn.active {
+        color: #fff;
+        border-color: var(--royal-blue);
+        background: var(--royal-blue);
+      }
+
+      .gallery-main {
+        padding-top: 1.2rem;
+        padding-bottom: 2rem;
+      }
+
+      .gallery-info-bar {
+        background: var(--royal-light);
+        border: 1px solid var(--royal-border);
+        border-radius: 12px;
+        padding: 0.7rem 0.9rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.6rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .photo-count {
+        font-weight: 700;
+        color: var(--royal-navy);
+      }
+
+      .sort-control select {
+        padding: 0.45rem 0.65rem;
+        border: 2px solid var(--royal-border);
+        border-radius: 8px;
+        background: #fff;
+        font: inherit;
+        font-weight: 600;
+      }
+
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: var(--gallery-gap);
+      }
+
+      .gallery-list {
+        display: grid;
+        gap: 0.8rem;
+      }
+
+      .gallery-list-view .gallery-grid {
+        display: none;
+      }
+
+      .gallery-grid-view .gallery-list {
+        display: none;
+      }
+
+      .photo-card,
+      .list-item {
+        border: 1px solid var(--royal-border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: var(--royal-shadow-lg);
+        transition: var(--royal-transition);
+      }
+
+      .photo-card:is(:hover, :focus-within),
+      .list-item:is(:hover, :focus-within) {
+        transform: translateY(-2px);
+        box-shadow: var(--royal-shadow-xl);
+      }
+
+      .photo-card {
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+      }
+
+      .photo-card__image,
+      .list-item__image {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        background: var(--royal-light);
+      }
+
+      .photo-card__content,
+      .list-item__content {
+        padding: 0.85rem;
+      }
+
+      .photo-card__title {
+        margin: 0;
+        color: var(--royal-navy);
+        font-size: 1.03rem;
+      }
+
+      .photo-card__meta {
+        margin: 0.6rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+
+      .meta-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.78rem;
+        padding: 0.24rem 0.45rem;
+        border-radius: 7px;
+        background: var(--royal-light);
+        color: var(--royal-navy);
+        font-weight: 700;
+      }
+
+      .photo-card__description {
+        margin: 0;
+        color: var(--royal-ink);
+        opacity: 0.9;
+        font-size: 0.92rem;
+        line-height: 1.45;
+      }
+
+      .list-item {
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        align-items: stretch;
+        cursor: pointer;
+      }
+
+      .list-item__image {
+        height: 100%;
+        border-radius: 0;
+      }
+
+      .gallery-empty {
+        text-align: center;
+        padding: 2rem 1rem;
+        border: 2px dashed var(--royal-border);
+        border-radius: 12px;
+        background: #fff;
+        margin-top: 1rem;
+      }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        display: none;
+        background: rgba(6, 18, 32, 0.94);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .lightbox.active {
+        display: flex;
+      }
+
+      .lightbox__shell {
+        max-width: min(100%, 1100px);
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.7rem;
+      }
+
+      .lightbox__image {
+        width: 100%;
+        max-height: 76vh;
+        object-fit: contain;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .lightbox__toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.6rem;
+        align-items: center;
+        color: #fff;
+      }
+
+      .lightbox__actions {
+        display: flex;
+        gap: 0.4rem;
+      }
+
+      .lightbox button {
+        border: none;
+        border-radius: 999px;
+        padding: 0.45rem 0.7rem;
+        background: rgba(255, 255, 255, 0.13);
+        color: #fff;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 700;
+      }
+
+      .quick-links {
+        padding-top: 0;
+      }
+
+      .quick-links__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.7rem;
+      }
+
+      .quick-link-card {
+        border: 1px solid var(--royal-border);
+        border-radius: 12px;
+        padding: 1rem;
+        color: var(--royal-navy);
+        text-decoration: none;
+        background: #fff;
+      }
+
+      .quick-link-card h3,
+      .quick-link-card p {
+        margin: 0;
+      }
+
+      .quick-link-card p {
+        margin-top: 0.3rem;
+        color: var(--royal-ink);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 980px) {
+        .gallery-controls__inner {
+          grid-template-columns: 1fr;
+        }
+
+        .list-item {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body class="decks-shell page-shell photo-library-page gallery-grid-view">
+    <a href="#main" class="skip-link">Skip to main content</a>
+    <div id="sharedHeader" data-page="photos"></div>
+
+    <main id="main" aria-label="Photo library">
+      <section class="photo-hero" aria-label="Photo library introduction">
+        <div class="photo-hero__inner">
+          <h1>Adventure of the Seas Photo Library</h1>
+          <p class="photo-hero__subtitle">
+            Filter and search the packaged image set for dining venues, ports,
+            activities, and ship-wide visuals. This page only pulls files from
+            the local <code>/images</code> directory.
+          </p>
+          <div class="hero-category-shortcuts" aria-label="Popular categories">
+            <button class="filter-btn" data-filter="dining">Dining</button>
+            <button class="filter-btn" data-filter="decks">Decks & Ship</button>
+            <button class="filter-btn" data-filter="activities">
+              Activities
+            </button>
+            <button class="filter-btn" data-filter="ports">Ports</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="gallery-controls">
+        <div class="gallery-controls__inner">
+          <label class="gallery-search" for="gallerySearch">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input
+              id="gallerySearch"
+              type="search"
+              aria-label="Search images"
+              placeholder="Search by name, category, deck, or tags"
+            />
+          </label>
+
+          <div class="gallery-filters" aria-label="Image source filters">
+            <button class="filter-btn active" data-filter="all">
+              All photos
+            </button>
+            <button class="filter-btn" data-filter="official">
+              Official RCCL
+            </button>
+            <button class="filter-btn" data-filter="passenger">
+              Trip snapshots
+            </button>
+            <button class="filter-btn" data-filter="your-deck">Deck 12</button>
+          </div>
+
+          <div class="gallery-view-toggle" aria-label="View mode">
+            <button
+              class="view-btn active"
+              data-view="grid"
+              aria-label="Grid view"
+            >
+              <i class="fas fa-th-large"></i>
+            </button>
+            <button class="view-btn" data-view="list" aria-label="List view">
+              <i class="fas fa-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <section class="gallery-main" aria-label="Image gallery">
+        <div class="gallery-info-bar">
+          <p class="photo-count">
+            Showing <span id="photoCount">0</span> photos
+          </p>
+          <div class="sort-control">
+            <label for="sortSelect">Sort by:</label>
+            <select id="sortSelect" aria-label="Sort photos">
+              <option value="relevance">Relevance</option>
+              <option value="name">Name (A-Z)</option>
+              <option value="category">Category</option>
+              <option value="deck">Deck</option>
+            </select>
+          </div>
+        </div>
+
+        <div
+          class="gallery-grid"
+          id="photoGrid"
+          role="list"
+          aria-label="Photo grid"
+        ></div>
+        <div
+          class="gallery-list"
+          id="photoList"
+          role="list"
+          aria-label="Photo list"
+        ></div>
+
+        <div class="gallery-empty" id="emptyState" hidden>
+          <i class="fas fa-images" aria-hidden="true"></i>
+          <h3>No photos found</h3>
+          <p>Try a different search or reset filters.</p>
+          <button class="filter-btn" id="resetFilters">Reset filters</button>
+        </div>
+      </section>
+
+      <section class="quick-links" aria-label="Quick links">
+        <h2>Need Specific References?</h2>
+        <div class="quick-links__grid">
+          <a href="index.html" class="quick-link-card">
+            <h3>Back to Dashboard</h3>
+            <p>Return to your planning hub.</p>
+          </a>
+          <a href="rooms.html" class="quick-link-card">
+            <h3>Your Stateroom Details</h3>
+            <p>Compare room options and layouts.</p>
+          </a>
+          <a href="itinerary.html" class="quick-link-card">
+            <h3>Port Day Plan</h3>
+            <p>Cross-reference destination visuals.</p>
+          </a>
+          <a href="decks.html" class="quick-link-card">
+            <h3>Deck Plans</h3>
+            <p>Pair photos with deck map positions.</p>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <div
+      class="lightbox"
+      id="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Image viewer"
+      hidden
+      tabindex="-1"
+    >
+      <div class="lightbox__shell">
+        <img class="lightbox__image" id="lightboxImage" alt="Expanded photo" />
+        <div class="lightbox__toolbar">
+          <div>
+            <h3 id="lightboxTitle"></h3>
+            <p id="lightboxDescription"></p>
+          </div>
+          <div class="lightbox__actions">
+            <button id="prevPhoto" aria-label="Previous photo">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button id="nextPhoto" aria-label="Next photo">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+            <button id="closeLightbox" aria-label="Close lightbox">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sharedFooter"></div>
+    <div id="sharedBottomNav" data-page="photos"></div>
+
+    <script>
+      const photoData = [
+        {
+          id: 1,
+          title: "Adventure Exterior at Sea",
+          src: "images/ship/rccl-adventure-of-the-seas-exterior-at-sea.webp",
+          category: "decks",
+          deck: "Topside",
+          source: "official",
+          description: "Wide exterior view of Adventure of the Seas underway.",
+          tags: ["ship", "exterior"],
+        },
+        {
+          id: 2,
+          title: "Pool Deck",
+          src: "images/ship/rccl-adventure-of-the-seas-pool-deck.webp",
+          category: "decks",
+          deck: "11",
+          source: "official",
+          description: "Main pool deck setup with lounge seating.",
+          tags: ["pool", "deck-11"],
+        },
+        {
+          id: 3,
+          title: "Family Deck Activities",
+          src: "images/ship/rccl-adventure-of-the-seas-family-deck-activities.jpeg",
+          category: "activities",
+          deck: "12",
+          source: "official",
+          description: "Family-friendly activity area on upper deck.",
+          tags: ["family", "deck-12"],
+        },
+        {
+          id: 4,
+          title: "Main Dining Room",
+          src: "images/venues/rccl-adventure-of-the-seas-main-dining-room.webp",
+          category: "dining",
+          deck: "3",
+          source: "official",
+          description: "Formal dining room interior with multi-level seating.",
+          tags: ["dining", "formal"],
+        },
+        {
+          id: 5,
+          title: "Windjammer Buffet",
+          src: "images/venues/rccl-adventure-of-the-seas-windjammer-buffet.jpeg",
+          category: "dining",
+          deck: "11",
+          source: "official",
+          description: "Windjammer buffet seating and serving stations.",
+          tags: ["buffet", "casual"],
+        },
+        {
+          id: 6,
+          title: "Johnny Rockets",
+          src: "images/venues/rccl-adventure-of-the-seas-johnny-rockets.jpeg",
+          category: "dining",
+          deck: "12",
+          source: "official",
+          description: "Classic diner styling and casual bites.",
+          tags: ["deck-12", "casual"],
+        },
+        {
+          id: 7,
+          title: "Royal Promenade Arch",
+          src: "images/venues/rccl-adventure-of-the-seas-royal-promenade-arch.jpeg",
+          category: "decks",
+          deck: "5",
+          source: "official",
+          description: "Promenade focal-point arch and social space.",
+          tags: ["promenade"],
+        },
+        {
+          id: 8,
+          title: "Ice Skating Rink",
+          src: "images/venues/rccl-adventure-of-the-seas-ice-skating-rink.jpeg",
+          category: "activities",
+          deck: "3",
+          source: "official",
+          description: "Studio B ice rink used for shows and open skate.",
+          tags: ["entertainment", "rink"],
+        },
+        {
+          id: 9,
+          title: "CocoCay Aerial Balloon",
+          src: "images/ports/rccl-perfect-day-cococay-aerial-balloon.webp",
+          category: "ports",
+          deck: "",
+          source: "official",
+          description: "Aerial overview of Perfect Day at CocoCay.",
+          tags: ["cococay", "aerial"],
+        },
+        {
+          id: 10,
+          title: "CocoCay Thrill Waterpark",
+          src: "images/ports/rccl-perfect-day-cococay-thrill-waterpark-aerial.webp",
+          category: "ports",
+          deck: "",
+          source: "official",
+          description: "Waterpark aerial with slides and pools.",
+          tags: ["waterpark", "port-day"],
+        },
+        {
+          id: 11,
+          title: "CocoCay Thrill Tower",
+          src: "images/ports/rccl-perfect-day-cococay-thrill-tower.webp",
+          category: "ports",
+          deck: "",
+          source: "official",
+          description: "Thrill tower close-up with slide complex.",
+          tags: ["thrill", "slides"],
+        },
+        {
+          id: 12,
+          title: "Spa Treatment Room",
+          src: "images/venues/rccl-adventure-of-the-seas-spa-treatment.webp",
+          category: "activities",
+          deck: "12",
+          source: "official",
+          description:
+            "Relaxation spaces and treatment rooms in the Vitality Spa.",
+          tags: ["spa", "wellness", "deck-12"],
+        },
+        {
+          id: 13,
+          title: "Main Theater Stage",
+          src: "images/venues/rccl-adventure-of-the-seas-main-theater-stage.webp",
+          category: "activities",
+          deck: "3",
+          source: "official",
+          description: "Main theater production stage and seating bowl.",
+          tags: ["shows", "theater", "entertainment"],
+        },
+        {
+          id: 14,
+          title: "Royal Promenade Classic Car",
+          src: "images/venues/rccl-adventure-of-the-seas-royal-promenade-classic-car.webp",
+          category: "decks",
+          deck: "5",
+          source: "official",
+          description: "Royal Promenade centerpiece with classic car display.",
+          tags: ["promenade", "interior", "deck-5"],
+        },
+        {
+          id: 15,
+          title: "Ben & Jerry's",
+          src: "images/venues/rccl-adventure-of-the-seas-ben-and-jerrys.webp",
+          category: "dining",
+          deck: "5",
+          source: "official",
+          description: "Ice cream stop on the Royal Promenade.",
+          tags: ["dessert", "snack", "deck-5"],
+        },
+      ];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const galleryGrid = document.getElementById("photoGrid");
+        const galleryList = document.getElementById("photoList");
+        const searchInput = document.getElementById("gallerySearch");
+        const filterButtons = Array.from(
+          document.querySelectorAll(".filter-btn[data-filter]"),
+        );
+        const viewButtons = Array.from(document.querySelectorAll(".view-btn"));
+        const sortSelect = document.getElementById("sortSelect");
+        const photoCount = document.getElementById("photoCount");
+        const emptyState = document.getElementById("emptyState");
+        const resetButton = document.getElementById("resetFilters");
+
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImage = document.getElementById("lightboxImage");
+        const lightboxTitle = document.getElementById("lightboxTitle");
+        const lightboxDescription = document.getElementById(
+          "lightboxDescription",
+        );
+        const prevButton = document.getElementById("prevPhoto");
+        const nextButton = document.getElementById("nextPhoto");
+        const closeButton = document.getElementById("closeLightbox");
+
+        let currentFilter = "all";
+        let currentView = "grid";
+        let currentSearch = "";
+        let currentSort = "relevance";
+        let currentIndex = 0;
+        let filteredPhotos = [...photoData];
+
+        function matchesFilter(photo) {
+          if (currentFilter === "all") return true;
+          if (currentFilter === "official" || currentFilter === "passenger")
+            return photo.source === currentFilter;
+          if (currentFilter === "your-deck")
+            return String(photo.deck).includes("12");
+          return photo.category === currentFilter;
+        }
+
+        function score(photo, searchTerm) {
+          if (!searchTerm) return 0;
+          const haystack =
+            `${photo.title} ${photo.description} ${photo.category} ${photo.tags.join(" ")}`.toLowerCase();
+          if (!haystack.includes(searchTerm)) return -1;
+          if (photo.title.toLowerCase().includes(searchTerm)) return 3;
+          if (photo.tags.join(" ").includes(searchTerm)) return 2;
+          return 1;
+        }
+
+        function filterAndSort() {
+          const term = currentSearch.trim().toLowerCase();
+          filteredPhotos = photoData
+            .filter((photo) => matchesFilter(photo))
+            .map((photo) => ({ photo, relevance: score(photo, term) }))
+            .filter((item) => item.relevance >= (term ? 0 : -1));
+
+          filteredPhotos.sort((a, b) => {
+            if (currentSort === "name")
+              return a.photo.title.localeCompare(b.photo.title);
+            if (currentSort === "category")
+              return (
+                a.photo.category.localeCompare(b.photo.category) ||
+                a.photo.title.localeCompare(b.photo.title)
+              );
+            if (currentSort === "deck")
+              return String(a.photo.deck || "999").localeCompare(
+                String(b.photo.deck || "999"),
+              );
+            return (
+              b.relevance - a.relevance ||
+              a.photo.title.localeCompare(b.photo.title)
+            );
+          });
+
+          filteredPhotos = filteredPhotos.map((entry) => entry.photo);
+        }
+
+        function renderMeta(photo) {
+          const deck = photo.deck
+            ? `<span class="meta-tag"><i class="fas fa-layer-group"></i> Deck ${photo.deck}</span>`
+            : "";
+          return `
+          <span class="meta-tag"><i class="fas fa-folder"></i> ${photo.category}</span>
+          ${deck}
+          <span class="meta-tag"><i class="fas fa-${photo.source === "official" ? "crown" : "camera"}"></i> ${photo.source}</span>
+        `;
+        }
+
+        function render() {
+          filterAndSort();
+          photoCount.textContent = filteredPhotos.length;
+
+          if (filteredPhotos.length === 0) {
+            galleryGrid.innerHTML = "";
+            galleryList.innerHTML = "";
+            emptyState.hidden = false;
+            return;
+          }
+
+          emptyState.hidden = true;
+
+          galleryGrid.innerHTML = filteredPhotos
+            .map(
+              (photo, idx) => `
+          <article class="photo-card" role="listitem" tabindex="0" data-index="${idx}">
+            <img class="photo-card__image" src="${photo.src}" alt="${photo.title}" loading="lazy" />
+            <div class="photo-card__content">
+              <h3 class="photo-card__title">${photo.title}</h3>
+              <div class="photo-card__meta">${renderMeta(photo)}</div>
+              <p class="photo-card__description">${photo.description}</p>
+            </div>
+          </article>
+        `,
+            )
+            .join("");
+
+          galleryList.innerHTML = filteredPhotos
+            .map(
+              (photo, idx) => `
+          <article class="list-item" role="listitem" tabindex="0" data-index="${idx}">
+            <img class="list-item__image" src="${photo.src}" alt="${photo.title}" loading="lazy" />
+            <div class="list-item__content">
+              <h3 class="photo-card__title">${photo.title}</h3>
+              <div class="photo-card__meta">${renderMeta(photo)}</div>
+              <p class="photo-card__description">${photo.description}</p>
+            </div>
+          </article>
+        `,
+            )
+            .join("");
+        }
+
+        function openLightbox(index) {
+          currentIndex = index;
+          const photo = filteredPhotos[currentIndex];
+          if (!photo) return;
+          lightboxImage.src = photo.src;
+          lightboxImage.alt = photo.title;
+          lightboxTitle.textContent = photo.title;
+          lightboxDescription.textContent = photo.description;
+          lightbox.hidden = false;
+          lightbox.classList.add("active");
+          document.body.style.overflow = "hidden";
+          lightbox.focus();
+        }
+
+        function closeLightbox() {
+          lightbox.hidden = true;
+          lightbox.classList.remove("active");
+          document.body.style.overflow = "";
+        }
+
+        function moveLightbox(step) {
+          if (filteredPhotos.length === 0) return;
+          currentIndex =
+            (currentIndex + step + filteredPhotos.length) %
+            filteredPhotos.length;
+          openLightbox(currentIndex);
+        }
+
+        function activateCard(event) {
+          const card = event.target.closest("[data-index]");
+          if (!card) return;
+          openLightbox(Number(card.dataset.index));
+        }
+
+        [galleryGrid, galleryList].forEach((container) => {
+          container.addEventListener("click", activateCard);
+          container.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            activateCard(event);
+          });
+        });
+
+        searchInput.addEventListener("input", (event) => {
+          currentSearch = event.target.value;
+          render();
+        });
+
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            currentFilter = button.dataset.filter;
+            filterButtons.forEach((entry) =>
+              entry.classList.toggle("active", entry === button),
+            );
+            render();
+          });
+        });
+
+        viewButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            currentView = button.dataset.view;
+            document.body.classList.toggle(
+              "gallery-grid-view",
+              currentView === "grid",
+            );
+            document.body.classList.toggle(
+              "gallery-list-view",
+              currentView === "list",
+            );
+            viewButtons.forEach((entry) =>
+              entry.classList.toggle("active", entry === button),
+            );
+          });
+        });
+
+        sortSelect.addEventListener("change", (event) => {
+          currentSort = event.target.value;
+          render();
+        });
+
+        resetButton.addEventListener("click", () => {
+          currentFilter = "all";
+          currentSearch = "";
+          currentSort = "relevance";
+          searchInput.value = "";
+          sortSelect.value = "relevance";
+          filterButtons.forEach((entry) =>
+            entry.classList.toggle("active", entry.dataset.filter === "all"),
+          );
+          render();
+        });
+
+        closeButton.addEventListener("click", closeLightbox);
+        prevButton.addEventListener("click", () => moveLightbox(-1));
+        nextButton.addEventListener("click", () => moveLightbox(1));
+
+        lightbox.addEventListener("click", (event) => {
+          if (event.target === lightbox) closeLightbox();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (lightbox.hidden) return;
+          if (event.key === "Escape") closeLightbox();
+          if (event.key === "ArrowLeft") moveLightbox(-1);
+          if (event.key === "ArrowRight") moveLightbox(1);
+        });
+
+        render();
+      });
+    </script>
+  </body>
+</html>
