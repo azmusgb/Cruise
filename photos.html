@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light" data-theme-mode="light">
   <head>
     <meta charset="UTF-8" />
@@ -9,6 +9,7 @@
       name="description"
       content="Searchable photo library for staterooms, dining, deck spaces, and ports on Adventure of the Seas."
     />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,45 +20,128 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
     <link rel="stylesheet" href="css/base.css?v=3" />
     <link rel="stylesheet" href="css/utilities.css?v=3" />
     <link rel="stylesheet" href="css/components.css?v=3" />
     <script src="js/shared-layout.js?v=9" defer></script>
+
     <style>
+      /* ==========================================================================
+         PHOTO LIBRARY — PREMIUM PASS (drop-in)
+         Keeps your existing IDs + behaviors, upgrades the experience.
+         ========================================================================== */
+
+      body.app-theme-rcc {
+        background: linear-gradient(180deg, #f4fbff 0%, #eaf6ff 100%) !important;
+        color: var(--royal-ink) !important;
+        font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
       .photo-library-page {
         --gallery-gap: 14px;
+        --glass: rgba(255, 255, 255, 0.18);
+        --glass-strong: rgba(255, 255, 255, 0.28);
+        --dark-glass: rgba(6, 18, 32, 0.68);
+        --focus: 0 0 0 4px rgba(25, 194, 255, 0.22);
       }
 
-      .photo-hero {
-        background: linear-gradient(
-          130deg,
-          var(--royal-navy) 0%,
-          var(--royal-blue) 52%,
-          #129bd8 100%
-        );
-        color: #fff;
-        margin-bottom: 1.2rem;
-      }
-
+      /* Containers */
       .photo-hero__inner,
       .gallery-controls__inner,
       .gallery-main,
-      .quick-links {
+      .quick-links,
+      .featured-strip__inner {
         max-width: 1200px;
         margin: 0 auto;
         padding: 1.2rem 1.2rem;
       }
 
+      /* =======================
+         HERO — cinematic
+         ======================= */
+      .photo-hero {
+        position: relative;
+        color: #fff;
+        margin-bottom: 1.05rem;
+        background: linear-gradient(130deg, var(--royal-navy) 0%, var(--royal-blue) 52%, #129bd8 100%);
+        overflow: hidden;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.18), 0 18px 40px rgba(11, 79, 144, 0.18);
+      }
+
+      .photo-hero::before {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.34), transparent 36%),
+          radial-gradient(circle at 86% 78%, rgba(255, 255, 255, 0.18), transparent 44%),
+          linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.04) 55%, rgba(0, 0, 0, 0.18) 100%);
+        animation: heroFloat 18s linear infinite;
+        pointer-events: none;
+      }
+
+      .photo-hero::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 8px;
+        background: linear-gradient(90deg, rgba(255, 201, 58, 0.18) 0%, rgba(255, 201, 58, 0.72) 50%, rgba(255, 201, 58, 0.18) 100%);
+        pointer-events: none;
+      }
+
+      @keyframes heroFloat {
+        0% { transform: translateX(-2%) translateY(0); }
+        50% { transform: translateX(2%) translateY(-2%); }
+        100% { transform: translateX(-2%) translateY(0); }
+      }
+
+      .photo-hero__inner {
+        position: relative;
+        z-index: 2;
+      }
+
       .photo-hero h1 {
         margin: 0;
-        font-size: clamp(1.8rem, 5vw, 2.6rem);
+        font-family: "Montserrat", sans-serif;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        font-size: clamp(1.9rem, 5vw, 2.8rem);
       }
 
       .photo-hero__subtitle {
-        margin: 0.55rem 0 1rem;
+        margin: 0.55rem 0 0.9rem;
         opacity: 0.92;
-        max-width: 70ch;
+        max-width: 72ch;
+        line-height: 1.45;
       }
+
+      .hero-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin: 0.7rem 0 0.95rem;
+      }
+
+      .hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(10px);
+        font-weight: 800;
+        font-size: 0.82rem;
+      }
+
+      .hero-chip i { opacity: 0.95; }
 
       .hero-category-shortcuts {
         display: flex;
@@ -65,13 +149,17 @@
         gap: 0.55rem;
       }
 
+      /* =======================
+         Controls bar
+         ======================= */
       .gallery-controls {
         position: sticky;
         top: 0;
         z-index: 60;
-        backdrop-filter: blur(8px);
-        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.92);
         border-bottom: 1px solid var(--royal-border);
+        box-shadow: 0 10px 26px rgba(11, 79, 144, 0.08);
       }
 
       .gallery-controls__inner {
@@ -79,8 +167,8 @@
         grid-template-columns: minmax(220px, 1fr) auto auto;
         align-items: center;
         gap: 0.8rem;
-        padding-top: 0.8rem;
-        padding-bottom: 0.8rem;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
       }
 
       .gallery-search {
@@ -99,9 +187,17 @@
       .gallery-search input {
         width: 100%;
         border: 2px solid var(--royal-border);
-        border-radius: 10px;
-        padding: 0.7rem 0.85rem 0.7rem 2.25rem;
+        border-radius: 12px;
+        padding: 0.72rem 0.9rem 0.72rem 2.35rem;
         font: inherit;
+        background: #fff;
+        transition: var(--royal-transition);
+      }
+
+      .gallery-search input:focus-visible {
+        outline: none;
+        box-shadow: var(--focus);
+        border-color: rgba(25, 194, 255, 0.55);
       }
 
       .gallery-filters,
@@ -113,28 +209,31 @@
       }
 
       .filter-btn,
-      .view-btn {
+      .view-btn,
+      .ghost-btn {
         border: 2px solid var(--royal-border);
         background: #fff;
         color: var(--royal-navy);
         padding: 0.55rem 0.85rem;
         border-radius: 999px;
-        font-weight: 700;
+        font-weight: 800;
         cursor: pointer;
         transition: var(--royal-transition);
         text-decoration: none;
       }
 
       .view-btn {
-        border-radius: 10px;
-        min-width: 42px;
+        border-radius: 12px;
+        min-width: 44px;
         text-align: center;
       }
 
       .filter-btn:is(:hover, :focus-visible),
-      .view-btn:is(:hover, :focus-visible) {
+      .view-btn:is(:hover, :focus-visible),
+      .ghost-btn:is(:hover, :focus-visible) {
         border-color: var(--royal-blue);
         outline: none;
+        box-shadow: 0 0 0 4px rgba(0, 121, 212, 0.12);
       }
 
       .filter-btn.active,
@@ -144,36 +243,187 @@
         background: var(--royal-blue);
       }
 
+      /* =======================
+         Featured strip
+         ======================= */
+      .featured-strip {
+        padding-top: 0;
+        padding-bottom: 0.2rem;
+      }
+
+      .featured-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        margin: 0.2rem 0 0.75rem;
+      }
+
+      .featured-title {
+        margin: 0;
+        font-family: "Montserrat", sans-serif;
+        font-size: 1.15rem;
+        letter-spacing: -0.01em;
+        color: var(--royal-navy);
+      }
+
+      .featured-sub {
+        margin: 0;
+        color: var(--royal-ink);
+        opacity: 0.85;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+
+      .featured-rail {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(240px, 1fr);
+        gap: 0.8rem;
+        overflow-x: auto;
+        padding-bottom: 0.4rem;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .featured-card {
+        position: relative;
+        scroll-snap-align: start;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--royal-border);
+        background: #fff;
+        box-shadow: var(--royal-shadow-lg);
+        cursor: pointer;
+        transition: var(--royal-transition);
+        min-height: 170px;
+      }
+
+      .featured-card:is(:hover, :focus-within) {
+        transform: translateY(-2px);
+        box-shadow: var(--royal-shadow-xl);
+      }
+
+      .featured-card__img {
+        width: 100%;
+        height: 170px;
+        object-fit: cover;
+        display: block;
+        background: var(--royal-light);
+        transform: scale(1.02);
+        transition: transform 0.6s ease;
+      }
+
+      .featured-card:hover .featured-card__img { transform: scale(1.08); }
+
+      .featured-card__overlay {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(0,0,0,0.00) 25%, rgba(0,0,0,0.56) 100%);
+        pointer-events: none;
+      }
+
+      .featured-card__meta {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        color: #fff;
+      }
+
+      .featured-card__name {
+        margin: 0;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        font-size: 1rem;
+        text-shadow: 0 10px 22px rgba(0,0,0,0.35);
+      }
+
+      .featured-card__chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+
+      .mini-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.16);
+        backdrop-filter: blur(10px);
+        font-size: 0.74rem;
+        font-weight: 800;
+      }
+
+      /* =======================
+         Gallery / cards
+         ======================= */
       .gallery-main {
-        padding-top: 1.2rem;
-        padding-bottom: 2rem;
+        padding-top: 1.0rem;
+        padding-bottom: 2.2rem;
       }
 
       .gallery-info-bar {
         background: var(--royal-light);
         border: 1px solid var(--royal-border);
-        border-radius: 12px;
-        padding: 0.7rem 0.9rem;
+        border-radius: 14px;
+        padding: 0.75rem 0.95rem;
         margin-bottom: 1rem;
         display: flex;
         justify-content: space-between;
-        gap: 0.6rem;
+        gap: 0.8rem;
         align-items: center;
         flex-wrap: wrap;
       }
 
       .photo-count {
-        font-weight: 700;
+        font-weight: 900;
         color: var(--royal-navy);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .count-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 121, 212, 0.18);
+        background: rgba(255, 255, 255, 0.8);
+        font-size: 0.78rem;
+        font-weight: 900;
+        color: #0b4f90;
+      }
+
+      .sort-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+
+      .sort-control label {
+        font-weight: 800;
+        color: var(--royal-ink);
+        opacity: 0.9;
       }
 
       .sort-control select {
-        padding: 0.45rem 0.65rem;
+        padding: 0.48rem 0.7rem;
         border: 2px solid var(--royal-border);
-        border-radius: 8px;
+        border-radius: 10px;
         background: #fff;
         font: inherit;
-        font-weight: 600;
+        font-weight: 700;
       }
 
       .gallery-grid {
@@ -184,25 +434,22 @@
 
       .gallery-list {
         display: grid;
-        gap: 0.8rem;
+        gap: 0.85rem;
       }
 
-      .gallery-list-view .gallery-grid {
-        display: none;
-      }
-
-      .gallery-grid-view .gallery-list {
-        display: none;
-      }
+      body.gallery-list-view .gallery-grid { display: none; }
+      body.gallery-grid-view .gallery-list { display: none; }
 
       .photo-card,
       .list-item {
+        position: relative;
         border: 1px solid var(--royal-border);
-        border-radius: 12px;
+        border-radius: 14px;
         overflow: hidden;
         background: #fff;
         box-shadow: var(--royal-shadow-lg);
         transition: var(--royal-transition);
+        outline: none;
       }
 
       .photo-card:is(:hover, :focus-within),
@@ -211,10 +458,50 @@
         box-shadow: var(--royal-shadow-xl);
       }
 
+      .photo-card:focus-within,
+      .list-item:focus-within { box-shadow: var(--royal-shadow-xl), var(--focus); }
+
       .photo-card {
         display: flex;
         flex-direction: column;
         cursor: pointer;
+      }
+
+      /* Category accent band (data-category applied by JS) */
+      .photo-card::before,
+      .list-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 4px;
+        width: 100%;
+        background: linear-gradient(90deg, rgba(0,121,212,0.25), rgba(25,194,255,0.25));
+      }
+
+      .photo-card[data-category="ports"]::before,
+      .list-item[data-category="ports"]::before {
+        background: linear-gradient(90deg, rgba(255,201,58,0.9), rgba(255,176,32,0.7));
+      }
+
+      .photo-card[data-category="dining"]::before,
+      .list-item[data-category="dining"]::before {
+        background: linear-gradient(90deg, rgba(25,194,255,0.85), rgba(0,121,212,0.7));
+      }
+
+      .photo-card[data-category="staterooms"]::before,
+      .list-item[data-category="staterooms"]::before {
+        background: linear-gradient(90deg, rgba(126,157,189,0.9), rgba(11,79,144,0.55));
+      }
+
+      .photo-card[data-category="decks"]::before,
+      .list-item[data-category="decks"]::before {
+        background: linear-gradient(90deg, rgba(0,121,212,0.85), rgba(11,79,144,0.7));
+      }
+
+      .photo-card[data-category="activities"]::before,
+      .list-item[data-category="activities"]::before {
+        background: linear-gradient(90deg, rgba(25,194,255,0.65), rgba(255,201,58,0.7));
       }
 
       .photo-card__image,
@@ -224,21 +511,41 @@
         object-fit: cover;
         display: block;
         background: var(--royal-light);
+        transform: scale(1.02);
+        transition: transform 0.6s ease, filter 0.2s ease;
+      }
+
+      .photo-card:hover .photo-card__image,
+      .list-item:hover .list-item__image { transform: scale(1.08); }
+
+      /* Shimmer placeholder until loaded */
+      .img-shimmer {
+        background: linear-gradient(90deg, #eef6fb 25%, #f9fcff 50%, #eef6fb 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        filter: saturate(0.9);
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
       }
 
       .photo-card__content,
       .list-item__content {
-        padding: 0.85rem;
+        padding: 0.9rem;
       }
 
       .photo-card__title {
         margin: 0;
         color: var(--royal-navy);
-        font-size: 1.03rem;
+        font-size: 1.05rem;
+        font-weight: 900;
+        letter-spacing: -0.01em;
       }
 
       .photo-card__meta {
-        margin: 0.6rem 0;
+        margin: 0.6rem 0 0.55rem;
         display: flex;
         flex-wrap: wrap;
         gap: 0.45rem;
@@ -247,21 +554,40 @@
       .meta-tag {
         display: inline-flex;
         align-items: center;
-        gap: 0.3rem;
+        gap: 0.35rem;
         font-size: 0.78rem;
-        padding: 0.24rem 0.45rem;
-        border-radius: 7px;
+        padding: 0.26rem 0.5rem;
+        border-radius: 9px;
         background: var(--royal-light);
         color: var(--royal-navy);
-        font-weight: 700;
+        font-weight: 900;
+        border: 1px solid rgba(0, 121, 212, 0.10);
       }
 
       .photo-card__description {
         margin: 0;
         color: var(--royal-ink);
         opacity: 0.9;
-        font-size: 0.92rem;
+        font-size: 0.93rem;
         line-height: 1.45;
+      }
+
+      .source-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.55rem;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: 0.76rem;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(0,0,0,0.52);
+        backdrop-filter: blur(10px);
+        pointer-events: none;
       }
 
       .list-item {
@@ -274,17 +600,58 @@
       .list-item__image {
         height: 100%;
         border-radius: 0;
+        aspect-ratio: auto;
       }
 
+      /* =======================
+         Empty state
+         ======================= */
       .gallery-empty {
         text-align: center;
-        padding: 2rem 1rem;
+        padding: 2.2rem 1.2rem;
         border: 2px dashed var(--royal-border);
-        border-radius: 12px;
+        border-radius: 14px;
         background: #fff;
         margin-top: 1rem;
+        animation: fadeIn 0.35s ease;
       }
 
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .empty-title {
+        margin: 0 0 0.35rem;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 900;
+        color: var(--royal-navy);
+      }
+
+      .empty-sub {
+        margin: 0 auto 1rem;
+        max-width: 62ch;
+        color: var(--royal-ink);
+        opacity: 0.9;
+        font-weight: 700;
+      }
+
+      .empty-actions {
+        display: flex;
+        justify-content: center;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+      }
+
+      .ghost-btn {
+        border-radius: 12px;
+        padding: 0.65rem 0.9rem;
+        font-weight: 900;
+      }
+
+      /* =======================
+         Lightbox — premium
+         ======================= */
       .lightbox {
         position: fixed;
         inset: 0;
@@ -294,119 +661,222 @@
         align-items: center;
         justify-content: center;
         padding: 1rem;
+        opacity: 0;
+        transition: opacity 0.25s ease;
       }
 
       .lightbox.active {
         display: flex;
+        opacity: 1;
       }
 
       .lightbox__shell {
-        max-width: min(100%, 1100px);
+        max-width: min(100%, 1120px);
         width: 100%;
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         gap: 0.7rem;
+        position: relative;
       }
 
       .lightbox__image {
         width: 100%;
         max-height: 76vh;
         object-fit: contain;
-        border-radius: 12px;
+        border-radius: 14px;
         background: rgba(255, 255, 255, 0.06);
       }
 
       .lightbox__toolbar {
         display: flex;
         justify-content: space-between;
-        gap: 0.6rem;
+        gap: 0.7rem;
         align-items: center;
         color: #fff;
+      }
+
+      .lightbox__left {
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+        min-width: 0;
+      }
+
+      .lightbox__title {
+        margin: 0;
+        font-weight: 900;
+        font-size: 1.05rem;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .lightbox__desc {
+        margin: 0;
+        opacity: 0.88;
+        font-weight: 700;
+        font-size: 0.9rem;
+        line-height: 1.35;
+      }
+
+      .lightbox__counter {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-top: 0.2rem;
+        font-size: 0.8rem;
+        font-weight: 900;
+        opacity: 0.92;
       }
 
       .lightbox__actions {
         display: flex;
         gap: 0.4rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
       }
 
-      .lightbox button {
+      .lightbox button,
+      .lightbox a.lightbox__link {
         border: none;
         border-radius: 999px;
-        padding: 0.45rem 0.7rem;
+        padding: 0.5rem 0.8rem;
         background: rgba(255, 255, 255, 0.13);
         color: #fff;
         cursor: pointer;
         font: inherit;
-        font-weight: 700;
+        font-weight: 900;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
       }
 
-      .quick-links {
-        padding-top: 0;
+      .lightbox button:is(:hover, :focus-visible),
+      .lightbox a.lightbox__link:is(:hover, :focus-visible) {
+        outline: none;
+        background: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 0 0 4px rgba(25, 194, 255, 0.16);
       }
+
+      /* Big prev/next hit targets */
+      .lightbox-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 52px;
+        height: 52px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255,255,255,0.18);
+        backdrop-filter: blur(10px);
+      }
+
+      .lightbox-nav--prev { left: -8px; }
+      .lightbox-nav--next { right: -8px; }
+
+      .lightbox-nav i { font-size: 1.05rem; }
+
+      /* =======================
+         Quick links
+         ======================= */
+      .quick-links { padding-top: 0.2rem; }
 
       .quick-links__grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 0.7rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.8rem;
       }
 
       .quick-link-card {
         border: 1px solid var(--royal-border);
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 1rem;
         color: var(--royal-navy);
         text-decoration: none;
         background: #fff;
+        box-shadow: var(--royal-shadow-lg);
+        transition: var(--royal-transition);
+      }
+
+      .quick-link-card:is(:hover, :focus-visible) {
+        outline: none;
+        transform: translateY(-2px);
+        box-shadow: var(--royal-shadow-xl);
       }
 
       .quick-link-card h3,
-      .quick-link-card p {
-        margin: 0;
-      }
+      .quick-link-card p { margin: 0; }
 
       .quick-link-card p {
-        margin-top: 0.3rem;
+        margin-top: 0.35rem;
         color: var(--royal-ink);
-        font-size: 0.9rem;
+        font-size: 0.92rem;
+        opacity: 0.9;
+        font-weight: 700;
       }
 
       @media (max-width: 980px) {
-        .gallery-controls__inner {
-          grid-template-columns: 1fr;
-        }
+        .gallery-controls__inner { grid-template-columns: 1fr; }
+        .list-item { grid-template-columns: 1fr; }
+        .lightbox-nav--prev { left: 8px; }
+        .lightbox-nav--next { right: 8px; }
+      }
 
-        .list-item {
-          grid-template-columns: 1fr;
-        }
+      @media (prefers-reduced-motion: reduce) {
+        .photo-hero::before { animation: none; }
+        .featured-card__img,
+        .photo-card__image,
+        .list-item__image { transition: none; transform: none !important; }
+        .img-shimmer { animation: none; }
       }
     </style>
   </head>
-  <body class="decks-shell page-shell photo-library-page gallery-grid-view">
-    <a href="#main" class="skip-link">Skip to main content</a>
+
+  <body class="app-theme-rcc gallery-grid-view">
+    <!-- Shared header injected by shared-layout.js -->
     <div id="sharedHeader" data-page="photos"></div>
 
-    <main id="main" aria-label="Photo library">
-      <section class="photo-hero" aria-label="Photo library introduction">
+    <main class="photo-library-page">
+      <section class="photo-hero" aria-label="Photo library hero">
         <div class="photo-hero__inner">
-          <h1>Adventure of the Seas Photo Library</h1>
+          <h1>Photo Library</h1>
           <p class="photo-hero__subtitle">
-            Filter and search the packaged image set for rooms, dining venues,
-            ports, and ship-wide visuals. This page only pulls files from the
-            local <code>/images</code> directory.
+            A curated visual index for <strong>Adventure of the Seas</strong>—staterooms, dining, decks,
+            ports, and hero shots. (Local <code>/images</code> only.)
           </p>
+
+          <div class="hero-stats" aria-label="Library stats">
+            <span class="hero-chip"><i class="fas fa-images" aria-hidden="true"></i> <span id="heroTotal">—</span> photos</span>
+            <span class="hero-chip"><i class="fas fa-layer-group" aria-hidden="true"></i> <span id="heroCats">—</span> categories</span>
+            <span class="hero-chip"><i class="fas fa-crown" aria-hidden="true"></i> <span id="heroOfficial">—</span> official</span>
+          </div>
+
           <div class="hero-category-shortcuts" aria-label="Popular categories">
-            <button class="filter-btn" data-filter="staterooms">
-              Staterooms
-            </button>
+            <button class="filter-btn" data-filter="staterooms">Staterooms</button>
             <button class="filter-btn" data-filter="dining">Dining</button>
-            <button class="filter-btn" data-filter="decks">Decks & Ship</button>
+            <button class="filter-btn" data-filter="decks">Decks &amp; Ship</button>
             <button class="filter-btn" data-filter="ports">Ports</button>
             <button class="filter-btn" data-filter="heroes">Hero Shots</button>
           </div>
         </div>
       </section>
 
-      <div class="gallery-controls">
+      <section class="featured-strip" aria-label="Featured photos">
+        <div class="featured-strip__inner">
+          <div class="featured-header">
+            <h2 class="featured-title">Featured</h2>
+            <p class="featured-sub">Quick hits that sell the vibe.</p>
+          </div>
+          <div class="featured-rail" id="featuredRail" role="list" aria-label="Featured photo rail"></div>
+        </div>
+      </section>
+
+      <div class="gallery-controls" aria-label="Gallery controls">
         <div class="gallery-controls__inner">
           <label class="gallery-search" for="gallerySearch">
             <i class="fas fa-search" aria-hidden="true"></i>
@@ -419,28 +889,18 @@
           </label>
 
           <div class="gallery-filters" aria-label="Image source filters">
-            <button class="filter-btn active" data-filter="all">
-              All photos
-            </button>
-            <button class="filter-btn" data-filter="official">
-              Official RCCL
-            </button>
-            <button class="filter-btn" data-filter="passenger">
-              Trip snapshots
-            </button>
+            <button class="filter-btn active" data-filter="all">All photos</button>
+            <button class="filter-btn" data-filter="official">Official RCCL</button>
+            <button class="filter-btn" data-filter="passenger">Trip snapshots</button>
             <button class="filter-btn" data-filter="your-deck">Deck 12</button>
           </div>
 
           <div class="gallery-view-toggle" aria-label="View mode">
-            <button
-              class="view-btn active"
-              data-view="grid"
-              aria-label="Grid view"
-            >
-              <i class="fas fa-th-large"></i>
+            <button class="view-btn active" data-view="grid" aria-label="Grid view">
+              <i class="fas fa-th-large" aria-hidden="true"></i>
             </button>
             <button class="view-btn" data-view="list" aria-label="List view">
-              <i class="fas fa-list"></i>
+              <i class="fas fa-list" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -450,9 +910,11 @@
         <div class="gallery-info-bar">
           <p class="photo-count">
             Showing <span id="photoCount">0</span> photos
+            <span class="count-pill" id="activeFilterPill"><i class="fas fa-filter" aria-hidden="true"></i> All</span>
           </p>
+
           <div class="sort-control">
-            <label for="sortSelect">Sort by:</label>
+            <label for="sortSelect">Sort:</label>
             <select id="sortSelect" aria-label="Sort photos">
               <option value="relevance">Relevance</option>
               <option value="name">Name (A-Z)</option>
@@ -462,85 +924,87 @@
           </div>
         </div>
 
-        <div
-          class="gallery-grid"
-          id="photoGrid"
-          role="list"
-          aria-label="Photo grid"
-        ></div>
-        <div
-          class="gallery-list"
-          id="photoList"
-          role="list"
-          aria-label="Photo list"
-        ></div>
+        <div class="gallery-grid" id="photoGrid" role="list" aria-label="Photo grid"></div>
+        <div class="gallery-list" id="photoList" role="list" aria-label="Photo list"></div>
 
         <div class="gallery-empty" id="emptyState" hidden>
-          <i class="fas fa-images" aria-hidden="true"></i>
-          <h3>No photos found</h3>
-          <p>Try a different search or reset filters.</p>
-          <button class="filter-btn" id="resetFilters">Reset filters</button>
+          <h3 class="empty-title">No matches</h3>
+          <p class="empty-sub">
+            Nothing fits that filter/search combo. Clear filters, simplify the search, or try category shortcuts.
+          </p>
+          <div class="empty-actions">
+            <button class="ghost-btn" id="resetFilters">
+              <i class="fas fa-rotate-left" aria-hidden="true"></i> Reset filters
+            </button>
+            <button class="ghost-btn" id="clearSearchBtn">
+              <i class="fas fa-xmark" aria-hidden="true"></i> Clear search
+            </button>
+          </div>
         </div>
       </section>
 
       <section class="quick-links" aria-label="Quick links">
-        <h2>Need Specific References?</h2>
         <div class="quick-links__grid">
-          <a href="index.html" class="quick-link-card">
-            <h3>Back to Dashboard</h3>
-            <p>Return to your planning hub.</p>
+          <a class="quick-link-card" href="decks.html">
+            <h3><i class="fas fa-map" aria-hidden="true"></i> Deck Plans</h3>
+            <p>Jump to interactive deck maps.</p>
           </a>
-          <a href="rooms.html" class="quick-link-card">
-            <h3>Your Stateroom Details</h3>
-            <p>Compare room options and layouts.</p>
+          <a class="quick-link-card" href="dining.html">
+            <h3><i class="fas fa-utensils" aria-hidden="true"></i> Dining</h3>
+            <p>Find venues and nearby favorites.</p>
           </a>
-          <a href="itinerary.html" class="quick-link-card">
-            <h3>Port Day Plan</h3>
-            <p>Cross-reference destination visuals.</p>
-          </a>
-          <a href="decks.html" class="quick-link-card">
-            <h3>Deck Plans</h3>
-            <p>Pair photos with deck map positions.</p>
+          <a class="quick-link-card" href="rooms.html">
+            <h3><i class="fas fa-bed" aria-hidden="true"></i> Staterooms</h3>
+            <p>Room categories, locations, and notes.</p>
           </a>
         </div>
       </section>
     </main>
 
-    <div
-      class="lightbox"
-      id="lightbox"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Image viewer"
-      hidden
-      tabindex="-1"
-    >
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" hidden tabindex="-1" aria-label="Image viewer" role="dialog" aria-modal="true">
       <div class="lightbox__shell">
-        <img class="lightbox__image" id="lightboxImage" alt="Expanded photo" />
+        <button class="lightbox-nav lightbox-nav--prev" id="prevPhoto" aria-label="Previous photo">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+
+        <button class="lightbox-nav lightbox-nav--next" id="nextPhoto" aria-label="Next photo">
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+
+        <img class="lightbox__image" id="lightboxImage" src="" alt="" />
+
         <div class="lightbox__toolbar">
-          <div>
-            <h3 id="lightboxTitle"></h3>
-            <p id="lightboxDescription"></p>
+          <div class="lightbox__left">
+            <p class="lightbox__title" id="lightboxTitle">—</p>
+            <p class="lightbox__desc" id="lightboxDescription">—</p>
+            <span class="lightbox__counter" id="lightboxCounter">
+              <i class="fas fa-hashtag" aria-hidden="true"></i> <span id="lightboxCounterText">—</span>
+            </span>
           </div>
+
           <div class="lightbox__actions">
-            <button id="prevPhoto" aria-label="Previous photo">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            <button id="nextPhoto" aria-label="Next photo">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-            <button id="closeLightbox" aria-label="Close lightbox">
-              <i class="fas fa-times"></i>
+            <a class="lightbox__link" id="openOriginal" href="#" target="_blank" rel="noopener">
+              <i class="fas fa-up-right-from-square" aria-hidden="true"></i> Open
+            </a>
+            <a class="lightbox__link" id="downloadImage" href="#" download>
+              <i class="fas fa-download" aria-hidden="true"></i> Download
+            </a>
+            <button id="closeLightbox" aria-label="Close image viewer">
+              <i class="fas fa-xmark" aria-hidden="true"></i> Close
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="sharedFooter"></div>
+    <!-- Shared bottom nav injected by shared-layout.js -->
     <div id="sharedBottomNav" data-page="photos"></div>
 
     <script>
+      /* =========================================================
+         Data (kept compatible with your current structure)
+         ========================================================= */
       const photoData = [
         {
           id: 1,
@@ -620,7 +1084,7 @@
           deck: "3",
           source: "official",
           description: "Studio B ice rink used for shows and open skate.",
-          tags: ["entertainment", "rink"],
+          tags: ["shows", "ice"],
         },
         {
           id: 9,
@@ -630,110 +1094,100 @@
           deck: "5",
           source: "official",
           description: "Ice cream counter on the Royal Promenade.",
-          tags: ["dessert", "promenade"],
+          tags: ["ice-cream", "promenade"],
         },
         {
           id: 10,
-          title: "Main Theater Seating",
-          src: "images/venues/rccl-adventure-of-the-seas-main-theater-seating.webp",
-          category: "activities",
-          deck: "3",
+          title: "Perfect Day at CocoCay Aerial",
+          src: "images/ports/rccl-perfect-day-cococay-aerial-balloon.webp",
+          category: "ports",
+          deck: "",
           source: "official",
-          description: "Main theater seating area before showtime.",
-          tags: ["theater", "entertainment"],
+          description: "Aerial view of Perfect Day at CocoCay.",
+          tags: ["cococay", "aerial", "hero"],
         },
         {
           id: 11,
-          title: "Main Theater Stage",
-          src: "images/venues/rccl-adventure-of-the-seas-main-theater-stage.webp",
-          category: "activities",
-          deck: "3",
+          title: "CocoCay Oasis Lagoon",
+          src: "images/ports/rccl-perfect-day-cococay-oasis-lagoon.webp",
+          category: "ports",
+          deck: "",
           source: "official",
-          description: "Center stage setup in the main theater.",
-          tags: ["theater", "stage"],
+          description: "The Oasis Lagoon pool area at CocoCay.",
+          tags: ["pool", "port-day"],
         },
         {
           id: 12,
-          title: "Main Theater Stage (Alternate)",
-          src: "images/venues/rccl-adventure-of-the-seas-main-theater-stage-2.webp",
-          category: "activities",
-          deck: "3",
+          title: "Falmouth Jamaica Port",
+          src: "images/ports/rccl-falmouth-jamaica-port.jpeg",
+          category: "ports",
+          deck: "",
           source: "official",
-          description: "Alternate theater stage perspective.",
-          tags: ["theater", "stage", "alternate"],
+          description: "Port area view in Falmouth, Jamaica.",
+          tags: ["jamaica", "port-day"],
         },
         {
           id: 13,
-          title: "Royal Promenade Classic Car",
-          src: "images/venues/rccl-adventure-of-the-seas-royal-promenade-classic-car.webp",
-          category: "decks",
-          deck: "5",
+          title: "Grand Cayman Harbor",
+          src: "images/ports/rccl-grand-cayman-harbor.jpeg",
+          category: "ports",
+          deck: "",
           source: "official",
-          description: "Classic car display in the Royal Promenade.",
-          tags: ["promenade", "atrium"],
+          description: "Harbor view of Grand Cayman.",
+          tags: ["cayman", "port-day"],
         },
         {
           id: 14,
-          title: "Spa Treatment Room",
-          src: "images/venues/rccl-adventure-of-the-seas-spa-treatment.webp",
-          category: "activities",
-          deck: "12",
+          title: "Interior Stateroom",
+          src: "images/staterooms/rccl-adventure-of-the-seas-interior-room.jpeg",
+          category: "staterooms",
+          deck: "",
           source: "official",
-          description: "Spa treatment suite with lounge setup.",
-          tags: ["spa", "wellness"],
+          description: "Interior stateroom example with optimized layout.",
+          tags: ["room", "interior"],
         },
         {
           id: 15,
-          title: "Spa Treatment Room (Alternate)",
-          src: "images/venues/rccl-adventure-of-the-seas-spa-treatment-2.webp",
-          category: "activities",
-          deck: "12",
+          title: "Ocean View Stateroom",
+          src: "images/staterooms/rccl-adventure-of-the-seas-oceanview-room.jpeg",
+          category: "staterooms",
+          deck: "",
           source: "official",
-          description: "Alternate view of onboard spa accommodations.",
-          tags: ["spa", "wellness", "alternate"],
+          description: "Ocean view stateroom with natural light.",
+          tags: ["room", "oceanview"],
         },
         {
           id: 16,
-          title: "Specialty Dining Entree",
-          src: "images/venues/rccl-adventure-of-the-seas-specialty-dining-entree.jpeg",
-          category: "dining",
-          deck: "5",
+          title: "Balcony Stateroom",
+          src: "images/staterooms/rccl-adventure-of-the-seas-balcony-room.jpeg",
+          category: "staterooms",
+          deck: "",
           source: "official",
-          description: "Sample plated entree from specialty dining.",
-          tags: ["dining", "specialty"],
+          description: "Balcony stateroom with private outdoor space.",
+          tags: ["room", "balcony", "hero"],
         },
         {
           id: 17,
-          title: "Windjammer Buffet (Alternate)",
-          src: "images/venues/rccl-adventure-of-the-seas-windjammer-buffet-2.jpeg",
+          title: "Cafe Promenade",
+          src: "images/venues/rccl-adventure-of-the-seas-cafe-promenade.jpeg",
           category: "dining",
-          deck: "11",
+          deck: "5",
           source: "official",
-          description: "Alternate Windjammer buffet angle.",
-          tags: ["buffet", "casual", "alternate"],
+          description: "Cafe Promenade snacks and coffee on the Royal Promenade.",
+          tags: ["cafe", "coffee", "promenade"],
         },
         {
           id: 18,
-          title: "CocoCay Aerial Balloon",
-          src: "images/ports/rccl-perfect-day-cococay-aerial-balloon.jpeg",
+          title: "CocoCay South Beach",
+          src: "images/ports/rccl-perfect-day-cococay-south-beach.jpeg",
           category: "ports",
           deck: "",
           source: "official",
-          description: "Aerial overview of Perfect Day at CocoCay.",
-          tags: ["cococay", "aerial"],
+          description: "South Beach shoreline and loungers at CocoCay.",
+          tags: ["beach", "waterpark", "port-day"],
         },
         {
           id: 19,
-          title: "CocoCay Thrill Waterpark",
-          src: "images/ports/rccl-perfect-day-cococay-thrill-waterpark-aerial.webp",
-          category: "ports",
-          deck: "",
-          source: "official",
-          description: "Waterpark aerial with slides and pools.",
-          tags: ["waterpark", "port-day"],
-        },
-        {
-          id: 20,
           title: "CocoCay Thrill Tower",
           src: "images/ports/rccl-perfect-day-cococay-thrill-tower.jpeg",
           category: "ports",
@@ -744,26 +1198,37 @@
         },
       ];
 
+      const validPhotoData = photoData.filter(
+        (photo) => typeof photo.src === "string" && photo.src.startsWith("images/"),
+      );
 
       document.addEventListener("DOMContentLoaded", () => {
         const galleryGrid = document.getElementById("photoGrid");
         const galleryList = document.getElementById("photoList");
         const searchInput = document.getElementById("gallerySearch");
-        const filterButtons = Array.from(
-          document.querySelectorAll(".filter-btn[data-filter]"),
-        );
+        const filterButtons = Array.from(document.querySelectorAll(".filter-btn[data-filter]"));
         const viewButtons = Array.from(document.querySelectorAll(".view-btn"));
         const sortSelect = document.getElementById("sortSelect");
         const photoCount = document.getElementById("photoCount");
         const emptyState = document.getElementById("emptyState");
         const resetButton = document.getElementById("resetFilters");
+        const clearSearchBtn = document.getElementById("clearSearchBtn");
+        const activeFilterPill = document.getElementById("activeFilterPill");
+
+        const featuredRail = document.getElementById("featuredRail");
+
+        const heroTotal = document.getElementById("heroTotal");
+        const heroCats = document.getElementById("heroCats");
+        const heroOfficial = document.getElementById("heroOfficial");
 
         const lightbox = document.getElementById("lightbox");
         const lightboxImage = document.getElementById("lightboxImage");
         const lightboxTitle = document.getElementById("lightboxTitle");
-        const lightboxDescription = document.getElementById(
-          "lightboxDescription",
-        );
+        const lightboxDescription = document.getElementById("lightboxDescription");
+        const lightboxCounterText = document.getElementById("lightboxCounterText");
+        const openOriginal = document.getElementById("openOriginal");
+        const downloadImage = document.getElementById("downloadImage");
+
         const prevButton = document.getElementById("prevPhoto");
         const nextButton = document.getElementById("nextPhoto");
         const closeButton = document.getElementById("closeLightbox");
@@ -773,21 +1238,39 @@
         let currentSearch = "";
         let currentSort = "relevance";
         let currentIndex = 0;
-        let filteredPhotos = [...photoData];
+        let filteredPhotos = [...validPhotoData];
+
+        /* -----------------------------
+           Hero stats
+           ----------------------------- */
+        const categories = new Set(photoData.map((p) => p.category));
+        heroTotal.textContent = String(photoData.length);
+        heroCats.textContent = String(categories.size);
+        heroOfficial.textContent = String(photoData.filter((p) => p.source === "official").length);
+
+        /* -----------------------------
+           Helpers
+           ----------------------------- */
+        function prettyFilterLabel(f) {
+          if (f === "all") return "All";
+          if (f === "official") return "Official";
+          if (f === "passenger") return "Snapshots";
+          if (f === "your-deck") return "Deck 12";
+          return f.charAt(0).toUpperCase() + f.slice(1);
+        }
 
         function matchesFilter(photo) {
           if (currentFilter === "all") return true;
           if (currentFilter === "official" || currentFilter === "passenger")
             return photo.source === currentFilter;
-          if (currentFilter === "your-deck")
-            return String(photo.deck).includes("12");
+          if (currentFilter === "your-deck") return String(photo.deck).includes("12");
           return photo.category === currentFilter;
         }
 
         function score(photo, searchTerm) {
           if (!searchTerm) return 0;
           const haystack =
-            `${photo.title} ${photo.description} ${photo.category} ${photo.tags.join(" ")}`.toLowerCase();
+            `${photo.title} ${photo.description} ${photo.category} ${photo.deck || ""} ${photo.tags.join(" ")}`.toLowerCase();
           if (!haystack.includes(searchTerm)) return -1;
           if (photo.title.toLowerCase().includes(searchTerm)) return 3;
           if (photo.tags.join(" ").includes(searchTerm)) return 2;
@@ -796,27 +1279,18 @@
 
         function filterAndSort() {
           const term = currentSearch.trim().toLowerCase();
-          filteredPhotos = photoData
+          filteredPhotos = validPhotoData
             .filter((photo) => matchesFilter(photo))
             .map((photo) => ({ photo, relevance: score(photo, term) }))
             .filter((item) => item.relevance >= (term ? 0 : -1));
 
           filteredPhotos.sort((a, b) => {
-            if (currentSort === "name")
-              return a.photo.title.localeCompare(b.photo.title);
+            if (currentSort === "name") return a.photo.title.localeCompare(b.photo.title);
             if (currentSort === "category")
-              return (
-                a.photo.category.localeCompare(b.photo.category) ||
-                a.photo.title.localeCompare(b.photo.title)
-              );
+              return a.photo.category.localeCompare(b.photo.category) || a.photo.title.localeCompare(b.photo.title);
             if (currentSort === "deck")
-              return String(a.photo.deck || "999").localeCompare(
-                String(b.photo.deck || "999"),
-              );
-            return (
-              b.relevance - a.relevance ||
-              a.photo.title.localeCompare(b.photo.title)
-            );
+              return String(a.photo.deck || "999").localeCompare(String(b.photo.deck || "999"));
+            return b.relevance - a.relevance || a.photo.title.localeCompare(b.photo.title);
           });
 
           filteredPhotos = filteredPhotos.map((entry) => entry.photo);
@@ -827,15 +1301,81 @@
             ? `<span class="meta-tag"><i class="fas fa-layer-group"></i> Deck ${photo.deck}</span>`
             : "";
           return `
-          <span class="meta-tag"><i class="fas fa-folder"></i> ${photo.category}</span>
-          ${deck}
-          <span class="meta-tag"><i class="fas fa-${photo.source === "official" ? "crown" : "camera"}"></i> ${photo.source}</span>
-        `;
+            <span class="meta-tag"><i class="fas fa-folder"></i> ${photo.category}</span>
+            ${deck}
+            <span class="meta-tag"><i class="fas fa-${photo.source === "official" ? "crown" : "camera"}"></i> ${photo.source}</span>
+          `;
         }
 
+        function injectShimmer(img) {
+          img.classList.add("img-shimmer");
+          const done = () => img.classList.remove("img-shimmer");
+          if (img.complete) done();
+          img.addEventListener("load", done, { once: true });
+          img.addEventListener("error", done, { once: true });
+        }
+
+        /* -----------------------------
+           Featured rail
+           ----------------------------- */
+        function buildFeatured() {
+          // Pick “hero-ish” images first; otherwise top few official.
+          const heroish = photoData.filter((p) => p.tags.includes("hero") || p.category === "ports" || p.category === "decks");
+          const picks = (heroish.length ? heroish : photoData)
+            .slice()
+            .sort((a, b) => (b.tags.includes("hero") ? 1 : 0) - (a.tags.includes("hero") ? 1 : 0))
+            .slice(0, 6);
+
+          featuredRail.innerHTML = picks
+            .map((p) => {
+              const chips = [
+                `<span class="mini-chip"><i class="fas fa-folder"></i> ${p.category}</span>`,
+                p.deck ? `<span class="mini-chip"><i class="fas fa-layer-group"></i> ${p.deck}</span>` : "",
+                `<span class="mini-chip"><i class="fas fa-${p.source === "official" ? "crown" : "camera"}"></i> ${p.source}</span>`,
+              ].filter(Boolean).join("");
+
+              return `
+                <article class="featured-card" role="listitem" tabindex="0" data-photo-id="${p.id}">
+                  <img class="featured-card__img" src="${p.src}" alt="${p.title}" loading="lazy" decoding="async" />
+                  <div class="featured-card__overlay" aria-hidden="true"></div>
+                  <div class="featured-card__meta">
+                    <p class="featured-card__name">${p.title}</p>
+                    <div class="featured-card__chips">${chips}</div>
+                  </div>
+                </article>
+              `;
+            })
+            .join("");
+
+          featuredRail.querySelectorAll("img").forEach(injectShimmer);
+
+          featuredRail.addEventListener("click", (e) => {
+            const card = e.target.closest("[data-photo-id]");
+            if (!card) return;
+            const id = Number(card.dataset.photoId);
+            const idx = filteredPhotos.findIndex((p) => p.id === id);
+            openLightbox(idx >= 0 ? idx : photoData.findIndex((p) => p.id === id));
+          });
+
+          featuredRail.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            const card = e.target.closest("[data-photo-id]");
+            if (!card) return;
+            e.preventDefault();
+            const id = Number(card.dataset.photoId);
+            const idx = filteredPhotos.findIndex((p) => p.id === id);
+            openLightbox(idx >= 0 ? idx : photoData.findIndex((p) => p.id === id));
+          });
+        }
+
+        /* -----------------------------
+           Render gallery
+           ----------------------------- */
         function render() {
           filterAndSort();
-          photoCount.textContent = filteredPhotos.length;
+
+          photoCount.textContent = String(filteredPhotos.length);
+          activeFilterPill.innerHTML = `<i class="fas fa-filter" aria-hidden="true"></i> ${prettyFilterLabel(currentFilter)}`;
 
           if (filteredPhotos.length === 0) {
             galleryGrid.innerHTML = "";
@@ -849,42 +1389,61 @@
           galleryGrid.innerHTML = filteredPhotos
             .map(
               (photo, idx) => `
-          <article class="photo-card" role="listitem" tabindex="0" data-index="${idx}">
-            <img class="photo-card__image" src="${photo.src}" alt="${photo.title}" loading="lazy" />
-            <div class="photo-card__content">
-              <h3 class="photo-card__title">${photo.title}</h3>
-              <div class="photo-card__meta">${renderMeta(photo)}</div>
-              <p class="photo-card__description">${photo.description}</p>
-            </div>
-          </article>
-        `,
+                <article class="photo-card" role="listitem" tabindex="0" data-index="${idx}" data-category="${photo.category}">
+                  <span class="source-badge"><i class="fas fa-${photo.source === "official" ? "crown" : "camera"}"></i> ${photo.source}</span>
+                  <img class="photo-card__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
+                  <div class="photo-card__content">
+                    <h3 class="photo-card__title">${photo.title}</h3>
+                    <div class="photo-card__meta">${renderMeta(photo)}</div>
+                    <p class="photo-card__description">${photo.description}</p>
+                  </div>
+                </article>
+              `
             )
             .join("");
 
           galleryList.innerHTML = filteredPhotos
             .map(
               (photo, idx) => `
-          <article class="list-item" role="listitem" tabindex="0" data-index="${idx}">
-            <img class="list-item__image" src="${photo.src}" alt="${photo.title}" loading="lazy" />
-            <div class="list-item__content">
-              <h3 class="photo-card__title">${photo.title}</h3>
-              <div class="photo-card__meta">${renderMeta(photo)}</div>
-              <p class="photo-card__description">${photo.description}</p>
-            </div>
-          </article>
-        `,
+                <article class="list-item" role="listitem" tabindex="0" data-index="${idx}" data-category="${photo.category}">
+                  <span class="source-badge"><i class="fas fa-${photo.source === "official" ? "crown" : "camera"}"></i> ${photo.source}</span>
+                  <img class="list-item__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
+                  <div class="list-item__content">
+                    <h3 class="photo-card__title">${photo.title}</h3>
+                    <div class="photo-card__meta">${renderMeta(photo)}</div>
+                    <p class="photo-card__description">${photo.description}</p>
+                  </div>
+                </article>
+              `
             )
             .join("");
+
+          // Shimmer all newly rendered images
+          document.querySelectorAll("#photoGrid img, #photoList img").forEach(injectShimmer);
         }
 
+        /* -----------------------------
+           Lightbox
+           ----------------------------- */
         function openLightbox(index) {
           currentIndex = index;
-          const photo = filteredPhotos[currentIndex];
+          const photo = filteredPhotos[currentIndex] || photoData[currentIndex];
           if (!photo) return;
+
           lightboxImage.src = photo.src;
           lightboxImage.alt = photo.title;
+
           lightboxTitle.textContent = photo.title;
           lightboxDescription.textContent = photo.description;
+
+          // Counter uses filtered set if possible; fallback to full set
+          const total = filteredPhotos.length ? filteredPhotos.length : photoData.length;
+          const shownIndex = filteredPhotos.length ? currentIndex : index;
+          lightboxCounterText.textContent = `${shownIndex + 1} of ${total}`;
+
+          openOriginal.href = photo.src;
+          downloadImage.href = photo.src;
+
           lightbox.hidden = false;
           lightbox.classList.add("active");
           document.body.style.overflow = "hidden";
@@ -898,11 +1457,16 @@
         }
 
         function moveLightbox(step) {
-          if (filteredPhotos.length === 0) return;
-          currentIndex =
-            (currentIndex + step + filteredPhotos.length) %
-            filteredPhotos.length;
-          openLightbox(currentIndex);
+          const pool = filteredPhotos.length ? filteredPhotos : photoData;
+          if (pool.length === 0) return;
+          currentIndex = (currentIndex + step + pool.length) % pool.length;
+          // Ensure openLightbox reads from filtered pool
+          if (!filteredPhotos.length) {
+            // If we’re in fallback mode, just use photoData index
+            openLightbox(currentIndex);
+          } else {
+            openLightbox(currentIndex);
+          }
         }
 
         function activateCard(event) {
@@ -920,6 +1484,32 @@
           });
         });
 
+        /* Touch swipe for lightbox */
+        let touchStartX = 0;
+        let touchStartY = 0;
+        lightbox.addEventListener("touchstart", (e) => {
+          const t = e.touches[0];
+          if (!t) return;
+          touchStartX = t.clientX;
+          touchStartY = t.clientY;
+        }, { passive: true });
+
+        lightbox.addEventListener("touchend", (e) => {
+          if (lightbox.hidden) return;
+          const t = e.changedTouches[0];
+          if (!t) return;
+          const dx = t.clientX - touchStartX;
+          const dy = t.clientY - touchStartY;
+
+          // Horizontal swipe only (avoid accidental while scrolling)
+          if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+          if (dx > 0) moveLightbox(-1);
+          else moveLightbox(1);
+        });
+
+        /* -----------------------------
+           Control wiring
+           ----------------------------- */
         searchInput.addEventListener("input", (event) => {
           currentSearch = event.target.value;
           render();
@@ -928,9 +1518,7 @@
         filterButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentFilter = button.dataset.filter;
-            filterButtons.forEach((entry) =>
-              entry.classList.toggle("active", entry === button),
-            );
+            filterButtons.forEach((entry) => entry.classList.toggle("active", entry === button));
             render();
           });
         });
@@ -938,17 +1526,9 @@
         viewButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentView = button.dataset.view;
-            document.body.classList.toggle(
-              "gallery-grid-view",
-              currentView === "grid",
-            );
-            document.body.classList.toggle(
-              "gallery-list-view",
-              currentView === "list",
-            );
-            viewButtons.forEach((entry) =>
-              entry.classList.toggle("active", entry === button),
-            );
+            document.body.classList.toggle("gallery-grid-view", currentView === "grid");
+            document.body.classList.toggle("gallery-list-view", currentView === "list");
+            viewButtons.forEach((entry) => entry.classList.toggle("active", entry === button));
           });
         });
 
@@ -961,11 +1541,20 @@
           currentFilter = "all";
           currentSearch = "";
           currentSort = "relevance";
+
           searchInput.value = "";
           sortSelect.value = "relevance";
+
           filterButtons.forEach((entry) =>
-            entry.classList.toggle("active", entry.dataset.filter === "all"),
+            entry.classList.toggle("active", entry.dataset.filter === "all")
           );
+
+          render();
+        });
+
+        clearSearchBtn.addEventListener("click", () => {
+          currentSearch = "";
+          searchInput.value = "";
           render();
         });
 
@@ -984,6 +1573,8 @@
           if (event.key === "ArrowRight") moveLightbox(1);
         });
 
+        /* Boot */
+        buildFeatured();
         render();
       });
     </script>
