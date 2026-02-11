@@ -1507,6 +1507,24 @@
         const cancelManageBtn = document.getElementById("cancelManageBtn");
         const manageStatus = document.getElementById("manageStatus");
 
+        const requiredElements = [
+          galleryGrid, galleryList, searchInput, sortSelect, photoCount, emptyState,
+          resetButton, clearSearchBtn, activeFilterPill, featuredRail,
+          heroTotal, heroCats, heroOfficial,
+          lightbox, lightboxImage, lightboxTitle, lightboxDescription, lightboxCounterText,
+          openOriginal, downloadImage, prevButton, nextButton, closeButton,
+          toggleManageMode, addPhotoBtn, replacePhotoBtn, deletePhotoBtn,
+          managePanel, manageTitle, manageCategory, manageDeck, manageSource,
+          manageSrc, manageFile, manageTags, manageNotes, cancelManageBtn, manageStatus,
+        ];
+
+        if (requiredElements.some((element) => !element)) {
+          console.error("Photo library initialization aborted: missing required DOM element.");
+          return;
+        }
+
+        let uploadObjectUrl = "";
+
         let currentFilter = "all";
         let currentView = "grid";
         let currentSearch = "";
@@ -1709,6 +1727,7 @@
 
         function resetManageForm() {
           manageForm.reset();
+          clearUploadObjectUrl();
           manageStatus.textContent = manageMode
             ? `${selectedPhotoIds.size} selected. Add, replace, delete, and edit names/tags/notes.`
             : "Manage mode is off.";
@@ -2056,6 +2075,8 @@
           if (event.key === "ArrowLeft") moveLightbox(-1);
           if (event.key === "ArrowRight") moveLightbox(1);
         });
+
+        window.addEventListener("beforeunload", clearUploadObjectUrl);
 
         /* Boot */
         render();
