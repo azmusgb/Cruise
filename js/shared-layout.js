@@ -144,7 +144,7 @@
     const stylesheetId = 'rccl-minimal-stylesheet';
     if (document.getElementById(styleId) || document.getElementById(stylesheetId)) return;
 
-    const cssHref = 'css/shared-layout.css?v=6';
+    const cssHref = 'css/shared-layout.css?v=7';
     const linkEl = document.createElement('link');
     linkEl.id = stylesheetId;
     linkEl.rel = 'stylesheet';
@@ -1875,17 +1875,6 @@
             <button class="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="headerPrimaryNav">
               <i class="fas fa-bars" aria-hidden="true"></i>
             </button>
-
-            <nav class="mobile-quick-nav" aria-label="Mobile quick navigation">
-              ${NAV_ITEMS.map(item => `
-                <a href="${sanitizeHref(item.href)}"
-                   class="mobile-quick-nav__link ${currentPage === item.id ? 'active' : ''}"
-                   ${currentPage === item.id ? 'aria-current="page"' : ''}>
-                  <i class="fas ${item.icon}" aria-hidden="true"></i>
-                  <span>${utils.escapeHtml(item.text)}</span>
-                </a>
-              `).join('')}
-            </nav>
           </div>
         </header>
       `;
@@ -2065,8 +2054,9 @@
     if (mobileToggle && headerNav && headerActions) {
       function setMobileMenuOpen(isOpen) {
         mobileToggle.setAttribute('aria-expanded', String(isOpen));
+        mobileToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
 
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 767) {
           headerNav.style.display = isOpen ? 'grid' : 'none';
           headerActions.style.display = 'none';
           headerNav.setAttribute('aria-hidden', String(!isOpen));
@@ -2091,7 +2081,7 @@
       });
 
       document.addEventListener('click', (e) => {
-        if (window.innerWidth > 768) return;
+        if (window.innerWidth > 767) return;
         const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
         if (!expanded) return;
         if (!e.target.closest('.header-container')) {
