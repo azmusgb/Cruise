@@ -421,6 +421,8 @@
             margin-top: auto;
             padding-top: 20px;
             border-top: 1px solid var(--royal-border-light);
+            display: grid;
+            gap: 8px;
         }
 
         .view-deck-btn {
@@ -443,6 +445,25 @@
         .view-deck-btn:hover {
             transform: translateX(4px);
             box-shadow: var(--shadow-medium);
+        }
+
+        .room-details-btn {
+            width: 100%;
+            min-height: 44px;
+            border: 1px solid rgba(10, 96, 166, 0.22);
+            border-radius: var(--radius-md);
+            background: var(--royal-foam);
+            color: var(--royal-navy);
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+        }
+
+        .room-details-btn:hover,
+        .room-details-btn:focus-visible {
+            background: #e7f3ff;
+            border-color: rgba(10, 96, 166, 0.4);
+            outline: none;
         }
 
         /* Quick Actions */
@@ -814,6 +835,17 @@
             border-radius: var(--radius-md);
             background: #fff;
             color: var(--royal-ink);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .no-search-results::before {
+            content: "No rooms found";
+            display: block;
+            font-size: 1rem;
+            color: var(--royal-navy);
+            margin-bottom: 4px;
+            font-weight: 700;
         }
 
         .room-modal {
@@ -837,10 +869,22 @@
             padding: 0 24px 8px;
         }
 
+        .mobile-stats-toggle {
+            display: none;
+        }
+
+        .stats-grid-wrap {
+            display: block;
+        }
+
         /* Rooms-specific readability + scale tuning on top of shared theme */
         body.app-theme-rcc.rooms-page .room-card__header {
             background: linear-gradient(135deg, #0b4f90 0%, #0079d4 55%, #19c2ff 100%) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        body.app-theme-rcc.rooms-page .room-number {
+            display: none;
         }
 
         body.app-theme-rcc.rooms-page .room-type__icon {
@@ -921,27 +965,35 @@
         }
 
         body.app-theme-rcc.rooms-page .guest-roster__list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
             list-style: none;
             margin: 0;
             padding: 0;
+            color: #0a4f90;
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.35;
         }
 
         body.app-theme-rcc.rooms-page .guest-pill {
-            display: inline-flex;
-            align-items: center;
-            min-height: 34px;
-            padding: 6px 12px;
-            border: 1px solid rgba(6, 89, 159, 0.24);
-            border-radius: 999px;
-            background: #ffffff;
-            color: #0a4f90;
-            font-size: 0.9rem;
-            font-weight: 700;
-            line-height: 1.15;
-            box-shadow: 0 4px 12px rgba(8, 65, 118, 0.1);
+            display: inline;
+            min-height: 0;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            color: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+            box-shadow: none;
+        }
+
+        body.app-theme-rcc.rooms-page .guest-pill::after {
+            content: ", ";
+        }
+
+        body.app-theme-rcc.rooms-page .guest-pill:last-child::after {
+            content: "";
         }
 
         body.app-theme-rcc.rooms-page .room-meta-details {
@@ -966,12 +1018,25 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .hero--rooms {
-                padding: 48px 0 30px;
-                margin-bottom: 22px;
+                padding: 30px 0 16px;
+                margin-bottom: 14px;
             }
 
             .hero__title {
-                font-size: clamp(1.9rem, 9vw, 2.25rem);
+                font-size: clamp(1.65rem, 7vw, 2rem);
+            }
+
+            .hero__description {
+                margin-bottom: 0;
+                font-size: 0.95rem;
+                max-width: 100%;
+            }
+
+            .hero__eyebrow,
+            .hero__highlights,
+            .hero__actions,
+            .page-spine {
+                display: none;
             }
             
             .hero__actions {
@@ -1001,6 +1066,15 @@
                 align-items: stretch;
             }
 
+            .nav-heading {
+                padding-bottom: 8px;
+                margin-bottom: 2px;
+            }
+
+            .nav-heading__subtitle {
+                display: none;
+            }
+
             .search-box,
             .filter-control {
                 max-width: 100%;
@@ -1024,6 +1098,20 @@
                 right: 0;
             }
 
+            .mobile-stats-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .stats-grid-wrap {
+                display: none;
+            }
+
+            .stats-grid-wrap.is-open {
+                display: block;
+            }
+
             .filter-link {
                 min-height: 44px;
                 justify-content: center;
@@ -1039,11 +1127,7 @@
             }
 
             body.app-theme-rcc.rooms-page .room-number {
-                width: 42px;
-                height: 42px;
-                top: 16px;
-                right: 16px;
-                font-size: 1.05rem;
+                display: none;
             }
 
             body.app-theme-rcc.rooms-page .room-type__icon {
@@ -1075,12 +1159,6 @@
                 font-size: 0.75rem;
             }
 
-            body.app-theme-rcc.rooms-page .guest-pill {
-                min-height: 36px;
-                font-size: 0.89rem;
-                padding: 7px 12px;
-            }
-
             body.app-theme-rcc.rooms-page .room-features {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
@@ -1103,6 +1181,12 @@
                 min-height: 52px;
                 font-size: 1.03rem;
                 padding: 12px 14px;
+            }
+
+            body.app-theme-rcc.rooms-page .room-details-btn {
+                min-height: 46px;
+                background: #ffffff;
+                border-color: rgba(10, 96, 166, 0.32);
             }
 
             .quick-actions {
@@ -1186,6 +1270,11 @@
             animation: fadeIn 0.6s ease forwards;
         }
 
+        .is-reveal-pending {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+
         @keyframes ripple {
             to {
                 transform: scale(4);
@@ -1197,7 +1286,7 @@
 </head>
 <body class="app-theme-rcc rooms-page page-shell">
     <!-- Skip Link -->
-    <a href="#rooms-content" class="skip-link">Skip to rooms list</a>
+    <a href="#rooms-section" class="skip-link">Skip to rooms list</a>
 
     <!-- Header Placeholder -->
     <div id="sharedHeader" data-page="rooms"></div>
@@ -1256,7 +1345,7 @@
                         <div class="search-box">
                             <label class="sr-only" for="roomSearchInput">Search rooms</label>
                             <i class="fas fa-search" aria-hidden="true"></i>
-                            <input id="roomSearchInput" type="search" placeholder="Search by room number, name, or location" aria-label="Search staterooms by room number, name, or location">
+                            <input id="roomSearchInput" type="search" placeholder="Search by room number, name, or location" aria-label="Search staterooms by room number, name, or location" enterkeyhint="search" inputmode="search" autocapitalize="off" autocorrect="off" spellcheck="false">
                         </div>
                         <div class="filter-control" data-filter-root>
                             <button id="filterToggle" class="filter-btn" type="button" aria-expanded="false" aria-controls="filterPanel" data-filter-toggle>
@@ -1292,7 +1381,12 @@
                         <h2 id="overviewTitle" class="section-title">Stateroom Snapshot</h2>
                         <p class="section-subtitle">Key details only, with visual room-type distribution</p>
                     </div>
+                    <button type="button" id="mobileStatsToggle" class="filter-btn mobile-stats-toggle" aria-expanded="false" aria-controls="statsGridWrap">
+                        <i class="fas fa-chart-column" aria-hidden="true"></i>
+                        <span>Show summary</span>
+                    </button>
                 </div>
+                <div id="statsGridWrap" class="stats-grid-wrap">
                 <div class="stats-grid">
                     <article class="stat-card animate-fade-in">
                         <div class="stat-card__title">
@@ -1305,7 +1399,7 @@
                         </div>
                     </article>
 
-                    <article class="stat-card animate-fade-in" style="animation-delay: 0.1s;">
+                    <article class="stat-card animate-fade-in">
                         <div class="stat-card__title">
                             <i class="fas fa-layer-group" aria-hidden="true"></i>
                             Deck Coverage
@@ -1316,7 +1410,7 @@
                         </div>
                     </article>
 
-                    <article class="stat-card animate-fade-in" style="animation-delay: 0.2s;">
+                    <article class="stat-card animate-fade-in">
                         <div class="stat-card__title">
                             <i class="fas fa-chart-column" aria-hidden="true"></i>
                             Room Mix
@@ -1339,6 +1433,7 @@
                             </div>
                         </div>
                     </article>
+                </div>
                 </div>
             </section>
 
@@ -1404,12 +1499,15 @@
                                     <span>Locate on Deck Plan</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
+                                <button type="button" class="room-details-btn" data-room-details>
+                                    Room details
+                                </button>
                             </div>
                         </div>
                     </article>
                     
                     <!-- Room 2 -->
-                    <article class="room-card room-card--interior animate-fade-in" data-room="6651" data-room-type="interior" style="animation-delay: 0.1s;">
+                    <article class="room-card room-card--interior animate-fade-in" data-room="6651" data-room-type="interior">
                         <div class="room-card__header">
                             <span class="room-number">2</span>
                             <span class="room-category">Stateroom</span>
@@ -1453,12 +1551,15 @@
                                     <span>Locate on Deck Plan</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
+                                <button type="button" class="room-details-btn" data-room-details>
+                                    Room details
+                                </button>
                             </div>
                         </div>
                     </article>
                     
                     <!-- Room 3 -->
-                    <article class="room-card room-card--ocean-view animate-fade-in" data-room="8528" data-room-type="ocean-view" style="animation-delay: 0.2s;">
+                    <article class="room-card room-card--ocean-view animate-fade-in" data-room="8528" data-room-type="ocean-view">
                         <div class="room-card__header">
                             <span class="room-number">3</span>
                             <span class="room-category">Stateroom</span>
@@ -1502,12 +1603,15 @@
                                     <span>Locate on Deck Plan</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
+                                <button type="button" class="room-details-btn" data-room-details>
+                                    Room details
+                                </button>
                             </div>
                         </div>
                     </article>
                     
                     <!-- Room 4 -->
-                    <article class="room-card room-card--ocean-view animate-fade-in" data-room="8612" data-room-type="ocean-view" style="animation-delay: 0.3s;">
+                    <article class="room-card room-card--ocean-view animate-fade-in" data-room="8612" data-room-type="ocean-view">
                         <div class="room-card__header">
                             <span class="room-number">4</span>
                             <span class="room-category">Stateroom</span>
@@ -1551,12 +1655,15 @@
                                     <span>Locate on Deck Plan</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
+                                <button type="button" class="room-details-btn" data-room-details>
+                                    Room details
+                                </button>
                             </div>
                         </div>
                     </article>
                     
                     <!-- Room 5 -->
-                    <article class="room-card room-card--interior animate-fade-in" data-room="3622" data-room-type="interior" style="animation-delay: 0.4s;">
+                    <article class="room-card room-card--interior animate-fade-in" data-room="3622" data-room-type="interior">
                         <div class="room-card__header">
                             <span class="room-number">5</span>
                             <span class="room-category">Interior Room</span>
@@ -1600,11 +1707,14 @@
                                     <span>Locate on Deck Plan</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
+                                <button type="button" class="room-details-btn" data-room-details>
+                                    Room details
+                                </button>
                             </div>
                         </div>
                     </article>
                 </div>
-                <p id="noSearchResults" class="no-search-results" hidden>No rooms match that search or filter yet.</p>
+                <p id="noSearchResults" class="no-search-results" hidden>Try clearing filters or searching by room number (for example: 6650).</p>
             </section>
 
             <!-- Quick Actions -->
@@ -1691,7 +1801,11 @@
             const searchSummary = document.getElementById('searchSummary');
             const noSearchResults = document.getElementById('noSearchResults');
             const roomsCountValue = document.querySelector('.rooms-count__number');
+            const roomsCount = document.querySelector('.rooms-count');
             const filterToggle = document.getElementById('filterToggle');
+            const filterPanel = document.getElementById('filterPanel');
+            const mobileStatsToggle = document.getElementById('mobileStatsToggle');
+            const statsGridWrap = document.getElementById('statsGridWrap');
             const roomModal = document.getElementById('roomModal');
             const modalTitle = document.getElementById('modalTitle');
             const modalBody = document.getElementById('modalBody');
@@ -1726,50 +1840,78 @@
                 const roomLabel = visibleCount === 1 ? 'room' : 'rooms';
                 searchSummary.textContent = `Showing ${visibleCount} of ${totalRooms} ${roomLabel}`;
                 roomsCountValue.textContent = String(visibleCount);
+                if (roomsCount) {
+                    roomsCount.hidden = visibleCount === 0;
+                }
                 noSearchResults.hidden = visibleCount !== 0;
+            }
+
+            function closeFilterPanel() {
+                if (!filterPanel) return;
+                filterPanel.classList.remove('is-open');
+                filterToggle.setAttribute('aria-expanded', 'false');
             }
 
             document.addEventListener('rccl:filter-change', function(event) {
                 if (!event.detail || event.detail.group !== 'roomType') return;
                 activeType = event.detail.value || 'all';
                 filterToggle.classList.toggle('filter-btn--active', activeType !== 'all');
+                closeFilterPanel();
                 updateRoomVisibility();
             });
 
             searchInput.addEventListener('input', updateRoomVisibility);
 
-            // Keyboard shortcut for search
+            // Keyboard shortcut for search (desktop only)
             document.addEventListener('keydown', function(e) {
+                if (window.innerWidth <= 767) return;
                 if (e.key === '/' && e.target !== searchInput) {
                     e.preventDefault();
                     searchInput.focus();
                 }
             });
 
-            // Room card click handler
-            roomCards.forEach(card => {
-                card.setAttribute('tabindex', '0');
-                card.addEventListener('click', function(e) {
-                    // Don't trigger if clicking on the deck plan link
-                    if (e.target.closest('.view-deck-btn')) {
-                        return;
-                    }
-                    
-                    const roomNumber = this.dataset.room;
-                    const roomName = this.querySelector('.room-type__name').textContent;
-                    const roomLocation = this.querySelector('.room-location').textContent;
-                    
-                    showRoomModal(roomNumber, roomName, roomLocation);
+            if (filterToggle && filterPanel) {
+                filterToggle.addEventListener('click', function() {
+                    const shouldOpen = !filterPanel.classList.contains('is-open');
+                    filterPanel.classList.toggle('is-open', shouldOpen);
+                    filterToggle.setAttribute('aria-expanded', String(shouldOpen));
                 });
 
-                card.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        const roomNumber = this.dataset.room;
-                        const roomName = this.querySelector('.room-type__name').textContent;
-                        const roomLocation = this.querySelector('.room-location').textContent;
-                        showRoomModal(roomNumber, roomName, roomLocation);
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('[data-filter-root]')) {
+                        closeFilterPanel();
                     }
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closeFilterPanel();
+                    }
+                });
+            }
+
+            if (mobileStatsToggle && statsGridWrap) {
+                mobileStatsToggle.addEventListener('click', function() {
+                    const isOpen = statsGridWrap.classList.toggle('is-open');
+                    mobileStatsToggle.setAttribute('aria-expanded', String(isOpen));
+                    const label = mobileStatsToggle.querySelector('span');
+                    if (label) {
+                        label.textContent = isOpen ? 'Hide summary' : 'Show summary';
+                    }
+                });
+            }
+
+            // Explicit room details button handler to avoid card-level action ambiguity
+            roomCards.forEach(card => {
+                const detailsBtn = card.querySelector('[data-room-details]');
+                if (!detailsBtn) return;
+
+                detailsBtn.addEventListener('click', function() {
+                    const roomNumber = card.dataset.room;
+                    const roomName = card.querySelector('.room-type__name').textContent;
+                    const roomLocation = card.querySelector('.room-location').textContent;
+                    showRoomModal(roomNumber, roomName, roomLocation);
                 });
             });
 
@@ -1808,7 +1950,7 @@
                             <a href="decks.html?room=${roomNumber}" style="display: block; width: 100%; padding: 12px; background: linear-gradient(135deg, var(--royal-blue), var(--royal-sky)); color: white; text-align: center; border-radius: var(--radius-md); text-decoration: none; font-weight: 600;">
                                 <i class="fas fa-map-marker-alt"></i> Locate on Deck Plan
                             </a>
-                            <button type="button" id="modalContinue" style="width: 100%; padding: 11px 12px; border: 1px solid var(--royal-border); border-radius: var(--radius-md); background: #fff; color: var(--royal-ink); font-weight: 600;">
+                            <button type="button" class="modal-continue-btn" style="width: 100%; padding: 11px 12px; border: 1px solid rgba(10, 96, 166, 0.28); border-radius: var(--radius-md); background: var(--royal-foam); color: var(--royal-navy); font-weight: 700;">
                                 Keep browsing rooms
                             </button>
                         </div>
@@ -1820,12 +1962,9 @@
                 } else {
                     roomModal.classList.add('room-modal--open');
                 }
-                document.getElementById('modalContinue')?.focus();
-
-                const modalContinue = document.getElementById('modalContinue');
-                if (modalContinue) {
-                    modalContinue.addEventListener('click', closeRoomModal);
-                }
+                const modalContinue = modalBody.querySelector('.modal-continue-btn');
+                modalContinue?.focus();
+                modalContinue?.addEventListener('click', closeRoomModal, { once: true });
             }
 
             function closeRoomModal() {
@@ -1865,12 +2004,14 @@
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
+                        entry.target.classList.remove('is-reveal-pending');
                         entry.target.classList.add('animate-fade-in');
                     }
                 });
             }, observerOptions);
 
             document.querySelectorAll('.stat-card, .room-card, .action-item').forEach(el => {
+                el.classList.add('is-reveal-pending');
                 observer.observe(el);
             });
 
