@@ -53,6 +53,7 @@
     { id: 'itinerary', href: 'itinerary.html', icon: 'fa-route', text: 'Itinerary' },
     { id: 'rooms', href: 'rooms.html', icon: 'fa-bed', text: 'Rooms' },
     { id: 'dining', href: 'dining.html', icon: 'fa-utensils', text: 'Dining' },
+    { id: 'photos', href: 'photos.html', icon: 'fa-images', text: 'Photos' },
     { id: 'contacts', href: 'contacts.html', icon: 'fa-phone-volume', text: 'Contacts' },
     { id: 'decks', href: 'decks.html', icon: 'fa-map', text: 'Decks' },
     { id: 'operations', href: 'operations.html', icon: 'fa-clipboard-check', text: 'Checklist' },
@@ -64,6 +65,7 @@
     { id: 'itinerary', icon: 'fa-compass', text: 'Today', href: 'itinerary.html' },
     { id: 'quick', icon: 'fa-plus', text: 'Quick', action: 'quick-actions' },
     { id: 'decks', icon: 'fa-ship', text: 'Ship', href: 'decks.html' },
+    { id: 'photos', icon: 'fa-images', text: 'Photos', href: 'photos.html' },
     { id: 'dining', icon: 'fa-utensils', text: 'Eat', href: 'dining.html' },
   ];
 
