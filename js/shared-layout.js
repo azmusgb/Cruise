@@ -1464,7 +1464,11 @@
           flex-direction: column;
           align-items: stretch;
           gap: 0.35rem;
-          padding-top: 0.35rem;
+          padding: 0.45rem;
+          border: 1px solid rgba(var(--rccl-primary-rgb), 0.16);
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.88);
+          box-shadow: 0 8px 18px rgba(11, 79, 144, 0.1);
         }
 
         .header-nav__link {
@@ -1474,13 +1478,15 @@
         }
 
         .header-actions {
-          width: 100%;
+          width: auto;
           justify-content: flex-end;
+          align-self: flex-end;
           padding-top: 0.25rem;
         }
 
         .header-cta {
-          width: 100%;
+          width: auto;
+          min-width: 112px;
           justify-content: center;
           min-height: 44px;
         }
@@ -2080,6 +2086,7 @@
       }
 
       @media print {
+        .skip-link,
         .app-header--rccl-site .header-utility,
         .app-header--rccl-site .header-nav,
         .app-header--rccl-site .header-actions,
