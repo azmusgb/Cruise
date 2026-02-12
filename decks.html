@@ -255,8 +255,40 @@
     }
     .deck-visual img { width: 100%; height: 110px; object-fit: cover; border-radius: 24px; background: #cfe2f0; }
     .deck-info { flex: 1; }
+    .deck-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+    }
+    .deck-subtitle {
+      color: var(--accent);
+      font-weight: 600;
+    }
     .deck-highlights { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
     .deck-highlights span { background: #e9f3fb; padding: 5px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; color: #0c4973; }
+    .deck-card__cta {
+      margin-top: 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .deck-card__cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(0,121,212,0.35);
+    }
+    .deck-card--entertainment {
+      background: linear-gradient(145deg, #ffffff, #f7fbff);
+    }
+    .deck-card--wellness {
+      background: linear-gradient(145deg, #ffffff, #f4fbf8);
+    }
+    .deck-card--essential {
+      background: linear-gradient(145deg, #ffffff, #f9f9fc);
+    }
 
     /* ———— MODAL ———— */
     .deck-modal {
@@ -285,6 +317,38 @@
       display: flex;
       flex-direction: column;
     }
+    .deck-vertical-indicator {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+    .deck-vertical-indicator button {
+      background: transparent;
+      border: none;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(0,0,0,0.35);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 4px 6px;
+    }
+    .deck-vertical-indicator button.active {
+      color: var(--warm-gold);
+      transform: scale(1.15);
+      animation: deckPulse 1.8s ease-in-out infinite alternate;
+    }
+    @keyframes deckPulse {
+      from { text-shadow: 0 0 0px rgba(255,183,77,0.3); }
+      to { text-shadow: 0 0 10px rgba(255,183,77,0.6); }
+    }
+    .deck-vertical-indicator button:hover {
+      color: var(--accent);
+    }
     .deck-modal__toolbar {
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(24px);
@@ -311,6 +375,14 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 18px 30px -8px black;
     }
     .deck-plan-media { border-radius: 24px; width: 100%; display: block; }
+    .deck-plan-canvas {
+      transition: opacity 220ms ease, transform 220ms ease;
+      transform-origin: center top;
+    }
+    .deck-plan-canvas.is-transitioning {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
 
     /* ———— BOTTOM NAV ———— */
     .bottom-nav {
@@ -341,7 +413,7 @@
       <div class="container">
         <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
         <h1 class="deck-hero__title">Deck Navigator</h1>
-        <p class="deck-hero__subtitle">Intelligent wayfinding — intent-based deck exploration, venue hotspots, and fluid orientation.</p>
+        <p class="deck-hero__subtitle">Pools. Shows. Food. Cabins. Find anything on the ship in seconds.</p>
         <div class="deck-hero__highlights">
           <span class="deck-hero__tag"><i class="fas fa-route"></i> Intent-first routing</span>
           <span class="deck-hero__tag"><i class="fas fa-layers"></i> Venue clusters</span>
@@ -419,6 +491,7 @@
   <div class="deck-modal" id="deckModal" aria-hidden="true">
     <div class="deck-modal__backdrop" data-action="close-modal"></div>
     <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="deck-vertical-indicator" id="deckVerticalIndicator"></div>
       <div class="deck-modal__toolbar">
         <div class="toolbar-group">
           <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
@@ -452,21 +525,21 @@
     (function() {
       // ---- DECK DATA (same as original, enriched with more hotspots) ----
       const deckData = [
-        { number: 0, name: 'All Decks', subtitle: 'Ship Overview Blueprint', highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-all.min.svg', pdf: '' },
-        { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-05.svg', pdf: 'decks/deck-05.pdf' },
-        { number: 14, name: 'Deck 14', subtitle: 'Sky Deck', highlights: ['Panoramic views', 'Lounges', 'Sun decks'], description: 'Viking Crown Lounge & sky bar.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-14.svg', pdf: '' },
-        { number: 11, name: 'Deck 11', subtitle: 'Fitness & Spa', highlights: ['Spa', 'Fitness', 'Wellness'], description: 'Vitality Spa & fully equipped fitness.', category: 'wellness', image: 'deck-plans/deck-12.png', svg: 'decks/deck-11.svg', pdf: '' },
-        { number: 12, name: 'Deck 12', subtitle: 'Pool Deck', highlights: ['Main pool', 'Solarium', 'Grill'], description: 'Main pool, adults-only solarium, Windjammer.', category: 'wellness', image: 'deck-plans/deck-12.png', svg: 'decks/deck-12.svg', pdf: '' },
-        { number: 15, name: 'Deck 15', subtitle: 'Sports & Observation', highlights: ['Sports court', 'Jog track', 'Views'], description: 'FlowRider, mini-golf, running track.', category: 'wellness', image: 'deck-plans/deck-12.png', svg: 'decks/deck-15.svg', pdf: '' },
-        { number: 13, name: 'Deck 13', subtitle: 'Adventure Zone', highlights: ['FlowRider', 'Sky deck access', 'Activities'], description: 'Adventure Ocean & rock climbing wall.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-13.svg', pdf: '' },
-        { number: 10, name: 'Deck 10', subtitle: 'Stateroom Corridor', highlights: ['Cabins', 'Elevators', 'Quiet routes'], description: 'Premium staterooms, aft elevator lobby.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-10.svg', pdf: '' },
-        { number: 9, name: 'Deck 9', subtitle: 'Midship Cabins', highlights: ['Cabins', 'Family zones', 'Wayfinding'], description: 'Family-friendly staterooms.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-09.svg', pdf: '' },
-        { number: 8, name: 'Deck 8', subtitle: 'Stateroom Access', highlights: ['Cabins', 'Aft access', 'Guest routes'], description: 'Convenient access to upper decks.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-08.svg', pdf: '' },
-        { number: 7, name: 'Deck 7', subtitle: 'Cabin Transit', highlights: ['Cabins', 'Quiet zones', 'Midship transit'], description: 'Quiet corridor, elevator stacks C/D.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-07.svg', pdf: '' },
-        { number: 6, name: 'Deck 6', subtitle: 'Stateroom Ring', highlights: ['Cabins', 'Family adjacency', 'Deck transitions'], description: 'Your stateroom zone (6650) near aft.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-06.svg', pdf: '' },
-        { number: 4, name: 'Deck 4', subtitle: 'Dining & Entertainment', highlights: ['Main dining', 'Show venue', 'Casino'], description: 'Main dining room, theater, casino.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-04.svg', pdf: '' },
-        { number: 3, name: 'Deck 3', subtitle: 'Lobby & Guest Services', highlights: ['Guest services', 'Dining', 'Retail'], description: 'Grand lobby, shore excursions, champagne bar.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-03.svg', pdf: '' },
-        { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-02.svg', pdf: '' }
+        { number: 0, name: 'All Decks', subtitle: 'Ship Overview Blueprint', highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'decks/deck-all.min.svg', svg: 'decks/deck-all.min.svg', pdf: '' },
+        { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'decks/deck-05.png', svg: 'decks/deck-05.svg', pdf: 'decks/deck-05.pdf' },
+        { number: 14, name: 'Deck 14', subtitle: 'Sky Deck', highlights: ['Panoramic views', 'Lounges', 'Sun decks'], description: 'Viking Crown Lounge & sky bar.', category: 'entertainment', image: 'decks/deck-14.png', svg: 'decks/deck-14.svg', pdf: '' },
+        { number: 11, name: 'Deck 11', subtitle: 'Fitness & Spa', highlights: ['Spa', 'Fitness', 'Wellness'], description: 'Vitality Spa & fully equipped fitness.', category: 'wellness', image: 'decks/deck-11.png', svg: 'decks/deck-11.svg', pdf: '' },
+        { number: 12, name: 'Deck 12', subtitle: 'Pool Deck', highlights: ['Main pool', 'Solarium', 'Grill'], description: 'Main pool, adults-only solarium, Windjammer.', category: 'wellness', image: 'decks/deck-12.png', svg: 'decks/deck-12.svg', pdf: '' },
+        { number: 15, name: 'Deck 15', subtitle: 'Sports & Observation', highlights: ['Sports court', 'Jog track', 'Views'], description: 'FlowRider, mini-golf, running track.', category: 'wellness', image: 'decks/deck-15.png', svg: 'decks/deck-15.svg', pdf: '' },
+        { number: 13, name: 'Deck 13', subtitle: 'Adventure Zone', highlights: ['FlowRider', 'Sky deck access', 'Activities'], description: 'Adventure Ocean & rock climbing wall.', category: 'entertainment', image: 'decks/deck-13.png', svg: 'decks/deck-13.svg', pdf: '' },
+        { number: 10, name: 'Deck 10', subtitle: 'Stateroom Corridor', highlights: ['Cabins', 'Elevators', 'Quiet routes'], description: 'Premium staterooms, aft elevator lobby.', category: 'essential', image: 'decks/deck-10.png', svg: 'decks/deck-10.svg', pdf: '' },
+        { number: 9, name: 'Deck 9', subtitle: 'Midship Cabins', highlights: ['Cabins', 'Family zones', 'Wayfinding'], description: 'Family-friendly staterooms.', category: 'essential', image: 'decks/deck-09.png', svg: 'decks/deck-09.svg', pdf: '' },
+        { number: 8, name: 'Deck 8', subtitle: 'Stateroom Access', highlights: ['Cabins', 'Aft access', 'Guest routes'], description: 'Convenient access to upper decks.', category: 'essential', image: 'decks/deck-08.png', svg: 'decks/deck-08.svg', pdf: '' },
+        { number: 7, name: 'Deck 7', subtitle: 'Cabin Transit', highlights: ['Cabins', 'Quiet zones', 'Midship transit'], description: 'Quiet corridor, elevator stacks C/D.', category: 'essential', image: 'decks/deck-07.png', svg: 'decks/deck-07.svg', pdf: '' },
+        { number: 6, name: 'Deck 6', subtitle: 'Stateroom Ring', highlights: ['Cabins', 'Family adjacency', 'Deck transitions'], description: 'Your stateroom zone (6650) near aft.', category: 'essential', image: 'decks/deck-06.png', svg: 'decks/deck-06.svg', pdf: '' },
+        { number: 4, name: 'Deck 4', subtitle: 'Dining & Entertainment', highlights: ['Main dining', 'Show venue', 'Casino'], description: 'Main dining room, theater, casino.', category: 'entertainment', image: 'decks/deck-04.png', svg: 'decks/deck-04.svg', pdf: '' },
+        { number: 3, name: 'Deck 3', subtitle: 'Lobby & Guest Services', highlights: ['Guest services', 'Dining', 'Retail'], description: 'Grand lobby, shore excursions, champagne bar.', category: 'essential', image: 'decks/deck-03.png', svg: 'decks/deck-03.svg', pdf: '' },
+        { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'decks/deck-02.png', svg: 'decks/deck-02.svg', pdf: '' }
       ];
 
       // ---- DECK HOTSPOTS (enhanced) ----
@@ -524,14 +597,6 @@
       };
 
       // ----- RENDER FUNCTIONS (polished) -----
-      function filterDecks() {
-        const q = state.search.toLowerCase().trim();
-        return deckData.filter(d => 
-          (state.filter === 'all' || d.category === state.filter) &&
-          (!q || `${d.name} ${d.subtitle} ${d.highlights.join(' ')}`.toLowerCase().includes(q))
-        );
-      }
-
       function renderQuickRail() {
         const sorted = [...deckData].sort((a,b) => b.number - a.number);
         els.quickRail.innerHTML = sorted.map(d => `
@@ -556,25 +621,87 @@
         });
       }
 
-      function renderCards() {
-        const decks = filterDecks();
-        els.countTotal.textContent = deckData.length;
-        els.countVisible.textContent = decks.length;
-        els.empty.hidden = decks.length > 0;
-        els.cards.innerHTML = decks.map(d => `
-          <article class="deck-card" role="listitem" data-deck="${d.number}">
-            <div class="deck-visual">
-              <span class="deck-number">${d.number === 0 ? 'ALL' : d.number}</span>
-              <img data-src="${d.image}" alt="${d.name}" src="${d.image}" loading="lazy">
-            </div>
-            <div class="deck-info">
-              <h3 style="font-size:1.6rem; font-weight:800;">${d.name}</h3>
-              <p style="color:var(--accent); font-weight:600;">${d.subtitle}</p>
-              <div class="deck-highlights">${d.highlights.slice(0,3).map(h => `<span>${h}</span>`).join('')}</div>
-              <button class="deck-card__cta btn btn--nautical" data-action="open" style="margin-top:16px; background:var(--accent); color:white; border:none; padding:12px 24px; border-radius:60px; font-weight:700;">Explore deck →</button>
-            </div>
-          </article>
+      function renderVerticalIndicator() {
+        const indicator = document.getElementById('deckVerticalIndicator');
+        const decks = deckData
+          .filter(d => d.number !== 0)
+          .sort((a, b) => b.number - a.number);
+
+        indicator.innerHTML = decks.map(d => `
+          <button data-deck="${d.number}">
+            ${d.number}
+          </button>
         `).join('');
+      }
+
+      // ---------- IMAGE PATH RESOLVER ----------
+      function getDeckImage(number) {
+        const deck = deckData.find(item => item.number === number);
+        if (deck?.image) return deck.image;
+        if (number === 0) return 'decks/deck-all.min.svg';
+        return `decks/deck-${String(number).padStart(2, '0')}.png`;
+      }
+
+      // ---------- CATEGORY CLASS ----------
+      function getCategoryClass(category) {
+        return `deck-card--${category}`;
+      }
+
+      // ---------- RENDER CARDS ----------
+      function renderDeckCards(filter = 'all', search = '') {
+        const container = document.getElementById('deckCards');
+        const visibleCountEl = document.getElementById('countVisible');
+        const totalCountEl = document.getElementById('countTotal');
+
+        container.innerHTML = '';
+
+        const filtered = deckData.filter(deck => {
+          const matchesCategory =
+            filter === 'all' || deck.category === filter;
+
+          const matchesSearch =
+            search === '' ||
+            deck.name.toLowerCase().includes(search) ||
+            deck.subtitle.toLowerCase().includes(search) ||
+            deck.highlights.join(' ').toLowerCase().includes(search);
+
+          return matchesCategory && matchesSearch;
+        });
+
+        filtered.forEach(deck => {
+          const card = document.createElement('article');
+          card.className = `deck-card ${getCategoryClass(deck.category)}`;
+          card.setAttribute('role', 'listitem');
+          card.dataset.deck = deck.number;
+
+          card.innerHTML = `
+            <div class="deck-visual">
+              <span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span>
+              <img src="${getDeckImage(deck.number)}"
+                   alt="${deck.name}"
+                   loading="lazy"
+                   decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">${deck.name}</h3>
+              <p class="deck-subtitle">${deck.subtitle}</p>
+              <div class="deck-highlights">
+                ${deck.highlights.map(h => `<span>${h}</span>`).join('')}
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="${deck.number}">
+                Explore deck →
+              </button>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+
+        visibleCountEl.textContent = filtered.length;
+        totalCountEl.textContent = deckData.length;
+
+        document.getElementById('emptyState').hidden = filtered.length !== 0;
       }
 
       // --- MODAL ---
@@ -608,23 +735,38 @@
       }
 
       function renderModalPlan(deck) {
-        const hotspots = deckHotspots[deck.number] || [];
-        const chips = deckFocusMap[deck.number] || [];
-        els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" style="background:#eaf3ff; padding:8px 18px; border-radius:60px; border:none; font-weight:600;">${l}</button>`).join('');
-        const hotspotButtons = hotspots.map((s,i) => `
-          <button class="deck-hotspot" style="position:absolute; left:${s.x}%; top:${s.y}%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:44px; background:linear-gradient(145deg, #0ca8ff, #0069d0); border:3px solid white; color:white; font-weight:800; box-shadow:0 10px 24px rgba(0,121,212,0.6);" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
-        `).join('');
-        
-        els.modalFrame.innerHTML = `
-          <div class="deck-plan-stage" id="deckPlanStage" style="position:relative; overflow:auto; background:#082434; padding:20px; border-radius:28px;">
-            <div class="deck-plan-canvas" id="deckPlanCanvas" style="transform-origin:top left; transform:scale(${state.currentZoom/100});">
-              <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" style="width:100%; border-radius:24px;" alt="${deck.name}">
-              ${hotspots.length ? `<div style="position:absolute; inset:20px;">${hotspotButtons}</div>` : ''}
+        const existingCanvas = document.getElementById('deckPlanCanvas');
+
+        if (existingCanvas) {
+          existingCanvas.classList.add('is-transitioning');
+        }
+
+        setTimeout(() => {
+          const hotspots = deckHotspots[deck.number] || [];
+          const chips = deckFocusMap[deck.number] || [];
+          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" style="background:#eaf3ff; padding:8px 18px; border-radius:60px; border:none; font-weight:600;">${l}</button>`).join('');
+          const hotspotButtons = hotspots.map((s,i) => `
+            <button class="deck-hotspot" style="position:absolute; left:${s.x}%; top:${s.y}%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:44px; background:linear-gradient(145deg, #0ca8ff, #0069d0); border:3px solid white; color:white; font-weight:800; box-shadow:0 10px 24px rgba(0,121,212,0.6);" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
+          `).join('');
+
+          els.modalFrame.innerHTML = `
+            <div class="deck-plan-stage" id="deckPlanStage" style="position:relative; overflow:auto; background:#082434; padding:20px; border-radius:28px;">
+              <div class="deck-plan-canvas is-transitioning" id="deckPlanCanvas" style="transform:scale(${state.currentZoom/100});">
+                <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" style="width:100%; border-radius:24px;" alt="${deck.name}">
+                ${hotspots.length ? `<div style="position:absolute; inset:20px;">${hotspotButtons}</div>` : ''}
+              </div>
             </div>
-          </div>
-          ${hotspots.length ? `<div class="deck-plan-legend" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:18px;">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}" style="background:white; border:none; padding:10px 18px; border-radius:40px; box-shadow:0 4px 8px rgba(0,0,0,0.04);"><strong>${i+1}. ${s.title}</strong><span style="display:block; font-size:0.8rem;">${s.note}</span></button>`).join('')}</div>` : ''}
-        `;
-        attachPan();
+            ${hotspots.length ? `<div class="deck-plan-legend" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:18px;">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}" style="background:white; border:none; padding:10px 18px; border-radius:40px; box-shadow:0 4px 8px rgba(0,0,0,0.04);"><strong>${i+1}. ${s.title}</strong><span style="display:block; font-size:0.8rem;">${s.note}</span></button>`).join('')}</div>` : ''}
+          `;
+          attachPan();
+
+          const newCanvas = document.getElementById('deckPlanCanvas');
+          if (newCanvas) {
+            requestAnimationFrame(() => {
+              newCanvas.classList.remove('is-transitioning');
+            });
+          }
+        }, 180);
       }
 
       function renderFocusChips(deck) { /* already in renderModalPlan */ }
@@ -651,18 +793,31 @@
       function setActiveDeck(num) {
         document.querySelectorAll('.deck-quickbtn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
         document.querySelectorAll('.deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+        document.querySelectorAll('#deckVerticalIndicator button').forEach(b => b.classList.toggle('active', Number(b.dataset.deck) === num));
       }
 
       // --- EVENT LISTENERS (luxe) ---
       function bindEvents() {
-        // Filter buttons
-        document.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', function() {
-          state.filter = this.dataset.filter;
-          document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter));
-          renderCards();
-        }));
+        const searchInput = document.getElementById('deckSearch');
 
-        els.search.addEventListener('input', function(e) { state.search = e.target.value; renderCards(); });
+        // Filter buttons
+        document.querySelectorAll('.pill-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            state.filter = btn.dataset.filter;
+
+            renderDeckCards(btn.dataset.filter, searchInput.value.toLowerCase());
+          });
+        });
+
+        searchInput.addEventListener('input', e => {
+          state.search = e.target.value;
+          renderDeckCards(
+            document.querySelector('.pill-btn.is-active').dataset.filter,
+            e.target.value.toLowerCase()
+          );
+        });
 
         // global key
         document.addEventListener('keydown', (e) => { 
@@ -690,6 +845,13 @@
           if (pill) { const deck = deckData.find(d => d.number === Number(pill.dataset.deck)); if (deck) openModal(deck); }
         });
 
+        document.getElementById('deckVerticalIndicator').addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
+          if (deck) openModal(deck);
+        });
+
         // modal actions
         els.modal.addEventListener('click', (e) => {
           const trigger = e.target.closest('[data-action]');
@@ -710,13 +872,14 @@
           }
         });
 
-        els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderCards(); });
+        els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderDeckCards(); });
       }
 
       function init() {
         renderQuickRail();
         renderPills();
-        renderCards();
+        renderVerticalIndicator();
+        renderDeckCards();
         bindEvents();
       }
       init();
