@@ -7,23 +7,71 @@ import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 const rootDir = process.cwd();
-const pageFileUrl = pathToFileURL(path.join(rootDir, 'index.html')).toString();
 const reportsDir = path.join(rootDir, 'reports', 'visual');
 const baselineDir = path.join(rootDir, 'tests', 'visual-baseline');
-const snapshotName = 'more-drawer-iphone.png';
-const currentSnapshotPath = path.join(reportsDir, snapshotName);
-const baselineSnapshotPath = path.join(baselineDir, snapshotName);
-const diffSnapshotPath = path.join(reportsDir, 'diff-' + snapshotName);
 const diffThreshold = Number(process.env.QA_VISUAL_DIFF_THRESHOLD || 0.015);
 const updateBaseline = process.argv.includes('--update-baseline');
+
+const snapshotCases = [
+  {
+    name: 'more-drawer-iphone.png',
+    page: 'index.html',
+    setup: async (page) => {
+      await page.waitForTimeout(400);
+      await page.evaluate(() => window.scrollTo(0, 900));
+      await page.waitForTimeout(120);
+
+      const moreButton = page.locator('#moreBtnMobile, [data-bottom-action="open-more-drawer"]').first();
+      await moreButton.click();
+      await page.waitForSelector('#moreDrawer.is-open', { state: 'visible' });
+      await page.waitForTimeout(180);
+
+      const lockedY = await page.evaluate(() => window.scrollY);
+      const touchmoveBlocked = await page.evaluate(() => {
+        const event = new Event('touchmove', { bubbles: true, cancelable: true });
+        const notCancelled = document.body.dispatchEvent(event);
+        return notCancelled === false;
+      });
+      const afterY = await page.evaluate(() => window.scrollY);
+      if (!touchmoveBlocked || Math.abs(afterY - lockedY) > 2) {
+        throw new Error(
+          `Scroll lock failed while drawer open: touchmoveBlocked=${touchmoveBlocked}, locked=${lockedY}, after=${afterY}`,
+        );
+      }
+      console.log('OK: mobile More drawer scroll lock verified');
+    },
+    teardown: async (page) => {
+      await page.keyboard.press('Escape');
+      await page.waitForSelector('#moreDrawer', { state: 'hidden' });
+      console.log('OK: mobile More drawer close verified');
+    },
+  },
+  {
+    name: 'itinerary-today-iphone.png',
+    page: 'itinerary.html#today',
+    setup: async (page) => {
+      await page.waitForSelector('#today-card', { state: 'visible', timeout: 5000 });
+      await page.waitForTimeout(450);
+      const todayBadgeExists = await page.locator('#today-card .badge--today').count();
+      if (!todayBadgeExists) {
+        throw new Error('Today badge not found on #today-card.');
+      }
+      console.log('OK: itinerary #today target and badge verified');
+    },
+  },
+];
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
 }
 
-function compareSnapshots() {
-  const baseline = PNG.sync.read(fs.readFileSync(baselineSnapshotPath));
-  const current = PNG.sync.read(fs.readFileSync(currentSnapshotPath));
+function readPng(filePath) {
+  return PNG.sync.read(fs.readFileSync(filePath));
+}
+
+function compareSnapshots(baselinePath, currentPath, diffPath) {
+  const baseline = readPng(baselinePath);
+  const current = readPng(currentPath);
 
   if (baseline.width !== current.width || baseline.height !== current.height) {
     throw new Error(
@@ -42,15 +90,55 @@ function compareSnapshots() {
   );
 
   const ratio = mismatchedPixels / (baseline.width * baseline.height);
-  fs.writeFileSync(diffSnapshotPath, PNG.sync.write(diff));
+  fs.writeFileSync(diffPath, PNG.sync.write(diff));
 
   if (ratio > diffThreshold) {
     throw new Error(
-      `Visual diff ratio ${ratio.toFixed(4)} exceeded threshold ${diffThreshold}. See ${path.relative(rootDir, diffSnapshotPath)}`,
+      `Visual diff ratio ${ratio.toFixed(4)} exceeded threshold ${diffThreshold}. See ${path.relative(rootDir, diffPath)}`,
     );
   }
 
   console.log(`OK: visual snapshot diff ${ratio.toFixed(4)} within threshold ${diffThreshold}`);
+}
+
+async function runCase(browser, testCase) {
+  const [pageFile, pageHash] = String(testCase.page).split('#');
+  const pageUrl = `${pathToFileURL(path.join(rootDir, pageFile)).toString()}${pageHash ? `#${pageHash}` : ''}`;
+  const currentSnapshotPath = path.join(reportsDir, testCase.name);
+  const baselineSnapshotPath = path.join(baselineDir, testCase.name);
+  const diffSnapshotPath = path.join(reportsDir, `diff-${testCase.name}`);
+
+  const context = await browser.newContext({
+    ...devices['iPhone 13'],
+    viewport: { width: 390, height: 844 },
+  });
+  const page = await context.newPage();
+  await page.goto(pageUrl, { waitUntil: 'load' });
+
+  if (typeof testCase.setup === 'function') {
+    await testCase.setup(page);
+  }
+
+  await page.screenshot({ path: currentSnapshotPath, fullPage: false });
+  console.log(`Saved snapshot: ${path.relative(rootDir, currentSnapshotPath)}`);
+
+  if (updateBaseline) {
+    fs.copyFileSync(currentSnapshotPath, baselineSnapshotPath);
+    console.log(`Baseline updated: ${path.relative(rootDir, baselineSnapshotPath)}`);
+  } else {
+    if (!fs.existsSync(baselineSnapshotPath)) {
+      throw new Error(
+        `Missing baseline snapshot ${path.relative(rootDir, baselineSnapshotPath)}. Run with --update-baseline locally.`,
+      );
+    }
+    compareSnapshots(baselineSnapshotPath, currentSnapshotPath, diffSnapshotPath);
+  }
+
+  if (typeof testCase.teardown === 'function') {
+    await testCase.teardown(page);
+  }
+
+  await context.close();
 }
 
 async function run() {
@@ -58,55 +146,14 @@ async function run() {
   ensureDir(baselineDir);
 
   const browser = await webkit.launch({ headless: true });
-  const context = await browser.newContext({
-    ...devices['iPhone 13'],
-    viewport: { width: 390, height: 844 },
-  });
-
-  const page = await context.newPage();
-  await page.goto(pageFileUrl, { waitUntil: 'load' });
-  await page.waitForTimeout(400);
-
-  await page.evaluate(() => window.scrollTo(0, 900));
-  await page.waitForTimeout(100);
-  const beforeY = await page.evaluate(() => window.scrollY);
-
-  const moreButton = page.locator('#moreBtnMobile, [data-bottom-action="open-more-drawer"]').first();
-  await moreButton.click();
-  await page.waitForSelector('#moreDrawer.is-open', { state: 'visible' });
-  await page.waitForTimeout(180);
-  const lockedY = await page.evaluate(() => window.scrollY);
-
-  const touchmoveBlocked = await page.evaluate(() => {
-    const event = new Event('touchmove', { bubbles: true, cancelable: true });
-    const notCancelled = document.body.dispatchEvent(event);
-    return notCancelled === false;
-  });
-
-  const afterY = await page.evaluate(() => window.scrollY);
-  if (!touchmoveBlocked || Math.abs(afterY - lockedY) > 2) {
-    throw new Error(
-      `Background scroll lock failed while drawer open: touchmoveBlocked=${touchmoveBlocked}, before=${beforeY}, locked=${lockedY}, after=${afterY}`,
-    );
+  try {
+    for (const testCase of snapshotCases) {
+      console.log(`\nRunning mobile visual case: ${testCase.name}`);
+      await runCase(browser, testCase);
+    }
+  } finally {
+    await browser.close();
   }
-  console.log('OK: mobile More drawer scroll lock verified');
-
-  await page.screenshot({ path: currentSnapshotPath, fullPage: false });
-  console.log(`Saved snapshot: ${path.relative(rootDir, currentSnapshotPath)}`);
-
-  if (updateBaseline || !fs.existsSync(baselineSnapshotPath)) {
-    fs.copyFileSync(currentSnapshotPath, baselineSnapshotPath);
-    console.log(`Baseline ${updateBaseline ? 'updated' : 'created'}: ${path.relative(rootDir, baselineSnapshotPath)}`);
-  } else {
-    compareSnapshots();
-  }
-
-  await page.keyboard.press('Escape');
-  await page.waitForSelector('#moreDrawer', { state: 'hidden' });
-  console.log('OK: mobile More drawer close verified');
-
-  await context.close();
-  await browser.close();
 }
 
 run().catch((error) => {
