@@ -119,6 +119,19 @@ async function runCase(browser, testCase) {
     await testCase.setup(page);
   }
 
+  await page.addStyleTag({
+    content: `
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+        caret-color: transparent !important;
+      }
+    `,
+  });
+  await page.waitForTimeout(60);
+
   await page.screenshot({ path: currentSnapshotPath, fullPage: false });
   console.log(`Saved snapshot: ${path.relative(rootDir, currentSnapshotPath)}`);
 
