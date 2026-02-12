@@ -28,6 +28,68 @@
       border-color: rgba(0, 82, 165, 0.14);
     }
 
+    .decks-page .main-navigation__filters .pill-btn {
+      transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+      box-shadow: 0 4px 12px rgba(6, 34, 68, 0.08);
+    }
+
+    .decks-page .main-navigation__filters .pill-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(6, 34, 68, 0.12);
+    }
+
+    .decks-page .main-navigation__filters .pill-btn:active {
+      transform: translateY(0) scale(0.985);
+      box-shadow: 0 3px 8px rgba(6, 34, 68, 0.1);
+    }
+
+    .decks-page .main-navigation__filters .pill-btn.is-active {
+      box-shadow: 0 10px 22px rgba(0, 121, 212, 0.22);
+    }
+
+    .decks-page .deck-pill {
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+    }
+
+    .decks-page .deck-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(6, 34, 68, 0.14);
+    }
+
+    .decks-page .deck-pill:active {
+      transform: translateY(0) scale(0.985);
+    }
+
+    .decks-page .deck-pill.is-active {
+      border-color: rgba(0, 121, 212, 0.48);
+      background: linear-gradient(135deg, rgba(0, 121, 212, 0.12), rgba(255, 255, 255, 0.94));
+      box-shadow: 0 10px 22px rgba(0, 121, 212, 0.2);
+    }
+
+    .decks-page .deck-cards {
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .decks-page .deck-cards.is-switching {
+      opacity: 0.58;
+      transform: translateY(5px);
+    }
+
+    .decks-page .deck-card {
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
+    }
+
+    .decks-page .deck-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(5, 24, 46, 0.14);
+    }
+
+    .decks-page .deck-card--active {
+      border-color: rgba(0, 121, 212, 0.45);
+      box-shadow: 0 16px 34px rgba(0, 121, 212, 0.2);
+      background: linear-gradient(180deg, rgba(0, 121, 212, 0.06), rgba(255, 255, 255, 1) 44%);
+    }
+
   </style>
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
 
@@ -324,7 +386,9 @@
       filter: 'all',
       search: '',
       observer: null,
-      trapFocus: null
+      trapFocus: null,
+      lastOpenedDeck: null,
+      switchTimer: null
     };
 
     const els = {
@@ -356,7 +420,12 @@
       document.querySelectorAll('.pill-btn').forEach(btn => {
         btn.classList.toggle('is-active', btn.dataset.filter === filter);
       });
+      if (state.switchTimer) clearTimeout(state.switchTimer);
+      els.cards.classList.add('is-switching');
       renderCards();
+      state.switchTimer = setTimeout(() => {
+        els.cards.classList.remove('is-switching');
+      }, 220);
     }
 
     function filterDecks() {
@@ -406,7 +475,7 @@
       els.countVisible.textContent = decks.length;
       els.empty.hidden = decks.length > 0;
       els.cards.innerHTML = decks.map(deck => `
-        <article class="deck-card" role="listitem" tabindex="0" data-deck="${deck.number}" aria-label="${deck.name} ${deck.subtitle}">
+        <article class="deck-card ${state.lastOpenedDeck === deck.number ? 'deck-card--active' : ''}" role="listitem" tabindex="0" data-deck="${deck.number}" aria-label="${deck.name} ${deck.subtitle}">
           <div class="deck-visual">
             <span class="deck-number">${deck.number}</span>
             <img data-src="${deck.image}" alt="${deck.name} preview" />
@@ -437,7 +506,16 @@
       lazyLoadImages();
     }
 
+    function setActiveDeckPill(deckNumber) {
+      document.querySelectorAll('.deck-pill').forEach(btn => {
+        btn.classList.toggle('is-active', Number(btn.dataset.deck) === Number(deckNumber));
+      });
+    }
+
     function openModal(deck) {
+      state.lastOpenedDeck = deck.number;
+      setActiveDeckPill(deck.number);
+      renderCards();
       els.modalTitle.textContent = `${deck.name}`;
       els.modalDesc.textContent = deck.description;
       els.download.href = deck.pdf;
@@ -539,7 +617,9 @@
       document.querySelectorAll('.deck-pill').forEach(btn => {
         btn.addEventListener('click', () => {
           const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
-          if (deck) openModal(deck);
+          if (!deck) return;
+          setActiveDeckPill(deck.number);
+          openModal(deck);
         });
       });
 
