@@ -2078,6 +2078,47 @@
         overflow: hidden !important;
         overscroll-behavior: none !important;
       }
+
+      @media print {
+        .app-header--rccl-site .header-utility,
+        .app-header--rccl-site .header-nav,
+        .app-header--rccl-site .header-actions,
+        .app-header--rccl-site .mobile-nav-toggle,
+        .more-drawer,
+        .more-drawer-backdrop,
+        .bottom-nav {
+          display: none !important;
+        }
+
+        .app-header--rccl-site {
+          position: static !important;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          margin: 0 0 0.25in !important;
+          padding: 0 !important;
+        }
+
+        .app-header--rccl-site .header-container {
+          display: block !important;
+          padding: 0 !important;
+          border: none !important;
+          background: transparent !important;
+          box-shadow: none !important;
+        }
+
+        .app-header--rccl-site .header-brand {
+          margin: 0 !important;
+        }
+
+        .app-header--rccl-site .header-logo {
+          color: #0b2b47 !important;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+      }
     `;
 
     const styleEl = document.createElement('style');
