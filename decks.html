@@ -317,6 +317,33 @@
       display: flex;
       flex-direction: column;
     }
+    .deck-vertical-indicator {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+    .deck-vertical-indicator button {
+      background: transparent;
+      border: none;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(0,0,0,0.35);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 4px 6px;
+    }
+    .deck-vertical-indicator button.active {
+      color: var(--warm-gold);
+      transform: scale(1.15);
+    }
+    .deck-vertical-indicator button:hover {
+      color: var(--accent);
+    }
     .deck-modal__toolbar {
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(24px);
@@ -451,6 +478,7 @@
   <div class="deck-modal" id="deckModal" aria-hidden="true">
     <div class="deck-modal__backdrop" data-action="close-modal"></div>
     <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="deck-vertical-indicator" id="deckVerticalIndicator"></div>
       <div class="deck-modal__toolbar">
         <div class="toolbar-group">
           <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
@@ -722,6 +750,7 @@
       function setActiveDeck(num) {
         document.querySelectorAll('.deck-quickbtn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
         document.querySelectorAll('.deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+        document.querySelectorAll('#deckVerticalIndicator button').forEach(b => b.classList.toggle('active', Number(b.dataset.deck) === num));
       }
 
       // --- EVENT LISTENERS (luxe) ---
@@ -771,6 +800,13 @@
         document.addEventListener('click', (e) => {
           const pill = e.target.closest('.deck-pill');
           if (pill) { const deck = deckData.find(d => d.number === Number(pill.dataset.deck)); if (deck) openModal(deck); }
+        });
+
+        document.getElementById('deckVerticalIndicator').addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
+          if (deck) openModal(deck);
         });
 
         // modal actions
