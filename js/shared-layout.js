@@ -1916,6 +1916,12 @@
         inset: 0;
         background: rgba(4, 12, 26, 0.56);
         z-index: 1050;
+        opacity: 0;
+        transition: opacity 220ms ease;
+      }
+
+      .more-drawer-backdrop.is-open {
+        opacity: 1;
       }
 
       .more-drawer {
@@ -1931,6 +1937,17 @@
         z-index: 1051;
         padding: 14px 14px 18px;
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        opacity: 0;
+        transform: translateX(14px);
+        transition: transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 180ms ease;
+        pointer-events: none;
+      }
+
+      .more-drawer.is-open {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
       }
 
       .more-drawer__header {
@@ -2000,16 +2017,16 @@
         z-index: 990;
         display: none;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 6px;
-        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        gap: 8px;
+        padding: 9px 12px calc(10px + env(safe-area-inset-bottom));
         background: rgba(5, 20, 40, 0.95);
         border-top: 1px solid rgba(255, 255, 255, 0.16);
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(10px);
       }
 
       .bottom-nav__item {
-        min-height: 44px;
-        border-radius: 10px;
+        min-height: 48px;
+        border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.14);
         background: rgba(255, 255, 255, 0.06);
         color: #f0f7ff;
@@ -2021,6 +2038,11 @@
         gap: 2px;
         font-size: 0.67rem;
         font-weight: 700;
+        transition: transform 170ms ease, background-color 170ms ease, border-color 170ms ease;
+      }
+
+      .bottom-nav__item:active {
+        transform: scale(0.97);
       }
 
       .bottom-nav__item i {
@@ -2035,7 +2057,7 @@
 
       @media (max-width: 767px) {
         body.app-theme-rcc {
-          padding-bottom: 84px;
+          padding-bottom: calc(92px + env(safe-area-inset-bottom));
         }
 
         .bottom-nav {
@@ -2049,6 +2071,12 @@
         .app-header--rccl-site .header-actions .header-cta--help {
           display: none;
         }
+      }
+
+      html.more-drawer-open,
+      body.more-drawer-open {
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
       }
     `;
 
@@ -2437,6 +2465,7 @@
       moreDrawer.hidden = !open;
       moreDrawerBackdrop.hidden = !open;
       moreDrawer.classList.toggle('is-open', open);
+      moreDrawerBackdrop.classList.toggle('is-open', open);
       moreOpenButtons.forEach((btn) => btn.setAttribute('aria-expanded', String(open)));
       if (open) {
         lockBackgroundScroll();
