@@ -181,6 +181,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
     .pill-btn.is-active { background: var(--accent); color: white; box-shadow: 0 10px 18px rgba(0,121,212,0.35); border-color: white; }
+    .main-navigation__filters { display: flex; gap: 8px; }
 
     /* ———— QUICK RAIL (LUXE SCROLL) ———— */
     .deck-quickrail-wrap { margin-top: 20px; }
@@ -188,7 +189,7 @@
       display: flex;
       gap: 12px;
       overflow-x: auto;
-      padding: 12px 4px 20px;
+      padding: 12px 12px 20px;
       scrollbar-width: thin;
       scrollbar-color: var(--accent) #e3ecf2;
     }
@@ -219,6 +220,13 @@
       padding: 24px 28px;
       margin-bottom: 20px;
       box-shadow: 0 8px 24px rgba(0,30,60,0.04);
+    }
+    .category-card__heading {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .deck-pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
     .deck-pill {
@@ -317,11 +325,60 @@
       background: linear-gradient(145deg, #ffffff, #f9f9fc);
     }
 
+    .deck-grid__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .deck-grid__title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(145deg, #0a344f, #003057);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .deck-grid__counts {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .count-chip {
+      background: white;
+      padding: 8px 18px;
+      border-radius: 60px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .count-chip--strong {
+      font-weight: 700;
+    }
+
+    .deck-empty {
+      text-align: center;
+      padding: 56px;
+      background: white;
+      border-radius: 48px;
+      margin-top: 36px;
+    }
+
+    .deck-empty__icon {
+      font-size: 4rem;
+    }
+
+    .deck-empty__title {
+      margin-top: 8px;
+    }
+
     /* ———— MODAL ———— */
     .deck-modal {
       position: fixed;
       inset: 0;
-      z-index: 2000;
+      z-index: 6000;
       display: none;
       align-items: center;
       justify-content: center;
@@ -336,13 +393,14 @@
       background: linear-gradient(145deg, #ffffff, #f6fdff);
       border-radius: 48px;
       max-width: 1200px;
-      width: 90vw;
-      max-height: 90vh;
+      width: min(94vw, 1200px);
+      max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);
       box-shadow: 0 44px 88px rgba(0,20,50,0.6);
       border: 1px solid rgba(255,255,255,0.4);
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      margin: calc(env(safe-area-inset-top) + 10px) 0 calc(env(safe-area-inset-bottom) + 10px);
     }
     .deck-vertical-indicator {
       position: absolute;
@@ -387,16 +445,145 @@
       transition: 0.2s;
     }
     .btn-icon:hover, .labeled-btn:hover { background: var(--accent); color: white; transform: scale(0.96); }
+    .btn-icon:active, .labeled-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
     .close-btn { font-size: 1.8rem; background: none; border: none; width: 48px; border-radius: 40px; }
+    .zoom-level { padding: 0 10px; font-weight: 700; }
     .deck-modal__body { padding: 28px; overflow-y: auto; }
+    .deck-modal__title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .deck-modal__title.is-swapping {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    .deck-modal__subtitle { color: #26648b; margin-bottom: 12px; }
+    .deck-pan-hint {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1f5b87;
+      background: #e7f5ff;
+      border: 1px solid rgba(0, 121, 212, 0.2);
+      border-radius: 999px;
+      padding: 6px 12px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .deck-pan-hint.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .deck-modal__frame { margin-top: 16px; }
+    .deck-focuschips { display: flex; gap: 10px; flex-wrap: wrap; }
+    .deck-focuschip {
+      background: #eaf3ff;
+      padding: 8px 18px;
+      border-radius: 60px;
+      border: none;
+      font-weight: 600;
+      color: #0e4d80;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+    }
+    .deck-focuschip:hover,
+    .deck-focuschip:focus-visible {
+      background: #dff0ff;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0, 121, 212, 0.18);
+      outline: none;
+    }
+    .deck-focuschip.is-active {
+      background: #cfe9ff;
+      color: #083d67;
+      box-shadow: 0 8px 18px rgba(0, 121, 212, 0.22);
+    }
     .deck-plan-stage {
       background: #0f263b;
       border-radius: 32px;
       margin-top: 18px;
       border: 1px solid rgba(255,255,255,0.2);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 18px 30px -8px black;
+      position: relative;
+      overflow: auto;
+      padding: 20px;
     }
     .deck-plan-media { border-radius: 24px; width: 100%; display: block; }
+    .deck-plan-hotspots { position: absolute; inset: 20px; }
+    .deck-hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 44px;
+      background: linear-gradient(145deg, #0ca8ff, #0069d0);
+      border: 3px solid white;
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(0,121,212,0.6);
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .deck-hotspot:hover,
+    .deck-hotspot:focus-visible {
+      transform: translate(-50%, -50%) scale(1.08);
+      box-shadow: 0 12px 28px rgba(0,121,212,0.68);
+      outline: none;
+    }
+    .deck-hotspot[data-selected="true"] {
+      box-shadow: 0 0 0 6px rgba(138, 219, 255, 0.35), 0 14px 30px rgba(0,121,212,0.72);
+    }
+    .deck-plan-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .deck-plan-legend-item {
+      background: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 40px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+      text-align: left;
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+    .deck-plan-legend-item:hover,
+    .deck-plan-legend-item:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+      outline: none;
+    }
+    .deck-plan-legend-item.is-active {
+      background: #dff0ff;
+      box-shadow: 0 10px 20px rgba(0, 121, 212, 0.2);
+    }
+    .deck-plan-legend-item span {
+      display: block;
+      font-size: 0.8rem;
+    }
+    .deck-plan-skeleton {
+      min-height: 380px;
+      border-radius: 28px;
+      background:
+        linear-gradient(110deg, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0.22) 32%, rgba(255,255,255,0.08) 44%) 0 0 / 220% 100%,
+        linear-gradient(160deg, #0b2b43, #0f3a58);
+      animation: deckLoadingSweep 900ms linear infinite;
+    }
+    @keyframes deckLoadingSweep {
+      to {
+        background-position: 220% 0, 0 0;
+      }
+    }
     .deck-plan-canvas {
       transition: opacity 220ms ease, transform 220ms ease;
       transform-origin: center top;
@@ -418,10 +605,38 @@
     @media (max-width: 700px) {
       .deck-cards { grid-template-columns: 1fr; }
       .main-navigation { border-radius: 28px; }
+      .deck-modal__dialog {
+        width: calc(100vw - 20px);
+        border-radius: 26px;
+        max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px);
+      }
+      .deck-modal__toolbar {
+        padding: 12px 14px;
+        gap: 6px;
+      }
+      .toolbar-group {
+        gap: 6px;
+      }
+      .btn-icon,
+      .labeled-btn {
+        padding: 10px 12px;
+        border-radius: 28px;
+      }
+      .deck-modal__body {
+        padding: 16px;
+      }
+      .deck-plan-stage {
+        border-radius: 20px;
+        padding: 12px;
+      }
+      .deck-plan-media {
+        border-radius: 16px;
+      }
     }
     .deck-hero__actions { margin-top: 16px; }
     .deck-hero__actions .btn { background: white; color: #0a1a2f; border-radius: 48px; padding: 14px 32px; font-weight: 700; margin-right: 12px; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
     .btn--primary { background: var(--warm-gold) !important; color: #0a1a2f !important; box-shadow: 0 8px 24px rgba(255,180,70,0.4); }
+    .deck-hero__btn-secondary { background: rgba(255,255,255,0.12) !important; color: white !important; }
     .bottom-nav__item { color: #fff; text-decoration: none; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 4px; border-radius:12px; background:transparent; border:none; }
   </style>
 </head>
@@ -449,7 +664,7 @@
         </div>
         <div class="deck-hero__actions">
           <a class="btn btn--primary" href="#deck-directory"><i class="fas fa-compass"></i> Open deck directory</a>
-          <a class="btn btn--secondary" href="rooms.html" style="background: rgba(255,255,255,0.12); color: white;"><i class="fas fa-door-open"></i> Find my stateroom</a>
+          <a class="btn btn--secondary deck-hero__btn-secondary" href="rooms.html"><i class="fas fa-door-open"></i> Find my stateroom</a>
         </div>
       </div>
     </section>
@@ -462,7 +677,7 @@
           <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities" aria-label="Search decks" autocomplete="off">
           <span class="main-navigation__hint">Press /</span>
         </div>
-        <div class="main-navigation__filters" style="display: flex; gap: 8px;">
+        <div class="main-navigation__filters">
           <button class="pill-btn is-active" data-filter="all">All</button>
           <button class="pill-btn" data-filter="entertainment">Entertainment</button>
           <button class="pill-btn" data-filter="wellness">Wellness</button>
@@ -479,32 +694,32 @@
     <!-- CATEGORY PILLS (DYNAMIC) -->
     <section id="deck-directory" class="deck-directory container">
       <article class="category-card" data-category="entertainment">
-        <div class="category-card__heading" style="font-size: 1.5rem; font-weight: 700; display: flex; gap: 12px;"><span>🎭</span> Entertainment Decks</div>
+        <div class="category-card__heading"><span>🎭</span> Entertainment Decks</div>
         <div class="deck-pills" id="pill-entertainment"></div>
       </article>
       <article class="category-card" data-category="wellness">
-        <div class="category-card__heading" style="font-size: 1.5rem; font-weight: 700; display: flex; gap: 12px;"><span>🧘</span> Wellness Decks</div>
+        <div class="category-card__heading"><span>🧘</span> Wellness Decks</div>
         <div class="deck-pills" id="pill-wellness"></div>
       </article>
       <article class="category-card" data-category="essential">
-        <div class="category-card__heading" style="font-size: 1.5rem; font-weight: 700; display: flex; gap: 12px;"><span>🧭</span> Essential Decks</div>
+        <div class="category-card__heading"><span>🧭</span> Essential Decks</div>
         <div class="deck-pills" id="pill-essential"></div>
       </article>
     </section>
 
     <!-- DECK GRID (ENHANCED) -->
     <section class="deck-grid container">
-      <div class="deck-grid__header" style="display: flex; justify-content: space-between; align-items: baseline;">
-        <h2 style="font-size: 2rem; font-weight: 800; background: linear-gradient(145deg, #0a344f, #003057); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Deck overview</h2>
-        <div class="deck-grid__counts" style="display: flex; gap: 16px;">
-          <span class="count-chip" style="background: white; padding: 8px 18px; border-radius: 60px; font-weight: 700;"><span id="countVisible">15</span> showing</span>
-          <span class="count-chip" style="background: white; padding: 8px 18px; border-radius: 60px;"><span id="countTotal">15</span> total</span>
+      <div class="deck-grid__header">
+        <h2 class="deck-grid__title">Deck overview</h2>
+        <div class="deck-grid__counts">
+          <span class="count-chip count-chip--strong"><span id="countVisible">15</span> showing</span>
+          <span class="count-chip"><span id="countTotal">15</span> total</span>
         </div>
       </div>
       <div id="deckCards" class="deck-cards" role="list"></div>
-      <div id="emptyState" class="deck-empty" hidden style="text-align: center; padding: 56px; background: white; border-radius: 48px; margin-top: 36px;">
-        <div style="font-size: 4rem;">🚢</div>
-        <h3 style="margin-top: 8px;">No matching decks</h3>
+      <div id="emptyState" class="deck-empty" hidden>
+        <div class="deck-empty__icon">🚢</div>
+        <h3 class="deck-empty__title">No matching decks</h3>
         <button class="btn btn--primary" id="clearFilters">Browse all decks</button>
       </div>
     </section>
@@ -522,7 +737,7 @@
           <button class="btn-icon" data-action="zoom-in" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
           <button class="btn-icon" data-action="zoom-out" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
           <button class="btn-icon" data-action="zoom-reset" aria-label="Reset view"><i class="fas fa-rotate-left"></i></button>
-          <span class="zoom-level" id="zoomLevel" style="padding: 0 10px; font-weight: 700;">100%</span>
+          <span class="zoom-level" id="zoomLevel">100%</span>
         </div>
         <div class="toolbar-group">
           <button class="labeled-btn" data-action="center-me"><i class="fas fa-location-dot"></i> My Location</button>
@@ -531,10 +746,11 @@
         <button class="close-btn" data-action="close-modal" aria-label="Close"><i class="fas fa-times"></i></button>
       </div>
       <div class="deck-modal__body">
-        <h3 id="modalTitle" class="deck-modal__title" style="font-size: 1.8rem; font-weight: 800;"></h3>
-        <p id="modalDesc" class="deck-modal__subtitle" style="color: #26648b; margin-bottom: 12px;"></p>
-        <div id="deckFocusChips" class="deck-focuschips" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
-        <div id="modalFrame" class="deck-modal__frame" style="margin-top: 16px;"></div>
+        <h3 id="modalTitle" class="deck-modal__title"></h3>
+        <p id="modalDesc" class="deck-modal__subtitle"></p>
+        <p id="deckPanHint" class="deck-pan-hint" hidden><i class="fas fa-hand-paper"></i> Drag to pan while zoomed in</p>
+        <div id="deckFocusChips" class="deck-focuschips"></div>
+        <div id="modalFrame" class="deck-modal__frame"></div>
       </div>
     </div>
   </div>
@@ -549,20 +765,20 @@
       // ---- DECK DATA (same as original, enriched with more hotspots) ----
       const deckData = [
         { number: 0, name: 'All Decks', subtitle: 'Ship Overview Blueprint', highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'decks/deck-all.min.svg', svg: 'decks/deck-all.min.svg', pdf: '' },
-        { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'decks/deck-05.png', svg: 'decks/deck-05.svg', pdf: 'decks/deck-05.pdf' },
-        { number: 14, name: 'Deck 14', subtitle: 'Sky Deck', highlights: ['Panoramic views', 'Lounges', 'Sun decks'], description: 'Viking Crown Lounge & sky bar.', category: 'entertainment', image: 'decks/deck-14.png', svg: 'decks/deck-14.svg', pdf: '' },
-        { number: 11, name: 'Deck 11', subtitle: 'Fitness & Spa', highlights: ['Spa', 'Fitness', 'Wellness'], description: 'Vitality Spa & fully equipped fitness.', category: 'wellness', image: 'decks/deck-11.png', svg: 'decks/deck-11.svg', pdf: '' },
-        { number: 12, name: 'Deck 12', subtitle: 'Pool Deck', highlights: ['Main pool', 'Solarium', 'Grill'], description: 'Main pool, adults-only solarium, Windjammer.', category: 'wellness', image: 'decks/deck-12.png', svg: 'decks/deck-12.svg', pdf: '' },
-        { number: 15, name: 'Deck 15', subtitle: 'Sports & Observation', highlights: ['Sports court', 'Jog track', 'Views'], description: 'FlowRider, mini-golf, running track.', category: 'wellness', image: 'decks/deck-15.png', svg: 'decks/deck-15.svg', pdf: '' },
-        { number: 13, name: 'Deck 13', subtitle: 'Adventure Zone', highlights: ['FlowRider', 'Sky deck access', 'Activities'], description: 'Adventure Ocean & rock climbing wall.', category: 'entertainment', image: 'decks/deck-13.png', svg: 'decks/deck-13.svg', pdf: '' },
-        { number: 10, name: 'Deck 10', subtitle: 'Stateroom Corridor', highlights: ['Cabins', 'Elevators', 'Quiet routes'], description: 'Premium staterooms, aft elevator lobby.', category: 'essential', image: 'decks/deck-10.png', svg: 'decks/deck-10.svg', pdf: '' },
-        { number: 9, name: 'Deck 9', subtitle: 'Midship Cabins', highlights: ['Cabins', 'Family zones', 'Wayfinding'], description: 'Family-friendly staterooms.', category: 'essential', image: 'decks/deck-09.png', svg: 'decks/deck-09.svg', pdf: '' },
-        { number: 8, name: 'Deck 8', subtitle: 'Stateroom Access', highlights: ['Cabins', 'Aft access', 'Guest routes'], description: 'Convenient access to upper decks.', category: 'essential', image: 'decks/deck-08.png', svg: 'decks/deck-08.svg', pdf: '' },
-        { number: 7, name: 'Deck 7', subtitle: 'Cabin Transit', highlights: ['Cabins', 'Quiet zones', 'Midship transit'], description: 'Quiet corridor, elevator stacks C/D.', category: 'essential', image: 'decks/deck-07.png', svg: 'decks/deck-07.svg', pdf: '' },
-        { number: 6, name: 'Deck 6', subtitle: 'Stateroom Ring', highlights: ['Cabins', 'Family adjacency', 'Deck transitions'], description: 'Your stateroom zone (6650) near aft.', category: 'essential', image: 'decks/deck-06.png', svg: 'decks/deck-06.svg', pdf: '' },
-        { number: 4, name: 'Deck 4', subtitle: 'Dining & Entertainment', highlights: ['Main dining', 'Show venue', 'Casino'], description: 'Main dining room, theater, casino.', category: 'entertainment', image: 'decks/deck-04.png', svg: 'decks/deck-04.svg', pdf: '' },
-        { number: 3, name: 'Deck 3', subtitle: 'Lobby & Guest Services', highlights: ['Guest services', 'Dining', 'Retail'], description: 'Grand lobby, shore excursions, champagne bar.', category: 'essential', image: 'decks/deck-03.png', svg: 'decks/deck-03.svg', pdf: '' },
-        { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'decks/deck-02.png', svg: 'decks/deck-02.svg', pdf: '' }
+        { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'decks/deck-05.png', svg: 'decks/split-from-all/deck-05-from-all.min.svg', pdf: 'decks/deck-05.pdf' },
+        { number: 14, name: 'Deck 14', subtitle: 'Sky Deck', highlights: ['Panoramic views', 'Lounges', 'Sun decks'], description: 'Viking Crown Lounge & sky bar.', category: 'entertainment', image: 'decks/deck-14.png', svg: 'decks/split-from-all/deck-14-from-all.min.svg', pdf: '' },
+        { number: 11, name: 'Deck 11', subtitle: 'Fitness & Spa', highlights: ['Spa', 'Fitness', 'Wellness'], description: 'Vitality Spa & fully equipped fitness.', category: 'wellness', image: 'decks/deck-11.png', svg: 'decks/split-from-all/deck-11-from-all.min.svg', pdf: '' },
+        { number: 12, name: 'Deck 12', subtitle: 'Pool Deck', highlights: ['Main pool', 'Solarium', 'Grill'], description: 'Main pool, adults-only solarium, Windjammer.', category: 'wellness', image: 'decks/deck-12.png', svg: 'decks/split-from-all/deck-12-from-all.min.svg', pdf: '' },
+        { number: 15, name: 'Deck 15', subtitle: 'Sports & Observation', highlights: ['Sports court', 'Jog track', 'Views'], description: 'FlowRider, mini-golf, running track.', category: 'wellness', image: 'decks/deck-15.png', svg: 'decks/split-from-all/deck-15-from-all.min.svg', pdf: '' },
+        { number: 13, name: 'Deck 13', subtitle: 'Adventure Zone', highlights: ['FlowRider', 'Sky deck access', 'Activities'], description: 'Adventure Ocean & rock climbing wall.', category: 'entertainment', image: 'decks/deck-13.png', svg: 'decks/split-from-all/deck-13-from-all.min.svg', pdf: '' },
+        { number: 10, name: 'Deck 10', subtitle: 'Stateroom Corridor', highlights: ['Cabins', 'Elevators', 'Quiet routes'], description: 'Premium staterooms, aft elevator lobby.', category: 'essential', image: 'decks/deck-10.png', svg: 'decks/split-from-all/deck-10-from-all.min.svg', pdf: '' },
+        { number: 9, name: 'Deck 9', subtitle: 'Midship Cabins', highlights: ['Cabins', 'Family zones', 'Wayfinding'], description: 'Family-friendly staterooms.', category: 'essential', image: 'decks/deck-09.png', svg: 'decks/split-from-all/deck-09-from-all.min.svg', pdf: '' },
+        { number: 8, name: 'Deck 8', subtitle: 'Stateroom Access', highlights: ['Cabins', 'Aft access', 'Guest routes'], description: 'Convenient access to upper decks.', category: 'essential', image: 'decks/deck-08.png', svg: 'decks/split-from-all/deck-08-from-all.min.svg', pdf: '' },
+        { number: 7, name: 'Deck 7', subtitle: 'Cabin Transit', highlights: ['Cabins', 'Quiet zones', 'Midship transit'], description: 'Quiet corridor, elevator stacks C/D.', category: 'essential', image: 'decks/deck-07.png', svg: 'decks/split-from-all/deck-07-from-all.min.svg', pdf: '' },
+        { number: 6, name: 'Deck 6', subtitle: 'Stateroom Ring', highlights: ['Cabins', 'Family adjacency', 'Deck transitions'], description: 'Your stateroom zone (6650) near aft.', category: 'essential', image: 'decks/deck-06.png', svg: 'decks/split-from-all/deck-06-from-all.min.svg', pdf: '' },
+        { number: 4, name: 'Deck 4', subtitle: 'Dining & Entertainment', highlights: ['Main dining', 'Show venue', 'Casino'], description: 'Main dining room, theater, casino.', category: 'entertainment', image: 'decks/deck-04.png', svg: 'decks/split-from-all/deck-04-from-all.min.svg', pdf: '' },
+        { number: 3, name: 'Deck 3', subtitle: 'Lobby & Guest Services', highlights: ['Guest services', 'Dining', 'Retail'], description: 'Grand lobby, shore excursions, champagne bar.', category: 'essential', image: 'decks/deck-03.png', svg: 'decks/split-from-all/deck-03-from-all.min.svg', pdf: '' },
+        { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'decks/deck-02.png', svg: 'decks/split-from-all/deck-02-from-all.min.svg', pdf: '' }
       ];
 
       // ---- DECK HOTSPOTS (enhanced) ----
@@ -599,7 +815,8 @@
       // --- STATE ---
       const state = {
         filter: 'all', search: '', lastOpenedDeck: null, currentDeck: null,
-        currentZoom: 100, dragging: false, dragStartX: 0, dragStartY: 0, dragStartLeft: 0, dragStartTop: 0
+        currentZoom: 100, dragging: false, dragStartX: 0, dragStartY: 0, dragStartLeft: 0, dragStartTop: 0,
+        panHintShown: sessionStorage.getItem('deck_pan_hint_shown') === '1'
       };
 
       const els = {
@@ -615,6 +832,7 @@
         modalTitle: document.getElementById('modalTitle'),
         modalDesc: document.getElementById('modalDesc'),
         modalFocusChips: document.getElementById('deckFocusChips'),
+        panHint: document.getElementById('deckPanHint'),
         zoomLevel: document.getElementById('zoomLevel'),
         download: document.getElementById('downloadPlan')
       };
@@ -718,6 +936,7 @@
         state.lastOpenedDeck = deck.number;
         setActiveDeck(deck.number);
         renderFocusChips(deck);
+        animateModalTitle(deck.name);
         renderModalPlan(deck);
         if (deck.pdf) {
           els.download.href = deck.pdf;
@@ -731,13 +950,44 @@
         setZoom(100);
       }
 
-      function closeModal() { els.modal.classList.remove('is-open'); els.modal.setAttribute('aria-hidden','true'); }
+      function closeModal() {
+        els.modal.classList.remove('is-open');
+        els.modal.setAttribute('aria-hidden','true');
+        togglePanHint(false);
+      }
 
-      function setZoom(v) { 
-        state.currentZoom = Math.min(300, Math.max(50, v)); 
+      function animateModalTitle(nextText) {
+        els.modalTitle.classList.add('is-swapping');
+        setTimeout(() => {
+          els.modalTitle.textContent = nextText;
+          els.modalTitle.classList.remove('is-swapping');
+        }, 160);
+      }
+
+      function togglePanHint(show) {
+        if (!els.panHint) return;
+        if (show) {
+          els.panHint.hidden = false;
+          requestAnimationFrame(() => els.panHint.classList.add('is-visible'));
+          return;
+        }
+        els.panHint.classList.remove('is-visible');
+        setTimeout(() => {
+          if (!els.panHint.classList.contains('is-visible')) els.panHint.hidden = true;
+        }, 180);
+      }
+
+      function setZoom(v) {
+        state.currentZoom = Math.min(300, Math.max(50, v));
         els.zoomLevel.textContent = `${state.currentZoom}%`;
         const canvas = document.getElementById('deckPlanCanvas');
-        if (canvas) canvas.style.setProperty('--plan-scale', (state.currentZoom/100).toFixed(2));
+        if (canvas) canvas.style.transform = `scale(${(state.currentZoom / 100).toFixed(2)})`;
+        if (state.currentZoom > 100 && !state.panHintShown) {
+          togglePanHint(true);
+          state.panHintShown = true;
+          sessionStorage.setItem('deck_pan_hint_shown', '1');
+          setTimeout(() => togglePanHint(false), 2400);
+        }
       }
 
       function renderModalPlan(deck) {
@@ -746,23 +996,24 @@
         if (existingCanvas) {
           existingCanvas.classList.add('is-transitioning');
         }
+        els.modalFrame.innerHTML = `<div class="deck-plan-skeleton" aria-hidden="true"></div>`;
 
         setTimeout(() => {
           const hotspots = deckHotspots[deck.number] || [];
           const chips = deckFocusMap[deck.number] || [];
-          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" style="background:#eaf3ff; padding:8px 18px; border-radius:60px; border:none; font-weight:600;">${l}</button>`).join('');
+          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip">${l}</button>`).join('');
           const hotspotButtons = hotspots.map((s,i) => `
-            <button class="deck-hotspot" style="position:absolute; left:${s.x}%; top:${s.y}%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:44px; background:linear-gradient(145deg, #0ca8ff, #0069d0); border:3px solid white; color:white; font-weight:800; box-shadow:0 10px 24px rgba(0,121,212,0.6);" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
+            <button class="deck-hotspot" style="left:${s.x}%; top:${s.y}%;" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
           `).join('');
 
           els.modalFrame.innerHTML = `
-            <div class="deck-plan-stage" id="deckPlanStage" style="position:relative; overflow:auto; background:#082434; padding:20px; border-radius:28px;">
+            <div class="deck-plan-stage" id="deckPlanStage">
               <div class="deck-plan-canvas is-transitioning" id="deckPlanCanvas" style="transform:scale(${state.currentZoom/100});">
-                <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" style="width:100%; border-radius:24px;" alt="${deck.name}">
-                ${hotspots.length ? `<div style="position:absolute; inset:20px;">${hotspotButtons}</div>` : ''}
+                <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" alt="${deck.name}">
+                ${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotButtons}</div>` : ''}
               </div>
             </div>
-            ${hotspots.length ? `<div class="deck-plan-legend" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:18px;">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}" style="background:white; border:none; padding:10px 18px; border-radius:40px; box-shadow:0 4px 8px rgba(0,0,0,0.04);"><strong>${i+1}. ${s.title}</strong><span style="display:block; font-size:0.8rem;">${s.note}</span></button>`).join('')}</div>` : ''}
+            ${hotspots.length ? `<div class="deck-plan-legend">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}"><strong>${i+1}. ${s.title}</strong><span>${s.note}</span></button>`).join('')}</div>` : ''}
           `;
           attachPan();
 
@@ -776,6 +1027,19 @@
       }
 
       function renderFocusChips(deck) { /* already in renderModalPlan */ }
+
+      function selectHotspotById(hotspotId) {
+        const target = els.modalFrame.querySelector(`.deck-hotspot[data-hotspot-id="${hotspotId}"]`);
+        if (!target) return;
+        els.modalFrame.querySelectorAll('.deck-hotspot').forEach(btn => {
+          btn.dataset.selected = (btn.dataset.hotspotId === hotspotId) ? 'true' : 'false';
+        });
+        els.modalFrame.querySelectorAll('.deck-plan-legend-item').forEach(btn => {
+          btn.classList.toggle('is-active', btn.dataset.hotspotId === hotspotId);
+        });
+        target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        els.modalDesc.textContent = target.dataset.note || target.dataset.title || '';
+      }
 
       function attachPan() {
         const stage = document.getElementById('deckPlanStage');
@@ -860,6 +1124,28 @@
 
         // modal actions
         els.modal.addEventListener('click', (e) => {
+          const hotspot = e.target.closest('.deck-hotspot');
+          if (hotspot) {
+            selectHotspotById(hotspot.dataset.hotspotId);
+            return;
+          }
+          const legend = e.target.closest('.deck-plan-legend-item');
+          if (legend) {
+            selectHotspotById(legend.dataset.hotspotId);
+            return;
+          }
+          const focusChip = e.target.closest('.deck-focuschip');
+          if (focusChip) {
+            els.modalFocusChips.querySelectorAll('.deck-focuschip').forEach(btn => btn.classList.remove('is-active'));
+            focusChip.classList.add('is-active');
+            const needle = (focusChip.textContent || '').toLowerCase();
+            const match = [...els.modalFrame.querySelectorAll('.deck-hotspot')]
+              .find(btn => (btn.dataset.title || '').toLowerCase().includes(needle));
+            if (match) {
+              selectHotspotById(match.dataset.hotspotId);
+            }
+            return;
+          }
           const trigger = e.target.closest('[data-action]');
           const act = trigger?.dataset.action;
           if (act === 'close-modal') closeModal();
@@ -910,14 +1196,5 @@
     })();
   </script>
 
-  <!-- subtle more drawer placeholder (style harmony) -->
-  <div class="more-drawer-backdrop" id="moreDrawerBackdrop" hidden></div>
-  <aside class="more-drawer" id="moreDrawer" role="dialog" hidden>
-    <div class="more-drawer__header"><h2>More</h2><button type="button" class="more-drawer__close"><i class="fas fa-times"></i></button></div>
-    <section class="more-drawer__group"><h3 class="more-drawer__group-title">Explore</h3>
-      <a href="ports.html" class="more-drawer__link"><i class="fas fa-map-location-dot"></i><span>Ports</span></a>
-      <a href="tips.html" class="more-drawer__link"><i class="fas fa-lightbulb"></i><span>Pro Moves</span></a>
-    </section>
-  </aside>
 </body>
 </html>
