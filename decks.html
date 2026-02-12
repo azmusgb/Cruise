@@ -876,6 +876,12 @@
             const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
             if (idx < sorted.length-1) openModal(sorted[idx+1]);
           }
+          if (act === 'center-me' && state.currentDeck?.number === 6) {
+            const aft = document.querySelector('[data-hotspot-id="aft-cabins"]');
+            if (aft) {
+              aft.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+          }
         });
 
         els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderDeckCards(); });
@@ -886,6 +892,19 @@
         renderPills();
         renderDeckCards();
         bindEvents();
+
+        if (window.matchMedia('(max-width: 900px)').matches) {
+          setTimeout(() => {
+            const btn = document.querySelector('.deck-quickbtn[data-deck="6"]');
+            if (btn) btn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+          }, 300);
+        }
+
+        if (!localStorage.getItem('embarkationSeen')) {
+          const hero = document.querySelector('.deck-hero');
+          if (hero) hero.style.animation = 'heroGlow 2.5s ease-out';
+          localStorage.setItem('embarkationSeen', 'true');
+        }
       }
       init();
     })();
