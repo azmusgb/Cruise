@@ -255,8 +255,40 @@
     }
     .deck-visual img { width: 100%; height: 110px; object-fit: cover; border-radius: 24px; background: #cfe2f0; }
     .deck-info { flex: 1; }
+    .deck-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+    }
+    .deck-subtitle {
+      color: var(--accent);
+      font-weight: 600;
+    }
     .deck-highlights { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
     .deck-highlights span { background: #e9f3fb; padding: 5px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; color: #0c4973; }
+    .deck-card__cta {
+      margin-top: 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .deck-card__cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(0,121,212,0.35);
+    }
+    .deck-card--entertainment {
+      background: linear-gradient(145deg, #ffffff, #f7fbff);
+    }
+    .deck-card--wellness {
+      background: linear-gradient(145deg, #ffffff, #f4fbf8);
+    }
+    .deck-card--essential {
+      background: linear-gradient(145deg, #ffffff, #f9f9fc);
+    }
 
     /* ———— MODAL ———— */
     .deck-modal {
@@ -524,14 +556,6 @@
       };
 
       // ----- RENDER FUNCTIONS (polished) -----
-      function filterDecks() {
-        const q = state.search.toLowerCase().trim();
-        return deckData.filter(d => 
-          (state.filter === 'all' || d.category === state.filter) &&
-          (!q || `${d.name} ${d.subtitle} ${d.highlights.join(' ')}`.toLowerCase().includes(q))
-        );
-      }
-
       function renderQuickRail() {
         const sorted = [...deckData].sort((a,b) => b.number - a.number);
         els.quickRail.innerHTML = sorted.map(d => `
@@ -556,25 +580,72 @@
         });
       }
 
-      function renderCards() {
-        const decks = filterDecks();
-        els.countTotal.textContent = deckData.length;
-        els.countVisible.textContent = decks.length;
-        els.empty.hidden = decks.length > 0;
-        els.cards.innerHTML = decks.map(d => `
-          <article class="deck-card" role="listitem" data-deck="${d.number}">
+      // ---------- IMAGE PATH RESOLVER ----------
+      function getDeckImage(number) {
+        if (number === 0) return 'decks/deck-all.svg';
+        return `decks/deck-${String(number).padStart(2, '0')}.png`;
+      }
+
+      // ---------- CATEGORY CLASS ----------
+      function getCategoryClass(category) {
+        return `deck-card--${category}`;
+      }
+
+      // ---------- RENDER CARDS ----------
+      function renderDeckCards(filter = 'all', search = '') {
+        const container = document.getElementById('deckCards');
+        const visibleCountEl = document.getElementById('countVisible');
+        const totalCountEl = document.getElementById('countTotal');
+
+        container.innerHTML = '';
+
+        const filtered = deckData.filter(deck => {
+          const matchesCategory =
+            filter === 'all' || deck.category === filter;
+
+          const matchesSearch =
+            search === '' ||
+            deck.name.toLowerCase().includes(search) ||
+            deck.subtitle.toLowerCase().includes(search) ||
+            deck.highlights.join(' ').toLowerCase().includes(search);
+
+          return matchesCategory && matchesSearch;
+        });
+
+        filtered.forEach(deck => {
+          const card = document.createElement('article');
+          card.className = `deck-card ${getCategoryClass(deck.category)}`;
+          card.setAttribute('role', 'listitem');
+          card.dataset.deck = deck.number;
+
+          card.innerHTML = `
             <div class="deck-visual">
-              <span class="deck-number">${d.number === 0 ? 'ALL' : d.number}</span>
-              <img data-src="${d.image}" alt="${d.name}" src="${d.image}" loading="lazy">
+              <span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span>
+              <img src="${getDeckImage(deck.number)}"
+                   alt="${deck.name}"
+                   loading="lazy"
+                   decoding="async">
             </div>
+
             <div class="deck-info">
-              <h3 style="font-size:1.6rem; font-weight:800;">${d.name}</h3>
-              <p style="color:var(--accent); font-weight:600;">${d.subtitle}</p>
-              <div class="deck-highlights">${d.highlights.slice(0,3).map(h => `<span>${h}</span>`).join('')}</div>
-              <button class="deck-card__cta btn btn--nautical" data-action="open" style="margin-top:16px; background:var(--accent); color:white; border:none; padding:12px 24px; border-radius:60px; font-weight:700;">Explore deck →</button>
+              <h3 class="deck-title">${deck.name}</h3>
+              <p class="deck-subtitle">${deck.subtitle}</p>
+              <div class="deck-highlights">
+                ${deck.highlights.map(h => `<span>${h}</span>`).join('')}
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="${deck.number}">
+                Explore deck →
+              </button>
             </div>
-          </article>
-        `).join('');
+          `;
+
+          container.appendChild(card);
+        });
+
+        visibleCountEl.textContent = filtered.length;
+        totalCountEl.textContent = deckData.length;
+
+        document.getElementById('emptyState').hidden = filtered.length !== 0;
       }
 
       // --- MODAL ---
@@ -655,14 +726,26 @@
 
       // --- EVENT LISTENERS (luxe) ---
       function bindEvents() {
-        // Filter buttons
-        document.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', function() {
-          state.filter = this.dataset.filter;
-          document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter));
-          renderCards();
-        }));
+        const searchInput = document.getElementById('deckSearch');
 
-        els.search.addEventListener('input', function(e) { state.search = e.target.value; renderCards(); });
+        // Filter buttons
+        document.querySelectorAll('.pill-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            state.filter = btn.dataset.filter;
+
+            renderDeckCards(btn.dataset.filter, searchInput.value.toLowerCase());
+          });
+        });
+
+        searchInput.addEventListener('input', e => {
+          state.search = e.target.value;
+          renderDeckCards(
+            document.querySelector('.pill-btn.is-active').dataset.filter,
+            e.target.value.toLowerCase()
+          );
+        });
 
         // global key
         document.addEventListener('keydown', (e) => { 
@@ -710,13 +793,13 @@
           }
         });
 
-        els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderCards(); });
+        els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderDeckCards(); });
       }
 
       function init() {
         renderQuickRail();
         renderPills();
-        renderCards();
+        renderDeckCards();
         bindEvents();
       }
       init();
