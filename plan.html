@@ -1,59 +1,301 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-theme-mode="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cruise Companion · Plan</title>
-  <meta name="description" content="Operational cruise checklist with grouped completion states.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/experience-system.css">
+  <meta name="theme-color" content="#0079d4">
+  <title>Game Plan | Adventure of the Seas</title>
+  <meta name="description" content="Your cruise command hub for what to do next before sail-away and during onboard days.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=3">
+  <link rel="stylesheet" href="css/utilities.css?v=3">
+  <link rel="stylesheet" href="css/components.css?v=3">
+  <link rel="stylesheet" href="css/mobile-first.css?v=3">
+  <script src="js/shared-layout.js?v=16" defer></script>
+  <style>
+    .plan-page .hero--plan {
+      background: transparent;
+      padding: 0;
+      margin-bottom: 14px;
+    }
+
+    .plan-page .plan-band {
+      margin-bottom: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(0, 82, 165, 0.14);
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(5, 24, 46, 0.08);
+      overflow: hidden;
+    }
+
+    .plan-page .plan-band--top {
+      background: linear-gradient(135deg, rgba(11, 79, 144, 0.08), rgba(25, 194, 255, 0.06), #fff 62%);
+    }
+
+    .plan-page .plan-band--embark {
+      background: linear-gradient(135deg, rgba(255, 201, 58, 0.14), rgba(255, 255, 255, 0.9) 42%);
+      border-color: rgba(255, 176, 32, 0.26);
+    }
+
+    .plan-page .plan-band--blockers {
+      background: linear-gradient(135deg, rgba(215, 63, 74, 0.08), rgba(255, 255, 255, 0.92) 42%);
+      border-color: rgba(215, 63, 74, 0.26);
+    }
+
+    .plan-page .plan-band__header {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(0, 82, 165, 0.1);
+    }
+
+    .plan-page .plan-band__title {
+      margin: 0 0 4px;
+      color: #0d426f;
+      font-size: 1.2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plan-page .plan-band__subtitle {
+      margin: 0;
+      color: #305a7c;
+      font-size: 0.92rem;
+    }
+
+    .plan-page .plan-band__content {
+      padding: 12px 14px 14px;
+    }
+
+    .plan-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .plan-card {
+      background: #fff;
+      border: 1px solid rgba(0, 82, 165, 0.14);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 24px rgba(5, 24, 46, 0.08);
+    }
+
+    .plan-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.06rem;
+      color: #0f3f69;
+    }
+
+    .plan-card p {
+      margin: 0;
+      color: #2e5678;
+      font-size: 0.93rem;
+      line-height: 1.45;
+    }
+
+    .plan-card__list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: #224b6e;
+      display: grid;
+      gap: 6px;
+      font-size: 0.92rem;
+    }
+
+    .plan-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .plan-link {
+      min-height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 82, 165, 0.22);
+      background: #fff;
+      color: #0a4e8e;
+      font-weight: 700;
+      font-size: 0.86rem;
+      padding: 8px 12px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .plan-link--primary {
+      background: #005fb0;
+      border-color: #005fb0;
+      color: #fff;
+    }
+
+    .plan-page .plan-checklist {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .plan-page .plan-checklist li {
+      border: 1px solid rgba(0, 82, 165, 0.12);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+      color: #224b6e;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plan-page .plan-checklist li i {
+      color: #0079d4;
+    }
+
+    .plan-page .plan-progress {
+      display: grid;
+      gap: 10px;
+    }
+
+    .plan-page .plan-progress__meter {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(0, 82, 165, 0.12);
+      overflow: hidden;
+    }
+
+    .plan-page .plan-progress__fill {
+      height: 100%;
+      width: 58%;
+      background: linear-gradient(90deg, #0079d4, #19c2ff);
+      border-radius: inherit;
+    }
+
+    @media (max-width: 768px) {
+      .plan-page .plan-band {
+        border-radius: 16px;
+      }
+
+      .plan-page .plan-band__title {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 </head>
-<body class="page-plan">
-  <div class="status-strip">
-    <div class="container status-strip__row">
-      <span data-cruise-phase>Loading phase…</span>
-      <span data-cruise-day>Loading itinerary…</span>
-      <span data-room-rotator>Loading room…</span>
-    </div>
-  </div>
+<body class="app-theme-rcc decks-shell page-shell plan-page">
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="sharedHeader" data-page="plan"></div>
 
-  <header class="container page-hero">
-    <p class="page-spine">Cruise Companion · Operational Layer</p>
-    <h1 class="page-title">Execution Checklist</h1>
-    <p class="page-description">Structured planning groups with clean completion tracking and minimal visual noise.</p>
-    <div class="hero-divider" aria-hidden="true"></div>
-  </header>
-
-  <main>
-    <section class="section">
+  <main id="main" aria-label="Game plan">
+    <section class="hero hero--plan">
       <div class="container">
-        <h2 class="section-title">Pre-Sail Priorities</h2>
-        <div class="checklist">
-          <article class="checklist-group">
-            <h3>Travel Documents</h3>
-            <p class="meta">Passport, IDs, and backups.</p>
-            <label class="check-item"><input type="checkbox">Passport validity check complete</label>
-            <label class="check-item"><input type="checkbox">Digital copies shared with group</label>
+        <p class="hero__eyebrow"><i class="fas fa-compass" aria-hidden="true"></i>Before Sail + Onboard Flow</p>
+        <h1 class="hero__title">Game Plan</h1>
+        <p class="hero__description">One view for what to do next, what is blocked, and how to execute embark day smoothly.</p>
+      </div>
+    </section>
+
+    <section class="container plan-band plan-band--top" aria-label="Top next moves" data-reveal>
+      <header class="plan-band__header">
+        <h2 class="plan-band__title"><i class="fas fa-bolt" aria-hidden="true"></i>Top 3 Next Moves</h2>
+        <p class="plan-band__subtitle">Do these first to keep the trip smooth and low-friction.</p>
+      </header>
+      <div class="plan-band__content">
+        <div class="plan-grid">
+          <article class="plan-card" data-reveal>
+            <h3>1. Finalize check-in and docs</h3>
+            <p>Confirm SetSail details, boarding window, and document status for each traveler.</p>
+            <div class="plan-links">
+              <a class="plan-link plan-link--primary" href="operations.html#task-online-checkin"><i class="fas fa-clipboard-check"></i>Open checklist</a>
+              <a class="plan-link" href="contacts.html#backup"><i class="fas fa-address-card"></i>Emergency backups</a>
+            </div>
           </article>
-          <article class="checklist-group">
-            <h3>Reservations</h3>
-            <p class="meta">Dining, excursions, and key events.</p>
-            <label class="check-item"><input type="checkbox">Dining schedule confirmed</label>
-            <label class="check-item"><input type="checkbox">Port activities assigned</label>
+
+          <article class="plan-card" data-reveal>
+            <h3>2. Lock embark-day sequence</h3>
+            <p>Set your first two hours so boarding feels controlled, not reactive.</p>
+            <div class="plan-links">
+              <a class="plan-link" href="#embark-sequence"><i class="fas fa-route"></i>Jump to embark sequence</a>
+              <a class="plan-link" href="itinerary.html#today"><i class="fas fa-calendar-day"></i>Open today flow</a>
+            </div>
           </article>
-          <article class="checklist-group">
-            <h3>Embarkation Ops</h3>
-            <p class="meta">Arrival sequence and carry-on readiness.</p>
-            <label class="check-item"><input type="checkbox">Port arrival window shared</label>
-            <label class="check-item"><input type="checkbox">First-day essentials packed</label>
+
+          <article class="plan-card" data-reveal>
+            <h3>3. Prep port-day rhythm early</h3>
+            <p>Set meal windows and return buffers before excursions begin.</p>
+            <div class="plan-links">
+              <a class="plan-link" href="dining.html"><i class="fas fa-utensils"></i>Tonight's pick</a>
+              <a class="plan-link" href="ports.html"><i class="fas fa-map-location-dot"></i>Port spotlight</a>
+            </div>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="embark-sequence" class="container plan-band plan-band--embark" aria-label="Embark day sequence" data-reveal>
+      <header class="plan-band__header">
+        <h2 class="plan-band__title"><i class="fas fa-ship" aria-hidden="true"></i>Embark Day · First 2 Hours</h2>
+        <p class="plan-band__subtitle">Follow this sequence immediately after boarding.</p>
+      </header>
+      <div class="plan-band__content">
+        <ul class="plan-checklist">
+          <li><i class="fas fa-life-ring" aria-hidden="true"></i>Complete muster before exploring</li>
+          <li><i class="fas fa-wifi" aria-hidden="true"></i>Activate app + Wi-Fi and verify all travelers</li>
+          <li><i class="fas fa-utensils" aria-hidden="true"></i>Lock dinner reservations and allergy notes</li>
+          <li><i class="fas fa-map" aria-hidden="true"></i>Confirm family meeting point for sail-away</li>
+        </ul>
+        <div class="plan-links">
+          <a class="plan-link" href="rooms.html"><i class="fas fa-users"></i>Family rooms</a>
+          <a class="plan-link" href="decks.html"><i class="fas fa-map"></i>Ship map shortcuts</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container plan-band plan-band--blockers" aria-label="Current blockers" data-reveal>
+      <header class="plan-band__header">
+        <h2 class="plan-band__title"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i>Current Blockers</h2>
+        <p class="plan-band__subtitle">Close these before sail date to avoid last-minute friction.</p>
+      </header>
+      <div class="plan-band__content">
+        <div class="plan-grid">
+          <article class="plan-card" data-reveal>
+            <h3>Documents pending review</h3>
+            <p>Two travelers still need final photo/ID validation in check-in flow.</p>
+          </article>
+          <article class="plan-card" data-reveal>
+            <h3>Dining pressure window</h3>
+            <p>Specialty seats after 7:00 PM are tightening for Day 2 and Day 5.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="container plan-band" aria-label="Quick links and progress" data-reveal>
+      <header class="plan-band__header">
+        <h2 class="plan-band__title"><i class="fas fa-compass" aria-hidden="true"></i>Quick Links + Progress</h2>
+        <p class="plan-band__subtitle">Fast jump paths with checklist progress at a glance.</p>
+      </header>
+      <div class="plan-band__content">
+        <div class="plan-links">
+          <a class="plan-link" href="itinerary.html#today"><i class="fas fa-calendar-day"></i>Today</a>
+          <a class="plan-link" href="decks.html"><i class="fas fa-map"></i>Ship Map</a>
+          <a class="plan-link" href="dining.html"><i class="fas fa-utensils"></i>Food</a>
+          <a class="plan-link plan-link--primary" href="operations.html"><i class="fas fa-clipboard-check"></i>Full Checklist</a>
+        </div>
+        <div class="plan-progress">
+          <p><strong>Checklist progress:</strong> 7 of 12 items complete, 5 remaining.</p>
+          <div class="plan-progress__meter" aria-hidden="true">
+            <div class="plan-progress__fill"></div>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
-  <script src="js/cruise-phase.js"></script>
+  <div id="sharedFooter" data-page="plan"></div>
+  <div id="sharedBottomNav" data-page="plan"></div>
 </body>
 </html>

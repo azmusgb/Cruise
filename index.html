@@ -1,61 +1,1177 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-theme-mode="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cruise Companion · Command Center</title>
-  <meta name="description" content="Command center for Adventure of the Seas cruise planning.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/experience-system.css">
+  <meta name="theme-color" content="#0079d4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json?v=2">
+  <meta name="description" content="Your personal cruise planning hub for Adventure of the Seas sailing Feb 14–20, 2026. Manage itinerary, checklists, dining, and more.">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+  <title>Royal Caribbean Voyage Hub | Adventure of the Seas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=3">
+  <link rel="stylesheet" href="css/utilities.css?v=3">
+  <link rel="stylesheet" href="css/components.css?v=3">
+
+  <style>
+    .dashboard-page .search-status {
+      width: 100%;
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--royal-navy);
+      font-weight: 600;
+    }
+
+    .dashboard-page .deck-hero {
+      min-height: clamp(360px, 54vw, 540px);
+      margin-bottom: 18px;
+    }
+
+    .dashboard-page .hero--cinematic {
+      position: relative;
+      overflow: hidden;
+      border-radius: 22px;
+      margin: 18px auto;
+      min-height: clamp(360px, 54vw, 540px);
+      max-width: 1200px;
+      box-shadow: 0 18px 40px rgba(3, 26, 48, 0.3);
+      isolation: isolate;
+    }
+
+    .dashboard-page .hero__media,
+    .dashboard-page .hero__media img,
+    .dashboard-page .hero__overlay,
+    .dashboard-page .hero__content {
+      position: absolute;
+      inset: 0;
+    }
+
+    .dashboard-page .hero__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 36%;
+      transform-origin: center;
+      transform: scale(1.08);
+      transition: transform 900ms cubic-bezier(.2, .9, .2, 1);
+      will-change: transform;
+    }
+
+    .dashboard-page .hero--cinematic.is-ready .hero__media img {
+      transform: scale(1);
+    }
+
+    .dashboard-page .hero__overlay {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 200, 80, 0.16), transparent 50%),
+        linear-gradient(180deg, rgba(10, 25, 50, 0.78), rgba(10, 25, 50, 0.34));
+      opacity: 0.88;
+      transition: opacity 800ms ease;
+      background-size: 160% 160%, 100% 100%;
+      background-position: 0% 50%, center;
+      will-change: opacity, background-position;
+    }
+
+    .dashboard-page .hero--cinematic.is-ready .hero__overlay {
+      opacity: 1;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 200, 80, 0.2), transparent 52%),
+        linear-gradient(180deg, rgba(10, 25, 50, 0.86), rgba(10, 25, 50, 0.38));
+      background-size: 160% 160%, 100% 100%;
+    }
+
+    .dashboard-page .hero--cinematic.is-cruise-mode .hero__overlay {
+      animation: oceanShift 18s ease-in-out infinite;
+    }
+
+    .dashboard-page .hero__content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: clamp(22px, 4.5vw, 42px);
+      color: #f6fbff;
+      z-index: 1;
+    }
+
+    .dashboard-page .hero__content h1 {
+      margin: 0;
+      font-size: clamp(2.3rem, 6.4vw, 4.25rem);
+      line-height: 1.05;
+      letter-spacing: -0.015em;
+      text-shadow: 0 14px 26px rgba(2, 18, 34, 0.42);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 600ms ease, transform 600ms ease;
+    }
+
+    .dashboard-page .hero--cinematic.is-ready h1 {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dashboard-page .phase-banner {
+      margin: 0;
+      width: fit-content;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(8, 28, 52, 0.5);
+      border: 1px solid rgba(255, 231, 166, 0.4);
+      color: #ffefc4;
+      font-size: 0.88rem;
+      font-weight: 700;
+      opacity: 0;
+      transition: opacity 600ms ease;
+    }
+
+    .dashboard-page .hero--cinematic.is-ready .phase-banner {
+      opacity: 1;
+    }
+
+    .dashboard-page #countdown {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dashboard-page .countdown-unit {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 320ms ease, transform 320ms ease;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      background: rgba(9, 28, 55, 0.45);
+      padding: 9px 12px;
+      min-width: 88px;
+    }
+
+    .dashboard-page .countdown-unit.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dashboard-page .countdown-unit strong {
+      display: block;
+      font-size: 1.15rem;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .dashboard-page .countdown-unit span {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.9;
+    }
+
+    .dashboard-page .deck-hero::before {
+      background:
+        radial-gradient(circle at 16% 20%, rgba(255, 255, 255, 0.2), transparent 34%),
+        radial-gradient(circle at 84% 80%, rgba(255, 255, 255, 0.14), transparent 38%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.2) 52%, rgba(0, 0, 0, 0.46) 100%);
+      animation: dashboardHeroPulse 14s ease-in-out infinite alternate;
+    }
+
+    .dashboard-page .deck-hero::after {
+      content: '';
+      position: absolute;
+      inset: -12%;
+      pointer-events: none;
+      background: linear-gradient(118deg, rgba(25, 194, 255, 0) 0%, rgba(25, 194, 255, 0.18) 47%, rgba(255, 223, 137, 0) 100%);
+      mix-blend-mode: screen;
+      animation: dashboardHeroDrift 11s ease-in-out infinite alternate;
+    }
+
+    .dashboard-page .deck-hero__title {
+      font-size: clamp(2.45rem, 6.4vw, 4.35rem);
+      line-height: 1.06;
+      letter-spacing: -0.015em;
+      text-shadow: 0 14px 26px rgba(2, 18, 34, 0.42);
+      margin-bottom: 10px;
+      max-width: 16ch;
+    }
+
+    .dashboard-page .deck-hero__eyebrow {
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      background: rgba(5, 24, 46, 0.28);
+      border-color: rgba(255, 223, 137, 0.55);
+      box-shadow: 0 10px 18px rgba(2, 18, 34, 0.22);
+    }
+
+    .dashboard-page .deck-hero__eyebrow strong {
+      color: #ffe7a6;
+      font-weight: 900;
+    }
+
+    .dashboard-page .deck-hero__subtitle {
+      max-width: 52ch;
+      font-size: clamp(1rem, 2.1vw, 1.2rem);
+      color: rgba(247, 252, 255, 0.96);
+    }
+
+    @keyframes dashboardHeroPulse {
+      from { transform: scale(1.01); }
+      to { transform: scale(1.06); }
+    }
+
+    @keyframes dashboardHeroDrift {
+      from { transform: translateX(-2%) translateY(0); opacity: 0.44; }
+      to { transform: translateX(2%) translateY(-1.5%); opacity: 0.72; }
+    }
+
+    @keyframes oceanShift {
+      0% { background-position: 0% 50%, center; }
+      50% { background-position: 100% 50%, center; }
+      100% { background-position: 0% 50%, center; }
+    }
+
+    .dashboard-page .secondary-groups {
+      margin-bottom: 28px;
+    }
+
+    .dashboard-page .secondary-groups__inner {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .dashboard-page .secondary-group {
+      background: #fff;
+      border: 1px solid var(--royal-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 20px rgba(0, 59, 117, 0.08);
+    }
+
+    .dashboard-page .secondary-group h3 {
+      margin: 0 0 4px;
+      color: var(--royal-navy);
+      font-size: 1rem;
+    }
+
+    .dashboard-page .secondary-group__title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dashboard-page .secondary-group__icon {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0b4f90, #19c2ff);
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    .dashboard-page .secondary-group p {
+      margin: 0 0 10px;
+      font-size: 0.9rem;
+      color: var(--royal-ink);
+      opacity: 0.85;
+    }
+
+    .dashboard-page .group-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-weight: 700;
+      color: var(--royal-blue);
+      font-size: 0.9rem;
+    }
+
+    .dashboard-page .deck-grid__header {
+      margin-bottom: 10px;
+    }
+
+    .dashboard-page .priority-note {
+      margin: 0 0 16px;
+      color: var(--royal-ink);
+      opacity: 0.82;
+      font-size: 0.95rem;
+    }
+
+    .dashboard-page .deck-card {
+      position: relative;
+    }
+
+    .dashboard-page .priority-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #d73f4a;
+      box-shadow: 0 6px 16px rgba(215, 63, 74, 0.35);
+    }
+
+    .dashboard-page .priority-badge--normal {
+      background: #2f7d62;
+      box-shadow: 0 6px 16px rgba(47, 125, 98, 0.35);
+    }
+
+    .dashboard-page .search-empty {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px dashed var(--royal-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      color: var(--royal-ink);
+    }
+
+    .dashboard-page .tour-card {
+      margin: 16px auto 28px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--royal-border);
+      background: linear-gradient(135deg, #ffffff, #eef8ff);
+      box-shadow: var(--shadow-light);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .dashboard-page .tour-card h3 {
+      margin: 0 0 6px;
+      color: var(--royal-navy);
+      font-size: 1rem;
+    }
+
+    .dashboard-page .tour-card p {
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    .dashboard-page .tour-card__actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .dashboard-page .tour-btn {
+      border: 1px solid var(--royal-border);
+      background: #fff;
+      color: var(--royal-navy);
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .dashboard-page .search-status.is-loading {
+      opacity: 0.7;
+    }
+
+    .dashboard-page .main-navigation__search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dashboard-page .main-navigation__search i {
+      left: 12px;
+    }
+
+    .dashboard-page .main-navigation__search input {
+      padding-right: 44px;
+    }
+
+    .dashboard-page .search-clear {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--royal-border);
+      background: #fff;
+      color: var(--royal-navy);
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .dashboard-page .search-clear:hover {
+      background: #f0f7ff;
+      border-color: rgba(0, 82, 165, 0.26);
+    }
+
+    .dashboard-page .search-clear[hidden] {
+      display: none;
+    }
+
+    .dashboard-page .deck-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .dashboard-page .deck-visual--topic {
+      min-height: 86px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 82, 165, 0.1);
+      background: linear-gradient(135deg, rgba(15, 92, 168, 0.12), rgba(255, 255, 255, 0.92));
+      color: #0b4f90;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .dashboard-page .deck-visual--topic i {
+      font-size: 1rem;
+    }
+
+    .dashboard-page .search-empty {
+      display: grid;
+      gap: 10px;
+      justify-items: start;
+    }
+
+    .dashboard-page .search-empty__reset {
+      border: 1px solid var(--royal-border);
+      background: #fff;
+      color: var(--royal-blue);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .term-help {
+      border-bottom: 1px dotted rgba(17, 56, 95, 0.35);
+      cursor: help;
+      text-decoration: none;
+    }
+
+    .mobile-collapse-toggle {
+      display: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dashboard-page .hero__media img,
+      .dashboard-page .hero__overlay,
+      .dashboard-page .hero__content h1,
+      .dashboard-page .phase-banner,
+      .dashboard-page .countdown-unit {
+        transition-duration: 1ms !important;
+        animation: none !important;
+      }
+
+      .dashboard-page .hero__media img,
+      .dashboard-page .hero--cinematic.is-ready .hero__media img {
+        transform: none;
+      }
+
+      .dashboard-page .hero__content h1,
+      .dashboard-page .phase-banner,
+      .dashboard-page .countdown-unit {
+        opacity: 1;
+        transform: none;
+      }
+
+      .dashboard-page .deck-hero::before {
+        animation: none;
+      }
+      .dashboard-page .deck-hero::after {
+        animation: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .mobile-collapse-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--royal-border);
+        background: #fff;
+        color: var(--royal-navy);
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .mobile-collapsible.is-collapsed .deck-cards,
+      .mobile-collapsible.is-collapsed .priority-note {
+        display: none;
+      }
+
+      .dashboard-page .header-utility {
+        display: none;
+      }
+
+      .dashboard-page .deck-hero {
+        padding: 14px 0 8px;
+        margin-bottom: 8px;
+        min-height: 0;
+      }
+
+      .dashboard-page main {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .dashboard-page #dashboardPrioritiesSection {
+        order: 3;
+      }
+
+      .dashboard-page #dashboardTour {
+        order: 4;
+      }
+
+      .dashboard-page #dashboardSecondaryGroups {
+        order: 5;
+      }
+
+      .dashboard-page #dashboardBaselineSection {
+        order: 6;
+      }
+
+      .dashboard-page #dashboardDeadlinesSection {
+        order: 7;
+      }
+
+      .dashboard-page .deck-hero__subtitle,
+      .dashboard-page .page-spine,
+      .dashboard-page .deck-hero__actions {
+        display: none;
+      }
+
+      .dashboard-page .tour-card {
+        margin: 8px auto 14px;
+        padding: 12px;
+      }
+
+      .dashboard-page .deck-card {
+        padding: 16px;
+        border-radius: 18px;
+        margin-bottom: 12px;
+      }
+
+      .dashboard-page .deck-card .deck-visual {
+        display: none;
+      }
+
+      .dashboard-page .priority-badge {
+        position: static;
+        display: inline-block;
+        margin-bottom: 10px;
+        width: fit-content;
+      }
+
+      .dashboard-page .deck-highlights {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0;
+      }
+
+      .dashboard-page .deck-highlights span {
+        background: #f0f7fc;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        color: #005a8c;
+      }
+
+      .dashboard-page .deck-card__cta {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .dashboard-page .main-navigation__hint {
+        display: none;
+      }
+    }
+
+  </style>
+  <link rel="stylesheet" href="css/mobile-first.css?v=3">
+
+  <script src="js/shared-layout.js?v=16" defer></script>
 </head>
-<body class="page-index">
-  <div class="status-strip">
-    <div class="container status-strip__row">
-      <span data-cruise-phase>Loading phase…</span>
-      <span data-cruise-day>Loading itinerary…</span>
-      <span data-room-rotator>Loading room…</span>
-    </div>
-  </div>
+<body class="app-theme-rcc decks-shell page-shell dashboard-page">
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="sharedHeader" data-page="index"></div>
 
-  <header class="container page-hero">
-    <p class="page-spine">Cruise Companion · Command Center</p>
-    <h1 class="page-title">Adventure of the Seas</h1>
-    <p class="page-description">A calm launch point for daily decisions across decks, itinerary, rooms, and pre-sail planning.</p>
-    <div class="hero-divider" aria-hidden="true"></div>
-  </header>
+  <main id="main" aria-label="Dashboard">
+    <section class="hero hero--cinematic" aria-label="Arrival hero">
+      <div class="hero__media">
+        <img src="images/ship/rccl-adventure-of-the-seas-exterior-at-sea.webp" alt="Adventure of the Seas at sea during sunset" loading="eager" fetchpriority="high" />
+      </div>
+      <div class="hero__overlay"></div>
+      <div class="hero__content container">
+        <h1>Adventure of the Seas</h1>
+        <p class="phase-banner" id="phaseBanner"></p>
+        <div id="countdown" aria-live="polite"></div>
+      </div>
+    </section>
 
-  <main>
-    <section class="section">
-      <div class="container">
-        <h2 class="section-title">Primary Actions</h2>
-        <div class="card-grid">
-          <a class="card" href="decks.html">
-            <h3>Decks</h3>
-            <p>Immersive deck navigator and venue lookup.</p>
-            <p class="meta">Energy: 9/10</p>
-          </a>
-          <a class="card" href="itinerary.html">
-            <h3>Itinerary</h3>
-            <p>Narrative timeline by day and destination.</p>
-            <p class="meta">Energy: 7.5/10</p>
-          </a>
-          <a class="card" href="rooms.html">
-            <h3>Rooms</h3>
-            <p>Equal-weight stateroom overview for all families.</p>
-            <p class="meta">Energy: 7/10</p>
-          </a>
-          <a class="card" href="plan.html">
-            <h3>Plan</h3>
-            <p>Operational checklist with completion states.</p>
-            <p class="meta">Energy: 5/10</p>
-          </a>
+    <section class="main-navigation" aria-label="Quick navigation">
+      <div class="container main-navigation__inner">
+        <div class="main-navigation__search" role="search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="dashboardSearchInput" type="search" placeholder="Search tasks, ports, dining, or staterooms" aria-label="Search your cruise dashboard" inputmode="search" enterkeyhint="search" autocapitalize="off" spellcheck="false" />
+          <button id="dashboardSearchClear" class="search-clear" type="button" aria-label="Clear dashboard search" hidden>
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+          </button>
+          <span class="main-navigation__hint">Press / to focus</span>
         </div>
+        <div class="main-navigation__filters" aria-label="Key shortcuts">
+          <a class="pill-btn" href="operations.html">Checklist</a>
+          <a class="pill-btn" href="itinerary.html">Itinerary</a>
+          <a class="pill-btn" href="dining.html">Dining</a>
+          <a class="pill-btn" href="rooms.html">Staterooms</a>
+        </div>
+        <p id="dashboardSearchStatus" class="search-status" role="status" aria-live="polite">Showing 4 of 4 priorities</p>
+      </div>
+    </section>
+
+    <section class="container" id="dashboardTour" aria-label="Quick start guide" hidden>
+      <div class="tour-card">
+        <div>
+          <h3>First time here? Start with this flow.</h3>
+          <p>1) Complete checklist, 2) verify itinerary call times, 3) confirm rooms and muster locations.</p>
+          <div class="tour-card__actions">
+            <a class="tour-btn" href="operations.html">Open checklist</a>
+            <a class="tour-btn" href="itinerary.html">Open itinerary</a>
+          </div>
+        </div>
+        <button type="button" class="tour-btn" id="dismissDashboardTour">Dismiss</button>
+      </div>
+    </section>
+
+    <section id="dashboardSecondaryGroups" class="secondary-groups container" aria-label="Browse by category">
+      <div class="secondary-groups__inner">
+        <article class="secondary-group">
+          <h3 class="secondary-group__title"><span class="secondary-group__icon"><i class="fas fa-clipboard-check" aria-hidden="true"></i></span>Plan and prepare</h3>
+          <p>Checklist and travel-readiness tasks before embarkation.</p>
+          <a class="group-link" href="operations.html">Open checklist <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        </article>
+        <article class="secondary-group">
+          <h3 class="secondary-group__title"><span class="secondary-group__icon"><i class="fas fa-compass" aria-hidden="true"></i></span>Onboard essentials</h3>
+          <p>Daily schedule, dining times, and key onboard planning.</p>
+          <a class="group-link" href="itinerary.html">Open itinerary <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        </article>
+        <article class="secondary-group">
+          <h3 class="secondary-group__title"><span class="secondary-group__icon"><i class="fas fa-bed" aria-hidden="true"></i></span>Staterooms and decks</h3>
+          <p>Room assignments, deck plans, and location lookups.</p>
+          <a class="group-link" href="rooms.html">Open staterooms <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        </article>
+      </div>
+    </section>
+
+    <section id="dashboardBaselineSection" class="deck-grid container" aria-label="Royal Caribbean baseline details">
+      <div class="deck-grid__header">
+        <div>
+          <h2 class="deck-grid__title">Royal Caribbean Baseline (Confirmed)</h2>
+          <p class="deck-grid__subtitle">Known details for the Feb 14, 2026 Adventure sailing from Port Canaveral.</p>
+        </div>
+      </div>
+      <div class="deck-cards" role="list">
+        <article class="deck-card" role="listitem">
+          <span class="priority-badge priority-badge--normal">Confirmed</span>
+          <div class="deck-visual">
+            <span class="deck-visual--topic">
+              <i class="fas fa-circle-check" aria-hidden="true"></i>
+              Baseline
+            </span>
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Confirmed baseline</h3>
+            </div>
+            <div class="deck-highlights">
+              <span>Ship: Adventure of the Seas</span>
+              <span>Sailing window: Feb 14–20, 2026</span>
+              <span>Port: Orlando (Port Canaveral)</span>
+              <span>Typical departure: 4:00 PM</span>
+              <span>Typical return: 7:00 AM</span>
+            </div>
+          </div>
+        </article>
+        <article class="deck-card" role="listitem">
+          <span class="priority-badge">Needs verification</span>
+          <div class="deck-visual">
+            <span class="deck-visual--topic">
+              <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+              Verify
+            </span>
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Still verify in booking docs</h3>
+            </div>
+            <div class="deck-highlights">
+              <span>Exact terminal assignment (T1/T5/T6 can vary)</span>
+              <span>Final call times and itinerary order</span>
+              <span>Any last-minute operational updates</span>
+            </div>
+            <a class="deck-card__cta" href="operations.html#task-day-of-arrival">Open arrival checklist</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="dashboardPrioritiesSection" class="deck-grid container" aria-label="Dashboard tiles">
+      <div class="deck-grid__header">
+        <div>
+          <h2 class="deck-grid__title">Today's Priorities</h2>
+          <p class="deck-grid__subtitle">Stay on top of what matters before embarkation.</p>
+        </div>
+        <div class="deck-grid__counts">
+          <div class="count-chip"><span>3</span> urgent</div>
+          <div class="count-chip"><span>4</span> total</div>
+        </div>
+      </div>
+      <p class="priority-note">Urgent items are marked directly on each card for faster scanning.</p>
+      <div class="deck-cards" role="list">
+        <article class="deck-card" role="listitem" data-search="itinerary ports activities call times falmouth all aboard formal night">
+          <span class="priority-badge">Urgent</span>
+          <div class="deck-visual">
+            <span class="deck-visual--topic">
+              <i class="fas fa-route" aria-hidden="true"></i>
+              Itinerary
+            </span>
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Itinerary</h3>
+              <div class="deck-meta">
+                <span class="deck-meta__item">Ports & activities</span>
+                <span class="deck-meta__item">Call times</span>
+              </div>
+            </div>
+            <div class="deck-highlights">
+              <span>Falmouth • Day 4</span>
+              <span>Day 1 all aboard 2:00 PM</span>
+              <span>Formal night: Day 2</span>
+            </div>
+            <a class="deck-card__cta" href="itinerary.html">View itinerary</a>
+          </div>
+        </article>
+
+        <article class="deck-card" role="listitem" data-search="checklist check in ids luggage tags urgent setsail photo id travel documents">
+          <span class="priority-badge">Urgent</span>
+          <div class="deck-visual">
+            <span class="deck-visual--topic">
+              <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+              Checklist
+            </span>
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Checklist</h3>
+              <div class="deck-meta">
+                <span class="deck-meta__item">Check-in</span>
+                <span class="deck-meta__item">IDs</span>
+                <span class="deck-meta__item">Luggage tags</span>
+              </div>
+            </div>
+            <div class="deck-highlights">
+              <span>3 urgent</span>
+              <span><span class="term-help" aria-label="SetSail is Royal Caribbean's digital boarding pass and check-in flow" title="SetSail is Royal Caribbean's digital boarding pass and check-in flow">SetSail</span> passes</span>
+              <span>Photo IDs</span>
+            </div>
+            <a class="deck-card__cta" href="operations.html">Finish checklist</a>
+          </div>
+        </article>
+
+        <article class="deck-card" role="listitem" data-search="dining reservations traditional 6:00 pm specialty my time allergy notes">
+          <span class="priority-badge">Urgent</span>
+          <div class="deck-visual">
+            <span class="deck-visual--topic">
+              <i class="fas fa-utensils" aria-hidden="true"></i>
+              Dining
+            </span>
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Dining</h3>
+              <div class="deck-meta">
+                <span class="deck-meta__item">Traditional dining</span>
+                <span class="deck-meta__item">6:00 PM</span>
+              </div>
+            </div>
+            <div class="deck-highlights">
+              <span>Reserve specialties</span>
+              <span>My Time waitlist</span>
+              <span>Allergy notes</span>
+            </div>
+            <a class="deck-card__cta" href="dining.html?pick=chops">Manage dining</a>
+          </div>
+        </article>
+
+        <article class="deck-card" role="listitem" data-search="stateroom assignments key details rooms diamond deck plan">
+          <span class="priority-badge priority-badge--normal">Normal priority</span>
+          <div class="deck-visual">
+            <span class="deck-visual--topic">
+              <i class="fas fa-bed" aria-hidden="true"></i>
+              Staterooms
+            </span>
+          </div>
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Staterooms</h3>
+              <div class="deck-meta">
+                <span class="deck-meta__item">Assignments</span>
+                <span class="deck-meta__item">Key details</span>
+              </div>
+            </div>
+            <div class="deck-highlights">
+              <span>5 rooms confirmed</span>
+              <span>Diamond benefits</span>
+              <span>Show on deck plan</span>
+            </div>
+            <a class="deck-card__cta" href="rooms.html">View staterooms</a>
+          </div>
+        </article>
+      </div>
+      <p id="dashboardSearchEmpty" class="search-empty" hidden>
+        <span>No priorities match your search yet.</span>
+        <button type="button" id="dashboardSearchReset" class="search-empty__reset">Clear search</button>
+      </p>
+    </section>
+
+    <section id="dashboardDeadlinesSection" class="deck-grid container mobile-collapsible" aria-label="Upcoming deadlines">
+      <div class="deck-grid__header">
+        <div>
+          <h2 class="deck-grid__title">Upcoming Deadlines</h2>
+          <p class="deck-grid__subtitle">Owner-tagged actions that should be closed before embarkation.</p>
+        </div>
+      </div>
+      <div class="deck-cards" role="list">
+        <article class="deck-card" role="listitem">
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>SetSail Check-In</h3>
+              <p class="deck-subtitle">Due Dec 31, 2025 · Owner: Trip lead</p>
+            </div>
+            <div class="deck-highlights">
+              <span>All travelers</span>
+              <span>Passes downloaded</span>
+            </div>
+            <a class="deck-card__cta" href="operations.html#tasks">Open checklist task</a>
+          </div>
+        </article>
+        <article class="deck-card" role="listitem">
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Specialty Dining Lock-In</h3>
+              <p class="deck-subtitle">Due sailing week · Owner: Dining planner</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Chops waitlist</span>
+              <span>Allergy notes confirmed</span>
+            </div>
+            <a class="deck-card__cta" href="dining.html?pick=chops#reservations">Review reservations</a>
+          </div>
+        </article>
+        <article class="deck-card" role="listitem">
+          <div class="deck-info">
+            <div class="deck-info__heading">
+              <h3>Changed Since Last Review</h3>
+              <p class="deck-subtitle">Last 24 hours summary</p>
+            </div>
+            <div class="deck-highlights">
+              <span>Day 4 excursion meet-up updated</span>
+              <span>Chops waitlist moved to 7:15 PM</span>
+            </div>
+            <a class="deck-card__cta" href="itinerary.html">See latest updates</a>
+          </div>
+        </article>
       </div>
     </section>
   </main>
 
-  <script src="js/cruise-phase.js"></script>
+  <div id="sharedFooter"></div>
+  <div id="sharedBottomNav" data-page="index"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const hero = document.querySelector('.hero--cinematic');
+      const countdown = document.getElementById('countdown');
+      const phaseBanner = document.getElementById('phaseBanner');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const sailDate = new Date('2026-02-14T16:00:00-05:00');
+
+      function getHomeportStatus(now) {
+        const dayMs = 1000 * 60 * 60 * 24;
+        if (now < sailDate) {
+          const daysToSail = Math.max(0, Math.ceil((sailDate - now) / dayMs));
+          return `Sailing in ${daysToSail} Day${daysToSail === 1 ? '' : 's'}`;
+        }
+
+        const sameDay = now.getFullYear() === sailDate.getFullYear()
+          && now.getMonth() === sailDate.getMonth()
+          && now.getDate() === sailDate.getDate();
+        if (sameDay) {
+          return 'Boarding Day. Let\'s Go.';
+        }
+
+        const locations = ['At Sea', 'Grand Cayman', 'Falmouth', 'At Sea', 'Perfect Day at CocoCay', 'Return to Port'];
+        const dayIndex = Math.max(1, Math.floor((now - sailDate) / dayMs) + 1);
+        const location = locations[Math.min(locations.length - 1, Math.max(0, dayIndex - 1))];
+        return `Day ${dayIndex} – ${location}`;
+      }
+
+      function createCountdownUnit(value, label) {
+        const unit = document.createElement('div');
+        unit.className = 'countdown-unit';
+        unit.innerHTML = `<strong>${value}</strong><span>${label}</span>`;
+        return unit;
+      }
+
+      function renderCountdownSequence() {
+        if (!countdown) return;
+        const diffMs = Math.max(0, sailDate.getTime() - Date.now());
+        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+        const units = [
+          createCountdownUnit(days, 'Days'),
+          createCountdownUnit(hours, 'Hours'),
+          createCountdownUnit(minutes, 'Minutes'),
+        ];
+
+        countdown.replaceChildren(...units);
+        const reveal = (index) => {
+          if (units[index]) {
+            units[index].classList.add('is-visible');
+          }
+        };
+
+        if (reducedMotion) {
+          units.forEach((unit) => unit.classList.add('is-visible'));
+          return;
+        }
+
+        window.setTimeout(function () { reveal(0); }, 900);
+        window.setTimeout(function () { reveal(1); }, 1050);
+        window.setTimeout(function () { reveal(2); }, 1200);
+      }
+
+      function maybePlayEmbarkTone(now) {
+        const cruiseModeContext = window.RCCLModeContext || {};
+        const cruiseModeEnabled = Boolean(localStorage.getItem('cruise-mode') === 'on'
+          || (cruiseModeContext.mode && cruiseModeContext.mode !== 'before'));
+        const soundOn = localStorage.getItem('sound-enabled') === 'true'
+          || localStorage.getItem('cruise-sound') === 'on';
+        const within24Hours = Math.abs(now.getTime() - sailDate.getTime()) <= (24 * 60 * 60 * 1000);
+        const alreadyPlayed = localStorage.getItem('home-embark-tone-played') === '1';
+        const hasInteracted = localStorage.getItem('cruise-user-interacted') === '1';
+
+        if (!cruiseModeEnabled || !soundOn || !within24Hours || alreadyPlayed || !hasInteracted || reducedMotion) {
+          return;
+        }
+
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        try {
+          const audioContext = new AudioContextClass();
+          const oscillator = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          oscillator.type = 'sawtooth';
+          oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(262, audioContext.currentTime + 0.2);
+          oscillator.frequency.exponentialRampToValueAtTime(329, audioContext.currentTime + 0.4);
+          oscillator.frequency.exponentialRampToValueAtTime(392, audioContext.currentTime + 0.62);
+          gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.06, audioContext.currentTime + 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.65);
+          oscillator.connect(gain);
+          gain.connect(audioContext.destination);
+          oscillator.start();
+          oscillator.stop(audioContext.currentTime + 0.65);
+          localStorage.setItem('home-embark-tone-played', '1');
+        } catch (error) {
+          console.warn('Embark tone unavailable:', error);
+        }
+      }
+
+      function initCinematicHero() {
+        if (!hero) return;
+        const now = new Date();
+        if (phaseBanner) {
+          phaseBanner.textContent = getHomeportStatus(now);
+        }
+
+        if ((window.RCCLModeContext && window.RCCLModeContext.mode && window.RCCLModeContext.mode !== 'before') || localStorage.getItem('cruise-mode') === 'on') {
+          hero.classList.add('is-cruise-mode');
+        }
+
+        if (reducedMotion) {
+          hero.classList.add('is-ready');
+          renderCountdownSequence();
+        } else {
+          window.setTimeout(function () {
+            hero.classList.add('is-ready');
+          }, 150);
+          renderCountdownSequence();
+        }
+        window.setTimeout(function () {
+          if (phaseBanner) {
+            phaseBanner.style.opacity = '1';
+          }
+        }, 1300);
+        maybePlayEmbarkTone(now);
+      }
+
+      const captureInteraction = function () {
+        localStorage.setItem('cruise-user-interacted', '1');
+        document.removeEventListener('pointerdown', captureInteraction);
+        document.removeEventListener('keydown', captureInteraction);
+      };
+
+      document.addEventListener('pointerdown', captureInteraction, { once: true });
+      document.addEventListener('keydown', captureInteraction, { once: true });
+      initCinematicHero();
+
+      const searchInput = document.getElementById('dashboardSearchInput');
+      const searchClear = document.getElementById('dashboardSearchClear');
+      const searchReset = document.getElementById('dashboardSearchReset');
+      const searchStatus = document.getElementById('dashboardSearchStatus');
+      const emptyState = document.getElementById('dashboardSearchEmpty');
+      const tour = document.getElementById('dashboardTour');
+      const dismissTour = document.getElementById('dismissDashboardTour');
+      const collapsibleSections = Array.from(document.querySelectorAll('.mobile-collapsible'));
+      const cards = Array.from(document.querySelectorAll('.deck-cards .deck-card'));
+      const total = cards.length;
+
+      if (!searchInput || !searchStatus || !emptyState || total === 0) {
+        return;
+      }
+
+      const SEARCH_DELAY_MS = 130;
+      let searchTimer;
+
+      function clearDashboardSearch() {
+        searchInput.value = '';
+        updateDashboardSearch();
+        searchInput.focus();
+      }
+
+      function updateDashboardSearch() {
+        const term = searchInput.value.toLowerCase().trim();
+        let visible = 0;
+        if (searchClear) {
+          searchClear.hidden = term.length === 0;
+        }
+
+        searchStatus.classList.add('is-loading');
+        searchStatus.textContent = 'Filtering priorities...';
+
+        clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(function () {
+        cards.forEach((card) => {
+          const cardText = `${card.dataset.search || ''} ${card.textContent || ''}`.toLowerCase();
+          const match = !term || cardText.includes(term);
+          card.hidden = !match;
+          card.style.display = match ? 'flex' : 'none';
+          if (match) visible += 1;
+        });
+
+        searchStatus.textContent = `Showing ${visible} of ${total} priorities`;
+        searchStatus.classList.remove('is-loading');
+        emptyState.hidden = visible !== 0;
+        }, SEARCH_DELAY_MS);
+      }
+
+      searchInput.addEventListener('input', updateDashboardSearch);
+      if (searchClear) {
+        searchClear.addEventListener('click', clearDashboardSearch);
+      }
+      if (searchReset) {
+        searchReset.addEventListener('click', clearDashboardSearch);
+      }
+
+      const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
+      if (!isMobileViewport) {
+        document.addEventListener('keydown', function (e) {
+          if (e.key === '/' && e.target !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+          }
+        });
+      }
+
+      if (tour && dismissTour) {
+        const dismissed = localStorage.getItem('dashboard-tour-dismissed') === '1';
+        if (!dismissed) {
+          tour.hidden = false;
+        }
+        dismissTour.addEventListener('click', function () {
+          localStorage.setItem('dashboard-tour-dismissed', '1');
+          tour.hidden = true;
+        });
+      }
+
+      if (isMobileViewport) {
+        collapsibleSections.forEach((section) => {
+          const header = section.querySelector('.deck-grid__header');
+          if (!header) return;
+          const storageKey = `dashboard-collapsed-${section.getAttribute('aria-label') || 'section'}`;
+          const persistedCollapsed = sessionStorage.getItem(storageKey) === '1';
+          let toggle = header.querySelector('.mobile-collapse-toggle');
+          if (!toggle) {
+            toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'mobile-collapse-toggle';
+            header.appendChild(toggle);
+          }
+
+          if (persistedCollapsed) {
+            section.classList.add('is-collapsed');
+          }
+
+          function syncToggleState() {
+            const collapsed = section.classList.contains('is-collapsed');
+            toggle.innerHTML = collapsed
+              ? '<i class="fas fa-chevron-right" aria-hidden="true"></i> Expand'
+              : '<i class="fas fa-chevron-down" aria-hidden="true"></i> Collapse';
+          }
+          syncToggleState();
+
+          toggle.addEventListener('click', function () {
+            section.classList.toggle('is-collapsed');
+            const collapsed = section.classList.contains('is-collapsed');
+            sessionStorage.setItem(storageKey, collapsed ? '1' : '0');
+            syncToggleState();
+          });
+        });
+      }
+
+      updateDashboardSearch();
+    });
+  </script>
 </body>
 </html>
