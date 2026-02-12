@@ -27,7 +27,113 @@
     <link rel="stylesheet" href="css/mobile-first.css?v=3" />
   <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
     <script src="js/shared-layout.js?v=17" defer></script>
-</head>
+<style>
+  /* Global restraint: Photos page scoped overrides */
+  :root {
+    --shadow-ambient: 0 4px 14px rgba(0,0,0,0.08); /* -25% intensity */
+    --shadow-ambient-soft: 0 2px 8px rgba(0,0,0,0.06);
+    --border-soft: rgba(0,0,0,0.08);
+    --hover-translate: translateY(-2px);
+    --easing-organic: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --motion-duration: 220ms; /* <= 300ms */
+  }
+
+  /* Typography weights: prefer 500, reserve 600 for the single page headline */
+  .photos-page h1 { font-weight: 600; }
+  .photos-page h2, .photos-page h3, .photos-page h4, .photos-page .featured-title { font-weight: 500; }
+
+  /* Shadows: softened everywhere */
+  .photos-page .photo-card,
+  .photos-page .list-item,
+  .photos-page .featured-card,
+  .photos-page .quick-link-card {
+    box-shadow: var(--shadow-ambient);
+    border: 1px solid var(--border-soft);
+  }
+
+  /* Borders: no hard borders */
+  .photos-page .hero-chip,
+  .photos-page .mini-chip,
+  .photos-page .meta-tag,
+  .photos-page .source-badge {
+    border: 1px solid var(--border-soft);
+  }
+
+  /* Gradients: flatten decorative ones; keep primary action only (none here) */
+  .photos-page .featured-card__overlay { background: rgba(0,0,0,0.10); }
+
+  /* Hover lift: max 2px; remove scale */
+  .photos-page .photo-card,
+  .photos-page .list-item,
+  .photos-page .featured-card,
+  .photos-page .quick-link-card {
+    transition: opacity var(--motion-duration) var(--easing-organic),
+                transform var(--motion-duration) var(--easing-organic),
+                box-shadow var(--motion-duration) var(--easing-organic);
+    transform: translateY(0);
+  }
+  .photos-page .photo-card:hover,
+  .photos-page .photo-card:focus,
+  .photos-page .list-item:hover,
+  .photos-page .list-item:focus,
+  .photos-page .featured-card:hover,
+  .photos-page .featured-card:focus,
+  .photos-page .quick-link-card:hover,
+  .photos-page .quick-link-card:focus {
+    transform: var(--hover-translate);
+    box-shadow: var(--shadow-ambient-soft);
+  }
+
+  /* Chips/badges: quieter */
+  .photos-page .hero-chip,
+  .photos-page .mini-chip,
+  .photos-page .meta-tag,
+  .photos-page .source-badge {
+    background: rgba(0,0,0,0.03);
+    color: var(--royal-ink, #1a2b44);
+    box-shadow: none;
+  }
+  .photos-page .source-badge { opacity: 0.75; }
+
+  /* Dividers: lighter and more spacing */
+  .photos-page .gallery-info-bar { border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; margin-bottom: 16px; }
+
+  /* Sticky UI: ensure nothing is sticky on this page */
+  .photos-page .gallery-controls,
+  .photos-page .featured-strip,
+  .photos-page .photo-library-page [style*="position: sticky"],
+  .photos-page [data-sticky],
+  .photos-page .sticky { position: static !important; top: auto !important; }
+
+  /* Motion limits */
+  .photos-page * { transition-property: opacity, transform, box-shadow, border-color, background-color; transition-duration: var(--motion-duration); transition-timing-function: var(--easing-organic); }
+
+  /* Reduce interactive energy: softer list/grid emphasis */
+  .photos-page .gallery-grid .photo-card__image,
+  .photos-page .gallery-list .list-item__image { border-radius: 10px; }
+
+  /* Quiet view toggle and filters */
+  .photos-page .gallery-filters .filter-btn,
+  .photos-page .gallery-view-toggle .view-btn { box-shadow: none; border: 1px solid var(--border-soft); background: rgba(0,0,0,0.02); }
+  .photos-page .gallery-filters .filter-btn.active,
+  .photos-page .gallery-view-toggle .view-btn.active { background: rgba(0,0,0,0.04); }
+
+  /* Reduce hover emphasis on thumbnails; no scale */
+  .photos-page .featured-card__img,
+  .photos-page .photo-card__image,
+  .photos-page .list-item__image { transition: opacity var(--motion-duration) var(--easing-organic); }
+  .photos-page .featured-card:hover .featured-card__img,
+  .photos-page .photo-card:hover .photo-card__image,
+  .photos-page .list-item:hover .list-item__image { opacity: 0.96; }
+
+  /* Lived-in feel: soften hero and featured spacing/shadows */
+  .photos-page .photo-hero__inner { box-shadow: none; }
+  .photos-page .featured-strip__inner { box-shadow: none; }
+
+  /* Ensure no heavy frosted/glass dominance in bottom nav */
+  .photos-page #sharedBottomNav { backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: var(--shadow-ambient-soft); border-top: 1px solid var(--border-soft); opacity: 0.96; }
+</style>
+  </head>
 
   <body class="app-theme-rcc gallery-grid-view photos-page">
     <!-- Shared header injected by shared-layout.js -->
@@ -164,7 +270,7 @@
           <div class="lightbox__left">
             <p class="lightbox__title" id="lightboxTitle">—</p>
             <p class="lightbox__desc" id="lightboxDescription">—</p>
-            <span class="lightbox__counter" id="lightboxCounter">
+            <span class="lightbox__counter" id="lightboxCounterText">
               <i class="fas fa-hashtag" aria-hidden="true"></i> <span id="lightboxCounterText">—</span>
             </span>
           </div>
@@ -606,6 +712,17 @@
         updateHeroStats();
         sortSelect.value = "name";
         render();
+
+        // Soften focus outlines on cards while preserving accessibility
+        document.querySelectorAll('.photo-card, .list-item, .featured-card, .quick-link-card').forEach(el => {
+          el.addEventListener('focus', () => el.style.boxShadow = 'var(--shadow-ambient-soft)');
+          el.addEventListener('blur', () => el.style.boxShadow = 'var(--shadow-ambient)');
+        });
+
+        // Ensure no scale transforms are applied inadvertently
+        const style = document.createElement('style');
+        style.textContent = '.photos-page * { transform: translateZ(0) translateY(0); }';
+        document.head.appendChild(style);
       });
     </script>
   </body>

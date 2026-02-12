@@ -19,8 +19,78 @@
   <link rel="stylesheet" href="css/components.css?v=3">
     <link rel="stylesheet" href="css/feature-modules.css?v=3">
     <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <script src="js/shared-layout.js?v=17" defer></script>
   <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
+  <style>
+    :root { 
+      /* Global tint bias: -10%..+10% strength; default 0% */
+      --tint-bias: 0%;
+      /* Cool/Warm anchors used for biasing */
+      --tint-cool: hsl(220 90% 60%);
+      --tint-warm: hsl(30 95% 60%);
+    }
+
+    /* Utility to bias a base color with the global tint bias toward cool/warm anchors */
+    @supports (color: color-mix(in oklab, black, white)) {
+      :root { --tint-mode: 'oklab'; }
+    }
+    @supports not (color: color-mix(in oklab, black, white)) {
+      :root { --tint-mode: 'srgb'; }
+    }
+
+    /* Reusable mix function via custom properties */
+    .itinerary-page { /* scope not required, but ensures no leakage */ }
+
+    /* Itinerary narrative spacing and cue */
+    .itinerary-page .itinerary-day { margin: 36px 0 48px; padding-top: 8px; position: relative; }
+    .itinerary-page .itinerary-day::before { content: ""; position: absolute; left: -12px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, rgba(0,0,0,0.06), rgba(0,0,0,0)); border-radius: 2px; }
+    @media (min-width: 768px) { .itinerary-page .itinerary-day::before { left: -16px; } }
+    /* Softer headings */
+    .itinerary-page .itinerary-day__title, .itinerary-page .timeline-section__title, .itinerary-page .info-card__title { font-weight: 500; }
+    /* Today emphasis and others slightly softer */
+    .itinerary-page .itinerary-day[data-today="true"] { opacity: 1; }
+    .itinerary-page .itinerary-day:not([data-today="true"]) { opacity: 0.9; }
+    /* Subtle transitions only */
+    .itinerary-page .itinerary-day, .itinerary-page .timeline-item, .itinerary-page .info-card { transition: opacity 220ms cubic-bezier(0.22,0.61,0.36,1), transform 220ms cubic-bezier(0.22,0.61,0.36,1); }
+    /* Remove hard dividers feel by softening borders in cards */
+    .itinerary-page .timeline, .itinerary-page .info-card { border-color: rgba(0,0,0,0.08); }
+    /* Today pulse hook already present; keep it subtle */
+    .itinerary-page .itinerary-day--today-pulse { box-shadow: 0 6px 18px rgba(0,0,0,0.10); }
+
+    .itinerary-page .itinerary-day[data-day-type="port"] {
+      /* Base: warm amber; bias toward cool/warm using --tint-bias */
+      --base: rgb(255 184 76);
+      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
+      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
+      border-radius: 12px;
+    }
+
+    .itinerary-page .itinerary-day[data-day-type="sea"] {
+      /* Base: cool blue; bias toward cool/warm using --tint-bias */
+      --base: rgb(120 170 255);
+      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
+      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
+      border-radius: 12px;
+    }
+
+    .itinerary-page .itinerary-day[data-day-type="embark"] {
+      /* Base: peach */
+      --base: rgb(255 214 150);
+      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
+      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
+      border-radius: 12px;
+    }
+
+    .itinerary-page .itinerary-day[data-day-type="disembark"] {
+      /* Base: neutral gray */
+      --base: rgb(200 200 200);
+      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
+      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
+      border-radius: 12px;
+    }
+
+    .itinerary-page .itinerary-day { padding: 12px 12px 16px; }
+  </style>
+  <script src="js/shared-layout.js?v=17" defer></script>
 </head>
 <body class="app-theme-rcc itinerary-page page-shell">
     <a href="#main" class="skip-link">Skip to main content</a>
@@ -32,7 +102,7 @@
         <div class="container">
             <div class="hero__content">
                 <span class="hero__badge">7-Day Western Caribbean</span>
-                <h1 class="hero__title">Itinerary</h1>
+                <h1 class="hero__title heading--primary">Itinerary</h1>
                 <p class="hero__contextline" id="cruiseModeLine">Your complete day-by-day cruise flow.</p>
             </div>
         </div>
@@ -50,17 +120,6 @@
                         <button class="btn btn--secondary btn--icon" type="button" id="shareItineraryBtn">
                             <i class="fas fa-share-alt"></i> Share itinerary
                         </button>
-                        <details class="more-menu">
-                            <summary class="btn btn--secondary btn--icon more-menu__summary">
-                                <i class="fas fa-ellipsis"></i> More
-                            </summary>
-                            <div class="more-menu__dropdown">
-                                <button type="button" id="printItineraryBtn">Print itinerary</button>
-                                <button type="button" id="savePDFBtn">Save as PDF</button>
-                                <button type="button" id="addToCalendarBtn">Add to calendar</button>
-                                <button type="button" id="emailItineraryBtn">Email itinerary</button>
-                            </div>
-                        </details>
                         <button class="btn btn--secondary btn--icon" type="button" data-modal-open="itineraryLegendModal">
                             <i class="fas fa-circle-info"></i> View Tag Legend
                         </button>
@@ -95,7 +154,7 @@
             <!-- Itinerary Days -->
             <div class="itinerary-days">
                 <!-- Day 1 -->
-                <div class="itinerary-day" data-day="1">
+                <div class="itinerary-day" data-day="1" data-day-type="embark">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 1 • Saturday, February 14</h2>
@@ -161,7 +220,7 @@
                 </div>
 
                 <!-- Day 2 -->
-                <div class="itinerary-day" data-day="2" style="display: none;">
+                <div class="itinerary-day" data-day="2" data-day-type="sea" style="display: none;">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 2 • Sunday, February 15</h2>
@@ -218,7 +277,7 @@
                 </div>
 
                 <!-- Day 3 -->
-                <div class="itinerary-day" data-day="3" style="display: none;">
+                <div class="itinerary-day" data-day="3" data-day-type="port" style="display: none;">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 3 • Monday, February 16</h2>
@@ -266,7 +325,7 @@
                 </div>
 
                 <!-- Day 4 -->
-                <div class="itinerary-day" data-day="4" style="display: none;">
+                <div class="itinerary-day" data-day="4" data-day-type="port" style="display: none;">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 4 • Tuesday, February 17</h2>
@@ -312,7 +371,7 @@
                 </div>
 
                 <!-- Day 5 -->
-                <div class="itinerary-day" data-day="5" style="display: none;">
+                <div class="itinerary-day" data-day="5" data-day-type="sea" style="display: none;">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 5 • Wednesday, February 18</h2>
@@ -357,7 +416,7 @@
                 </div>
 
                 <!-- Day 6 -->
-                <div class="itinerary-day" data-day="6" style="display: none;">
+                <div class="itinerary-day" data-day="6" data-day-type="port" style="display: none;">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 6 • Thursday, February 19</h2>
@@ -403,7 +462,7 @@
                 </div>
 
                 <!-- Day 7 -->
-                <div class="itinerary-day" data-day="7" style="display: none;">
+                <div class="itinerary-day" data-day="7" data-day-type="disembark" style="display: none;">
                     <div class="itinerary-day__header">
                         <div>
                             <h2 class="itinerary-day__title">Day 7 • Friday, February 20</h2>
@@ -623,6 +682,45 @@
                     window.location.href = `mailto:?subject=${encodeURIComponent('Cruise Itinerary')}&body=${encodeURIComponent(window.location.href)}`;
                 });
             }
+
+            // Time-of-day tint bias: cooler at night, warmer during the day
+            (function applyTintBias() {
+                const hour = new Date().getHours(); // local time
+                // Map hours to a bias in the range [-0.10, +0.10]
+                // Night (20:00–6:59) -> -8% to -10% (cooler)
+                // Day (10:00–16:59) -> +6% to +10% (warmer)
+                // Shoulder hours ease between
+                let bias = 0; // default 0%
+                if (hour >= 20 || hour < 7) {
+                    // night window
+                    // 20->-0.08 trending to 2am -0.10 then back to 6am -0.08
+                    const nightProgress = hour >= 20 ? (hour - 20) / 10 : (hour + 4) / 10; // 0..1
+                    const down = -0.08 - 0.02 * Math.sin(nightProgress * Math.PI); // -0.08..-0.10..-0.08
+                    bias = down;
+                } else if (hour >= 10 && hour < 17) {
+                    // day peak
+                    const dayProgress = (hour - 10) / 7; // 0..1
+                    const up = 0.06 + 0.04 * Math.sin(dayProgress * Math.PI); // 0.06..0.10..0.06
+                    bias = up;
+                } else if (hour >= 7 && hour < 10) {
+                    // morning ramp 7..10 -> -0.02..+0.06
+                    const t = (hour - 7) / 3;
+                    bias = -0.02 + t * (0.06 + 0.02);
+                } else {
+                    // evening ramp 17..20 -> +0.06..-0.02
+                    const t = (hour - 17) / 3;
+                    bias = 0.06 + ( -0.02 - 0.06) * t;
+                }
+                // Clamp for safety to [-0.10, 0.10]
+                bias = Math.max(-0.10, Math.min(0.10, bias));
+                // Set CSS variable as percentage string for color-mix weights
+                const percent = Math.round(bias * 100);
+                document.documentElement.style.setProperty('--tint-bias', percent + '%');
+                // Optional: expose a data attribute for inspection
+                document.documentElement.setAttribute('data-tint-period',
+                    percent < 0 ? 'cool' : percent > 0 ? 'warm' : 'neutral'
+                );
+            })();
 
             const context = getCruiseDayContext();
             todayDay = String(context.day);
