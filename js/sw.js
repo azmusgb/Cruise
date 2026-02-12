@@ -1,4 +1,4 @@
-const SW_VERSION = '2026-02-10-v1';
+const SW_VERSION = '2026-02-12-v2';
 const STATIC_CACHE = `cruise-static-${SW_VERSION}`;
 const RUNTIME_CACHE = `cruise-runtime-${SW_VERSION}`;
 const OFFLINE_URL = '../offline.html';
@@ -135,7 +135,7 @@ async function handleNavigationRequest(event) {
 
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request, { ignoreSearch: true });
+  const cached = await cache.match(request);
 
   const networkFetch = fetch(request)
     .then((response) => {
@@ -153,7 +153,7 @@ async function staleWhileRevalidate(request, cacheName) {
 
 async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request, { ignoreSearch: true });
+  const cached = await cache.match(request);
   if (cached) return cached;
 
   try {

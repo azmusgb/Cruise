@@ -45,7 +45,7 @@ Users can still upload device-only deck plans in the UI; those are local and not
 If you have styles spread across `<style>` blocks in multiple HTML files, use:
 
 ```bash
-./merge-inline-styles.sh styles.css '*.html'
+./merge-inline-styles.sh css/inline-merged.css '*.html'
 ```
 
 The script will:

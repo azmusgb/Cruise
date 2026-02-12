@@ -15,7 +15,7 @@
   <!-- Premium fonts & icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="js/shared-layout.js?v=16" defer></script>
+  <script src="js/shared-layout.js?v=17" defer></script>
   
   <!-- Base styles (condensed, polished) -->
   <style>
@@ -94,10 +94,7 @@
       font-size: var(--type-title-xl);
       font-weight: 800;
       line-height: 1.07;
-      background: linear-gradient(to right, #08395f, #0c5f8a);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 8px 14px rgba(8, 65, 102, 0.08);
+      color: #08395f;
       margin-bottom: 12px;
       letter-spacing: -0.01em;
     }
@@ -202,25 +199,78 @@
       scrollbar-width: thin;
       scrollbar-color: var(--accent) #e3ecf2;
     }
-    .deck-quickbtn {
+    .deck-quickbtn,
+    .deck-pill {
       background: white;
       border: 1px solid rgba(0,82,165,0.1);
       border-radius: 28px;
       padding: 12px 22px;
       font-weight: 700;
       color: #0a2a4a;
-      transition: all 0.28s cubic-bezier(0.18,0.89,0.32,1.28);
-      box-shadow: 0 8px 14px rgba(0,60,120,0.06);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,60,120,0.06);
       border: none;
       background: linear-gradient(145deg, #ffffff, #f5fcff);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
     }
-    .deck-quickbtn:hover { transform: translateY(-4px) scale(1.02); background: white; box-shadow: 0 20px 28px -6px rgba(0,121,212,0.3); }
-    .deck-quickbtn.is-active { background: var(--accent); color: white; box-shadow: 0 8px 24px rgba(0,121,212,0.25); border: none; transform: translateY(-2px); }
+    .deck-quickbtn:hover,
+    .deck-pill:hover {
+      transform: translateY(-2px);
+      background: white;
+      box-shadow: 0 12px 20px -8px rgba(0,121,212,0.24);
+    }
+    .deck-quickbtn.is-active,
+    .deck-pill.is-active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 18px rgba(0,121,212,0.25);
+      border: none;
+      transform: translateY(-1px);
+    }
     .deck-quickbtn__num { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
-    .deck-quickbtn.is-active .deck-quickbtn__num, .deck-quickbtn.is-active .deck-quickbtn__sub { color: white; }
+    .deck-quickbtn.is-active .deck-quickbtn__num,
+    .deck-quickbtn.is-active .deck-quickbtn__sub,
+    .deck-pill.is-active .deck-pill__number,
+    .deck-pill.is-active .deck-pill__text { color: white; }
     .deck-quickbtn__sub { font-size: 0.75rem; opacity: 0.8; font-weight: 500; }
 
     /* ———— CATEGORY PILLS ———— */
+    .deck-directory__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .deck-directory__title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0d3f64;
+      letter-spacing: -0.01em;
+    }
+    .deck-directory__toggle {
+      border: 1px solid rgba(0,121,212,0.22);
+      background: #f5fcff;
+      color: #0b4a72;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .deck-directory__toggle[aria-expanded="true"] i {
+      transform: rotate(180deg);
+    }
+    .deck-directory__toggle i {
+      transition: transform 180ms ease;
+      margin-left: 6px;
+    }
+    .deck-directory__panels[hidden] {
+      display: none;
+    }
     .category-card {
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(12px);
@@ -231,25 +281,25 @@
       box-shadow: 0 8px 24px rgba(0,30,60,0.04);
     }
     .category-card__heading {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 12px;
+      color: #0f446a;
+    }
+    .category-card__heading i {
+      color: #0a7fb1;
+      font-size: 1.1rem;
     }
     .deck-pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
     .deck-pill {
-      background: white;
-      border: none;
-      border-radius: 100px;
-      padding: 12px 24px;
-      font-weight: 600;
-      color: #10436b;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-      transition: 0.2s;
-      border: 1px solid rgba(0,121,212,0.2);
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 700;
     }
-    .deck-pill:hover { background: var(--accent); color: white; border-color: white; transform: scale(1.02); }
+    .deck-pill__number { font-size: 0.82rem; opacity: 0.85; }
+    .deck-pill__text { font-size: 0.82rem; }
 
     /* ———— DECK CARDS ———— */
     .deck-cards {
@@ -266,13 +316,13 @@
       gap: 20px;
       border: 1px solid rgba(0,80,130,0.08);
       transition: all 0.35s cubic-bezier(0.18,0.89,0.32,1.28);
-      box-shadow: 0 8px 28px -8px rgba(0,50,90,0.08);
+      box-shadow: 0 8px 22px -10px rgba(0,50,90,0.14);
       backdrop-filter: blur(4px);
     }
     .deck-card:hover {
-      transform: translateY(-8px);
+      transform: translateY(-4px);
       border-color: var(--accent);
-      box-shadow: 0 32px 44px -12px rgba(0,121,212,0.32);
+      box-shadow: 0 20px 30px -14px rgba(0,121,212,0.28);
     }
     .deck-visual {
       position: relative;
@@ -347,9 +397,7 @@
       font-weight: 800;
       line-height: 1.15;
       letter-spacing: -0.012em;
-      background: linear-gradient(145deg, #0a344f, #003057);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #0a344f;
     }
 
     .deck-grid__counts {
@@ -444,18 +492,22 @@
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(24px);
       padding: 16px 28px;
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 12px;
       border-bottom: 1px solid rgba(0,82,165,0.1);
     }
-    .toolbar-group { display: flex; gap: 10px; }
+    .toolbar-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .toolbar-group--primary { justify-content: flex-start; }
+    .toolbar-group--secondary { justify-content: flex-end; }
     .btn-icon, .labeled-btn {
       background: white; border: none; padding: 12px 16px; border-radius: 40px;
       font-weight: 600; display: flex; align-items: center; gap: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.02);
       transition: 0.2s;
     }
-    .btn-icon:hover, .labeled-btn:hover { background: var(--accent); color: white; transform: scale(0.96); }
+    .btn-icon:hover, .labeled-btn:hover { background: var(--accent); color: white; transform: translateY(-1px); }
     .btn-icon:active, .labeled-btn:active {
       transform: scale(0.92);
       box-shadow: 0 2px 6px rgba(0,0,0,0.12);
@@ -520,11 +572,11 @@
       box-shadow: 0 8px 18px rgba(0, 121, 212, 0.22);
     }
     .deck-plan-stage {
-      background: linear-gradient(165deg, #0e3e63 0%, #10628d 34%, #0a5278 100%);
+      background: linear-gradient(165deg, #2f85b3 0%, #47a7cf 40%, #2f95bf 100%);
       border-radius: 32px;
       margin-top: 18px;
-      border: 1px solid rgba(187, 230, 255, 0.55);
-      box-shadow: inset 0 0 0 1px rgba(197, 235, 255, 0.32), 0 18px 32px -12px rgba(8, 62, 96, 0.45);
+      border: 1px solid rgba(234, 250, 255, 0.65);
+      box-shadow: inset 0 0 0 1px rgba(225, 246, 255, 0.38), 0 14px 26px -12px rgba(8, 62, 96, 0.38);
       position: relative;
       overflow: auto;
       padding: 20px;
@@ -622,6 +674,8 @@
     @media (max-width: 700px) {
       .deck-cards { grid-template-columns: 1fr; }
       .main-navigation { border-radius: 28px; }
+      .main-navigation__hint { display: none; }
+      .deck-directory { margin-top: 16px; }
       .deck-modal__dialog {
         width: calc(100vw - 20px);
         border-radius: 26px;
@@ -629,15 +683,33 @@
       }
       .deck-modal__toolbar {
         padding: 12px 14px;
-        gap: 6px;
+        gap: 8px;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          "controls close"
+          "utility utility";
       }
       .toolbar-group {
         gap: 6px;
+      }
+      .toolbar-group--primary {
+        grid-area: controls;
+      }
+      .toolbar-group--secondary {
+        grid-area: utility;
+        justify-content: flex-start;
+      }
+      .close-btn {
+        grid-area: close;
+        justify-self: end;
       }
       .btn-icon,
       .labeled-btn {
         padding: 10px 12px;
         border-radius: 28px;
+      }
+      .labeled-btn .btn-label {
+        font-size: 0.78rem;
       }
       .deck-modal__body {
         padding: 16px;
@@ -651,7 +723,7 @@
       }
     }
     .deck-hero__actions { margin-top: 16px; }
-    .deck-hero__actions .btn { background: white; color: #0c4d75; border-radius: 48px; padding: 14px 32px; font-weight: 700; margin-right: 12px; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 8px 18px rgba(0, 83, 126, 0.12); }
+    .deck-hero__actions .btn { background: white; color: #0c4d75; border-radius: 48px; padding: 14px 32px; font-weight: 700; margin-right: 12px; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 6px 14px rgba(0, 83, 126, 0.1); }
     .btn--primary { background: var(--warm-gold) !important; color: #0a375a !important; box-shadow: 0 8px 20px rgba(255,180,70,0.28); }
     .deck-hero__btn-secondary { background: rgba(255,255,255,0.72) !important; color: #0b547d !important; }
     .bottom-nav__item {
@@ -721,18 +793,26 @@
 
     <!-- CATEGORY PILLS (DYNAMIC) -->
     <section id="deck-directory" class="deck-directory container">
-      <article class="category-card" data-category="entertainment">
-        <div class="category-card__heading"><span>🎭</span> Entertainment Decks</div>
-        <div class="deck-pills" id="pill-entertainment"></div>
-      </article>
-      <article class="category-card" data-category="wellness">
-        <div class="category-card__heading"><span>🧘</span> Wellness Decks</div>
-        <div class="deck-pills" id="pill-wellness"></div>
-      </article>
-      <article class="category-card" data-category="essential">
-        <div class="category-card__heading"><span>🧭</span> Essential Decks</div>
-        <div class="deck-pills" id="pill-essential"></div>
-      </article>
+      <div class="deck-directory__header">
+        <h2 class="deck-directory__title">Browse by category</h2>
+        <button id="toggleCategoryBrowse" class="deck-directory__toggle" type="button" aria-expanded="false" aria-controls="deckCategoryPanels">
+          Show categories <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="deckCategoryPanels" class="deck-directory__panels" hidden>
+        <article class="category-card" data-category="entertainment">
+          <div class="category-card__heading"><i class="fas fa-masks-theater" aria-hidden="true"></i> Entertainment Decks</div>
+          <div class="deck-pills" id="pill-entertainment"></div>
+        </article>
+        <article class="category-card" data-category="wellness">
+          <div class="category-card__heading"><i class="fas fa-spa" aria-hidden="true"></i> Wellness Decks</div>
+          <div class="deck-pills" id="pill-wellness"></div>
+        </article>
+        <article class="category-card" data-category="essential">
+          <div class="category-card__heading"><i class="fas fa-compass" aria-hidden="true"></i> Essential Decks</div>
+          <div class="deck-pills" id="pill-essential"></div>
+        </article>
+      </div>
     </section>
 
     <!-- DECK GRID (ENHANCED) -->
@@ -759,7 +839,7 @@
     <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="deck-vertical-indicator" id="deckVerticalIndicator"></div>
       <div class="deck-modal__toolbar">
-        <div class="toolbar-group">
+        <div class="toolbar-group toolbar-group--primary">
           <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
           <button class="btn-icon" data-action="next-deck" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
           <button class="btn-icon" data-action="zoom-in" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
@@ -767,9 +847,9 @@
           <button class="btn-icon" data-action="zoom-reset" aria-label="Reset view"><i class="fas fa-rotate-left"></i></button>
           <span class="zoom-level" id="zoomLevel">100%</span>
         </div>
-        <div class="toolbar-group">
-          <button class="labeled-btn" data-action="center-me"><i class="fas fa-location-dot"></i> My Location</button>
-          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF</a>
+        <div class="toolbar-group toolbar-group--secondary">
+          <button class="labeled-btn" data-action="center-me"><i class="fas fa-location-dot"></i> <span class="btn-label">My Location</span></button>
+          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> <span class="btn-label">PDF</span></a>
         </div>
         <button class="close-btn" data-action="close-modal" aria-label="Close"><i class="fas fa-times"></i></button>
       </div>
@@ -855,6 +935,8 @@
         countVisible: document.getElementById('countVisible'),
         countTotal: document.getElementById('countTotal'),
         clearFilters: document.getElementById('clearFilters'),
+        categoryToggle: document.getElementById('toggleCategoryBrowse'),
+        categoryPanels: document.getElementById('deckCategoryPanels'),
         modal: document.getElementById('deckModal'),
         modalFrame: document.getElementById('modalFrame'),
         modalTitle: document.getElementById('modalTitle'),
@@ -1199,6 +1281,16 @@
         });
 
         els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderDeckCards(); });
+
+        if (els.categoryToggle && els.categoryPanels) {
+          els.categoryToggle.addEventListener('click', () => {
+            const expanded = els.categoryToggle.getAttribute('aria-expanded') === 'true';
+            const next = !expanded;
+            els.categoryToggle.setAttribute('aria-expanded', String(next));
+            els.categoryPanels.hidden = !next;
+            els.categoryToggle.innerHTML = `${next ? 'Hide categories' : 'Show categories'} <i class="fas fa-chevron-down" aria-hidden="true"></i>`;
+          });
+        }
       }
 
       function init() {

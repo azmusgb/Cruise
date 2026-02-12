@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0079d4">
+  <meta name="theme-color" content="#cfeaff">
   <title>Game Plan | Adventure of the Seas</title>
   <meta name="description" content="Your cruise command hub for what to do next before sail-away and during onboard days.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,29 +12,97 @@
   <link rel="stylesheet" href="css/utilities.css?v=3">
   <link rel="stylesheet" href="css/components.css?v=3">
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <script src="js/shared-layout.js?v=16" defer></script>
+  <script src="js/shared-layout.js?v=17" defer></script>
   <style>
+    .plan-page {
+      position: relative;
+      background: linear-gradient(180deg, #eef8ff 0%, #def1ff 52%, #cfeaff 78%, #c3e7fd 100%);
+      color: #133553;
+      min-height: 100vh;
+    }
+
+    .plan-page::before {
+      content: "";
+      position: fixed;
+      left: -10%;
+      right: -10%;
+      bottom: -6%;
+      height: 42vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.18;
+      background:
+        radial-gradient(120% 90% at 50% 100%, rgba(0, 164, 216, 0.45), rgba(0, 164, 216, 0) 62%),
+        radial-gradient(80% 70% at 40% 100%, rgba(255, 206, 132, 0.55), rgba(255, 206, 132, 0) 66%);
+      animation: planDrift 26s linear infinite;
+    }
+
+    @keyframes planDrift {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(-1.8%); }
+      100% { transform: translateX(0); }
+    }
+
     .plan-page .hero--plan {
-      background: transparent;
-      padding: 0;
+      background: linear-gradient(180deg, #eaf6ff 0%, #cfeaff 64%, #bde5ff 100%);
+      border-radius: 0 0 34px 34px;
+      border-bottom: 1px solid rgba(0, 121, 212, 0.16);
+      box-shadow: 0 12px 24px rgba(0, 64, 110, 0.1);
+      padding: 54px 0 36px;
       margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-page .hero--plan::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 16%, rgba(255, 255, 255, 0.5) 0%, transparent 42%),
+        radial-gradient(circle at 80% 84%, rgba(255, 208, 132, 0.34) 0%, transparent 46%);
+      pointer-events: none;
+    }
+
+    .plan-page .hero--plan .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .plan-page .hero__eyebrow {
+      color: #0c5a86;
+      letter-spacing: 0.02em;
+    }
+
+    .plan-page .hero__title {
+      color: #083e64;
+      text-shadow: none;
+    }
+
+    .plan-page .hero__description {
+      color: rgba(12, 69, 102, 0.9);
+      max-width: 620px;
+      font-weight: 500;
     }
 
     .plan-page .plan-band {
       margin-bottom: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(0, 82, 165, 0.14);
-      background: #fff;
-      box-shadow: 0 10px 24px rgba(5, 24, 46, 0.08);
+      border-radius: 22px;
+      border: 1px solid rgba(0, 121, 212, 0.14);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 14px 28px rgba(5, 54, 92, 0.08);
       overflow: hidden;
+      backdrop-filter: blur(4px);
+      position: relative;
+      z-index: 1;
     }
 
     .plan-page .plan-band--top {
-      background: linear-gradient(135deg, rgba(11, 79, 144, 0.08), rgba(25, 194, 255, 0.06), #fff 62%);
+      background: linear-gradient(145deg, rgba(11, 79, 144, 0.06), rgba(25, 194, 255, 0.08), rgba(255, 255, 255, 0.95) 62%);
     }
 
     .plan-page .plan-band--embark {
-      background: linear-gradient(135deg, rgba(255, 201, 58, 0.14), rgba(255, 255, 255, 0.9) 42%);
+      background: linear-gradient(145deg, rgba(255, 201, 58, 0.16), rgba(255, 255, 255, 0.92) 44%);
       border-color: rgba(255, 176, 32, 0.26);
     }
 
@@ -50,7 +118,7 @@
 
     .plan-page .plan-band__title {
       margin: 0 0 4px;
-      color: #0d426f;
+      color: #0d446c;
       font-size: 1.2rem;
       display: inline-flex;
       align-items: center;
@@ -73,11 +141,17 @@
     }
 
     .plan-card {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.97);
       border: 1px solid rgba(0, 82, 165, 0.14);
       border-radius: 16px;
       padding: 14px;
-      box-shadow: 0 10px 24px rgba(5, 24, 46, 0.08);
+      box-shadow: 0 10px 20px rgba(5, 54, 92, 0.08);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .plan-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 26px rgba(5, 54, 92, 0.12);
     }
 
     .plan-card h3 {
@@ -122,11 +196,17 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    }
+
+    .plan-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0, 96, 160, 0.16);
     }
 
     .plan-link--primary {
-      background: #005fb0;
-      border-color: #005fb0;
+      background: #0072bf;
+      border-color: #0072bf;
       color: #fff;
     }
 
@@ -163,7 +243,7 @@
       width: 100%;
       height: 12px;
       border-radius: 999px;
-      background: rgba(0, 82, 165, 0.12);
+      background: rgba(0, 82, 165, 0.1);
       overflow: hidden;
     }
 
@@ -179,8 +259,23 @@
         border-radius: 16px;
       }
 
+      .plan-page .hero--plan {
+        border-radius: 0 0 24px 24px;
+        padding: 38px 0 22px;
+      }
+
       .plan-page .plan-band__title {
         font-size: 1.1rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .plan-page::before {
+        animation: none;
+      }
+      .plan-card,
+      .plan-link {
+        transition: none;
       }
     }
   </style>

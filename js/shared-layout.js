@@ -2465,6 +2465,13 @@
     }
     window.RCCLModeContext = modeContext;
     document.documentElement.dataset.cruiseMode = modeContext.mode;
+    document.documentElement.dataset.cruiseDay = String(modeContext.day || 1);
+    document.documentElement.dataset.dayPart = getDayPart(new Date());
+    if (modeContext.mode === 'port' && Number(modeContext.day) === 6) {
+      document.documentElement.dataset.portTheme = 'cococay';
+    } else {
+      document.documentElement.dataset.portTheme = modeContext.mode === 'port' ? 'port' : 'none';
+    }
     document.dispatchEvent(new CustomEvent('rccl:mode-change', { detail: modeContext }));
 
     const moreDrawer = utils.qs('#moreDrawer');
@@ -2700,6 +2707,13 @@
     return 'Boarding soon · lock final details';
   }
 
+  function getDayPart(now) {
+    const hour = now.getHours();
+    if (hour < 12) return 'morning';
+    if (hour < 17) return 'afternoon';
+    return 'evening';
+  }
+
   // ---------------------------
   // Scroll Behavior
   // ---------------------------
@@ -2879,9 +2893,26 @@
   // ---------------------------
   function initServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
+    if (!window.isSecureContext) {
+      console.info('Service worker skipped: secure context required (HTTPS or localhost).');
+      return;
+    }
+    if (location.protocol === 'file:') {
+      console.info('Service worker skipped: file:// previews are not supported.');
+      return;
+    }
 
     window.addEventListener('load', () => {
       let refreshing = false;
+
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || '';
+          if (scriptUrl.includes('/js/sw.js')) {
+            registration.unregister().catch(() => {});
+          }
+        });
+      }).catch(() => {});
 
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
@@ -2899,7 +2930,7 @@
       });
 
       navigator.serviceWorker
-        .register('js/sw.js', { scope: './' })
+        .register('./sw.js')
         .then((registration) => {
           if (registration.waiting) {
             registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -2920,7 +2951,13 @@
           }, 60 * 60 * 1000);
         })
         .catch((error) => {
-          console.warn('Service worker registration failed:', error);
+          const name = error && error.name ? String(error.name) : '';
+          const message = (error && error.message) ? error.message : String(error);
+          if (name === 'SecurityError' || /Scope URL should start with the given script URL/i.test(message)) {
+            console.info('Service worker skipped: host scope policy rejected registration.');
+            return;
+          }
+          console.info(`Service worker skipped: ${message}`);
         });
     });
   }
