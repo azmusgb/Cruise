@@ -41,13 +41,28 @@
       --transition-magic: 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
     }
     .container { max-width: 1400px; margin: 0 auto; padding: 0 28px; width: 100%; }
+    .decks-shell {
+      position: relative;
+      isolation: isolate;
+    }
+    .decks-shell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(0,121,212,0.05), transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(0,121,212,0.04), transparent 50%);
+    }
+    .decks-shell > * { position: relative; z-index: 1; }
     @media (max-width: 640px) { .container { padding: 0 20px; } }
 
     /* ———— SCULPTED HERO ———— */
     .deck-hero {
       background: radial-gradient(140% 100% at 50% 0%, #0a263b 0%, #061a2c 100%);
       border-radius: 0 0 48px 48px;
-      padding: 48px 0 56px;
+      padding: 72px 24px 64px;
       margin-bottom: 16px;
       color: white;
       box-shadow: 0 16px 40px rgba(0,20,50,0.4);
@@ -72,7 +87,7 @@
     }
     .deck-hero__title {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: clamp(2.4rem, 8vw, 3.8rem);
+      font-size: clamp(2.4rem, 4vw, 3.2rem);
       font-weight: 800;
       line-height: 1.1;
       background: linear-gradient(to right, #fff, #e3f0ff);
@@ -82,11 +97,23 @@
       letter-spacing: -0.01em;
     }
     .deck-hero__subtitle {
-      font-size: 1.18rem;
+      margin-top: 18px;
+      font-size: 1.15rem;
       color: rgba(215, 240, 255, 0.9);
       max-width: 640px;
       margin-bottom: 28px;
       font-weight: 450;
+    }
+    .deck-hero__accent {
+      width: 80px;
+      height: 3px;
+      margin-top: 20px;
+      background: linear-gradient(
+        to right,
+        var(--warm-gold),
+        rgba(255,183,77,0.4)
+      );
+      border-radius: 2px;
     }
     .deck-hero__tag {
       background: rgba(255,255,255,0.1);
@@ -178,7 +205,7 @@
       background: linear-gradient(145deg, #ffffff, #f5fcff);
     }
     .deck-quickbtn:hover { transform: translateY(-4px) scale(1.02); background: white; box-shadow: 0 20px 28px -6px rgba(0,121,212,0.3); }
-    .deck-quickbtn.is-active { background: var(--accent); color: white; box-shadow: 0 14px 28px var(--accent-glow); border: none; }
+    .deck-quickbtn.is-active { background: var(--accent); color: white; box-shadow: 0 8px 24px rgba(0,121,212,0.25); border: none; transform: translateY(-2px); }
     .deck-quickbtn__num { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
     .deck-quickbtn.is-active .deck-quickbtn__num, .deck-quickbtn.is-active .deck-quickbtn__sub { color: white; }
     .deck-quickbtn__sub { font-size: 0.75rem; opacity: 0.8; font-weight: 500; }
@@ -688,8 +715,6 @@
       function openModal(deck) {
         state.currentDeck = deck;
         state.lastOpenedDeck = deck.number;
-        els.modalTitle.textContent = `${deck.name}: ${deck.subtitle}`;
-        els.modalDesc.textContent = deck.description;
         setActiveDeck(deck.number);
         renderFocusChips(deck);
         renderModalPlan(deck);
