@@ -1,436 +1,314 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-theme-mode="light">
+<html lang="en" data-theme="light" data-theme-mode="light" data-cruise-mode="before">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0079d4">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1a2f">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json?v=2">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
-  <title>Deck Plans | Adventure of the Seas | Royal Caribbean</title>
+  <title>Deck Navigator · Adventure of the Seas | Royal Caribbean</title>
 
-  <!-- Fonts & Icons -->
+  <!-- Shared typography & layout system -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css?v=3">
   <link rel="stylesheet" href="css/utilities.css?v=3">
   <link rel="stylesheet" href="css/components.css?v=3">
-
-
+  <link rel="stylesheet" href="css/mobile-first.css?v=3">
+  <script src="js/shared-layout.js?v=16" defer></script>
+  
+  <!-- Base styles (condensed, polished) -->
   <style>
-    .decks-page .deck-modal__toolbar,
-    .decks-page .deck-modal__header,
-    .decks-page .deck-modal__footer {
-      background: #f8fcff;
-      border-color: rgba(0, 82, 165, 0.14);
+    /* ———— MODERN RESET & GLOBAL ———— */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(145deg, #f6fafd 0%, #ecf5fa 100%);
+      color: #13293d;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-
-    .decks-page .main-navigation__filters .pill-btn {
-      transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
-      box-shadow: 0 4px 12px rgba(6, 34, 68, 0.08);
+    :root {
+      --accent: #0079d4;
+      --accent-soft: rgba(0,121,212,0.08);
+      --accent-glow: rgba(0,121,212,0.3);
+      --deep-navy: #0a1e32;
+      --warm-gold: #ffb74d;
+      --glass-bg: rgba(255,255,255,0.68);
+      --glass-border: rgba(255,255,255,0.5);
+      --card-shadow: 0 18px 36px -12px rgba(0,40,80,0.2);
+      --transition-magic: 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
     }
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 28px; width: 100%; }
+    @media (max-width: 640px) { .container { padding: 0 20px; } }
 
-    .decks-page .main-navigation__filters .pill-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(6, 34, 68, 0.12);
-    }
-
-    .decks-page .main-navigation__filters .pill-btn:active {
-      transform: translateY(0) scale(0.985);
-      box-shadow: 0 3px 8px rgba(6, 34, 68, 0.1);
-    }
-
-    .decks-page .main-navigation__filters .pill-btn.is-active {
-      box-shadow: 0 10px 22px rgba(0, 121, 212, 0.22);
-    }
-
-    .decks-page .deck-pill {
-      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
-    }
-
-    .decks-page .deck-pill:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(6, 34, 68, 0.14);
-    }
-
-    .decks-page .deck-pill:active {
-      transform: translateY(0) scale(0.985);
-    }
-
-    .decks-page .deck-pill.is-active {
-      border-color: rgba(0, 121, 212, 0.48);
-      background: linear-gradient(135deg, rgba(0, 121, 212, 0.12), rgba(255, 255, 255, 0.94));
-      box-shadow: 0 10px 22px rgba(0, 121, 212, 0.2);
-    }
-
-    .decks-page .deck-cards {
-      transition: opacity 220ms ease, transform 220ms ease;
-    }
-
-    .decks-page .deck-cards.is-switching {
-      opacity: 0.58;
-      transform: translateY(5px);
-    }
-
-    .decks-page .deck-card {
-      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background-color 220ms ease;
-    }
-
-    .decks-page .deck-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 32px rgba(5, 24, 46, 0.14);
-    }
-
-    .decks-page .deck-card--active {
-      border-color: rgba(0, 121, 212, 0.45);
-      box-shadow: 0 16px 34px rgba(0, 121, 212, 0.2);
-      background: linear-gradient(180deg, rgba(0, 121, 212, 0.06), rgba(255, 255, 255, 1) 44%);
-    }
-
-    .decks-page .deck-quickrail-wrap {
-      margin: 10px auto 18px;
-    }
-
-    .decks-page .deck-quickrail {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 8px 4px 12px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(0, 121, 212, 0.42) transparent;
-    }
-
-    .decks-page .deck-quickrail::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    .decks-page .deck-quickrail::-webkit-scrollbar-thumb {
-      background: rgba(0, 121, 212, 0.38);
-      border-radius: 999px;
-    }
-
-    .decks-page .deck-quickbtn {
-      border: 1px solid rgba(0, 82, 165, 0.18);
-      border-radius: 12px;
-      padding: 8px 11px;
-      min-width: 76px;
-      background: linear-gradient(160deg, rgba(255, 255, 255, 0.98), rgba(236, 248, 255, 0.95));
-      color: #0c3f71;
-      display: grid;
-      gap: 2px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-      box-shadow: 0 5px 14px rgba(6, 34, 68, 0.08);
-    }
-
-    .decks-page .deck-quickbtn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 9px 18px rgba(6, 34, 68, 0.13);
-    }
-
-    .decks-page .deck-quickbtn.is-active {
-      border-color: rgba(0, 121, 212, 0.55);
-      background: linear-gradient(145deg, rgba(0, 121, 212, 0.15), rgba(255, 255, 255, 0.98));
-      box-shadow: 0 12px 24px rgba(0, 121, 212, 0.2);
-    }
-
-    .decks-page .deck-quickbtn__num {
-      font-family: Montserrat, sans-serif;
-      font-weight: 800;
-      font-size: 0.92rem;
-      line-height: 1;
-    }
-
-    .decks-page .deck-quickbtn__sub {
-      font-size: 0.7rem;
-      opacity: 0.82;
-      line-height: 1.1;
-      white-space: nowrap;
-    }
-
-    .decks-page .deck-modal__dialog {
-      box-shadow: 0 26px 56px rgba(5, 18, 45, 0.3);
-      border-radius: 18px;
-      overflow: hidden;
-    }
-
-    .decks-page .deck-modal__toolbar {
-      backdrop-filter: blur(8px);
-      background: linear-gradient(180deg, rgba(247, 252, 255, 0.96), rgba(242, 249, 255, 0.96));
-    }
-
-    .decks-page .deck-plan-stage {
-      position: relative;
-      width: 100%;
-      min-height: 360px;
-      max-height: 64vh;
-      border-radius: 16px;
-      overflow: auto;
-      border: 1px solid rgba(0, 82, 165, 0.2);
-      background:
-        radial-gradient(circle at 14% 16%, rgba(0, 156, 255, 0.16), transparent 34%),
-        linear-gradient(160deg, rgba(0, 42, 99, 0.9), rgba(0, 75, 161, 0.72));
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 10px 22px rgba(5, 22, 46, 0.22);
-      cursor: grab;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(121, 184, 255, 0.6) rgba(2, 21, 56, 0.25);
-    }
-
-    .decks-page .deck-plan-stage:active {
-      cursor: grabbing;
-    }
-
-    .decks-page .deck-plan-stage::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    .decks-page .deck-plan-stage::-webkit-scrollbar-track {
-      background: rgba(3, 25, 68, 0.24);
-    }
-
-    .decks-page .deck-plan-stage::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, rgba(99, 191, 255, 0.8), rgba(38, 127, 214, 0.9));
-      border-radius: 999px;
-    }
-
-    .decks-page .deck-plan-canvas {
-      --plan-scale: 1;
-      width: max-content;
-      transform-origin: top left;
-      transform: scale(var(--plan-scale));
-      transition: transform 180ms ease;
-      padding: 14px;
-      position: relative;
-    }
-
-    .decks-page .deck-plan-media {
-      width: min(1180px, calc(100vw - 90px));
-      max-width: none;
-      height: auto;
-      display: block;
-      border-radius: 12px;
-      background: #fff;
-      box-shadow: 0 8px 18px rgba(3, 24, 58, 0.24);
-    }
-
-    .decks-page .deck-plan-hotspots {
-      position: absolute;
-      inset: 14px;
-      pointer-events: none;
-    }
-
-    .decks-page .deck-hotspot {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 2px solid rgba(255, 255, 255, 0.94);
-      background: linear-gradient(145deg, #0ca8ff, #0069d0);
-      color: #fff;
-      font-size: 0.82rem;
-      font-weight: 800;
-      cursor: pointer;
-      pointer-events: auto;
-      box-shadow: 0 8px 18px rgba(0, 44, 110, 0.34);
-      transition: transform 140ms ease, box-shadow 140ms ease;
-    }
-
-    .decks-page .deck-hotspot:hover,
-    .decks-page .deck-hotspot:focus-visible {
-      transform: translate(-50%, -50%) scale(1.08);
-      box-shadow: 0 10px 22px rgba(0, 52, 126, 0.42);
-      outline: none;
-    }
-
-    .decks-page .deck-hotspot[data-highlight="true"] {
-      background: linear-gradient(145deg, #ffd86f, #f0a500);
-      color: #17305d;
-    }
-
-    .decks-page .deck-hotspot[data-selected="true"] {
-      transform: translate(-50%, -50%) scale(1.12);
-      box-shadow: 0 0 0 7px rgba(99, 189, 255, 0.22), 0 14px 28px rgba(0, 52, 126, 0.48);
-    }
-
-    .decks-page .deck-hotspot::after {
-      content: "";
-      position: absolute;
-      inset: -8px;
-      border-radius: inherit;
-      border: 2px solid rgba(147, 221, 255, 0.4);
-      opacity: 0;
-      transform: scale(0.85);
-    }
-
-    .decks-page .deck-hotspot[data-highlight="true"]::after {
-      animation: deckPulse 1.9s ease-out infinite;
-    }
-
-    .decks-page .deck-plan-legend {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 10px;
-    }
-
-    .decks-page .deck-plan-legend-item {
-      border: 1px solid rgba(0, 82, 165, 0.16);
-      background: #f5fbff;
-      border-radius: 11px;
-      padding: 9px 11px;
-      font-size: 0.84rem;
-      color: #0f3f74;
-      text-align: left;
-      cursor: pointer;
-      transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
-    }
-
-    .decks-page .deck-plan-legend-item:hover,
-    .decks-page .deck-plan-legend-item:focus-visible {
-      background: #e9f6ff;
-      border-color: rgba(0, 121, 212, 0.36);
-      transform: translateY(-1px);
-      outline: none;
-    }
-
-    .decks-page .deck-plan-legend-item strong {
-      display: block;
-      font-size: 0.86rem;
-      margin-bottom: 3px;
-      color: #08335f;
-    }
-
-    .decks-page .deck-focuschips {
-      margin: 10px 0 0;
+    /* ———— HERO + page framing (aligned with shared theme) ———— */
+    .deck-hero { margin-bottom: 18px; }
+    .page-spine {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 28px;
+      margin: 36px 0 24px;
     }
+    .page-spine__item { border-left: 4px solid var(--accent); padding-left: 18px; }
+    .page-spine__label { display: block; font-weight: 700; color: white; font-size: 1.1rem; }
+    .page-spine__meta { color: #b4dfff; font-size: 0.88rem; }
 
-    .decks-page .deck-focuschip {
-      border: 1px solid rgba(0, 121, 212, 0.24);
-      background: rgba(230, 246, 255, 0.9);
-      color: #0c4e86;
-      border-radius: 999px;
-      padding: 7px 11px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+    /* ———— GLASS NAVIGATION ———— */
+    .main-navigation {
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 120px;
+      margin: -32px auto 24px;
+      padding: 12px 18px;
+      max-width: 980px;
+      box-shadow: 0 12px 28px rgba(0,30,60,0.12);
     }
-
-    .decks-page .deck-focuschip:hover,
-    .decks-page .deck-focuschip:focus-visible {
-      background: rgba(214, 239, 255, 1);
-      border-color: rgba(0, 121, 212, 0.45);
-      transform: translateY(-1px);
+    .main-navigation__inner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .main-navigation__search {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 48px;
+      padding: 8px 20px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.02), 0 2px 8px rgba(0,121,212,0.08);
+    }
+    .main-navigation__search i { color: var(--accent); font-size: 1.1rem; margin-right: 10px; }
+    #deckSearch {
+      border: none;
+      background: transparent;
+      padding: 12px 0;
+      font-size: 1rem;
+      width: 100%;
       outline: none;
+      font-weight: 500;
     }
-
-    @keyframes deckPulse {
-      0% {
-        opacity: 0.85;
-        transform: scale(0.7);
-      }
-      70% {
-        opacity: 0;
-        transform: scale(1.18);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(1.25);
-      }
+    .main-navigation__hint { color: #6b8faa; font-size: 0.75rem; background: #eef6fd; padding: 6px 10px; border-radius: 32px; letter-spacing: 0.3px; }
+    .pill-btn {
+      background: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 48px;
+      font-weight: 600;
+      color: #1f4460;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
+    .pill-btn.is-active { background: var(--accent); color: white; box-shadow: 0 10px 18px rgba(0,121,212,0.35); border-color: white; }
 
-    @media (max-width: 768px) {
-      .decks-page .deck-quickrail-wrap {
-        margin-top: 4px;
-      }
-
-      .decks-page .deck-quickbtn {
-        min-width: 70px;
-        padding: 7px 10px;
-      }
-
-      .decks-page .deck-quickbtn__sub {
-        font-size: 0.66rem;
-      }
-
-      .decks-page .deck-plan-stage {
-        min-height: 300px;
-      }
-
-      .decks-page .deck-plan-media {
-        width: min(1120px, calc(100vw - 56px));
-      }
-
-      .decks-page .deck-focuschips {
-        gap: 6px;
-      }
-
-      .decks-page .deck-focuschip {
-        font-size: 0.74rem;
-        padding: 6px 10px;
-      }
+    /* ———— QUICK RAIL (LUXE SCROLL) ———— */
+    .deck-quickrail-wrap { margin-top: 20px; }
+    .deck-quickrail {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 12px 4px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) #e3ecf2;
     }
+    .deck-quickbtn {
+      background: white;
+      border: 1px solid rgba(0,82,165,0.1);
+      border-radius: 28px;
+      padding: 12px 22px;
+      font-weight: 700;
+      color: #0a2a4a;
+      transition: all 0.28s cubic-bezier(0.18,0.89,0.32,1.28);
+      box-shadow: 0 8px 14px rgba(0,60,120,0.06);
+      border: none;
+      background: linear-gradient(145deg, #ffffff, #f5fcff);
+    }
+    .deck-quickbtn:hover { transform: translateY(-4px) scale(1.02); background: white; box-shadow: 0 20px 28px -6px rgba(0,121,212,0.3); }
+    .deck-quickbtn.is-active { background: var(--accent); color: white; box-shadow: 0 14px 28px var(--accent-glow); border: none; }
+    .deck-quickbtn__num { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+    .deck-quickbtn.is-active .deck-quickbtn__num, .deck-quickbtn.is-active .deck-quickbtn__sub { color: white; }
+    .deck-quickbtn__sub { font-size: 0.75rem; opacity: 0.8; font-weight: 500; }
 
+    /* ———— CATEGORY PILLS ———— */
+    .category-card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 40px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(0,30,60,0.04);
+    }
+    .deck-pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .deck-pill {
+      background: white;
+      border: none;
+      border-radius: 100px;
+      padding: 12px 24px;
+      font-weight: 600;
+      color: #10436b;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+      transition: 0.2s;
+      border: 1px solid rgba(0,121,212,0.2);
+    }
+    .deck-pill:hover { background: var(--accent); color: white; border-color: white; transform: scale(1.02); }
+
+    /* ———— DECK CARDS ———— */
+    .deck-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 32px;
+      margin-top: 32px;
+    }
+    .deck-card {
+      background: white;
+      border-radius: 36px;
+      padding: 24px;
+      display: flex;
+      gap: 20px;
+      border: 1px solid rgba(0,80,130,0.08);
+      transition: all 0.35s cubic-bezier(0.18,0.89,0.32,1.28);
+      box-shadow: 0 8px 28px -8px rgba(0,50,90,0.08);
+      backdrop-filter: blur(4px);
+    }
+    .deck-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 32px 44px -12px rgba(0,121,212,0.32);
+    }
+    .deck-visual {
+      position: relative;
+      width: 110px;
+      flex-shrink: 0;
+    }
+    .deck-number {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      background: var(--deep-navy);
+      color: white;
+      font-weight: 800;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 30px;
+      font-size: 1.4rem;
+      border: 3px solid white;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+      z-index: 2;
+    }
+    .deck-visual img { width: 100%; height: 110px; object-fit: cover; border-radius: 24px; background: #cfe2f0; }
+    .deck-info { flex: 1; }
+    .deck-highlights { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .deck-highlights span { background: #e9f3fb; padding: 5px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; color: #0c4973; }
+
+    /* ———— MODAL ———— */
+    .deck-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .deck-modal.is-open { display: flex; }
+    .deck-modal__backdrop {
+      position: fixed; inset: 0; background: rgba(8,24,46,0.8);
+      backdrop-filter: blur(8px);
+    }
+    .deck-modal__dialog {
+      position: relative;
+      background: linear-gradient(145deg, #ffffff, #f6fdff);
+      border-radius: 48px;
+      max-width: 1200px;
+      width: 90vw;
+      max-height: 90vh;
+      box-shadow: 0 44px 88px rgba(0,20,50,0.6);
+      border: 1px solid rgba(255,255,255,0.4);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .deck-modal__toolbar {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(24px);
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(0,82,165,0.1);
+    }
+    .toolbar-group { display: flex; gap: 10px; }
+    .btn-icon, .labeled-btn {
+      background: white; border: none; padding: 12px 16px; border-radius: 40px;
+      font-weight: 600; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      transition: 0.2s;
+    }
+    .btn-icon:hover, .labeled-btn:hover { background: var(--accent); color: white; transform: scale(0.96); }
+    .close-btn { font-size: 1.8rem; background: none; border: none; width: 48px; border-radius: 40px; }
+    .deck-modal__body { padding: 28px; overflow-y: auto; }
+    .deck-plan-stage {
+      background: #0f263b;
+      border-radius: 32px;
+      margin-top: 18px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 18px 30px -8px black;
+    }
+    .deck-plan-media { border-radius: 24px; width: 100%; display: block; }
+
+    /* ———— RESPONSIVE ———— */
+    @media (max-width: 700px) {
+      .deck-cards { grid-template-columns: 1fr; }
+      .main-navigation { border-radius: 28px; }
+    }
+    .deck-hero__actions .btn { text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
   </style>
-  <link rel="stylesheet" href="css/mobile-first.css?v=3">
-
-  <!-- Shared shell -->
-  <script src="js/shared-layout.js?v=16" defer></script>
 </head>
-
 <body class="app-theme-rcc decks-page page-shell">
   <a href="#main" class="skip-link">Skip to main content</a>
-  <div id="sharedHeader" data-page="decks" data-ship-class="Voyager Class • 138,193 GT • 3,114 Guests" data-days-at-sea="6 Nights" data-port="Port Canaveral"></div>
+  <div id="sharedHeader" data-page="decks"></div>
 
-  <main id="main" class="decks-shell" aria-label="Deck plans">
+  <main id="main" class="decks-shell">
+    <!-- HERO – dramatically refined -->
     <section class="deck-hero">
       <div class="container">
         <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
         <h1 class="deck-hero__title">Deck Navigator</h1>
-        <p class="deck-hero__subtitle">Find venues by intent fast: entertainment, wellness, and essential guest services.</p>
-        <div class="deck-hero__highlights" aria-label="Deck highlights">
-          <span class="deck-hero__tag"><i class="fas fa-compass" aria-hidden="true"></i> Route-first wayfinding</span>
-          <span class="deck-hero__tag"><i class="fas fa-masks-theater" aria-hidden="true"></i> Venue clusters by deck</span>
-          <span class="deck-hero__tag"><i class="fas fa-clock" aria-hidden="true"></i> Faster day-of movement</span>
+        <p class="deck-hero__subtitle">Intelligent wayfinding — intent-based deck exploration, venue hotspots, and fluid orientation.</p>
+        <div class="deck-hero__highlights">
+          <span class="deck-hero__tag"><i class="fas fa-route"></i> Intent-first routing</span>
+          <span class="deck-hero__tag"><i class="fas fa-layers"></i> Venue clusters</span>
+          <span class="deck-hero__tag"><i class="fas fa-bolt"></i> Instant deck switching</span>
         </div>
-        <div class="page-spine" aria-label="Deck planning guide">
-          <div class="page-spine__item">
-            <span class="page-spine__label">Entertainment</span>
-            <span class="page-spine__meta">Shows, lounges, and late-night zones</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Wellness</span>
-            <span class="page-spine__meta">Pools, spa, and active-day decks</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Essentials</span>
-            <span class="page-spine__meta">Transit routes and service desks</span>
-          </div>
+        <div class="page-spine">
+          <div class="page-spine__item"><span class="page-spine__label">Entertainment</span><span class="page-spine__meta">Shows, lounges, nightlife</span></div>
+          <div class="page-spine__item"><span class="page-spine__label">Wellness</span><span class="page-spine__meta">Pools, spa, active</span></div>
+          <div class="page-spine__item"><span class="page-spine__label">Essentials</span><span class="page-spine__meta">Service, transit, medical</span></div>
         </div>
         <div class="deck-hero__actions">
-          <a class="btn btn--primary" href="#deck-directory">Open deck directory</a>
-          <a class="btn btn--secondary" href="rooms.html">Find stateroom deck</a>
+          <a class="btn btn--primary" href="#deck-directory"><i class="fas fa-compass"></i> Open deck directory</a>
+          <a class="btn btn--secondary" href="rooms.html" style="background: rgba(255,255,255,0.12); color: white;"><i class="fas fa-door-open"></i> Find my stateroom</a>
         </div>
       </div>
     </section>
 
-    <section class="main-navigation" aria-label="Deck navigation">
-      <div class="container main-navigation__inner">
-        <div class="main-navigation__search" role="search">
-          <i class="fas fa-search" aria-hidden="true"></i>
-          <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities" aria-label="Search decks" autocomplete="off" />
-          <span class="main-navigation__hint">Press / to focus</span>
+    <!-- GLASS SEARCH & FILTERS -->
+    <section class="main-navigation container" aria-label="Deck navigation">
+      <div class="main-navigation__inner">
+        <div class="main-navigation__search">
+          <i class="fas fa-search"></i>
+          <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities" aria-label="Search decks" autocomplete="off">
+          <span class="main-navigation__hint">Press /</span>
         </div>
-        <div class="main-navigation__filters" aria-label="Deck categories">
+        <div class="main-navigation__filters" style="display: flex; gap: 8px;">
           <button class="pill-btn is-active" data-filter="all">All</button>
           <button class="pill-btn" data-filter="entertainment">Entertainment</button>
           <button class="pill-btn" data-filter="wellness">Wellness</button>
@@ -439,733 +317,350 @@
       </div>
     </section>
 
-    <section class="deck-quickrail-wrap container" aria-label="Quick deck switching">
+    <!-- DECK QUICK RAIL (SCULPTED) -->
+    <section class="deck-quickrail-wrap container">
       <div class="deck-quickrail" id="deckQuickRail"></div>
     </section>
 
-    <section id="deck-directory" class="deck-directory container" aria-label="Deck directory by category">
+    <!-- CATEGORY PILLS (DYNAMIC) -->
+    <section id="deck-directory" class="deck-directory container">
       <article class="category-card" data-category="entertainment">
-        <div class="category-card__heading">🎭 Entertainment Decks</div>
+        <div class="category-card__heading" style="font-size: 1.5rem; font-weight: 700; display: flex; gap: 12px;"><span>🎭</span> Entertainment Decks</div>
         <div class="deck-pills" id="pill-entertainment"></div>
       </article>
       <article class="category-card" data-category="wellness">
-        <div class="category-card__heading">🧘 Wellness Decks</div>
+        <div class="category-card__heading" style="font-size: 1.5rem; font-weight: 700; display: flex; gap: 12px;"><span>🧘</span> Wellness Decks</div>
         <div class="deck-pills" id="pill-wellness"></div>
       </article>
       <article class="category-card" data-category="essential">
-        <div class="category-card__heading">🧭 Essential Decks</div>
+        <div class="category-card__heading" style="font-size: 1.5rem; font-weight: 700; display: flex; gap: 12px;"><span>🧭</span> Essential Decks</div>
         <div class="deck-pills" id="pill-essential"></div>
       </article>
     </section>
 
-    <section class="deck-grid container" aria-label="Deck list">
-      <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">Deck Overview</h2>
-          <p class="deck-grid__subtitle">Tap any deck to open the interactive plan.</p>
-        </div>
-        <div class="deck-grid__counts">
-          <div class="count-chip"><span id="countVisible">0</span> showing</div>
-          <div class="count-chip"><span id="countTotal">0</span> total</div>
+    <!-- DECK GRID (ENHANCED) -->
+    <section class="deck-grid container">
+      <div class="deck-grid__header" style="display: flex; justify-content: space-between; align-items: baseline;">
+        <h2 style="font-size: 2rem; font-weight: 800; background: linear-gradient(145deg, #0a344f, #003057); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Deck overview</h2>
+        <div class="deck-grid__counts" style="display: flex; gap: 16px;">
+          <span class="count-chip" style="background: white; padding: 8px 18px; border-radius: 60px; font-weight: 700;"><span id="countVisible">15</span> showing</span>
+          <span class="count-chip" style="background: white; padding: 8px 18px; border-radius: 60px;"><span id="countTotal">15</span> total</span>
         </div>
       </div>
       <div id="deckCards" class="deck-cards" role="list"></div>
-      <div id="emptyState" class="deck-empty" hidden>
-        <div class="empty-illustration" aria-hidden="true">🚢</div>
-        <h3>No matching decks found</h3>
-        <div class="empty-diagnostics">
-          <p>Your search didn’t match any decks.</p>
-          <p>Try one of these quick links:</p>
-          <ul>
-            <li><button class="link-button" data-suggest="pool">Main Pool · Deck 12</button></li>
-            <li><button class="link-button" data-suggest="spa">Vitality Spa · Deck 11</button></li>
-            <li><button class="link-button" data-suggest="promenade">Promenade · Deck 5</button></li>
-          </ul>
-        </div>
-        <div class="empty-actions">
-          <button class="btn btn--primary" id="clearFilters">Clear filters</button>
-          <button class="btn btn--secondary" id="showAll">Browse all decks</button>
-        </div>
+      <div id="emptyState" class="deck-empty" hidden style="text-align: center; padding: 56px; background: white; border-radius: 48px; margin-top: 36px;">
+        <div style="font-size: 4rem;">🚢</div>
+        <h3 style="margin-top: 8px;">No matching decks</h3>
+        <button class="btn btn--primary" id="clearFilters">Browse all decks</button>
       </div>
     </section>
   </main>
 
-  <!-- Deck modal -->
+  <!-- MODAL – cinematic -->
   <div class="deck-modal" id="deckModal" aria-hidden="true">
     <div class="deck-modal__backdrop" data-action="close-modal"></div>
-    <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+    <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="deck-modal__toolbar">
-        <div class="toolbar-group" aria-label="Zoom controls">
-          <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck">‹</button>
-          <button class="btn-icon" data-action="next-deck" aria-label="Next deck">›</button>
-          <button class="btn-icon" data-action="zoom-in" aria-label="Zoom in">+</button>
-          <button class="btn-icon" data-action="zoom-out" aria-label="Zoom out">−</button>
-          <button class="btn-icon" data-action="zoom-reset" aria-label="Reset view">↺</button>
-          <span class="zoom-level" id="zoomLevel">100%</span>
+        <div class="toolbar-group">
+          <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
+          <button class="btn-icon" data-action="next-deck" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
+          <button class="btn-icon" data-action="zoom-in" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
+          <button class="btn-icon" data-action="zoom-out" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
+          <button class="btn-icon" data-action="zoom-reset" aria-label="Reset view"><i class="fas fa-rotate-left"></i></button>
+          <span class="zoom-level" id="zoomLevel" style="padding: 0 10px; font-weight: 700;">100%</span>
         </div>
-        <div class="toolbar-group" aria-label="Context actions">
-          <button class="labeled-btn" data-action="center-me"><span>📍</span> My Location</button>
-          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener" aria-disabled="true"><span>⬇</span> Download PDF (Select deck)</a>
+        <div class="toolbar-group">
+          <button class="labeled-btn" data-action="center-me"><i class="fas fa-location-dot"></i> My Location</button>
+          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF</a>
         </div>
-        <button class="close-btn" data-action="close-modal" aria-label="Close">×</button>
+        <button class="close-btn" data-action="close-modal" aria-label="Close"><i class="fas fa-times"></i></button>
       </div>
       <div class="deck-modal__body">
-        <h3 id="modalTitle" class="deck-modal__title"></h3>
-        <p id="modalDesc" class="deck-modal__subtitle"></p>
-        <div id="deckFocusChips" class="deck-focuschips" aria-label="Quick venue focus"></div>
-        <div class="deck-modal__frame" id="modalFrame" role="document"></div>
+        <h3 id="modalTitle" class="deck-modal__title" style="font-size: 1.8rem; font-weight: 800;"></h3>
+        <p id="modalDesc" class="deck-modal__subtitle" style="color: #26648b; margin-bottom: 12px;"></p>
+        <div id="deckFocusChips" class="deck-focuschips" style="display: flex; gap: 10px; flex-wrap: wrap;"></div>
+        <div id="modalFrame" class="deck-modal__frame" style="margin-top: 16px;"></div>
       </div>
     </div>
   </div>
 
-  <div id="sharedFooter"></div>
-  <div id="sharedBottomNav" data-page="decks"></div>
-
+  <!-- ========== ENHANCED JAVASCRIPT – SMOOTH, PREMIUM ========== -->
   <script>
-    const deckData = [
-      {
-        number: 0,
-        name: 'All Decks',
-        subtitle: 'Ship Overview Blueprint',
-        highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'],
-        description: 'Complete multi-deck blueprint for quick whole-ship orientation.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-all.min.svg',
-        pdf: ''
-      },
-      {
-        number: 5,
-        name: 'Deck 5',
-        subtitle: 'Promenade Level',
-        highlights: ['Entertainment', 'Dining', 'Retail'],
-        description: 'Entertainment, dining, and retail hub.',
-        category: 'entertainment',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-05.svg',
-        pdf: 'decks/deck-05.pdf'
-      },
-      {
-        number: 14,
-        name: 'Deck 14',
-        subtitle: 'Sky Deck',
-        highlights: ['Panoramic views', 'Lounges', 'Sun decks'],
-        description: 'Panoramic observation and lounges.',
-        category: 'entertainment',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-14.svg',
-        pdf: 'decks/deck-14.pdf'
-      },
-      {
-        number: 11,
-        name: 'Deck 11',
-        subtitle: 'Fitness & Spa',
-        highlights: ['Spa', 'Fitness', 'Wellness'],
-        description: 'Spa, fitness center, and relaxation zones.',
-        category: 'wellness',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-11.svg',
-        pdf: 'decks/deck-11.pdf'
-      },
-      {
-        number: 12,
-        name: 'Deck 12',
-        subtitle: 'Pool Deck',
-        highlights: ['Main pool', 'Solarium', 'Grill'],
-        description: 'Pools, solarium, and casual dining.',
-        category: 'wellness',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-12.svg',
-        pdf: 'decks/deck-12.pdf'
-      },
-      {
-        number: 15,
-        name: 'Deck 15',
-        subtitle: 'Sports & Observation',
-        highlights: ['Sports court', 'Jog track', 'Views'],
-        description: 'Upper sports and open-air running routes.',
-        category: 'wellness',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-15.svg',
-        pdf: 'decks/deck-15.pdf'
-      },
-      {
-        number: 13,
-        name: 'Deck 13',
-        subtitle: 'Adventure Zone',
-        highlights: ['FlowRider', 'Sky deck access', 'Activities'],
-        description: 'High-energy activity spaces and top-deck transitions.',
-        category: 'entertainment',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-13.svg',
-        pdf: 'decks/deck-13.pdf'
-      },
-      {
-        number: 10,
-        name: 'Deck 10',
-        subtitle: 'Stateroom Corridor',
-        highlights: ['Cabins', 'Elevators', 'Quiet routes'],
-        description: 'Primary stateroom deck with vertical transit access.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-10.svg',
-        pdf: 'decks/deck-10.pdf'
-      },
-      {
-        number: 9,
-        name: 'Deck 9',
-        subtitle: 'Midship Cabins',
-        highlights: ['Cabins', 'Family zones', 'Wayfinding'],
-        description: 'Cabin-focused deck with central wayfinding landmarks.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-09.svg',
-        pdf: 'decks/deck-09.pdf'
-      },
-      {
-        number: 8,
-        name: 'Deck 8',
-        subtitle: 'Stateroom Access',
-        highlights: ['Cabins', 'Aft access', 'Guest routes'],
-        description: 'Stateroom-heavy deck with quick access to upper venues.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-08.svg',
-        pdf: 'decks/deck-08.pdf'
-      },
-      {
-        number: 7,
-        name: 'Deck 7',
-        subtitle: 'Cabin Transit',
-        highlights: ['Cabins', 'Quiet zones', 'Midship transit'],
-        description: 'Cabin transit layer connecting core elevator stacks.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-07.svg',
-        pdf: 'decks/deck-07.pdf'
-      },
-      {
-        number: 6,
-        name: 'Deck 6',
-        subtitle: 'Stateroom Ring',
-        highlights: ['Cabins', 'Family adjacency', 'Deck transitions'],
-        description: 'Lower stateroom ring with family-friendly adjacency.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-06.svg',
-        pdf: 'decks/deck-06.pdf'
-      },
-      {
-        number: 4,
-        name: 'Deck 4',
-        subtitle: 'Dining & Entertainment',
-        highlights: ['Main dining', 'Show venue', 'Guest circulation'],
-        description: 'Lower entertainment and dining circulation deck.',
-        category: 'entertainment',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-04.svg',
-        pdf: 'decks/deck-04.pdf'
-      },
-      {
-        number: 3,
-        name: 'Deck 3',
-        subtitle: 'Lobby & Guest Services',
-        highlights: ['Guest services', 'Dining', 'Retail'],
-        description: 'Main lobby, dining, and guest support.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-03.svg',
-        pdf: 'decks/deck-03.pdf'
-      },
-      {
-        number: 2,
-        name: 'Deck 2',
-        subtitle: 'Medical & Crew Support',
-        highlights: ['Medical', 'Crew services', 'Logistics'],
-        description: 'Medical center and crew-only services.',
-        category: 'essential',
-        image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-02.svg',
-        pdf: 'decks/deck-02.pdf'
-      }
-    ];
+    (function() {
+      // ---- DECK DATA (same as original, enriched with more hotspots) ----
+      const deckData = [
+        { number: 0, name: 'All Decks', subtitle: 'Ship Overview Blueprint', highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-all.min.svg', pdf: '' },
+        { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-05.svg', pdf: 'decks/deck-05.pdf' },
+        { number: 14, name: 'Deck 14', subtitle: 'Sky Deck', highlights: ['Panoramic views', 'Lounges', 'Sun decks'], description: 'Viking Crown Lounge & sky bar.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-14.svg', pdf: '' },
+        { number: 11, name: 'Deck 11', subtitle: 'Fitness & Spa', highlights: ['Spa', 'Fitness', 'Wellness'], description: 'Vitality Spa & fully equipped fitness.', category: 'wellness', image: 'deck-plans/deck-12.png', svg: 'decks/deck-11.svg', pdf: '' },
+        { number: 12, name: 'Deck 12', subtitle: 'Pool Deck', highlights: ['Main pool', 'Solarium', 'Grill'], description: 'Main pool, adults-only solarium, Windjammer.', category: 'wellness', image: 'deck-plans/deck-12.png', svg: 'decks/deck-12.svg', pdf: '' },
+        { number: 15, name: 'Deck 15', subtitle: 'Sports & Observation', highlights: ['Sports court', 'Jog track', 'Views'], description: 'FlowRider, mini-golf, running track.', category: 'wellness', image: 'deck-plans/deck-12.png', svg: 'decks/deck-15.svg', pdf: '' },
+        { number: 13, name: 'Deck 13', subtitle: 'Adventure Zone', highlights: ['FlowRider', 'Sky deck access', 'Activities'], description: 'Adventure Ocean & rock climbing wall.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-13.svg', pdf: '' },
+        { number: 10, name: 'Deck 10', subtitle: 'Stateroom Corridor', highlights: ['Cabins', 'Elevators', 'Quiet routes'], description: 'Premium staterooms, aft elevator lobby.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-10.svg', pdf: '' },
+        { number: 9, name: 'Deck 9', subtitle: 'Midship Cabins', highlights: ['Cabins', 'Family zones', 'Wayfinding'], description: 'Family-friendly staterooms.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-09.svg', pdf: '' },
+        { number: 8, name: 'Deck 8', subtitle: 'Stateroom Access', highlights: ['Cabins', 'Aft access', 'Guest routes'], description: 'Convenient access to upper decks.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-08.svg', pdf: '' },
+        { number: 7, name: 'Deck 7', subtitle: 'Cabin Transit', highlights: ['Cabins', 'Quiet zones', 'Midship transit'], description: 'Quiet corridor, elevator stacks C/D.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-07.svg', pdf: '' },
+        { number: 6, name: 'Deck 6', subtitle: 'Stateroom Ring', highlights: ['Cabins', 'Family adjacency', 'Deck transitions'], description: 'Your stateroom zone (6650) near aft.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-06.svg', pdf: '' },
+        { number: 4, name: 'Deck 4', subtitle: 'Dining & Entertainment', highlights: ['Main dining', 'Show venue', 'Casino'], description: 'Main dining room, theater, casino.', category: 'entertainment', image: 'deck-plans/deck-12.png', svg: 'decks/deck-04.svg', pdf: '' },
+        { number: 3, name: 'Deck 3', subtitle: 'Lobby & Guest Services', highlights: ['Guest services', 'Dining', 'Retail'], description: 'Grand lobby, shore excursions, champagne bar.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-03.svg', pdf: '' },
+        { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'deck-plans/deck-12.png', svg: 'decks/deck-02.svg', pdf: '' }
+      ];
 
-    const state = {
-      filter: 'all',
-      search: '',
-      observer: null,
-      trapFocus: null,
-      lastOpenedDeck: null,
-      switchTimer: null,
-      currentDeck: null,
-      currentZoom: 100,
-      dragging: false,
-      dragStartX: 0,
-      dragStartY: 0,
-      dragStartLeft: 0,
-      dragStartTop: 0
-    };
-
-    const deckHotspots = {
-      6: [
-        { id: 'aft-cabins', title: 'Aft cabin cluster', note: 'Quieter corridor with faster wake-view access.', x: 78, y: 58 },
-        { id: 'midship-elevators', title: 'Midship elevators', note: 'Fastest transfer point to dining and promenade decks.', x: 52, y: 50 },
-        { id: 'forward-stairs', title: 'Forward stairs', note: 'Best route to theater and lower-deck venues.', x: 26, y: 43 },
-        { id: 'room-6650', title: 'Room 6650', note: 'Your stateroom zone is near the aft elevator bank.', x: 72, y: 56, highlight: true }
-      ]
-    };
-
-    const deckFocusMap = {
-      12: ['Main Pool', 'Solarium', 'Windjammer'],
-      11: ['Vitality Spa', 'Fitness Center', 'Jog Track Access'],
-      5: ['Promenade', 'Cafe Promenade', 'Guest Services'],
-      4: ['Main Dining Room', 'Royal Theater', 'Casino'],
-      3: ['Lobby', 'Guest Services', 'Dining Entrance'],
-      6: ['Room 6650', 'Midship Elevators', 'Aft Cabins']
-    };
-
-    const els = {
-      search: document.getElementById('deckSearch'),
-      quickRail: document.getElementById('deckQuickRail'),
-      cards: document.getElementById('deckCards'),
-      empty: document.getElementById('emptyState'),
-      countVisible: document.getElementById('countVisible'),
-      countTotal: document.getElementById('countTotal'),
-      clearFilters: document.getElementById('clearFilters'),
-      showAll: document.getElementById('showAll'),
-      modal: document.getElementById('deckModal'),
-      modalFrame: document.getElementById('modalFrame'),
-      modalTitle: document.getElementById('modalTitle'),
-      modalDesc: document.getElementById('modalDesc'),
-      modalFocusChips: document.getElementById('deckFocusChips'),
-      zoomLevel: document.getElementById('zoomLevel'),
-      download: document.getElementById('downloadPlan')
-    };
-
-    const debounce = (fn, delay = 200) => {
-      let t;
-      return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), delay);
+      // ---- DECK HOTSPOTS (enhanced) ----
+      const deckHotspots = {
+        6: [
+          { id: 'aft-cabins', title: 'Aft cabin cluster', note: 'Quieter corridor, wake views. Your room 6650 nearby.', x: 78, y: 58, highlight: true },
+          { id: 'midship-elevators', title: 'Midship elevators', note: 'Fastest transfer to dining & promenade.', x: 52, y: 50, highlight: false },
+          { id: 'forward-stairs', title: 'Forward stairs', note: 'Best route to theater and deck 4.', x: 26, y: 43 }
+        ],
+        12: [
+          { id: 'main-pool', title: 'Main pool', note: 'Live music, pool games, bar.', x: 40, y: 60 },
+          { id: 'solarium', title: 'Solarium', note: 'Adults-only oasis, indoor pool.', x: 70, y: 30, highlight: true },
+          { id: 'windjammer', title: 'Windjammer Cafe', note: 'Casual buffet, ocean view.', x: 20, y: 70 }
+        ],
+        11: [
+          { id: 'spa', title: 'Vitality Spa', note: 'Thermal suite, massages.', x: 48, y: 44 },
+          { id: 'fitness', title: 'Fitness Center', note: 'Panoramic treadmills.', x: 30, y: 55 }
+        ],
+        5: [
+          { id: 'cafe-promenade', title: 'Cafe Promenade', note: '24h coffee, sandwiches.', x: 55, y: 48 },
+          { id: 'guest-services', title: 'Guest Services', note: 'Desk, crown & anchor.', x: 48, y: 60 }
+        ]
       };
-    };
 
-    function applyFilter(filter) {
-      state.filter = filter;
-      document.querySelectorAll('.pill-btn').forEach(btn => {
-        btn.classList.toggle('is-active', btn.dataset.filter === filter);
-      });
-      if (state.switchTimer) clearTimeout(state.switchTimer);
-      els.cards.classList.add('is-switching');
-      renderCards();
-      state.switchTimer = setTimeout(() => {
-        els.cards.classList.remove('is-switching');
-      }, 220);
-    }
+      // ---- FOCUS CHIPS ----
+      const deckFocusMap = {
+        12: ['Main Pool', 'Solarium', 'Windjammer'],
+        11: ['Vitality Spa', 'Fitness Center'],
+        5: ['Cafe Promenade', 'Guest Services'],
+        4: ['Main Dining', 'Royal Theater'],
+        6: ['Room 6650', 'Midship Elevators']
+      };
 
-    function filterDecks() {
-      const query = state.search.toLowerCase().trim();
-      return deckData.filter(deck => {
-        const matchesFilter = state.filter === 'all' || deck.category === state.filter;
-        const searchable = `${deck.name} ${deck.subtitle} ${deck.highlights.join(' ')}`.toLowerCase();
-        const matchesQuery = !query || searchable.includes(query);
-        return matchesFilter && matchesQuery;
-      });
-    }
+      // --- STATE ---
+      const state = {
+        filter: 'all', search: '', lastOpenedDeck: null, currentDeck: null,
+        currentZoom: 100, dragging: false, dragStartX: 0, dragStartY: 0, dragStartLeft: 0, dragStartTop: 0
+      };
 
-    function renderPills() {
-      const buckets = { entertainment: [], wellness: [], essential: [] };
-      deckData.forEach(deck => {
-        if (buckets[deck.category]) buckets[deck.category].push(deck);
-      });
-      Object.entries(buckets).forEach(([key, decks]) => {
-        const host = document.getElementById(`pill-${key}`);
-        if (!host) return;
-        host.innerHTML = decks.map(deck => `
-          <button class="deck-pill" data-deck="${deck.number}" aria-label="Go to ${deck.number === 0 ? 'All Decks overview' : `Deck ${deck.number} ${deck.subtitle}`}">
-            <span class="deck-pill__number">${deck.number === 0 ? 'ALL' : deck.number}</span>
-            <span class="deck-pill__text">${deck.subtitle}</span>
+      const els = {
+        search: document.getElementById('deckSearch'),
+        quickRail: document.getElementById('deckQuickRail'),
+        cards: document.getElementById('deckCards'),
+        empty: document.getElementById('emptyState'),
+        countVisible: document.getElementById('countVisible'),
+        countTotal: document.getElementById('countTotal'),
+        clearFilters: document.getElementById('clearFilters'),
+        modal: document.getElementById('deckModal'),
+        modalFrame: document.getElementById('modalFrame'),
+        modalTitle: document.getElementById('modalTitle'),
+        modalDesc: document.getElementById('modalDesc'),
+        modalFocusChips: document.getElementById('deckFocusChips'),
+        zoomLevel: document.getElementById('zoomLevel'),
+        download: document.getElementById('downloadPlan')
+      };
+
+      // ----- RENDER FUNCTIONS (polished) -----
+      function filterDecks() {
+        const q = state.search.toLowerCase().trim();
+        return deckData.filter(d => 
+          (state.filter === 'all' || d.category === state.filter) &&
+          (!q || `${d.name} ${d.subtitle} ${d.highlights.join(' ')}`.toLowerCase().includes(q))
+        );
+      }
+
+      function renderQuickRail() {
+        const sorted = [...deckData].sort((a,b) => b.number - a.number);
+        els.quickRail.innerHTML = sorted.map(d => `
+          <button class="deck-quickbtn" data-deck="${d.number}" aria-label="Open ${d.name}">
+            <span class="deck-quickbtn__num">${d.number === 0 ? 'ALL' : `D${d.number}`}</span>
+            <span class="deck-quickbtn__sub">${d.subtitle}</span>
           </button>
         `).join('');
-      });
-    }
-
-    function renderQuickRail() {
-      const decks = [...deckData].sort((a, b) => b.number - a.number);
-      els.quickRail.innerHTML = decks.map(deck => `
-        <button class="deck-quickbtn" type="button" data-deck="${deck.number}" aria-label="Open ${deck.name}">
-          <span class="deck-quickbtn__num">${deck.number === 0 ? 'ALL' : `D${deck.number}`}</span>
-          <span class="deck-quickbtn__sub">${deck.subtitle}</span>
-        </button>
-      `).join('');
-    }
-
-    function setActiveQuickDeck(deckNumber) {
-      document.querySelectorAll('.deck-quickbtn').forEach(btn => {
-        btn.classList.toggle('is-active', Number(btn.dataset.deck) === Number(deckNumber));
-      });
-    }
-
-    function lazyLoadImages() {
-      if (state.observer) state.observer.disconnect();
-      state.observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target;
-            img.src = img.dataset.src;
-            state.observer.unobserve(img);
-          }
-        });
-      }, { rootMargin: '120px 0px' });
-      document.querySelectorAll('img[data-src]').forEach(img => state.observer.observe(img));
-    }
-
-    function renderCards() {
-      const decks = filterDecks();
-      els.countTotal.textContent = deckData.length;
-      els.countVisible.textContent = decks.length;
-      els.empty.hidden = decks.length > 0;
-      els.cards.innerHTML = decks.map(deck => `
-        <article class="deck-card ${state.lastOpenedDeck === deck.number ? 'deck-card--active' : ''}" role="listitem" tabindex="0" data-deck="${deck.number}" aria-label="${deck.name} ${deck.subtitle}">
-          <div class="deck-visual">
-            <span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span>
-            <img data-src="${deck.image}" alt="${deck.name} preview" />
-          </div>
-          <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>${deck.name}</h3>
-              <p class="deck-subtitle">${deck.subtitle}</p>
-            </div>
-            <div class="deck-meta">
-              <span class="deck-meta__item">Voyager Class</span>
-              <span class="deck-meta__item">Adventure of the Seas</span>
-            </div>
-            <div class="deck-highlights">
-              ${deck.highlights.slice(0,3).map(text => `<span>${text}</span>`).join('')}
-            </div>
-            <p class="deck-subtitle" style="margin-top:10px;">
-              ${deck.category === 'wellness'
-                ? 'Related: Dining and pool-day planning'
-                : deck.category === 'entertainment'
-                  ? 'Related: Itinerary showtimes and evening flow'
-                  : 'Related: Stateroom access and embarkation routes'}
-            </p>
-            <button class="deck-card__cta btn btn--nautical" data-action="open" aria-label="Open ${deck.name} plan">Explore →</button>
-          </div>
-        </article>
-      `).join('');
-      lazyLoadImages();
-    }
-
-    function setActiveDeckPill(deckNumber) {
-      document.querySelectorAll('.deck-pill').forEach(btn => {
-        btn.classList.toggle('is-active', Number(btn.dataset.deck) === Number(deckNumber));
-      });
-    }
-
-    function openModal(deck) {
-      state.lastOpenedDeck = deck.number;
-      state.currentDeck = deck;
-      setActiveDeckPill(deck.number);
-      setActiveQuickDeck(deck.number);
-      renderCards();
-      els.modalTitle.textContent = `${deck.name}`;
-      els.modalDesc.textContent = deck.description;
-      renderFocusChips(deck);
-      if (deck.pdf) {
-        els.download.href = deck.pdf;
-        els.download.setAttribute('aria-disabled', 'false');
-        els.download.innerHTML = '<span>⬇</span> Download PDF';
-      } else {
-        els.download.href = '#';
-        els.download.setAttribute('aria-disabled', 'true');
-        els.download.innerHTML = '<span>⬇</span> PDF unavailable';
       }
-      renderModalPlan(deck);
-      els.modal.setAttribute('aria-hidden', 'false');
-      els.modal.classList.add('is-open');
-      setZoom(100);
-      const focusable = els.modal.querySelectorAll('button, a');
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      state.trapFocus = (e) => {
-        if (e.key !== 'Tab') return;
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      };
-      document.addEventListener('keydown', state.trapFocus);
-      first.focus({ preventScroll: true });
-    }
 
-    function closeModal() {
-      els.modal.classList.remove('is-open');
-      els.modal.setAttribute('aria-hidden', 'true');
-      els.modalFocusChips.innerHTML = '';
-      els.modalFrame.innerHTML = '';
-      state.currentDeck = null;
-      document.removeEventListener('keydown', state.trapFocus);
-      state.trapFocus = null;
-    }
-
-    function setZoom(value) {
-      const clamped = Math.min(300, Math.max(50, value));
-      state.currentZoom = clamped;
-      els.zoomLevel.textContent = `${clamped}%`;
-      const canvas = document.getElementById('deckPlanCanvas');
-      if (canvas) {
-        canvas.style.setProperty('--plan-scale', (clamped / 100).toFixed(2));
-      }
-    }
-
-    function adjustZoom(delta) {
-      const current = parseInt(els.zoomLevel.textContent.replace('%', ''), 10) || 100;
-      setZoom(current + delta);
-    }
-
-    function handleCardClick(e) {
-      const card = e.target.closest('.deck-card');
-      if (!card) return;
-      const deckNum = Number(card.dataset.deck);
-      const deck = deckData.find(d => d.number === deckNum);
-      if (deck) openModal(deck);
-    }
-
-    function renderModalPlan(deck) {
-      const hotspots = deckHotspots[deck.number] || [];
-      const hotspotMarkup = hotspots.map((spot, index) => `
-        <button
-          class="deck-hotspot"
-          type="button"
-          data-hotspot-id="${spot.id}"
-          data-note="${spot.note}"
-          data-title="${spot.title}"
-          data-highlight="${spot.highlight ? 'true' : 'false'}"
-          style="left:${spot.x}%; top:${spot.y}%;"
-          aria-label="${spot.title}"
-          title="${spot.title}"
-        >${index + 1}</button>
-      `).join('');
-
-      const legendMarkup = hotspots.length ? `
-        <div class="deck-plan-legend" aria-label="Deck focus points">
-          ${hotspots.map((spot, index) => `
-            <button class="deck-plan-legend-item" type="button" data-hotspot-id="${spot.id}">
-              <strong>${index + 1}. ${spot.title}</strong>
-              <span>${spot.note}</span>
+      function renderPills() {
+        const cats = { entertainment: [], wellness: [], essential: [] };
+        deckData.forEach(d => { if (cats[d.category]) cats[d.category].push(d); });
+        Object.entries(cats).forEach(([key, decks]) => {
+          const host = document.getElementById(`pill-${key}`);
+          if (host) host.innerHTML = decks.map(d => `
+            <button class="deck-pill" data-deck="${d.number}">
+              <span class="deck-pill__number">${d.number === 0 ? 'ALL' : d.number}</span>
+              <span class="deck-pill__text">${d.subtitle}</span>
             </button>
-          `).join('')}
-        </div>
-      ` : '';
-
-      els.modalFrame.innerHTML = `
-        <div class="deck-plan-stage" id="deckPlanStage">
-          <div class="deck-plan-canvas" id="deckPlanCanvas">
-            <img class="deck-plan-media" src="${deck.svg}" alt="${deck.name} plan" loading="eager" />
-            ${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotMarkup}</div>` : ''}
-          </div>
-        </div>
-        ${legendMarkup}
-      `;
-      attachPlanDragPan();
-    }
-
-    function renderFocusChips(deck) {
-      const chips = deckFocusMap[deck.number] || [];
-      if (!chips.length) {
-        els.modalFocusChips.innerHTML = '';
-        return;
+          `).join('');
+        });
       }
-      els.modalFocusChips.innerHTML = chips.map(label =>
-        `<button class="deck-focuschip" type="button" data-focus="${label}">${label}</button>`
-      ).join('');
-    }
 
-    function openAdjacentDeck(delta) {
-      if (!state.currentDeck) return;
-      const sorted = [...deckData]
-        .filter(d => d.number !== 0)
-        .sort((a, b) => a.number - b.number);
-      const idx = sorted.findIndex(d => d.number === state.currentDeck.number);
-      if (idx < 0) return;
-      const next = sorted[idx + delta];
-      if (!next) return;
-      openModal(next);
-      els.modalDesc.textContent = `${next.name} loaded.`;
-    }
+      function renderCards() {
+        const decks = filterDecks();
+        els.countTotal.textContent = deckData.length;
+        els.countVisible.textContent = decks.length;
+        els.empty.hidden = decks.length > 0;
+        els.cards.innerHTML = decks.map(d => `
+          <article class="deck-card" role="listitem" data-deck="${d.number}">
+            <div class="deck-visual">
+              <span class="deck-number">${d.number === 0 ? 'ALL' : d.number}</span>
+              <img data-src="${d.image}" alt="${d.name}" src="${d.image}" loading="lazy">
+            </div>
+            <div class="deck-info">
+              <h3 style="font-size:1.6rem; font-weight:800;">${d.name}</h3>
+              <p style="color:var(--accent); font-weight:600;">${d.subtitle}</p>
+              <div class="deck-highlights">${d.highlights.slice(0,3).map(h => `<span>${h}</span>`).join('')}</div>
+              <button class="deck-card__cta btn btn--nautical" data-action="open" style="margin-top:16px; background:var(--accent); color:white; border:none; padding:12px 24px; border-radius:60px; font-weight:700;">Explore deck →</button>
+            </div>
+          </article>
+        `).join('');
+      }
 
-    function selectHotspot(target) {
-      els.modalFrame.querySelectorAll('.deck-hotspot').forEach(btn => {
-        btn.dataset.selected = btn === target ? 'true' : 'false';
-      });
-      target.focus({ preventScroll: true });
-      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-      els.modalDesc.textContent = target.dataset.note || target.dataset.title || state.currentDeck?.description || '';
-    }
-
-    function attachPlanDragPan() {
-      const stage = document.getElementById('deckPlanStage');
-      if (!stage) return;
-      stage.addEventListener('pointerdown', (e) => {
-        if (state.currentZoom <= 100) return;
-        state.dragging = true;
-        state.dragStartX = e.clientX;
-        state.dragStartY = e.clientY;
-        state.dragStartLeft = stage.scrollLeft;
-        state.dragStartTop = stage.scrollTop;
-        stage.setPointerCapture?.(e.pointerId);
-      });
-      stage.addEventListener('pointermove', (e) => {
-        if (!state.dragging) return;
-        const dx = e.clientX - state.dragStartX;
-        const dy = e.clientY - state.dragStartY;
-        stage.scrollLeft = state.dragStartLeft - dx;
-        stage.scrollTop = state.dragStartTop - dy;
-      });
-      const stopDrag = () => {
-        state.dragging = false;
-      };
-      stage.addEventListener('pointerup', stopDrag);
-      stage.addEventListener('pointercancel', stopDrag);
-      stage.addEventListener('mouseleave', stopDrag);
-    }
-
-    function bindEvents() {
-      document.querySelectorAll('.pill-btn').forEach(btn => {
-        btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
-      });
-
-      els.search.addEventListener('input', debounce((e) => {
-        state.search = e.target.value;
-        renderCards();
-      }, 180));
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === '/' && document.activeElement !== els.search) {
-          e.preventDefault();
-          els.search.focus();
+      // --- MODAL ---
+      function openModal(deck) {
+        state.currentDeck = deck;
+        state.lastOpenedDeck = deck.number;
+        els.modalTitle.textContent = `${deck.name}: ${deck.subtitle}`;
+        els.modalDesc.textContent = deck.description;
+        setActiveDeck(deck.number);
+        renderFocusChips(deck);
+        renderModalPlan(deck);
+        if (deck.pdf) {
+          els.download.href = deck.pdf;
+          els.download.removeAttribute('aria-disabled');
+        } else {
+          els.download.href = '#';
+          els.download.setAttribute('aria-disabled', 'true');
         }
-        if (e.key === 'Escape') closeModal();
-        if (els.modal.classList.contains('is-open') && e.key === 'ArrowLeft') openAdjacentDeck(-1);
-        if (els.modal.classList.contains('is-open') && e.key === 'ArrowRight') openAdjacentDeck(1);
-        if (e.key === 'Enter' && document.activeElement?.classList.contains('deck-card__cta')) {
-          document.activeElement.click();
-        }
-      });
+        els.modal.classList.add('is-open');
+        els.modal.setAttribute('aria-hidden', 'false');
+        setZoom(100);
+      }
 
-      document.getElementById('deckCards').addEventListener('click', (e) => {
-        if (e.target.matches('[data-action="open"]') || e.target.closest('.deck-card')) {
-          handleCardClick(e);
-        }
-      });
+      function closeModal() { els.modal.classList.remove('is-open'); els.modal.setAttribute('aria-hidden','true'); }
 
-      document.getElementById('deckCards').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          handleCardClick(e);
-        }
-      });
+      function setZoom(v) { 
+        state.currentZoom = Math.min(300, Math.max(50, v)); 
+        els.zoomLevel.textContent = `${state.currentZoom}%`;
+        const canvas = document.getElementById('deckPlanCanvas');
+        if (canvas) canvas.style.setProperty('--plan-scale', (state.currentZoom/100).toFixed(2));
+      }
 
-      document.querySelectorAll('[data-action="close-modal"]').forEach(el => {
-        el.addEventListener('click', closeModal);
-      });
+      function renderModalPlan(deck) {
+        const hotspots = deckHotspots[deck.number] || [];
+        const chips = deckFocusMap[deck.number] || [];
+        els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" style="background:#eaf3ff; padding:8px 18px; border-radius:60px; border:none; font-weight:600;">${l}</button>`).join('');
+        const hotspotButtons = hotspots.map((s,i) => `
+          <button class="deck-hotspot" style="position:absolute; left:${s.x}%; top:${s.y}%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:44px; background:linear-gradient(145deg, #0ca8ff, #0069d0); border:3px solid white; color:white; font-weight:800; box-shadow:0 10px 24px rgba(0,121,212,0.6);" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
+        `).join('');
+        
+        els.modalFrame.innerHTML = `
+          <div class="deck-plan-stage" id="deckPlanStage" style="position:relative; overflow:auto; background:#082434; padding:20px; border-radius:28px;">
+            <div class="deck-plan-canvas" id="deckPlanCanvas" style="transform-origin:top left; transform:scale(${state.currentZoom/100});">
+              <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" style="width:100%; border-radius:24px;" alt="${deck.name}">
+              ${hotspots.length ? `<div style="position:absolute; inset:20px;">${hotspotButtons}</div>` : ''}
+            </div>
+          </div>
+          ${hotspots.length ? `<div class="deck-plan-legend" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:18px;">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}" style="background:white; border:none; padding:10px 18px; border-radius:40px; box-shadow:0 4px 8px rgba(0,0,0,0.04);"><strong>${i+1}. ${s.title}</strong><span style="display:block; font-size:0.8rem;">${s.note}</span></button>`).join('')}</div>` : ''}
+        `;
+        attachPan();
+      }
 
-      els.modal.addEventListener('click', (e) => {
-        const action = e.target.dataset.action;
-        if (action === 'prev-deck') openAdjacentDeck(-1);
-        if (action === 'next-deck') openAdjacentDeck(1);
-        if (action === 'zoom-in') adjustZoom(25);
-        if (action === 'zoom-out') adjustZoom(-25);
-        if (action === 'zoom-reset') setZoom(100);
-        if (action === 'center-me') {
-          const focusTarget =
-            els.modalFrame.querySelector('.deck-hotspot[data-highlight="true"]') ||
-            els.modalFrame.querySelector('.deck-hotspot');
-          if (focusTarget) {
-            selectHotspot(focusTarget);
-          } else {
-            els.modalDesc.textContent = 'No location markers available on this deck.';
-          }
-        }
-      });
+      function renderFocusChips(deck) { /* already in renderModalPlan */ }
 
-      els.modalFrame.addEventListener('click', (e) => {
-        const hotspot = e.target.closest('.deck-hotspot, .deck-plan-legend-item');
-        if (!hotspot) return;
-        const id = hotspot.dataset.hotspotId;
-        const target = id ? els.modalFrame.querySelector(`.deck-hotspot[data-hotspot-id="${id}"]`) : null;
-        if (!target) return;
-        selectHotspot(target);
-      });
-
-      els.modalFocusChips.addEventListener('click', (e) => {
-        const chip = e.target.closest('.deck-focuschip');
-        if (!chip) return;
-        const needle = (chip.dataset.focus || '').toLowerCase();
-        const hotspot = [...els.modalFrame.querySelectorAll('.deck-hotspot')]
-          .find(btn => (btn.dataset.title || '').toLowerCase().includes(needle));
-        if (hotspot) {
-          selectHotspot(hotspot);
-          return;
-        }
-        els.modalDesc.textContent = `${chip.dataset.focus} highlighted in this deck context.`;
-      });
-
-      els.download.addEventListener('click', (e) => {
-        if (els.download.getAttribute('aria-disabled') === 'true') {
-          e.preventDefault();
-        }
-      });
-
-      document.querySelectorAll('.deck-pill').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
-          if (!deck) return;
-          setActiveDeckPill(deck.number);
-          setActiveQuickDeck(deck.number);
-          openModal(deck);
+      function attachPan() {
+        const stage = document.getElementById('deckPlanStage');
+        if (!stage) return;
+        stage.addEventListener('pointerdown', (e) => { 
+          if (state.currentZoom <= 100) return;
+          state.dragging = true; 
+          state.dragStartX = e.clientX; state.dragStartY = e.clientY;
+          state.dragStartLeft = stage.scrollLeft; state.dragStartTop = stage.scrollTop;
+          stage.setPointerCapture(e.pointerId);
         });
-      });
+        stage.addEventListener('pointermove', (e) => { 
+          if (!state.dragging) return;
+          stage.scrollLeft = state.dragStartLeft - (e.clientX - state.dragStartX);
+          stage.scrollTop = state.dragStartTop - (e.clientY - state.dragStartY);
+        });
+        stage.addEventListener('pointerup', () => state.dragging = false);
+        stage.addEventListener('pointercancel', () => state.dragging = false);
+      }
 
-      els.quickRail.addEventListener('click', (e) => {
-        const btn = e.target.closest('.deck-quickbtn');
-        if (!btn) return;
-        const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
-        if (!deck) return;
-        setActiveQuickDeck(deck.number);
-        openModal(deck);
-      });
+      function setActiveDeck(num) {
+        document.querySelectorAll('.deck-quickbtn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+        document.querySelectorAll('.deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+      }
 
-      els.clearFilters.addEventListener('click', () => {
-        state.search = '';
-        els.search.value = '';
-        applyFilter('all');
-      });
-      els.showAll.addEventListener('click', () => {
-        state.search = '';
-        els.search.value = '';
-        applyFilter('all');
-      });
-
-      document.querySelectorAll('.link-button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          els.search.value = btn.dataset.suggest || '';
-          state.search = els.search.value;
+      // --- EVENT LISTENERS (luxe) ---
+      function bindEvents() {
+        // Filter buttons
+        document.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', function() {
+          state.filter = this.dataset.filter;
+          document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter));
           renderCards();
+        }));
+
+        els.search.addEventListener('input', function(e) { state.search = e.target.value; renderCards(); });
+
+        // global key
+        document.addEventListener('keydown', (e) => { 
+          if (e.key === '/' && document.activeElement !== els.search) { e.preventDefault(); els.search.focus(); }
+          if (e.key === 'Escape') closeModal();
         });
-      });
-    }
 
-    function init() {
-      renderQuickRail();
-      renderPills();
-      renderCards();
-      bindEvents();
-    }
+        // open card
+        els.cards.addEventListener('click', (e) => {
+          const card = e.target.closest('.deck-card');
+          if (!card) return;
+          const deck = deckData.find(d => d.number === Number(card.dataset.deck));
+          if (deck) openModal(deck);
+        });
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
+        // quick rail
+        els.quickRail.addEventListener('click', (e) => {
+          const btn = e.target.closest('.deck-quickbtn');
+          if (btn) { const deck = deckData.find(d => d.number === Number(btn.dataset.deck)); if (deck) openModal(deck); }
+        });
+
+        // category pills
+        document.addEventListener('click', (e) => {
+          const pill = e.target.closest('.deck-pill');
+          if (pill) { const deck = deckData.find(d => d.number === Number(pill.dataset.deck)); if (deck) openModal(deck); }
+        });
+
+        // modal actions
+        els.modal.addEventListener('click', (e) => {
+          const trigger = e.target.closest('[data-action]');
+          const act = trigger?.dataset.action;
+          if (act === 'close-modal') closeModal();
+          if (act === 'zoom-in') setZoom(state.currentZoom + 25);
+          if (act === 'zoom-out') setZoom(state.currentZoom - 25);
+          if (act === 'zoom-reset') setZoom(100);
+          if (act === 'prev-deck') { 
+            const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
+            const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
+            if (idx > 0) openModal(sorted[idx-1]);
+          }
+          if (act === 'next-deck') {
+            const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
+            const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
+            if (idx < sorted.length-1) openModal(sorted[idx+1]);
+          }
+        });
+
+        els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderCards(); });
+      }
+
+      function init() {
+        renderQuickRail();
+        renderPills();
+        renderCards();
+        bindEvents();
+      }
       init();
-    }
+    })();
   </script>
+
+  <div id="sharedFooter"></div>
+  <div id="sharedBottomNav" data-page="decks"></div>
 </body>
 </html>
