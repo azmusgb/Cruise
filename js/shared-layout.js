@@ -1876,8 +1876,23 @@
     const styles = `
       .app-header--rccl-site .header-utility__promo {
         font-weight: 700;
-        color: #cbe6ff;
+        color: #1f5e87;
         font-size: 0.78rem;
+      }
+
+      .app-header--rccl-site .header-utility {
+        background: linear-gradient(180deg, #ecf8ff 0%, #dff1ff 100%);
+        border-bottom: 1px solid rgba(8, 89, 136, 0.14);
+      }
+
+      .app-header--rccl-site .header-utility__crumb {
+        color: #124d75;
+      }
+
+      .app-header--rccl-site .header-utility__mode {
+        color: #0f4e76;
+        background: rgba(255, 255, 255, 0.76);
+        border-color: rgba(8, 89, 136, 0.22);
       }
 
       .app-header--rccl-site .header-nav {
@@ -1910,7 +1925,18 @@
       }
 
       .app-header--rccl-site .header-nav__link.active .header-nav__hint {
-        color: #ffe5a6;
+        color: #7b5c2b;
+      }
+
+      .app-header--rccl-site .header-nav__link.active {
+        color: #0f4f76;
+        background: linear-gradient(180deg, rgba(255, 213, 125, 0.3) 0%, rgba(255, 213, 125, 0.16) 100%);
+        border-color: rgba(255, 190, 92, 0.42);
+        box-shadow: 0 8px 16px rgba(0, 121, 180, 0.12);
+      }
+
+      .app-header--rccl-site .header-nav__link.active i {
+        color: #0f4f76;
       }
 
       .app-header--rccl-site .header-cta--help {
@@ -2025,17 +2051,17 @@
         grid-template-columns: repeat(5, minmax(0, 1fr));
         gap: 8px;
         padding: 9px 12px calc(10px + env(safe-area-inset-bottom));
-        background: rgba(5, 20, 40, 0.95);
-        border-top: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(241, 250, 255, 0.92);
+        border-top: 1px solid rgba(8, 89, 136, 0.18);
         backdrop-filter: blur(10px);
       }
 
       .bottom-nav__item {
         min-height: 48px;
         border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(255, 255, 255, 0.06);
-        color: #f0f7ff;
+        border: 1px solid rgba(8, 89, 136, 0.14);
+        background: rgba(255, 255, 255, 0.64);
+        color: #1f567c;
         text-decoration: none;
         display: inline-flex;
         flex-direction: column;
@@ -2056,9 +2082,10 @@
       }
 
       .bottom-nav__item.active {
-        border-color: rgba(255, 223, 137, 0.56);
-        color: #ffe7a8;
-        background: rgba(255, 223, 137, 0.16);
+        border-color: rgba(255, 190, 92, 0.56);
+        color: #0f4f76;
+        background: rgba(255, 190, 92, 0.22);
+        box-shadow: 0 8px 14px rgba(0, 121, 180, 0.12);
       }
 
       @media (max-width: 767px) {
