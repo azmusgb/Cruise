@@ -10,103 +10,265 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
-  <title>Deck Navigator · Adventure of the Seas | Royal Caribbean</title>
 
-  <!-- Premium fonts & icons -->
+  <title>Deck Navigator · Adventure of the Seas</title>
+
+  <!-- Fonts & icons (kept for existing shared layout + modal icons) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/base.css?v=3">
   <link rel="stylesheet" href="css/utilities.css?v=3">
   <link rel="stylesheet" href="css/components.css?v=3">
   <link rel="stylesheet" href="css/feature-modules.css?v=3">
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
   <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
+
   <script src="js/shared-layout.js?v=17" defer></script>
 
+  <!-- Page-level restraint overrides (place-first) -->
+  <style>
+    /* ---- Make this page feel like a place, not a product shell ---- */
+    body.decks-page {
+      --decks-shadow: 0 14px 34px rgba(0, 60, 110, 0.07);
+      --decks-shadow-hover: 0 18px 44px rgba(0, 60, 110, 0.09);
+      --decks-radius: 28px;
+      --decks-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Quiet shared header/footer chrome on this page (if shared layout renders a heavy masthead) */
+    body.decks-page #sharedHeader {
+      opacity: 0.0;
+      height: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    /* Remove “app shell” feel from top spacing */
+    .decks-shell { padding-top: 0 !important; }
+
+    /* Hero becomes contextual, not ceremonial */
+    .deck-hero {
+      padding: 42px 0 22px !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+    .deck-hero__eyebrow {
+      font-family: "Inter", sans-serif !important;
+      font-weight: 500 !important;
+      opacity: 0.70 !important;
+      letter-spacing: 0 !important;
+    }
+    .deck-hero__title {
+      font-family: "Plus Jakarta Sans", sans-serif !important;
+      font-weight: 600 !important;
+      letter-spacing: -0.01em !important;
+      margin: 8px 0 6px !important;
+    }
+    .deck-hero__subtitle {
+      opacity: 0.72 !important;
+      margin: 0 0 16px !important;
+    }
+
+    /* Actions: reduce “CTA strip” energy */
+    .deck-hero__actions .btn i { display: none !important; }
+    .deck-hero__actions .btn {
+      border-radius: 999px !important;
+      transition: transform 220ms var(--decks-ease), box-shadow 220ms var(--decks-ease), background-color 220ms var(--decks-ease) !important;
+    }
+    .deck-hero__actions .btn:hover { transform: translateY(-2px) !important; }
+    .deck-hero__actions .btn--secondary { opacity: 0.95 !important; }
+
+    /* Search / filters: soften from SaaS “controls” */
+    .main-navigation {
+      margin-top: 8px !important;
+    }
+    .main-navigation__inner {
+      background: rgba(255,255,255,0.72) !important;
+      border: 1px solid rgba(11,61,102,0.08) !important;
+      box-shadow: var(--decks-shadow) !important;
+      border-radius: var(--decks-radius) !important;
+      backdrop-filter: blur(10px) !important;
+    }
+    .main-navigation__search {
+      border-radius: 999px !important;
+      background: rgba(255,255,255,0.70) !important;
+      border: 1px solid rgba(11,61,102,0.08) !important;
+    }
+    .main-navigation__filters .pill-btn {
+      border: 1px solid rgba(11,61,102,0.08) !important;
+      background: rgba(255,255,255,0.55) !important;
+      box-shadow: none !important;
+      transform: none !important;
+      border-radius: 999px !important;
+      font-weight: 500 !important;
+      opacity: 0.86 !important;
+      transition: background-color 200ms var(--decks-ease), opacity 200ms var(--decks-ease) !important;
+    }
+    .main-navigation__filters .pill-btn.is-active {
+      background: rgba(0,164,216,0.14) !important;
+      opacity: 1 !important;
+    }
+
+    /* Quick rail: signage vibe */
+    .deck-quickrail {
+      gap: 10px !important;
+    }
+    .deck-quickbtn {
+      transform: none !important;
+      box-shadow: var(--decks-shadow) !important;
+      border-radius: 18px !important;
+      transition: transform 220ms var(--decks-ease), box-shadow 220ms var(--decks-ease) !important;
+    }
+    .deck-quickbtn:hover { transform: translateY(-2px) !important; box-shadow: var(--decks-shadow-hover) !important; }
+    .deck-quickbtn__num { font-weight: 600 !important; }
+    .deck-quickbtn__sub { opacity: 0.72 !important; }
+
+    /* Categories: keep, but quiet (not taxonomy UI) */
+    .deck-directory__header {
+      align-items: baseline !important;
+    }
+    .deck-directory__title {
+      font-weight: 600 !important;
+    }
+    .deck-directory__toggle {
+      opacity: 0.78 !important;
+      border-radius: 999px !important;
+      box-shadow: none !important;
+    }
+    .category-card {
+      border-radius: var(--decks-radius) !important;
+      box-shadow: var(--decks-shadow) !important;
+      border: 1px solid rgba(11,61,102,0.08) !important;
+    }
+    .category-card__heading {
+      font-weight: 600 !important;
+    }
+
+    /* Deck cards: make entire surface tappable, remove CTA button energy */
+    .deck-card {
+      border-radius: var(--decks-radius) !important;
+      box-shadow: var(--decks-shadow) !important;
+      border: 1px solid rgba(11,61,102,0.08) !important;
+      transition: transform 240ms var(--decks-ease), box-shadow 240ms var(--decks-ease) !important;
+    }
+    .deck-card:hover { transform: translateY(-2px) !important; box-shadow: var(--decks-shadow-hover) !important; }
+    .deck-title { font-weight: 600 !important; }
+    .deck-subtitle { opacity: 0.74 !important; }
+    .deck-highlights span { opacity: 0.80 !important; }
+
+    /* Remove image “product zoom” vibes */
+    .deck-visual img { transform: none !important; filter: none !important; }
+
+    /* CTA removed (if present from older markup) */
+    .deck-card__cta { display: none !important; }
+
+    /* Modal toolbar: soften CAD/viewer energy a bit */
+    .deck-modal__toolbar .btn-icon,
+    .deck-modal__toolbar .labeled-btn {
+      transition: transform 200ms var(--decks-ease), background-color 200ms var(--decks-ease), opacity 200ms var(--decks-ease) !important;
+    }
+    .deck-modal__toolbar .btn-icon:hover,
+    .deck-modal__toolbar .labeled-btn:hover { transform: translateY(-2px) !important; }
+
+    /* Bottom nav: keep guidance, reduce chrome */
+    body.decks-page #sharedBottomNav {
+      box-shadow: none !important;
+    }
+  </style>
 </head>
+
 <body class="app-theme-rcc decks-page">
   <a href="#main" class="skip-link">Skip to main content</a>
-  
+
+  <!-- Shared header is intentionally muted on this page to remove marketing masthead energy -->
   <div id="sharedHeader" data-page="decks"></div>
 
   <main id="main" class="decks-shell">
-    <!-- HERO – dramatically refined -->
+    <!-- HERO – contextual -->
     <section class="deck-hero">
       <div class="container">
         <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
         <h1 class="deck-hero__title">Deck Navigator</h1>
         <p class="deck-hero__subtitle">Onboard · Deck by deck</p>
         <div class="deck-hero__actions">
-          <a class="btn btn--primary" href="#deck-directory"><i class="fas fa-compass"></i> Open deck directory</a>
-          <a class="btn btn--secondary deck-hero__btn-secondary" href="rooms.html"><i class="fas fa-door-open"></i> Find my stateroom</a>
+          <a class="btn btn--primary" href="#deck-directory">Open deck directory</a>
+          <a class="btn btn--secondary deck-hero__btn-secondary" href="rooms.html">Find my stateroom</a>
         </div>
       </div>
     </section>
 
-    <!-- GLASS SEARCH & FILTERS -->
+    <!-- Search & filters – softened -->
     <section class="main-navigation container" aria-label="Deck navigation">
       <div class="main-navigation__inner">
         <div class="main-navigation__search">
-          <i class="fas fa-search"></i>
-          <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities" aria-label="Search decks" autocomplete="off">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities"
+                 aria-label="Search decks" autocomplete="off">
         </div>
-        <div class="main-navigation__filters">
-          <button class="pill-btn is-active" data-filter="all">All</button>
-          <button class="pill-btn" data-filter="entertainment">Entertainment</button>
-          <button class="pill-btn" data-filter="wellness">Wellness</button>
-          <button class="pill-btn" data-filter="essential">Essential</button>
+        <div class="main-navigation__filters" aria-label="Deck filters">
+          <button class="pill-btn is-active" data-filter="all" type="button">All</button>
+          <button class="pill-btn" data-filter="entertainment" type="button">Entertainment</button>
+          <button class="pill-btn" data-filter="wellness" type="button">Wellness</button>
+          <button class="pill-btn" data-filter="essential" type="button">Essential</button>
         </div>
       </div>
     </section>
 
-    <!-- DECK QUICK RAIL (SCULPTED) -->
-    <section class="deck-quickrail-wrap container" style="margin-top: 24px;">
+    <!-- Deck quick rail -->
+    <section class="deck-quickrail-wrap container" style="margin-top: 22px;">
       <div class="deck-quickrail" id="deckQuickRail"></div>
     </section>
 
-    <!-- CATEGORY PILLS (DYNAMIC) -->
-    <section id="deck-directory" class="deck-directory container" style="margin-top: 40px;">
+    <!-- Categories (kept, but quiet + optional) -->
+    <section id="deck-directory" class="deck-directory container" style="margin-top: 38px;">
       <div class="deck-directory__header">
-        <h2 class="deck-directory__title">Categories</h2>
-        <button id="toggleCategoryBrowse" class="deck-directory__toggle" type="button" aria-expanded="false" aria-controls="deckCategoryPanels">
-          Show categories <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        <h2 class="deck-directory__title">Browse by category</h2>
+        <button id="toggleCategoryBrowse" class="deck-directory__toggle" type="button"
+                aria-expanded="false" aria-controls="deckCategoryPanels">
+          Show <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </button>
       </div>
+
       <div id="deckCategoryPanels" class="deck-directory__panels" hidden>
         <article class="category-card" data-category="entertainment">
-          <div class="category-card__heading"><i class="fas fa-masks-theater" aria-hidden="true"></i> Entertainment Decks</div>
+          <div class="category-card__heading"><i class="fas fa-masks-theater" aria-hidden="true"></i> Entertainment</div>
           <div class="deck-pills" id="pill-entertainment"></div>
         </article>
         <article class="category-card" data-category="wellness">
-          <div class="category-card__heading"><i class="fas fa-spa" aria-hidden="true"></i> Wellness Decks</div>
+          <div class="category-card__heading"><i class="fas fa-spa" aria-hidden="true"></i> Wellness</div>
           <div class="deck-pills" id="pill-wellness"></div>
         </article>
         <article class="category-card" data-category="essential">
-          <div class="category-card__heading"><i class="fas fa-compass" aria-hidden="true"></i> Essential Decks</div>
+          <div class="category-card__heading"><i class="fas fa-compass" aria-hidden="true"></i> Essential</div>
           <div class="deck-pills" id="pill-essential"></div>
         </article>
       </div>
     </section>
 
-    <!-- DECK GRID (ENHANCED) -->
-    <section class="deck-grid container" style="margin-top: 48px;">
+    <!-- Deck grid -->
+    <section class="deck-grid container" style="margin-top: 44px;">
       <div class="deck-grid__header">
         <h2 class="deck-grid__title">Decks</h2>
       </div>
+
       <div id="deckCards" class="deck-cards" role="list"></div>
+
       <div id="emptyState" class="deck-empty" hidden>
         <div class="deck-empty__icon">🚢</div>
         <h3 class="deck-empty__title">No matching decks</h3>
-        <button class="btn btn--primary" id="clearFilters">Browse all decks</button>
+        <button class="btn btn--primary" id="clearFilters" type="button">Browse all decks</button>
       </div>
     </section>
   </main>
 
-  <!-- MODAL – cinematic -->
+  <!-- Modal -->
   <div class="deck-modal" id="deckModal" aria-hidden="true">
     <div class="deck-modal__backdrop" data-action="close-modal"></div>
     <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="deck-vertical-indicator" id="deckVerticalIndicator"></div>
+
       <div class="deck-modal__toolbar">
         <div class="toolbar-group toolbar-group--primary">
           <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
@@ -116,30 +278,39 @@
           <button class="btn-icon" data-action="zoom-reset" aria-label="Reset view"><i class="fas fa-rotate-left"></i></button>
           <span class="zoom-level" id="zoomLevel">100%</span>
         </div>
+
         <div class="toolbar-group toolbar-group--secondary">
-          <button class="labeled-btn" data-action="center-me"><i class="fas fa-location-dot"></i> <span class="btn-label">My Location</span></button>
-          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> <span class="btn-label">PDF</span></a>
+          <button class="labeled-btn" data-action="center-me" type="button">
+            <i class="fas fa-location-dot" aria-hidden="true"></i>
+            <span class="btn-label">My Location</span>
+          </button>
+          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener">
+            <i class="fas fa-file-pdf" aria-hidden="true"></i>
+            <span class="btn-label">PDF</span>
+          </a>
         </div>
+
         <button class="close-btn" data-action="close-modal" aria-label="Close"><i class="fas fa-times"></i></button>
       </div>
+
       <div class="deck-modal__body">
         <h3 id="modalTitle" class="deck-modal__title"></h3>
         <p id="modalDesc" class="deck-modal__subtitle"></p>
-        <p id="deckPanHint" class="deck-pan-hint" hidden><i class="fas fa-hand-paper"></i> Drag to pan while zoomed in</p>
+        <p id="deckPanHint" class="deck-pan-hint" hidden>
+          <i class="fas fa-hand-paper" aria-hidden="true"></i> Drag to pan while zoomed in
+        </p>
         <div id="deckFocusChips" class="deck-focuschips"></div>
         <div id="modalFrame" class="deck-modal__frame"></div>
       </div>
     </div>
   </div>
 
-  <!-- BOTTOM NAV (gloss) -->
   <div id="sharedFooter" data-page="decks"></div>
   <div id="sharedBottomNav" data-page="decks"></div>
 
-  <!-- ========== ENHANCED JAVASCRIPT – SMOOTH, PREMIUM ========== -->
+  <!-- JS (same logic, but no heroGlow / no CTA button) -->
   <script>
     (function() {
-      // ---- DECK DATA (same as original, enriched with more hotspots) ----
       const deckData = [
         { number: 0, name: 'All Decks', subtitle: 'Ship Overview Blueprint', highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'decks/deck-all.min.svg', svg: 'decks/deck-all.min.svg', pdf: '' },
         { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'decks/deck-05.png', svg: 'decks/deck-05-final.min.svg', pdf: 'decks/deck-05.pdf' },
@@ -158,7 +329,6 @@
         { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'decks/deck-02.png', svg: 'decks/deck-02-final.min.svg', pdf: '' }
       ];
 
-      // ---- DECK HOTSPOTS (enhanced) ----
       const deckHotspots = {
         6: [
           { id: 'aft-cabins', title: 'Aft cabin cluster', note: 'Quieter corridor, wake views. Your room 6650 nearby.', x: 78, y: 58, highlight: true },
@@ -180,7 +350,6 @@
         ]
       };
 
-      // ---- FOCUS CHIPS ----
       const deckFocusMap = {
         12: ['Main Pool', 'Solarium', 'Windjammer'],
         11: ['Vitality Spa', 'Fitness Center'],
@@ -189,10 +358,17 @@
         6: ['Room 6650', 'Midship Elevators']
       };
 
-      // --- STATE ---
       const state = {
-        filter: 'all', search: '', lastOpenedDeck: null, currentDeck: null,
-        currentZoom: 100, dragging: false, dragStartX: 0, dragStartY: 0, dragStartLeft: 0, dragStartTop: 0,
+        filter: 'all',
+        search: '',
+        lastOpenedDeck: null,
+        currentDeck: null,
+        currentZoom: 100,
+        dragging: false,
+        dragStartX: 0,
+        dragStartY: 0,
+        dragStartLeft: 0,
+        dragStartTop: 0,
         panHintShown: sessionStorage.getItem('deck_pan_hint_shown') === '1'
       };
 
@@ -214,11 +390,10 @@
         download: document.getElementById('downloadPlan')
       };
 
-      // ----- RENDER FUNCTIONS (polished) -----
       function renderQuickRail() {
         const sorted = [...deckData].sort((a,b) => b.number - a.number);
         els.quickRail.innerHTML = sorted.map(d => `
-          <button class="deck-quickbtn" data-deck="${d.number}" aria-label="Open ${d.name}">
+          <button class="deck-quickbtn" data-deck="${d.number}" type="button" aria-label="Open ${d.name}">
             <span class="deck-quickbtn__num">${d.number === 0 ? 'ALL' : `D${d.number}`}</span>
             <span class="deck-quickbtn__sub">${d.subtitle}</span>
           </button>
@@ -231,7 +406,7 @@
         Object.entries(cats).forEach(([key, decks]) => {
           const host = document.getElementById(`pill-${key}`);
           if (host) host.innerHTML = decks.map(d => `
-            <button class="deck-pill" data-deck="${d.number}">
+            <button class="deck-pill" type="button" data-deck="${d.number}">
               <span class="deck-pill__number">${d.number === 0 ? 'ALL' : d.number}</span>
               <span class="deck-pill__text">${d.subtitle}</span>
             </button>
@@ -239,33 +414,26 @@
         });
       }
 
-      // ---------- IMAGE PATH RESOLVER ----------
       function getDeckImage(number) {
         if (number === 0) return 'decks/deck-all.svg';
         return `decks/deck-${String(number).padStart(2, '0')}.png`;
       }
 
-      // ---------- CATEGORY CLASS ----------
       function getCategoryClass(category) {
         return `deck-card--${category}`;
       }
 
-      // ---------- RENDER CARDS ----------
       function renderDeckCards(filter = 'all', search = '') {
-        const container = document.getElementById('deckCards');
-
-        container.innerHTML = '';
+        els.cards.innerHTML = '';
 
         const filtered = deckData.filter(deck => {
-          const matchesCategory =
-            filter === 'all' || deck.category === filter;
-
+          const matchesCategory = (filter === 'all' || deck.category === filter);
+          const s = (search || '').trim().toLowerCase();
           const matchesSearch =
-            search === '' ||
-            deck.name.toLowerCase().includes(search) ||
-            deck.subtitle.toLowerCase().includes(search) ||
-            deck.highlights.join(' ').toLowerCase().includes(search);
-
+            !s ||
+            deck.name.toLowerCase().includes(s) ||
+            deck.subtitle.toLowerCase().includes(s) ||
+            deck.highlights.join(' ').toLowerCase().includes(s);
           return matchesCategory && matchesSearch;
         });
 
@@ -274,14 +442,13 @@
           card.className = `deck-card ${getCategoryClass(deck.category)}`;
           card.setAttribute('role', 'listitem');
           card.dataset.deck = deck.number;
+          card.tabIndex = 0;
+          card.setAttribute('aria-label', `Open ${deck.name}`);
 
           card.innerHTML = `
             <div class="deck-visual">
               <span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span>
-              <img src="${getDeckImage(deck.number)}"
-                   alt="${deck.name}"
-                   loading="lazy"
-                   decoding="async">
+              <img src="${getDeckImage(deck.number)}" alt="${deck.name}" loading="lazy" decoding="async">
             </div>
 
             <div class="deck-info">
@@ -290,50 +457,19 @@
               <div class="deck-highlights">
                 ${deck.highlights.map(h => `<span>${h}</span>`).join('')}
               </div>
-              <button class="deck-card__cta" data-action="open" data-deck="${deck.number}">
-                Explore deck →
-              </button>
             </div>
           `;
 
-          container.appendChild(card);
+          els.cards.appendChild(card);
         });
 
-        document.getElementById('emptyState').hidden = filtered.length !== 0;
+        els.empty.hidden = filtered.length !== 0;
       }
 
-      // --- MODAL ---
-      function openModal(deck) {
-        state.currentDeck = deck;
-        state.lastOpenedDeck = deck.number;
-        setActiveDeck(deck.number);
-        renderFocusChips(deck);
-        animateModalTitle(deck.name);
-        renderModalPlan(deck);
-        if (deck.pdf) {
-          els.download.href = deck.pdf;
-          els.download.removeAttribute('aria-disabled');
-        } else {
-          els.download.href = '#';
-          els.download.setAttribute('aria-disabled', 'true');
-        }
-        els.modal.classList.add('is-open');
-        els.modal.setAttribute('aria-hidden', 'false');
-        setZoom(100);
-      }
-
-      function closeModal() {
-        els.modal.classList.remove('is-open');
-        els.modal.setAttribute('aria-hidden','true');
-        togglePanHint(false);
-      }
-
-      function animateModalTitle(nextText) {
-        els.modalTitle.classList.add('is-swapping');
-        setTimeout(() => {
-          els.modalTitle.textContent = nextText;
-          els.modalTitle.classList.remove('is-swapping');
-        }, 160);
+      function setActiveDeck(num) {
+        document.querySelectorAll('.deck-quickbtn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+        document.querySelectorAll('.deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+        document.querySelectorAll('#deckVerticalIndicator button').forEach(b => b.classList.toggle('active', Number(b.dataset.deck) === num));
       }
 
       function togglePanHint(show) {
@@ -354,6 +490,7 @@
         els.zoomLevel.textContent = `${state.currentZoom}%`;
         const canvas = document.getElementById('deckPlanCanvas');
         if (canvas) canvas.style.transform = `scale(${(state.currentZoom / 100).toFixed(2)})`;
+
         if (state.currentZoom > 100 && !state.panHintShown) {
           togglePanHint(true);
           state.panHintShown = true;
@@ -362,20 +499,50 @@
         }
       }
 
-      function renderModalPlan(deck) {
-        const existingCanvas = document.getElementById('deckPlanCanvas');
+      function attachPan() {
+        const stage = document.getElementById('deckPlanStage');
+        if (!stage) return;
 
-        if (existingCanvas) {
-          existingCanvas.classList.add('is-transitioning');
-        }
+        stage.addEventListener('pointerdown', (e) => {
+          if (state.currentZoom <= 100) return;
+          state.dragging = true;
+          state.dragStartX = e.clientX; state.dragStartY = e.clientY;
+          state.dragStartLeft = stage.scrollLeft; state.dragStartTop = stage.scrollTop;
+          stage.setPointerCapture(e.pointerId);
+        });
+
+        stage.addEventListener('pointermove', (e) => {
+          if (!state.dragging) return;
+          stage.scrollLeft = state.dragStartLeft - (e.clientX - state.dragStartX);
+          stage.scrollTop = state.dragStartTop - (e.clientY - state.dragStartY);
+        });
+
+        stage.addEventListener('pointerup', () => state.dragging = false);
+        stage.addEventListener('pointercancel', () => state.dragging = false);
+      }
+
+      function animateModalTitle(nextText) {
+        els.modalTitle.classList.add('is-swapping');
+        setTimeout(() => {
+          els.modalTitle.textContent = nextText;
+          els.modalTitle.classList.remove('is-swapping');
+        }, 160);
+      }
+
+      function renderModalPlan(deck) {
         els.modalFrame.innerHTML = `<div class="deck-plan-skeleton" aria-hidden="true"></div>`;
 
         setTimeout(() => {
           const hotspots = deckHotspots[deck.number] || [];
           const chips = deckFocusMap[deck.number] || [];
-          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip">${l}</button>`).join('');
+
+          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" type="button">${l}</button>`).join('');
+
           const hotspotButtons = hotspots.map((s,i) => `
-            <button class="deck-hotspot" style="left:${s.x}%; top:${s.y}%;" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
+            <button class="deck-hotspot"
+              style="left:${s.x}%; top:${s.y}%;" type="button"
+              data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}"
+              data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
           `).join('');
 
           els.modalFrame.innerHTML = `
@@ -385,127 +552,137 @@
                 ${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotButtons}</div>` : ''}
               </div>
             </div>
-            ${hotspots.length ? `<div class="deck-plan-legend">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}"><strong>${i+1}. ${s.title}</strong><span>${s.note}</span></button>`).join('')}</div>` : ''}
+            ${hotspots.length ? `<div class="deck-plan-legend">${hotspots.map((s,i)=> `
+              <button class="deck-plan-legend-item" type="button" data-hotspot-id="${s.id}">
+                <strong>${i+1}. ${s.title}</strong>
+                <span>${s.note}</span>
+              </button>`).join('')}</div>` : ''}
           `;
+
           attachPan();
 
           const newCanvas = document.getElementById('deckPlanCanvas');
-          if (newCanvas) {
-            requestAnimationFrame(() => {
-              newCanvas.classList.remove('is-transitioning');
-            });
-          }
+          if (newCanvas) requestAnimationFrame(() => newCanvas.classList.remove('is-transitioning'));
         }, 180);
       }
-
-      function renderFocusChips(deck) { /* already in renderModalPlan */ }
 
       function selectHotspotById(hotspotId) {
         const target = els.modalFrame.querySelector(`.deck-hotspot[data-hotspot-id="${hotspotId}"]`);
         if (!target) return;
+
         els.modalFrame.querySelectorAll('.deck-hotspot').forEach(btn => {
           btn.dataset.selected = (btn.dataset.hotspotId === hotspotId) ? 'true' : 'false';
         });
+
         els.modalFrame.querySelectorAll('.deck-plan-legend-item').forEach(btn => {
           btn.classList.toggle('is-active', btn.dataset.hotspotId === hotspotId);
         });
+
         target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
         els.modalDesc.textContent = target.dataset.note || target.dataset.title || '';
       }
 
-      function attachPan() {
-        const stage = document.getElementById('deckPlanStage');
-        if (!stage) return;
-        stage.addEventListener('pointerdown', (e) => { 
-          if (state.currentZoom <= 100) return;
-          state.dragging = true; 
-          state.dragStartX = e.clientX; state.dragStartY = e.clientY;
-          state.dragStartLeft = stage.scrollLeft; state.dragStartTop = stage.scrollTop;
-          stage.setPointerCapture(e.pointerId);
-        });
-        stage.addEventListener('pointermove', (e) => { 
-          if (!state.dragging) return;
-          stage.scrollLeft = state.dragStartLeft - (e.clientX - state.dragStartX);
-          stage.scrollTop = state.dragStartTop - (e.clientY - state.dragStartY);
-        });
-        stage.addEventListener('pointerup', () => state.dragging = false);
-        stage.addEventListener('pointercancel', () => state.dragging = false);
+      function openModal(deck) {
+        state.currentDeck = deck;
+        state.lastOpenedDeck = deck.number;
+        setActiveDeck(deck.number);
+        animateModalTitle(deck.name);
+
+        els.modalDesc.textContent = deck.description || deck.subtitle || '';
+        renderModalPlan(deck);
+
+        if (deck.pdf) {
+          els.download.href = deck.pdf;
+          els.download.removeAttribute('aria-disabled');
+        } else {
+          els.download.href = '#';
+          els.download.setAttribute('aria-disabled', 'true');
+        }
+
+        els.modal.classList.add('is-open');
+        els.modal.setAttribute('aria-hidden', 'false');
+        setZoom(100);
       }
 
-      function setActiveDeck(num) {
-        document.querySelectorAll('.deck-quickbtn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
-        document.querySelectorAll('.deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
-        document.querySelectorAll('#deckVerticalIndicator button').forEach(b => b.classList.toggle('active', Number(b.dataset.deck) === num));
+      function closeModal() {
+        els.modal.classList.remove('is-open');
+        els.modal.setAttribute('aria-hidden','true');
+        togglePanHint(false);
       }
 
-      // --- EVENT LISTENERS (luxe) ---
       function bindEvents() {
-        const searchInput = document.getElementById('deckSearch');
-
         // Filter buttons
         document.querySelectorAll('.pill-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('is-active'));
             btn.classList.add('is-active');
             state.filter = btn.dataset.filter;
-
-            renderDeckCards(btn.dataset.filter, searchInput.value.toLowerCase());
+            renderDeckCards(state.filter, els.search.value.toLowerCase());
           });
         });
 
-        searchInput.addEventListener('input', e => {
+        els.search.addEventListener('input', e => {
           state.search = e.target.value;
-          renderDeckCards(
-            document.querySelector('.pill-btn.is-active').dataset.filter,
-            e.target.value.toLowerCase()
-          );
+          renderDeckCards(document.querySelector('.pill-btn.is-active').dataset.filter, e.target.value.toLowerCase());
         });
 
-        // global key
-        document.addEventListener('keydown', (e) => { 
+        // Global keys
+        document.addEventListener('keydown', (e) => {
           if (e.key === '/' && document.activeElement !== els.search) { e.preventDefault(); els.search.focus(); }
           if (e.key === 'Escape') closeModal();
         });
 
-        // open card
-        els.cards.addEventListener('click', (e) => {
-          const card = e.target.closest('.deck-card');
+        // Open by clicking card surface (no CTA button)
+        const openFromEl = (el) => {
+          const card = el.closest('.deck-card');
           if (!card) return;
           const deck = deckData.find(d => d.number === Number(card.dataset.deck));
           if (deck) openModal(deck);
+        };
+
+        els.cards.addEventListener('click', (e) => openFromEl(e.target));
+        els.cards.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            const card = e.target.closest('.deck-card');
+            if (!card) return;
+            e.preventDefault();
+            const deck = deckData.find(d => d.number === Number(card.dataset.deck));
+            if (deck) openModal(deck);
+          }
         });
 
-        // quick rail
+        // Quick rail
         els.quickRail.addEventListener('click', (e) => {
           const btn = e.target.closest('.deck-quickbtn');
-          if (btn) { const deck = deckData.find(d => d.number === Number(btn.dataset.deck)); if (deck) openModal(deck); }
+          if (!btn) return;
+          const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
+          if (deck) openModal(deck);
         });
 
-        // category pills
+        // Category pills
         document.addEventListener('click', (e) => {
           const pill = e.target.closest('.deck-pill');
-          if (pill) { const deck = deckData.find(d => d.number === Number(pill.dataset.deck)); if (deck) openModal(deck); }
+          if (!pill) return;
+          const deck = deckData.find(d => d.number === Number(pill.dataset.deck));
+          if (deck) openModal(deck);
         });
 
-        document.getElementById('deckVerticalIndicator').addEventListener('click', (e) => {
+        // Vertical indicator
+        document.getElementById('deckVerticalIndicator')?.addEventListener('click', (e) => {
           const btn = e.target.closest('button');
           if (!btn) return;
           const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
           if (deck) openModal(deck);
         });
 
-        // modal actions
+        // Modal interactions
         els.modal.addEventListener('click', (e) => {
           const hotspot = e.target.closest('.deck-hotspot');
-          if (hotspot) {
-            selectHotspotById(hotspot.dataset.hotspotId);
-            return;
-          }
+          if (hotspot) { selectHotspotById(hotspot.dataset.hotspotId); return; }
+
           const legend = e.target.closest('.deck-plan-legend-item');
-          if (legend) {
-            selectHotspotById(legend.dataset.hotspotId);
-            return;
-          }
+          if (legend) { selectHotspotById(legend.dataset.hotspotId); return; }
+
           const focusChip = e.target.closest('.deck-focuschip');
           if (focusChip) {
             els.modalFocusChips.querySelectorAll('.deck-focuschip').forEach(btn => btn.classList.remove('is-active'));
@@ -513,36 +690,43 @@
             const needle = (focusChip.textContent || '').toLowerCase();
             const match = [...els.modalFrame.querySelectorAll('.deck-hotspot')]
               .find(btn => (btn.dataset.title || '').toLowerCase().includes(needle));
-            if (match) {
-              selectHotspotById(match.dataset.hotspotId);
-            }
+            if (match) selectHotspotById(match.dataset.hotspotId);
             return;
           }
+
           const trigger = e.target.closest('[data-action]');
           const act = trigger?.dataset.action;
+
           if (act === 'close-modal') closeModal();
           if (act === 'zoom-in') setZoom(state.currentZoom + 25);
           if (act === 'zoom-out') setZoom(state.currentZoom - 25);
           if (act === 'zoom-reset') setZoom(100);
-          if (act === 'prev-deck') { 
+
+          if (act === 'prev-deck') {
             const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
             const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
             if (idx > 0) openModal(sorted[idx-1]);
           }
+
           if (act === 'next-deck') {
             const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
             const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
             if (idx < sorted.length-1) openModal(sorted[idx+1]);
           }
+
           if (act === 'center-me' && state.currentDeck?.number === 6) {
             const aft = document.querySelector('[data-hotspot-id="aft-cabins"]');
-            if (aft) {
-              aft.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-            }
+            if (aft) aft.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
           }
         });
 
-        els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderDeckCards(); });
+        els.clearFilters?.addEventListener('click', () => {
+          state.search = '';
+          els.search.value = '';
+          state.filter = 'all';
+          document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter));
+          renderDeckCards();
+        });
 
         if (els.categoryToggle && els.categoryPanels) {
           els.categoryToggle.addEventListener('click', () => {
@@ -550,7 +734,7 @@
             const next = !expanded;
             els.categoryToggle.setAttribute('aria-expanded', String(next));
             els.categoryPanels.hidden = !next;
-            els.categoryToggle.innerHTML = `${next ? 'Hide categories' : 'Show categories'} <i class="fas fa-chevron-down" aria-hidden="true"></i>`;
+            els.categoryToggle.innerHTML = `${next ? 'Hide' : 'Show'} <i class="fas fa-chevron-down" aria-hidden="true"></i>`;
           });
         }
       }
@@ -565,18 +749,12 @@
           setTimeout(() => {
             const btn = document.querySelector('.deck-quickbtn[data-deck="6"]');
             if (btn) btn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
-          }, 300);
-        }
-
-        if (!localStorage.getItem('embarkationSeen')) {
-          const hero = document.querySelector('.deck-hero');
-          if (hero) hero.style.animation = 'heroGlow 2.5s ease-out';
-          localStorage.setItem('embarkationSeen', 'true');
+          }, 260);
         }
       }
+
       init();
     })();
   </script>
-
 </body>
 </html>
