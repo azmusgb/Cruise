@@ -340,6 +340,17 @@
   <script>
     const deckData = [
       {
+        number: 0,
+        name: 'All Decks',
+        subtitle: 'Ship Overview Blueprint',
+        highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'],
+        description: 'Complete multi-deck blueprint for quick whole-ship orientation.',
+        category: 'essential',
+        image: 'deck-plans/deck-12.png',
+        svg: 'decks/deck-all.min.svg',
+        pdf: ''
+      },
+      {
         number: 5,
         name: 'Deck 5',
         subtitle: 'Promenade Level',
@@ -571,8 +582,8 @@
         const host = document.getElementById(`pill-${key}`);
         if (!host) return;
         host.innerHTML = decks.map(deck => `
-          <button class="deck-pill" data-deck="${deck.number}" aria-label="Go to Deck ${deck.number} ${deck.subtitle}">
-            <span class="deck-pill__number">${deck.number}</span>
+          <button class="deck-pill" data-deck="${deck.number}" aria-label="Go to ${deck.number === 0 ? 'All Decks overview' : `Deck ${deck.number} ${deck.subtitle}`}">
+            <span class="deck-pill__number">${deck.number === 0 ? 'ALL' : deck.number}</span>
             <span class="deck-pill__text">${deck.subtitle}</span>
           </button>
         `).join('');
@@ -601,7 +612,7 @@
       els.cards.innerHTML = decks.map(deck => `
         <article class="deck-card ${state.lastOpenedDeck === deck.number ? 'deck-card--active' : ''}" role="listitem" tabindex="0" data-deck="${deck.number}" aria-label="${deck.name} ${deck.subtitle}">
           <div class="deck-visual">
-            <span class="deck-number">${deck.number}</span>
+            <span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span>
             <img data-src="${deck.image}" alt="${deck.name} preview" />
           </div>
           <div class="deck-info">
@@ -643,9 +654,15 @@
       renderCards();
       els.modalTitle.textContent = `${deck.name}`;
       els.modalDesc.textContent = deck.description;
-      els.download.href = deck.pdf;
-      els.download.setAttribute('aria-disabled', 'false');
-      els.download.innerHTML = '<span>⬇</span> Download PDF';
+      if (deck.pdf) {
+        els.download.href = deck.pdf;
+        els.download.setAttribute('aria-disabled', 'false');
+        els.download.innerHTML = '<span>⬇</span> Download PDF';
+      } else {
+        els.download.href = '#';
+        els.download.setAttribute('aria-disabled', 'true');
+        els.download.innerHTML = '<span>⬇</span> PDF unavailable';
+      }
       renderModalPlan(deck);
       els.modal.setAttribute('aria-hidden', 'false');
       els.modal.classList.add('is-open');
