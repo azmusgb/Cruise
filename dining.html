@@ -1,180 +1,593 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" data-theme-mode="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
-  <meta name="theme-color" content="#49b5db">
-  <title>Dining · Adventure of the Seas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#cfeaff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json?v=2">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+  <title>Dining | Adventure of the Seas</title>
+  <meta name="description" content="Dining overview, specialty picks, and reservations in a clean, light layout.">
 
-  <!-- Fonts + Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/base.css?v=3">
+  <link rel="stylesheet" href="css/utilities.css?v=3">
+  <link rel="stylesheet" href="css/components.css?v=3">
+  <link rel="stylesheet" href="css/mobile-first.css?v=3">
+  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
+  <script src="js/shared-layout.js?v=17" defer></script>
 
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/utilities.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/features.css">
-  <link rel="stylesheet" href="css/shared-layout.css">
-  <link rel="stylesheet" href="css/mobile-first.css">
+  <style>
+    /* Typography restraint: single primary headline at 600 */
+    .dining-page .deck-hero__title { font-weight: 600; }
+    .dining-page .deck-hero__subtitle, .dining-page .deck-grid__subtitle { font-weight: 400; opacity: 0.95; }
+    .dining-page .deck-grid__title, .dining-page h2, .dining-page h3 { font-weight: 500; }
+
+    /* Softer surfaces/shadows and borders */
+    .dining-page .deck-card, .dining-page .reservation-slot, .dining-page .dining-context, .dining-page .dining-spotlight { border: 1px solid rgba(0,0,0,0.08); border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.045); }
+    .dining-page .deck-card:hover, .dining-page .reservation-slot:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.05); }
+
+    /* Quiet chips/pills and tags */
+    .dining-page .pill-btn, .dining-page .venue-type, .dining-page .deck-meta__item { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); box-shadow: none; filter: saturate(0.9) brightness(0.98); }
+    .dining-page .pill-btn:hover { transform: translateY(-2px); }
+
+    /* Calm icons */
+    .dining-page .deck-hero__tag i, .dining-page .dining-spotlight__eyebrow i, .dining-page .dining-context__action i, .dining-page .main-navigation i { color: currentColor; opacity: 0.8; }
+
+    /* Spacing adjustments: airy but not busy */
+    .dining-page .reservation-slots { gap: 16px; }
+    .dining-page .deck-cards { gap: 16px; }
+    .dining-page .deck-info { padding: 16px; }
+
+    /* Context/spotlight: gentle emphasis without glow */
+    .dining-page .deck-card--context-pick { outline: 2px solid rgba(0,0,0,0.06); box-shadow: 0 10px 28px rgba(0,0,0,0.05); }
+
+    /* Motion constraints */
+    .dining-page .deck-card, .dining-page .reservation-slot, .dining-page .pill-btn { transition: box-shadow 220ms cubic-bezier(0.2,0.6,0.2,1), transform 220ms cubic-bezier(0.2,0.6,0.2,1), opacity 220ms ease-out; }
+
+    /* Remove dashboard feel: hide counts chip area */
+    .dining-page .deck-grid__counts { display: none !important; }
+    .dining-page .search-status { opacity: 0.85; }
+
+    .dining-page .deck-hero__tag { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); box-shadow: none; filter: saturate(0.9) brightness(0.98); }
+    .dining-page .deck-hero__actions .btn { box-shadow: none; transform: none; border: 1px solid rgba(0,0,0,0.08); transition: box-shadow 220ms cubic-bezier(0.2,0.6,0.2,1), transform 220ms cubic-bezier(0.2,0.6,0.2,1); }
+    .dining-page .deck-hero__actions .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.05); }
+    .dining-page .dining-spotlight__eyebrow { opacity: 0.85; filter: saturate(0.9); }
+    .dining-page .venue-type--specialty { filter: saturate(0.9); }
+
+    .dining-page .btn { background-image: none !important; box-shadow: none; }
+    .dining-page .btn.btn--primary { background-color: var(--primary, #0b6fd3); color: #fff; }
+    .dining-page .btn.btn--secondary { background-color: color-mix(in srgb, #ffffff 92%, var(--primary, #0b6fd3) 8%); color: var(--royal-ink, #0b2545); }
+    .dining-page .page-spine { border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 12px; filter: saturate(0.95) brightness(0.99); }
+    .dining-page .page-spine__label { font-weight: 500; }
+    .dining-page .page-spine__meta { opacity: 0.85; }
+    .dining-page .deck-hero__highlights { gap: 8px; }
+    .dining-page .deck-hero__tag { opacity: 0.92; }
+    .dining-page .deck-hero__actions .btn:hover { transform: translateY(-2px); }
+    .dining-page .deck-hero__actions .btn, .dining-page .page-spine, .dining-page .pill-btn { transition-duration: 220ms; }
+
+    .dining-page .deck-visual img { border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+    .dining-page .deck-number { background: rgba(0,0,0,0.04); color: inherit; border: 1px solid rgba(0,0,0,0.08); box-shadow: none; }
+    .dining-page .deck-meta { gap: 6px; opacity: 0.9; }
+    .dining-page .deck-highlights { gap: 6px; }
+    .dining-page .dining-spotlight { filter: saturate(0.95) brightness(0.99); }
+    .dining-page .dining-spotlight__title { font-weight: 500; }
+    .dining-page .dining-spotlight__body { opacity: 0.92; }
+  </style>
 </head>
 
-<body class="app-theme-rcc page-dining">
+<body class="app-theme-rcc decks-shell page-shell dining-page">
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div id="sharedHeader" data-page="dining"></div>
 
-<header class="app-header--minimal">
-  <div class="header-inner">
-    <div class="brand">
-      <i class="fas fa-crown"></i>
-      <div class="brand-text">
-        <div class="brand-title">Adventure of the Seas</div>
-        <div class="brand-sub">Rahe Family & Friends · Dining</div>
+  <main id="main" aria-label="Dining">
+    <section class="deck-hero">
+      <div class="container">
+        <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
+        <h1 class="deck-hero__title">Dining Planner</h1>
+        <p class="deck-hero__subtitle">Compare venues and book tonight with a light touch.</p>
+        <div class="deck-hero__highlights" aria-label="Dining highlights">
+          <span class="deck-hero__tag"><i class="fas fa-utensils" aria-hidden="true"></i> Included plus specialty split</span>
+          <span class="deck-hero__tag"><i class="fas fa-wine-glass" aria-hidden="true"></i> Date-night and quick-bite picks</span>
+        </div>
+
+        <div class="page-spine" aria-label="Dining decision guide">
+          <div class="page-spine__item">
+            <span class="page-spine__label">Included dining</span>
+            <span class="page-spine__meta">Main Dining, Windjammer, Cafe Promenade</span>
+          </div>
+          <div class="page-spine__item">
+            <span class="page-spine__label">Specialty dining</span>
+            <span class="page-spine__meta">Steakhouse, Italian, sushi venues</span>
+          </div>
+          <div class="page-spine__item">
+            <span class="page-spine__label">Reservations tonight</span>
+            <span class="page-spine__meta">Book the best slot quickly</span>
+          </div>
+        </div>
+        <div class="deck-hero__actions">
+          <a class="btn btn--primary" href="#reservations">Book tonight</a>
+          <a class="btn btn--secondary" href="#included-group">Compare included venues</a>
+        </div>
       </div>
-    </div>
-    <div class="spacer"></div>
-    <span class="hdr-pill">
-      <i class="fas fa-calendar-alt"></i>
-      Feb 14–20, 2026
-    </span>
-    <button class="hdr-iconbtn" id="menuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
-  </div>
-</header>
+    </section>
 
-<main>
-
-  <!-- Compact Page Header -->
-  <section class="page-hero-compact">
-    <h1>Dining</h1>
-    <p>Included and specialty venues · Feb 14–20, 2026</p>
-  </section>
-
-  <!-- Search -->
-  <section class="dining-nav">
-    <div class="dining-nav__inner">
-      <div class="dining-nav__search">
-        <i class="fas fa-search"></i>
-        <input id="diningSearchInput" type="search" placeholder="Search by venue, cuisine, or deck">
+    <section class="main-navigation" aria-label="Quick navigation">
+      <div class="container main-navigation__inner">
+        <div class="main-navigation__search" role="search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="diningSearchInput" type="search" placeholder="Search dining" aria-label="Search dining venues and details" />
+          <span class="main-navigation__hint">Press / to focus</span>
+        </div>
+        <div class="main-navigation__filters" aria-label="Shortcuts" data-filter-group="diningType" role="radiogroup">
+          <button class="pill-btn is-active" type="button" data-filter="all" data-filter-option data-filter-value="all" role="radio" aria-checked="true">All</button>
+          <button class="pill-btn" type="button" data-filter="included" data-filter-option data-filter-value="included" role="radio" aria-checked="false">Included</button>
+          <button class="pill-btn" type="button" data-filter="specialty" data-filter-option data-filter-value="specialty" role="radio" aria-checked="false">Specialty</button>
+          <a class="pill-btn" href="#reservations">Reservations</a>
+        </div>
+        <p id="diningSearchStatus" class="search-status" role="status" aria-live="polite">Ready.</p>
       </div>
-      <div class="dining-nav__filters">
-        <button class="pill-btn is-active" data-filter="all">All</button>
-        <button class="pill-btn" data-filter="included">Included</button>
-        <button class="pill-btn" data-filter="specialty">Specialty</button>
+    </section>
+
+    <section class="container dining-context" id="diningContext" aria-live="polite">
+      <h2 class="dining-context__title" id="diningContextTitle">Dining Focus</h2>
+      <p class="dining-context__body" id="diningContextBody">Loading recommendations for your current cruise day and time.</p>
+      <a class="dining-context__action" id="diningContextAction" href="#reservations">
+        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        <span id="diningContextActionText">Open reservations</span>
+      </a>
+    </section>
+
+    <section id="reservations" class="container reservation-panel" aria-label="Tonight reservation snapshot">
+      <div class="reservation-panel__header">
+        <h2>Tonight Reservation Snapshot</h2>
+        <p>Fast booking choices with the next useful action for each dining style.</p>
       </div>
-    </div>
-    <p id="diningSearchStatus" class="search-status">Showing 6 of 6 venues</p>
-  </section>
+      <div class="reservation-slots">
+        <article class="reservation-slot">
+          <h3>Earliest table</h3>
+          <p>6:15 PM · Main Dining Room</p>
+          <a href="#venue-main-dining">Review included options</a>
+        </article>
+        <article class="reservation-slot">
+          <h3>Most requested</h3>
+          <p>Chops Grille · Limited seats after 7:00 PM</p>
+          <a href="#venue-chops">Book specialty dining</a>
+        </article>
+        <article class="reservation-slot">
+          <h3>Last practical slot</h3>
+          <p>8:45 PM · Specialty venues</p>
+          <a href="#specialty-group">See late options</a>
+        </article>
+      </div>
+    </section>
 
-  <!-- VENUES FIRST -->
-  <section class="deck-grid">
+    <section class="container dining-spotlight" aria-label="Promoted dining recommendation">
+      <p class="dining-spotlight__eyebrow"><i class="fas fa-star" aria-hidden="true"></i>Tonight’s highlight</p>
+      <h2 class="dining-spotlight__title" id="diningSpotlightTitle">Tonight's Pick</h2>
+      <p class="dining-spotlight__body" id="diningSpotlightBody">Chops Grille has the best premium window tonight. Lock your table before peak demand hits.</p>
+      <a class="dining-spotlight__action" id="diningSpotlightAction" href="#venue-chops">
+        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        <span id="diningSpotlightActionText">Open tonight's venue</span>
+      </a>
+    </section>
 
-    <div id="included-group" class="deck-group">
-      <h2>Included</h2>
+    <section class="deck-grid container" aria-label="Dining options" id="dining-grid">
+      <div class="deck-grid__header">
+        <div>
+          <h2 class="deck-grid__title">Dining Overview</h2>
+          <p class="deck-grid__subtitle">Tap a venue to see hours and reservation options.</p>
+        </div>
+      </div>
+      <div id="included-group" class="deck-group" aria-label="Included dining">
+        <div class="deck-group__header">
+          <h3>Included dining</h3>
+          <p>Quick, no-reservation options for every meal.</p>
+        </div>
+        <div class="deck-cards" role="list">
+          <article id="venue-main-dining" class="deck-card" role="listitem" data-venue-type="included" data-search="main dining room included traditional seating decks 3 4 formal night family friendly 5:30 pm">
+            <span class="venue-type">Included</span>
+            <div class="deck-visual">
+              <span class="deck-number">1</span>
+              <img src="deck-plans/deck-12.png" alt="Main Dining Room" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Main Dining Room</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Included</span>
+                  <span class="deck-meta__item">Traditional seating</span>
+                  <span class="deck-meta__item">Decks 3–4</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>5:30 PM seating</span>
+                <span>Formal night</span>
+                <span>Family friendly</span>
+                <span>Price: Included</span>
+                <span>Allergens: Notify host stand</span>
+              </div>
+              <a class="deck-card__cta" href="itinerary.html">View menu timing</a>
+            </div>
+          </article>
 
-      <div class="deck-cards">
+          <article id="venue-windjammer" class="deck-card" role="listitem" data-venue-type="included" data-search="windjammer marketplace included buffet deck 11 breakfast dinner kids varied cuisines">
+            <span class="venue-type">Included</span>
+            <div class="deck-visual">
+              <span class="deck-number">2</span>
+              <img src="deck-plans/deck-12.png" alt="Windjammer" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Windjammer Marketplace</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Included</span>
+                  <span class="deck-meta__item">Buffet</span>
+                  <span class="deck-meta__item">Deck 11</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>Breakfast–Dinner</span>
+                <span>Kids friendly</span>
+                <span>Varied cuisines</span>
+                <span>Price: Included</span>
+                <span>Allergens: Label checks advised</span>
+              </div>
+              <a class="deck-card__cta" href="itinerary.html">See service hours</a>
+            </div>
+          </article>
 
-        <article id="venue-main-dining" class="deck-card" data-venue-type="included">
+          <article id="venue-cafe" class="deck-card" role="listitem" data-venue-type="included" data-search="cafe promenade included snacks coffee promenade 24 7 grab and go">
+            <span class="venue-type">Included</span>
+            <div class="deck-visual">
+              <span class="deck-number">3</span>
+              <img src="deck-plans/deck-12.png" alt="Café Promenade" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Café Promenade</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Included</span>
+                  <span class="deck-meta__item">Snacks & coffee</span>
+                  <span class="deck-meta__item">Promenade</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>24/7 snacks</span>
+                <span>Specialty coffee</span>
+                <span>Grab & go</span>
+                <span>Price: Included</span>
+                <span>Allergens: Ask ingredient list</span>
+              </div>
+              <a class="deck-card__cta" href="itinerary.html">View late-night options</a>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div id="specialty-group" class="deck-group" aria-label="Specialty dining">
+        <div class="deck-group__header">
+          <h3>Specialty dining</h3>
+          <p>Reservation-friendly venues for a night out.</p>
+        </div>
+        <div class="deck-cards" role="list">
+          <article id="venue-chops" class="deck-card" role="listitem" data-venue-type="specialty" data-search="chops grille specialty steakhouse reservations dressy casual wine pairings prime cuts">
+            <span class="venue-type venue-type--specialty">Specialty</span>
+            <div class="deck-visual">
+              <span class="deck-number">4</span>
+              <img src="deck-plans/deck-12.png" alt="Chops Grille" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Chops Grille</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Specialty</span>
+                  <span class="deck-meta__item">Steakhouse</span>
+                  <span class="deck-meta__item">Reservations</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>Dressy casual</span>
+                <span>Wine pairings</span>
+                <span>Prime cuts</span>
+                <span>Price: $$$ cover charge</span>
+                <span>Cancellation: Before 2 PM</span>
+              </div>
+              <a class="deck-card__cta" href="#reservations">Book tonight</a>
+            </div>
+          </article>
+
+          <article id="venue-giovanni" class="deck-card" role="listitem" data-venue-type="specialty" data-search="giovanni specialty italian trattoria reservations family style wine list house pastas">
+            <span class="venue-type venue-type--specialty">Specialty</span>
+            <div class="deck-visual">
+              <span class="deck-number">5</span>
+              <img src="deck-plans/deck-12.png" alt="Giovanni’s" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Giovanni’s</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Specialty</span>
+                  <span class="deck-meta__item">Italian trattoria</span>
+                  <span class="deck-meta__item">Reservations</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>Family style</span>
+                <span>Wine list</span>
+                <span>House pastas</span>
+                <span>Price: $$ cover charge</span>
+                <span>Cancellation: Before 2 PM</span>
+              </div>
+              <a class="deck-card__cta" href="#reservations">Book tonight</a>
+            </div>
+          </article>
+
+          <article id="venue-izumi" class="deck-card" role="listitem" data-venue-type="specialty" data-search="izumi specialty sushi hibachi reservations hibachi show sushi bar omakase">
+            <span class="venue-type venue-type--specialty">Specialty</span>
+            <div class="deck-visual">
+              <span class="deck-number">6</span>
+              <img src="deck-plans/deck-12.png" alt="Izumi" />
+            </div>
+            <div class="deck-info">
+              <div class="deck-info__heading">
+                <h3>Izumi</h3>
+                <div class="deck-meta">
+                  <span class="deck-meta__item">Specialty</span>
+                  <span class="deck-meta__item">Sushi & hibachi</span>
+                  <span class="deck-meta__item">Reservations</span>
+                </div>
+              </div>
+              <div class="deck-highlights">
+                <span>Hibachi show</span>
+                <span>Sushi bar</span>
+                <span>Omakase</span>
+                <span>Price: $$-$$$ by experience</span>
+                <span>Cancellation: Before 2 PM</span>
+              </div>
+              <a class="deck-card__cta" href="#reservations">Book tonight</a>
+            </div>
+          </article>
+        </div>
+      </div>
+      <p id="diningSearchEmpty" class="search-empty" hidden>No dining venues match that search or filter yet.</p>
+    </section>
+
+    <section class="deck-grid container" aria-label="Dining policies">
+      <div class="deck-grid__header">
+        <div>
+          <h2 class="deck-grid__title">Dining Policies</h2>
+          <p class="deck-grid__subtitle">Quick policy checks before booking or modifying reservations.</p>
+        </div>
+      </div>
+      <div class="deck-cards" role="list">
+        <article class="deck-card" role="listitem">
           <div class="deck-info">
-            <h3>Main Dining Room</h3>
-            <p class="deck-meta">Traditional seating · Decks 3–4</p>
+            <div class="deck-info__heading">
+              <h3>Specialty cancellation</h3>
+            </div>
             <div class="deck-highlights">
-              <span>5:30 PM seating</span>
-              <span>Formal night</span>
-              <span>Family friendly</span>
+              <span>Cancel before 2:00 PM to avoid fee</span>
+              <span>No-show charges apply after cutoff</span>
             </div>
           </div>
         </article>
-
-        <article id="venue-windjammer" class="deck-card" data-venue-type="included">
+        <article class="deck-card" role="listitem">
           <div class="deck-info">
-            <h3>Windjammer Marketplace</h3>
-            <p class="deck-meta">Buffet · Deck 11</p>
+            <div class="deck-info__heading">
+              <h3>Dietary and allergy notes</h3>
+            </div>
             <div class="deck-highlights">
-              <span>Breakfast–Dinner</span>
-              <span>Kids friendly</span>
-              <span>Varied cuisines</span>
+              <span>Add notes while booking</span>
+              <span>Reconfirm with host on arrival</span>
             </div>
           </div>
         </article>
-
-        <article id="venue-cafe" class="deck-card" data-venue-type="included">
-          <div class="deck-info">
-            <h3>Café Promenade</h3>
-            <p class="deck-meta">Snacks & coffee · Promenade</p>
-            <div class="deck-highlights">
-              <span>24/7 snacks</span>
-              <span>Grab & go</span>
-            </div>
-          </div>
-        </article>
-
       </div>
-    </div>
+    </section>
+  </main>
 
-    <div id="specialty-group" class="deck-group">
-      <h2>Specialty</h2>
+  <div id="sharedFooter"></div>
+  <div id="sharedBottomNav" data-page="dining"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchInput = document.getElementById('diningSearchInput');
+      const searchStatus = document.getElementById('diningSearchStatus');
+      const emptyState = document.getElementById('diningSearchEmpty');
+      const cards = Array.from(document.querySelectorAll('.deck-card[data-venue-type]'));
+      const filterButtons = Array.from(document.querySelectorAll('.main-navigation__filters button[data-filter]'));
+      const countChipValue = document.querySelector('.count-chip span');
+      const contextCard = document.getElementById('diningContext');
+      const contextTitle = document.getElementById('diningContextTitle');
+      const contextBody = document.getElementById('diningContextBody');
+      const contextAction = document.getElementById('diningContextAction');
+      const contextActionText = document.getElementById('diningContextActionText');
+      const spotlightTitle = document.getElementById('diningSpotlightTitle');
+      const spotlightBody = document.getElementById('diningSpotlightBody');
+      const spotlightAction = document.getElementById('diningSpotlightAction');
+      const spotlightActionText = document.getElementById('diningSpotlightActionText');
+      const total = cards.length;
+      let activeFilter = 'all';
+      let searchTimer;
+      const SEARCH_DELAY_MS = 120;
+      const deepLinkPick = new URLSearchParams(window.location.search).get('pick');
 
-      <div class="deck-cards">
+      if (!searchInput || !searchStatus || !emptyState || total === 0) {
+        return;
+      }
 
-        <article id="venue-chops" class="deck-card" data-venue-type="specialty">
-          <div class="deck-info">
-            <h3>Chops Grille</h3>
-            <p class="deck-meta">Steakhouse · Reservations</p>
-          </div>
-        </article>
+      function getCruiseContext() {
+        const shared = window.RCCLModeContext;
+        const now = new Date();
+        const hour = now.getHours();
+        const sharedDay = shared && typeof shared.day === 'number' ? shared.day : 1;
 
-        <article id="venue-giovanni" class="deck-card" data-venue-type="specialty">
-          <div class="deck-info">
-            <h3>Giovanni’s</h3>
-            <p class="deck-meta">Italian · Reservations</p>
-          </div>
-        </article>
+        if (shared?.mode === 'before') {
+          return {
+            title: 'Pre-Cruise Dining Setup',
+            body: 'Start with specialty reservations before sail day to secure premium evening windows.',
+            target: '#venue-chops',
+            actionLabel: 'Open Chops Grille'
+          };
+        }
 
-        <article id="venue-izumi" class="deck-card" data-venue-type="specialty">
-          <div class="deck-info">
-            <h3>Izumi</h3>
-            <p class="deck-meta">Sushi & Hibachi · Reservations</p>
-          </div>
-        </article>
+        if (shared?.mode === 'post') {
+          return {
+            title: 'Post-Cruise Recap',
+            body: 'Save your favorite dining picks for the next sailing plan.',
+            target: '#specialty-group',
+            actionLabel: 'Review specialty venues'
+          };
+        }
 
-      </div>
-    </div>
+        if (hour >= 16 && hour <= 21) {
+          return {
+            title: `Tonight's Pick · Day ${sharedDay}`,
+            body: 'Dinner booking window is active. Specialty tables tighten quickly after 7:00 PM.',
+            target: '#venue-chops',
+            actionLabel: 'Book Chops tonight'
+          };
+        }
 
-  </section>
+        if (shared?.mode === 'port') {
+          return {
+            title: `Port Day Fuel Plan · Day ${sharedDay}`,
+            body: 'Favor quick service before and after shore time to avoid missing all-aboard buffers.',
+            target: '#venue-cafe',
+            actionLabel: 'Open Café Promenade'
+          };
+        }
 
-  <!-- Reservation Secondary -->
-  <section id="reservations" class="reservation-panel">
-    <h2>Tonight</h2>
-    <div class="reservation-slots">
-      <div>
-        <strong>6:15 PM</strong>
-        <span>Main Dining Room</span>
-      </div>
-      <div>
-        <strong>Most requested</strong>
-        <span>Chops Grille</span>
-      </div>
-    </div>
-  </section>
+        return {
+          title: `${shared?.mode === 'boarding' ? 'Boarding Day Dining Rhythm' : `Sea Day Dining Rhythm · Day ${sharedDay}`}`,
+          body: 'Use Windjammer earlier in the day, then lock a dinner slot before evening venue peaks.',
+          target: '#venue-windjammer',
+          actionLabel: 'Open Windjammer'
+        };
+      }
 
-  <!-- Small Inline Tip -->
-  <section class="inline-context">
-    <strong>Tip:</strong>
-    Use Windjammer earlier in the day, then lock dinner before peak hours.
-  </section>
+      function applyDiningContext() {
+        if (!contextCard || !contextTitle || !contextBody || !contextAction || !contextActionText) return;
+        const context = getCruiseContext();
+        contextTitle.textContent = context.title;
+        contextBody.textContent = context.body;
+        contextAction.setAttribute('href', context.target);
+        contextActionText.textContent = context.actionLabel;
+        if (spotlightTitle && spotlightBody && spotlightAction && spotlightActionText) {
+          spotlightTitle.textContent = context.title;
+          spotlightBody.textContent = context.body;
+          spotlightAction.setAttribute('href', context.target);
+          spotlightActionText.textContent = context.actionLabel;
+        }
 
-</main>
+        cards.forEach((card) => card.classList.remove('deck-card--context-pick'));
+        const targetCard = document.querySelector(context.target);
+        targetCard?.classList.add('deck-card--context-pick');
+      }
 
-<button class="back-to-top" id="backToTop">
-  <i class="fas fa-arrow-up"></i>
-</button>
+      function applyPickFromDeepLink() {
+        if (!deepLinkPick) return;
+        const pickMap = {
+          chops: '#venue-chops',
+          windjammer: '#venue-windjammer',
+          cafe: '#venue-cafe',
+          giovanni: '#venue-giovanni',
+          izumi: '#venue-izumi',
+          'main-dining': '#venue-main-dining',
+        };
+        const targetSelector = pickMap[deepLinkPick.toLowerCase()];
+        if (!targetSelector) return;
+        const target = document.querySelector(targetSelector);
+        if (!target) return;
 
-<script src="js/global.js" defer></script>
-<script src="js/shared-layout.js" defer></script>
-<script src="js/modules/dining.js" defer></script>
+        const targetType = target.dataset.venueType || 'all';
+        activeFilter = targetType;
+        filterButtons.forEach((button) => {
+          const isActive = (button.dataset.filter || '') === activeFilter;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-checked', String(isActive));
+        });
 
+        searchInput.value = '';
+        updateDiningView();
+        cards.forEach((card) => card.classList.remove('deck-card--context-pick'));
+        target.classList.add('deck-card--context-pick');
+
+        if (contextTitle && contextBody && contextAction && contextActionText) {
+          contextTitle.textContent = "Tonight's Pick from Home";
+          contextBody.textContent = 'Opened from dashboard shortcut with this venue preselected.';
+          contextAction.setAttribute('href', targetSelector);
+          contextActionText.textContent = `Jump to ${target.querySelector('h3')?.textContent || 'venue'}`;
+        }
+
+        window.requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
+
+      function updateDiningView() {
+        const term = searchInput.value.toLowerCase().trim();
+        let visible = 0;
+
+        searchStatus.classList.add('is-loading');
+        searchStatus.textContent = 'Filtering dining options...';
+        clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(() => {
+          cards.forEach((card) => {
+            const venueType = card.dataset.venueType || '';
+            const searchableText = `${card.dataset.search || ''} ${card.textContent || ''}`.toLowerCase();
+            const matchesFilter = activeFilter === 'all' || venueType === activeFilter;
+            const matchesSearch = !term || searchableText.includes(term);
+            const shouldShow = matchesFilter && matchesSearch;
+
+            card.hidden = !shouldShow;
+            card.style.display = shouldShow ? 'flex' : 'none';
+            if (shouldShow) visible += 1;
+          });
+
+          searchStatus.textContent = visible ? "Venues filtered." : "No venues match.";
+          searchStatus.classList.remove('is-loading');
+          emptyState.hidden = visible !== 0;
+          if (countChipValue) {
+            countChipValue.textContent = String(visible);
+          }
+        }, SEARCH_DELAY_MS);
+      }
+
+      document.addEventListener('rccl:filter-change', function (event) {
+        if (!event.detail || event.detail.group !== 'diningType') return;
+        activeFilter = event.detail.value || 'all';
+        filterButtons.forEach((item) => {
+          item.classList.toggle('is-active', (item.dataset.filter || '') === activeFilter);
+        });
+        updateDiningView();
+      });
+
+      searchInput.addEventListener('input', updateDiningView);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === '/' && e.target !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+
+      updateDiningView();
+      applyDiningContext();
+      applyPickFromDeepLink();
+
+      document.addEventListener('rccl:mode-change', function () {
+        applyDiningContext();
+        if (deepLinkPick) applyPickFromDeepLink();
+      });
+    });
+  </script>
 </body>
 </html>
