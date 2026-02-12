@@ -90,6 +90,119 @@
       background: linear-gradient(180deg, rgba(0, 121, 212, 0.06), rgba(255, 255, 255, 1) 44%);
     }
 
+    .decks-page .deck-plan-stage {
+      position: relative;
+      width: 100%;
+      min-height: 360px;
+      max-height: 64vh;
+      border-radius: 16px;
+      overflow: auto;
+      border: 1px solid rgba(0, 82, 165, 0.2);
+      background:
+        radial-gradient(circle at 14% 16%, rgba(0, 156, 255, 0.16), transparent 34%),
+        linear-gradient(160deg, rgba(0, 42, 99, 0.9), rgba(0, 75, 161, 0.72));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 10px 22px rgba(5, 22, 46, 0.22);
+    }
+
+    .decks-page .deck-plan-canvas {
+      --plan-scale: 1;
+      width: max-content;
+      transform-origin: top left;
+      transform: scale(var(--plan-scale));
+      transition: transform 180ms ease;
+      padding: 14px;
+      position: relative;
+    }
+
+    .decks-page .deck-plan-media {
+      width: min(1180px, calc(100vw - 90px));
+      max-width: none;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(3, 24, 58, 0.24);
+    }
+
+    .decks-page .deck-plan-hotspots {
+      position: absolute;
+      inset: 14px;
+      pointer-events: none;
+    }
+
+    .decks-page .deck-hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.94);
+      background: linear-gradient(145deg, #0ca8ff, #0069d0);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      pointer-events: auto;
+      box-shadow: 0 8px 18px rgba(0, 44, 110, 0.34);
+      transition: transform 140ms ease, box-shadow 140ms ease;
+    }
+
+    .decks-page .deck-hotspot:hover,
+    .decks-page .deck-hotspot:focus-visible {
+      transform: translate(-50%, -50%) scale(1.08);
+      box-shadow: 0 10px 22px rgba(0, 52, 126, 0.42);
+      outline: none;
+    }
+
+    .decks-page .deck-hotspot[data-highlight="true"] {
+      background: linear-gradient(145deg, #ffd86f, #f0a500);
+      color: #17305d;
+    }
+
+    .decks-page .deck-plan-legend {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .decks-page .deck-plan-legend-item {
+      border: 1px solid rgba(0, 82, 165, 0.16);
+      background: #f5fbff;
+      border-radius: 11px;
+      padding: 9px 11px;
+      font-size: 0.84rem;
+      color: #0f3f74;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+    }
+
+    .decks-page .deck-plan-legend-item:hover,
+    .decks-page .deck-plan-legend-item:focus-visible {
+      background: #e9f6ff;
+      border-color: rgba(0, 121, 212, 0.36);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .decks-page .deck-plan-legend-item strong {
+      display: block;
+      font-size: 0.86rem;
+      margin-bottom: 3px;
+      color: #08335f;
+    }
+
+    @media (max-width: 768px) {
+      .decks-page .deck-plan-stage {
+        min-height: 300px;
+      }
+
+      .decks-page .deck-plan-media {
+        width: min(1120px, calc(100vw - 56px));
+      }
+    }
+
   </style>
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
 
@@ -344,7 +457,7 @@
         description: 'Lower stateroom ring with family-friendly adjacency.',
         category: 'essential',
         image: 'deck-plans/deck-12.png',
-        svg: 'decks/deck-06.svg',
+        svg: 'decks/deck-06-final.min.svg',
         pdf: 'decks/deck-06.pdf'
       },
       {
@@ -388,7 +501,18 @@
       observer: null,
       trapFocus: null,
       lastOpenedDeck: null,
-      switchTimer: null
+      switchTimer: null,
+      currentDeck: null,
+      currentZoom: 100
+    };
+
+    const deckHotspots = {
+      6: [
+        { id: 'aft-cabins', title: 'Aft cabin cluster', note: 'Quieter corridor with faster wake-view access.', x: 78, y: 58 },
+        { id: 'midship-elevators', title: 'Midship elevators', note: 'Fastest transfer point to dining and promenade decks.', x: 52, y: 50 },
+        { id: 'forward-stairs', title: 'Forward stairs', note: 'Best route to theater and lower-deck venues.', x: 26, y: 43 },
+        { id: 'room-6650', title: 'Room 6650', note: 'Your stateroom zone is near the aft elevator bank.', x: 72, y: 56, highlight: true }
+      ]
     };
 
     const els = {
@@ -514,6 +638,7 @@
 
     function openModal(deck) {
       state.lastOpenedDeck = deck.number;
+      state.currentDeck = deck;
       setActiveDeckPill(deck.number);
       renderCards();
       els.modalTitle.textContent = `${deck.name}`;
@@ -521,9 +646,10 @@
       els.download.href = deck.pdf;
       els.download.setAttribute('aria-disabled', 'false');
       els.download.innerHTML = '<span>⬇</span> Download PDF';
-      els.modalFrame.innerHTML = `<div class="deck-modal__placeholder loading-wave">Loading ${deck.name} plan…</div>`;
+      renderModalPlan(deck);
       els.modal.setAttribute('aria-hidden', 'false');
       els.modal.classList.add('is-open');
+      setZoom(100);
       const focusable = els.modal.querySelectorAll('button, a');
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -539,13 +665,20 @@
     function closeModal() {
       els.modal.classList.remove('is-open');
       els.modal.setAttribute('aria-hidden', 'true');
+      els.modalFrame.innerHTML = '';
+      state.currentDeck = null;
       document.removeEventListener('keydown', state.trapFocus);
       state.trapFocus = null;
     }
 
     function setZoom(value) {
       const clamped = Math.min(300, Math.max(50, value));
+      state.currentZoom = clamped;
       els.zoomLevel.textContent = `${clamped}%`;
+      const canvas = document.getElementById('deckPlanCanvas');
+      if (canvas) {
+        canvas.style.setProperty('--plan-scale', (clamped / 100).toFixed(2));
+      }
     }
 
     function adjustZoom(delta) {
@@ -559,6 +692,44 @@
       const deckNum = Number(card.dataset.deck);
       const deck = deckData.find(d => d.number === deckNum);
       if (deck) openModal(deck);
+    }
+
+    function renderModalPlan(deck) {
+      const hotspots = deckHotspots[deck.number] || [];
+      const hotspotMarkup = hotspots.map((spot, index) => `
+        <button
+          class="deck-hotspot"
+          type="button"
+          data-hotspot-id="${spot.id}"
+          data-note="${spot.note}"
+          data-title="${spot.title}"
+          data-highlight="${spot.highlight ? 'true' : 'false'}"
+          style="left:${spot.x}%; top:${spot.y}%;"
+          aria-label="${spot.title}"
+          title="${spot.title}"
+        >${index + 1}</button>
+      `).join('');
+
+      const legendMarkup = hotspots.length ? `
+        <div class="deck-plan-legend" aria-label="Deck focus points">
+          ${hotspots.map((spot, index) => `
+            <button class="deck-plan-legend-item" type="button" data-hotspot-id="${spot.id}">
+              <strong>${index + 1}. ${spot.title}</strong>
+              <span>${spot.note}</span>
+            </button>
+          `).join('')}
+        </div>
+      ` : '';
+
+      els.modalFrame.innerHTML = `
+        <div class="deck-plan-stage" id="deckPlanStage">
+          <div class="deck-plan-canvas" id="deckPlanCanvas">
+            <img class="deck-plan-media" src="${deck.svg}" alt="${deck.name} plan" loading="eager" />
+            ${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotMarkup}</div>` : ''}
+          </div>
+        </div>
+        ${legendMarkup}
+      `;
     }
 
     function bindEvents() {
@@ -604,8 +775,28 @@
         if (action === 'zoom-out') adjustZoom(-25);
         if (action === 'zoom-reset') setZoom(100);
         if (action === 'center-me') {
-          els.modalDesc.textContent = 'Centered on your location marker.';
+          const focusTarget =
+            els.modalFrame.querySelector('.deck-hotspot[data-highlight="true"]') ||
+            els.modalFrame.querySelector('.deck-hotspot');
+          if (focusTarget) {
+            focusTarget.focus({ preventScroll: true });
+            focusTarget.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            els.modalDesc.textContent = focusTarget.dataset.note || 'Centered on your location marker.';
+          } else {
+            els.modalDesc.textContent = 'No location markers available on this deck.';
+          }
         }
+      });
+
+      els.modalFrame.addEventListener('click', (e) => {
+        const hotspot = e.target.closest('.deck-hotspot, .deck-plan-legend-item');
+        if (!hotspot) return;
+        const id = hotspot.dataset.hotspotId;
+        const target = id ? els.modalFrame.querySelector(`.deck-hotspot[data-hotspot-id="${id}"]`) : null;
+        if (!target) return;
+        target.focus({ preventScroll: true });
+        target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        els.modalDesc.textContent = target.dataset.note || target.dataset.title || state.currentDeck?.description || '';
       });
 
       els.download.addEventListener('click', (e) => {
