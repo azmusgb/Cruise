@@ -366,24 +366,7 @@
     }
     .deck-vertical-indicator button.active {
       color: var(--warm-gold);
-      transform: scale(1.18);
-      animation: deckPulse 1.8s ease-in-out infinite alternate;
-      position: relative;
-    }
-    .deck-vertical-indicator button.active::after {
-      content: '';
-      position: absolute;
-      left: -10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 6px;
-      height: 18px;
-      border-radius: 3px;
-      background: var(--warm-gold);
-    }
-    @keyframes deckPulse {
-      from { text-shadow: 0 0 0px rgba(255,183,77,0.3); }
-      to { text-shadow: 0 0 10px rgba(255,183,77,0.6); }
+      transform: scale(1.15);
     }
     .deck-vertical-indicator button:hover {
       color: var(--accent);
@@ -414,13 +397,6 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 18px 30px -8px black;
     }
     .deck-plan-media { border-radius: 24px; width: 100%; display: block; }
-    .deck-modal__title {
-      transition: opacity 200ms ease, transform 200ms ease;
-    }
-    .deck-modal__title.is-entering {
-      opacity: 0;
-      transform: translateY(-6px);
-    }
     .deck-plan-canvas {
       transition: opacity 220ms ease, transform 220ms ease;
       transform-origin: center top;
@@ -459,7 +435,6 @@
       <div class="container">
         <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
         <h1 class="deck-hero__title">Deck Navigator</h1>
-        <div class="deck-hero__accent"></div>
         <p class="deck-hero__subtitle">Pools. Shows. Food. Cabins. Find anything on the ship in seconds.</p>
         <div class="deck-hero__highlights">
           <span class="deck-hero__tag"><i class="fas fa-route"></i> Intent-first routing</span>
@@ -668,24 +643,9 @@
         });
       }
 
-      function renderVerticalIndicator() {
-        const indicator = document.getElementById('deckVerticalIndicator');
-        const decks = deckData
-          .filter(d => d.number !== 0)
-          .sort((a, b) => b.number - a.number);
-
-        indicator.innerHTML = decks.map(d => `
-          <button data-deck="${d.number}">
-            ${d.number}
-          </button>
-        `).join('');
-      }
-
       // ---------- IMAGE PATH RESOLVER ----------
       function getDeckImage(number) {
-        const deck = deckData.find(item => item.number === number);
-        if (deck?.image) return deck.image;
-        if (number === 0) return 'decks/deck-all.min.svg';
+        if (number === 0) return 'decks/deck-all.svg';
         return `decks/deck-${String(number).padStart(2, '0')}.png`;
       }
 
@@ -786,20 +746,7 @@
           existingCanvas.classList.add('is-transitioning');
         }
 
-        const titleEl = els.modalTitle;
-        if (titleEl) {
-          titleEl.classList.add('is-entering');
-        }
-
         setTimeout(() => {
-          if (titleEl) {
-            titleEl.textContent = `${deck.name}: ${deck.subtitle}`;
-            requestAnimationFrame(() => {
-              titleEl.classList.remove('is-entering');
-            });
-          }
-          els.modalDesc.textContent = deck.description;
-
           const hotspots = deckHotspots[deck.number] || [];
           const chips = deckFocusMap[deck.number] || [];
           els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" style="background:#eaf3ff; padding:8px 18px; border-radius:60px; border:none; font-weight:600;">${l}</button>`).join('');
@@ -936,7 +883,6 @@
       function init() {
         renderQuickRail();
         renderPills();
-        renderVerticalIndicator();
         renderDeckCards();
         bindEvents();
       }
