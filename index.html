@@ -130,7 +130,7 @@
       transition: opacity 600ms ease;
     }
 
-    .dashboard-page .hero--cinematic.is-phase-visible .phase-banner {
+    .dashboard-page .hero--cinematic.is-ready .phase-banner {
       opacity: 1;
     }
 
@@ -925,17 +925,16 @@
 
       function getHomeportStatus(now) {
         const dayMs = 1000 * 60 * 60 * 24;
-        const sameDay = now.getFullYear() === sailDate.getFullYear()
-          && now.getMonth() === sailDate.getMonth()
-          && now.getDate() === sailDate.getDate();
-
-        if (sameDay) {
-          return 'Boarding Day. Let\'s Go.';
-        }
-
         if (now < sailDate) {
           const daysToSail = Math.max(0, Math.ceil((sailDate - now) / dayMs));
           return `Sailing in ${daysToSail} Day${daysToSail === 1 ? '' : 's'}`;
+        }
+
+        const sameDay = now.getFullYear() === sailDate.getFullYear()
+          && now.getMonth() === sailDate.getMonth()
+          && now.getDate() === sailDate.getDate();
+        if (sameDay) {
+          return 'Boarding Day. Let\'s Go.';
         }
 
         const locations = ['At Sea', 'Grand Cayman', 'Falmouth', 'At Sea', 'Perfect Day at CocoCay', 'Return to Port'];
@@ -1040,7 +1039,9 @@
           renderCountdownSequence();
         }
         window.setTimeout(function () {
-          hero.classList.add('is-phase-visible');
+          if (phaseBanner) {
+            phaseBanner.style.opacity = '1';
+          }
         }, 1300);
         maybePlayEmbarkTone(now);
       }
