@@ -2488,23 +2488,16 @@
       setMoreOpen(false);
     }
 
-    let lastTouchOpenAt = 0;
+    let lastDrawerOpenAt = 0;
+    const DRAWER_OPEN_DEBOUNCE_MS = 250;
     moreOpenButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        if (Date.now() - lastTouchOpenAt < 450) return;
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        const now = Date.now();
+        if (now - lastDrawerOpenAt < DRAWER_OPEN_DEBOUNCE_MS) return;
+        lastDrawerOpenAt = now;
         openMoreDrawer(btn);
       });
-      btn.addEventListener('touchend', (event) => {
-        event.preventDefault();
-        lastTouchOpenAt = Date.now();
-        openMoreDrawer(btn);
-      }, { passive: false });
-    });
-    document.addEventListener('click', (event) => {
-      const trigger = event.target?.closest?.('[data-bottom-action="open-more-drawer"]');
-      if (!trigger) return;
-      event.preventDefault();
-      openMoreDrawer(trigger);
     });
     moreDrawerClose?.addEventListener('click', closeMoreDrawer);
     moreDrawerBackdrop?.addEventListener('click', closeMoreDrawer);
@@ -2515,6 +2508,28 @@
           closeMoreDrawer();
           return;
         }
+
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          const focusable = getDrawerFocusable();
+          if (!focusable.length) return;
+          const direction = event.key === 'ArrowDown' ? 1 : -1;
+          const activeIndex = focusable.indexOf(document.activeElement);
+          const nextIndex = activeIndex < 0
+            ? 0
+            : (activeIndex + direction + focusable.length) % focusable.length;
+          event.preventDefault();
+          focusable[nextIndex].focus();
+          return;
+        }
+
+        if (event.key === 'Home' || event.key === 'End') {
+          const focusable = getDrawerFocusable();
+          if (!focusable.length) return;
+          event.preventDefault();
+          (event.key === 'Home' ? focusable[0] : focusable[focusable.length - 1]).focus();
+          return;
+        }
+
         if (event.key !== 'Tab') return;
         const focusable = getDrawerFocusable();
         if (!focusable.length) return;
