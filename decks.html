@@ -370,6 +370,14 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 18px 30px -8px black;
     }
     .deck-plan-media { border-radius: 24px; width: 100%; display: block; }
+    .deck-plan-canvas {
+      transition: opacity 220ms ease, transform 220ms ease;
+      transform-origin: center top;
+    }
+    .deck-plan-canvas.is-transitioning {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
 
     /* ———— BOTTOM NAV ———— */
     .bottom-nav {
@@ -400,7 +408,7 @@
       <div class="container">
         <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
         <h1 class="deck-hero__title">Deck Navigator</h1>
-        <p class="deck-hero__subtitle">Intelligent wayfinding — intent-based deck exploration, venue hotspots, and fluid orientation.</p>
+        <p class="deck-hero__subtitle">Pools. Shows. Food. Cabins. Find anything on the ship in seconds.</p>
         <div class="deck-hero__highlights">
           <span class="deck-hero__tag"><i class="fas fa-route"></i> Intent-first routing</span>
           <span class="deck-hero__tag"><i class="fas fa-layers"></i> Venue clusters</span>
@@ -707,23 +715,38 @@
       }
 
       function renderModalPlan(deck) {
-        const hotspots = deckHotspots[deck.number] || [];
-        const chips = deckFocusMap[deck.number] || [];
-        els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" style="background:#eaf3ff; padding:8px 18px; border-radius:60px; border:none; font-weight:600;">${l}</button>`).join('');
-        const hotspotButtons = hotspots.map((s,i) => `
-          <button class="deck-hotspot" style="position:absolute; left:${s.x}%; top:${s.y}%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:44px; background:linear-gradient(145deg, #0ca8ff, #0069d0); border:3px solid white; color:white; font-weight:800; box-shadow:0 10px 24px rgba(0,121,212,0.6);" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
-        `).join('');
-        
-        els.modalFrame.innerHTML = `
-          <div class="deck-plan-stage" id="deckPlanStage" style="position:relative; overflow:auto; background:#082434; padding:20px; border-radius:28px;">
-            <div class="deck-plan-canvas" id="deckPlanCanvas" style="transform-origin:top left; transform:scale(${state.currentZoom/100});">
-              <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" style="width:100%; border-radius:24px;" alt="${deck.name}">
-              ${hotspots.length ? `<div style="position:absolute; inset:20px;">${hotspotButtons}</div>` : ''}
+        const existingCanvas = document.getElementById('deckPlanCanvas');
+
+        if (existingCanvas) {
+          existingCanvas.classList.add('is-transitioning');
+        }
+
+        setTimeout(() => {
+          const hotspots = deckHotspots[deck.number] || [];
+          const chips = deckFocusMap[deck.number] || [];
+          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" style="background:#eaf3ff; padding:8px 18px; border-radius:60px; border:none; font-weight:600;">${l}</button>`).join('');
+          const hotspotButtons = hotspots.map((s,i) => `
+            <button class="deck-hotspot" style="position:absolute; left:${s.x}%; top:${s.y}%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:44px; background:linear-gradient(145deg, #0ca8ff, #0069d0); border:3px solid white; color:white; font-weight:800; box-shadow:0 10px 24px rgba(0,121,212,0.6);" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
+          `).join('');
+
+          els.modalFrame.innerHTML = `
+            <div class="deck-plan-stage" id="deckPlanStage" style="position:relative; overflow:auto; background:#082434; padding:20px; border-radius:28px;">
+              <div class="deck-plan-canvas is-transitioning" id="deckPlanCanvas" style="transform:scale(${state.currentZoom/100});">
+                <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" style="width:100%; border-radius:24px;" alt="${deck.name}">
+                ${hotspots.length ? `<div style="position:absolute; inset:20px;">${hotspotButtons}</div>` : ''}
+              </div>
             </div>
-          </div>
-          ${hotspots.length ? `<div class="deck-plan-legend" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:18px;">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}" style="background:white; border:none; padding:10px 18px; border-radius:40px; box-shadow:0 4px 8px rgba(0,0,0,0.04);"><strong>${i+1}. ${s.title}</strong><span style="display:block; font-size:0.8rem;">${s.note}</span></button>`).join('')}</div>` : ''}
-        `;
-        attachPan();
+            ${hotspots.length ? `<div class="deck-plan-legend" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:18px;">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}" style="background:white; border:none; padding:10px 18px; border-radius:40px; box-shadow:0 4px 8px rgba(0,0,0,0.04);"><strong>${i+1}. ${s.title}</strong><span style="display:block; font-size:0.8rem;">${s.note}</span></button>`).join('')}</div>` : ''}
+          `;
+          attachPan();
+
+          const newCanvas = document.getElementById('deckPlanCanvas');
+          if (newCanvas) {
+            requestAnimationFrame(() => {
+              newCanvas.classList.remove('is-transitioning');
+            });
+          }
+        }, 180);
       }
 
       function renderFocusChips(deck) { /* already in renderModalPlan */ }
