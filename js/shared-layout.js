@@ -87,8 +87,8 @@
   const RCCL_COLORS = {
     primary: '#0052a5',
     primaryRgb: '0, 82, 165',
-    accent: '#00a8e8',
-    accentRgb: '0, 168, 232',
+    accent: '#00a4d8',
+    accentRgb: '0, 164, 216',
     light: '#f8f9fa',
     lightRgb: '248, 249, 250',
   };

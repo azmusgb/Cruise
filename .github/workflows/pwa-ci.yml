@@ -14,68 +14,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Validate manifest JSON
-        run: python -m json.tool manifest.json > /dev/null
+        run: node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8')); console.log('manifest.json valid');"
 
       - name: JavaScript syntax checks
         run: |
-          node --check js/sw.js
-          node --check js/shared-layout.js
-          node --check js/_legacy/service-worker-registration.js
+          node --check sw.js
+          for file in js/*.js; do node --check "$file"; done
 
-      - name: Static PWA consistency checks
+      - name: Static integrity checks
         run: |
-          python - <<'PY'
-          from html.parser import HTMLParser
-          from pathlib import Path
-
-          html_files = [
-              'index.html', 'itinerary.html', 'operations.html',
-              'rooms.html', 'dining.html', 'tips.html', 'offline.html',
-              'contacts.html', 'decks.html'
-          ]
-
-          class LinkParser(HTMLParser):
-              def __init__(self):
-                  super().__init__()
-                  self.manifest_found = False
-                  self.shared_layout_found = False
-
-              def handle_starttag(self, tag, attrs):
-                  attrs = dict(attrs)
-                  manifest_href = attrs.get('href', '')
-                  if tag == 'link' and attrs.get('rel') == 'manifest' and manifest_href.startswith('manifest.json'):
-                      self.manifest_found = True
-                  if tag == 'script' and attrs.get('src', '').startswith('js/shared-layout.js'):
-                      self.shared_layout_found = True
-
-          for file in html_files:
-              parser = LinkParser()
-              parser.feed(Path(file).read_text(encoding='utf-8'))
-              assert parser.manifest_found, f"Missing manifest link in {file}"
-              assert parser.shared_layout_found, f"Missing shared-layout script in {file}"
-
-          print('Static checks passed')
-          PY
+          npm run qa:html
+          npm run qa:nav
 
       - name: Serve and smoke test pages
         run: |
           set -euo pipefail
-          python -m http.server 8080 > /tmp/http.log 2>&1 &
+          python3 -m http.server 8080 > /tmp/http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
 
-          for _ in $(seq 1 20); do
+          for _ in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8080/index.html >/dev/null 2>&1; then
               break
             fi
@@ -84,9 +52,9 @@ jobs:
 
           curl -fsS http://127.0.0.1:8080/index.html >/dev/null || { echo 'Server failed to start'; cat /tmp/http.log; exit 1; }
 
-          for page in index itinerary operations rooms dining tips offline; do
-            curl -fsS "http://127.0.0.1:8080/${page}.html" >/dev/null
+          for page in *.html; do
+            curl -fsS "http://127.0.0.1:8080/${page}" >/dev/null
           done
 
           curl -fsS http://127.0.0.1:8080/manifest.json >/dev/null
-          curl -fsS http://127.0.0.1:8080/js/sw.js >/dev/null
+          curl -fsS http://127.0.0.1:8080/sw.js >/dev/null

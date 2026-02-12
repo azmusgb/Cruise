@@ -7,9 +7,10 @@ on:
       - "**/*.js"
       - "**/*.css"
       - "**/*.html"
-      - ".eslintrc.json"
-      - ".stylelintrc.json"
+      - "eslint.config.js"
       - ".prettierrc"
+      - "package.json"
+      - "package-lock.json"
 
 jobs:
   lint:
@@ -18,33 +19,34 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
+          cache: npm
 
       - name: 📦 Install Dependencies
-        run: npm ci || npm install
+        run: npm ci
 
-      - name: 🎨 Stylelint
-        run: npm run lint:css
+      - name: 🧠 ESLint (check)
+        run: npm run lint:js:check
 
-      - name: 🧠 ESLint
-        run: npm run lint:js
+      - name: 🧪 HTML integrity
+        run: npm run qa:html
 
-      - name: ✨ Prettier Check
-        run: npm run format
+      - name: 🧭 Navigation regression
+        run: npm run qa:nav
 
   ai_review:
     name: 🤖 GPT-4 AI Review
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && secrets.OPENAI_API_KEY != '' }}
 
     steps:
       - name: 📥 Checkout PR code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🧠 Install GPT-Review CLI
         run: |
