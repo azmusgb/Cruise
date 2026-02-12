@@ -52,6 +52,7 @@ const requiredSharedLayoutTokens = [
   '#moreDrawerBackdrop',
   '#moreDrawerClose',
   '#headerMoreButton',
+  'id="moreBtnMobile"',
   'data-bottom-action="open-more-drawer"',
   'data-nav="',
   "navKey: 'home'",

@@ -2205,7 +2205,7 @@
       const links = BOTTOM_NAV_ITEMS.map((item) => {
         if (item.action) {
           return `
-            <button type="button" class="bottom-nav__item bottom-nav__item--more" data-nav="${utils.escapeHtml(item.navKey)}" data-bottom-action="${utils.escapeHtml(item.action)}" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
+            <button type="button" id="moreBtnMobile" class="bottom-nav__item bottom-nav__item--more" data-nav="${utils.escapeHtml(item.navKey)}" data-bottom-action="${utils.escapeHtml(item.action)}" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
               <i class="fas ${item.icon}" aria-hidden="true"></i>
               <span>${utils.escapeHtml(item.text)}</span>
             </button>
@@ -2374,36 +2374,60 @@
     let moreLastFocus = null;
     let drawerScrollY = 0;
     let drawerScrollLocked = false;
+    let touchMoveBlocked = false;
 
     function getDrawerFocusable() {
       if (!moreDrawer) return [];
       return utils.qsa('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])', moreDrawer);
     }
 
+    function blockTouchMoveOutsideDrawer(event) {
+      if (!touchMoveBlocked || !moreDrawer || moreDrawer.hidden) return;
+      const target = event.target;
+      if (target && moreDrawer.contains(target)) return;
+      event.preventDefault();
+    }
+
     function lockBackgroundScroll() {
       if (drawerScrollLocked) return;
       drawerScrollY = window.scrollY || window.pageYOffset || 0;
+      document.documentElement.classList.add('more-drawer-open');
+      document.body.classList.add('more-drawer-open');
       document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.height = '100%';
+      document.documentElement.style.overscrollBehavior = 'none';
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.top = `-${drawerScrollY}px`;
       document.body.style.left = '0';
       document.body.style.right = '0';
       document.body.style.width = '100%';
-      document.body.style.touchAction = 'none';
+      document.body.style.overscrollBehavior = 'none';
+      if (!touchMoveBlocked) {
+        document.addEventListener('touchmove', blockTouchMoveOutsideDrawer, { passive: false });
+        touchMoveBlocked = true;
+      }
       drawerScrollLocked = true;
     }
 
     function unlockBackgroundScroll() {
       if (!drawerScrollLocked) return;
+      document.documentElement.classList.remove('more-drawer-open');
+      document.body.classList.remove('more-drawer-open');
       document.documentElement.style.overflow = '';
+      document.documentElement.style.height = '';
+      document.documentElement.style.overscrollBehavior = '';
       document.body.style.overflow = '';
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.left = '';
       document.body.style.right = '';
       document.body.style.width = '';
-      document.body.style.touchAction = '';
+      document.body.style.overscrollBehavior = '';
+      if (touchMoveBlocked) {
+        document.removeEventListener('touchmove', blockTouchMoveOutsideDrawer);
+        touchMoveBlocked = false;
+      }
       drawerScrollLocked = false;
       window.scrollTo(0, drawerScrollY);
     }
@@ -2435,8 +2459,17 @@
       setMoreOpen(false);
     }
 
+    let lastTouchOpenAt = 0;
     moreOpenButtons.forEach((btn) => {
-      btn.addEventListener('click', () => openMoreDrawer(btn));
+      btn.addEventListener('click', () => {
+        if (Date.now() - lastTouchOpenAt < 450) return;
+        openMoreDrawer(btn);
+      });
+      btn.addEventListener('touchend', (event) => {
+        event.preventDefault();
+        lastTouchOpenAt = Date.now();
+        openMoreDrawer(btn);
+      }, { passive: false });
     });
     document.addEventListener('click', (event) => {
       const trigger = event.target?.closest?.('[data-bottom-action="open-more-drawer"]');

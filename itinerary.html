@@ -259,6 +259,16 @@
             box-shadow: 0 16px 34px rgba(11, 79, 144, 0.16), inset 0 0 0 2px rgba(255, 201, 58, 0.26);
         }
 
+        .itinerary-day--today-pulse {
+            animation: todayPulse 1.2s ease;
+        }
+
+        @keyframes todayPulse {
+            0% { transform: translateY(0) scale(1); box-shadow: 0 16px 34px rgba(11, 79, 144, 0.16), inset 0 0 0 2px rgba(255, 201, 58, 0.26); }
+            45% { transform: translateY(-2px) scale(1.01); box-shadow: 0 20px 38px rgba(11, 79, 144, 0.2), inset 0 0 0 2px rgba(255, 201, 58, 0.6); }
+            100% { transform: translateY(0) scale(1); box-shadow: 0 16px 34px rgba(11, 79, 144, 0.16), inset 0 0 0 2px rgba(255, 201, 58, 0.26); }
+        }
+
         .itinerary-day__header {
             display: flex;
             justify-content: space-between;
@@ -1119,6 +1129,18 @@
                 target.scrollIntoView({ behavior, block: 'start' });
             }
 
+            function pulseTodayTarget() {
+                const target = document.getElementById('today-card') || document.querySelector('.itinerary-day[data-today="true"]');
+                if (!target) return;
+                target.classList.remove('itinerary-day--today-pulse');
+                window.requestAnimationFrame(() => {
+                    target.classList.add('itinerary-day--today-pulse');
+                });
+                window.setTimeout(() => {
+                    target.classList.remove('itinerary-day--today-pulse');
+                }, 1250);
+            }
+
             dayButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     const nextDay = Number(this.dataset.day);
@@ -1180,8 +1202,17 @@
             setStatus(context.label);
 
             if (window.location.hash === '#today') {
-                window.setTimeout(() => scrollToDay(context.day, 'smooth'), 120);
+                window.setTimeout(() => {
+                    scrollToDay(context.day, 'smooth');
+                    pulseTodayTarget();
+                }, 120);
             }
+
+            window.addEventListener('hashchange', () => {
+                if (window.location.hash !== '#today') return;
+                scrollToDay(context.day, 'smooth');
+                pulseTodayTarget();
+            });
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowLeft' && currentDay > 1) {
