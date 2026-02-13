@@ -35,28 +35,341 @@
   <link rel="stylesheet" href="css/components.css?v=3">
   <link rel="stylesheet" href="css/feature-modules.css?v=3">
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <link rel="stylesheet" href="css/shared-layout.css?v=9">
+  <link rel="stylesheet" href="css/shared-layout.css?v=ut.js?v=17" defer></script>
 
-  <!-- =========================================================
-       DECK NAVIGATOR (Feature-specific only)
-       Contains:
-       - Deck grid
-       - Modal
-       - Zoom system
-       - Hotspots
-       - Legend
-       No global overrides.
-  ========================================================== -->
-  <link rel="stylesheet" href="css/deck-navigator.css?v=1">
+  <style>
+  /* =========================================================
+   DECKS.CSS — RCCL FAMILY CRUISE THEME
+   Bold. High-contrast. No glass.
+   ========================================================= */
 
-  <!-- =========================================================
-       SHARED LAYOUT SCRIPT
-  ========================================================== -->
-  <script src="js/shared-layout.js?v=17" defer></script>
+/* ================================
+   TOKENS (Page-Level Overrides)
+   ================================ */
 
+:root {
+  --rccl-navy: #0A2E4A;
+  --rccl-navy-2: #144A66;
+  --rccl-gold: #C6A15B;
+  --rccl-gold-soft: rgba(198,161,91,0.15);
+  --rccl-bg: #F4F8FB;
+  --rccl-white: #FFFFFF;
+
+  --radius-card: 20px;
+  --radius-modal: 28px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 8px 24px rgba(10,46,74,0.08);
+  --shadow-2: 0 18px 40px rgba(10,46,74,0.18);
+  --shadow-modal: 0 40px 80px rgba(0,20,40,0.35);
+}
+
+/* ================================
+   BODY
+   ================================ */
+
+body {
+  background: var(--rccl-bg);
+  color: var(--rccl-navy);
+}
+
+/* ================================
+   HERO
+   ================================ */
+
+.hero {
+  background: linear-gradient(135deg, var(--rccl-navy) 0%, var(--rccl-navy-2) 100%);
+  color: white;
+  padding: 64px 0 72px;
+  position: relative;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom right, transparent 49%, var(--rccl-bg) 50%);
+}
+
+.hero-h1 {
+  font-size: clamp(2.6rem, 6vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.hero-h1 em {
+  color: var(--rccl-gold);
+  font-style: normal;
+}
+
+.hero-sub {
+  opacity: 0.9;
+  margin-top: 16px;
+  font-size: 1.1rem;
+}
+
+.hero-badge {
+  background: var(--rccl-gold);
+  color: var(--rccl-navy);
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: 8px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* ================================
+   FILTER TABS
+   ================================ */
+
+.filters {
+  margin-top: 32px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ftab {
+  border: 2px solid transparent;
+  background: white;
+  border-radius: var(--radius-pill);
+  padding: 10px 22px;
+  font-weight: 700;
+  transition: 0.2s ease;
+  box-shadow: var(--shadow-1);
+}
+
+.ftab:hover {
+  transform: translateY(-2px);
+}
+
+.ftab.active {
+  background: var(--rccl-navy);
+  color: white;
+  border-color: var(--rccl-gold);
+  box-shadow: 0 0 0 3px var(--rccl-gold-soft);
+}
+
+/* ================================
+   DECK CARDS
+   ================================ */
+
+.deck-grid {
+  margin-top: 48px;
+}
+
+.card {
+  background: var(--rccl-white);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  padding: 22px;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-2);
+}
+
+.card.my-deck {
+  border: 2px solid var(--rccl-gold);
+}
+
+.my-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: var(--rccl-gold);
+  color: var(--rccl-navy);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+}
+
+.card-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-num {
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(10,46,74,0.08);
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  pointer-events: none;
+}
+
+.card-name {
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.card-sub {
+  font-weight: 600;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+.card-tags {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  background: var(--rccl-bg);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* ================================
+   MODAL
+   ================================ */
+
+.backdrop {
+  background: rgba(10,46,74,0.85);
+}
+
+.modal {
+  background: var(--rccl-white);
+  border-radius: var(--radius-modal);
+  box-shadow: var(--shadow-modal);
+  overflow: hidden;
+}
+
+.modal-hdr {
+  background: var(--rccl-navy);
+  color: white;
+  padding: 24px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.modal-num {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--rccl-gold);
+}
+
+.modal-name {
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+
+.modal-sub {
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
+.modal-desc {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.modal-close {
+  margin-left: auto;
+  background: var(--rccl-gold);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  color: var(--rccl-navy);
+  font-weight: bold;
+  transition: 0.2s ease;
+}
+
+.modal-close:hover {
+  transform: scale(1.05);
+}
+
+/* ================================
+   PLAN VIEWER
+   ================================ */
+
+.plan-area {
+  background: var(--rccl-bg);
+  padding: 24px;
+}
+
+.plan-canvas {
+  background: white;
+  border-radius: 18px;
+  box-shadow: var(--shadow-1);
+}
+
+.zoom-bar {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.zoom-btn {
+  background: var(--rccl-navy);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  transition: 0.2s ease;
+}
+
+.zoom-btn:hover {
+  background: var(--rccl-gold);
+  color: var(--rccl-navy);
+}
+
+.zoom-v {
+  font-weight: 700;
+  align-self: center;
+}
+
+/* ================================
+   MODAL FOOTER
+   ================================ */
+
+.modal-foot {
+  padding: 20px 24px;
+  border-top: 1px solid #e4eef5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  background: var(--rccl-bg);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.room-chip {
+  background: var(--rccl-gold);
+  color: var(--rccl-navy);
+  font-weight: 800;
+}
+      </style>
 </head>
 <body>
-  <a href="#main" class="skip-link">Skip to main content</a>
+
 
   <!-- ========== HEADER ========== -->
   <header class="hdr" role="banner">
