@@ -70,8 +70,8 @@ header a {
 
 .stage img {
   display: block;
-  max-width: 90vw;
-  max-height: 75vh;
+  max-width: none;
+max-height: none;
   width: auto;
   height: auto;
   transition: transform .15s ease;
@@ -135,11 +135,22 @@ header a {
 </div>
 
 <script>
-(() => {
+
+    (() => {
   const img = document.getElementById('deckImage');
   const zoomDisplay = document.getElementById('zoomDisplay');
 
   let scale = 1;
+
+  function fitToScreen() {
+    const vw = window.innerWidth * 0.95;
+    const naturalWidth = img.naturalWidth;
+
+    if (!naturalWidth) return;
+
+    scale = vw / naturalWidth;
+    updateZoom();
+  }
 
   function updateZoom() {
     img.style.transform = `scale(${scale})`;
@@ -147,25 +158,27 @@ header a {
   }
 
   document.getElementById('zoomIn').addEventListener('click', () => {
-    scale = Math.min(scale + 0.2, 3);
+    scale = Math.min(scale + 0.2, 5);
     updateZoom();
   });
 
   document.getElementById('zoomOut').addEventListener('click', () => {
-    scale = Math.max(scale - 0.2, 0.5);
+    scale = Math.max(scale - 0.2, 0.2);
     updateZoom();
   });
 
   document.getElementById('zoomReset').addEventListener('click', () => {
-    scale = 1;
-    updateZoom();
+    fitToScreen();
+  });
+
+  img.addEventListener('load', () => {
+    fitToScreen();
   });
 
   img.addEventListener('error', () => {
     img.src = 'decks/deck-04.png';
   });
 
-  updateZoom();
 })();
 </script>
 
