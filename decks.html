@@ -1,34 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="app-theme-rcc">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0A2E4A">
   <title>Deck Navigator · Adventure of the Seas</title>
 
-  <!-- Fonts & Icons -->
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- Core Styles -->
+  <!-- Shared layout (if used globally) -->
   <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/utilities.css">
   <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/feature-modules.css">
-  <link rel="stylesheet" href="css/mobile-first.css">
 
-  <!-- Decks Theme -->
+  <!-- Deck-specific styling -->
   <link rel="stylesheet" href="css/decks.css">
 </head>
-
 <body>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge">
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- ========================================================= -->
+<!-- HERO -->
+<!-- ========================================================= -->
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge" id="heroBadge">
       <i class="fas fa-location-dot"></i> Deck 6 · Room 6650
     </div>
 
     <h1 class="hero-h1">
-      Find anything<br><em>on the ship.</em>
+      Find anything<br>
+      <em>on the ship.</em>
     </h1>
 
     <p class="hero-sub">
@@ -36,84 +43,162 @@
     </p>
 
     <div class="hero-kpis">
-      <div>
+      <div class="kpi">
         <div class="kpi-n">14</div>
         <div class="kpi-l">Guest Decks</div>
       </div>
-      <div>
+      <div class="kpi-div"></div>
+      <div class="kpi">
         <div class="kpi-n">60+</div>
         <div class="kpi-l">Venues</div>
       </div>
-      <div>
+      <div class="kpi-div"></div>
+      <div class="kpi">
         <div class="kpi-n">3,807</div>
         <div class="kpi-l">Guests</div>
       </div>
     </div>
-  </section>
 
-  <!-- MAIN -->
-  <main style="padding:40px 24px; max-width:1200px; margin:auto;">
-
-    <!-- FILTERS -->
-    <div class="filters">
-      <button class="ftab active" data-f="all">All</button>
-      <button class="ftab" data-f="ent">Entertainment</button>
-      <button class="ftab" data-f="wel">Wellness</button>
-      <button class="ftab" data-f="ess">Staterooms</button>
-      <button class="ftab" data-f="mine">My Deck</button>
-    </div>
-
-    <!-- GRID HEADER -->
-    <div class="sec-head">
-      <div class="sec-title">Deck Directory</div>
-      <div class="sec-ct">Explore all guest levels</div>
-    </div>
-
-    <!-- DECK GRID -->
-    <div class="deck-grid" id="grid">
-      <div id="empty" style="display:none;">
-        No decks match your search.
-      </div>
-    </div>
-
-  </main>
-
-  <!-- MODAL -->
-  <div class="backdrop" id="backdrop">
-    <div class="modal">
-
-      <div class="modal-hdr">
-        <div>
-          <div class="modal-num" id="mNum"></div>
-          <div class="modal-name" id="mName"></div>
-          <div class="modal-sub" id="mSub"></div>
-          <div class="modal-desc" id="mDesc"></div>
-        </div>
-        <button class="modal-close" id="mClose">
-          <i class="fas fa-times"></i>
+    <!-- SEARCH -->
+    <div class="search-ledge">
+      <div class="search-bar">
+        <i class="fas fa-magnifying-glass"></i>
+        <input id="search"
+               type="search"
+               placeholder="Search decks, venues… (press /)"
+               autocomplete="off">
+        <button id="searchClear" class="search-clear" hidden>
+          <i class="fas fa-times-circle"></i>
         </button>
+        <span id="ct" class="search-ct">14 decks</span>
       </div>
-
-      <div class="plan-area">
-        <div class="plan-canvas">
-          <div id="planInner"></div>
-        </div>
-
-        <div class="zoom-bar">
-          <button class="zoom-btn" id="zOut"><i class="fas fa-minus"></i></button>
-          <span id="zVal">100%</span>
-          <button class="zoom-btn" id="zIn"><i class="fas fa-plus"></i></button>
-          <button class="zoom-btn" id="zReset"><i class="fas fa-compress"></i></button>
-        </div>
-      </div>
-
-      <div class="modal-foot" id="mFoot"></div>
-
     </div>
   </div>
+</section>
 
-  <!-- Decks Script -->
-  <script src="js/decks.js"></script>
+<!-- ========================================================= -->
+<!-- MAIN -->
+<!-- ========================================================= -->
+
+<main id="main" class="body">
+
+  <!-- FILTER TABS -->
+  <div class="filters" id="filters">
+    <button class="ftab active" data-f="all">
+      <i class="fas fa-ship"></i> All
+      <span id="countAll"></span>
+    </button>
+
+    <button class="ftab" data-f="ent">
+      <span class="dot ent"></span>
+      Entertainment
+      <span id="countEnt"></span>
+    </button>
+
+    <button class="ftab" data-f="wel">
+      <span class="dot wel"></span>
+      Wellness
+      <span id="countWel"></span>
+    </button>
+
+    <button class="ftab" data-f="ess">
+      <span class="dot ess"></span>
+      Staterooms
+      <span id="countEss"></span>
+    </button>
+
+    <button class="ftab" data-f="mine">
+      <i class="fas fa-star gold"></i>
+      My Deck
+      <span id="countMine"></span>
+    </button>
+  </div>
+
+  <!-- SECTION HEADER -->
+  <div class="sec-head">
+    <h2 id="gridLabel" class="sec-title">All decks</h2>
+    <span id="gridCt" class="sec-ct">14 shown</span>
+  </div>
+
+  <!-- GRID -->
+  <div class="deck-grid" id="grid" role="list">
+
+    <!-- EMPTY STATE -->
+    <div class="empty" id="empty">
+      <div class="empty-ico">🧭</div>
+      <div class="empty-t">No decks match</div>
+      <div class="empty-s">Try a different search or filter</div>
+      <button id="resetBtn" class="btn-reset">
+        <i class="fas fa-rotate-left"></i> Reset
+      </button>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ========================================================= -->
+<!-- SPINES -->
+<!-- ========================================================= -->
+
+<nav id="mobileSpine" class="mobile-spine"></nav>
+<nav id="desktopSpine" class="desktop-spine"></nav>
+
+<!-- ========================================================= -->
+<!-- MODAL -->
+<!-- ========================================================= -->
+
+<div id="backdrop" class="backdrop" role="dialog" aria-modal="true">
+
+  <div id="modal" class="modal">
+
+    <div class="modal-hdr">
+      <div id="mNum" class="modal-num"></div>
+      <div class="modal-txt">
+        <div id="mName" class="modal-name"></div>
+        <div id="mSub" class="modal-sub"></div>
+        <div id="mDesc" class="modal-desc"></div>
+      </div>
+      <button id="mClose" class="modal-close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div id="mStrip" class="modal-strip"></div>
+
+    <div class="plan-area">
+
+      <button id="planPrev" class="plan-prev">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div id="planCanvas" class="plan-canvas">
+        <div id="planInner" class="plan-inner"></div>
+      </div>
+
+      <button id="planNext" class="plan-next">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <div class="zoom-bar">
+        <button id="zOut" class="zoom-btn"><i class="fas fa-minus"></i></button>
+        <span id="zVal" class="zoom-v">100%</span>
+        <button id="zIn" class="zoom-btn"><i class="fas fa-plus"></i></button>
+        <button id="zReset" class="zoom-btn"><i class="fas fa-compress"></i></button>
+      </div>
+
+    </div>
+
+    <div id="mFoot" class="modal-foot"></div>
+
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- SCRIPT -->
+<!-- ========================================================= -->
+
+<script src="js/decks.js"></script>
 
 </body>
 </html>
