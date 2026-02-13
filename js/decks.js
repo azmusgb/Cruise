@@ -133,40 +133,19 @@
     return await res.json();
   }
 
-  async function loadDeckIndex() {
-    const candidates = ['deck-plans/index.json', 'decks/index.json'];
+  function buildDeckList() {
+  const deckNumbers = [
+    "02","03","04","05","06","07","08","09","10","11","12","13","14"
+  ];
 
-    let lastErr = null;
-    for (const c of candidates) {
-      try {
-        const data = await fetchJsonMaybe(c);
-        // Accept array or object with array field
-        const list =
-          Array.isArray(data) ? data :
-          Array.isArray(data?.decks) ? data.decks :
-          Array.isArray(data?.items) ? data.items :
-          Array.isArray(data?.data) ? data.data :
-          null;
-
-        if (!list) throw new Error(`Unrecognized JSON shape in ${c}`);
-
-        const decks = list.map(normalizeDeckEntry).filter(d => d.n || d.name || d.svg || d.img);
-        // Sort by deck number if numeric, otherwise keep order
-        decks.sort((a, b) => {
-          const an = parseInt(a.n, 10);
-          const bn = parseInt(b.n, 10);
-          if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
-          return a.name.localeCompare(b.name);
-        });
-
-        return decks;
-      } catch (e) {
-        lastErr = e;
-      }
-    }
-    throw lastErr || new Error('Deck index not found');
-  }
-
+  return deckNumbers.map(n => ({
+    n,
+    name: `Deck ${n}`,
+    sub: "Interactive deck plan",
+    svg: `decks/deck-${n}-final.min.svg`,
+    img: `decks/deck-${n}.png`
+  }));
+}
   /* -----------------------------
    * Viewer (stable SVG-as-IMG)
    * ----------------------------- */
@@ -727,7 +706,7 @@
     (async () => {
       try {
         setStatus(statusEl, 'Loading deck index…');
-        decks = await loadDeckIndex();
+decks = buildDeckList();
         filtered = decks.slice();
         renderGrid();
         setStatus(statusEl, '');
