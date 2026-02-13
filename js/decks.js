@@ -142,8 +142,8 @@
     n,
     name: `Deck ${n}`,
     sub: "Interactive deck plan",
-    svg: `decks/deck-${n}-final.min.svg`,
-    img: `decks/deck-${n}.png`
+    svg: `./decks/deck-${n}-final.min.svg`,
+    img: `./decks/deck-${n}.png`
   }));
 }
   /* -----------------------------
