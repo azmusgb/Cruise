@@ -1,242 +1,1138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a2e4a" />
 <title>Deck Explorer · Adventure of the Seas</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Inter',system-ui;
-  background:#071a2c;
-  color:#fff;
-  overflow:hidden;
+/* =========================================================
+   DECK EXPLORER (PRODUCTION-SAFE, SVG-BASED)
+   - Loads local SVG files from ./decks/
+   - Stable pan/zoom (mouse + touch + pinch)
+   - iPhone safe-area aware
+   - GitHub Pages friendly relative paths
+   ========================================================= */
+
+:root{
+  --navy:#0a2e4a;
+  --bg:#071a2c;
+  --accent:#00b4e6;
+  --gold:#ffd740;
+
+  --glass: rgba(255,255,255,.085);
+  --glass2: rgba(255,255,255,.12);
+  --brd: rgba(255,255,255,.16);
+
+  --shadow: 0 18px 70px rgba(0,0,0,.35);
+  --shadow2: 0 10px 40px rgba(0,0,0,.30);
+
+  --r: 24px;
+  --ease: cubic-bezier(.22,.61,.36,1);
 }
 
-/* Header */
-header{
-  position:fixed;top:0;width:100%;
-  height:60px;
-  backdrop-filter:blur(12px);
-  background:rgba(10,46,74,.8);
-  display:flex;align-items:center;
-  padding:0 1rem;
-  z-index:100;
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:#fff;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
 }
-.title{font-family:'Plus Jakarta Sans';font-weight:900}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+:focus-visible{outline:3px solid rgba(0,180,230,.55);outline-offset:3px;border-radius:14px}
+
+#ocean{position:fixed;inset:0;z-index:-3}
+.sky{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 18%, rgba(0,180,230,.16), transparent 60%),
+    radial-gradient(ellipse at 18% 86%, rgba(255,215,64,.10), transparent 55%),
+    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.66));
+}
+.vignette{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.06), transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.40), transparent 65%);
+}
+
+/* ---------- Header ---------- */
+header{
+  position:fixed;top:0;left:0;right:0;
+  z-index:1000;
+  background:rgba(10,46,74,.68);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.10);
+  padding-top: env(safe-area-inset-top);
+}
+.header-inner{
+  height:66px;
+  max-width:1400px;
+  margin:0 auto;
+  padding:0 1rem;
+  display:flex;
+  align-items:center;
+  gap:.8rem;
+}
+.titlewrap{display:flex;flex-direction:column;line-height:1.05}
+.title{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:950;
+  letter-spacing:.01em;
+}
+.sub{
+  font-size:.74rem;
+  opacity:.62;
+  font-weight:850;
+}
 .spacer{flex:1}
-.search{
-  padding:.4rem .8rem;
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:.55rem;
+  padding:.42rem .85rem;
   border-radius:999px;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.1);
-  color:white;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  font-weight:900;
+  font-size:.78rem;
+  white-space:nowrap;
+}
+.pill i{color:var(--gold)}
+
+.search{
+  width:min(280px, 44vw);
+  padding:.52rem .9rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.10);
+  color:rgba(255,255,255,.95);
+  font-weight:800;
+}
+.search::placeholder{color:rgba(255,255,255,.55)}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.55rem;
+  padding:.52rem .92rem;border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.10);
+  color:rgba(255,255,255,.92);
+  font-weight:900;font-size:.78rem;
+  transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
+  user-select:none;
+}
+.btn:hover{background:rgba(255,255,255,.14);border-color:rgba(0,180,230,.28)}
+.btn:active{transform:translateY(1px)}
+.btn i{color:var(--gold)}
+
+/* ---------- App Layout ---------- */
+.app{
+  position:absolute;
+  left:0;right:0;
+  top: calc(66px + env(safe-area-inset-top));
+  bottom: calc(74px + env(safe-area-inset-bottom));
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem;
+  display:grid;
+  grid-template-columns: 330px 1fr;
+  gap: 1rem;
+}
+@media (max-width: 980px){
+  .app{
+    grid-template-columns: 1fr;
+    padding: .8rem;
+    gap: .8rem;
+  }
+}
+
+.panel{
+  background:var(--glass);
+  border:1px solid var(--brd);
+  border-radius:var(--r);
+  box-shadow:var(--shadow2);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  overflow:hidden;
+}
+.panel .head{
+  padding:1rem 1rem .85rem;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.8rem;
+}
+.panel .head h2{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:950;
+  font-size:1.0rem;
+}
+.panel .body{padding: .95rem 1rem 1rem}
+.hint{
+  font-size:.82rem;
+  opacity:.74;
+  line-height:1.45;
+  font-weight:700;
+}
+.kbd{
+  margin-top:.55rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35rem;
+}
+.kbd span{
+  padding:.18rem .5rem;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.12);
+  font-size:.74rem;
+  font-weight:900;
+  opacity:.9;
+}
+
+/* Deck buttons */
+.deck-grid{
+  margin-top:.9rem;
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:.5rem;
+}
+@media (max-width: 980px){
+  .deck-grid{grid-template-columns: repeat(6, 1fr)}
+}
+@media (max-width: 560px){
+  .deck-grid{grid-template-columns: repeat(5, 1fr)}
+}
+.deckbtn{
+  padding:.58rem 0;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.92);
+  font-weight:950;
+  font-size:.78rem;
+  cursor:pointer;
+  transition: transform .15s var(--ease), background .15s var(--ease), border-color .15s var(--ease);
+}
+.deckbtn:hover{transform:translateY(-1px);background:rgba(255,255,255,.12);border-color:rgba(0,180,230,.26)}
+.deckbtn.active{
+  background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
+  color: rgba(8,28,46,.96);
+  border-color: rgba(255,255,255,.18);
 }
 
 /* Viewer */
 .viewer{
-  position:absolute;
-  top:60px;
-  bottom:60px;
-  left:0;
-  right:0;
+  position:relative;
+  min-height: 520px;
+  background:rgba(0,0,0,.14);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
   overflow:hidden;
-  touch-action:none;
-  cursor:grab;
+  touch-action:none; /* important for pan/pinch */
 }
-canvas{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
+@media (max-width: 980px){
+  .viewer{min-height: 56vh}
 }
 
-/* Deck Selector */
-.deck-bar{
-  position:fixed;
-  bottom:0;width:100%;
-  height:60px;
-  backdrop-filter:blur(12px);
-  background:rgba(10,46,74,.8);
-  display:flex;justify-content:center;align-items:center;
+.hud{
+  position:absolute;
+  top:12px; right:12px;
+  display:flex;
   gap:.5rem;
+  z-index:50;
 }
-.deck-btn{
-  padding:.4rem .9rem;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.1);
-  color:white;
-  font-size:.8rem;
+.hud .hudbtn{
+  width:42px;height:42px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(10,46,74,.62);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display:grid;place-items:center;
   cursor:pointer;
+  transition: transform .15s var(--ease), background .15s var(--ease), border-color .15s var(--ease);
 }
-.deck-btn.active{
-  background:#00b4e6;
-  color:#071a2c;
+.hud .hudbtn:hover{transform:translateY(-1px);background:rgba(255,255,255,.12);border-color:rgba(0,180,230,.26)}
+.hud i{color:var(--gold)}
+
+.stage{
+  position:absolute;
+  left:0;top:0;right:0;bottom:0;
+  overflow:hidden;
+}
+.svgwrap{
+  position:absolute;
+  left:0;top:0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+.svgwrap svg{
+  display:block;
+  max-width:none; /* allow true scaling */
+  height:auto;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+
+.loading{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:.6rem;
+  color:rgba(255,255,255,.92);
+  font-weight:900;
+  background:rgba(0,0,0,.16);
+}
+.loading .spin{
+  width:28px;height:28px;
+  border-radius:999px;
+  border:3px solid rgba(255,255,255,.20);
+  border-top-color: rgba(0,180,230,.95);
+  animation: spin 1.0s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.error{
+  position:absolute;
+  inset:0;
+  padding:1.1rem;
+  display:flex;
+  flex-direction:column;
+  gap:.7rem;
+  background:rgba(0,0,0,.18);
+}
+.error h3{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:950;
+  font-size:1.05rem;
+}
+.error .small{
+  opacity:.78;
+  font-weight:750;
+  line-height:1.45;
+  font-size:.88rem;
+}
+code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:.86em;
+  opacity:.95;
+}
+
+/* Highlight style */
+.rc-hit{
+  filter: drop-shadow(0 0 10px rgba(255,215,64,.85));
+}
+.rc-overlay{pointer-events:none}
+
+/* ---------- Footer ---------- */
+footer{
+  position:fixed;left:0;right:0;bottom:0;
+  z-index:1000;
+  background:rgba(10,46,74,.68);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.footer-inner{
+  height:74px;
+  max-width:1400px;
+  margin:0 auto;
+  padding:0 1rem;
+  display:flex;
+  align-items:center;
+  gap:.8rem;
+}
+.status{
+  display:flex;align-items:center;gap:.55rem;
+  font-weight:900;
+  font-size:.80rem;
+  opacity:.88;
+}
+.dot{
+  width:10px;height:10px;border-radius:999px;
+  background: rgba(0,180,230,.95);
+  box-shadow: 0 0 0 0 rgba(0,180,230,.35);
+  animation: pulse 1.3s ease-out infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(0,180,230,.35)}
+  100%{box-shadow:0 0 0 16px rgba(0,180,230,0)}
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  z-index:2000;
+  background:rgba(10,46,74,.88);
+  border:1px solid rgba(255,255,255,.14);
+  padding:.65rem .9rem;
+  border-radius:16px;
+  box-shadow:0 18px 70px rgba(0,0,0,.45);
+  font-weight:900;
+  font-size:.82rem;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .18s var(--ease), transform .18s var(--ease);
+}
+.toast.on{
+  opacity:1;
+  transform:translateX(-50%) translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important}
 }
 </style>
 </head>
+
 <body>
+<canvas id="ocean" aria-hidden="true"></canvas>
+<div class="sky" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
 
 <header>
-  <div class="title">Deck Explorer</div>
-  <div class="spacer"></div>
-  <input id="search" class="search" placeholder="Find cabin #" />
+  <div class="header-inner">
+    <div class="titlewrap">
+      <div class="title">Deck Explorer</div>
+      <div class="sub">Real deck plans · smooth zoom & pan · cabin search</div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <span class="pill" id="pillDeck" title="Current deck">
+      <i class="fas fa-layer-group" aria-hidden="true"></i>
+      <span>Deck 06</span>
+    </span>
+
+    <input class="search" id="roomSearch" inputmode="numeric" autocomplete="off" spellcheck="false"
+           placeholder="Find cabin # (e.g. 6650)" aria-label="Find cabin number" />
+
+    <a class="btn" href="index.html" aria-label="Back to dashboard">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i> Dashboard
+    </a>
+  </div>
 </header>
 
-<div class="viewer" id="viewer">
-  <canvas id="deckCanvas"></canvas>
+<div class="app">
+  <section class="panel" aria-label="Deck controls">
+    <div class="head">
+      <h2>Choose a deck</h2>
+      <span class="pill" title="Tips">
+        <i class="fas fa-hand-pointer" aria-hidden="true"></i>
+        Tap
+      </span>
+    </div>
+
+    <div class="body">
+      <div class="hint">
+        This page loads your SVG deck plans from <strong>./decks/</strong>.
+        If you only see big text like “Deck 6”, you’re on the wrong file/version.
+      </div>
+      <div class="kbd" aria-hidden="true">
+        <span>Wheel: zoom</span><span>Drag: pan</span><span>Pinch: zoom</span><span>Double-tap: reset</span>
+      </div>
+
+      <div class="deck-grid" id="deckGrid" aria-label="Deck buttons"></div>
+
+      <div class="hint" style="margin-top:1rem">
+        <strong>Quick highlight:</strong> tap <em>Find family cabins</em> to auto-detect and zoom to known rooms.
+      </div>
+    </div>
+  </section>
+
+  <section class="viewer" aria-label="Deck plan viewer">
+    <div class="hud" aria-label="Viewer controls">
+      <button class="hudbtn" id="btnZoomIn" title="Zoom in" aria-label="Zoom in"><i class="fas fa-plus" aria-hidden="true"></i></button>
+      <button class="hudbtn" id="btnZoomOut" title="Zoom out" aria-label="Zoom out"><i class="fas fa-minus" aria-hidden="true"></i></button>
+      <button class="hudbtn" id="btnReset" title="Reset view" aria-label="Reset view"><i class="fas fa-crosshairs" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="svgwrap" id="svgWrap" aria-label="SVG deck content"></div>
+      <div class="loading" id="loading" hidden>
+        <div class="spin" aria-hidden="true"></div>
+        <div>Loading deck…</div>
+      </div>
+      <div class="error" id="error" hidden></div>
+    </div>
+  </section>
 </div>
 
-<div class="deck-bar" id="deckBar"></div>
+<footer>
+  <div class="footer-inner">
+    <div class="status" id="status">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Ready</span>
+    </div>
+
+    <div class="spacer"></div>
+
+    <button class="btn" id="btnFamily" type="button" aria-label="Find family cabins on this deck">
+      <i class="fas fa-star" aria-hidden="true"></i> Find family cabins
+    </button>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-(function(){
-'use strict';
+(() => {
+  'use strict';
 
-/* ---------------- CONFIG ---------------- */
+  /* =========================================================
+     IMPORTANT: GitHub Pages + relative paths
+     =========================================================
+     This file uses RELATIVE asset paths like:
+       ./decks/deck-06-final.min.svg
+     That works both on:
+       - local dev
+       - GitHub Pages under a repo subpath
+     as long as decks.html sits next to the /decks folder.
+  */
 
-const DECKS = [3,6,8];
-const ROOMS = {
-  3:['3622'],
-  6:['6650'],
-  8:['8528','8370','8612']
-};
+  /* =========================
+     Assets
+     ========================= */
+  const DECKS = [
+    { n: 2, file: './decks/deck-02-final.min.svg' },
+    { n: 3, file: './decks/deck-03-final.min.svg' },
+    { n: 4, file: './decks/deck-04-final.min.svg' },
+    { n: 5, file: './decks/deck-05-final.min.svg' },
+    { n: 6, file: './decks/deck-06-final.min.svg' },
+    { n: 7, file: './decks/deck-07-final.min.svg' },
+    { n: 8, file: './decks/deck-08-final.min.svg' },
+    { n: 9, file: './decks/deck-09-final.min.svg' },
+    { n: 10, file: './decks/deck-10-final.min.svg' },
+    { n: 11, file: './decks/deck-11-final.min.svg' },
+    { n: 12, file: './decks/deck-12-final.min.svg' },
+    { n: 13, file: './decks/deck-13-final.min.svg' },
+    { n: 14, file: './decks/deck-14-final.min.svg' },
+    { n: 15, file: './decks/deck-15-final.min.svg' },
+  ];
 
-/* ---------------- DOM ---------------- */
+  // Known cabins (can add more anytime)
+  const FAMILY_CABINS = ['6650', '8528', '8612', '8370', '3622'];
 
-const viewer = document.getElementById('viewer');
-const canvas = document.getElementById('deckCanvas');
-const ctx = canvas.getContext('2d');
-const deckBar = document.getElementById('deckBar');
-const search = document.getElementById('search');
+  const STORAGE = {
+    deck: 'rccl.decks.activeDeck.v3',
+    zoom: 'rccl.decks.zoom.v3',
+    tx: 'rccl.decks.tx.v3',
+    ty: 'rccl.decks.ty.v3'
+  };
 
-if(!viewer || !canvas || !ctx || !deckBar || !search){
-  console.error('Required DOM elements missing.');
-  return;
-}
+  /* =========================
+     DOM
+     ========================= */
+  const deckGrid = document.getElementById('deckGrid');
+  const svgWrap = document.getElementById('svgWrap');
+  const stage = document.getElementById('stage');
 
-/* ---------------- STATE ---------------- */
+  const roomSearch = document.getElementById('roomSearch');
+  const pillDeck = document.getElementById('pillDeck');
+  const status = document.getElementById('status');
+  const toast = document.getElementById('toast');
 
-let currentDeck = 6;
-let scale = 1;
-let offsetX = 0;
-let offsetY = 0;
-let dragging = false;
-let dragStartX = 0;
-let dragStartY = 0;
+  const loadingEl = document.getElementById('loading');
+  const errorEl = document.getElementById('error');
 
-/* ---------------- INIT ---------------- */
+  const btnZoomIn = document.getElementById('btnZoomIn');
+  const btnZoomOut = document.getElementById('btnZoomOut');
+  const btnReset = document.getElementById('btnReset');
+  const btnFamily = document.getElementById('btnFamily');
 
-function resizeCanvas(){
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = viewer.clientWidth * dpr;
-  canvas.height = viewer.clientHeight * dpr;
-  canvas.style.width = viewer.clientWidth + 'px';
-  canvas.style.height = viewer.clientHeight + 'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  draw();
-}
-window.addEventListener('resize', resizeCanvas);
+  const ocean = document.getElementById('ocean');
 
-/* ---------------- DRAW ---------------- */
+  if (!deckGrid || !svgWrap || !stage || !roomSearch || !pillDeck || !status || !toast ||
+      !loadingEl || !errorEl || !btnZoomIn || !btnZoomOut || !btnReset || !btnFamily || !ocean) {
+    console.error('[decks] Missing required DOM elements.');
+    return;
+  }
 
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  /* =========================
+     Helpers
+     ========================= */
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const safeDigits = (s) => String(s || '').replace(/[^\d]/g, '');
 
-  ctx.save();
-  ctx.translate(canvas.width/2 + offsetX, canvas.height/2 + offsetY);
-  ctx.scale(scale,scale);
+  let toastTimer = 0;
+  function setStatus(text){
+    const span = status.querySelector('span:last-child');
+    if (span) span.textContent = String(text || '');
+  }
+  function showToast(msg){
+    toast.textContent = String(msg || '');
+    toast.classList.add('on');
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toast.classList.remove('on'), 1400);
+  }
 
-  ctx.fillStyle='#0a2e4a';
-  ctx.fillRect(-600,-300,1200,600);
+  function setLoading(on){
+    loadingEl.hidden = !on;
+  }
+  function setError(html){
+    errorEl.hidden = false;
+    errorEl.innerHTML = html;
+  }
+  function clearError(){
+    errorEl.hidden = true;
+    errorEl.innerHTML = '';
+  }
 
-  ctx.fillStyle='#00b4e6';
-  ctx.font='40px Inter';
-  ctx.fillText('Deck '+currentDeck,-520,-220);
+  function persistView(){
+    try{
+      localStorage.setItem(STORAGE.deck, String(activeDeck));
+      localStorage.setItem(STORAGE.zoom, String(zoom));
+      localStorage.setItem(STORAGE.tx, String(tx));
+      localStorage.setItem(STORAGE.ty, String(ty));
+    }catch{}
+  }
 
-  ctx.font='20px Inter';
+  /* =========================
+     State
+     ========================= */
+  let activeDeck = Number(localStorage.getItem(STORAGE.deck) || 6);
+  if (!Number.isFinite(activeDeck)) activeDeck = 6;
 
-  ROOMS[currentDeck].forEach((room,i)=>{
-    const x=-400+i*200;
-    const y=0;
-    ctx.fillStyle='#ffffff';
-    ctx.fillRect(x,y,120,60);
-    ctx.fillStyle='#071a2c';
-    ctx.fillText(room,x+20,y+35);
-  });
+  let zoom = Number(localStorage.getItem(STORAGE.zoom) || 1);
+  let tx = Number(localStorage.getItem(STORAGE.tx) || 0);
+  let ty = Number(localStorage.getItem(STORAGE.ty) || 0);
 
-  ctx.restore();
-}
+  zoom = clamp(zoom, 0.35, 5);
 
-/* ---------------- DECK BUTTONS ---------------- */
+  // Pointer tracking for pan/pinch
+  const pointers = new Map(); // id -> {x,y}
+  let isDragging = false;
+  let lastPan = { x: 0, y: 0 };
+  let pinchStart = null; // {dist, zoom, centerX, centerY}
 
-DECKS.forEach(d=>{
-  const btn=document.createElement('button');
-  btn.className='deck-btn'+(d===currentDeck?' active':'');
-  btn.textContent='Deck '+d;
-  btn.addEventListener('click',()=>{
-    currentDeck=d;
-    document.querySelectorAll('.deck-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    draw();
-  });
-  deckBar.appendChild(btn);
-});
+  // Loaded SVG ref
+  let currentSVG = null;
 
-/* ---------------- SEARCH ---------------- */
+  function applyTransform(){
+    svgWrap.style.transform = `translate(${tx}px, ${ty}px) scale(${zoom})`;
+    persistView();
+  }
 
-search.addEventListener('input',()=>{
-  const val = search.value.trim();
-  if(!val) return;
+  function resetView({fit=false} = {}){
+    if (fit) {
+      fitToViewport();
+      showToast('Fit to view');
+      return;
+    }
+    zoom = 1;
+    tx = 0;
+    ty = 0;
+    applyTransform();
+    showToast('View reset');
+  }
 
-  for(const [deck,list] of Object.entries(ROOMS)){
-    if(list.includes(val)){
-      currentDeck = Number(deck);
-      document.querySelectorAll('.deck-btn').forEach(b=>{
-        b.classList.toggle('active',b.textContent.includes(deck));
-      });
-      draw();
+  /* =========================
+     SVG overlay / highlight
+     ========================= */
+  function removeOverlay(svg){
+    if (!svg) return;
+    const old = svg.querySelector('#rc-room-overlay');
+    if (old) old.remove();
+    svg.querySelectorAll('.rc-hit').forEach(el => el.classList.remove('rc-hit'));
+  }
+
+  function ensureOverlay(svg){
+    let g = svg.querySelector('#rc-room-overlay');
+    if (!g){
+      g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('id', 'rc-room-overlay');
+      g.setAttribute('class', 'rc-overlay');
+      svg.appendChild(g);
+    }
+    return g;
+  }
+
+  function findRoomElements(svg, roomNumber){
+    const q = safeDigits(roomNumber);
+    if (!q) return [];
+
+    const hits = [];
+    // ID matches
+    svg.querySelectorAll(`[id*="${CSS.escape(q)}"]`).forEach(el => hits.push(el));
+    // aria / data
+    svg.querySelectorAll(`[aria-label*="${CSS.escape(q)}"], [data-room*="${CSS.escape(q)}"]`).forEach(el => hits.push(el));
+    // text nodes match
+    svg.querySelectorAll('text, tspan').forEach(el => {
+      const t = (el.textContent || '').trim();
+      if (t === q) hits.push(el);
+    });
+
+    // de-dupe
+    const seen = new Set();
+    return hits.filter(el => {
+      const key = `${el.tagName}|${el.id||''}|${el.getAttribute('aria-label')||''}|${(el.textContent||'').trim()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function focusOnBBox(bbox){
+    const rect = stage.getBoundingClientRect();
+    const targetX = rect.width / 2;
+    const targetY = rect.height / 2;
+
+    const cx = bbox.x + bbox.width / 2;
+    const cy = bbox.y + bbox.height / 2;
+
+    tx = targetX - (cx * zoom);
+    ty = targetY - (cy * zoom);
+    applyTransform();
+  }
+
+  function highlightRoom(roomNumber, {announce=true} = {}){
+    if (!currentSVG) { if (announce) showToast('Deck not loaded'); return false; }
+    const q = safeDigits(roomNumber);
+    if (!q) { if (announce) showToast('Enter a cabin number'); return false; }
+
+    removeOverlay(currentSVG);
+
+    const hits = findRoomElements(currentSVG, q);
+    if (!hits.length){
+      if (announce) showToast(`Cabin ${q} not found here`);
+      return false;
+    }
+
+    hits.forEach(el => el.classList.add('rc-hit'));
+
+    let bboxTarget = hits[0];
+    if (bboxTarget.tagName.toLowerCase() === 'tspan' && bboxTarget.parentElement) bboxTarget = bboxTarget.parentElement;
+
+    let bbox;
+    try { bbox = bboxTarget.getBBox(); }
+    catch {
+      if (announce) showToast(`Cabin ${q} found (can't focus)`);
+      return true;
+    }
+
+    const g = ensureOverlay(currentSVG);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', String(bbox.x - 12));
+    rect.setAttribute('y', String(bbox.y - 10));
+    rect.setAttribute('width', String(bbox.width + 24));
+    rect.setAttribute('height', String(bbox.height + 20));
+    rect.setAttribute('rx', '10');
+    rect.setAttribute('ry', '10');
+    rect.setAttribute('fill', 'rgba(255,215,64,0.10)');
+    rect.setAttribute('stroke', 'rgba(255,215,64,0.95)');
+    rect.setAttribute('stroke-width', '3');
+    rect.setAttribute('vector-effect', 'non-scaling-stroke');
+    g.appendChild(rect);
+
+    // Nudge zoom a bit if very small
+    zoom = clamp(Math.max(zoom, 1.05), 0.35, 5);
+    focusOnBBox(bbox);
+
+    if (announce) showToast(`Cabin ${q} highlighted`);
+    return true;
+  }
+
+  function highlightFamilyCabins({silent=false} = {}){
+    if (!currentSVG) { if (!silent) showToast('Deck not loaded'); return false; }
+
+    let first = null;
+    let count = 0;
+    for (const c of FAMILY_CABINS){
+      const hits = findRoomElements(currentSVG, c);
+      if (hits.length){
+        count++;
+        if (!first) first = c;
+      }
+    }
+
+    if (!count){
+      if (!silent) showToast('No family cabins detected on this deck');
+      return false;
+    }
+
+    highlightRoom(first, {announce: !silent});
+    if (!silent && count > 1) showToast(`Found ${count} family cabins here`);
+    return true;
+  }
+
+  /* =========================
+     Load SVG deck
+     ========================= */
+  async function loadDeck(deckNum){
+    const entry = DECKS.find(d => d.n === deckNum);
+    if (!entry){
+      showToast('Deck not available');
+      return;
+    }
+
+    clearError();
+    setLoading(true);
+    setStatus(`Loading Deck ${deckNum}…`);
+    pillDeck.querySelector('span').textContent = `Deck ${pad2(deckNum)}`;
+
+    // active button
+    deckGrid.querySelectorAll('.deckbtn').forEach(b => {
+      const n = Number(b.dataset.deck);
+      b.classList.toggle('active', n === deckNum);
+    });
+
+    try{
+      const res = await fetch(entry.file, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+
+      const svgText = await res.text();
+      svgWrap.innerHTML = svgText;
+
+      const svg = svgWrap.querySelector('svg');
+      if (!svg) throw new Error('SVG not found in file.');
+
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+      // Ensure viewBox (needed for bbox/fitting)
+      if (!svg.getAttribute('viewBox')){
+        const w = parseFloat(svg.getAttribute('width') || '0');
+        const h = parseFloat(svg.getAttribute('height') || '0');
+        if (w > 0 && h > 0) svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      }
+
+      currentSVG = svg;
+      activeDeck = deckNum;
+
+      // On load: fit nicely (but keep user's saved view if they had one AND same deck)
+      const savedDeck = Number(localStorage.getItem(STORAGE.deck) || deckNum);
+      const hasSavedView = (savedDeck === deckNum) && Number.isFinite(Number(localStorage.getItem(STORAGE.zoom)));
+
+      if (!hasSavedView) {
+        fitToViewport();
+      } else {
+        // apply persisted transform immediately after load
+        applyTransform();
+      }
+
+      // Remove any previous overlay
+      removeOverlay(svg);
+
+      setStatus(`Deck ${deckNum} loaded`);
+      showToast(`Deck ${deckNum} ready`);
+
+      // Quietly auto-detect family cabins on this deck
+      highlightFamilyCabins({silent:true});
+
+    }catch(err){
+      console.error(err);
+      currentSVG = null;
+      svgWrap.innerHTML = '';
+      setError(`
+        <h3>Couldn’t load Deck ${deckNum}</h3>
+        <div class="small">
+          Expected file path:
+          <div style="margin:.35rem 0 .65rem"><code>${escapeHtml(entry.file)}</code></div>
+          Ensure <code>decks.html</code> sits next to the <code>decks/</code> folder in your GitHub Pages output.
+          <br><br>
+          <strong>Common causes:</strong>
+          <ul style="margin:.5rem 0 0 1.1rem; opacity:.9; line-height:1.5">
+            <li>File name mismatch (case-sensitive).</li>
+            <li>decks.html moved into a different folder than /decks.</li>
+            <li>GitHub Pages still caching the old file (hard refresh with <code>?v=2</code>).</li>
+          </ul>
+        </div>
+      `);
+      setStatus('Load failed');
+      showToast('SVG load failed');
+    }finally{
+      setLoading(false);
     }
   }
-});
 
-/* ---------------- ZOOM ---------------- */
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
 
-viewer.addEventListener('wheel',e=>{
-  e.preventDefault();
-  const zoom = e.deltaY > 0 ? 0.9 : 1.1;
-  scale *= zoom;
-  scale = Math.max(0.5, Math.min(scale, 3));
-  draw();
-},{passive:false});
+  function fitToViewport(){
+    if (!currentSVG) return;
 
-/* ---------------- DRAG ---------------- */
+    const vb = currentSVG.viewBox && currentSVG.viewBox.baseVal;
+    const vbW = (vb && vb.width) ? vb.width : 1200;
+    const vbH = (vb && vb.height) ? vb.height : 700;
 
-viewer.addEventListener('pointerdown',e=>{
-  dragging=true;
-  dragStartX = e.clientX - offsetX;
-  dragStartY = e.clientY - offsetY;
-  viewer.setPointerCapture(e.pointerId);
-});
-viewer.addEventListener('pointermove',e=>{
-  if(!dragging) return;
-  offsetX = e.clientX - dragStartX;
-  offsetY = e.clientY - dragStartY;
-  draw();
-});
-viewer.addEventListener('pointerup',e=>{
-  dragging=false;
-  viewer.releasePointerCapture(e.pointerId);
-});
+    const rect = stage.getBoundingClientRect();
+    const availW = Math.max(320, rect.width - 36);
+    const availH = Math.max(320, rect.height - 36);
 
-/* ---------------- START ---------------- */
+    const s = Math.min(availW / vbW, availH / vbH);
+    zoom = clamp(s, 0.35, 2.5);
 
-resizeCanvas();
+    // Place SVG origin so center is centered
+    tx = (availW/2) - (vbW/2) * zoom;
+    ty = (availH/2) - (vbH/2) * zoom;
 
+    // Stage is full size; translate should align with stage's top-left
+    // The formula above assumes (0,0) at stage top-left, which is correct because svgWrap is absolute in stage.
+    // But availW/availH used; use rect width/height for actual center:
+    tx = (rect.width/2) - (vbW/2) * zoom;
+    ty = (rect.height/2) - (vbH/2) * zoom;
+
+    applyTransform();
+  }
+
+  /* =========================
+     Zoom at a screen point
+     ========================= */
+  function zoomAt(clientX, clientY, zoomFactor){
+    const rect = stage.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    // svg coordinate under pointer before zoom
+    const svgX = (x - tx) / zoom;
+    const svgY = (y - ty) / zoom;
+
+    zoom = clamp(zoom * zoomFactor, 0.35, 5);
+
+    // keep same svg point under pointer
+    tx = x - svgX * zoom;
+    ty = y - svgY * zoom;
+
+    applyTransform();
+  }
+
+  /* =========================
+     Input: Wheel / Pointer (pan + pinch)
+     ========================= */
+  stage.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const factor = e.deltaY > 0 ? 0.90 : 1.10;
+    zoomAt(e.clientX, e.clientY, factor);
+  }, { passive:false });
+
+  stage.addEventListener('pointerdown', (e) => {
+    stage.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 1){
+      isDragging = true;
+      lastPan = { x: e.clientX, y: e.clientY };
+    } else if (pointers.size === 2){
+      const pts = Array.from(pointers.values());
+      const dx = pts[0].x - pts[1].x;
+      const dy = pts[0].y - pts[1].y;
+      const dist = Math.hypot(dx, dy);
+
+      const rect = stage.getBoundingClientRect();
+      const centerX = (pts[0].x + pts[1].x)/2 - rect.left;
+      const centerY = (pts[0].y + pts[1].y)/2 - rect.top;
+
+      pinchStart = { dist, zoom, centerX, centerY };
+      isDragging = false;
+    }
+  });
+
+  stage.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 1 && isDragging){
+      const dx = e.clientX - lastPan.x;
+      const dy = e.clientY - lastPan.y;
+      lastPan = { x: e.clientX, y: e.clientY };
+      tx += dx;
+      ty += dy;
+      applyTransform();
+      return;
+    }
+
+    if (pointers.size === 2 && pinchStart){
+      const pts = Array.from(pointers.values());
+      const dx = pts[0].x - pts[1].x;
+      const dy = pts[0].y - pts[1].y;
+      const dist = Math.hypot(dx, dy);
+      const scaleFactor = dist / pinchStart.dist;
+
+      const nextZoom = clamp(pinchStart.zoom * scaleFactor, 0.35, 5);
+
+      // zoom around pinch center in stage coords
+      const x = pinchStart.centerX;
+      const y = pinchStart.centerY;
+
+      const svgX = (x - tx) / zoom;
+      const svgY = (y - ty) / zoom;
+
+      zoom = nextZoom;
+      tx = x - svgX * zoom;
+      ty = y - svgY * zoom;
+
+      applyTransform();
+    }
+  });
+
+  function endPointer(e){
+    if (pointers.has(e.pointerId)) pointers.delete(e.pointerId);
+    if (pointers.size < 2) pinchStart = null;
+    if (pointers.size === 0) isDragging = false;
+  }
+  stage.addEventListener('pointerup', endPointer);
+  stage.addEventListener('pointercancel', endPointer);
+  stage.addEventListener('pointerleave', endPointer);
+
+  // Double-tap / double-click reset
+  let lastTap = 0;
+  stage.addEventListener('pointerdown', () => {
+    const now = Date.now();
+    if (now - lastTap < 280) resetView({fit:true});
+    lastTap = now;
+  });
+
+  /* =========================
+     Controls
+     ========================= */
+  btnZoomIn.addEventListener('click', () => {
+    const r = stage.getBoundingClientRect();
+    zoomAt(r.left + r.width/2, r.top + r.height/2, 1.12);
+  });
+  btnZoomOut.addEventListener('click', () => {
+    const r = stage.getBoundingClientRect();
+    zoomAt(r.left + r.width/2, r.top + r.height/2, 0.89);
+  });
+  btnReset.addEventListener('click', () => resetView({fit:true}));
+
+  btnFamily.addEventListener('click', () => highlightFamilyCabins({silent:false}));
+
+  /* =========================
+     Search
+     ========================= */
+  let searchTimer = 0;
+  roomSearch.addEventListener('input', () => {
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(() => {
+      const q = safeDigits(roomSearch.value);
+      if (!q) return;
+      highlightRoom(q, {announce:true});
+    }, 220);
+  });
+
+  roomSearch.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter'){
+      const q = safeDigits(roomSearch.value);
+      if (!q) return;
+      highlightRoom(q, {announce:true});
+    }
+  });
+
+  /* =========================
+     Deck buttons
+     ========================= */
+  function buildDeckButtons(){
+    deckGrid.innerHTML = '';
+    DECKS.forEach(d => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'deckbtn';
+      b.dataset.deck = String(d.n);
+      b.textContent = String(d.n);
+      b.addEventListener('click', () => loadDeck(d.n));
+      deckGrid.appendChild(b);
+    });
+  }
+
+  /* =========================
+     Ocean background
+     ========================= */
+  const octx = ocean.getContext('2d');
+  let ot = 0;
+
+  function resizeOcean(){
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    ocean.width = Math.floor(window.innerWidth * dpr);
+    ocean.height = Math.floor(window.innerHeight * dpr);
+    ocean.style.width = window.innerWidth + 'px';
+    ocean.style.height = window.innerHeight + 'px';
+    octx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resizeOcean);
+
+  function drawOcean(){
+    const w = window.innerWidth, h = window.innerHeight;
+    octx.clearRect(0,0,w,h);
+    octx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg') || '#071a2c';
+    octx.fillRect(0,0,w,h);
+
+    const g = octx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'rgba(10,46,74,.10)');
+    g.addColorStop(1,'rgba(0,0,0,.32)');
+    octx.fillStyle = g;
+    octx.fillRect(0,0,w,h);
+
+    for (let i=0;i<3;i++){
+      const amp = 22 + i*12;
+      const len = 0.010 - i*0.0018;
+      const base = h*(0.50 + i*0.07);
+
+      octx.beginPath();
+      octx.moveTo(0, base);
+      for(let x=0;x<=w;x+=10){
+        const y = base + Math.sin(x*len + ot*(0.9+i*0.2)) * amp;
+        octx.lineTo(x,y);
+      }
+      octx.lineTo(w,h);
+      octx.lineTo(0,h);
+      octx.closePath();
+      octx.fillStyle = `rgba(0,180,230,${0.12 - i*0.03})`;
+      octx.fill();
+    }
+
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    ot += reduce ? 0.004 : 0.012;
+    requestAnimationFrame(drawOcean);
+  }
+
+  /* =========================
+     Init
+     ========================= */
+  function init(){
+    resizeOcean();
+    drawOcean();
+
+    buildDeckButtons();
+
+    // Validate activeDeck exists
+    if (!DECKS.some(d => d.n === activeDeck)) activeDeck = 6;
+
+    // Apply saved transform initially (will be overridden by fit if no saved view)
+    applyTransform();
+
+    // Load last deck
+    loadDeck(activeDeck);
+
+    // Help avoid “I’m still seeing the old page” confusion
+    // (This toast proves you're running THIS file.)
+    showToast('Deck Explorer v3 loaded');
+  }
+
+  init();
 })();
 </script>
 
