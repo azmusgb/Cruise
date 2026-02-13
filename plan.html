@@ -1,131 +1,233 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-theme-mode="light">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#cfeaff">
-  <title>Game Plan | Adventure of the Seas</title>
-  <meta name="description" content="Your cruise command hub for what to do next before sail-away and during onboard days.">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css?v=3">
-  <link rel="stylesheet" href="css/utilities.css?v=3">
-  <link rel="stylesheet" href="css/components.css?v=3">
-  <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
-  <script src="js/shared-layout.js?v=17" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a2e4a">
+<title>Cruise Plan · Adventure of the Seas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui;
+  background:#071a2c;
+  color:white;
+  overflow-x:hidden;
+}
+
+/* Background */
+#ocean{position:fixed;inset:0;z-index:-2}
+.overlay{
+  position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(ellipse at 50% 18%, rgba(0,180,230,.15), transparent 60%),
+             linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.75));
+}
+
+/* Header */
+header{
+  padding:1.5rem 1rem;
+  text-align:center;
+}
+header h1{
+  font-family:'Plus Jakarta Sans';
+  font-weight:900;
+  font-size:1.8rem;
+}
+header .sub{
+  opacity:.7;
+  margin-top:.4rem;
+}
+
+/* Layout */
+main{
+  max-width:1000px;
+  margin:auto;
+  padding:1rem;
+}
+
+.day-nav{
+  display:flex;
+  justify-content:center;
+  gap:.6rem;
+  margin-bottom:1.2rem;
+  flex-wrap:wrap;
+}
+.day-btn{
+  padding:.5rem 1rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.1);
+  font-weight:700;
+  cursor:pointer;
+}
+.day-btn.active{
+  background:#00b4e6;
+  color:#071a2c;
+}
+
+.card{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:24px;
+  padding:1.5rem;
+  backdrop-filter:blur(14px);
+  margin-bottom:1rem;
+}
+
+.card h2{
+  font-family:'Plus Jakarta Sans';
+  font-size:1.1rem;
+  margin-bottom:.6rem;
+}
+
+.item{
+  margin-bottom:.6rem;
+  padding:.6rem;
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+}
+
+.note{
+  margin-top:.6rem;
+  width:100%;
+  padding:.5rem;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(0,0,0,.3);
+  color:white;
+  resize:none;
+}
+</style>
 </head>
-<body class="app-theme-rcc decks-shell page-shell plan-page">
-  <a href="#main" class="skip-link">Skip to main content</a>
-  <div id="sharedHeader" data-page="plan"></div>
+<body>
 
-  <main id="main" aria-label="Game plan">
-    <section class="hero hero--plan">
-      <div class="container">
-        <p class="hero__eyebrow"><i class="fas fa-compass" aria-hidden="true"></i>Before Sail + Onboard Flow</p>
-        <h1 class="hero__title">Game Plan</h1>
-        <p class="hero__description">One view for what to do next, what is blocked, and how to execute embark day smoothly.</p>
-      </div>
-    </section>
+<canvas id="ocean"></canvas>
+<div class="overlay"></div>
 
-    <section class="container plan-band plan-band--top" aria-label="Top next moves" data-reveal>
-      <header class="plan-band__header">
-        <h2 class="plan-band__title"><i class="fas fa-bolt" aria-hidden="true"></i>Top 3 Next Moves</h2>
-        <p class="plan-band__subtitle">Do these first to keep the trip smooth and low-friction.</p>
-      </header>
-      <div class="plan-band__content">
-        <div class="plan-grid">
-          <article class="plan-card" data-reveal>
-            <h3>1. Finalize check-in and docs</h3>
-            <p>Confirm SetSail details, boarding window, and document status for each traveler.</p>
-            <div class="plan-links">
-              <a class="plan-link plan-link--primary" href="operations.html#task-online-checkin"><i class="fas fa-clipboard-check"></i>Open checklist</a>
-              <a class="plan-link" href="contacts.html#backup"><i class="fas fa-address-card"></i>Emergency backups</a>
-            </div>
-          </article>
+<header>
+  <h1>Family Cruise Plan</h1>
+  <div class="sub">Adventure of the Seas · Feb 14–20, 2026</div>
+</header>
 
-          <article class="plan-card" data-reveal>
-            <h3>2. Lock embark-day sequence</h3>
-            <p>Set your first two hours so boarding feels controlled, not reactive.</p>
-            <div class="plan-links">
-              <a class="plan-link" href="#embark-sequence"><i class="fas fa-route"></i>Jump to embark sequence</a>
-              <a class="plan-link" href="itinerary.html#today"><i class="fas fa-calendar-day"></i>Open today flow</a>
-            </div>
-          </article>
+<main>
 
-          <article class="plan-card" data-reveal>
-            <h3>3. Prep port-day rhythm early</h3>
-            <p>Set meal windows and return buffers before excursions begin.</p>
-            <div class="plan-links">
-              <a class="plan-link" href="dining.html"><i class="fas fa-utensils"></i>Tonight's pick</a>
-              <a class="plan-link" href="ports.html"><i class="fas fa-map-location-dot"></i>Port spotlight</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
+<div class="day-nav" id="dayNav"></div>
 
-    <section id="embark-sequence" class="container plan-band plan-band--embark" aria-label="Embark day sequence" data-reveal>
-      <header class="plan-band__header">
-        <h2 class="plan-band__title"><i class="fas fa-ship" aria-hidden="true"></i>Embark Day · First 2 Hours</h2>
-        <p class="plan-band__subtitle">Follow this sequence immediately after boarding.</p>
-      </header>
-      <div class="plan-band__content">
-        <ul class="plan-checklist">
-          <li><i class="fas fa-life-ring" aria-hidden="true"></i>Complete muster before exploring</li>
-          <li><i class="fas fa-wifi" aria-hidden="true"></i>Activate app + Wi-Fi and verify all travelers</li>
-          <li><i class="fas fa-utensils" aria-hidden="true"></i>Lock dinner reservations and allergy notes</li>
-          <li><i class="fas fa-map" aria-hidden="true"></i>Confirm family meeting point for sail-away</li>
-        </ul>
-        <div class="plan-links">
-          <a class="plan-link" href="rooms.html"><i class="fas fa-users"></i>Family rooms</a>
-          <a class="plan-link" href="decks.html"><i class="fas fa-map"></i>Ship map shortcuts</a>
-        </div>
-      </div>
-    </section>
+<div id="dayContent"></div>
 
-    <section class="container plan-band plan-band--blockers" aria-label="Current blockers" data-reveal>
-      <header class="plan-band__header">
-        <h2 class="plan-band__title"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i>Current Blockers</h2>
-        <p class="plan-band__subtitle">Close these before sail date to avoid last-minute friction.</p>
-      </header>
-      <div class="plan-band__content">
-        <div class="plan-grid">
-          <article class="plan-card" data-reveal>
-            <h3>Documents pending review</h3>
-            <p>Two travelers still need final photo/ID validation in check-in flow.</p>
-          </article>
-          <article class="plan-card" data-reveal>
-            <h3>Dining pressure window</h3>
-            <p>Specialty seats after 7:00 PM are tightening for Day 2 and Day 5.</p>
-          </article>
-        </div>
-      </div>
-    </section>
+</main>
 
-    <section class="container plan-band" aria-label="Quick links and progress" data-reveal>
-      <header class="plan-band__header">
-        <h2 class="plan-band__title"><i class="fas fa-compass" aria-hidden="true"></i>Quick Links + Progress</h2>
-        <p class="plan-band__subtitle">Fast jump paths with checklist progress at a glance.</p>
-      </header>
-      <div class="plan-band__content">
-        <div class="plan-links">
-          <a class="plan-link" href="itinerary.html#today"><i class="fas fa-calendar-day"></i>Today</a>
-          <a class="plan-link" href="decks.html"><i class="fas fa-map"></i>Ship Map</a>
-          <a class="plan-link" href="dining.html"><i class="fas fa-utensils"></i>Food</a>
-          <a class="plan-link plan-link--primary" href="operations.html"><i class="fas fa-clipboard-check"></i>Full Checklist</a>
-        </div>
-        <div class="plan-progress">
-          <p><strong>Checklist progress:</strong> 7 of 12 items complete, 5 remaining.</p>
-          <div class="plan-progress__meter" aria-hidden="true">
-            <div class="plan-progress__fill"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+<script>
+(function(){
+'use strict';
 
-  <div id="sharedFooter" data-page="plan"></div>
-  <div id="sharedBottomNav" data-page="plan"></div>
+const DAYS = [
+  {name:"Day 1 · Departure", location:"Port Canaveral", items:[
+    "Arrive at port",
+    "Embark ship",
+    "Dinner reservation",
+    "Explore promenade"
+  ]},
+  {name:"Day 2 · Sea Day", location:"At Sea", items:[
+    "Reserve shows",
+    "Pool time",
+    "Specialty dining"
+  ]},
+  {name:"Day 3 · Grand Cayman", location:"Grand Cayman", items:[
+    "Excursion",
+    "Beach time",
+    "Return to ship early"
+  ]},
+  {name:"Day 4 · Falmouth", location:"Jamaica", items:[
+    "Port exploration",
+    "Shopping",
+    "Sunset photos"
+  ]},
+  {name:"Day 5 · Sea Day", location:"At Sea", items:[
+    "Relax",
+    "Dinner celebration"
+  ]},
+  {name:"Day 6 · Perfect Day", location:"CocoCay", items:[
+    "Beach club",
+    "Waterpark",
+    "Final night dinner"
+  ]}
+];
+
+const nav=document.getElementById('dayNav');
+const content=document.getElementById('dayContent');
+
+let activeDay=0;
+
+function renderNav(){
+  nav.innerHTML='';
+  DAYS.forEach((d,i)=>{
+    const btn=document.createElement('button');
+    btn.className='day-btn'+(i===activeDay?' active':'');
+    btn.textContent=i+1;
+    btn.onclick=()=>{
+      activeDay=i;
+      renderNav();
+      renderDay();
+    };
+    nav.appendChild(btn);
+  });
+}
+
+function renderDay(){
+  const day=DAYS[activeDay];
+  content.innerHTML=`
+    <div class="card">
+      <h2>${day.name}</h2>
+      <div>${day.location}</div>
+    </div>
+    <div class="card">
+      <h2>Plan</h2>
+      ${day.items.map(i=>`<div class="item">${i}</div>`).join('')}
+      <textarea class="note" rows="3" placeholder="Add notes..." id="note"></textarea>
+    </div>
+  `;
+
+  const note=document.getElementById('note');
+  const key="plan-note-"+activeDay;
+  note.value=localStorage.getItem(key)||'';
+  note.oninput=()=>localStorage.setItem(key,note.value);
+}
+
+renderNav();
+renderDay();
+
+/* Ocean background */
+const ocean=document.getElementById('ocean');
+const ctx=ocean.getContext('2d');
+ocean.width=window.innerWidth;
+ocean.height=window.innerHeight;
+let t=0;
+function draw(){
+  ctx.clearRect(0,0,ocean.width,ocean.height);
+  ctx.fillStyle='#071a2c';
+  ctx.fillRect(0,0,ocean.width,ocean.height);
+  ctx.beginPath();
+  for(let x=0;x<ocean.width;x++){
+    let y=Math.sin(x*.01+t)*20+ocean.height/2;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(ocean.width,ocean.height);
+  ctx.lineTo(0,ocean.height);
+  ctx.closePath();
+  ctx.fillStyle='rgba(0,180,230,.12)';
+  ctx.fill();
+  t+=.01;
+  requestAnimationFrame(draw);
+}
+draw();
+
+})();
+</script>
+
 </body>
 </html>
