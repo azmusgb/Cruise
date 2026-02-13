@@ -1,932 +1,756 @@
 /* decks.js
    ============================================================
-   RCCL Cruise Hub — Decks (SVG) Viewer
-   - Loads SVGs as real DOM (accessible + interactive)
-   - Pan/Zoom (mouse wheel / trackpad + drag)
-   - Keyboard navigation (Tab + Enter/Space)
-   - Search highlighting
-   - Tooltip + optional details panel
-   - Defensive: works even if some controls are missing
+   RCCL Cruise Hub — Deck Navigator (Stable iOS / GitHub Pages)
+   - Renders deck list into #deckGrid from index.json
+   - Opens modal (#deckModal) with a zoomable/pannable plan viewer
+   - Loads SVG as <img> (Safari-safe) with PNG fallback
+   - Zoom uses CSS transform on an inner canvas (not on the flex container)
+   - Defensive: no null crashes, robust URL resolution, graceful fallbacks
 
-   Assumptions / Expected (but optional) DOM hooks:
-   ------------------------------------------------------------
-   Container (required):
-     - #deckStage   OR   [data-deck-stage]
+   Expected DOM (from your decks.html):
+     #deckSearch, #deckSearchClear, #deckCount, #deckGrid
+     #deckModal, #modalClose, #deckPrev, #deckNext
+     #modalDeckNumber, #modalDeckTitle, #modalDeckSub
+     #deckStage (data-deck-stage), #deckStatus
+     #zoomInBtn, #zoomOutBtn, #zoomResetBtn, #fitBtn, #zoomDisplay
 
-   Deck selector (optional, any one):
-     - <select id="deckSelect">
-     - Buttons/links with [data-deck-src] and optional [data-deck-name]
-
-   Search (optional):
-     - <input id="deckSearch">
-
-   Zoom controls (optional):
-     - #zoomInBtn, #zoomOutBtn, #zoomResetBtn
-     - #fitBtn (fit-to-view)
-
-   Info panel (optional):
-     - #deckInfoPanel
-     - #deckInfoTitle
-     - #deckInfoBody
-     - #deckInfoClose
-
-   Progress/status (optional):
-     - #deckStatus
-
-   ============================================================
+   Deck index JSON:
+     Tries (in order):
+       1) deck-plans/index.json
+       2) decks/index.json
+     Supports flexible entry shapes. It will infer:
+       - deck number (n / deck / number)
+       - name/title
+       - svg path
+       - png path
+       - pdf path (optional)
 */
 
 (() => {
   'use strict';
 
-  /** -----------------------------
-   *  Utilities
-   *  ----------------------------- */
+  /* -----------------------------
+   * Utilities
+   * ----------------------------- */
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
   const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
-  function safeText(s) {
-    if (s == null) return '';
-    return String(s).replace(/\s+/g, ' ').trim();
+  function safeText(v) {
+    if (v == null) return '';
+    return String(v).replace(/\s+/g, ' ').trim();
   }
 
-  function humanizeId(id) {
-    const s = safeText(id)
-      .replace(/^#+/, '')
-      .replace(/[_\-]+/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    return s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Location';
+  function resolveUrl(path) {
+    // Robust on GitHub Pages project paths
+    try {
+      return new URL(path, document.baseURI).toString();
+    } catch {
+      return path;
+    }
+  }
+
+  function setHidden(el, hidden) {
+    if (!el) return;
+    if (hidden) el.setAttribute('hidden', 'true');
+    else el.removeAttribute('hidden');
   }
 
   function setStatus(el, msg) {
     if (!el) return;
-    el.textContent = msg;
+    el.textContent = safeText(msg);
   }
 
-  function prefersReducedMotion() {
-    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function isPrintableCharKey(e) {
+    return e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey;
   }
 
-  /** -----------------------------
-   *  Tooltip
-   *  ----------------------------- */
-  function createTooltip() {
-    const tip = document.createElement('div');
-    tip.className = 'deck-tooltip';
-    tip.setAttribute('role', 'status');
-    tip.setAttribute('aria-live', 'polite');
-    tip.style.position = 'fixed';
-    tip.style.zIndex = '9999';
-    tip.style.pointerEvents = 'none';
-    tip.style.opacity = '0';
-    tip.style.transform = 'translate3d(0,0,0)';
-    tip.style.maxWidth = 'min(320px, 70vw)';
-    tip.style.padding = '10px 12px';
-    tip.style.borderRadius = '12px';
-    tip.style.backdropFilter = 'blur(10px)';
-    tip.style.webkitBackdropFilter = 'blur(10px)';
-    tip.style.border = '1px solid rgba(255,255,255,0.12)';
-    tip.style.background = 'rgba(10, 18, 30, 0.75)';
-    tip.style.color = '#fff';
-    tip.style.font = '500 13px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif';
-    tip.style.boxShadow = '0 12px 35px rgba(0,0,0,0.35)';
-    tip.style.transition = prefersReducedMotion()
-      ? 'opacity 0.01s linear'
-      : 'opacity 0.12s ease';
-    document.body.appendChild(tip);
+  /* -----------------------------
+   * Deck data normalization
+   * ----------------------------- */
+  function normalizeDeckEntry(raw) {
+    const r = raw || {};
 
-    let visible = false;
+    // number / deck id
+    const n =
+      safeText(r.n) ||
+      safeText(r.deck) ||
+      safeText(r.number) ||
+      safeText(r.id) ||
+      '';
 
-    function show(text, x, y) {
-      const t = safeText(text);
-      if (!t) return hide();
-      tip.textContent = t;
-      position(x, y);
-      if (!visible) {
-        visible = true;
-        tip.style.opacity = '1';
-      }
-    }
+    // title/name
+    const name =
+      safeText(r.name) ||
+      safeText(r.title) ||
+      (n ? `Deck ${n}` : 'Deck');
 
-    function position(x, y) {
-      const pad = 14;
-      const rect = tip.getBoundingClientRect();
-      let nx = x + 14;
-      let ny = y + 14;
+    // asset paths (try common keys)
+    const svg =
+      safeText(r.svg) ||
+      safeText(r.svgPath) ||
+      safeText(r.svg_url) ||
+      safeText(r.svgUrl) ||
+      safeText(r.planSvg) ||
+      '';
 
-      if (nx + rect.width + pad > window.innerWidth) nx = x - rect.width - 14;
-      if (ny + rect.height + pad > window.innerHeight) ny = y - rect.height - 14;
+    const img =
+      safeText(r.img) ||
+      safeText(r.png) ||
+      safeText(r.image) ||
+      safeText(r.imagePath) ||
+      safeText(r.planImg) ||
+      '';
 
-      nx = clamp(nx, pad, window.innerWidth - rect.width - pad);
-      ny = clamp(ny, pad, window.innerHeight - rect.height - pad);
+    const pdf =
+      safeText(r.pdf) ||
+      safeText(r.pdfPath) ||
+      safeText(r.planPdf) ||
+      '';
 
-      tip.style.left = `${nx}px`;
-      tip.style.top = `${ny}px`;
-    }
+    // subtitle/meta
+    const sub =
+      safeText(r.sub) ||
+      safeText(r.subtitle) ||
+      safeText(r.meta) ||
+      (svg ? 'SVG (vector)' : (img ? 'Image (fallback)' : ''));
 
-    function hide() {
-      if (!visible) return;
-      visible = false;
-      tip.style.opacity = '0';
-    }
-
-    return { show, position, hide, el: tip };
+    return {
+      n,
+      name,
+      sub,
+      svg,
+      img,
+      pdf,
+      raw: r
+    };
   }
 
-  /** -----------------------------
-   *  Deck Viewer (SVG)
-   *  ----------------------------- */
-  class DeckViewer {
-    constructor(options) {
-      this.stage = options.stage;
-      this.statusEl = options.statusEl || null;
+  async function fetchJsonMaybe(url) {
+    const res = await fetch(resolveUrl(url), { cache: 'no-store', credentials: 'same-origin' });
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return await res.json();
+  }
 
-      this.searchEl = options.searchEl || null;
-      this.selectEl = options.selectEl || null;
+  async function loadDeckIndex() {
+    const candidates = ['deck-plans/index.json', 'decks/index.json'];
 
-      this.zoomInBtn = options.zoomInBtn || null;
-      this.zoomOutBtn = options.zoomOutBtn || null;
-      this.zoomResetBtn = options.zoomResetBtn || null;
-      this.fitBtn = options.fitBtn || null;
+    let lastErr = null;
+    for (const c of candidates) {
+      try {
+        const data = await fetchJsonMaybe(c);
+        // Accept array or object with array field
+        const list =
+          Array.isArray(data) ? data :
+          Array.isArray(data?.decks) ? data.decks :
+          Array.isArray(data?.items) ? data.items :
+          Array.isArray(data?.data) ? data.data :
+          null;
 
-      this.infoPanel = options.infoPanel || null;
-      this.infoTitle = options.infoTitle || null;
-      this.infoBody = options.infoBody || null;
-      this.infoClose = options.infoClose || null;
+        if (!list) throw new Error(`Unrecognized JSON shape in ${c}`);
 
-      this.tooltip = createTooltip();
+        const decks = list.map(normalizeDeckEntry).filter(d => d.n || d.name || d.svg || d.img);
+        // Sort by deck number if numeric, otherwise keep order
+        decks.sort((a, b) => {
+          const an = parseInt(a.n, 10);
+          const bn = parseInt(b.n, 10);
+          if (Number.isFinite(an) && Number.isFinite(bn)) return an - bn;
+          return a.name.localeCompare(b.name);
+        });
 
-      // Pan/zoom state
-      this.svg = null;
-      this.viewportG = null;
-      this.tx = 0;
-      this.ty = 0;
-      this.scale = 1;
+        return decks;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error('Deck index not found');
+  }
 
-      this.minScale = 0.35;
-      this.maxScale = 6;
+  /* -----------------------------
+   * Viewer (stable SVG-as-IMG)
+   * ----------------------------- */
+  class DeckPlanViewer {
+    constructor(opts) {
+      this.stage = opts.stage;               // #deckStage
+      this.statusEl = opts.statusEl || null; // #deckStatus
+      this.zoomDisplay = opts.zoomDisplay || null;
 
-      this._panning = false;
-      this._panPointerId = null;
-      this._panStart = { x: 0, y: 0, tx: 0, ty: 0 };
+      this.zoomInBtn = opts.zoomInBtn || null;
+      this.zoomOutBtn = opts.zoomOutBtn || null;
+      this.zoomResetBtn = opts.zoomResetBtn || null;
+      this.fitBtn = opts.fitBtn || null;
 
-      // Selection state
-      this._selectedEl = null;
+      // Internal stage structure
+      this.scroll = null;    // scroll container
+      this.canvas = null;    // scaled element
+      this.img = null;
 
-      // Search cache
-      this._focusables = [];
-      this._labels = new Map(); // el -> label string
+      // Transform
+      this.zoom = 1;
+      this.minZoom = 0.45;
+      this.maxZoom = 5.0;
 
-      this._bindUI();
+      // Pan dragging (within scroll container)
+      this._drag = { on: false, x: 0, y: 0, sl: 0, st: 0 };
+
+      this._ensureStage();
+      this._bindControls();
     }
 
-    _bindUI() {
-      // Defensive: don’t crash if missing elements
-      if (this.searchEl) {
-        this.searchEl.addEventListener('input', () => {
-          const q = safeText(this.searchEl.value);
-          this.applySearch(q);
-        });
-        this.searchEl.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') {
-            this.searchEl.value = '';
-            this.applySearch('');
-            this.searchEl.blur();
-          }
-        });
-      }
+    _ensureStage() {
+      if (!this.stage) return;
 
-      if (this.selectEl) {
-        this.selectEl.addEventListener('change', () => {
-          const opt = this.selectEl.selectedOptions?.[0];
-          const src = opt?.value || '';
-          const name = opt?.dataset?.deckName || opt?.textContent || 'Deck';
-          if (src) this.load(src, name);
-        });
-      }
+      // Clear and build stable structure:
+      // stage (focusable) -> scroll container -> canvas (scaled) -> img
+      this.stage.innerHTML = '';
 
-      if (this.zoomInBtn) this.zoomInBtn.addEventListener('click', () => this.zoomBy(1.18));
-      if (this.zoomOutBtn) this.zoomOutBtn.addEventListener('click', () => this.zoomBy(1 / 1.18));
-      if (this.zoomResetBtn) this.zoomResetBtn.addEventListener('click', () => this.resetView());
-      if (this.fitBtn) this.fitBtn.addEventListener('click', () => this.fitToStage());
+      const scroll = document.createElement('div');
+      scroll.className = 'deck-plan-scroll';
+      scroll.style.width = '100%';
+      scroll.style.height = '100%';
+      scroll.style.overflow = 'auto';
+      scroll.style.webkitOverflowScrolling = 'touch';
+      scroll.style.position = 'relative';
+      scroll.style.borderRadius = '14px';
+      scroll.style.background = 'rgba(255,255,255,0.98)';
 
-      if (this.infoClose && this.infoPanel) {
-        this.infoClose.addEventListener('click', () => this.hideInfo());
-      }
+      const canvas = document.createElement('div');
+      canvas.className = 'deck-plan-canvas';
+      canvas.style.display = 'inline-block';
+      canvas.style.transformOrigin = '0 0';
+      canvas.style.willChange = 'transform';
 
-      // Support click-to-load buttons/links anywhere:
-      document.addEventListener('click', (e) => {
-        const t = e.target instanceof Element ? e.target.closest('[data-deck-src]') : null;
-        if (!t) return;
-        const src = t.getAttribute('data-deck-src');
-        if (!src) return;
-        e.preventDefault();
-        const name = t.getAttribute('data-deck-name') || t.textContent || 'Deck';
-        this.load(src, name);
+      scroll.appendChild(canvas);
+      this.stage.appendChild(scroll);
+
+      this.scroll = scroll;
+      this.canvas = canvas;
+
+      // Pointer drag to pan
+      scroll.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        this._drag.on = true;
+        this._drag.x = e.clientX;
+        this._drag.y = e.clientY;
+        this._drag.sl = scroll.scrollLeft;
+        this._drag.st = scroll.scrollTop;
+        scroll.setPointerCapture(e.pointerId);
       });
 
-      // Stage should be focusable for keyboard panning hints
-      if (!this.stage.hasAttribute('tabindex')) this.stage.setAttribute('tabindex', '0');
-      this.stage.setAttribute('role', 'region');
-      this.stage.setAttribute('aria-label', 'Interactive deck plan viewer');
+      scroll.addEventListener('pointermove', (e) => {
+        if (!this._drag.on) return;
+        const dx = e.clientX - this._drag.x;
+        const dy = e.clientY - this._drag.y;
+        scroll.scrollLeft = this._drag.sl - dx;
+        scroll.scrollTop = this._drag.st - dy;
+      });
 
-      // Prevent broken scroll on wheel zoom (we’ll handle it)
-      this.stage.addEventListener('wheel', (e) => {
-        if (!this.svg) return;
-        // Always handle wheel when over stage (trackpad/scroll wheel)
+      const end = (e) => {
+        if (!this._drag.on) return;
+        this._drag.on = false;
+        try { scroll.releasePointerCapture(e.pointerId); } catch (_) {}
+      };
+      scroll.addEventListener('pointerup', end);
+      scroll.addEventListener('pointercancel', end);
+
+      // Wheel zoom (desktop trackpad/mouse)
+      scroll.addEventListener('wheel', (e) => {
+        if (!this.img) return;
+        // Zoom only when ctrlKey (trackpad pinch) OR when user scrolls with altKey (optional)
+        // But on many browsers, pinch sets ctrlKey=true.
+        if (!(e.ctrlKey || e.metaKey)) return;
         e.preventDefault();
-        const delta = e.deltaY;
-        const factor = delta > 0 ? 1 / 1.12 : 1.12;
+        const factor = e.deltaY > 0 ? (1 / 1.12) : 1.12;
         this.zoomAt(factor, e.clientX, e.clientY);
       }, { passive: false });
-
-      // Pan: pointer drag
-      this.stage.addEventListener('pointerdown', (e) => {
-        if (!this.svg) return;
-        // Only primary button for mouse; touch is ok
-        if (e.pointerType === 'mouse' && e.button !== 0) return;
-
-        // Don’t start panning if user is starting on a focusable location (let them click)
-        const el = e.target instanceof Element ? e.target : null;
-        if (el && (el.matches('[data-deck-focusable="1"]') || el.closest('[data-deck-focusable="1"]'))) return;
-
-        this._panning = true;
-        this._panPointerId = e.pointerId;
-        this.stage.setPointerCapture(e.pointerId);
-        this._panStart = { x: e.clientX, y: e.clientY, tx: this.tx, ty: this.ty };
-      });
-
-      this.stage.addEventListener('pointermove', (e) => {
-        if (!this._panning || this._panPointerId !== e.pointerId) {
-          // tooltip follow if visible
-          if (this.svg && this.tooltip && this.tooltip.el.style.opacity === '1') {
-            this.tooltip.position(e.clientX, e.clientY);
-          }
-          return;
-        }
-        const dx = e.clientX - this._panStart.x;
-        const dy = e.clientY - this._panStart.y;
-        this.tx = this._panStart.tx + dx;
-        this.ty = this._panStart.ty + dy;
-        this._applyTransform();
-      });
-
-      const endPan = (e) => {
-        if (!this._panning || this._panPointerId !== e.pointerId) return;
-        this._panning = false;
-        this._panPointerId = null;
-        try { this.stage.releasePointerCapture(e.pointerId); } catch (_) {}
-      };
-
-      this.stage.addEventListener('pointerup', endPan);
-      this.stage.addEventListener('pointercancel', endPan);
-      this.stage.addEventListener('pointerleave', () => {
-        // Don’t hard-stop panning here; pointer capture should manage it
-        // Just hide tooltip if leaving stage
-        this.tooltip.hide();
-      });
     }
 
-    async load(src, deckName = 'Deck') {
-      const url = safeText(src);
-      if (!url) return;
-
-      setStatus(this.statusEl, `Loading ${deckName}…`);
-      this.stage.setAttribute('aria-busy', 'true');
-
-      // Clear previous
-      this.stage.innerHTML = '';
-      this.svg = null;
-      this.viewportG = null;
-      this._focusables = [];
-      this._labels.clear();
-      this._selectedEl = null;
-      this.hideInfo();
-
-      // Loading UI
-      const loading = document.createElement('div');
-      loading.style.padding = '18px';
-      loading.style.borderRadius = '16px';
-      loading.style.border = '1px solid rgba(255,255,255,0.12)';
-      loading.style.background = 'rgba(10, 18, 30, 0.35)';
-      loading.style.color = '#fff';
-      loading.style.font = '600 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif';
-      loading.textContent = `Loading ${deckName}…`;
-      this.stage.appendChild(loading);
-
-      try {
-        const res = await fetch(url, { credentials: 'same-origin' });
-        if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-        const text = await res.text();
-
-        const svg = this._parseSVG(text);
-        if (!svg) throw new Error('SVG parse failed');
-
-        this._installSVG(svg, deckName);
-
-        setStatus(this.statusEl, `${deckName} loaded`);
-      } catch (err) {
-        console.error('[DeckViewer] load error:', err);
-        setStatus(this.statusEl, `Failed to load ${deckName}`);
-        this.stage.innerHTML = '';
-        const box = document.createElement('div');
-        box.style.padding = '18px';
-        box.style.borderRadius = '16px';
-        box.style.border = '1px solid rgba(255,255,255,0.12)';
-        box.style.background = 'rgba(10, 18, 30, 0.35)';
-        box.style.color = '#fff';
-        box.style.font = '600 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif';
-        box.innerHTML = `
-          <div style="font-size:15px; margin-bottom:6px;">Deck plan failed to load</div>
-          <div style="opacity:0.9; font-weight:500; margin-bottom:10px;">${safeText(err?.message || 'Unknown error')}</div>
-          <div style="opacity:0.85; font-weight:500;">
-            Check that the SVG path is correct and the file is served by your web server (not blocked by iOS file:// restrictions).
-          </div>
-        `;
-        this.stage.appendChild(box);
-      } finally {
-        this.stage.removeAttribute('aria-busy');
-      }
+    _bindControls() {
+      if (this.zoomInBtn) this.zoomInBtn.addEventListener('click', () => this.setZoom(this.zoom * 1.18, { keepCenter: true }));
+      if (this.zoomOutBtn) this.zoomOutBtn.addEventListener('click', () => this.setZoom(this.zoom / 1.18, { keepCenter: true }));
+      if (this.zoomResetBtn) this.zoomResetBtn.addEventListener('click', () => this.setZoom(1, { fit: false, keepCenter: true }));
+      if (this.fitBtn) this.fitBtn.addEventListener('click', () => this.fit());
     }
 
-    _parseSVG(svgText) {
-      const text = safeText(svgText);
-      if (!text || !text.includes('<svg')) return null;
-
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(text, 'image/svg+xml');
-      const svg = doc.documentElement;
-
-      // Parser errors
-      const perr = doc.querySelector('parsererror');
-      if (perr) {
-        console.error('[DeckViewer] SVG parsererror:', perr.textContent);
-        return null;
-      }
-
-      // Import into current document so CSS applies cleanly
-      const imported = document.importNode(svg, true);
-
-      // Ensure namespace
-      if (!imported.getAttribute('xmlns')) imported.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-
-      return imported;
-    }
-
-    _installSVG(svg, deckName) {
-      // Clear loading
-      this.stage.innerHTML = '';
-
-      // Make SVG responsive
-      svg.style.width = '100%';
-      svg.style.height = '100%';
-      svg.style.display = 'block';
-      svg.style.touchAction = 'none'; // so pan gestures behave
-      svg.setAttribute('focusable', 'false');
-
-      // Accessibility: title/desc
-      const titleId = `deckTitle_${Math.random().toString(16).slice(2)}`;
-      const descId = `deckDesc_${Math.random().toString(16).slice(2)}`;
-
-      // Avoid duplicates if SVG already has a title/desc
-      const existingTitle = svg.querySelector('title');
-      const existingDesc = svg.querySelector('desc');
-
-      if (!existingTitle) {
-        const t = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        t.setAttribute('id', titleId);
-        t.textContent = `${deckName} layout`;
-        svg.insertBefore(t, svg.firstChild);
-      }
-      if (!existingDesc) {
-        const d = document.createElementNS('http://www.w3.org/2000/svg', 'desc');
-        d.setAttribute('id', descId);
-        d.textContent = 'Interactive deck plan. Use mouse wheel to zoom, drag to pan, Tab to focus locations, and Enter to select.';
-        svg.insertBefore(d, svg.firstChild?.nextSibling || null);
-      }
-
-      const tRef = (existingTitle?.getAttribute('id') || titleId);
-      const dRef = (existingDesc?.getAttribute('id') || descId);
-
-      svg.setAttribute('role', 'img');
-      svg.setAttribute('aria-labelledby', `${tRef} ${dRef}`);
-
-      // Ensure viewBox exists (important for predictable scaling)
-      if (!svg.getAttribute('viewBox')) {
-        // Try to infer from width/height
-        const w = parseFloat(svg.getAttribute('width') || '0');
-        const h = parseFloat(svg.getAttribute('height') || '0');
-        if (w > 0 && h > 0) {
-          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-        } else {
-          // As a fallback, we’ll compute bounding box after insertion
-        }
-      }
-
-      // Wrap contents into viewport group so we can transform cleanly
-      const ns = 'http://www.w3.org/2000/svg';
-      const viewport = document.createElementNS(ns, 'g');
-      viewport.setAttribute('id', '__deckViewport');
-      viewport.setAttribute('vector-effect', 'non-scaling-stroke'); // helps line crispness in some SVGs
-
-      // Move all nodes except title/desc/defs into viewport
-      const preserved = new Set(['title', 'desc', 'defs', 'metadata']);
-      const children = Array.from(svg.childNodes);
-      for (const node of children) {
-        if (node.nodeType !== 1) continue; // element
-        const tag = node.nodeName.toLowerCase();
-        if (preserved.has(tag)) continue;
-        viewport.appendChild(node);
-      }
-      svg.appendChild(viewport);
-
-      this.stage.appendChild(svg);
-      this.svg = svg;
-      this.viewportG = viewport;
-
-      // If no viewBox, infer from bbox now that it’s in DOM
-      if (!svg.getAttribute('viewBox')) {
-        try {
-          const bb = viewport.getBBox();
-          const pad = Math.max(8, Math.min(bb.width, bb.height) * 0.02);
-          const x = Math.max(0, bb.x - pad);
-          const y = Math.max(0, bb.y - pad);
-          const w = bb.width + pad * 2;
-          const h = bb.height + pad * 2;
-          if (w > 0 && h > 0) svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
-        } catch (e) {
-          // Not fatal
-          console.warn('[DeckViewer] Could not infer viewBox:', e);
-        }
-      }
-
-      // Default view
-      this.resetView(true);
-      this._decorateInteractivity();
-      this._wireSVGEvents();
-      this.fitToStage();
-
-      // If there is a search query already, apply it
-      if (this.searchEl) this.applySearch(safeText(this.searchEl.value));
-    }
-
-    _decorateInteractivity() {
-      if (!this.svg) return;
-
-      // Strategy:
-      // - Identify likely interactive nodes:
-      //   - any element with id
-      //   - any element with class containing "room", "stateroom", "venue", "elevator"
-      //   - any element with data-name or aria-label already
-      // - Promote them to focusable targets with tabindex=0
-      // - Add CSS-friendly attributes for consistent highlighting
-      //
-      // Note: Some exported SVGs have thousands of paths. We cap promotion to avoid making a tab-trap.
-      const candidates = [];
-
-      // 1) Elements that already have aria-label or data-name
-      candidates.push(...$$('[aria-label], [data-name]', this.svg));
-
-      // 2) IDs that look meaningful
-      candidates.push(...$$('[id]', this.svg).filter(el => {
-        const id = el.getAttribute('id') || '';
-        // Filter out common junk ids from editors
-        if (!id) return false;
-        if (/^(svg|layer|g|path|rect|circle|ellipse|line|polyline|polygon)\d*$/i.test(id)) return false;
-        if (/^XMLID_/i.test(id)) return false;
-        return true;
-      }));
-
-      // 3) Class heuristics
-      candidates.push(...$$('[class]', this.svg).filter(el => {
-        const c = (el.getAttribute('class') || '').toLowerCase();
-        return /(room|stateroom|venue|elevator|stairs|bar|cafe|pool|theater|casino|suite)/.test(c);
-      }));
-
-      // Unique + prune
-      const uniq = [];
-      const seen = new Set();
-      for (const el of candidates) {
-        if (!(el instanceof SVGElement)) continue;
-        if (seen.has(el)) continue;
-        seen.add(el);
-        uniq.push(el);
-      }
-
-      // Promote up to N focusables. If the SVG is noisy, focusables should be “groups” not “every path”.
-      // Prefer <g> and <a> if possible, otherwise keep paths but cap aggressively.
-      const score = (el) => {
-        let s = 0;
-        const tag = el.tagName.toLowerCase();
-        if (tag === 'a') s += 6;
-        if (tag === 'g') s += 4;
-        if (tag === 'path' || tag === 'rect' || tag === 'polygon') s += 2;
-        const id = el.getAttribute('id') || '';
-        if (id && !/^XMLID_/i.test(id)) s += 3;
-        const aria = el.getAttribute('aria-label');
-        if (aria) s += 5;
-        const dn = el.getAttribute('data-name');
-        if (dn) s += 5;
-        const cls = (el.getAttribute('class') || '').toLowerCase();
-        if (/(room|venue|elevator|stairs)/.test(cls)) s += 2;
-        return s;
-      };
-
-      uniq.sort((a, b) => score(b) - score(a));
-
-      const MAX_FOCUSABLES = 220;
-      const focusables = uniq.slice(0, MAX_FOCUSABLES);
-
-      for (const el of focusables) {
-        // Set a stable label
-        const label =
-          safeText(el.getAttribute('aria-label')) ||
-          safeText(el.getAttribute('data-name')) ||
-          humanizeId(el.getAttribute('id')) ||
-          'Location';
-
-        el.setAttribute('data-deck-focusable', '1');
-        el.setAttribute('tabindex', '0');
-        el.setAttribute('role', 'button');
-        el.setAttribute('aria-label', label);
-
-        // Improve touch target slightly by promoting to group if tiny
-        this._labels.set(el, label);
-        this._focusables.push(el);
-      }
-
-      // Inject minimal in-SVG highlight styles (does not require external CSS)
-      this._ensureStyleBlock();
-    }
-
-    _ensureStyleBlock() {
-      if (!this.svg) return;
-      const ns = 'http://www.w3.org/2000/svg';
-
-      let style = this.svg.querySelector('style[data-deck-style="1"]');
-      if (style) return;
-
-      style = document.createElementNS(ns, 'style');
-      style.setAttribute('data-deck-style', '1');
-
-      // Avoid fixed colors across your site? This is inside SVG only.
-      // Use subtle, neutral highlight that works on most deck exports.
-      style.textContent = `
-        [data-deck-focusable="1"] { cursor: pointer; outline: none; }
-        [data-deck-focusable="1"][data-deck-hit="1"] { opacity: 1; }
-        [data-deck-focusable="1"][data-deck-muted="1"] { opacity: 0.15; }
-
-        /* Focus ring for keyboard users */
-        [data-deck-focusable="1"]:focus {
-          filter: drop-shadow(0 0 8px rgba(255, 215, 64, 0.55));
-        }
-
-        /* Selected state */
-        [data-deck-focusable="1"][data-deck-selected="1"] {
-          filter: drop-shadow(0 0 12px rgba(0, 190, 255, 0.55)) drop-shadow(0 0 22px rgba(0, 190, 255, 0.25));
-        }
-
-        /* Hover state */
-        [data-deck-focusable="1"]:hover {
-          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.35));
-        }
-      `;
-
-      // Put style early
-      const first = this.svg.firstChild;
-      this.svg.insertBefore(style, first);
-    }
-
-    _wireSVGEvents() {
-      if (!this.svg) return;
-
-      // Delegate interactions
-      this.svg.addEventListener('click', (e) => {
-        const target = e.target instanceof Element ? e.target : null;
-        if (!target) return;
-        const hit = target.closest?.('[data-deck-focusable="1"]');
-        if (!hit) return;
-        e.preventDefault();
-        this.select(hit);
-      });
-
-      // Keyboard activation
-      this.svg.addEventListener('keydown', (e) => {
-        const target = e.target instanceof Element ? e.target : null;
-        if (!target) return;
-        if (!target.matches?.('[data-deck-focusable="1"]')) return;
-
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.select(target);
-        }
-
-        if (e.key === 'Escape') {
-          e.preventDefault();
-          this.clearSelection();
-          this.hideInfo();
-        }
-      });
-
-      // Tooltip hover/focus
-      this.svg.addEventListener('pointerover', (e) => {
-        const t = e.target instanceof Element ? e.target : null;
-        const hit = t?.closest?.('[data-deck-focusable="1"]');
-        if (!hit) return;
-        const label = safeText(hit.getAttribute('aria-label')) || this._labels.get(hit) || 'Location';
-        this.tooltip.show(label, e.clientX, e.clientY);
-      });
-
-      this.svg.addEventListener('pointermove', (e) => {
-        if (this.tooltip.el.style.opacity !== '1') return;
-        this.tooltip.position(e.clientX, e.clientY);
-      });
-
-      this.svg.addEventListener('pointerout', (e) => {
-        const related = e.relatedTarget instanceof Element ? e.relatedTarget : null;
-        if (related && related.closest?.('[data-deck-focusable="1"]')) return;
-        this.tooltip.hide();
-      });
-
-      // Focus tooltip
-      this.svg.addEventListener('focusin', (e) => {
-        const t = e.target instanceof Element ? e.target : null;
-        if (!t || !t.matches('[data-deck-focusable="1"]')) return;
-        const label = safeText(t.getAttribute('aria-label')) || this._labels.get(t) || 'Location';
-        // Place tooltip near center of stage for keyboard (no pointer coords)
-        const rect = this.stage.getBoundingClientRect();
-        this.tooltip.show(label, rect.left + rect.width * 0.55, rect.top + rect.height * 0.22);
-      });
-
-      this.svg.addEventListener('focusout', () => {
-        this.tooltip.hide();
-      });
-    }
-
-    select(el) {
-      if (!el) return;
-
-      // Clear previous
-      if (this._selectedEl) this._selectedEl.removeAttribute('data-deck-selected');
-      this._selectedEl = el;
-      el.setAttribute('data-deck-selected', '1');
-
-      // Ensure it is visible (basic center-on)
-      this.centerOn(el);
-
-      // Update info panel (optional)
-      const label = safeText(el.getAttribute('aria-label')) || this._labels.get(el) || 'Location';
-      const id = safeText(el.getAttribute('id'));
-      const cls = safeText(el.getAttribute('class'));
-      const dn = safeText(el.getAttribute('data-name'));
-
-      if (this.infoPanel && this.infoTitle && this.infoBody) {
-        this.infoTitle.textContent = label;
-        const lines = [];
-
-        if (dn && dn !== label) lines.push(`Name: ${dn}`);
-        if (id) lines.push(`ID: ${id}`);
-        if (cls) lines.push(`Class: ${cls}`);
-
-        // Try to extract any data-* metadata
-        const dataPairs = [];
-        for (const attr of Array.from(el.attributes)) {
-          if (!attr.name.startsWith('data-')) continue;
-          if (attr.name === 'data-deck-focusable' || attr.name === 'data-deck-selected') continue;
-          dataPairs.push(`${attr.name}: ${attr.value}`);
-        }
-        if (dataPairs.length) lines.push(...dataPairs.slice(0, 10));
-
-        if (!lines.length) lines.push('Tap around the deck to explore. Search to highlight locations.');
-
-        this.infoBody.textContent = lines.join('\n');
-        this.showInfo();
-      } else {
-        // If no panel, at least announce status (optional)
-        setStatus(this.statusEl, `Selected: ${label}`);
-      }
-    }
-
-    clearSelection() {
-      if (this._selectedEl) {
-        this._selectedEl.removeAttribute('data-deck-selected');
-        this._selectedEl = null;
-      }
-    }
-
-    showInfo() {
-      if (!this.infoPanel) return;
-      this.infoPanel.removeAttribute('hidden');
-      this.infoPanel.setAttribute('aria-hidden', 'false');
-    }
-
-    hideInfo() {
-      if (!this.infoPanel) return;
-      this.infoPanel.setAttribute('hidden', 'true');
-      this.infoPanel.setAttribute('aria-hidden', 'true');
-    }
-
-    applySearch(query) {
-      const q = safeText(query).toLowerCase();
-
-      if (!this.svg || !this._focusables.length) return;
-
-      if (!q) {
-        // Reset muting
-        for (const el of this._focusables) {
-          el.removeAttribute('data-deck-muted');
-          el.removeAttribute('data-deck-hit');
-        }
-        setStatus(this.statusEl, 'Search cleared');
-        return;
-      }
-
-      let hits = 0;
-      for (const el of this._focusables) {
-        const label = (safeText(el.getAttribute('aria-label')) || this._labels.get(el) || '').toLowerCase();
-        const id = safeText(el.getAttribute('id')).toLowerCase();
-        const cls = safeText(el.getAttribute('class')).toLowerCase();
-
-        const match = label.includes(q) || id.includes(q) || cls.includes(q);
-        if (match) {
-          hits++;
-          el.setAttribute('data-deck-hit', '1');
-          el.removeAttribute('data-deck-muted');
-        } else {
-          el.removeAttribute('data-deck-hit');
-          el.setAttribute('data-deck-muted', '1');
-        }
-      }
-
-      setStatus(this.statusEl, `${hits} match${hits === 1 ? '' : 'es'} for "${query}"`);
-
-      // Auto-focus first hit for quick keyboard use
-      if (hits > 0) {
-        const firstHit = this._focusables.find(el => el.getAttribute('data-deck-hit') === '1');
-        if (firstHit) {
-          try { firstHit.focus({ preventScroll: true }); } catch (_) {}
-        }
-      }
-    }
-
-    /** -----------------------------
-     *  Transform (pan/zoom)
-     *  ----------------------------- */
     _applyTransform() {
-      if (!this.viewportG) return;
-      this.viewportG.setAttribute('transform', `translate(${this.tx} ${this.ty}) scale(${this.scale})`);
+      if (!this.canvas) return;
+      this.canvas.style.transform = `scale(${this.zoom})`;
+      if (this.zoomDisplay) this.zoomDisplay.textContent = `${Math.round(this.zoom * 100)}%`;
     }
 
-    zoomBy(factor) {
-      const rect = this.stage.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      this.zoomAt(factor, cx, cy);
+    setZoom(next, opts = {}) {
+      if (!this.scroll || !this.canvas) return;
+      const prev = this.zoom;
+      const z = clamp(next, this.minZoom, this.maxZoom);
+      if (Math.abs(z - prev) < 1e-6) return;
+
+      // Keep center stable in scroll coordinates if requested
+      let cx = null;
+      let cy = null;
+      if (opts.keepCenter) {
+        cx = this.scroll.scrollLeft + this.scroll.clientWidth / 2;
+        cy = this.scroll.scrollTop + this.scroll.clientHeight / 2;
+      }
+
+      this.zoom = z;
+      this._applyTransform();
+
+      if (opts.keepCenter && cx != null && cy != null) {
+        const ratio = this.zoom / prev;
+        this.scroll.scrollLeft = cx * ratio - this.scroll.clientWidth / 2;
+        this.scroll.scrollTop = cy * ratio - this.scroll.clientHeight / 2;
+      }
+
+      setStatus(this.statusEl, `Zoom: ${Math.round(this.zoom * 100)}%`);
     }
 
     zoomAt(factor, clientX, clientY) {
-      if (!this.svg || !this.viewportG) return;
+      if (!this.scroll) return;
 
-      const nextScale = clamp(this.scale * factor, this.minScale, this.maxScale);
-      if (Math.abs(nextScale - this.scale) < 1e-6) return;
+      const prev = this.zoom;
+      const next = clamp(this.zoom * factor, this.minZoom, this.maxZoom);
+      if (Math.abs(next - prev) < 1e-6) return;
 
-      // Convert client point into stage-local point
-      const stageRect = this.stage.getBoundingClientRect();
-      const px = clientX - stageRect.left;
-      const py = clientY - stageRect.top;
+      // Anchor zoom around pointer position in scroll container
+      const rect = this.scroll.getBoundingClientRect();
+      const px = clientX - rect.left + this.scroll.scrollLeft;
+      const py = clientY - rect.top + this.scroll.scrollTop;
 
-      // Adjust translate so zoom focuses around pointer
-      // Formula: newT = p - (p - oldT) * (newS / oldS)
-      const ratio = nextScale / this.scale;
-      this.tx = px - (px - this.tx) * ratio;
-      this.ty = py - (py - this.ty) * ratio;
-      this.scale = nextScale;
-
+      this.zoom = next;
       this._applyTransform();
-      setStatus(this.statusEl, `Zoom: ${Math.round(this.scale * 100)}%`);
+
+      const ratio = this.zoom / prev;
+      this.scroll.scrollLeft = px * ratio - (clientX - rect.left);
+      this.scroll.scrollTop = py * ratio - (clientY - rect.top);
+
+      setStatus(this.statusEl, `Zoom: ${Math.round(this.zoom * 100)}%`);
     }
 
-    resetView(silent = false) {
-      this.tx = 0;
-      this.ty = 0;
-      this.scale = 1;
+    fit() {
+      if (!this.scroll || !this.img) return;
+
+      const pad = 24;
+      const vw = Math.max(1, this.scroll.clientWidth - pad * 2);
+      const vh = Math.max(1, this.scroll.clientHeight - pad * 2);
+
+      const iw = this.img.naturalWidth || this.img.width || 1;
+      const ih = this.img.naturalHeight || this.img.height || 1;
+
+      const s = clamp(Math.min(vw / iw, vh / ih), this.minZoom, this.maxZoom);
+      this.zoom = s;
       this._applyTransform();
-      if (!silent) setStatus(this.statusEl, 'View reset');
+
+      // Center
+      requestAnimationFrame(() => {
+        const cx = (this.scroll.scrollWidth - this.scroll.clientWidth) / 2;
+        const cy = (this.scroll.scrollHeight - this.scroll.clientHeight) / 2;
+        this.scroll.scrollLeft = Math.max(0, cx);
+        this.scroll.scrollTop = Math.max(0, cy);
+      });
+
+      setStatus(this.statusEl, `Fit view (${Math.round(this.zoom * 100)}%)`);
     }
 
-    fitToStage() {
-      if (!this.svg || !this.viewportG) return;
+    async showDeck(deck) {
+      if (!this.canvas) return;
 
-      // Fit viewport bbox into stage
-      try {
-        const bb = this.viewportG.getBBox();
-        const rect = this.stage.getBoundingClientRect();
-        const pad = 24;
+      this.canvas.innerHTML = '';
+      this.img = null;
 
-        const availableW = Math.max(1, rect.width - pad * 2);
-        const availableH = Math.max(1, rect.height - pad * 2);
+      // Skeleton
+      const sk = document.createElement('div');
+      sk.style.width = 'min(92vw, 1200px)';
+      sk.style.height = 'min(70vh, 780px)';
+      sk.style.borderRadius = '14px';
+      sk.style.background = 'linear-gradient(90deg, #f2f7fb 25%, #e8f2f8 50%, #f2f7fb 75%)';
+      sk.style.backgroundSize = '200% 100%';
+      sk.style.animation = 'deckShimmer 1.4s infinite';
+      this.canvas.appendChild(sk);
 
-        const sx = availableW / Math.max(1, bb.width);
-        const sy = availableH / Math.max(1, bb.height);
-
-        // Choose scale, clamp
-        const s = clamp(Math.min(sx, sy), this.minScale, this.maxScale);
-
-        // Center
-        const cx = bb.x + bb.width / 2;
-        const cy = bb.y + bb.height / 2;
-
-        // Translate so (cx,cy) ends up in the center of stage
-        this.scale = s;
-        this.tx = (rect.width / 2) - (cx * s);
-        this.ty = (rect.height / 2) - (cy * s);
-
-        this._applyTransform();
-        setStatus(this.statusEl, `Fit view (${Math.round(this.scale * 100)}%)`);
-      } catch (e) {
-        console.warn('[DeckViewer] fitToStage failed:', e);
+      // Ensure keyframes exist once (inline)
+      if (!document.getElementById('__deckShimmerKF')) {
+        const style = document.createElement('style');
+        style.id = '__deckShimmerKF';
+        style.textContent = `
+          @keyframes deckShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        `;
+        document.head.appendChild(style);
       }
-    }
 
-    centerOn(el) {
-      if (!el || !this.viewportG) return;
+      // Reset zoom before placing new image
+      this.setZoom(1, { keepCenter: false });
 
-      try {
-        const bb = el.getBBox();
-        const rect = this.stage.getBoundingClientRect();
+      const svgUrl = deck.svg ? resolveUrl(deck.svg) : '';
+      const pngUrl = deck.img ? resolveUrl(deck.img) : '';
 
-        const cx = bb.x + bb.width / 2;
-        const cy = bb.y + bb.height / 2;
+      // Load SVG as image first (stable on iOS), then PNG fallback if SVG fails
+      const img = new Image();
+      img.alt = `${safeText(deck.name || 'Deck')} plan`;
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.referrerPolicy = 'no-referrer-when-downgrade';
+      img.style.cssText =
+        'max-width:100%; height:auto; border-radius:14px; ' +
+        'box-shadow:0 6px 22px rgba(10,46,74,0.18); background:#fff; ' +
+        'user-select:none; display:block;';
 
-        // Move so it centers in stage
-        this.tx = (rect.width / 2) - (cx * this.scale);
-        this.ty = (rect.height / 2) - (cy * this.scale);
+      const mount = () => {
+        this.canvas.innerHTML = '';
+        this.canvas.appendChild(img);
+        this.img = img;
+        // Fit by default for first render (feels premium)
+        this.fit();
+      };
 
-        this._applyTransform();
-      } catch (_) {
-        // ignore
+      const failToPng = () => {
+        if (!pngUrl) {
+          this.canvas.innerHTML = `
+            <div style="padding:18px; font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:#0A2E4A;">
+              Deck plan failed to load.
+              <div style="opacity:.8; font-weight:500; margin-top:8px;">Missing fallback PNG path.</div>
+            </div>
+          `;
+          setStatus(this.statusEl, 'Deck plan failed to load (no PNG fallback).');
+          return;
+        }
+
+        const fb = new Image();
+        fb.alt = img.alt;
+        fb.decoding = 'async';
+        fb.loading = 'eager';
+        fb.referrerPolicy = img.referrerPolicy;
+        fb.style.cssText = img.style.cssText;
+
+        fb.onload = () => {
+          this.canvas.innerHTML = '';
+          this.canvas.appendChild(fb);
+          this.img = fb;
+          this.fit();
+          setStatus(this.statusEl, 'Loaded PNG fallback.');
+        };
+
+        fb.onerror = () => {
+          this.canvas.innerHTML = `
+            <div style="padding:18px; font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:#0A2E4A;">
+              Deck plan failed to load.
+              <div style="opacity:.8; font-weight:500; margin-top:8px;">SVG and PNG both failed.</div>
+            </div>
+          `;
+          setStatus(this.statusEl, 'Deck plan failed to load (SVG + PNG).');
+        };
+
+        fb.src = pngUrl;
+      };
+
+      img.onload = () => {
+        mount();
+        setStatus(this.statusEl, 'Deck plan loaded.');
+      };
+
+      img.onerror = () => {
+        failToPng();
+      };
+
+      if (svgUrl) {
+        img.src = svgUrl;
+      } else if (pngUrl) {
+        img.src = pngUrl;
+      } else {
+        this.canvas.innerHTML = `
+          <div style="padding:18px; font:600 14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:#0A2E4A;">
+            Deck plan not configured.
+            <div style="opacity:.8; font-weight:500; margin-top:8px;">No SVG or PNG path available for this deck.</div>
+          </div>
+        `;
+        setStatus(this.statusEl, 'No deck asset paths found.');
       }
     }
   }
 
-  /** -----------------------------
-   *  Bootstrap
-   *  ----------------------------- */
-  function initDecks() {
-    const stage = $('#deckStage') || $('[data-deck-stage]');
-    if (!stage) {
-      console.warn('[DeckViewer] Missing #deckStage / [data-deck-stage]. Deck viewer not initialized.');
-      return;
-    }
+  /* -----------------------------
+   * Modal controller + page wiring
+   * ----------------------------- */
+  function init() {
+    const searchEl = $('#deckSearch');
+    const searchClear = $('#deckSearchClear');
+    const countEl = $('#deckCount');
+    const grid = $('#deckGrid');
 
-    const viewer = new DeckViewer({
+    const modal = $('#deckModal');
+    const closeBtn = $('#modalClose');
+    const prevBtn = $('#deckPrev');
+    const nextBtn = $('#deckNext');
+
+    const modalDeckNumber = $('#modalDeckNumber');
+    const modalDeckTitle = $('#modalDeckTitle');
+    const modalDeckSub = $('#modalDeckSub');
+
+    const stage = $('#deckStage') || $('[data-deck-stage]');
+    const statusEl = $('#deckStatus');
+    const zoomDisplay = $('#zoomDisplay');
+
+    const viewer = new DeckPlanViewer({
       stage,
-      statusEl: $('#deckStatus'),
-      searchEl: $('#deckSearch'),
-      selectEl: $('#deckSelect'),
+      statusEl,
+      zoomDisplay,
       zoomInBtn: $('#zoomInBtn'),
       zoomOutBtn: $('#zoomOutBtn'),
       zoomResetBtn: $('#zoomResetBtn'),
-      fitBtn: $('#fitBtn'),
-      infoPanel: $('#deckInfoPanel'),
-      infoTitle: $('#deckInfoTitle'),
-      infoBody: $('#deckInfoBody'),
-      infoClose: $('#deckInfoClose')
+      fitBtn: $('#fitBtn')
     });
 
-    // Auto-load:
-    // Priority:
-    // 1) stage data-default-deck
-    // 2) selected option in select
-    // 3) first [data-deck-src] in DOM
-    const defaultDeck = stage.getAttribute('data-default-deck');
-    if (defaultDeck) {
-      viewer.load(defaultDeck, stage.getAttribute('data-default-deck-name') || 'Deck');
+    // Defensive null guards
+    if (!grid) {
+      console.warn('[decks] Missing #deckGrid. Nothing to render.');
       return;
     }
-
-    const sel = $('#deckSelect');
-    if (sel && sel.value) {
-      const opt = sel.selectedOptions?.[0];
-      const name = opt?.dataset?.deckName || opt?.textContent || 'Deck';
-      viewer.load(sel.value, name);
-      return;
+    if (!modal) {
+      console.warn('[decks] Missing #deckModal. Modal features disabled.');
     }
 
-    const first = $('[data-deck-src]');
-    if (first) {
-      const src = first.getAttribute('data-deck-src');
-      if (src) viewer.load(src, first.getAttribute('data-deck-name') || first.textContent || 'Deck');
+    let decks = [];
+    let filtered = [];
+    let activeIndex = -1;
+
+    const updateCount = () => {
+      if (!countEl) return;
+      const total = decks.length;
+      const shown = filtered.length;
+      countEl.textContent = total
+        ? `${shown} / ${total} decks`
+        : '';
+    };
+
+    const isOpen = () => modal && !modal.hasAttribute('hidden');
+
+    const openModal = async (idx) => {
+      if (!modal) return;
+      activeIndex = clamp(idx, 0, filtered.length - 1);
+      const d = filtered[activeIndex];
+      if (!d) return;
+
+      modal.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      if (modalDeckNumber) modalDeckNumber.textContent = d.n ? `DECK ${d.n}` : 'DECK';
+      if (modalDeckTitle) modalDeckTitle.textContent = d.name || 'Deck';
+      if (modalDeckSub) modalDeckSub.textContent = d.sub || '';
+
+      setStatus(statusEl, `Loading ${d.name}…`);
+      await viewer.showDeck(d);
+
+      // Focus close for keyboard
+      requestAnimationFrame(() => closeBtn?.focus?.());
+    };
+
+    const closeModal = () => {
+      if (!modal) return;
+      modal.setAttribute('hidden', 'true');
+      document.body.style.overflow = '';
+      setStatus(statusEl, '');
+      // Clear stage content (optional)
+      // viewer._ensureStage(); // keep it as-is to avoid reflows
+    };
+
+    const goto = async (dir) => {
+      if (!filtered.length) return;
+      const next = (activeIndex + dir + filtered.length) % filtered.length;
+      await openModal(next);
+    };
+
+    const renderGrid = () => {
+      grid.innerHTML = '';
+
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < filtered.length; i++) {
+        const d = filtered[i];
+
+        const card = document.createElement('article');
+        card.className = 'deck-card';
+        card.setAttribute('role', 'listitem');
+        card.tabIndex = 0;
+
+        const n = document.createElement('div');
+        n.style.fontWeight = '800';
+        n.style.letterSpacing = '0.04em';
+        n.style.opacity = '0.9';
+        n.textContent = d.n ? `DECK ${d.n}` : 'DECK';
+
+        const title = document.createElement('div');
+        title.style.fontFamily = '"Plus Jakarta Sans", system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif';
+        title.style.fontWeight = '900';
+        title.style.fontSize = '1.25rem';
+        title.style.marginTop = '8px';
+        title.textContent = d.name || 'Deck';
+
+        const sub = document.createElement('div');
+        sub.style.marginTop = '6px';
+        sub.style.opacity = '0.8';
+        sub.style.fontWeight = '600';
+        sub.style.fontSize = '0.92rem';
+        sub.textContent = d.sub || 'Tap to view plan';
+
+        const hint = document.createElement('div');
+        hint.style.marginTop = '14px';
+        hint.style.display = 'flex';
+        hint.style.alignItems = 'center';
+        hint.style.gap = '10px';
+        hint.style.opacity = '0.9';
+
+        const pill = document.createElement('span');
+        pill.style.display = 'inline-flex';
+        pill.style.alignItems = 'center';
+        pill.style.gap = '8px';
+        pill.style.padding = '8px 12px';
+        pill.style.borderRadius = '999px';
+        pill.style.background = 'rgba(0,180,230,0.10)';
+        pill.style.color = '#0A2E4A';
+        pill.style.fontWeight = '800';
+        pill.style.fontSize = '0.82rem';
+        pill.innerHTML = `<i class="fas fa-map"></i><span>Open plan</span>`;
+
+        hint.appendChild(pill);
+
+        card.appendChild(n);
+        card.appendChild(title);
+        card.appendChild(sub);
+        card.appendChild(hint);
+
+        const activate = () => openModal(i);
+
+        card.addEventListener('click', activate);
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            activate();
+          }
+        });
+
+        frag.appendChild(card);
+      }
+
+      grid.appendChild(frag);
+      updateCount();
+    };
+
+    const applyFilter = (q) => {
+      const query = safeText(q).toLowerCase();
+
+      if (!query) {
+        filtered = decks.slice();
+        setHidden(searchClear, true);
+        renderGrid();
+        return;
+      }
+
+      setHidden(searchClear, false);
+
+      filtered = decks.filter(d => {
+        const hay = `${d.n} ${d.name} ${d.sub} ${d.svg} ${d.img}`.toLowerCase();
+        return hay.includes(query);
+      });
+
+      renderGrid();
+    };
+
+    // Search wiring
+    if (searchEl) {
+      searchEl.addEventListener('input', () => {
+        applyFilter(searchEl.value);
+      });
+
+      searchEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          searchEl.value = '';
+          applyFilter('');
+          searchEl.blur();
+        }
+      });
     }
+
+    if (searchClear) {
+      searchClear.addEventListener('click', () => {
+        if (searchEl) searchEl.value = '';
+        applyFilter('');
+        searchEl?.focus?.();
+      });
+    }
+
+    // Modal wiring
+    closeBtn?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    prevBtn?.addEventListener('click', () => goto(-1));
+    nextBtn?.addEventListener('click', () => goto(+1));
+
+    document.addEventListener('keydown', (e) => {
+      // If modal open, handle nav + close
+      if (isOpen()) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeModal();
+          return;
+        }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          goto(-1);
+          return;
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          goto(+1);
+          return;
+        }
+      } else {
+        // Quick focus search on typing
+        if (searchEl && isPrintableCharKey(e) && document.activeElement === document.body) {
+          searchEl.focus();
+        }
+      }
+    });
+
+    // Global safety: surface masked errors into #deckStatus
+    window.addEventListener('error', (ev) => {
+      const msg = safeText(ev?.message || 'Script error');
+      if (statusEl) setStatus(statusEl, `Error: ${msg}`);
+    });
+
+    window.addEventListener('unhandledrejection', (ev) => {
+      const msg = safeText(ev?.reason?.message || ev?.reason || 'Unhandled promise rejection');
+      if (statusEl) setStatus(statusEl, `Error: ${msg}`);
+    });
+
+    // Load deck index and render
+    (async () => {
+      try {
+        setStatus(statusEl, 'Loading deck index…');
+        decks = await loadDeckIndex();
+        filtered = decks.slice();
+        renderGrid();
+        setStatus(statusEl, '');
+      } catch (err) {
+        console.error('[decks] index load failed:', err);
+        setStatus(statusEl, `Deck index failed: ${safeText(err?.message || err)}`);
+        grid.innerHTML = `
+          <div style="padding:18px; border-radius:16px; background:rgba(255,255,255,0.75); border:1px solid rgba(0,0,0,0.06);">
+            <div style="font-weight:900; font-size:1.05rem; color:#0A2E4A;">Decks unavailable</div>
+            <div style="margin-top:8px; opacity:.85; font-weight:600;">
+              Could not load deck index.json. Ensure <code>deck-plans/index.json</code> or <code>decks/index.json</code> exists on the site.
+            </div>
+          </div>
+        `;
+        updateCount();
+      }
+    })();
   }
 
   // DOM ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initDecks, { once: true });
+    document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
-    initDecks();
+    init();
   }
 })();
