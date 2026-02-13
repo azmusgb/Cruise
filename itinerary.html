@@ -1,765 +1,260 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-theme-mode="light">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#cfeaff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="manifest.json?v=2">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
-    <title>Royal Caribbean Itinerary | Adventure of the Seas</title>
-    <meta name="description" content="Your complete 7-day Western Caribbean cruise itinerary with daily schedules, port information, and onboard activities.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/base.css?v=3">
-  <link rel="stylesheet" href="css/utilities.css?v=3">
-  <link rel="stylesheet" href="css/components.css?v=3">
-    <link rel="stylesheet" href="css/feature-modules.css?v=3">
-    <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
-  <style>
-    :root { 
-      /* Global tint bias: -10%..+10% strength; default 0% */
-      --tint-bias: 0%;
-      /* Cool/Warm anchors used for biasing */
-      --tint-cool: hsl(220 90% 60%);
-      --tint-warm: hsl(30 95% 60%);
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a2e4a" />
+<title>Itinerary · Adventure of the Seas</title>
 
-    /* Utility to bias a base color with the global tint bias toward cool/warm anchors */
-    @supports (color: color-mix(in oklab, black, white)) {
-      :root { --tint-mode: 'oklab'; }
-    }
-    @supports not (color: color-mix(in oklab, black, white)) {
-      :root { --tint-mode: 'srgb'; }
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-    /* Reusable mix function via custom properties */
-    .itinerary-page { /* scope not required, but ensures no leakage */ }
+<style>
+/* =========================================================
+   RCCL ITINERARY — CINEMATIC VERSION
+   ========================================================= */
 
-    /* Itinerary narrative spacing and cue */
-    .itinerary-page .itinerary-day { margin: 36px 0 48px; padding-top: 8px; position: relative; }
-    .itinerary-page .itinerary-day::before { content: ""; position: absolute; left: -12px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, rgba(0,0,0,0.06), rgba(0,0,0,0)); border-radius: 2px; }
-    @media (min-width: 768px) { .itinerary-page .itinerary-day::before { left: -16px; } }
-    /* Softer headings */
-    .itinerary-page .itinerary-day__title, .itinerary-page .timeline-section__title, .itinerary-page .info-card__title { font-weight: 500; }
-    /* Today emphasis and others slightly softer */
-    .itinerary-page .itinerary-day[data-today="true"] { opacity: 1; }
-    .itinerary-page .itinerary-day:not([data-today="true"]) { opacity: 0.9; }
-    /* Subtle transitions only */
-    .itinerary-page .itinerary-day, .itinerary-page .timeline-item, .itinerary-page .info-card { transition: opacity 220ms cubic-bezier(0.22,0.61,0.36,1), transform 220ms cubic-bezier(0.22,0.61,0.36,1); }
-    /* Remove hard dividers feel by softening borders in cards */
-    .itinerary-page .timeline, .itinerary-page .info-card { border-color: rgba(0,0,0,0.08); }
-    /* Today pulse hook already present; keep it subtle */
-    .itinerary-page .itinerary-day--today-pulse { box-shadow: 0 6px 18px rgba(0,0,0,0.10); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:#071a2c;
+  color:#fff;
+  overflow-x:hidden;
+}
 
-    .itinerary-page .itinerary-day[data-day-type="port"] {
-      /* Base: warm amber; bias toward cool/warm using --tint-bias */
-      --base: rgb(255 184 76);
-      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
-      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
-      border-radius: 12px;
-    }
+/* ---------- Ocean ---------- */
+#ocean{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+}
+.vignette{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(0,180,230,.15), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.45));
+}
 
-    .itinerary-page .itinerary-day[data-day-type="sea"] {
-      /* Base: cool blue; bias toward cool/warm using --tint-bias */
-      --base: rgb(120 170 255);
-      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
-      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
-      border-radius: 12px;
-    }
+/* ---------- Header ---------- */
+header{
+  position:sticky;
+  top:0;
+  backdrop-filter:blur(14px);
+  background:rgba(10,46,74,.65);
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding:0 1.2rem;
+  z-index:100;
+}
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  height:64px;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+}
+.header-title{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:900;
+}
+.spacer{flex:1}
+.back-btn{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  padding:.5rem .8rem;
+  border-radius:999px;
+  font-weight:700;
+}
 
-    .itinerary-page .itinerary-day[data-day-type="embark"] {
-      /* Base: peach */
-      --base: rgb(255 214 150);
-      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
-      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
-      border-radius: 12px;
-    }
+/* ---------- Hero ---------- */
+.hero{
+  text-align:center;
+  padding:4.5rem 1rem 2rem;
+}
+.hero h1{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:clamp(2rem,5vw,3rem);
+  font-weight:900;
+}
+.hero p{
+  margin-top:.7rem;
+  opacity:.75;
+}
 
-    .itinerary-page .itinerary-day[data-day-type="disembark"] {
-      /* Base: neutral gray */
-      --base: rgb(200 200 200);
-      --biased: color-mix(in var(--tint-mode, oklab), var(--base) calc(100% - abs(var(--tint-bias))), var(--tint-bias) < 0 ? var(--tint-cool) : var(--tint-warm) abs(var(--tint-bias)));
-      background: linear-gradient(0deg, color-mix(in var(--tint-mode, oklab), var(--biased) 6%, transparent), color-mix(in var(--tint-mode, oklab), var(--biased) 3%, transparent));
-      border-radius: 12px;
-    }
+/* ---------- Timeline ---------- */
+.timeline{
+  max-width:900px;
+  margin:2rem auto 5rem;
+  padding:0 1rem;
+  display:grid;
+  gap:1.2rem;
+}
 
-    .itinerary-page .itinerary-day { padding: 12px 12px 16px; }
-  </style>
-  <script src="js/shared-layout.js?v=17" defer></script>
+.day-card{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:24px;
+  padding:1.4rem 1.5rem;
+  backdrop-filter:blur(16px);
+  transition:.4s cubic-bezier(.22,.61,.36,1);
+  cursor:pointer;
+}
+.day-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(0,180,230,.3);
+}
+
+.day-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.8rem;
+}
+.day-title{
+  display:flex;
+  gap:.7rem;
+  align-items:center;
+}
+.day-title i{color:#ffd740}
+.day-title h2{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:900;
+  font-size:1.1rem;
+}
+.day-meta{
+  font-size:.75rem;
+  opacity:.6;
+  font-weight:700;
+}
+
+.day-details{
+  margin-top:1rem;
+  display:none;
+  opacity:.85;
+  font-size:.9rem;
+  line-height:1.6;
+}
+.day-card.active .day-details{
+  display:block;
+}
+
+/* Today highlight */
+.day-card.today{
+  border-color:#00b4e6;
+  box-shadow:0 20px 60px rgba(0,180,230,.25);
+}
+
+/* ---------- Responsive ---------- */
+@media (prefers-reduced-motion:reduce){
+  .day-card{transition:none}
+}
+
+</style>
 </head>
-<body class="app-theme-rcc itinerary-page page-shell">
-    <a href="#main" class="skip-link">Skip to main content</a>
-    <!-- Header Placeholder -->
-    <div id="sharedHeader" data-page="itinerary"></div>
+<body>
 
-    <!-- Hero Section -->
-    <section class="hero hero--itinerary">
-        <div class="container">
-            <div class="hero__content">
-                <span class="hero__badge">7-Day Western Caribbean</span>
-                <h1 class="hero__title heading--primary">Itinerary</h1>
-                <p class="hero__contextline" id="cruiseModeLine">Your complete day-by-day cruise flow.</p>
-            </div>
-        </div>
-    </section>
+<canvas id="ocean"></canvas>
+<div class="vignette"></div>
 
-    <!-- Main Content -->
-    <main id="main" class="main" aria-label="Itinerary">
-        <div class="container">
-            <!-- Day Navigation -->
-            <section class="day-navigation" id="today">
-                <div class="day-navigation__header">
-                    <h2 class="day-navigation__title">Choose a Day</h2>
-                    <p class="day-navigation__description">Select a day to see the detailed schedule and logistics.</p>
-                    <div class="day-navigation__tools">
-                        <button class="btn btn--secondary btn--icon" type="button" id="shareItineraryBtn">
-                            <i class="fas fa-share-alt"></i> Share itinerary
-                        </button>
-                        <button class="btn btn--secondary btn--icon" type="button" data-modal-open="itineraryLegendModal">
-                            <i class="fas fa-circle-info"></i> View Tag Legend
-                        </button>
-                    </div>
-                    <p id="itineraryStatus" class="sr-only" aria-live="polite"></p>
-                </div>
-                <div class="day-selector" id="daySelector">
-                    <button class="day-btn day-btn--active" data-day="1">
-                        <i class="fas fa-ship"></i> Day 1
-                    </button>
-                    <button class="day-btn" data-day="2">
-                        <i class="fas fa-water"></i> Day 2
-                    </button>
-                    <button class="day-btn" data-day="3">
-                        <i class="fas fa-umbrella-beach"></i> Day 3
-                    </button>
-                    <button class="day-btn" data-day="4">
-                        <i class="fas fa-mountain"></i> Day 4
-                    </button>
-                    <button class="day-btn" data-day="5">
-                        <i class="fas fa-utensils"></i> Day 5
-                    </button>
-                    <button class="day-btn" data-day="6">
-                        <i class="fas fa-swimming-pool"></i> Day 6
-                    </button>
-                    <button class="day-btn" data-day="7">
-                        <i class="fas fa-suitcase-rolling"></i> Day 7
-                    </button>
-                </div>
-            </section>
+<header>
+  <div class="header-inner">
+    <div class="header-title">Itinerary</div>
+    <div class="spacer"></div>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  </div>
+</header>
 
-            <!-- Itinerary Days -->
-            <div class="itinerary-days">
-                <!-- Day 1 -->
-                <div class="itinerary-day" data-day="1" data-day-type="embark">
-                    <div class="itinerary-day__header">
-                        <div>
-                            <h2 class="itinerary-day__title">Day 1 • Saturday, February 14</h2>
-                            <div class="itinerary-day__badges">
-                                <span class="badge badge--primary">Embarkation Day</span>
-                                <span class="badge badge--accent">Valentine's Day</span>
-                            </div>
-                        </div>
-                        <div class="itinerary-day__tags">
-                            <span class="tag tag--critical">Port Canaveral</span>
-                            <span class="tag tag--info">All aboard 2:00 PM · Sail away ~4:00 PM</span>
-                        </div>
-                    </div>
+<section class="hero">
+  <h1>Western Caribbean</h1>
+  <p>Feb 14 – 20 · Adventure of the Seas</p>
+</section>
 
-                    <div class="timeline-section">
-                        <h3 class="timeline-section__title">
-                            <i class="fas fa-sun"></i> Morning
-                        </h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline__time">
-                                    <i class="far fa-clock"></i> 7:00 AM
-                                </div>
-                                <h4 class="timeline__title">Depart Orlando Hotel</h4>
-                                <p class="timeline__description">Shuttle departs from hotel lobby for Port Canaveral</p>
-                                <div class="timeline__meta">
-                                    <span class="tag tag--info">Duration: 45 min</span>
-                                </div>
-                            </div>
+<section class="timeline" id="timeline"></section>
 
-                            <div class="timeline-item timeline-item--critical">
-                                <div class="timeline__time">
-                                    <i class="far fa-clock"></i> 12:00 PM
-                                </div>
-                                <h4 class="timeline__title">Check-in window opens</h4>
-                                <p class="timeline__description">Shared linked reservation check-in time</p>
-                                <div class="timeline__meta">
-                                    <span class="tag tag--critical">Passport & SetSail Pass Required</span>
-                                </div>
-                            </div>
+<script>
+(function(){
+'use strict';
 
-                            <div class="timeline-item timeline-item--critical">
-                                <div class="timeline__time">
-                                    <i class="far fa-clock"></i> 2:00 PM
-                                </div>
-                                <h4 class="timeline__title">All aboard cutoff</h4>
-                                <p class="timeline__description">All linked reservations must be back onboard</p>
-                            </div>
-                        </div>
-                    </div>
+/* ---------- Config ---------- */
+const START_DATE = new Date('2026-02-14T16:00:00');
 
-                    <div class="info-card">
-                        <h3 class="info-card__title">
-                            <i class="fas fa-exclamation-circle"></i> Day 1 Essentials
-                        </h3>
-                        <ul class="list--checkmarks">
-                            <li>Have passports and <span class="term-help" aria-label="SetSail is Royal Caribbean's digital boarding pass and check-in flow" title="SetSail is Royal Caribbean's digital boarding pass and check-in flow">SetSail</span> passes ready</li>
-                            <li>Complete eMuster shortly after boarding</li>
-                            <li>Carry-on bag with essentials until stateroom ready</li>
-                            <li>Sail away photos around 4:00 PM</li>
-                        </ul>
-                    </div>
-                </div>
+const ITINERARY = [
+  {label:'Port Canaveral', icon:'fa-ship', desc:'Departure day. Boarding begins earlier in the day. Muster drill required before sail-away.'},
+  {label:'Sea Day', icon:'fa-water', desc:'Full ship day. Pools, specialty dining, shows, and exploring every deck.'},
+  {label:'Grand Cayman', icon:'fa-umbrella-beach', desc:'Tender port. Clear waters, Stingray City, Seven Mile Beach.'},
+  {label:'Falmouth, Jamaica', icon:'fa-mountain', desc:'Historic port. Dunn’s River Falls, Blue Hole, excursions inland.'},
+  {label:'Sea Day', icon:'fa-water', desc:'Reset day. Relax. Finalize dining. Sunset on the promenade deck.'},
+  {label:'Perfect Day at CocoCay', icon:'fa-sun', desc:'Royal Caribbean private island. Beach Club, water park, Chill Island.'},
+  {label:'Return to Port Canaveral', icon:'fa-anchor', desc:'Disembarkation morning. Breakfast early. Luggage tags out night before.'}
+];
 
-                <!-- Day 2 -->
-                <div class="itinerary-day" data-day="2" data-day-type="sea" style="display: none;">
-                    <div class="itinerary-day__header">
-                        <div>
-                            <h2 class="itinerary-day__title">Day 2 • Sunday, February 15</h2>
-                            <div class="itinerary-day__badges">
-                                <span class="badge badge--primary">Sea Day</span>
-                                <span class="badge badge--accent">First Formal Night</span>
-                            </div>
-                        </div>
-                        <div class="itinerary-day__tags">
-                            <span class="tag tag--info">At sea</span>
-                        </div>
-                    </div>
+/* ---------- Render ---------- */
+const timeline=document.getElementById('timeline');
+const today=new Date();
 
-                    <div class="alert alert--info">
-                        <strong>Sea Day Activities:</strong> Full day of onboard activities. Pool deck gets crowded early.
-                    </div>
+ITINERARY.forEach((item,index)=>{
+  const dayDate=new Date(START_DATE);
+  dayDate.setDate(dayDate.getDate()+index);
 
-                    <div class="timeline-section">
-                        <h3 class="timeline-section__title">Morning Activities</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline__time">
-                                    <i class="far fa-clock"></i> 9:00 AM
-                                </div>
-                                <h4 class="timeline__title">FlowRider® Surf Lessons</h4>
-                                <p class="timeline__description">Deck 13 aft • Sign up early at Sports Deck</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 2:00 PM</div>
-                                <h4 class="timeline__title">Onboard planning window</h4>
-                                <p class="timeline__description">Review Day 3 tender timing and shore plan before dinner.</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time">
-                                    <i class="far fa-clock"></i> 6:00 PM
-                                </div>
-                                <h4 class="timeline__title">Formal dinner seating</h4>
-                                <p class="timeline__description">Main Dining and specialty windows open for formal night.</p>
-                            </div>
-                        </div>
-                    </div>
+  const card=document.createElement('div');
+  card.className='day-card';
 
-                    <div class="info-card">
-                        <h3 class="info-card__title">
-                            <i class="fas fa-route"></i> Day 2 Logistics & Next Actions
-                        </h3>
-                        <ul class="list--checkmarks">
-                            <li>Reserve tonight's dinner window before 3:00 PM</li>
-                            <li>Confirm tomorrow's Grand Cayman excursion check-in point</li>
-                            <li>Use deck map for evening venue routes</li>
-                        </ul>
-                        <p><a href="dining.html">Dining reservations</a> · <a href="decks.html">Deck routes</a> · <a href="rooms.html">Return to staterooms</a></p>
-                    </div>
-                </div>
+  if(today.toDateString()===dayDate.toDateString()){
+    card.classList.add('today');
+  }
 
-                <!-- Day 3 -->
-                <div class="itinerary-day" data-day="3" data-day-type="port" style="display: none;">
-                    <div class="itinerary-day__header">
-                        <div>
-                            <h2 class="itinerary-day__title">Day 3 • Monday, February 16</h2>
-                            <div class="itinerary-day__badges">
-                                <span class="badge badge--primary">Port Day</span>
-                                <span class="badge badge--accent">Grand Cayman</span>
-                            </div>
-                        </div>
-                        <div class="itinerary-day__tags">
-                            <span class="tag tag--critical">Tender Port</span>
-                            <span class="tag tag--info">All aboard 5:15 PM</span>
-                        </div>
-                    </div>
-
-                    <div class="timeline-section">
-                        <h3 class="timeline-section__title">Port Plan</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 11:00 AM</div>
-                                <h4 class="timeline__title">Gangway opens (tender)</h4>
-                                <p class="timeline__description">Tender launch sequence begins for George Town.</p>
-                            </div>
-                            <div class="timeline-item timeline-item--critical">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 4:30 PM</div>
-                                <h4 class="timeline__title">Start return-to-ship window</h4>
-                                <p class="timeline__description">Build buffer for tender lines before the 5:15 PM all-aboard cutoff.</p>
-                            </div>
-                            <div class="timeline-item timeline-item--critical">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 5:15 PM</div>
-                                <h4 class="timeline__title">All-aboard cutoff</h4>
-                                <p class="timeline__description">All guests must be back onboard by this deadline.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <h3 class="info-card__title"><i class="fas fa-map-pin"></i> Logistics</h3>
-                        <ul class="list--checkmarks">
-                            <li>Tender waits can spike after 9:30 AM</li>
-                            <li>Carry ship card, photo ID, and contact card</li>
-                            <li>Start return by 4:30 PM to avoid tender rush</li>
-                        </ul>
-                        <p><a href="ports.html">Port spotlight</a> · <a href="contacts.html#ports">Port contacts</a></p>
-                    </div>
-                </div>
-
-                <!-- Day 4 -->
-                <div class="itinerary-day" data-day="4" data-day-type="port" style="display: none;">
-                    <div class="itinerary-day__header">
-                        <div>
-                            <h2 class="itinerary-day__title">Day 4 • Tuesday, February 17</h2>
-                            <div class="itinerary-day__badges">
-                                <span class="badge badge--primary">Port Day</span>
-                                <span class="badge badge--accent">Falmouth, Jamaica</span>
-                            </div>
-                        </div>
-                        <div class="itinerary-day__tags">
-                            <span class="tag tag--info">Walk-off access</span>
-                            <span class="tag tag--info">All aboard 4:30 PM</span>
-                        </div>
-                    </div>
-                    <div class="timeline-section">
-                        <h3 class="timeline-section__title">Port Plan</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 8:30 AM</div>
-                                <h4 class="timeline__title">Arrival and disembarkation</h4>
-                                <p class="timeline__description">Walk-off available directly from gangway.</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 9:15 AM</div>
-                                <h4 class="timeline__title">Excursion meet-up</h4>
-                                <p class="timeline__description">Dunn's River Falls groups meet in terminal zone B.</p>
-                            </div>
-                            <div class="timeline-item timeline-item--critical">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 4:30 PM</div>
-                                <h4 class="timeline__title">All-aboard cutoff</h4>
-                                <p class="timeline__description">Return to ship before final departure checks.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <h3 class="info-card__title"><i class="fas fa-route"></i> Logistics</h3>
-                        <ul class="list--checkmarks">
-                            <li>Cash and cards both recommended for port vendors</li>
-                            <li>Rain shell + water shoes for falls excursions</li>
-                            <li>Reboard buffer: 45 minutes minimum</li>
-                        </ul>
-                        <p><a href="ports.html">Port spotlight</a> · <a href="contacts.html#ports">Port contacts</a></p>
-                    </div>
-                </div>
-
-                <!-- Day 5 -->
-                <div class="itinerary-day" data-day="5" data-day-type="sea" style="display: none;">
-                    <div class="itinerary-day__header">
-                        <div>
-                            <h2 class="itinerary-day__title">Day 5 • Wednesday, February 18</h2>
-                            <div class="itinerary-day__badges">
-                                <span class="badge badge--primary">Sea Day</span>
-                                <span class="badge badge--accent">Second Formal Night</span>
-                            </div>
-                        </div>
-                        <div class="itinerary-day__tags">
-                            <span class="tag tag--info">At sea</span>
-                        </div>
-                    </div>
-                    <div class="timeline-section">
-                        <h3 class="timeline-section__title">Onboard Plan</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 10:00 AM</div>
-                                <h4 class="timeline__title">Pool and activity window</h4>
-                                <p class="timeline__description">Best time for lighter crowds on top decks.</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 6:00 PM</div>
-                                <h4 class="timeline__title">Formal dinner</h4>
-                                <p class="timeline__description">Main Dining and specialty dress-up windows.</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 8:30 PM</div>
-                                <h4 class="timeline__title">Evening venue block</h4>
-                                <p class="timeline__description">Theater and promenade traffic peaks after dinner seating.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <h3 class="info-card__title"><i class="fas fa-utensils"></i> Logistics</h3>
-                        <ul class="list--checkmarks">
-                            <li>Lock dinner reservation before afternoon events</li>
-                            <li>Plan stateroom change window before dinner</li>
-                            <li>Use deck map for theater-to-dinner route timing</li>
-                        </ul>
-                        <p><a href="dining.html">Dining plan</a> · <a href="decks.html">Venue routing</a></p>
-                    </div>
-                </div>
-
-                <!-- Day 6 -->
-                <div class="itinerary-day" data-day="6" data-day-type="port" style="display: none;">
-                    <div class="itinerary-day__header">
-                        <div>
-                            <h2 class="itinerary-day__title">Day 6 • Thursday, February 19</h2>
-                            <div class="itinerary-day__badges">
-                                <span class="badge badge--primary">Port Day</span>
-                                <span class="badge badge--accent">Perfect Day at CocoCay</span>
-                            </div>
-                        </div>
-                        <div class="itinerary-day__tags">
-                            <span class="tag tag--info">Private island</span>
-                            <span class="tag tag--info">All aboard 4:30 PM</span>
-                        </div>
-                    </div>
-                    <div class="timeline-section">
-                        <h3 class="timeline-section__title">Island Plan</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 7:30 AM</div>
-                                <h4 class="timeline__title">First gangway window</h4>
-                                <p class="timeline__description">Early departure for beach chairs and park lockers.</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 1:00 PM</div>
-                                <h4 class="timeline__title">Peak heat break</h4>
-                                <p class="timeline__description">Hydration and shade window before afternoon activities.</p>
-                            </div>
-                            <div class="timeline-item timeline-item--critical">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 4:30 PM</div>
-                                <h4 class="timeline__title">All-aboard cutoff</h4>
-                                <p class="timeline__description">Return to ship and clear security before departure.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <h3 class="info-card__title"><i class="fas fa-umbrella-beach"></i> Logistics</h3>
-                        <ul class="list--checkmarks">
-                            <li>Waterproof pouch, sunscreen, and towels in day bag</li>
-                            <li>Set return alarm 90 minutes before all aboard</li>
-                            <li>Use contacts page for missed-meeting contingency</li>
-                        </ul>
-                        <p><a href="ports.html">Port spotlight</a> · <a href="contacts.html#ports">Port contacts</a></p>
-                    </div>
-                </div>
-
-                <!-- Day 7 -->
-                <div class="itinerary-day" data-day="7" data-day-type="disembark" style="display: none;">
-                    <div class="itinerary-day__header">
-                        <div>
-                            <h2 class="itinerary-day__title">Day 7 • Friday, February 20</h2>
-                            <div class="itinerary-day__badges">
-                                <span class="badge badge--primary">Disembarkation</span>
-                                <span class="badge badge--accent">Port Canaveral</span>
-                            </div>
-                        </div>
-                        <div class="itinerary-day__tags">
-                            <span class="tag tag--critical">Luggage tags required</span>
-                        </div>
-                    </div>
-                    <div class="timeline-section">
-                        <h3 class="timeline-section__title">Departure Plan</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 7:30 AM</div>
-                                <h4 class="timeline__title">Gangway / departure opens</h4>
-                                <p class="timeline__description">Begin disembarkation with travel docs ready.</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 6:30 AM</div>
-                                <h4 class="timeline__title">Final cabin sweep</h4>
-                                <p class="timeline__description">Check drawers, safe, chargers, and travel docs before leaving stateroom.</p>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline__time"><i class="far fa-clock"></i> 8:30 AM</div>
-                                <h4 class="timeline__title">Transfer departure window</h4>
-                                <p class="timeline__description">Meet pre-booked airport transfer or parking shuttle.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info-card">
-                        <h3 class="info-card__title"><i class="fas fa-suitcase-rolling"></i> Logistics</h3>
-                        <ul class="list--checkmarks">
-                            <li>Place tagged bags out night before by 10:00 PM</li>
-                            <li>Carry meds, valuables, and travel docs personally</li>
-                            <li>Confirm airport transfer and pickup point before leaving ship</li>
-                        </ul>
-                        <p><a href="operations.html">Departure checklist</a> · <a href="contacts.html#backup">Transfer contacts</a></p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Footer Placeholder -->
-    <div id="sharedFooter"></div>
-
-    <div id="itineraryLegendModal" class="rccl-modal" role="dialog" aria-modal="true" aria-labelledby="legendTitle" aria-describedby="legendBody" aria-hidden="true" data-modal>
-        <div class="rccl-modal__content">
-            <div class="rccl-modal__header">
-                <h3 id="legendTitle">Tag Legend</h3>
-                <button type="button" class="header-action" aria-label="Close legend" data-modal-close>
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div id="legendBody" style="padding: 0 24px 24px;">
-                <p style="margin: 0 0 12px; color: var(--royal-ink);">Use this legend when scanning day cards and timeline tags.</p>
-                <ul class="list--checkmarks">
-                    <li><strong>Critical:</strong> hard cutoffs like all-aboard times</li>
-                    <li><strong>Info:</strong> useful context for pacing and movement</li>
-                    <li><strong>Success:</strong> completed or confirmed items only</li>
-                </ul>
-            </div>
-        </div>
+  card.innerHTML=`
+    <div class="day-header">
+      <div class="day-title">
+        <i class="fas ${item.icon}"></i>
+        <h2>Day ${index+1} · ${item.label}</h2>
+      </div>
+      <div class="day-meta">${dayDate.toLocaleDateString()}</div>
     </div>
+    <div class="day-details">${item.desc}</div>
+  `;
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dayButtons = Array.from(document.querySelectorAll('.day-btn'));
-            const daySections = Array.from(document.querySelectorAll('.itinerary-day'));
-            const shareButton = document.getElementById('shareItineraryBtn');
-            const printButton = document.getElementById('printItineraryBtn');
-            const savePdfButton = document.getElementById('savePDFBtn');
-            const calendarButton = document.getElementById('addToCalendarBtn');
-            const emailButton = document.getElementById('emailItineraryBtn');
-            const itineraryStatus = document.getElementById('itineraryStatus');
-            const cruiseModeLine = document.getElementById('cruiseModeLine');
-            let currentDay = 1;
-            let todayDay = '1';
+  card.addEventListener('click',()=>{
+    card.classList.toggle('active');
+  });
 
-            function setStatus(message) {
-                if (itineraryStatus) {
-                    itineraryStatus.textContent = message;
-                }
-            }
+  timeline.appendChild(card);
+});
 
-            function getCruiseDayContext() {
-                const cruiseStart = new Date('2026-02-14T00:00:00');
-                const cruiseEnd = new Date('2026-02-20T23:59:59');
-                const now = new Date();
-                if (now < cruiseStart) {
-                    return { day: 1, label: 'Pre-cruise view: showing Day 1 by default.' };
-                }
-                if (now > cruiseEnd) {
-                    return { day: 7, label: 'Sailing complete: showing Day 7 wrap-up.' };
-                }
-                const diffDays = Math.floor((now - cruiseStart) / (1000 * 60 * 60 * 24)) + 1;
-                const day = Math.max(1, Math.min(7, diffDays));
-                return { day, label: `Current sailing day: Day ${day}.` };
-            }
+/* ---------- Ocean Animation ---------- */
+const canvas=document.getElementById('ocean');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
+resize();window.addEventListener('resize',resize);
 
-            function showDay(day) {
-                const normalizedDay = String(day);
-                daySections.forEach(section => {
-                    const isToday = section.dataset.day === todayDay;
-                    section.setAttribute('data-today', isToday ? 'true' : 'false');
-                    section.classList.toggle('itinerary-day--today', isToday);
-                    if (isToday) {
-                        section.id = 'today-card';
-                    } else if (section.id === 'today-card') {
-                        section.removeAttribute('id');
-                    }
-                    const badgeContainer = section.querySelector('.itinerary-day__badges');
-                    if (badgeContainer) {
-                        const existingTodayBadge = badgeContainer.querySelector('.badge--today');
-                        if (isToday && !existingTodayBadge) {
-                            badgeContainer.insertAdjacentHTML('afterbegin', '<span class="badge badge--today">Today</span>');
-                        } else if (!isToday && existingTodayBadge) {
-                            existingTodayBadge.remove();
-                        }
-                    }
-                    if (section.dataset.day === normalizedDay) {
-                        section.style.display = 'block';
-                        requestAnimationFrame(() => section.classList.add('itinerary-day--visible'));
-                    } else {
-                        section.classList.remove('itinerary-day--visible');
-                        section.style.display = 'none';
-                    }
-                });
+let t=0;
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#071a2c';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-                dayButtons.forEach(btn => btn.classList.remove('day-btn--active'));
-                dayButtons.forEach(btn => {
-                    const isTodayButton = btn.dataset.day === todayDay;
-                    btn.classList.toggle('day-btn--today', isTodayButton);
-                    if (isTodayButton) {
-                        btn.setAttribute('aria-label', `Day ${btn.dataset.day} (Today)`);
-                    } else {
-                        btn.setAttribute('aria-label', `Day ${btn.dataset.day}`);
-                    }
-                });
-                document.querySelector(`.day-btn[data-day="${normalizedDay}"]`)?.classList.add('day-btn--active');
-                currentDay = Number(day);
-            }
+  ctx.beginPath();
+  for(let x=0;x<canvas.width;x++){
+    let y=Math.sin(x*.01+t)*20+canvas.height/2;
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(canvas.width,canvas.height);
+  ctx.lineTo(0,canvas.height);
+  ctx.closePath();
+  ctx.fillStyle='rgba(0,180,230,.1)';
+  ctx.fill();
 
-            function scrollToDay(day, behavior = 'smooth') {
-                const target = document.querySelector(`.itinerary-day[data-day="${String(day)}"]`);
-                if (!target) return;
-                target.scrollIntoView({ behavior, block: 'start' });
-            }
+  t+=0.01;
+  requestAnimationFrame(draw);
+}
+draw();
 
-            function pulseTodayTarget() {
-                const target = document.getElementById('today-card') || document.querySelector('.itinerary-day[data-today="true"]');
-                if (!target) return;
-                target.classList.remove('itinerary-day--today-pulse');
-                window.requestAnimationFrame(() => {
-                    target.classList.add('itinerary-day--today-pulse');
-                });
-                window.setTimeout(() => {
-                    target.classList.remove('itinerary-day--today-pulse');
-                }, 1250);
-            }
+})();
+</script>
 
-            dayButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const nextDay = Number(this.dataset.day);
-                    if (!Number.isNaN(nextDay)) {
-                        showDay(nextDay);
-                        setStatus(`Viewing Day ${nextDay}.`);
-                    }
-                });
-            });
-
-            if (shareButton) {
-                shareButton.addEventListener('click', async () => {
-                    if (navigator.share) {
-                        try {
-                            await navigator.share({
-                                title: 'Royal Caribbean Itinerary',
-                                text: 'Check out our cruise itinerary.',
-                                url: window.location.href
-                            });
-                            setStatus('Shared successfully.');
-                        } catch (err) {
-                            setStatus('Share cancelled.');
-                        }
-                    } else {
-                        navigator.clipboard.writeText(window.location.href)
-                            .then(() => setStatus('Link copied to clipboard.'))
-                            .catch(() => setStatus('Unable to copy link.'));
-                    }
-                });
-            }
-
-            if (printButton) {
-                printButton.addEventListener('click', () => {
-                    window.print();
-                });
-            }
-
-            if (savePdfButton) {
-                savePdfButton.addEventListener('click', () => {
-                    window.print();
-                });
-            }
-
-            if (calendarButton) {
-                calendarButton.addEventListener('click', () => {
-                    setStatus('Add to calendar is coming next.');
-                });
-            }
-
-            if (emailButton) {
-                emailButton.addEventListener('click', () => {
-                    window.location.href = `mailto:?subject=${encodeURIComponent('Cruise Itinerary')}&body=${encodeURIComponent(window.location.href)}`;
-                });
-            }
-
-            // Time-of-day tint bias: cooler at night, warmer during the day
-            (function applyTintBias() {
-                const hour = new Date().getHours(); // local time
-                // Map hours to a bias in the range [-0.10, +0.10]
-                // Night (20:00–6:59) -> -8% to -10% (cooler)
-                // Day (10:00–16:59) -> +6% to +10% (warmer)
-                // Shoulder hours ease between
-                let bias = 0; // default 0%
-                if (hour >= 20 || hour < 7) {
-                    // night window
-                    // 20->-0.08 trending to 2am -0.10 then back to 6am -0.08
-                    const nightProgress = hour >= 20 ? (hour - 20) / 10 : (hour + 4) / 10; // 0..1
-                    const down = -0.08 - 0.02 * Math.sin(nightProgress * Math.PI); // -0.08..-0.10..-0.08
-                    bias = down;
-                } else if (hour >= 10 && hour < 17) {
-                    // day peak
-                    const dayProgress = (hour - 10) / 7; // 0..1
-                    const up = 0.06 + 0.04 * Math.sin(dayProgress * Math.PI); // 0.06..0.10..0.06
-                    bias = up;
-                } else if (hour >= 7 && hour < 10) {
-                    // morning ramp 7..10 -> -0.02..+0.06
-                    const t = (hour - 7) / 3;
-                    bias = -0.02 + t * (0.06 + 0.02);
-                } else {
-                    // evening ramp 17..20 -> +0.06..-0.02
-                    const t = (hour - 17) / 3;
-                    bias = 0.06 + ( -0.02 - 0.06) * t;
-                }
-                // Clamp for safety to [-0.10, 0.10]
-                bias = Math.max(-0.10, Math.min(0.10, bias));
-                // Set CSS variable as percentage string for color-mix weights
-                const percent = Math.round(bias * 100);
-                document.documentElement.style.setProperty('--tint-bias', percent + '%');
-                // Optional: expose a data attribute for inspection
-                document.documentElement.setAttribute('data-tint-period',
-                    percent < 0 ? 'cool' : percent > 0 ? 'warm' : 'neutral'
-                );
-            })();
-
-            const context = getCruiseDayContext();
-            todayDay = String(context.day);
-            showDay(context.day);
-            setStatus(context.label);
-            if (cruiseModeLine) {
-                if (context.day <= 1) {
-                    cruiseModeLine.textContent = 'Embark day is close. Keep timing simple and stress-free.';
-                } else if (context.day >= 7) {
-                    cruiseModeLine.textContent = 'Final day flow. Keep transfers and documents ready.';
-                } else {
-                    cruiseModeLine.textContent = `Sea/port rhythm for Day ${context.day}. Relaxed pace, clear timing.`;
-                }
-            }
-
-            if (window.location.hash === '#today') {
-                window.setTimeout(() => {
-                    scrollToDay(context.day, 'smooth');
-                    pulseTodayTarget();
-                }, 120);
-            }
-
-            window.addEventListener('hashchange', () => {
-                if (window.location.hash !== '#today') return;
-                scrollToDay(context.day, 'smooth');
-                pulseTodayTarget();
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft' && currentDay > 1) {
-                    showDay(currentDay - 1);
-                } else if (e.key === 'ArrowRight' && currentDay < 7) {
-                    showDay(currentDay + 1);
-                } else {
-                    return;
-                }
-                setStatus(`Viewing Day ${currentDay}.`);
-            });
-        });
-    </script>
 </body>
 </html>
