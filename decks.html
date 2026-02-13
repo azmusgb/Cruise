@@ -12,28 +12,15 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
-/* =========================================================
-   DECK EXPLORER (PRODUCTION-SAFE, SVG-BASED)
-   - Loads local SVG files from ./decks/
-   - Stable pan/zoom (mouse + touch + pinch)
-   - iPhone safe-area aware
-   - GitHub Pages friendly relative paths
-   ========================================================= */
-
 :root{
-  --navy:#0a2e4a;
   --bg:#071a2c;
-  --accent:#00b4e6;
-  --gold:#ffd740;
-
-  --glass: rgba(255,255,255,.085);
+  --navy:#0a2e4a;
+  --glass: rgba(255,255,255,.08);
   --glass2: rgba(255,255,255,.12);
   --brd: rgba(255,255,255,.16);
-
-  --shadow: 0 18px 70px rgba(0,0,0,.35);
-  --shadow2: 0 10px 40px rgba(0,0,0,.30);
-
-  --r: 24px;
+  --accent:#00b4e6;
+  --gold:#ffd740;
+  --r: 22px;
   --ease: cubic-bezier(.22,.61,.36,1);
 }
 
@@ -47,52 +34,58 @@ body{
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
 }
-a{color:inherit;text-decoration:none}
 button,input{font:inherit}
+a{color:inherit;text-decoration:none}
 :focus-visible{outline:3px solid rgba(0,180,230,.55);outline-offset:3px;border-radius:14px}
 
 #ocean{position:fixed;inset:0;z-index:-3}
 .sky{
   position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:
-    radial-gradient(ellipse at 50% 18%, rgba(0,180,230,.16), transparent 60%),
-    radial-gradient(ellipse at 18% 86%, rgba(255,215,64,.10), transparent 55%),
-    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.66));
+    radial-gradient(ellipse at 50% 18%, rgba(0,180,230,.14), transparent 60%),
+    radial-gradient(ellipse at 20% 88%, rgba(255,215,64,.10), transparent 55%),
+    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.68));
 }
 .vignette{
   position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
-    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.06), transparent 62%),
-    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.40), transparent 65%);
+    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.05), transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.45), transparent 65%);
 }
 
-/* ---------- Header ---------- */
+/* Header (mobile-first, compact) */
 header{
-  position:fixed;top:0;left:0;right:0;
+  position:fixed;left:0;right:0;top:0;
   z-index:1000;
-  background:rgba(10,46,74,.68);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid rgba(255,255,255,.10);
   padding-top: env(safe-area-inset-top);
+  background:rgba(10,46,74,.68);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.10);
 }
 .header-inner{
-  height:66px;
+  height:56px;
   max-width:1400px;
   margin:0 auto;
-  padding:0 1rem;
+  padding:0 .85rem;
   display:flex;
   align-items:center;
-  gap:.8rem;
+  gap:.6rem;
 }
-.titlewrap{display:flex;flex-direction:column;line-height:1.05}
-.title{
+.brand{
+  display:flex;
+  flex-direction:column;
+  line-height:1.05;
+  min-width: 110px;
+}
+.brand .t{
   font-family:'Plus Jakarta Sans',sans-serif;
   font-weight:950;
   letter-spacing:.01em;
+  font-size:.98rem;
 }
-.sub{
-  font-size:.74rem;
+.brand .s{
+  font-size:.70rem;
   opacity:.62;
   font-weight:850;
 }
@@ -101,8 +94,8 @@ header{
 .pill{
   display:inline-flex;
   align-items:center;
-  gap:.55rem;
-  padding:.42rem .85rem;
+  gap:.5rem;
+  padding:.44rem .78rem;
   border-radius:999px;
   background:rgba(255,255,255,.10);
   border:1px solid rgba(255,255,255,.16);
@@ -113,151 +106,56 @@ header{
 .pill i{color:var(--gold)}
 
 .search{
-  width:min(280px, 44vw);
-  padding:.52rem .9rem;
+  width:min(52vw, 320px);
+  padding:.48rem .82rem;
   border-radius:999px;
   border:1px solid rgba(255,255,255,.18);
   background:rgba(255,255,255,.10);
   color:rgba(255,255,255,.95);
-  font-weight:800;
+  font-weight:850;
 }
-.search::placeholder{color:rgba(255,255,255,.55)}
-
+.search::placeholder{color:rgba(255,255,255,.52)}
 .btn{
-  display:inline-flex;align-items:center;gap:.55rem;
-  padding:.52rem .92rem;border-radius:999px;
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:.48rem .78rem;
+  border-radius:999px;
   border:1px solid rgba(255,255,255,.16);
   background:rgba(255,255,255,.10);
   color:rgba(255,255,255,.92);
-  font-weight:900;font-size:.78rem;
-  transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
-  user-select:none;
+  font-weight:900;
+  font-size:.78rem;
 }
-.btn:hover{background:rgba(255,255,255,.14);border-color:rgba(0,180,230,.28)}
-.btn:active{transform:translateY(1px)}
 .btn i{color:var(--gold)}
 
-/* ---------- App Layout ---------- */
-.app{
+/* Main layout: immersive viewer */
+.main{
   position:absolute;
   left:0;right:0;
-  top: calc(66px + env(safe-area-inset-top));
-  bottom: calc(74px + env(safe-area-inset-bottom));
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem;
-  display:grid;
-  grid-template-columns: 330px 1fr;
-  gap: 1rem;
+  top: calc(56px + env(safe-area-inset-top));
+  bottom: calc(78px + env(safe-area-inset-bottom));
+  padding:.8rem;
+  max-width:1400px;
+  margin:0 auto;
 }
-@media (max-width: 980px){
-  .app{
-    grid-template-columns: 1fr;
-    padding: .8rem;
-    gap: .8rem;
-  }
-}
-
-.panel{
-  background:var(--glass);
-  border:1px solid var(--brd);
-  border-radius:var(--r);
-  box-shadow:var(--shadow2);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  overflow:hidden;
-}
-.panel .head{
-  padding:1rem 1rem .85rem;
-  border-bottom:1px solid rgba(255,255,255,.10);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:.8rem;
-}
-.panel .head h2{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-weight:950;
-  font-size:1.0rem;
-}
-.panel .body{padding: .95rem 1rem 1rem}
-.hint{
-  font-size:.82rem;
-  opacity:.74;
-  line-height:1.45;
-  font-weight:700;
-}
-.kbd{
-  margin-top:.55rem;
-  display:flex;
-  flex-wrap:wrap;
-  gap:.35rem;
-}
-.kbd span{
-  padding:.18rem .5rem;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.12);
-  font-size:.74rem;
-  font-weight:900;
-  opacity:.9;
-}
-
-/* Deck buttons */
-.deck-grid{
-  margin-top:.9rem;
-  display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap:.5rem;
-}
-@media (max-width: 980px){
-  .deck-grid{grid-template-columns: repeat(6, 1fr)}
-}
-@media (max-width: 560px){
-  .deck-grid{grid-template-columns: repeat(5, 1fr)}
-}
-.deckbtn{
-  padding:.58rem 0;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.08);
-  color:rgba(255,255,255,.92);
-  font-weight:950;
-  font-size:.78rem;
-  cursor:pointer;
-  transition: transform .15s var(--ease), background .15s var(--ease), border-color .15s var(--ease);
-}
-.deckbtn:hover{transform:translateY(-1px);background:rgba(255,255,255,.12);border-color:rgba(0,180,230,.26)}
-.deckbtn.active{
-  background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
-  color: rgba(8,28,46,.96);
-  border-color: rgba(255,255,255,.18);
-}
-
-/* Viewer */
 .viewer{
   position:relative;
-  min-height: 520px;
+  height:100%;
+  border-radius:var(--r);
   background:rgba(0,0,0,.14);
   border:1px solid rgba(255,255,255,.14);
-  border-radius:var(--r);
-  box-shadow:var(--shadow);
+  box-shadow: 0 18px 70px rgba(0,0,0,.35);
   overflow:hidden;
-  touch-action:none; /* important for pan/pinch */
-}
-@media (max-width: 980px){
-  .viewer{min-height: 56vh}
+  touch-action:none;
 }
 
+/* Floating HUD */
 .hud{
-  position:absolute;
-  top:12px; right:12px;
-  display:flex;
-  gap:.5rem;
+  position:absolute; top:12px; right:12px;
+  display:flex; gap:.55rem;
   z-index:50;
 }
-.hud .hudbtn{
-  width:42px;height:42px;
+.hudbtn{
+  width:44px;height:44px;
   border-radius:16px;
   border:1px solid rgba(255,255,255,.16);
   background:rgba(10,46,74,.62);
@@ -265,131 +163,185 @@ header{
   -webkit-backdrop-filter: blur(10px);
   display:grid;place-items:center;
   cursor:pointer;
-  transition: transform .15s var(--ease), background .15s var(--ease), border-color .15s var(--ease);
 }
-.hud .hudbtn:hover{transform:translateY(-1px);background:rgba(255,255,255,.12);border-color:rgba(0,180,230,.26)}
-.hud i{color:var(--gold)}
+.hudbtn i{color:var(--gold); font-size:1.05rem}
 
+/* Stage & SVG */
 .stage{
-  position:absolute;
-  left:0;top:0;right:0;bottom:0;
+  position:absolute; inset:0;
   overflow:hidden;
 }
 .svgwrap{
-  position:absolute;
-  left:0;top:0;
+  position:absolute; left:0; top:0;
   transform-origin: 0 0;
   will-change: transform;
 }
 .svgwrap svg{
   display:block;
-  max-width:none; /* allow true scaling */
-  height:auto;
+  max-width:none;
   user-select:none;
   -webkit-user-drag:none;
 }
 
-.loading{
-  position:absolute;
-  inset:0;
-  display:flex;
+/* Fallback image render */
+.fallback{
+  position:absolute; inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.06);
+}
+.fallback img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+
+/* Loader + Error */
+.overlay{
+  position:absolute; inset:0;
+  display:none;
   align-items:center;
   justify-content:center;
   flex-direction:column;
-  gap:.6rem;
-  color:rgba(255,255,255,.92);
-  font-weight:900;
-  background:rgba(0,0,0,.16);
+  gap:.65rem;
+  background:rgba(0,0,0,.18);
+  z-index:40;
 }
-.loading .spin{
-  width:28px;height:28px;
-  border-radius:999px;
+.overlay.on{display:flex}
+.spinner{
+  width:30px;height:30px;border-radius:999px;
   border:3px solid rgba(255,255,255,.20);
   border-top-color: rgba(0,180,230,.95);
-  animation: spin 1.0s linear infinite;
+  animation: spin 1s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-
-.error{
-  position:absolute;
-  inset:0;
-  padding:1.1rem;
-  display:flex;
-  flex-direction:column;
-  gap:.7rem;
-  background:rgba(0,0,0,.18);
+.overlay .msg{
+  font-weight:950;
+  opacity:.92;
 }
-.error h3{
+.error{
+  position:absolute; inset:0;
+  display:none;
+  padding:1rem;
+  z-index:60;
+  background:rgba(0,0,0,.24);
+}
+.error.on{display:block}
+.error-card{
+  background:rgba(10,46,74,.78);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:18px;
+  padding:1rem;
+  box-shadow: 0 18px 70px rgba(0,0,0,.45);
+}
+.error-card h3{
   font-family:'Plus Jakarta Sans',sans-serif;
   font-weight:950;
   font-size:1.05rem;
+  margin-bottom:.35rem;
 }
-.error .small{
-  opacity:.78;
+.error-card .small{
+  opacity:.82;
   font-weight:750;
   line-height:1.45;
   font-size:.88rem;
 }
-code{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size:.86em;
-  opacity:.95;
+.error-card code{
+  display:block;
+  margin:.55rem 0;
+  padding:.55rem .65rem;
+  border-radius:12px;
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.12);
+  overflow:auto;
 }
 
-/* Highlight style */
-.rc-hit{
-  filter: drop-shadow(0 0 10px rgba(255,215,64,.85));
-}
-.rc-overlay{pointer-events:none}
+/* Highlight overlay */
+.rc-hit{ filter: drop-shadow(0 0 10px rgba(255,215,64,.85)); }
+.rc-overlay{ pointer-events:none; }
 
-/* ---------- Footer ---------- */
+/* Bottom deck rail */
 footer{
-  position:fixed;left:0;right:0;bottom:0;
+  position:fixed; left:0; right:0; bottom:0;
   z-index:1000;
-  background:rgba(10,46,74,.68);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  border-top:1px solid rgba(255,255,255,.10);
   padding-bottom: env(safe-area-inset-bottom);
+  background:rgba(10,46,74,.68);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top:1px solid rgba(255,255,255,.10);
 }
-.footer-inner{
-  height:74px;
+.foot-inner{
+  height:78px;
   max-width:1400px;
   margin:0 auto;
-  padding:0 1rem;
+  padding:0 .85rem;
   display:flex;
   align-items:center;
-  gap:.8rem;
+  gap:.75rem;
 }
 .status{
-  display:flex;align-items:center;gap:.55rem;
-  font-weight:900;
-  font-size:.80rem;
-  opacity:.88;
+  display:flex;align-items:center;gap:.5rem;
+  font-weight:900;font-size:.78rem;
+  opacity:.86;
+  min-width: 96px;
 }
 .dot{
-  width:10px;height:10px;border-radius:999px;
+  width:9px;height:9px;border-radius:999px;
   background: rgba(0,180,230,.95);
   box-shadow: 0 0 0 0 rgba(0,180,230,.35);
   animation: pulse 1.3s ease-out infinite;
 }
 @keyframes pulse{
   0%{box-shadow:0 0 0 0 rgba(0,180,230,.35)}
-  100%{box-shadow:0 0 0 16px rgba(0,180,230,0)}
+  100%{box-shadow:0 0 0 14px rgba(0,180,230,0)}
+}
+.deckrail{
+  flex:1;
+  display:flex;
+  gap:.45rem;
+  overflow:auto;
+  padding:.35rem .15rem;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.deckrail::-webkit-scrollbar{display:none}
+.deckchip{
+  flex:0 0 auto;
+  scroll-snap-align:center;
+  padding:.52rem .85rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.92);
+  font-weight:950;
+  font-size:.78rem;
+  cursor:pointer;
+}
+.deckchip.active{
+  background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
+  color: rgba(8,28,46,.96);
+  border-color: rgba(255,255,255,.18);
+}
+.footerbtn{
+  flex:0 0 auto;
 }
 
+/* Toast */
 .toast{
   position:fixed;
   left:50%;
-  bottom: calc(92px + env(safe-area-inset-bottom));
   transform:translateX(-50%);
+  bottom: calc(96px + env(safe-area-inset-bottom));
   z-index:2000;
   background:rgba(10,46,74,.88);
   border:1px solid rgba(255,255,255,.14);
-  padding:.65rem .9rem;
+  padding:.62rem .85rem;
   border-radius:16px;
   box-shadow:0 18px 70px rgba(0,0,0,.45);
-  font-weight:900;
+  font-weight:950;
   font-size:.82rem;
   opacity:0;
   pointer-events:none;
@@ -401,7 +353,7 @@ footer{
 }
 
 @media (prefers-reduced-motion: reduce){
-  *{animation:none !important;transition:none !important}
+  *{animation:none !important; transition:none !important}
 }
 </style>
 </head>
@@ -413,84 +365,52 @@ footer{
 
 <header>
   <div class="header-inner">
-    <div class="titlewrap">
-      <div class="title">Deck Explorer</div>
-      <div class="sub">Real deck plans · smooth zoom & pan · cabin search</div>
+    <div class="brand">
+      <div class="t">Deck Explorer</div>
+      <div class="s">Zoom · pan · cabin search</div>
     </div>
 
     <div class="spacer"></div>
 
-    <span class="pill" id="pillDeck" title="Current deck">
-      <i class="fas fa-layer-group" aria-hidden="true"></i>
-      <span>Deck 06</span>
-    </span>
-
+    <span class="pill" id="pillDeck"><i class="fas fa-layer-group"></i><span>Deck 06</span></span>
     <input class="search" id="roomSearch" inputmode="numeric" autocomplete="off" spellcheck="false"
-           placeholder="Find cabin # (e.g. 6650)" aria-label="Find cabin number" />
-
-    <a class="btn" href="index.html" aria-label="Back to dashboard">
-      <i class="fas fa-arrow-left" aria-hidden="true"></i> Dashboard
-    </a>
+           placeholder="Find cabin # (e.g. 6650)" aria-label="Find cabin number">
+    <a class="btn" href="index.html" aria-label="Back to dashboard"><i class="fas fa-arrow-left"></i><span class="hide-sm">Dashboard</span></a>
   </div>
 </header>
 
-<div class="app">
-  <section class="panel" aria-label="Deck controls">
-    <div class="head">
-      <h2>Choose a deck</h2>
-      <span class="pill" title="Tips">
-        <i class="fas fa-hand-pointer" aria-hidden="true"></i>
-        Tap
-      </span>
-    </div>
-
-    <div class="body">
-      <div class="hint">
-        This page loads your SVG deck plans from <strong>./decks/</strong>.
-        If you only see big text like “Deck 6”, you’re on the wrong file/version.
-      </div>
-      <div class="kbd" aria-hidden="true">
-        <span>Wheel: zoom</span><span>Drag: pan</span><span>Pinch: zoom</span><span>Double-tap: reset</span>
-      </div>
-
-      <div class="deck-grid" id="deckGrid" aria-label="Deck buttons"></div>
-
-      <div class="hint" style="margin-top:1rem">
-        <strong>Quick highlight:</strong> tap <em>Find family cabins</em> to auto-detect and zoom to known rooms.
-      </div>
-    </div>
-  </section>
-
+<main class="main">
   <section class="viewer" aria-label="Deck plan viewer">
     <div class="hud" aria-label="Viewer controls">
-      <button class="hudbtn" id="btnZoomIn" title="Zoom in" aria-label="Zoom in"><i class="fas fa-plus" aria-hidden="true"></i></button>
-      <button class="hudbtn" id="btnZoomOut" title="Zoom out" aria-label="Zoom out"><i class="fas fa-minus" aria-hidden="true"></i></button>
-      <button class="hudbtn" id="btnReset" title="Reset view" aria-label="Reset view"><i class="fas fa-crosshairs" aria-hidden="true"></i></button>
+      <button class="hudbtn" id="btnZoomIn" title="Zoom in" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
+      <button class="hudbtn" id="btnZoomOut" title="Zoom out" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
+      <button class="hudbtn" id="btnReset" title="Fit to view" aria-label="Fit to view"><i class="fas fa-crosshairs"></i></button>
     </div>
 
     <div class="stage" id="stage">
       <div class="svgwrap" id="svgWrap" aria-label="SVG deck content"></div>
-      <div class="loading" id="loading" hidden>
-        <div class="spin" aria-hidden="true"></div>
-        <div>Loading deck…</div>
+
+      <div class="fallback" id="fallback" aria-label="Fallback deck image">
+        <img id="fallbackImg" alt="Deck plan (fallback)">
       </div>
-      <div class="error" id="error" hidden></div>
+
+      <div class="overlay" id="loading">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="msg" id="loadingMsg">Loading deck…</div>
+      </div>
+
+      <div class="error" id="error">
+        <div class="error-card" id="errorCard"></div>
+      </div>
     </div>
   </section>
-</div>
+</main>
 
 <footer>
-  <div class="footer-inner">
-    <div class="status" id="status">
-      <span class="dot" aria-hidden="true"></span>
-      <span>Ready</span>
-    </div>
-
-    <div class="spacer"></div>
-
-    <button class="btn" id="btnFamily" type="button" aria-label="Find family cabins on this deck">
-      <i class="fas fa-star" aria-hidden="true"></i> Find family cabins
-    </button>
+  <div class="foot-inner">
+    <div class="status" id="status"><span class="dot"></span><span>Ready</span></div>
+    <div class="deckrail" id="deckRail" aria-label="Deck selector"></div>
+    <button class="btn footerbtn" id="btnFamily" type="button"><i class="fas fa-star"></i>Family</button>
   </div>
 </footer>
 
@@ -500,71 +420,56 @@ footer{
 (() => {
   'use strict';
 
-  /* =========================================================
-     IMPORTANT: GitHub Pages + relative paths
-     =========================================================
-     This file uses RELATIVE asset paths like:
-       ./decks/deck-06-final.min.svg
-     That works both on:
-       - local dev
-       - GitHub Pages under a repo subpath
-     as long as decks.html sits next to the /decks folder.
-  */
-
   /* =========================
-     Assets
+     Deck SVG filenames
      ========================= */
-  const DECKS = [
-    { n: 2, file: './decks/deck-02-final.min.svg' },
-    { n: 3, file: './decks/deck-03-final.min.svg' },
-    { n: 4, file: './decks/deck-04-final.min.svg' },
-    { n: 5, file: './decks/deck-05-final.min.svg' },
-    { n: 6, file: './decks/deck-06-final.min.svg' },
-    { n: 7, file: './decks/deck-07-final.min.svg' },
-    { n: 8, file: './decks/deck-08-final.min.svg' },
-    { n: 9, file: './decks/deck-09-final.min.svg' },
-    { n: 10, file: './decks/deck-10-final.min.svg' },
-    { n: 11, file: './decks/deck-11-final.min.svg' },
-    { n: 12, file: './decks/deck-12-final.min.svg' },
-    { n: 13, file: './decks/deck-13-final.min.svg' },
-    { n: 14, file: './decks/deck-14-final.min.svg' },
-    { n: 15, file: './decks/deck-15-final.min.svg' },
-  ];
+  const DECKS = [2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => ({
+    n,
+    file: `deck-${String(n).padStart(2,'0')}-final.min.svg`
+  }));
 
-  // Known cabins (can add more anytime)
-  const FAMILY_CABINS = ['6650', '8528', '8612', '8370', '3622'];
+  // Known cabins (you can extend)
+  const FAMILY_CABINS = ['6650','8528','8612','8370','3622'];
 
   const STORAGE = {
-    deck: 'rccl.decks.activeDeck.v3',
-    zoom: 'rccl.decks.zoom.v3',
-    tx: 'rccl.decks.tx.v3',
-    ty: 'rccl.decks.ty.v3'
+    deck: 'rccl.decks.activeDeck.v4',
+    zoom: 'rccl.decks.zoom.v4',
+    tx:   'rccl.decks.tx.v4',
+    ty:   'rccl.decks.ty.v4',
+    base: 'rccl.decks.basePath.v4'
   };
 
   /* =========================
      DOM
      ========================= */
-  const deckGrid = document.getElementById('deckGrid');
-  const svgWrap = document.getElementById('svgWrap');
   const stage = document.getElementById('stage');
+  const svgWrap = document.getElementById('svgWrap');
+  const fallback = document.getElementById('fallback');
+  const fallbackImg = document.getElementById('fallbackImg');
 
-  const roomSearch = document.getElementById('roomSearch');
   const pillDeck = document.getElementById('pillDeck');
+  const roomSearch = document.getElementById('roomSearch');
   const status = document.getElementById('status');
-  const toast = document.getElementById('toast');
 
-  const loadingEl = document.getElementById('loading');
-  const errorEl = document.getElementById('error');
+  const deckRail = document.getElementById('deckRail');
 
   const btnZoomIn = document.getElementById('btnZoomIn');
   const btnZoomOut = document.getElementById('btnZoomOut');
   const btnReset = document.getElementById('btnReset');
   const btnFamily = document.getElementById('btnFamily');
 
+  const loading = document.getElementById('loading');
+  const loadingMsg = document.getElementById('loadingMsg');
+
+  const error = document.getElementById('error');
+  const errorCard = document.getElementById('errorCard');
+
+  const toast = document.getElementById('toast');
   const ocean = document.getElementById('ocean');
 
-  if (!deckGrid || !svgWrap || !stage || !roomSearch || !pillDeck || !status || !toast ||
-      !loadingEl || !errorEl || !btnZoomIn || !btnZoomOut || !btnReset || !btnFamily || !ocean) {
+  if (!stage || !svgWrap || !fallback || !fallbackImg || !pillDeck || !roomSearch || !status ||
+      !deckRail || !btnZoomIn || !btnZoomOut || !btnReset || !btnFamily ||
+      !loading || !loadingMsg || !error || !errorCard || !toast || !ocean) {
     console.error('[decks] Missing required DOM elements.');
     return;
   }
@@ -572,33 +477,55 @@ footer{
   /* =========================
      Helpers
      ========================= */
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-  const pad2 = (n) => String(n).padStart(2, '0');
-  const safeDigits = (s) => String(s || '').replace(/[^\d]/g, '');
+  const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
+  const pad2  = (n) => String(n).padStart(2,'0');
+  const digits = (s) => String(s||'').replace(/[^\d]/g,'');
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
   let toastTimer = 0;
+  function showToast(msg){
+    toast.textContent = String(msg||'');
+    toast.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('on'), 1400);
+  }
   function setStatus(text){
     const span = status.querySelector('span:last-child');
-    if (span) span.textContent = String(text || '');
+    if (span) span.textContent = String(text||'');
   }
-  function showToast(msg){
-    toast.textContent = String(msg || '');
-    toast.classList.add('on');
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toast.classList.remove('on'), 1400);
+  function showLoading(on, msg){
+    loading.classList.toggle('on', !!on);
+    if (msg) loadingMsg.textContent = msg;
+  }
+  function showError(html){
+    error.classList.add('on');
+    errorCard.innerHTML = html;
+  }
+  function hideError(){
+    error.classList.remove('on');
+    errorCard.innerHTML = '';
   }
 
-  function setLoading(on){
-    loadingEl.hidden = !on;
-  }
-  function setError(html){
-    errorEl.hidden = false;
-    errorEl.innerHTML = html;
-  }
-  function clearError(){
-    errorEl.hidden = true;
-    errorEl.innerHTML = '';
-  }
+  /* =========================
+     State (pan/zoom)
+     ========================= */
+  let activeDeck = Number(localStorage.getItem(STORAGE.deck) || 6);
+  if (!Number.isFinite(activeDeck)) activeDeck = 6;
+
+  let zoom = Number(localStorage.getItem(STORAGE.zoom) || 1);
+  let tx   = Number(localStorage.getItem(STORAGE.tx)   || 0);
+  let ty   = Number(localStorage.getItem(STORAGE.ty)   || 0);
+
+  zoom = clamp(zoom, 0.35, 5);
+
+  let currentSVG = null;      // inline SVG ref (for highlight/search)
+  let usingFallbackImg = false;
+
+  const pointers = new Map();
+  let isDragging = false;
+  let lastPan = {x:0,y:0};
+  let pinchStart = null;
 
   function persistView(){
     try{
@@ -609,48 +536,109 @@ footer{
     }catch{}
   }
 
-  /* =========================
-     State
-     ========================= */
-  let activeDeck = Number(localStorage.getItem(STORAGE.deck) || 6);
-  if (!Number.isFinite(activeDeck)) activeDeck = 6;
-
-  let zoom = Number(localStorage.getItem(STORAGE.zoom) || 1);
-  let tx = Number(localStorage.getItem(STORAGE.tx) || 0);
-  let ty = Number(localStorage.getItem(STORAGE.ty) || 0);
-
-  zoom = clamp(zoom, 0.35, 5);
-
-  // Pointer tracking for pan/pinch
-  const pointers = new Map(); // id -> {x,y}
-  let isDragging = false;
-  let lastPan = { x: 0, y: 0 };
-  let pinchStart = null; // {dist, zoom, centerX, centerY}
-
-  // Loaded SVG ref
-  let currentSVG = null;
-
   function applyTransform(){
     svgWrap.style.transform = `translate(${tx}px, ${ty}px) scale(${zoom})`;
     persistView();
   }
 
-  function resetView({fit=false} = {}){
-    if (fit) {
-      fitToViewport();
-      showToast('Fit to view');
-      return;
+  /* =========================
+     Base path auto-discovery
+     ========================= */
+  function baseCandidates(){
+    // Try previously working base first
+    const savedBase = localStorage.getItem(STORAGE.base);
+    const list = [];
+
+    if (savedBase) list.push(savedBase);
+
+    // Common layouts:
+    // - decks.html next to /decks/
+    // - decks.html in /docs/ next to /docs/decks/
+    // - decks.html in /pages/ next to /pages/decks/
+    // - global /decks/
+    // - assets/decks/
+    list.push('./decks/');
+    list.push('../decks/');
+    list.push('../../decks/');
+    list.push('../../../decks/');
+    list.push('/decks/');
+
+    list.push('./assets/decks/');
+    list.push('../assets/decks/');
+    list.push('../../assets/decks/');
+    list.push('/assets/decks/');
+
+    // De-dupe while preserving order
+    const seen = new Set();
+    return list.filter(p => (p && !seen.has(p) && seen.add(p)));
+  }
+
+  async function fetchText(url){
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.text();
+  }
+
+  async function tryResolveDeckUrl(deckFile){
+    // Build absolute URL candidates from baseCandidates()
+    const bases = baseCandidates();
+    const tried = [];
+
+    for (const base of bases){
+      const u = new URL(base + deckFile, window.location.href).toString();
+      tried.push(u);
+      try{
+        // Cheap probe: try GET (GitHub Pages supports it; HEAD sometimes is quirky)
+        // Also avoid huge wait on slow networks by short delay between attempts.
+        const text = await fetchText(u);
+        return { ok:true, url:u, text, tried };
+      }catch(e){
+        // continue
+        await sleep(10);
+      }
     }
-    zoom = 1;
-    tx = 0;
-    ty = 0;
-    applyTransform();
-    showToast('View reset');
+    return { ok:false, tried };
   }
 
   /* =========================
-     SVG overlay / highlight
+     SVG handling (inline + fallback img)
      ========================= */
+  function clearSvg(){
+    svgWrap.innerHTML = '';
+    currentSVG = null;
+    usingFallbackImg = false;
+    fallback.style.display = 'none';
+  }
+
+  function ensureViewBox(svg){
+    if (!svg.getAttribute('viewBox')){
+      const w = parseFloat(svg.getAttribute('width') || '0');
+      const h = parseFloat(svg.getAttribute('height') || '0');
+      if (w > 0 && h > 0) svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    }
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  }
+
+  function fitToViewport(){
+    if (!currentSVG) return;
+
+    const vb = currentSVG.viewBox && currentSVG.viewBox.baseVal;
+    const vbW = (vb && vb.width) ? vb.width : 1200;
+    const vbH = (vb && vb.height)? vb.height: 700;
+
+    const rect = stage.getBoundingClientRect();
+    const availW = Math.max(320, rect.width - 28);
+    const availH = Math.max(320, rect.height - 28);
+
+    const s = Math.min(availW / vbW, availH / vbH);
+    zoom = clamp(s, 0.35, 2.8);
+
+    tx = (rect.width/2) - (vbW/2) * zoom;
+    ty = (rect.height/2) - (vbH/2) * zoom;
+
+    applyTransform();
+  }
+
   function removeOverlay(svg){
     if (!svg) return;
     const old = svg.querySelector('#rc-room-overlay');
@@ -670,21 +658,17 @@ footer{
   }
 
   function findRoomElements(svg, roomNumber){
-    const q = safeDigits(roomNumber);
+    const q = digits(roomNumber);
     if (!q) return [];
 
     const hits = [];
-    // ID matches
     svg.querySelectorAll(`[id*="${CSS.escape(q)}"]`).forEach(el => hits.push(el));
-    // aria / data
     svg.querySelectorAll(`[aria-label*="${CSS.escape(q)}"], [data-room*="${CSS.escape(q)}"]`).forEach(el => hits.push(el));
-    // text nodes match
     svg.querySelectorAll('text, tspan').forEach(el => {
       const t = (el.textContent || '').trim();
       if (t === q) hits.push(el);
     });
 
-    // de-dupe
     const seen = new Set();
     return hits.filter(el => {
       const key = `${el.tagName}|${el.id||''}|${el.getAttribute('aria-label')||''}|${(el.textContent||'').trim()}`;
@@ -696,21 +680,27 @@ footer{
 
   function focusOnBBox(bbox){
     const rect = stage.getBoundingClientRect();
-    const targetX = rect.width / 2;
-    const targetY = rect.height / 2;
-
-    const cx = bbox.x + bbox.width / 2;
-    const cy = bbox.y + bbox.height / 2;
-
+    const targetX = rect.width/2;
+    const targetY = rect.height/2;
+    const cx = bbox.x + bbox.width/2;
+    const cy = bbox.y + bbox.height/2;
     tx = targetX - (cx * zoom);
     ty = targetY - (cy * zoom);
     applyTransform();
   }
 
   function highlightRoom(roomNumber, {announce=true} = {}){
-    if (!currentSVG) { if (announce) showToast('Deck not loaded'); return false; }
-    const q = safeDigits(roomNumber);
+    const q = digits(roomNumber);
     if (!q) { if (announce) showToast('Enter a cabin number'); return false; }
+
+    if (usingFallbackImg){
+      if (announce) showToast('Deck shown (fallback). Highlight needs inline SVG.');
+      return false;
+    }
+    if (!currentSVG){
+      if (announce) showToast('Deck not loaded');
+      return false;
+    }
 
     removeOverlay(currentSVG);
 
@@ -733,20 +723,18 @@ footer{
     }
 
     const g = ensureOverlay(currentSVG);
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', String(bbox.x - 12));
-    rect.setAttribute('y', String(bbox.y - 10));
-    rect.setAttribute('width', String(bbox.width + 24));
-    rect.setAttribute('height', String(bbox.height + 20));
-    rect.setAttribute('rx', '10');
-    rect.setAttribute('ry', '10');
-    rect.setAttribute('fill', 'rgba(255,215,64,0.10)');
-    rect.setAttribute('stroke', 'rgba(255,215,64,0.95)');
-    rect.setAttribute('stroke-width', '3');
-    rect.setAttribute('vector-effect', 'non-scaling-stroke');
-    g.appendChild(rect);
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', String(bbox.x - 12));
+    r.setAttribute('y', String(bbox.y - 10));
+    r.setAttribute('width', String(bbox.width + 24));
+    r.setAttribute('height', String(bbox.height + 20));
+    r.setAttribute('rx','10'); r.setAttribute('ry','10');
+    r.setAttribute('fill','rgba(255,215,64,0.10)');
+    r.setAttribute('stroke','rgba(255,215,64,0.95)');
+    r.setAttribute('stroke-width','3');
+    r.setAttribute('vector-effect','non-scaling-stroke');
+    g.appendChild(r);
 
-    // Nudge zoom a bit if very small
     zoom = clamp(Math.max(zoom, 1.05), 0.35, 5);
     focusOnBBox(bbox);
 
@@ -754,8 +742,15 @@ footer{
     return true;
   }
 
-  function highlightFamilyCabins({silent=false} = {}){
-    if (!currentSVG) { if (!silent) showToast('Deck not loaded'); return false; }
+  function highlightFamilyCabins(){
+    if (usingFallbackImg){
+      showToast('Fallback view: Family highlight needs inline SVG.');
+      return false;
+    }
+    if (!currentSVG){
+      showToast('Deck not loaded');
+      return false;
+    }
 
     let first = null;
     let count = 0;
@@ -766,185 +761,139 @@ footer{
         if (!first) first = c;
       }
     }
-
     if (!count){
-      if (!silent) showToast('No family cabins detected on this deck');
+      showToast('No family cabins detected on this deck');
       return false;
     }
-
-    highlightRoom(first, {announce: !silent});
-    if (!silent && count > 1) showToast(`Found ${count} family cabins here`);
+    highlightRoom(first, {announce:true});
+    if (count > 1) showToast(`Found ${count} family cabins here`);
     return true;
   }
 
-  /* =========================
-     Load SVG deck
-     ========================= */
   async function loadDeck(deckNum){
-    const entry = DECKS.find(d => d.n === deckNum);
-    if (!entry){
-      showToast('Deck not available');
+    hideError();
+    clearSvg();
+    setStatus('Loading…');
+
+    activeDeck = deckNum;
+    pillDeck.querySelector('span').textContent = `Deck ${pad2(deckNum)}`;
+    deckRail.querySelectorAll('.deckchip').forEach(ch => {
+      ch.classList.toggle('active', Number(ch.dataset.deck) === deckNum);
+    });
+
+    showLoading(true, `Preparing Deck ${pad2(deckNum)}…`);
+
+    const deck = DECKS.find(d => d.n === deckNum);
+    if (!deck){
+      showLoading(false);
+      setStatus('Error');
+      showError(`<h3>Deck not available</h3><div class="small">No SVG configured for deck ${esc(deckNum)}.</div>`);
       return;
     }
 
-    clearError();
-    setLoading(true);
-    setStatus(`Loading Deck ${deckNum}…`);
-    pillDeck.querySelector('span').textContent = `Deck ${pad2(deckNum)}`;
+    const resolved = await tryResolveDeckUrl(deck.file);
 
-    // active button
-    deckGrid.querySelectorAll('.deckbtn').forEach(b => {
-      const n = Number(b.dataset.deck);
-      b.classList.toggle('active', n === deckNum);
-    });
+    if (!resolved.ok){
+      showLoading(false);
+      setStatus('Load failed');
 
-    try{
-      const res = await fetch(entry.file, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+      // Also try rendering as <img> with the most likely path (for a visual fallback)
+      const fallbackBase = baseCandidates()[0] || './decks/';
+      const fallbackUrl = new URL(fallbackBase + deck.file, window.location.href).toString();
+      fallbackImg.src = fallbackUrl;
+      fallback.style.display = 'flex';
+      usingFallbackImg = true;
 
-      const svgText = await res.text();
-      svgWrap.innerHTML = svgText;
-
-      const svg = svgWrap.querySelector('svg');
-      if (!svg) throw new Error('SVG not found in file.');
-
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-      // Ensure viewBox (needed for bbox/fitting)
-      if (!svg.getAttribute('viewBox')){
-        const w = parseFloat(svg.getAttribute('width') || '0');
-        const h = parseFloat(svg.getAttribute('height') || '0');
-        if (w > 0 && h > 0) svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-      }
-
-      currentSVG = svg;
-      activeDeck = deckNum;
-
-      // On load: fit nicely (but keep user's saved view if they had one AND same deck)
-      const savedDeck = Number(localStorage.getItem(STORAGE.deck) || deckNum);
-      const hasSavedView = (savedDeck === deckNum) && Number.isFinite(Number(localStorage.getItem(STORAGE.zoom)));
-
-      if (!hasSavedView) {
-        fitToViewport();
-      } else {
-        // apply persisted transform immediately after load
-        applyTransform();
-      }
-
-      // Remove any previous overlay
-      removeOverlay(svg);
-
-      setStatus(`Deck ${deckNum} loaded`);
-      showToast(`Deck ${deckNum} ready`);
-
-      // Quietly auto-detect family cabins on this deck
-      highlightFamilyCabins({silent:true});
-
-    }catch(err){
-      console.error(err);
-      currentSVG = null;
-      svgWrap.innerHTML = '';
-      setError(`
-        <h3>Couldn’t load Deck ${deckNum}</h3>
+      showError(`
+        <h3>Deck SVG couldn’t be fetched</h3>
         <div class="small">
-          Expected file path:
-          <div style="margin:.35rem 0 .65rem"><code>${escapeHtml(entry.file)}</code></div>
-          Ensure <code>decks.html</code> sits next to the <code>decks/</code> folder in your GitHub Pages output.
+          This usually means <strong>the SVG path is wrong</strong> on GitHub Pages (folder mismatch).
           <br><br>
-          <strong>Common causes:</strong>
-          <ul style="margin:.5rem 0 0 1.1rem; opacity:.9; line-height:1.5">
-            <li>File name mismatch (case-sensitive).</li>
-            <li>decks.html moved into a different folder than /decks.</li>
-            <li>GitHub Pages still caching the old file (hard refresh with <code>?v=2</code>).</li>
-          </ul>
+          <strong>Tried URLs:</strong>
+          ${resolved.tried.slice(0,8).map(u => `<code>${esc(u)}</code>`).join('')}
+          ${resolved.tried.length > 8 ? `<div class="small" style="margin-top:.35rem">(+${resolved.tried.length-8} more)</div>` : ``}
+          <br>
+          <strong>Fix:</strong> ensure <code>decks.html</code> is in the same folder level as <code>decks/</code>,
+          or move <code>decks/</code> to where this page expects it.
+          <br><br>
+          <strong>Tip:</strong> open one directly in Safari:
+          <code>${esc(resolved.tried[0] || '...')}</code>
+          If it 404s, that’s the root cause.
         </div>
       `);
-      setStatus('Load failed');
-      showToast('SVG load failed');
-    }finally{
-      setLoading(false);
+      showToast('SVG path mismatch');
+      return;
     }
-  }
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, c => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c]));
-  }
+    // Cache base path that worked
+    try{
+      const urlObj = new URL(resolved.url);
+      const base = resolved.url.replace(deck.file, '');
+      localStorage.setItem(STORAGE.base, base);
+    }catch{}
 
-  function fitToViewport(){
-    if (!currentSVG) return;
+    // Inline SVG
+    svgWrap.innerHTML = resolved.text;
+    const svg = svgWrap.querySelector('svg');
+    if (!svg){
+      showLoading(false);
+      setStatus('Error');
+      showError(`<h3>Invalid SVG file</h3><div class="small">Fetched content did not contain an <code>&lt;svg&gt;</code> element.</div>`);
+      return;
+    }
 
-    const vb = currentSVG.viewBox && currentSVG.viewBox.baseVal;
-    const vbW = (vb && vb.width) ? vb.width : 1200;
-    const vbH = (vb && vb.height) ? vb.height : 700;
+    currentSVG = svg;
+    usingFallbackImg = false;
+    fallback.style.display = 'none';
 
-    const rect = stage.getBoundingClientRect();
-    const availW = Math.max(320, rect.width - 36);
-    const availH = Math.max(320, rect.height - 36);
+    ensureViewBox(svg);
+    removeOverlay(svg);
 
-    const s = Math.min(availW / vbW, availH / vbH);
-    zoom = clamp(s, 0.35, 2.5);
+    // Fit on load
+    fitToViewport();
 
-    // Place SVG origin so center is centered
-    tx = (availW/2) - (vbW/2) * zoom;
-    ty = (availH/2) - (vbH/2) * zoom;
-
-    // Stage is full size; translate should align with stage's top-left
-    // The formula above assumes (0,0) at stage top-left, which is correct because svgWrap is absolute in stage.
-    // But availW/availH used; use rect width/height for actual center:
-    tx = (rect.width/2) - (vbW/2) * zoom;
-    ty = (rect.height/2) - (vbH/2) * zoom;
-
-    applyTransform();
+    showLoading(false);
+    setStatus(`Deck ${deckNum} ready`);
+    showToast(`Deck ${deckNum} loaded`);
   }
 
   /* =========================
-     Zoom at a screen point
+     Zoom & pan (mouse + touch + pinch)
      ========================= */
-  function zoomAt(clientX, clientY, zoomFactor){
+  function zoomAt(clientX, clientY, factor){
     const rect = stage.getBoundingClientRect();
     const x = clientX - rect.left;
     const y = clientY - rect.top;
-
-    // svg coordinate under pointer before zoom
     const svgX = (x - tx) / zoom;
     const svgY = (y - ty) / zoom;
 
-    zoom = clamp(zoom * zoomFactor, 0.35, 5);
-
-    // keep same svg point under pointer
+    zoom = clamp(zoom * factor, 0.35, 5);
     tx = x - svgX * zoom;
     ty = y - svgY * zoom;
-
     applyTransform();
   }
 
-  /* =========================
-     Input: Wheel / Pointer (pan + pinch)
-     ========================= */
   stage.addEventListener('wheel', (e) => {
     e.preventDefault();
-    const factor = e.deltaY > 0 ? 0.90 : 1.10;
-    zoomAt(e.clientX, e.clientY, factor);
+    zoomAt(e.clientX, e.clientY, e.deltaY > 0 ? 0.90 : 1.10);
   }, { passive:false });
 
   stage.addEventListener('pointerdown', (e) => {
     stage.setPointerCapture(e.pointerId);
-    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    pointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
 
     if (pointers.size === 1){
       isDragging = true;
-      lastPan = { x: e.clientX, y: e.clientY };
+      lastPan = {x:e.clientX,y:e.clientY};
     } else if (pointers.size === 2){
       const pts = Array.from(pointers.values());
       const dx = pts[0].x - pts[1].x;
       const dy = pts[0].y - pts[1].y;
-      const dist = Math.hypot(dx, dy);
+      const dist = Math.hypot(dx,dy);
 
-      const rect = stage.getBoundingClientRect();
-      const centerX = (pts[0].x + pts[1].x)/2 - rect.left;
-      const centerY = (pts[0].y + pts[1].y)/2 - rect.top;
+      const r = stage.getBoundingClientRect();
+      const centerX = (pts[0].x + pts[1].x)/2 - r.left;
+      const centerY = (pts[0].y + pts[1].y)/2 - r.top;
 
       pinchStart = { dist, zoom, centerX, centerY };
       isDragging = false;
@@ -953,14 +902,13 @@ footer{
 
   stage.addEventListener('pointermove', (e) => {
     if (!pointers.has(e.pointerId)) return;
-    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    pointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
 
     if (pointers.size === 1 && isDragging){
       const dx = e.clientX - lastPan.x;
       const dy = e.clientY - lastPan.y;
-      lastPan = { x: e.clientX, y: e.clientY };
-      tx += dx;
-      ty += dy;
+      lastPan = {x:e.clientX,y:e.clientY};
+      tx += dx; ty += dy;
       applyTransform();
       return;
     }
@@ -969,12 +917,11 @@ footer{
       const pts = Array.from(pointers.values());
       const dx = pts[0].x - pts[1].x;
       const dy = pts[0].y - pts[1].y;
-      const dist = Math.hypot(dx, dy);
-      const scaleFactor = dist / pinchStart.dist;
+      const dist = Math.hypot(dx,dy);
 
-      const nextZoom = clamp(pinchStart.zoom * scaleFactor, 0.35, 5);
+      const scale = dist / pinchStart.dist;
+      const nextZoom = clamp(pinchStart.zoom * scale, 0.35, 5);
 
-      // zoom around pinch center in stage coords
       const x = pinchStart.centerX;
       const y = pinchStart.centerY;
 
@@ -984,13 +931,12 @@ footer{
       zoom = nextZoom;
       tx = x - svgX * zoom;
       ty = y - svgY * zoom;
-
       applyTransform();
     }
   });
 
   function endPointer(e){
-    if (pointers.has(e.pointerId)) pointers.delete(e.pointerId);
+    pointers.delete(e.pointerId);
     if (pointers.size < 2) pinchStart = null;
     if (pointers.size === 0) isDragging = false;
   }
@@ -998,17 +944,14 @@ footer{
   stage.addEventListener('pointercancel', endPointer);
   stage.addEventListener('pointerleave', endPointer);
 
-  // Double-tap / double-click reset
+  // Double-tap to fit
   let lastTap = 0;
   stage.addEventListener('pointerdown', () => {
     const now = Date.now();
-    if (now - lastTap < 280) resetView({fit:true});
+    if (now - lastTap < 280) fitToViewport();
     lastTap = now;
   });
 
-  /* =========================
-     Controls
-     ========================= */
   btnZoomIn.addEventListener('click', () => {
     const r = stage.getBoundingClientRect();
     zoomAt(r.left + r.width/2, r.top + r.height/2, 1.12);
@@ -1017,45 +960,44 @@ footer{
     const r = stage.getBoundingClientRect();
     zoomAt(r.left + r.width/2, r.top + r.height/2, 0.89);
   });
-  btnReset.addEventListener('click', () => resetView({fit:true}));
-
-  btnFamily.addEventListener('click', () => highlightFamilyCabins({silent:false}));
+  btnReset.addEventListener('click', () => fitToViewport());
 
   /* =========================
      Search
      ========================= */
   let searchTimer = 0;
   roomSearch.addEventListener('input', () => {
-    window.clearTimeout(searchTimer);
-    searchTimer = window.setTimeout(() => {
-      const q = safeDigits(roomSearch.value);
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const q = digits(roomSearch.value);
       if (!q) return;
       highlightRoom(q, {announce:true});
     }, 220);
   });
-
   roomSearch.addEventListener('keydown', (e) => {
     if (e.key === 'Enter'){
-      const q = safeDigits(roomSearch.value);
+      const q = digits(roomSearch.value);
       if (!q) return;
       highlightRoom(q, {announce:true});
     }
   });
 
+  btnFamily.addEventListener('click', () => highlightFamilyCabins());
+
   /* =========================
-     Deck buttons
+     Deck rail
      ========================= */
-  function buildDeckButtons(){
-    deckGrid.innerHTML = '';
-    DECKS.forEach(d => {
+  function buildDeckRail(){
+    deckRail.innerHTML = '';
+    for (const d of DECKS){
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'deckbtn';
+      b.className = 'deckchip' + (d.n === activeDeck ? ' active' : '');
       b.dataset.deck = String(d.n);
-      b.textContent = String(d.n);
+      b.textContent = `Deck ${pad2(d.n)}`;
       b.addEventListener('click', () => loadDeck(d.n));
-      deckGrid.appendChild(b);
-    });
+      deckRail.appendChild(b);
+    }
   }
 
   /* =========================
@@ -1072,12 +1014,15 @@ footer{
     ocean.style.height = window.innerHeight + 'px';
     octx.setTransform(dpr,0,0,dpr,0,0);
   }
-  window.addEventListener('resize', resizeOcean);
+  window.addEventListener('resize', () => {
+    resizeOcean();
+    if (currentSVG && !usingFallbackImg) fitToViewport();
+  });
 
   function drawOcean(){
     const w = window.innerWidth, h = window.innerHeight;
     octx.clearRect(0,0,w,h);
-    octx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg') || '#071a2c';
+    octx.fillStyle = '#071a2c';
     octx.fillRect(0,0,w,h);
 
     const g = octx.createLinearGradient(0,0,0,h);
@@ -1089,18 +1034,17 @@ footer{
     for (let i=0;i<3;i++){
       const amp = 22 + i*12;
       const len = 0.010 - i*0.0018;
-      const base = h*(0.50 + i*0.07);
+      const base = h*(0.52 + i*0.07);
 
       octx.beginPath();
       octx.moveTo(0, base);
-      for(let x=0;x<=w;x+=10){
+      for (let x=0;x<=w;x+=10){
         const y = base + Math.sin(x*len + ot*(0.9+i*0.2)) * amp;
         octx.lineTo(x,y);
       }
-      octx.lineTo(w,h);
-      octx.lineTo(0,h);
+      octx.lineTo(w,h); octx.lineTo(0,h);
       octx.closePath();
-      octx.fillStyle = `rgba(0,180,230,${0.12 - i*0.03})`;
+      octx.fillStyle = `rgba(0,180,230,${0.11 - i*0.03})`;
       octx.fill();
     }
 
@@ -1116,20 +1060,17 @@ footer{
     resizeOcean();
     drawOcean();
 
-    buildDeckButtons();
+    buildDeckRail();
 
-    // Validate activeDeck exists
     if (!DECKS.some(d => d.n === activeDeck)) activeDeck = 6;
 
-    // Apply saved transform initially (will be overridden by fit if no saved view)
+    // Start in a known good state
     applyTransform();
+    hideError();
 
-    // Load last deck
     loadDeck(activeDeck);
 
-    // Help avoid “I’m still seeing the old page” confusion
-    // (This toast proves you're running THIS file.)
-    showToast('Deck Explorer v3 loaded');
+    showToast('Deck Explorer (auto-path) loaded');
   }
 
   init();
