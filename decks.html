@@ -1,192 +1,712 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-theme-mode="light" data-cruise-mode="before">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#cfeaff">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.5, user-scalable=no">
+  <meta name="theme-color" content="#0a2e4a">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="manifest" href="manifest.json?v=2">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
-
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <title>Deck Navigator · Adventure of the Seas</title>
-
-  <!-- Fonts & icons (kept for existing shared layout + modal icons) -->
+  
+  <!-- Fonts & Icons (same, now layered with elegance) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/base.css?v=3">
-  <link rel="stylesheet" href="css/utilities.css?v=3">
-  <link rel="stylesheet" href="css/components.css?v=3">
-  <link rel="stylesheet" href="css/feature-modules.css?v=3">
-  <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
-
-  <script src="js/shared-layout.js?v=17" defer></script>
-
-  <!-- Page-level restraint overrides (place-first) -->
   <style>
-    /* ---- Make this page feel like a place, not a product shell ---- */
-    body.decks-page {
-      --decks-shadow: 0 14px 34px rgba(0, 60, 110, 0.07);
-      --decks-shadow-hover: 0 18px 44px rgba(0, 60, 110, 0.09);
-      --decks-radius: 28px;
-      --decks-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    /* ---------- RESET / GLOBAL / VARIABLES ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    /* Quiet shared header/footer chrome on this page (if shared layout renders a heavy masthead) */
-    body.decks-page #sharedHeader {
-      opacity: 0.0;
-      height: 0;
+    :root {
+      --depth-1: 0 10px 25px -8px rgba(0,35,65,0.06), 0 2px 6px rgba(0,35,65,0.02);
+      --depth-2: 0 20px 35px -12px rgba(0,45,75,0.12), 0 4px 12px rgba(0,45,75,0.03);
+      --depth-3: 0 30px 50px -18px rgba(0,55,90,0.18), 0 8px 20px rgba(0,55,90,0.04);
+      --glass: rgba(255,255,255,0.7);
+      --glass-edge: rgba(255,255,255,0.5);
+      --glass-border: 1px solid rgba(255,255,255,0.5);
+      --radius-card: 28px;
+      --radius-pill: 60px;
+      --radius-btn: 40px;
+      --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+      --navy-deep: #0A2E4A;
+      --navy-soft: #1C4E6C;
+      --gold: #C6A15B;
+      --gold-light: #E5D4B3;
+      --sky-pale: #F0F7FA;
+      --white-soft: #F9FCFE;
+    }
+
+    body {
+      background-color: var(--sky-pale);
+      background-image: radial-gradient(circle at 20% 30%, rgba(200,225,240,0.4) 0%, transparent 30%),
+                        radial-gradient(circle at 90% 70%, rgba(180,210,235,0.3) 0%, transparent 35%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--navy-deep);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Typography */
+    h1, h2, h3, .deck-title, .deck-hero__title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* ----- LAYOUT SHELL (no heavy chrome) ----- */
+    .container {
+      width: min(100% - 32px, 1280px);
+      margin-inline: auto;
+    }
+
+    /* remove masthead energy */
+    #sharedHeader, #sharedFooter, #sharedBottomNav {
+      display: none;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: -40px;
+      left: 16px;
+      background: var(--navy-deep);
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius-pill);
+      z-index: 9999;
+      transition: top 0.2s;
+    }
+    .skip-link:focus {
+      top: 16px;
+      outline: 3px solid var(--gold);
+    }
+
+    /* ---------- HERO (contextual, serene) ---------- */
+    .deck-hero {
+      padding: 56px 0 24px;
+      position: relative;
       overflow: hidden;
+    }
+    .deck-hero::after {
+      content: '';
+      position: absolute;
+      top: -10%;
+      right: -5%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(198,161,91,0.08) 0%, transparent 70%);
+      border-radius: 50%;
       pointer-events: none;
     }
-
-    /* Remove “app shell” feel from top spacing */
-    .decks-shell { padding-top: 0 !important; }
-
-    /* Hero becomes contextual, not ceremonial */
-    .deck-hero {
-      padding: 42px 0 22px !important;
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-    }
     .deck-hero__eyebrow {
-      font-family: "Inter", sans-serif !important;
-      font-weight: 500 !important;
-      opacity: 0.70 !important;
-      letter-spacing: 0 !important;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--navy-soft);
+      opacity: 0.75;
+      font-weight: 600;
     }
     .deck-hero__title {
-      font-family: "Plus Jakarta Sans", sans-serif !important;
-      font-weight: 600 !important;
-      letter-spacing: -0.01em !important;
-      margin: 8px 0 6px !important;
+      font-size: clamp(2.4rem, 8vw, 3.6rem);
+      font-weight: 800;
+      color: var(--navy-deep);
+      line-height: 1.1;
+      margin: 8px 0 4px;
+      text-shadow: 0 2px 5px rgba(255,255,255,0.5);
     }
     .deck-hero__subtitle {
-      opacity: 0.72 !important;
-      margin: 0 0 16px !important;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: #3A5E76;
+      margin-bottom: 24px;
     }
-
-    /* Actions: reduce “CTA strip” energy */
-    .deck-hero__actions .btn i { display: none !important; }
-    .deck-hero__actions .btn {
-      border-radius: 999px !important;
-      transition: transform 220ms var(--decks-ease), box-shadow 220ms var(--decks-ease), background-color 220ms var(--decks-ease) !important;
+    .deck-hero__actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
     }
-    .deck-hero__actions .btn:hover { transform: translateY(-2px) !important; }
-    .deck-hero__actions .btn--secondary { opacity: 0.95 !important; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 32px;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: 0.25s var(--ease-smooth);
+      border: none;
+      cursor: pointer;
+      background: white;
+      color: var(--navy-deep);
+      box-shadow: var(--depth-1);
+      border: 1px solid rgba(255,255,255,0.7);
+      backdrop-filter: blur(4px);
+    }
+    .btn--primary {
+      background: var(--navy-deep);
+      color: white;
+      box-shadow: 0 10px 20px -8px rgba(10,46,74,0.3);
+    }
+    .btn--primary:hover {
+      background: #144A66;
+      transform: translateY(-2px);
+      box-shadow: 0 18px 28px -10px rgba(10,46,74,0.4);
+    }
+    .btn--secondary {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.9);
+    }
+    .btn i { display: none; }  /* quiet icons */
 
-    /* Search / filters: soften from SaaS “controls” */
+    /* ---------- SEARCH / FILTERS (soft glass) ---------- */
     .main-navigation {
-      margin-top: 8px !important;
+      margin-top: 16px;
     }
     .main-navigation__inner {
-      background: rgba(255,255,255,0.72) !important;
-      border: 1px solid rgba(11,61,102,0.08) !important;
-      box-shadow: var(--decks-shadow) !important;
-      border-radius: var(--decks-radius) !important;
-      backdrop-filter: blur(10px) !important;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      border: var(--glass-border);
+      padding: 16px 24px;
+      border-radius: 48px;
+      box-shadow: var(--depth-2);
     }
     .main-navigation__search {
-      border-radius: 999px !important;
-      background: rgba(255,255,255,0.70) !important;
-      border: 1px solid rgba(11,61,102,0.08) !important;
+      flex: 1 1 260px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.7);
+      padding: 10px 20px;
+      border-radius: 60px;
+      transition: box-shadow 0.2s, background 0.2s;
     }
-    .main-navigation__filters .pill-btn {
-      border: 1px solid rgba(11,61,102,0.08) !important;
-      background: rgba(255,255,255,0.55) !important;
-      box-shadow: none !important;
-      transform: none !important;
-      border-radius: 999px !important;
-      font-weight: 500 !important;
-      opacity: 0.86 !important;
-      transition: background-color 200ms var(--decks-ease), opacity 200ms var(--decks-ease) !important;
+    .main-navigation__search:focus-within {
+      background: white;
+      box-shadow: 0 0 0 3px rgba(198,161,91,0.25);
     }
-    .main-navigation__filters .pill-btn.is-active {
-      background: rgba(0,164,216,0.14) !important;
-      opacity: 1 !important;
+    .main-navigation__search i {
+      color: var(--navy-soft);
+      opacity: 0.8;
+    }
+    .main-navigation__search input {
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--navy-deep);
+    }
+    .main-navigation__search input::placeholder {
+      color: #53778b;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+    .main-navigation__search input:focus {
+      outline: none;
     }
 
-    /* Quick rail: signage vibe */
+    /* filter pills */
+    .main-navigation__filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pill-btn {
+      padding: 10px 22px;
+      border-radius: 60px;
+      border: 1px solid rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.45);
+      backdrop-filter: blur(8px);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--navy-deep);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      box-shadow: none;
+      letter-spacing: 0.3px;
+    }
+    .pill-btn.is-active {
+      background: var(--navy-deep);
+      color: white;
+      border-color: var(--navy-deep);
+      box-shadow: 0 8px 16px -8px rgba(10,46,74,0.2);
+    }
+
+    /* ---------- DECK QUICK RAIL (scrollable, soft) ---------- */
+    .deck-quickrail-wrap {
+      margin-top: 32px;
+      -webkit-mask: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+      mask: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
     .deck-quickrail {
-      gap: 10px !important;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 8px 4px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold) rgba(200,200,200,0.2);
+      scroll-snap-type: x mandatory;
+    }
+    .deck-quickrail::-webkit-scrollbar {
+      height: 4px;
+    }
+    .deck-quickrail::-webkit-scrollbar-thumb {
+      background: var(--gold);
+      border-radius: 20px;
     }
     .deck-quickbtn {
-      transform: none !important;
-      box-shadow: var(--decks-shadow) !important;
-      border-radius: 18px !important;
-      transition: transform 220ms var(--decks-ease), box-shadow 220ms var(--decks-ease) !important;
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      background: white;
+      border: 1px solid rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.7);
+      padding: 14px 24px;
+      border-radius: 36px;
+      box-shadow: var(--depth-1);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: 0.25s var(--ease-smooth);
+      cursor: pointer;
+      border: none;
     }
-    .deck-quickbtn:hover { transform: translateY(-2px) !important; box-shadow: var(--decks-shadow-hover) !important; }
-    .deck-quickbtn__num { font-weight: 600 !important; }
-    .deck-quickbtn__sub { opacity: 0.72 !important; }
+    .deck-quickbtn:hover {
+      transform: translateY(-3px);
+      background: white;
+      box-shadow: var(--depth-3);
+    }
+    .deck-quickbtn.is-active {
+      background: var(--navy-deep);
+      color: white;
+      box-shadow: 0 16px 28px -12px rgba(10,46,74,0.5);
+    }
+    .deck-quickbtn.is-active .deck-quickbtn__num,
+    .deck-quickbtn.is-active .deck-quickbtn__sub {
+      color: white;
+    }
+    .deck-quickbtn__num {
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--navy-deep);
+    }
+    .deck-quickbtn__sub {
+      font-size: 0.8rem;
+      opacity: 0.75;
+      font-weight: 500;
+    }
 
-    /* Categories: keep, but quiet (not taxonomy UI) */
+    /* ---------- CATEGORIES (foldable, subtle) ---------- */
+    .deck-directory {
+      margin-top: 48px;
+    }
     .deck-directory__header {
-      align-items: baseline !important;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 20px;
     }
     .deck-directory__title {
-      font-weight: 600 !important;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--navy-deep);
     }
     .deck-directory__toggle {
-      opacity: 0.78 !important;
-      border-radius: 999px !important;
-      box-shadow: none !important;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.8);
+      padding: 10px 26px;
+      border-radius: 60px;
+      font-weight: 600;
+      color: var(--navy-deep);
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .deck-directory__panels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 20px;
     }
     .category-card {
-      border-radius: var(--decks-radius) !important;
-      box-shadow: var(--decks-shadow) !important;
-      border: 1px solid rgba(11,61,102,0.08) !important;
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: var(--glass-border);
+      border-radius: 32px;
+      padding: 28px 24px;
+      box-shadow: var(--depth-1);
+      transition: 0.25s;
+    }
+    .category-card:hover {
+      background: rgba(255,255,255,0.8);
+      box-shadow: var(--depth-2);
     }
     .category-card__heading {
-      font-weight: 600 !important;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--navy-deep);
+    }
+    .deck-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .deck-pill {
+      background: white;
+      border: 1px solid rgba(10,46,74,0.1);
+      border-radius: 40px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-weight: 600;
+      transition: 0.2s;
+      cursor: pointer;
+      color: var(--navy-deep);
+    }
+    .deck-pill__number {
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+    .deck-pill.is-active {
+      background: var(--navy-deep);
+      color: white;
+    }
+    .deck-pill.is-active .deck-pill__number {
+      color: white;
     }
 
-    /* Deck cards: make entire surface tappable, remove CTA button energy */
+    /* ---------- DECK GRID (breathe) ---------- */
+    .deck-grid {
+      margin-top: 56px;
+    }
+    .deck-grid__title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 28px;
+      color: var(--navy-deep);
+    }
+    .deck-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 28px;
+    }
     .deck-card {
-      border-radius: var(--decks-radius) !important;
-      box-shadow: var(--decks-shadow) !important;
-      border: 1px solid rgba(11,61,102,0.08) !important;
-      transition: transform 240ms var(--decks-ease), box-shadow 240ms var(--decks-ease) !important;
+      background: white;
+      border-radius: var(--radius-card);
+      box-shadow: var(--depth-1);
+      transition: 0.3s var(--ease-smooth);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.6);
+      backdrop-filter: blur(4px);
     }
-    .deck-card:hover { transform: translateY(-2px) !important; box-shadow: var(--decks-shadow-hover) !important; }
-    .deck-title { font-weight: 600 !important; }
-    .deck-subtitle { opacity: 0.74 !important; }
-    .deck-highlights span { opacity: 0.80 !important; }
-
-    /* Remove image “product zoom” vibes */
-    .deck-visual img { transform: none !important; filter: none !important; }
-
-    /* CTA removed (if present from older markup) */
-    .deck-card__cta { display: none !important; }
-
-    /* Modal toolbar: soften CAD/viewer energy a bit */
-    .deck-modal__toolbar .btn-icon,
-    .deck-modal__toolbar .labeled-btn {
-      transition: transform 200ms var(--decks-ease), background-color 200ms var(--decks-ease), opacity 200ms var(--decks-ease) !important;
+    .deck-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--depth-3);
     }
-    .deck-modal__toolbar .btn-icon:hover,
-    .deck-modal__toolbar .labeled-btn:hover { transform: translateY(-2px) !important; }
+    .deck-visual {
+      position: relative;
+      background: linear-gradient(145deg, #F4F9FD, #EAF2F8);
+      padding: 20px 20px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .deck-number {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--navy-deep);
+      opacity: 0.15;
+      line-height: 1;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      pointer-events: none;
+    }
+    .deck-visual img {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      transition: transform 0.4s var(--ease-smooth);
+    }
+    .deck-card:hover .deck-visual img {
+      transform: scale(1.02);
+    }
+    .deck-info {
+      padding: 22px 22px 26px;
+      background: white;
+      border-top: 1px solid rgba(0,0,0,0.02);
+    }
+    .deck-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--navy-deep);
+      margin-bottom: 4px;
+    }
+    .deck-subtitle {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy-soft);
+      opacity: 0.85;
+      margin-bottom: 16px;
+    }
+    .deck-highlights {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .deck-highlights span {
+      background: #F0F6FA;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1E4A62;
+    }
 
-    /* Bottom nav: keep guidance, reduce chrome */
-    body.decks-page #sharedBottomNav {
-      box-shadow: none !important;
+    /* empty state */
+    .deck-empty {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 60px;
+    }
+
+    /* ---------- MODAL (immersive, cinematic) ---------- */
+    .deck-modal {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(20px);
+      background: rgba(10,46,74,0.3);
+    }
+    .deck-modal.is-open {
+      display: flex;
+    }
+    .deck-modal__dialog {
+      background: var(--glass);
+      backdrop-filter: blur(32px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 44px;
+      width: min(94%, 1300px);
+      height: min(88%, 900px);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 40px 70px -20px rgba(0,20,40,0.3);
+      padding: 28px 28px 24px;
+    }
+    .deck-modal__toolbar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .toolbar-group {
+      display: flex;
+      gap: 10px;
+      background: rgba(255,255,255,0.4);
+      padding: 8px;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+    }
+    .btn-icon, .labeled-btn {
+      background: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy-deep);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--depth-1);
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .btn-icon {
+      padding: 12px 18px;
+    }
+    .btn-icon:hover, .labeled-btn:hover {
+      background: var(--navy-deep);
+      color: white;
+      transform: translateY(-2px);
+    }
+    .close-btn {
+      background: rgba(255,255,255,0.6);
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.3rem;
+      color: var(--navy-deep);
+      backdrop-filter: blur(4px);
+      transition: 0.2s;
+    }
+    .deck-modal__body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .deck-modal__title {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--navy-deep);
+    }
+    .deck-modal__subtitle {
+      color: #3C6279;
+      margin-bottom: 14px;
+    }
+    .deck-focuschips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .deck-focuschip {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid white;
+      padding: 8px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: var(--navy-deep);
+      transition: 0.2s;
+      cursor: pointer;
+    }
+    .deck-focuschip.is-active {
+      background: var(--navy-deep);
+      color: white;
+    }
+    .deck-modal__frame {
+      flex: 1;
+      min-height: 0;
+      background: #EFF5F9;
+      border-radius: 36px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .deck-plan-stage {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      position: relative;
+      scroll-behavior: smooth;
+      border-radius: 24px;
+    }
+    .deck-plan-canvas {
+      position: relative;
+      display: inline-block;
+      transform-origin: 0 0;
+      transition: transform 0.1s ease;
+    }
+    .deck-plan-media {
+      max-width: 100%;
+      display: block;
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    }
+    .deck-hotspot {
+      position: absolute;
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: rgba(198,161,91,0.9);
+      border: 3px solid white;
+      color: white;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: 0.2s;
+      transform: translate(-50%, -50%);
+      backdrop-filter: blur(2px);
+      font-size: 1.1rem;
+    }
+    .deck-hotspot[data-highlight="true"] {
+      background: var(--gold);
+      box-shadow: 0 0 0 6px rgba(198,161,91,0.3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(198,161,91,0.6); } 70% { box-shadow: 0 0 0 14px rgba(198,161,91,0); } }
+    .deck-hotspot:hover { transform: translate(-50%, -50%) scale(1.2); }
+    .deck-plan-legend {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .deck-plan-legend-item {
+      background: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 60px;
+      box-shadow: var(--depth-1);
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .deck-plan-legend-item.is-active {
+      background: var(--navy-deep);
+      color: white;
+    }
+
+    /* Pan hint */
+    .deck-pan-hint {
+      background: rgba(10,46,74,0.8);
+      backdrop-filter: blur(12px);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 60px;
+      position: absolute;
+      bottom: 20px; left: 20px;
+    }
+
+    /* responsiveness */
+    @media (max-width: 680px) {
+      .main-navigation__inner { border-radius: 32px; padding: 20px; }
+      .deck-quickbtn { padding: 12px 20px; }
+      .deck-modal__dialog { padding: 20px; }
     }
   </style>
 </head>
-
-<body class="app-theme-rcc decks-page">
+<body class="decks-page">
   <a href="#main" class="skip-link">Skip to main content</a>
 
-  <!-- Shared header is intentionally muted on this page to remove marketing masthead energy -->
-  <div id="sharedHeader" data-page="decks"></div>
+  <div id="sharedHeader" data-page="decks" hidden></div>
 
   <main id="main" class="decks-shell">
-    <!-- HERO – contextual -->
+    <!-- HERO – elegant, low-volume -->
     <section class="deck-hero">
       <div class="container">
         <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
@@ -194,18 +714,17 @@
         <p class="deck-hero__subtitle">Onboard · Deck by deck</p>
         <div class="deck-hero__actions">
           <a class="btn btn--primary" href="#deck-directory">Open deck directory</a>
-          <a class="btn btn--secondary deck-hero__btn-secondary" href="rooms.html">Find my stateroom</a>
+          <a class="btn btn--secondary" href="rooms.html">Find my stateroom</a>
         </div>
       </div>
     </section>
 
-    <!-- Search & filters – softened -->
+    <!-- Search & filters – glassy, quiet -->
     <section class="main-navigation container" aria-label="Deck navigation">
       <div class="main-navigation__inner">
         <div class="main-navigation__search">
           <i class="fas fa-search" aria-hidden="true"></i>
-          <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities"
-                 aria-label="Search decks" autocomplete="off">
+          <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities" aria-label="Search decks" autocomplete="off">
         </div>
         <div class="main-navigation__filters" aria-label="Deck filters">
           <button class="pill-btn is-active" data-filter="all" type="button">All</button>
@@ -216,59 +735,54 @@
       </div>
     </section>
 
-    <!-- Deck quick rail -->
-    <section class="deck-quickrail-wrap container" style="margin-top: 22px;">
+    <!-- Deck quick rail (horizontal snap) -->
+    <section class="deck-quickrail-wrap container">
       <div class="deck-quickrail" id="deckQuickRail"></div>
     </section>
 
-    <!-- Categories (kept, but quiet + optional) -->
-    <section id="deck-directory" class="deck-directory container" style="margin-top: 38px;">
+    <!-- Categories (collapsible, premium) -->
+    <section id="deck-directory" class="deck-directory container">
       <div class="deck-directory__header">
         <h2 class="deck-directory__title">Browse by category</h2>
-        <button id="toggleCategoryBrowse" class="deck-directory__toggle" type="button"
-                aria-expanded="false" aria-controls="deckCategoryPanels">
+        <button id="toggleCategoryBrowse" class="deck-directory__toggle" type="button" aria-expanded="false" aria-controls="deckCategoryPanels">
           Show <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </button>
       </div>
-
       <div id="deckCategoryPanels" class="deck-directory__panels" hidden>
         <article class="category-card" data-category="entertainment">
-          <div class="category-card__heading"><i class="fas fa-masks-theater" aria-hidden="true"></i> Entertainment</div>
+          <div class="category-card__heading"><i class="fas fa-masks-theater"></i> Entertainment</div>
           <div class="deck-pills" id="pill-entertainment"></div>
         </article>
         <article class="category-card" data-category="wellness">
-          <div class="category-card__heading"><i class="fas fa-spa" aria-hidden="true"></i> Wellness</div>
+          <div class="category-card__heading"><i class="fas fa-spa"></i> Wellness</div>
           <div class="deck-pills" id="pill-wellness"></div>
         </article>
         <article class="category-card" data-category="essential">
-          <div class="category-card__heading"><i class="fas fa-compass" aria-hidden="true"></i> Essential</div>
+          <div class="category-card__heading"><i class="fas fa-compass"></i> Essential</div>
           <div class="deck-pills" id="pill-essential"></div>
         </article>
       </div>
     </section>
 
     <!-- Deck grid -->
-    <section class="deck-grid container" style="margin-top: 44px;">
+    <section class="deck-grid container">
       <div class="deck-grid__header">
         <h2 class="deck-grid__title">Decks</h2>
       </div>
-
       <div id="deckCards" class="deck-cards" role="list"></div>
-
       <div id="emptyState" class="deck-empty" hidden>
         <div class="deck-empty__icon">🚢</div>
         <h3 class="deck-empty__title">No matching decks</h3>
-        <button class="btn btn--primary" id="clearFilters" type="button">Browse all decks</button>
+        <button class="btn btn--primary" id="clearFilters">Browse all decks</button>
       </div>
     </section>
   </main>
 
-  <!-- Modal -->
+  <!-- MODAL (luxury viewer) -->
   <div class="deck-modal" id="deckModal" aria-hidden="true">
     <div class="deck-modal__backdrop" data-action="close-modal"></div>
     <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="deck-vertical-indicator" id="deckVerticalIndicator"></div>
-
+      <div class="deck-vertical-indicator" id="deckVerticalIndicator" hidden></div>
       <div class="deck-modal__toolbar">
         <div class="toolbar-group toolbar-group--primary">
           <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
@@ -278,41 +792,29 @@
           <button class="btn-icon" data-action="zoom-reset" aria-label="Reset view"><i class="fas fa-rotate-left"></i></button>
           <span class="zoom-level" id="zoomLevel">100%</span>
         </div>
-
         <div class="toolbar-group toolbar-group--secondary">
-          <button class="labeled-btn" data-action="center-me" type="button">
-            <i class="fas fa-location-dot" aria-hidden="true"></i>
-            <span class="btn-label">My Location</span>
-          </button>
-          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener">
-            <i class="fas fa-file-pdf" aria-hidden="true"></i>
-            <span class="btn-label">PDF</span>
-          </a>
+          <button class="labeled-btn" data-action="center-me" type="button"><i class="fas fa-location-dot"></i><span class="btn-label">My Location</span></button>
+          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i><span class="btn-label">PDF</span></a>
         </div>
-
         <button class="close-btn" data-action="close-modal" aria-label="Close"><i class="fas fa-times"></i></button>
       </div>
-
       <div class="deck-modal__body">
         <h3 id="modalTitle" class="deck-modal__title"></h3>
         <p id="modalDesc" class="deck-modal__subtitle"></p>
-        <p id="deckPanHint" class="deck-pan-hint" hidden>
-          <i class="fas fa-hand-paper" aria-hidden="true"></i> Drag to pan while zoomed in
-        </p>
+        <p id="deckPanHint" class="deck-pan-hint" hidden><i class="fas fa-hand-paper"></i> Drag to pan while zoomed in</p>
         <div id="deckFocusChips" class="deck-focuschips"></div>
         <div id="modalFrame" class="deck-modal__frame"></div>
       </div>
     </div>
   </div>
 
-  <div id="sharedFooter" data-page="decks"></div>
-  <div id="sharedBottomNav" data-page="decks"></div>
+  <div id="sharedBottomNav" hidden></div>
 
-  <!-- JS (same logic, but no heroGlow / no CTA button) -->
   <script>
     (function() {
+      // ----- DECK DATA (unchanged, but enriched with more hotspots) -----
       const deckData = [
-        { number: 0, name: 'All Decks', subtitle: 'Ship Overview Blueprint', highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'decks/deck-all.min.svg', svg: 'decks/deck-all.min.svg', pdf: '' },
+        { number: 0, name: 'All Decks', subtitle: 'Ship Overview', highlights: ['Full ship layout', 'Cross-deck context'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'decks/deck-all.min.svg', svg: 'decks/deck-all.min.svg', pdf: '' },
         { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'decks/deck-05.png', svg: 'decks/deck-05-final.min.svg', pdf: 'decks/deck-05.pdf' },
         { number: 14, name: 'Deck 14', subtitle: 'Sky Deck', highlights: ['Panoramic views', 'Lounges', 'Sun decks'], description: 'Viking Crown Lounge & sky bar.', category: 'entertainment', image: 'decks/deck-14.png', svg: 'decks/deck-14-final.min.svg', pdf: '' },
         { number: 11, name: 'Deck 11', subtitle: 'Fitness & Spa', highlights: ['Spa', 'Fitness', 'Wellness'], description: 'Vitality Spa & fully equipped fitness.', category: 'wellness', image: 'decks/deck-11.png', svg: 'decks/deck-11-final.min.svg', pdf: '' },
@@ -329,27 +831,14 @@
         { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'decks/deck-02.png', svg: 'decks/deck-02-final.min.svg', pdf: '' }
       ];
 
+      // Extra hotspots for a richer experience
       const deckHotspots = {
-        6: [
-          { id: 'aft-cabins', title: 'Aft cabin cluster', note: 'Quieter corridor, wake views. Your room 6650 nearby.', x: 78, y: 58, highlight: true },
-          { id: 'midship-elevators', title: 'Midship elevators', note: 'Fastest transfer to dining & promenade.', x: 52, y: 50, highlight: false },
-          { id: 'forward-stairs', title: 'Forward stairs', note: 'Best route to theater and deck 4.', x: 26, y: 43 }
-        ],
-        12: [
-          { id: 'main-pool', title: 'Main pool', note: 'Live music, pool games, bar.', x: 40, y: 60 },
-          { id: 'solarium', title: 'Solarium', note: 'Adults-only oasis, indoor pool.', x: 70, y: 30, highlight: true },
-          { id: 'windjammer', title: 'Windjammer Cafe', note: 'Casual buffet, ocean view.', x: 20, y: 70 }
-        ],
-        11: [
-          { id: 'spa', title: 'Vitality Spa', note: 'Thermal suite, massages.', x: 48, y: 44 },
-          { id: 'fitness', title: 'Fitness Center', note: 'Panoramic treadmills.', x: 30, y: 55 }
-        ],
-        5: [
-          { id: 'cafe-promenade', title: 'Cafe Promenade', note: '24h coffee, sandwiches.', x: 55, y: 48 },
-          { id: 'guest-services', title: 'Guest Services', note: 'Desk, crown & anchor.', x: 48, y: 60 }
-        ]
+        6: [{ id: 'aft-cabins', title: 'Aft cabin cluster', note: 'Quieter corridor, wake views. Your room 6650 nearby.', x: 78, y: 58, highlight: true }, { id: 'midship-elevators', title: 'Midship elevators', note: 'Fastest transfer to dining & promenade.', x: 52, y: 50 }, { id: 'forward-stairs', title: 'Forward stairs', note: 'Best route to theater and deck 4.', x: 26, y: 43 }],
+        12: [{ id: 'main-pool', title: 'Main pool', note: 'Live music, pool games, bar.', x: 40, y: 60 }, { id: 'solarium', title: 'Solarium', note: 'Adults-only oasis, indoor pool.', x: 70, y: 30, highlight: true }, { id: 'windjammer', title: 'Windjammer Cafe', note: 'Casual buffet, ocean view.', x: 20, y: 70 }],
+        11: [{ id: 'spa', title: 'Vitality Spa', note: 'Thermal suite, massages.', x: 48, y: 44 }, { id: 'fitness', title: 'Fitness Center', note: 'Panoramic treadmills.', x: 30, y: 55 }],
+        5: [{ id: 'cafe-promenade', title: 'Cafe Promenade', note: '24h coffee, sandwiches.', x: 55, y: 48 }, { id: 'guest-services', title: 'Guest Services', note: 'Desk, crown & anchor.', x: 48, y: 60 }],
+        4: [{ id: 'main-dining', title: 'Main Dining Room', note: 'Two-level elegant dining.', x: 40, y: 40 }, { id: 'royal-theater', title: 'Royal Theater', note: 'Broadway-style shows.', x: 65, y: 60 }]
       };
-
       const deckFocusMap = {
         12: ['Main Pool', 'Solarium', 'Windjammer'],
         11: ['Vitality Spa', 'Fitness Center'],
@@ -358,20 +847,8 @@
         6: ['Room 6650', 'Midship Elevators']
       };
 
-      const state = {
-        filter: 'all',
-        search: '',
-        lastOpenedDeck: null,
-        currentDeck: null,
-        currentZoom: 100,
-        dragging: false,
-        dragStartX: 0,
-        dragStartY: 0,
-        dragStartLeft: 0,
-        dragStartTop: 0,
-        panHintShown: sessionStorage.getItem('deck_pan_hint_shown') === '1'
-      };
-
+      // ----- STATE & UI -----
+      const state = { filter: 'all', search: '', lastOpenedDeck: null, currentDeck: null, currentZoom: 100, panHintShown: false };
       const els = {
         search: document.getElementById('deckSearch'),
         quickRail: document.getElementById('deckQuickRail'),
@@ -390,369 +867,102 @@
         download: document.getElementById('downloadPlan')
       };
 
+      // ----- RENDER -----
       function renderQuickRail() {
         const sorted = [...deckData].sort((a,b) => b.number - a.number);
-        els.quickRail.innerHTML = sorted.map(d => `
-          <button class="deck-quickbtn" data-deck="${d.number}" type="button" aria-label="Open ${d.name}">
-            <span class="deck-quickbtn__num">${d.number === 0 ? 'ALL' : `D${d.number}`}</span>
-            <span class="deck-quickbtn__sub">${d.subtitle}</span>
-          </button>
-        `).join('');
+        els.quickRail.innerHTML = sorted.map(d => `<button class="deck-quickbtn" data-deck="${d.number}" type="button"><span class="deck-quickbtn__num">${d.number === 0 ? 'ALL' : `D${d.number}`}</span><span class="deck-quickbtn__sub">${d.subtitle}</span></button>`).join('');
       }
-
       function renderPills() {
         const cats = { entertainment: [], wellness: [], essential: [] };
         deckData.forEach(d => { if (cats[d.category]) cats[d.category].push(d); });
         Object.entries(cats).forEach(([key, decks]) => {
           const host = document.getElementById(`pill-${key}`);
-          if (host) host.innerHTML = decks.map(d => `
-            <button class="deck-pill" type="button" data-deck="${d.number}">
-              <span class="deck-pill__number">${d.number === 0 ? 'ALL' : d.number}</span>
-              <span class="deck-pill__text">${d.subtitle}</span>
-            </button>
-          `).join('');
+          if (host) host.innerHTML = decks.map(d => `<button class="deck-pill" type="button" data-deck="${d.number}"><span class="deck-pill__number">${d.number === 0 ? 'ALL' : d.number}</span><span class="deck-pill__text">${d.subtitle}</span></button>`).join('');
         });
       }
-
-      function getDeckImage(number) {
-        if (number === 0) return 'decks/deck-all.svg';
-        return `decks/deck-${String(number).padStart(2, '0')}.png`;
-      }
-
-      function getCategoryClass(category) {
-        return `deck-card--${category}`;
-      }
-
+      function getDeckImage(number) { return number === 0 ? 'decks/deck-all.svg' : `decks/deck-${String(number).padStart(2, '0')}.png`; }
       function renderDeckCards(filter = 'all', search = '') {
         els.cards.innerHTML = '';
-
-        const filtered = deckData.filter(deck => {
-          const matchesCategory = (filter === 'all' || deck.category === filter);
-          const s = (search || '').trim().toLowerCase();
-          const matchesSearch =
-            !s ||
-            deck.name.toLowerCase().includes(s) ||
-            deck.subtitle.toLowerCase().includes(s) ||
-            deck.highlights.join(' ').toLowerCase().includes(s);
-          return matchesCategory && matchesSearch;
-        });
-
+        const filtered = deckData.filter(d => (filter === 'all' || d.category === filter) && (!search.trim() || d.name.toLowerCase().includes(search) || d.subtitle.toLowerCase().includes(search) || d.highlights.join(' ').toLowerCase().includes(search)));
         filtered.forEach(deck => {
           const card = document.createElement('article');
-          card.className = `deck-card ${getCategoryClass(deck.category)}`;
-          card.setAttribute('role', 'listitem');
-          card.dataset.deck = deck.number;
-          card.tabIndex = 0;
-          card.setAttribute('aria-label', `Open ${deck.name}`);
-
-          card.innerHTML = `
-            <div class="deck-visual">
-              <span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span>
-              <img src="${getDeckImage(deck.number)}" alt="${deck.name}" loading="lazy" decoding="async">
-            </div>
-
-            <div class="deck-info">
-              <h3 class="deck-title">${deck.name}</h3>
-              <p class="deck-subtitle">${deck.subtitle}</p>
-              <div class="deck-highlights">
-                ${deck.highlights.map(h => `<span>${h}</span>`).join('')}
-              </div>
-            </div>
-          `;
-
+          card.className = 'deck-card';
+          card.dataset.deck = deck.number; card.tabIndex = 0; card.setAttribute('aria-label', `Open ${deck.name}`);
+          card.innerHTML = `<div class="deck-visual"><span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span><img src="${getDeckImage(deck.number)}" alt="${deck.name}" loading="lazy"></div><div class="deck-info"><h3 class="deck-title">${deck.name}</h3><p class="deck-subtitle">${deck.subtitle}</p><div class="deck-highlights">${deck.highlights.map(h => `<span>${h}</span>`).join('')}</div></div>`;
           els.cards.appendChild(card);
         });
-
         els.empty.hidden = filtered.length !== 0;
       }
 
-      function setActiveDeck(num) {
-        document.querySelectorAll('.deck-quickbtn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
-        document.querySelectorAll('.deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
-        document.querySelectorAll('#deckVerticalIndicator button').forEach(b => b.classList.toggle('active', Number(b.dataset.deck) === num));
+      // ----- MODAL INTERACTIONS (beautified) -----
+      function setActiveDeck(num) { document.querySelectorAll('.deck-quickbtn, .deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num)); }
+      function setZoom(v) { state.currentZoom = Math.min(300, Math.max(50, v)); els.zoomLevel.textContent = `${state.currentZoom}%`; const canvas = document.getElementById('deckPlanCanvas'); if (canvas) canvas.style.transform = `scale(${state.currentZoom/100})`; }
+      function togglePanHint(show) { if (!els.panHint) return; els.panHint.hidden = !show; if (show) els.panHint.classList.add('is-visible'); else els.panHint.classList.remove('is-visible'); }
+      function attachPan() { 
+        const stage = document.getElementById('deckPlanStage'); if (!stage) return;
+        let dragging = false, startX, startY, left, top;
+        stage.addEventListener('pointerdown', (e) => { if (state.currentZoom > 100) { dragging = true; startX = e.clientX; startY = e.clientY; left = stage.scrollLeft; top = stage.scrollTop; stage.setPointerCapture(e.pointerId); }});
+        stage.addEventListener('pointermove', (e) => { if (dragging) { stage.scrollLeft = left - (e.clientX - startX); stage.scrollTop = top - (e.clientY - startY); }});
+        stage.addEventListener('pointerup', () => dragging = false);
       }
-
-      function togglePanHint(show) {
-        if (!els.panHint) return;
-        if (show) {
-          els.panHint.hidden = false;
-          requestAnimationFrame(() => els.panHint.classList.add('is-visible'));
-          return;
-        }
-        els.panHint.classList.remove('is-visible');
-        setTimeout(() => {
-          if (!els.panHint.classList.contains('is-visible')) els.panHint.hidden = true;
-        }, 180);
-      }
-
-      function setZoom(v) {
-        state.currentZoom = Math.min(300, Math.max(50, v));
-        els.zoomLevel.textContent = `${state.currentZoom}%`;
-        const canvas = document.getElementById('deckPlanCanvas');
-        if (canvas) canvas.style.transform = `scale(${(state.currentZoom / 100).toFixed(2)})`;
-
-        if (state.currentZoom > 100 && !state.panHintShown) {
-          togglePanHint(true);
-          state.panHintShown = true;
-          sessionStorage.setItem('deck_pan_hint_shown', '1');
-          setTimeout(() => togglePanHint(false), 2400);
-        }
-      }
-
-      function attachPan() {
-        const stage = document.getElementById('deckPlanStage');
-        if (!stage) return;
-
-        stage.addEventListener('pointerdown', (e) => {
-          if (state.currentZoom <= 100) return;
-          state.dragging = true;
-          state.dragStartX = e.clientX; state.dragStartY = e.clientY;
-          state.dragStartLeft = stage.scrollLeft; state.dragStartTop = stage.scrollTop;
-          stage.setPointerCapture(e.pointerId);
-        });
-
-        stage.addEventListener('pointermove', (e) => {
-          if (!state.dragging) return;
-          stage.scrollLeft = state.dragStartLeft - (e.clientX - state.dragStartX);
-          stage.scrollTop = state.dragStartTop - (e.clientY - state.dragStartY);
-        });
-
-        stage.addEventListener('pointerup', () => state.dragging = false);
-        stage.addEventListener('pointercancel', () => state.dragging = false);
-      }
-
-      function animateModalTitle(nextText) {
-        els.modalTitle.classList.add('is-swapping');
-        setTimeout(() => {
-          els.modalTitle.textContent = nextText;
-          els.modalTitle.classList.remove('is-swapping');
-        }, 160);
-      }
-
       function renderModalPlan(deck) {
-        els.modalFrame.innerHTML = `<div class="deck-plan-skeleton" aria-hidden="true"></div>`;
-
+        els.modalFrame.innerHTML = `<div class="deck-plan-skeleton" style="height:100%; display:flex; align-items:center; justify-content:center;">loading deck...</div>`;
         setTimeout(() => {
-          const hotspots = deckHotspots[deck.number] || [];
-          const chips = deckFocusMap[deck.number] || [];
-
-          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip" type="button">${l}</button>`).join('');
-
-          const hotspotButtons = hotspots.map((s,i) => `
-            <button class="deck-hotspot"
-              style="left:${s.x}%; top:${s.y}%;" type="button"
-              data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}"
-              data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
-          `).join('');
-
-          els.modalFrame.innerHTML = `
-            <div class="deck-plan-stage" id="deckPlanStage">
-              <div class="deck-plan-canvas is-transitioning" id="deckPlanCanvas" style="transform:scale(${state.currentZoom/100});">
-                <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" alt="${deck.name}">
-                ${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotButtons}</div>` : ''}
-              </div>
-            </div>
-            ${hotspots.length ? `<div class="deck-plan-legend">${hotspots.map((s,i)=> `
-              <button class="deck-plan-legend-item" type="button" data-hotspot-id="${s.id}">
-                <strong>${i+1}. ${s.title}</strong>
-                <span>${s.note}</span>
-              </button>`).join('')}</div>` : ''}
-          `;
-
+          const hotspots = deckHotspots[deck.number] || [], chips = deckFocusMap[deck.number] || [];
+          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip">${l}</button>`).join('');
+          const hotspotButtons = hotspots.map((s,i) => `<button class="deck-hotspot" style="left:${s.x}%; top:${s.y}%;" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>`).join('');
+          els.modalFrame.innerHTML = `<div class="deck-plan-stage" id="deckPlanStage"><div class="deck-plan-canvas" id="deckPlanCanvas" style="transform:scale(${state.currentZoom/100});"><img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" alt="${deck.name}">${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotButtons}</div>` : ''}</div></div>${hotspots.length ? `<div class="deck-plan-legend">${hotspots.map((s,i)=>`<button class="deck-plan-legend-item" data-hotspot-id="${s.id}"><strong>${i+1}. ${s.title}</strong><span>${s.note}</span></button>`).join('')}</div>` : ''}`;
           attachPan();
-
-          const newCanvas = document.getElementById('deckPlanCanvas');
-          if (newCanvas) requestAnimationFrame(() => newCanvas.classList.remove('is-transitioning'));
+          if (state.currentZoom > 100 && !state.panHintShown) { togglePanHint(true); state.panHintShown = true; setTimeout(() => togglePanHint(false), 2800); }
         }, 180);
       }
-
-      function selectHotspotById(hotspotId) {
-        const target = els.modalFrame.querySelector(`.deck-hotspot[data-hotspot-id="${hotspotId}"]`);
-        if (!target) return;
-
-        els.modalFrame.querySelectorAll('.deck-hotspot').forEach(btn => {
-          btn.dataset.selected = (btn.dataset.hotspotId === hotspotId) ? 'true' : 'false';
-        });
-
-        els.modalFrame.querySelectorAll('.deck-plan-legend-item').forEach(btn => {
-          btn.classList.toggle('is-active', btn.dataset.hotspotId === hotspotId);
-        });
-
-        target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        els.modalDesc.textContent = target.dataset.note || target.dataset.title || '';
-      }
-
-      function openModal(deck) {
-        state.currentDeck = deck;
-        state.lastOpenedDeck = deck.number;
-        setActiveDeck(deck.number);
-        animateModalTitle(deck.name);
-
-        els.modalDesc.textContent = deck.description || deck.subtitle || '';
-        renderModalPlan(deck);
-
-        if (deck.pdf) {
-          els.download.href = deck.pdf;
-          els.download.removeAttribute('aria-disabled');
-        } else {
-          els.download.href = '#';
-          els.download.setAttribute('aria-disabled', 'true');
+      function selectHotspotById(id) { 
+        const btn = els.modalFrame.querySelector(`.deck-hotspot[data-hotspot-id="${id}"]`); 
+        if (btn) { 
+          btn.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); 
+          els.modalDesc.textContent = btn.dataset.note; 
+          els.modalFrame.querySelectorAll('.deck-hotspot').forEach(b => b.dataset.selected = (b.dataset.hotspotId === id) ? 'true' : 'false');
+          els.modalFrame.querySelectorAll('.deck-plan-legend-item').forEach(b => b.classList.toggle('is-active', b.dataset.hotspotId === id));
         }
-
-        els.modal.classList.add('is-open');
-        els.modal.setAttribute('aria-hidden', 'false');
-        setZoom(100);
       }
-
-      function closeModal() {
-        els.modal.classList.remove('is-open');
-        els.modal.setAttribute('aria-hidden','true');
-        togglePanHint(false);
+      function openModal(deck) {
+        state.currentDeck = deck; setActiveDeck(deck.number);
+        els.modalTitle.textContent = deck.name; els.modalDesc.textContent = deck.description;
+        renderModalPlan(deck);
+        if (deck.pdf) { els.download.href = deck.pdf; els.download.removeAttribute('aria-disabled'); } else { els.download.href = '#'; els.download.setAttribute('aria-disabled', 'true'); }
+        els.modal.classList.add('is-open'); els.modal.setAttribute('aria-hidden', 'false'); setZoom(100);
       }
+      function closeModal() { els.modal.classList.remove('is-open'); togglePanHint(false); }
 
+      // ----- BIND -----
       function bindEvents() {
-        // Filter buttons
-        document.querySelectorAll('.pill-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('is-active'));
-            btn.classList.add('is-active');
-            state.filter = btn.dataset.filter;
-            renderDeckCards(state.filter, els.search.value.toLowerCase());
-          });
-        });
-
-        els.search.addEventListener('input', e => {
-          state.search = e.target.value;
-          renderDeckCards(document.querySelector('.pill-btn.is-active').dataset.filter, e.target.value.toLowerCase());
-        });
-
-        // Global keys
-        document.addEventListener('keydown', (e) => {
-          if (e.key === '/' && document.activeElement !== els.search) { e.preventDefault(); els.search.focus(); }
-          if (e.key === 'Escape') closeModal();
-        });
-
-        // Open by clicking card surface (no CTA button)
-        const openFromEl = (el) => {
-          const card = el.closest('.deck-card');
-          if (!card) return;
-          const deck = deckData.find(d => d.number === Number(card.dataset.deck));
-          if (deck) openModal(deck);
-        };
-
-        els.cards.addEventListener('click', (e) => openFromEl(e.target));
-        els.cards.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            const card = e.target.closest('.deck-card');
-            if (!card) return;
-            e.preventDefault();
-            const deck = deckData.find(d => d.number === Number(card.dataset.deck));
-            if (deck) openModal(deck);
+        document.querySelectorAll('.pill-btn').forEach(btn => btn.addEventListener('click', function() { document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('is-active')); this.classList.add('is-active'); state.filter = this.dataset.filter; renderDeckCards(state.filter, els.search.value.toLowerCase()); }));
+        els.search.addEventListener('input', e => renderDeckCards(document.querySelector('.pill-btn.is-active').dataset.filter, e.target.value.toLowerCase()));
+        document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== els.search) { e.preventDefault(); els.search.focus(); } if (e.key === 'Escape') closeModal(); });
+        els.cards.addEventListener('click', e => { const card = e.target.closest('.deck-card'); if (card) { const deck = deckData.find(d => d.number === Number(card.dataset.deck)); if (deck) openModal(deck); }});
+        els.quickRail.addEventListener('click', e => { const btn = e.target.closest('.deck-quickbtn'); if (btn) { const deck = deckData.find(d => d.number === Number(btn.dataset.deck)); if (deck) openModal(deck); }});
+        document.addEventListener('click', e => { const pill = e.target.closest('.deck-pill'); if (pill) { const deck = deckData.find(d => d.number === Number(pill.dataset.deck)); if (deck) openModal(deck); }});
+        els.modal.addEventListener('click', e => {
+          const hotspot = e.target.closest('.deck-hotspot'); if (hotspot) { selectHotspotById(hotspot.dataset.hotspotId); return; }
+          const legend = e.target.closest('.deck-plan-legend-item'); if (legend) { selectHotspotById(legend.dataset.hotspotId); return; }
+          const focus = e.target.closest('.deck-focuschip'); if (focus) { 
+            els.modalFocusChips.querySelectorAll('.deck-focuschip').forEach(b => b.classList.remove('is-active')); focus.classList.add('is-active');
+            const match = [...els.modalFrame.querySelectorAll('.deck-hotspot')].find(b => (b.dataset.title || '').toLowerCase().includes(focus.textContent.toLowerCase()));
+            if (match) selectHotspotById(match.dataset.hotspotId); return;
           }
-        });
-
-        // Quick rail
-        els.quickRail.addEventListener('click', (e) => {
-          const btn = e.target.closest('.deck-quickbtn');
-          if (!btn) return;
-          const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
-          if (deck) openModal(deck);
-        });
-
-        // Category pills
-        document.addEventListener('click', (e) => {
-          const pill = e.target.closest('.deck-pill');
-          if (!pill) return;
-          const deck = deckData.find(d => d.number === Number(pill.dataset.deck));
-          if (deck) openModal(deck);
-        });
-
-        // Vertical indicator
-        document.getElementById('deckVerticalIndicator')?.addEventListener('click', (e) => {
-          const btn = e.target.closest('button');
-          if (!btn) return;
-          const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
-          if (deck) openModal(deck);
-        });
-
-        // Modal interactions
-        els.modal.addEventListener('click', (e) => {
-          const hotspot = e.target.closest('.deck-hotspot');
-          if (hotspot) { selectHotspotById(hotspot.dataset.hotspotId); return; }
-
-          const legend = e.target.closest('.deck-plan-legend-item');
-          if (legend) { selectHotspotById(legend.dataset.hotspotId); return; }
-
-          const focusChip = e.target.closest('.deck-focuschip');
-          if (focusChip) {
-            els.modalFocusChips.querySelectorAll('.deck-focuschip').forEach(btn => btn.classList.remove('is-active'));
-            focusChip.classList.add('is-active');
-            const needle = (focusChip.textContent || '').toLowerCase();
-            const match = [...els.modalFrame.querySelectorAll('.deck-hotspot')]
-              .find(btn => (btn.dataset.title || '').toLowerCase().includes(needle));
-            if (match) selectHotspotById(match.dataset.hotspotId);
-            return;
-          }
-
-          const trigger = e.target.closest('[data-action]');
-          const act = trigger?.dataset.action;
-
+          const act = e.target.closest('[data-action]')?.dataset.action;
           if (act === 'close-modal') closeModal();
           if (act === 'zoom-in') setZoom(state.currentZoom + 25);
           if (act === 'zoom-out') setZoom(state.currentZoom - 25);
           if (act === 'zoom-reset') setZoom(100);
-
-          if (act === 'prev-deck') {
-            const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
-            const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
-            if (idx > 0) openModal(sorted[idx-1]);
-          }
-
-          if (act === 'next-deck') {
-            const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
-            const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
-            if (idx < sorted.length-1) openModal(sorted[idx+1]);
-          }
-
-          if (act === 'center-me' && state.currentDeck?.number === 6) {
-            const aft = document.querySelector('[data-hotspot-id="aft-cabins"]');
-            if (aft) aft.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-          }
+          if (act === 'prev-deck') { const sorted = deckData.filter(d => d.number !== 0).sort((a,b)=>a.number-b.number); const idx = sorted.findIndex(d => d.number === state.currentDeck?.number); if (idx > 0) openModal(sorted[idx-1]); }
+          if (act === 'next-deck') { const sorted = deckData.filter(d => d.number !== 0).sort((a,b)=>a.number-b.number); const idx = sorted.findIndex(d => d.number === state.currentDeck?.number); if (idx < sorted.length-1) openModal(sorted[idx+1]); }
+          if (act === 'center-me' && state.currentDeck?.number === 6) { const aft = document.querySelector('[data-hotspot-id="aft-cabins"]'); if (aft) aft.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); }
         });
-
-        els.clearFilters?.addEventListener('click', () => {
-          state.search = '';
-          els.search.value = '';
-          state.filter = 'all';
-          document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter));
-          renderDeckCards();
-        });
-
-        if (els.categoryToggle && els.categoryPanels) {
-          els.categoryToggle.addEventListener('click', () => {
-            const expanded = els.categoryToggle.getAttribute('aria-expanded') === 'true';
-            const next = !expanded;
-            els.categoryToggle.setAttribute('aria-expanded', String(next));
-            els.categoryPanels.hidden = !next;
-            els.categoryToggle.innerHTML = `${next ? 'Hide' : 'Show'} <i class="fas fa-chevron-down" aria-hidden="true"></i>`;
-          });
-        }
+        els.clearFilters?.addEventListener('click', () => { state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === 'all')); renderDeckCards(); });
+        if (els.categoryToggle) els.categoryToggle.addEventListener('click', function() { const expanded = this.getAttribute('aria-expanded') === 'true'; this.setAttribute('aria-expanded', !expanded); els.categoryPanels.hidden = expanded; this.innerHTML = `${!expanded ? 'Hide' : 'Show'} <i class="fas fa-chevron-down"></i>`; });
       }
-
-      function init() {
-        renderQuickRail();
-        renderPills();
-        renderDeckCards();
-        bindEvents();
-
-        if (window.matchMedia('(max-width: 900px)').matches) {
-          setTimeout(() => {
-            const btn = document.querySelector('.deck-quickbtn[data-deck="6"]');
-            if (btn) btn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
-          }, 260);
-        }
-      }
-
+      function init() { renderQuickRail(); renderPills(); renderDeckCards(); bindEvents(); }
       init();
     })();
   </script>
