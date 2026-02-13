@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="en" class="app-theme-rcc">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport"
-        content="width=device-width, initial-scale=1, viewport-fit=cover">
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0, user-scalable=yes">
   <meta name="theme-color" content="#0A2E4A">
+
   <title>Deck Navigator · Adventure of the Seas</title>
 
   <!-- =========================================================
-       PERFORMANCE PRECONNECTS
+       PERFORMANCE OPTIMIZATION
   ========================================================== -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- =========================================================
-       FONTS (Consolidated — no duplicates)
+       TYPOGRAPHY (Consolidated — no duplication)
+       Inter = body
+       Plus Jakarta = headings
   ========================================================== -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <!-- =========================================================
        ICONS
@@ -25,7 +28,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <!-- =========================================================
-       RCCL GLOBAL STYLES
+       CORE SYSTEM CSS (Design System)
   ========================================================== -->
   <link rel="stylesheet" href="css/base.css?v=3">
   <link rel="stylesheet" href="css/utilities.css?v=3">
@@ -34,254 +37,23 @@
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
   <link rel="stylesheet" href="css/shared-layout.css?v=9">
 
-  <script src="js/shared-layout.js?v=17" defer></script>
+  <!-- =========================================================
+       DECK NAVIGATOR (Feature-specific only)
+       Contains:
+       - Deck grid
+       - Modal
+       - Zoom system
+       - Hotspots
+       - Legend
+       No global overrides.
+  ========================================================== -->
+  <link rel="stylesheet" href="css/deck-navigator.css?v=1">
 
   <!-- =========================================================
-       DECK NAVIGATOR – PREMIUM STABLE LAYER
-       Safari-safe SVG zoom architecture preserved
+       SHARED LAYOUT SCRIPT
   ========================================================== -->
-  <style>
+  <script src="js/shared-layout.js?v=17" defer></script>
 
-  /* =========================================================
-     DESIGN TOKENS
-  ========================================================== */
-  :root{
-    --navy:#0A2E4A;
-    --navy-soft:#1C4E6C;
-    --gold:#C6A15B;
-    --gold-soft:#E5D4B3;
-    --sky:#F1F7FA;
-    --white:#FFFFFF;
-
-    --radius-xl:44px;
-    --radius-lg:32px;
-    --radius-md:22px;
-
-    --shadow-soft:0 12px 28px rgba(10,46,74,0.08);
-    --shadow-med:0 20px 40px rgba(10,46,74,0.14);
-    --shadow-deep:0 36px 70px rgba(10,46,74,0.22);
-
-    --glass:rgba(255,255,255,0.72);
-    --glass-border:1px solid rgba(255,255,255,0.65);
-
-    --ease:cubic-bezier(.22,1,.36,1);
-  }
-
-  /* =========================================================
-     GLOBAL RESET
-  ========================================================== */
-  *,*::before,*::after{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    font-family:'Inter',system-ui,-apple-system;
-    background:var(--sky);
-    color:var(--navy);
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-  img{display:block}
-  button{font:inherit}
-
-  h1,h2,h3{
-    font-family:'Plus Jakarta Sans',sans-serif;
-    font-weight:800;
-    letter-spacing:-.01em;
-  }
-
-  /* =========================================================
-     MODAL FOUNDATION
-  ========================================================== */
-  .deck-modal{
-    position:fixed;
-    inset:0;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    background:rgba(6,24,42,0.45);
-    backdrop-filter:blur(22px);
-    -webkit-backdrop-filter:blur(22px);
-    z-index:1000;
-    padding:24px;
-  }
-  .deck-modal.is-open{display:flex}
-
-  .deck-modal__dialog{
-    width:min(95%,1400px);
-    height:min(90%,920px);
-    background:var(--glass);
-    backdrop-filter:blur(34px);
-    -webkit-backdrop-filter:blur(34px);
-    border:var(--glass-border);
-    border-radius:var(--radius-xl);
-    box-shadow:var(--shadow-deep);
-    display:flex;
-    flex-direction:column;
-    padding:24px;
-    position:relative;
-  }
-
-  /* =========================================================
-     TOOLBAR
-  ========================================================== */
-  .deck-modal__toolbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:16px;
-    margin-bottom:14px;
-  }
-
-  .toolbar-group{
-    display:flex;
-    gap:10px;
-    background:rgba(255,255,255,0.5);
-    padding:8px;
-    border-radius:60px;
-    backdrop-filter:blur(8px);
-  }
-
-  .btn-icon{
-    background:white;
-    border:none;
-    padding:12px 16px;
-    border-radius:40px;
-    font-weight:700;
-    cursor:pointer;
-    transition:.2s var(--ease);
-    box-shadow:var(--shadow-soft);
-  }
-  .btn-icon:hover{
-    background:var(--navy);
-    color:white;
-    transform:translateY(-2px);
-  }
-
-  .zoom-level{
-    min-width:60px;
-    text-align:center;
-    font-weight:800;
-    color:var(--navy-soft);
-  }
-
-  .close-btn{
-    width:48px;
-    height:48px;
-    border-radius:50%;
-    border:none;
-    background:white;
-    font-size:1.1rem;
-    cursor:pointer;
-    transition:.2s var(--ease);
-    box-shadow:var(--shadow-soft);
-  }
-  .close-btn:hover{
-    background:var(--navy);
-    color:white;
-    transform:translateY(-2px);
-  }
-
-  /* =========================================================
-     PLAN FRAME (Stable Architecture)
-  ========================================================== */
-  .deck-modal__frame{
-    flex:1;
-    min-height:0;
-    background:linear-gradient(180deg,#F6FAFD,#EDF5FA);
-    border-radius:var(--radius-lg);
-    padding:18px;
-    border:1px solid rgba(255,255,255,0.75);
-    position:relative;
-  }
-
-  /* Scroll container */
-  .deck-plan-stage{
-    width:100%;
-    height:100%;
-    overflow:auto;
-    -webkit-overflow-scrolling:touch;
-    position:relative;
-    border-radius:var(--radius-md);
-    background:white;
-    box-shadow:inset 0 0 0 1px rgba(10,46,74,0.04);
-  }
-
-  /* Zoom container (THIS is scaled) */
-  .deck-plan-canvas{
-    position:relative;
-    display:inline-block;
-    transform-origin:0 0;
-    transition:transform 0.08s ease;
-    will-change:transform;
-    padding:12px;
-  }
-
-  /* SVG image — DO NOT constrain width */
-  .deck-plan-media{
-    max-width:none; /* critical for stable zoom */
-    display:block;
-    border-radius:20px;
-    background:white;
-    box-shadow:
-      0 20px 40px rgba(10,46,74,0.08),
-      0 6px 18px rgba(10,46,74,0.05);
-  }
-
-  /* =========================================================
-     SKELETON
-  ========================================================== */
-  .deck-plan-skeleton{
-    height:100%;
-    border-radius:28px;
-    background:linear-gradient(
-      90deg,
-      rgba(255,255,255,0.55),
-      rgba(255,255,255,0.85),
-      rgba(255,255,255,0.55)
-    );
-    background-size:200% 100%;
-    animation:shimmer 1.2s infinite;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:700;
-    color:rgba(28,78,108,0.75);
-  }
-  @keyframes shimmer{
-    from{background-position:0% 0%}
-    to{background-position:200% 0%}
-  }
-
-  /* =========================================================
-     BODY LOCK
-  ========================================================== */
-  body.is-modal-open{
-    overflow:hidden;
-  }
-
-  /* =========================================================
-     RESPONSIVE
-  ========================================================== */
-  @media (max-width:700px){
-    .deck-modal{padding:14px}
-    .deck-modal__dialog{
-      padding:16px;
-      border-radius:32px;
-    }
-    .deck-modal__frame{
-      padding:12px;
-      border-radius:26px;
-    }
-  }
-
-  @media (prefers-reduced-motion:reduce){
-    *{
-      animation:none!important;
-      transition:none!important;
-    }
-  }
-
-  </style>
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
