@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Deck 04 · Adventure of the Seas</title>
 
 <style>
@@ -18,8 +17,8 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at 50% 30%, #104870, #061c2e 70%);
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  background: linear-gradient(180deg, #0b3554, #061c2e);
   color: white;
   display: flex;
   flex-direction: column;
@@ -30,7 +29,7 @@ body {
 header {
   padding: 1rem 1.5rem;
   background: rgba(0,0,0,.35);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -48,45 +47,25 @@ header a {
   font-weight: 600;
 }
 
-/* VIEWER */
+/* VIEWPORT */
 .viewer {
-  position: relative;
   flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;
-}
-
-/* Glow frame */
-.viewer::after {
-  content: "";
-  position: absolute;
-  inset: 20px;
-  border-radius: 18px;
-  box-shadow:
-    0 0 60px rgba(0,180,230,.25),
-    inset 0 0 40px rgba(0,180,230,.2);
-  pointer-events: none;
-}
-
-/* SCROLL STAGE */
-.stage {
-  width: 100%;
-  height: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  padding: 1rem 0;
   display: flex;
   justify-content: center;
 }
 
 /* IMAGE */
-.stage img {
+.viewer img {
+  width: 95vw;
+  max-width: 1200px;
+  height: auto;
   display: block;
-  transform-origin: top center;
-  transition: transform .15s ease;
-  user-select: none;
-  -webkit-user-drag: none;
+  border-radius: 16px;
+  box-shadow:
+    0 0 40px rgba(0,180,230,.25);
 }
 
 /* CONTROLS */
@@ -94,7 +73,6 @@ header a {
   padding: .75rem;
   display: flex;
   justify-content: center;
-  align-items: center;
   gap: .75rem;
   background: rgba(0,0,0,.35);
   backdrop-filter: blur(8px);
@@ -108,11 +86,6 @@ header a {
   color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: transform .1s ease;
-}
-
-.controls button:active {
-  transform: scale(.95);
 }
 
 .zoom-display {
@@ -131,19 +104,16 @@ header a {
 </header>
 
 <div class="viewer">
-  <div class="stage" id="stage">
-    <img id="deckImage"
-         src="decks/deck-04-final.min.svg"
-         alt="Deck 04 Plan"
-         draggable="false">
-  </div>
+  <img id="deckImage"
+       src="decks/deck-04-final.min.svg"
+       alt="Deck 04 Plan">
 </div>
 
 <div class="controls">
   <button id="zoomOut">−</button>
   <div class="zoom-display" id="zoomDisplay">100%</div>
   <button id="zoomIn">+</button>
-  <button id="zoomReset">Fit</button>
+  <button id="zoomReset">Reset</button>
 </div>
 
 <script>
@@ -151,47 +121,30 @@ header a {
   const img = document.getElementById('deckImage');
   const zoomDisplay = document.getElementById('zoomDisplay');
 
-  let scale = 1;
-
-  function fitToScreen() {
-    const viewportWidth = window.innerWidth * 0.95;
-    const naturalWidth = img.naturalWidth;
-
-    if (!naturalWidth) return;
-
-    scale = viewportWidth / naturalWidth;
-    updateZoom();
-  }
+  let zoom = 1;
 
   function updateZoom() {
-    img.style.transform = `scale(${scale})`;
-    zoomDisplay.textContent = Math.round(scale * 100) + "%";
+    img.style.width = (95 * zoom) + "vw";
+    zoomDisplay.textContent = Math.round(zoom * 100) + "%";
   }
 
   document.getElementById('zoomIn').addEventListener('click', () => {
-    scale = Math.min(scale + 0.25, 5);
+    zoom = Math.min(zoom + 0.25, 4);
     updateZoom();
   });
 
   document.getElementById('zoomOut').addEventListener('click', () => {
-    scale = Math.max(scale - 0.25, 0.25);
+    zoom = Math.max(zoom - 0.25, 0.5);
     updateZoom();
   });
 
   document.getElementById('zoomReset').addEventListener('click', () => {
-    fitToScreen();
-  });
-
-  img.addEventListener('load', () => {
-    fitToScreen();
+    zoom = 1;
+    updateZoom();
   });
 
   img.addEventListener('error', () => {
-    img.src = 'decks/deck-04.png';
-  });
-
-  window.addEventListener('resize', () => {
-    fitToScreen();
+    img.src = "decks/deck-04.png";
   });
 
 })();
