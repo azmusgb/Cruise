@@ -1,1592 +1,261 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
-<title>Deck Navigator · Adventure of the Seas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a2e4a">
+<title>Deck Explorer · Adventure of the Seas</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
-/* ── Reset & Base ─────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ==========================================
+   CINEMATIC DECK EXPLORER
+   ========================================== */
 
-:root {
-  --navy:    #0a2e4a;
-  --navy2:   #083452;
-  --blue:    #0f4f76;
-  --accent:  #00b4e6;
-  --gold:    #ffd740;
-  --gold2:   #c6a15b;
-  --white:   #ffffff;
-  --bg:      #f0f6fb;
-  --bg2:     #e4eff8;
-  --card-bg: #ffffff;
-  --text:    #0d2236;
-  --muted:   #5a7a93;
-  --radius:  22px;
-  --shadow:  0 8px 32px rgba(10,46,74,.13);
-  --shadow-lg: 0 20px 60px rgba(10,46,74,.22);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:#071a2c;
+  color:#fff;
+  overflow:hidden;
 }
 
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
+/* Background */
+#ocean{position:fixed;inset:0;z-index:-2}
+.overlay{
+  position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.15), transparent 60%),
+             linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,.65));
 }
 
-/* ── Header ───────────────────────────────────── */
-.site-header {
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
-  padding: 0 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 20px rgba(0,0,0,.3);
+/* Header */
+header{
+  position:fixed;top:0;width:100%;
+  backdrop-filter:blur(14px);
+  background:rgba(10,46,74,.7);
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding:0 1rem;
+  height:60px;
+  display:flex;
+  align-items:center;
+  z-index:100;
+}
+.title{
+  font-family:'Plus Jakarta Sans';
+  font-weight:900;
+}
+.spacer{flex:1}
+.search{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  padding:.4rem .8rem;
+  border-radius:999px;
+  color:white;
+  width:160px;
 }
 
-.header-inner {
-  max-width: 1200px;
-  margin: auto;
-  height: 62px;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+/* Deck Selector */
+.deck-bar{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  backdrop-filter:blur(12px);
+  background:rgba(10,46,74,.7);
+  padding:.6rem;
+  display:flex;
+  justify-content:center;
+  gap:.5rem;
+  z-index:100;
+}
+.deck-btn{
+  padding:.4rem .8rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.1);
+  font-size:.75rem;
+  cursor:pointer;
+}
+.deck-btn.active{
+  background:#00b4e6;
+  color:#071a2c;
 }
 
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  text-decoration: none;
-  color: var(--white);
+/* Canvas Area */
+.viewer{
+  position:absolute;
+  top:60px;
+  bottom:60px;
+  left:0;
+  right:0;
+  overflow:hidden;
+  cursor:grab;
+}
+canvas#deckCanvas{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
 }
 
-.header-brand i {
-  color: var(--gold);
-  font-size: 1.2rem;
+/* Highlight */
+.highlight{
+  position:absolute;
+  border:3px solid #ffd740;
+  border-radius:6px;
+  box-shadow:0 0 20px rgba(255,215,64,.6);
+  pointer-events:none;
+  animation:pulse 1.5s infinite;
 }
-
-.header-brand-text { line-height: 1.2; }
-
-.header-brand-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  font-size: .95rem;
-  color: var(--white);
-  display: block;
-}
-
-.header-brand-sub {
-  font-size: .7rem;
-  color: rgba(255,255,255,.55);
-  display: block;
-}
-
-.header-spacer { flex: 1; }
-
-.header-badge {
-  background: rgba(255,215,64,.15);
-  border: 1px solid rgba(255,215,64,.3);
-  color: var(--gold);
-  font-size: .72rem;
-  font-weight: 700;
-  padding: .3rem .75rem;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-/* ── Hero ─────────────────────────────────────── */
-.hero {
-  background: linear-gradient(160deg, var(--navy) 0%, #0d3f60 60%, #0f5580 100%);
-  padding: 3.5rem 1.5rem 3rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 70% 0%, rgba(0,180,230,.18) 0%, transparent 60%),
-              radial-gradient(ellipse at 20% 100%, rgba(255,215,64,.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  background: rgba(255,255,255,.1);
-  border: 1px solid rgba(255,255,255,.2);
-  color: rgba(255,255,255,.9);
-  font-size: .78rem;
-  font-weight: 600;
-  padding: .4rem 1rem;
-  border-radius: 999px;
-  margin-bottom: 1.25rem;
-}
-
-.hero-badge i { color: var(--gold); }
-
-.hero h1 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 900;
-  font-size: clamp(2rem, 5vw, 3rem);
-  color: var(--white);
-  margin-bottom: .75rem;
-  line-height: 1.1;
-}
-
-.hero h1 em {
-  color: var(--accent);
-  font-style: normal;
-}
-
-.hero-sub {
-  color: rgba(255,255,255,.65);
-  font-size: .95rem;
-  max-width: 480px;
-  margin: 0 auto 2rem;
-  line-height: 1.6;
-}
-
-/* ── Search ───────────────────────────────────── */
-.search-wrap {
-  display: flex;
-  align-items: center;
-  max-width: 420px;
-  margin: 0 auto;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.22);
-  border-radius: 999px;
-  padding: .2rem .2rem .2rem 1.1rem;
-  backdrop-filter: blur(8px);
-  transition: .2s;
-}
-
-.search-wrap:focus-within {
-  background: rgba(255,255,255,.18);
-  border-color: rgba(0,180,230,.7);
-  box-shadow: 0 0 0 3px rgba(0,180,230,.2);
-}
-
-.search-wrap i {
-  color: rgba(255,255,255,.55);
-  font-size: .85rem;
-  margin-right: .5rem;
-  flex-shrink: 0;
-}
-
-.search-wrap input {
-  flex: 1;
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--white);
-  font-size: .92rem;
-  font-family: inherit;
-  min-width: 0;
-}
-
-.search-wrap input::placeholder { color: rgba(255,255,255,.45); }
-
-.search-wrap button {
-  background: rgba(255,255,255,.15);
-  border: none;
-  color: var(--white);
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: .2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .8rem;
-}
-
-.search-wrap button:hover { background: rgba(255,255,255,.28); }
-
-/* ── Grid Section ─────────────────────────────── */
-.grid-section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2.5rem 1.25rem 5rem;
-}
-
-.grid-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-}
-
-.grid-meta h2 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 800;
-  font-size: 1.15rem;
-  color: var(--navy);
-}
-
-.grid-count {
-  font-size: .8rem;
-  color: var(--muted);
-  font-weight: 600;
-  background: var(--bg2);
-  padding: .3rem .8rem;
-  border-radius: 999px;
-}
-
-.deck-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.1rem;
-}
-
-/* ── Deck Card ─────────────────────────────────── */
-.deck-card {
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  padding: 1.5rem 1.25rem 1.25rem;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  border: 1.5px solid transparent;
-  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
-  position: relative;
-  overflow: hidden;
-  user-select: none;
-}
-
-.deck-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--accent), var(--gold));
-  opacity: 0;
-  transition: opacity .22s;
-}
-
-.deck-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(0,180,230,.25);
-}
-
-.deck-card:hover::before { opacity: 1; }
-
-.deck-card:active { transform: translateY(-2px) scale(.99); }
-
-.card-num {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 900;
-  font-size: 2.2rem;
-  color: var(--accent);
-  line-height: 1;
-  margin-bottom: .3rem;
-}
-
-.card-name {
-  font-weight: 700;
-  font-size: .95rem;
-  color: var(--navy);
-  margin-bottom: .35rem;
-}
-
-.card-hint {
-  font-size: .75rem;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-}
-
-.card-hint i { font-size: .65rem; }
-
-.card-arrow {
-  position: absolute;
-  right: 1.1rem;
-  bottom: 1.1rem;
-  width: 30px;
-  height: 30px;
-  background: var(--bg);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-  font-size: .7rem;
-  transition: .2s;
-}
-
-.deck-card:hover .card-arrow {
-  background: var(--accent);
-  color: var(--white);
-}
-
-/* ── Empty State ────────────────────────────────── */
-.empty-state {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: var(--muted);
-  grid-column: 1 / -1;
-}
-
-.empty-state i { font-size: 2.5rem; margin-bottom: 1rem; opacity: .4; display: block; }
-
-/* ── Modal Backdrop ─────────────────────────────── */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(5,18,35,.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: env(safe-area-inset-top, 1rem) 1rem env(safe-area-inset-bottom, 1rem);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .25s ease;
-}
-
-.modal-backdrop.is-open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ── Modal ──────────────────────────────────────── */
-.modal {
-  background: #fff;
-  border-radius: 28px;
-  width: min(98%, 1100px);
-  max-height: calc(100vh - 2rem);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 30px 80px rgba(0,0,0,.45);
-  transform: scale(.96) translateY(12px);
-  transition: transform .28s cubic-bezier(.22,.61,.36,1);
-}
-
-.modal-backdrop.is-open .modal {
-  transform: scale(1) translateY(0);
-}
-
-/* ── Modal Header ───────────────────────────────── */
-.modal-header {
-  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
-}
-
-.modal-header-info { flex: 1; min-width: 0; }
-
-.modal-deck-num {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 900;
-  font-size: 1.9rem;
-  color: var(--accent);
-  line-height: 1;
-}
-
-.modal-deck-name {
-  font-size: .85rem;
-  color: rgba(255,255,255,.7);
-  margin-top: .1rem;
-}
-
-.modal-nav {
-  display: flex;
-  gap: .5rem;
-}
-
-.modal-nav-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,.25);
-  background: rgba(255,255,255,.1);
-  color: var(--white);
-  cursor: pointer;
-  transition: .2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .85rem;
-}
-
-.modal-nav-btn:hover { background: rgba(255,255,255,.25); }
-.modal-nav-btn:disabled { opacity: .3; cursor: default; }
-
-.modal-close {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,.25);
-  background: rgba(255,255,255,.1);
-  color: var(--white);
-  cursor: pointer;
-  transition: .2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .9rem;
-  flex-shrink: 0;
-}
-
-.modal-close:hover { background: rgba(220,60,60,.5); border-color: rgba(220,60,60,.6); }
-
-/* ── Plan Viewer ────────────────────────────────── */
-.plan-viewer {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  background: radial-gradient(circle at center, #103a60, #071e33);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-}
-
-.plan-stage {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: auto;
-  cursor: grab;
-  padding: 1rem;
-}
-
-.plan-stage:active { cursor: grabbing; }
-
-.plan-stage img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  transform-origin: center center;
-  transition: transform .15s ease;
-  border-radius: 8px;
-  pointer-events: none;
-  user-select: none;
-}
-
-.plan-loader {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  color: rgba(255,255,255,.6);
-  font-size: .9rem;
-}
-
-.spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid rgba(255,255,255,.15);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.plan-error {
-  position: absolute;
-  inset: 0;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: .75rem;
-  color: rgba(255,255,255,.5);
-  text-align: center;
-  padding: 2rem;
-}
-
-.plan-error i { font-size: 2.5rem; opacity: .4; }
-.plan-error p { font-size: .85rem; line-height: 1.6; }
-
-/* ── Zoom Bar ───────────────────────────────────── */
-.zoom-bar {
-  background: #f0f6fb;
-  border-top: 1px solid rgba(0,0,0,.07);
-  padding: .75rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .6rem;
-  flex-shrink: 0;
-}
-
-.zoom-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(0,0,0,.1);
-  background: var(--white);
-  color: var(--navy);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .8rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  transition: .18s;
-}
-
-.zoom-btn:hover { background: var(--accent); color: var(--white); border-color: var(--accent); }
-
-.zoom-label {
-  font-size: .82rem;
-  font-weight: 700;
-  color: var(--navy);
-  min-width: 52px;
-  text-align: center;
-}
-
-.zoom-divider {
-  width: 1px;
-  height: 20px;
-  background: rgba(0,0,0,.1);
-  margin: 0 .2rem;
-}
-
-/* ── Responsive ─────────────────────────────────── */
-@media (max-width: 600px) {
-  .hero { padding: 2.5rem 1rem 2rem; }
-  .modal { border-radius: 20px 20px 0 0; width: 100%; max-height: 92vh; margin-top: auto; }
-  .modal-backdrop { align-items: flex-end; padding: 0; }
-  .deck-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem; }
-  .card-num { font-size: 1.8rem; }
-  .modal-header { padding: 1rem 1.1rem; }
-  .modal-deck-num { font-size: 1.5rem; }
+@keyframes pulse{
+  0%{box-shadow:0 0 10px rgba(255,215,64,.4)}
+  50%{box-shadow:0 0 30px rgba(255,215,64,.8)}
+  100%{box-shadow:0 0 10px rgba(255,215,64,.4)}
 }
 </style>
-
 </head>
-
 <body>
 
-<!-- ── Header ─────────────────────────────────────── -->
+<canvas id="ocean"></canvas>
+<div class="overlay"></div>
 
-<header class="site-header">
-  <div class="header-inner">
-    <a href="#" class="header-brand">
-      <i class="fas fa-crown"></i>
-      <div class="header-brand-text">
-        <span class="header-brand-title">Royal Caribbean</span>
-        <span class="header-brand-sub">Adventure of the Seas</span>
-      </div>
-    </a>
-    <div class="header-spacer"></div>
-    <span class="header-badge"><i class="fas fa-calendar-alt" style="margin-right:.4rem"></i>Feb 14–20, 2026</span>
-  </div>
+<header>
+  <div class="title">Deck Explorer</div>
+  <div class="spacer"></div>
+  <input type="text" id="searchRoom" class="search" placeholder="Find cabin #">
 </header>
 
-<!-- ── Hero ───────────────────────────────────────── -->
-
-<section class="hero">
-  <div class="hero-badge">
-    <i class="fas fa-ship"></i>
-    Adventure of the Seas · 13 Decks
-  </div>
-  <h1>Explore Every <em>Deck</em></h1>
-  <p class="hero-sub">Find staterooms, restaurants, pools, and amenities across every level of the ship.</p>
-
-  <div class="search-wrap">
-    <i class="fas fa-search"></i>
-    <input id="searchInput" type="search" placeholder="Search decks…" autocomplete="off" aria-label="Search decks">
-    <button id="searchClear" hidden aria-label="Clear search"><i class="fas fa-times"></i></button>
-  </div>
-</section>
-
-<!-- ── Grid ───────────────────────────────────────── -->
-
-<section class="grid-section">
-  <div class="grid-meta">
-    <h2>Deck Plans</h2>
-    <span id="gridCount" class="grid-count"></span>
-  </div>
-  <div id="deckGrid" class="deck-grid"></div>
-</section>
-
-<!-- ── Modal ──────────────────────────────────────── -->
-
-<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalDeckName">
-
-  <div class="modal">
-
-```
-<header class="modal-header">
-  <div class="modal-header-info">
-    <div id="modalDeckNum" class="modal-deck-num"></div>
-    <div id="modalDeckName" class="modal-deck-name"></div>
-  </div>
-  <div class="modal-nav">
-    <button id="btnPrev" class="modal-nav-btn" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
-    <button id="btnNext" class="modal-nav-btn" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
-  </div>
-  <button id="btnClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
-</header>
-
-<div class="plan-viewer">
-  <div id="planLoader" class="plan-loader">
-    <div class="spinner"></div>
-    <span>Loading deck plan…</span>
-  </div>
-  <div id="planError" class="plan-error">
-    <i class="fas fa-exclamation-triangle"></i>
-    <p>Deck plan unavailable.<br>The image file may not be uploaded yet.</p>
-  </div>
-  <div id="planStage" class="plan-stage"></div>
+<div class="viewer">
+  <canvas id="deckCanvas" width="1200" height="600"></canvas>
 </div>
 
-<div class="zoom-bar">
-  <button id="zoomOut" class="zoom-btn" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
-  <span id="zoomLabel" class="zoom-label">100%</span>
-  <button id="zoomIn" class="zoom-btn" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
-  <div class="zoom-divider"></div>
-  <button id="zoomReset" class="zoom-btn" aria-label="Reset zoom"><i class="fas fa-compress-arrows-alt"></i></button>
-</div>
-```
-
-  </div>
-</div>
+<div class="deck-bar" id="deckBar"></div>
 
 <script>
-(() => {
-  'use strict';
+(function(){
+'use strict';
 
-  /**
-   * Deck Navigator (SVG-as-is)
-   * - Inline SVG fetch (no SVG modification required)
-   * - GPU pan/zoom + inertia + wheel zoom-to-cursor + pinch zoom + double-tap zoom
-   * - Smooth animated deck transitions
-   * - Deck carousel preview (thumbnails)
-   * - Subtle ocean ambient motion background (canvas)
-   * - Glow edge lighting around SVG
-   *
-   * Assumes HTML provides these IDs:
-   *  - deckGrid, gridCount, searchInput, searchClear
-   *  - modalBackdrop, modalDeckNum, modalDeckName
-   *  - planStage, planLoader, planError
-   *  - btnClose, btnPrev, btnNext, zoomIn, zoomOut, zoomReset, zoomLabel
-   */
+const DECKS=[3,6,8];
+const ROOMS={
+  3:['3622'],
+  6:['6650'],
+  8:['8528','8370','8612']
+};
 
-  /* ────────────────────────────────────────────────────────────────
-   * Data
-   * ──────────────────────────────────────────────────────────────── */
-  const DECKS = [
-    { n: 15, name: "Deck 15", hint: "Sun Deck · Sports" },
-    { n: 14, name: "Deck 14", hint: "Pool · Solarium" },
-    { n: 13, name: "Deck 13", hint: "Windjammer · Café" },
-    { n: 12, name: "Deck 12", hint: "Solarium · Spa" },
-    { n: 11, name: "Deck 11", hint: "Staterooms" },
-    { n: 10, name: "Deck 10", hint: "Staterooms · Suites" },
-    { n: 9,  name: "Deck 9",  hint: "Staterooms" },
-    { n: 8,  name: "Deck 8",  hint: "Staterooms" },
-    { n: 7,  name: "Deck 7",  hint: "Staterooms" },
-    { n: 6,  name: "Deck 6",  hint: "Staterooms" },
-    { n: 5,  name: "Deck 5",  hint: "Staterooms" },
-    { n: 4,  name: "Deck 4",  hint: "Entertainment · Shops" },
-    { n: 3,  name: "Deck 3",  hint: "Dining · Atrium" },
-    { n: 2,  name: "Deck 2",  hint: "Dining · Lobby" },
-  ];
+const deckBar=document.getElementById('deckBar');
+const canvas=document.getElementById('deckCanvas');
+const ctx=canvas.getContext('2d');
+const viewer=document.querySelector('.viewer');
+const search=document.getElementById('searchRoom');
 
-  function svgPath(n) {
-    const pad = String(n).padStart(2, '0');
-    return `decks/deck-${pad}-final.min.svg`;
-  }
+let currentDeck=6;
+let scale=1;
+let offsetX=0,offsetY=0;
+let dragging=false,startX,startY;
 
-  /* ────────────────────────────────────────────────────────────────
-   * Elements (defensive)
-   * ──────────────────────────────────────────────────────────────── */
-  const $ = (id) => document.getElementById(id);
+function renderDeck(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#0a2e4a';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  const grid         = $('deckGrid');
-  const gridCount    = $('gridCount');
-  const searchInput  = $('searchInput');
-  const searchClear  = $('searchClear');
+  ctx.fillStyle='#00b4e6';
+  ctx.font='40px Inter';
+  ctx.fillText('Deck '+currentDeck,50,80);
 
-  const backdrop     = $('modalBackdrop');
-  const modalNum     = $('modalDeckNum');
-  const modalName    = $('modalDeckName');
+  ctx.fillStyle='#fff';
+  ctx.font='20px Inter';
 
-  const planStage    = $('planStage');
-  const planLoader   = $('planLoader');
-  const planError    = $('planError');
+  ROOMS[currentDeck].forEach((r,i)=>{
+    ctx.fillRect(200+i*120,200,100,60);
+    ctx.fillStyle='#071a2c';
+    ctx.fillText(r,215+i*120,240);
+    ctx.fillStyle='#fff';
+  });
+}
 
-  const btnClose     = $('btnClose');
-  const btnPrev      = $('btnPrev');
-  const btnNext      = $('btnNext');
+DECKS.forEach(d=>{
+  const btn=document.createElement('button');
+  btn.className='deck-btn'+(d===currentDeck?' active':'');
+  btn.textContent='Deck '+d;
+  btn.onclick=()=>{
+    currentDeck=d;
+    document.querySelectorAll('.deck-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderDeck();
+  };
+  deckBar.appendChild(btn);
+});
 
-  const zoomInBtn    = $('zoomIn');
-  const zoomOutBtn   = $('zoomOut');
-  const zoomResetBtn = $('zoomReset');
-  const zoomLabel    = $('zoomLabel');
-
-  const REQUIRED = [grid, gridCount, searchInput, searchClear, backdrop, modalNum, modalName, planStage, planLoader, planError,
-                    btnClose, btnPrev, btnNext, zoomInBtn, zoomOutBtn, zoomResetBtn, zoomLabel];
-
-  if (REQUIRED.some(Boolean) === false) {
-    console.error('[DeckNavigator] Missing required DOM elements. Check IDs in HTML.');
-    return;
-  }
-
-  /* ────────────────────────────────────────────────────────────────
-   * Inject UX CSS (self-contained upgrades)
-   * ──────────────────────────────────────────────────────────────── */
-  const injectedStyle = document.createElement('style');
-  injectedStyle.textContent = `
-    /* Deck carousel preview */
-    .deck-carousel-wrap {
-      margin-top: 1.15rem;
-      display: grid;
-      gap: .65rem;
-    }
-    .deck-carousel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .8rem;
-      color: rgba(255,255,255,.78);
-      font-size: .78rem;
-      font-weight: 600;
-      letter-spacing: .01em;
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 0 .2rem;
-    }
-    .deck-carousel {
-      max-width: 780px;
-      margin: 0 auto;
-      display: flex;
-      gap: .7rem;
-      overflow-x: auto;
-      padding: .25rem .15rem .45rem;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .deck-carousel::-webkit-scrollbar { display: none; }
-    .deck-chip {
-      scroll-snap-align: start;
-      flex: 0 0 auto;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: .55rem;
-      align-items: center;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08);
-      backdrop-filter: blur(10px);
-      padding: .5rem .65rem;
-      cursor: pointer;
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
-      min-width: 168px;
-      user-select: none;
-    }
-    .deck-chip:hover { transform: translateY(-2px); background: rgba(255,255,255,.12); border-color: rgba(0,180,230,.45); }
-    .deck-chip:active { transform: translateY(-1px) scale(.99); }
-    .deck-chip.is-active { border-color: rgba(255,215,64,.55); box-shadow: 0 0 0 3px rgba(255,215,64,.14); }
-    .deck-chip-num {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      display: grid;
-      place-items: center;
-      font-weight: 900;
-      color: #0a2e4a;
-      background: linear-gradient(135deg, #ffd740, rgba(0,180,230,.85));
-      box-shadow: 0 10px 24px rgba(0,0,0,.25);
-      font-family: ui-sans-serif, system-ui, -apple-system, 'Inter', sans-serif;
-      font-size: .9rem;
-    }
-    .deck-chip-meta { min-width: 0; }
-    .deck-chip-title {
-      color: rgba(255,255,255,.92);
-      font-weight: 800;
-      font-size: .8rem;
-      line-height: 1.15;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .deck-chip-sub {
-      color: rgba(255,255,255,.55);
-      font-size: .7rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: .1rem;
-    }
-    .deck-chip-thumb {
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.22);
-      box-shadow: 0 14px 30px rgba(0,0,0,.28);
-      display: grid;
-      place-items: center;
-    }
-    .deck-chip-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: .92;
-      filter: saturate(1.05) contrast(1.05);
-    }
-
-    /* Plan viewer enhancements */
-    .plan-stage {
-      position: relative;
-    }
-    .ocean-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: .26;
-      pointer-events: none;
-      mix-blend-mode: screen;
-      filter: blur(.2px);
-    }
-    .svg-shell {
-      position: relative;
-      display: grid;
-      place-items: center;
-      width: 100%;
-      height: 100%;
-      padding: 1rem;
-    }
-    .svg-transform-layer {
-      will-change: transform;
-      transform-origin: 0 0;
-      touch-action: none;
-      border-radius: 14px;
-      /* Glow edge lighting */
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.10),
-        0 14px 60px rgba(0,0,0,.55),
-        0 0 22px rgba(0,180,230,.22),
-        0 0 28px rgba(255,215,64,.12);
-      background: rgba(255,255,255,.02);
-    }
-    .svg-transform-layer svg {
-      display: block;
-      width: min(980px, 100%);
-      height: auto;
-      shape-rendering: geometricPrecision;
-      text-rendering: optimizeLegibility;
-      image-rendering: optimizeQuality;
-      filter: drop-shadow(0 10px 28px rgba(0,0,0,.38));
-      border-radius: 14px;
-    }
-
-    /* Smooth animated deck transitions */
-    .deck-fade-enter {
-      opacity: 0;
-      transform: translateY(10px) scale(.99);
-    }
-    .deck-fade-enter.deck-fade-enter-active {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      transition: opacity .32s ease, transform .32s cubic-bezier(.2,.9,.2,1);
-    }
-    .deck-fade-exit {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-    .deck-fade-exit.deck-fade-exit-active {
-      opacity: 0;
-      transform: translateY(-10px) scale(.985);
-      transition: opacity .26s ease, transform .26s ease;
-    }
-
-    /* Reduced motion respect */
-    @media (prefers-reduced-motion: reduce) {
-      .deck-chip, .deck-chip:hover, .deck-chip:active { transition: none !important; transform: none !important; }
-      .deck-fade-enter.deck-fade-enter-active,
-      .deck-fade-exit.deck-fade-exit-active { transition: none !important; }
-    }
-  `;
-  document.head.appendChild(injectedStyle);
-
-  /* ────────────────────────────────────────────────────────────────
-   * State
-   * ──────────────────────────────────────────────────────────────── */
-  let filtered = [...DECKS];
-  let currentIdx = 0;
-
-  // Pan/zoom state
-  let transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
-  let activeLayer = null;
-  let isDragging = false;
-  let lastX = 0;
-  let lastY = 0;
-  let lastT = 0;
-  let inertiaRAF = 0;
-
-  // pinch state
-  let pinchInitDist = 0;
-  let pinchInitScale = 1;
-
-  // double tap
-  let lastTapMs = 0;
-
-  // ocean canvas
-  let ocean = null;
-
-  /* ────────────────────────────────────────────────────────────────
-   * Grid + carousel
-   * ──────────────────────────────────────────────────────────────── */
-  function renderGrid(list) {
-    filtered = list;
-    grid.innerHTML = '';
-    gridCount.textContent = `${list.length} of ${DECKS.length}`;
-
-    if (!list.length) {
-      grid.innerHTML = `<div class="empty-state">
-        <i class="fas fa-search"></i>
-        <p>No decks match your search.</p>
-      </div>`;
-      return;
-    }
-
-    list.forEach((deck, i) => {
-      const card = document.createElement('div');
-      card.className = 'deck-card';
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', `Open ${deck.name}`);
-      card.innerHTML = `
-        <div class="card-num">${deck.n}</div>
-        <div class="card-name">${deck.name}</div>
-        <div class="card-hint"><i class="fas fa-map-pin"></i>${deck.hint}</div>
-        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
-      `;
-      card.addEventListener('click', () => openModal(i));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(i); }});
-      grid.appendChild(card);
-    });
-
-    syncCarousel();
-  }
-
-  function ensureCarousel() {
-    const hero = document.querySelector('.hero');
-    if (!hero) return null;
-
-    let wrap = hero.querySelector('.deck-carousel-wrap');
-    if (wrap) return wrap;
-
-    wrap = document.createElement('div');
-    wrap.className = 'deck-carousel-wrap';
-
-    const head = document.createElement('div');
-    head.className = 'deck-carousel-head';
-    head.innerHTML = dockText(`
-      <span><i class="fas fa-layer-group" style="margin-right:.45rem;color:rgba(255,215,64,.95)"></i>Quick deck jump</span>
-      <span style="color:rgba(255,255,255,.55)">Swipe · Tap</span>
-    `);
-
-    const carousel = document.createElement('div');
-    carousel.className = 'deck-carousel';
-    carousel.setAttribute('aria-label', 'Deck carousel preview');
-    carousel.setAttribute('role', 'list');
-
-    wrap.appendChild(head);
-    wrap.appendChild(carousel);
-
-    // insert after search
-    const searchWrap = hero.querySelector('.search-wrap');
-    if (searchWrap && searchWrap.parentElement) {
-      searchWrap.parentElement.appendChild(wrap);
-    } else {
-      hero.appendChild(wrap);
-    }
-
-    return wrap;
-  }
-
-  function dockText(html) {
-    const t = document.createElement('template');
-    t.innerHTML = String(html).trim();
-    return t.content;
-  }
-
-  function buildCarouselItems() {
-    const wrap = ensureCarousel();
-    if (!wrap) return;
-
-    const carousel = wrap.querySelector('.deck-carousel');
-    if (!carousel) return;
-
-    carousel.innerHTML = '';
-
-    const items = filtered.length ? filtered : DECKS;
-
-    items.forEach((deck, i) => {
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'deck-chip';
-      chip.setAttribute('role', 'listitem');
-      chip.setAttribute('aria-label', `Open ${deck.name}`);
-      chip.dataset.deckNumber = String(deck.n);
-
-      const thumb = document.createElement('div');
-      thumb.className = 'deck-chip-thumb';
-
-      const img = document.createElement('img');
-      img.alt = `${deck.name} thumbnail`;
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.src = svgPath(deck.n);
-      img.onerror = () => {
-        // keep it subtle; no noisy UI
-        img.remove();
-        thumb.textContent = '⋯';
-        thumb.style.color = 'rgba(255,255,255,.7)';
-        thumb.style.fontWeight = '800';
-      };
-
-      thumb.appendChild(img);
-
-      chip.innerHTML = `
-        <div class="deck-chip-num">${deck.n}</div>
-        <div class="deck-chip-meta">
-          <div class="deck-chip-title">${escapeHtml(deck.name)}</div>
-          <div class="deck-chip-sub">${escapeHtml(deck.hint)}</div>
-        </div>
-      `;
-      chip.insertBefore(thumb, chip.firstChild);
-
-      chip.addEventListener('click', () => {
-        // Find this deck in filtered list
-        const idx = filtered.findIndex(d => d.n === deck.n);
-        openModal(idx >= 0 ? idx : i);
+search.addEventListener('input',()=>{
+  const val=search.value.trim();
+  if(!val) return;
+  Object.entries(ROOMS).forEach(([deck,list])=>{
+    if(list.includes(val)){
+      currentDeck=parseInt(deck);
+      document.querySelectorAll('.deck-btn').forEach(b=>{
+        b.classList.toggle('active',b.textContent.includes(deck));
       });
-
-      carousel.appendChild(chip);
-    });
-  }
-
-  function syncCarousel() {
-    buildCarouselItems();
-    highlightCarouselActive();
-  }
-
-  function highlightCarouselActive() {
-    const wrap = document.querySelector('.deck-carousel-wrap');
-    if (!wrap) return;
-    const carousel = wrap.querySelector('.deck-carousel');
-    if (!carousel) return;
-
-    const open = backdrop.classList.contains('is-open');
-    const deck = open ? filtered[currentIdx] : null;
-
-    carousel.querySelectorAll('.deck-chip').forEach(btn => {
-      const n = Number(btn.dataset.deckNumber);
-      btn.classList.toggle('is-active', !!deck && n === deck.n);
-    });
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-  }
-
-  /* ────────────────────────────────────────────────────────────────
-   * Modal open/close
-   * ──────────────────────────────────────────────────────────────── */
-  function openModal(idx) {
-    currentIdx = Math.max(0, Math.min(idx, filtered.length - 1));
-    backdrop.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-    highlightCarouselActive();
-    loadDeck({ animate: false });
-  }
-
-  function closeModal() {
-    backdrop.classList.remove('is-open');
-    document.body.style.overflow = '';
-
-    planStage.innerHTML = '';
-    cleanupInertia();
-    stopOcean();
-
-    transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
-    activeLayer = null;
-
-    zoomLabel.textContent = '100%';
-    highlightCarouselActive();
-  }
-
-  /* ────────────────────────────────────────────────────────────────
-   * Smooth deck transitions + inline SVG loader
-   * ──────────────────────────────────────────────────────────────── */
-  async function loadDeck({ animate = true } = {}) {
-    const deck = filtered[currentIdx];
-    if (!deck) return;
-
-    modalNum.textContent = `Deck ${deck.n}`;
-    modalName.textContent = deck.hint;
-
-    btnPrev.disabled = currentIdx === 0;
-    btnNext.disabled = currentIdx === filtered.length - 1;
-
-    planError.style.display = 'none';
-    planLoader.style.display = 'flex';
-
-    const oldShell = planStage.querySelector('.svg-shell');
-    if (oldShell && animate && !prefersReducedMotion()) {
-      await animateOut(oldShell);
-      oldShell.remove();
-    } else if (oldShell) {
-      oldShell.remove();
-    }
-
-    // Reset transform state for new deck
-    cleanupInertia();
-    transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
-    activeLayer = null;
-    zoomLabel.textContent = '100%';
-
-    // Build shell + ocean canvas
-    const shell = document.createElement('div');
-    shell.className = 'svg-shell deck-fade-enter';
-    planStage.appendChild(shell);
-
-    startOcean(shell);
-
-    try {
-      const response = await fetch(svgPath(deck.n), { cache: 'force-cache' });
-      if (!response.ok) throw new Error(`SVG fetch failed: ${response.status}`);
-
-      const svgText = await response.text();
-      const wrapper = document.createElement('div');
-
-      // NOTE: We do not modify the SVG's internal structure; we only inline it for rendering quality.
-      wrapper.innerHTML = svgText;
-
-      const svg = wrapper.querySelector('svg');
-      if (!svg) throw new Error('No <svg> root found');
-
-      // Make responsive without touching internal paths
-      svg.removeAttribute('width');
-      svg.removeAttribute('height');
-
-      const layer = document.createElement('div');
-      layer.className = 'svg-transform-layer';
-      layer.appendChild(svg);
-
-      shell.appendChild(layer);
-
-      planLoader.style.display = 'none';
-
-      enablePanZoom(layer);
-      attachTouchZoom(planStage);
-      highlightCarouselActive();
-
-      if (animate && !prefersReducedMotion()) {
-        requestAnimationFrame(() => {
-          shell.classList.add('deck-fade-enter-active');
-        });
-      } else {
-        shell.classList.add('deck-fade-enter-active');
-      }
-    } catch (err) {
-      console.error(err);
-      planLoader.style.display = 'none';
-      planError.style.display = 'flex';
-      stopOcean();
-    }
-  }
-
-  function prefersReducedMotion() {
-    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-
-  function animateOut(node) {
-    return new Promise(resolve => {
-      node.classList.add('deck-fade-exit');
-      // next frame trigger transition
-      requestAnimationFrame(() => {
-        node.classList.add('deck-fade-exit-active');
-        const done = () => {
-          node.removeEventListener('transitionend', done);
-          resolve();
-        };
-        node.addEventListener('transitionend', done, { once: true });
-        // fallback
-        setTimeout(resolve, 320);
-      });
-    });
-  }
-
-  /* ────────────────────────────────────────────────────────────────
-   * Pan/zoom engine (GPU + inertia + wheel zoom-to-cursor)
-   * ──────────────────────────────────────────────────────────────── */
-  function enablePanZoom(layer) {
-    activeLayer = layer;
-    activeLayer.style.willChange = 'transform';
-    activeLayer.style.transformOrigin = '0 0';
-    activeLayer.style.touchAction = 'none';
-
-    updateTransform();
-
-    layer.addEventListener('pointerdown', (e) => {
-      if (e.button !== undefined && e.button !== 0) return;
-      isDragging = true;
-      lastX = e.clientX;
-      lastY = e.clientY;
-      lastT = performance.now();
-      transformState.vx = 0;
-      transformState.vy = 0;
-      layer.setPointerCapture(e.pointerId);
-    });
-
-    layer.addEventListener('pointermove', (e) => {
-      if (!isDragging) return;
-
-      const now = performance.now();
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      const dt = Math.max(8, now - lastT);
-
-      transformState.x += dx;
-      transformState.y += dy;
-
-      transformState.vx = dx / dt;
-      transformState.vy = dy / dt;
-
-      lastX = e.clientX;
-      lastY = e.clientY;
-      lastT = now;
-
-      updateTransform();
-    });
-
-    layer.addEventListener('pointerup', () => {
-      isDragging = false;
-      applyInertia();
-    });
-
-    layer.addEventListener('pointercancel', () => {
-      isDragging = false;
-    });
-
-    planStage.addEventListener('wheel', onWheel, { passive: false });
-  }
-
-  function onWheel(e) {
-    // only when modal open and svg present
-    if (!backdrop.classList.contains('is-open')) return;
-    if (!activeLayer) return;
-
-    e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.095 : 0.91;
-    zoomAtPoint(e.clientX, e.clientY, factor);
-  }
-
-  function zoomAtPoint(clientX, clientY, factor) {
-    const rect = planStage.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    const newScale = clamp(transformState.scale * factor, 0.5, 4);
-
-    transformState.x = x - ((x - transformState.x) * (newScale / transformState.scale));
-    transformState.y = y - ((y - transformState.y) * (newScale / transformState.scale));
-    transformState.scale = newScale;
-
-    updateTransform();
-  }
-
-  function setZoom(newScale) {
-    transformState.scale = clamp(newScale, 0.5, 4);
-    updateTransform();
-  }
-
-  function resetView() {
-    transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
-    updateTransform();
-  }
-
-  function updateTransform() {
-    if (!activeLayer) return;
-    activeLayer.style.transform =
-      `translate3d(${transformState.x}px, ${transformState.y}px, 0) scale(${transformState.scale})`;
-    zoomLabel.textContent = `${Math.round(transformState.scale * 100)}%`;
-  }
-
-  function applyInertia() {
-    if (prefersReducedMotion()) return;
-
-    cleanupInertia();
-    const friction = 0.94;
-
-    const step = () => {
-      transformState.x += transformState.vx * 16;
-      transformState.y += transformState.vy * 16;
-
-      transformState.vx *= friction;
-      transformState.vy *= friction;
-
-      updateTransform();
-
-      if (Math.abs(transformState.vx) > 0.001 || Math.abs(transformState.vy) > 0.001) {
-        inertiaRAF = requestAnimationFrame(step);
-      }
-    };
-
-    inertiaRAF = requestAnimationFrame(step);
-  }
-
-  function cleanupInertia() {
-    if (inertiaRAF) cancelAnimationFrame(inertiaRAF);
-    inertiaRAF = 0;
-  }
-
-  function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
-
-  /* ────────────────────────────────────────────────────────────────
-   * Touch pinch zoom + double-tap zoom
-   * ──────────────────────────────────────────────────────────────── */
-  function attachTouchZoom(stage) {
-    // prevent duplicating listeners on repeated loads
-    if (stage.dataset.touchZoomAttached === '1') return;
-    stage.dataset.touchZoomAttached = '1';
-
-    stage.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 2) {
-        pinchInitDist = distance(e.touches[0], e.touches[1]);
-        pinchInitScale = transformState.scale;
-      }
-    }, { passive: true });
-
-    stage.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 2) {
-        const dist = distance(e.touches[0], e.touches[1]);
-        const ratio = dist / (pinchInitDist || dist);
-        setZoom(pinchInitScale * ratio);
-      }
-    }, { passive: true });
-
-    stage.addEventListener('pointerup', (e) => {
-      const now = Date.now();
-      if (now - lastTapMs < 280) {
-        // double-tap zoom in around tap point
-        zoomAtPoint(e.clientX, e.clientY, 1.45);
-      }
-      lastTapMs = now;
-    }, { passive: true });
-  }
-
-  function distance(a, b) {
-    const dx = a.clientX - b.clientX;
-    const dy = a.clientY - b.clientY;
-    return Math.hypot(dx, dy);
-  }
-
-  /* ────────────────────────────────────────────────────────────────
-   * Ocean ambient motion background (canvas)
-   * ──────────────────────────────────────────────────────────────── */
-  function startOcean(shell) {
-    stopOcean();
-
-    if (prefersReducedMotion()) return;
-
-    const canvas = document.createElement('canvas');
-    canvas.className = 'ocean-canvas';
-    shell.appendChild(canvas);
-
-    const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return;
-
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-
-    const resize = () => {
-      const r = shell.getBoundingClientRect();
-      canvas.width = Math.max(2, Math.floor(r.width * dpr));
-      canvas.height = Math.max(2, Math.floor(r.height * dpr));
-    };
-
-    resize();
-
-    const ro = new ResizeObserver(() => resize());
-    ro.observe(shell);
-
-    let t = 0;
-    let raf = 0;
-
-    const render = () => {
-      t += 0.012;
-
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      // subtle gradient wash
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, 'rgba(0,180,230,.20)');
-      g.addColorStop(0.45, 'rgba(255,215,64,.08)');
-      g.addColorStop(1, 'rgba(15,79,118,.18)');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
-
-      // wave lines
-      ctx.globalCompositeOperation = 'screen';
-      ctx.lineWidth = 1.2 * dpr;
-      ctx.strokeStyle = 'rgba(255,255,255,.10)';
-
-      const bands = 5;
-      for (let b = 0; b < bands; b++) {
-        const y0 = (h / (bands + 1)) * (b + 1);
-        ctx.beginPath();
-        const amp = (8 + b * 6) * dpr;
-        const freq = (0.010 + b * 0.003);
-        for (let x = 0; x <= w; x += 8 * dpr) {
-          const y = y0 + Math.sin((x * freq) + (t * (1.4 + b * 0.18))) * amp;
-          ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-      }
-
-      // drifting particles (tiny)
-      ctx.globalCompositeOperation = 'lighter';
-      for (let i = 0; i < 22; i++) {
-        const px = (Math.sin(t * 0.7 + i) * 0.5 + 0.5) * w;
-        const py = (Math.cos(t * 0.6 + i * 1.7) * 0.5 + 0.5) * h;
-        const r = (1.2 + (i % 3)) * dpr;
-        ctx.fillStyle = 'rgba(255,255,255,.06)';
-        ctx.beginPath();
-        ctx.arc(px, py, r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.globalCompositeOperation = 'source-over';
-      raf = requestAnimationFrame(render);
-    };
-
-    raf = requestAnimationFrame(render);
-
-    ocean = {
-      canvas,
-      ro,
-      raf: () => raf,
-      stop: () => {
-        cancelAnimationFrame(raf);
-        ro.disconnect();
-        canvas.remove();
-      }
-    };
-  }
-
-  function stopOcean() {
-    if (!ocean) return;
-    try { ocean.stop(); } catch (_) {}
-    ocean = null;
-  }
-
-  /* ────────────────────────────────────────────────────────────────
-   * Search
-   * ──────────────────────────────────────────────────────────────── */
-  searchInput.addEventListener('input', (e) => {
-    const q = String(e.target.value || '').trim().toLowerCase();
-    searchClear.hidden = !q;
-
-    const list = q
-      ? DECKS.filter(d =>
-          d.name.toLowerCase().includes(q) ||
-          String(d.n).includes(q) ||
-          d.hint.toLowerCase().includes(q)
-        )
-      : [...DECKS];
-
-    renderGrid(list);
-  });
-
-  searchClear.addEventListener('click', () => {
-    searchInput.value = '';
-    searchClear.hidden = true;
-    renderGrid([...DECKS]);
-    // keep focus for keyboard flow
-    searchInput.focus({ preventScroll: true });
-  });
-
-  /* ────────────────────────────────────────────────────────────────
-   * Controls
-   * ──────────────────────────────────────────────────────────────── */
-  btnClose.addEventListener('click', closeModal);
-
-  btnPrev.addEventListener('click', () => {
-    if (currentIdx > 0) {
-      currentIdx--;
-      highlightCarouselActive();
-      loadDeck({ animate: true });
+      renderDeck();
+      alert('Cabin '+val+' is on Deck '+deck);
     }
   });
+});
 
-  btnNext.addEventListener('click', () => {
-    if (currentIdx < filtered.length - 1) {
-      currentIdx++;
-      highlightCarouselActive();
-      loadDeck({ animate: true });
-    }
-  });
+viewer.addEventListener('wheel',e=>{
+  e.preventDefault();
+  scale+=e.deltaY*-0.001;
+  scale=Math.min(Math.max(.5,scale),3);
+  canvas.style.transform=`translate(-50%,-50%) scale(${scale})`;
+});
 
-  zoomInBtn.addEventListener('click', () => setZoom(transformState.scale + 0.20));
-  zoomOutBtn.addEventListener('click', () => setZoom(transformState.scale - 0.20));
-  zoomResetBtn.addEventListener('click', () => resetView());
+viewer.addEventListener('mousedown',e=>{
+  dragging=true;
+  startX=e.clientX-offsetX;
+  startY=e.clientY-offsetY;
+  viewer.style.cursor='grabbing';
+});
+viewer.addEventListener('mouseup',()=>{
+  dragging=false;
+  viewer.style.cursor='grab';
+});
+viewer.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  offsetX=e.clientX-startX;
+  offsetY=e.clientY-startY;
+  canvas.style.left=`calc(50% + ${offsetX}px)`;
+  canvas.style.top=`calc(50% + ${offsetY}px)`;
+});
 
-  backdrop.addEventListener('click', (e) => {
-    if (e.target === backdrop) closeModal();
-  });
+renderDeck();
 
-  document.addEventListener('keydown', (e) => {
-    if (!backdrop.classList.contains('is-open')) return;
-
-    if (e.key === 'Escape') closeModal();
-    if (e.key === 'ArrowLeft') btnPrev.click();
-    if (e.key === 'ArrowRight') btnNext.click();
-
-    if (e.key === '+' || e.key === '=') setZoom(transformState.scale + 0.12);
-    if (e.key === '-') setZoom(transformState.scale - 0.12);
-
-    if (e.key === '0') resetView();
-  });
-
-  /* ────────────────────────────────────────────────────────────────
-   * Init
-   * ──────────────────────────────────────────────────────────────── */
-  renderGrid([...DECKS]);
-  buildCarouselItems();
+/* Ocean Background */
+const ocean=document.getElementById('ocean');
+const octx=ocean.getContext('2d');
+ocean.width=window.innerWidth;
+ocean.height=window.innerHeight;
+let t=0;
+function draw(){
+  octx.clearRect(0,0,ocean.width,ocean.height);
+  octx.fillStyle='#071a2c';
+  octx.fillRect(0,0,ocean.width,ocean.height);
+  octx.beginPath();
+  for(let x=0;x<ocean.width;x++){
+    let y=Math.sin(x*.01+t)*20+ocean.height/2;
+    octx.lineTo(x,y);
+  }
+  octx.lineTo(ocean.width,ocean.height);
+  octx.lineTo(0,ocean.height);
+  octx.closePath();
+  octx.fillStyle='rgba(0,180,230,.12)';
+  octx.fill();
+  t+=.01;
+  requestAnimationFrame(draw);
+}
+draw();
 
 })();
-  
 </script>
 
 </body>
