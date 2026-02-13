@@ -1,1366 +1,285 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
-  <meta name="theme-color" content="#0a2e4a" />
-  <title>Staterooms · Adventure of the Seas</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a2e4a" />
+<title>Staterooms · Adventure of the Seas</title>
 
-  <!-- Fonts + Icons (external, everything else is baked-in) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-  <style>
-    /* =========================================================
-       RCCL ROOMS — SINGLE FILE (CSS + JS baked in)
-       Mobile-first • Fast • Accessible • No globals
-       ========================================================= */
+<style>
+/* ==========================================
+   ROOMS — CINEMATIC SINGLE FILE
+   ========================================== */
 
-    /* ---------- Reset ---------- */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-    a { color: inherit; text-decoration: none; }
-    button, input, textarea { font: inherit; }
-    button { cursor: pointer; }
-    :focus-visible { outline: 3px solid rgba(0,180,230,.45); outline-offset: 2px; border-radius: 10px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:#071a2c;
+  color:#fff;
+  overflow-x:hidden;
+}
 
-    /* ---------- Tokens ---------- */
-    :root {
-      --navy:    #0a2e4a;
-      --navy2:   #083452;
-      --blue:    #0f4f76;
-      --accent:  #00b4e6;
-      --gold:    #ffd740;
-      --gold2:   #c6a15b;
+/* Background */
+#ocean{position:fixed;inset:0;z-index:-2}
+.overlay{
+  position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.15), transparent 60%),
+             linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.6));
+}
 
-      --white:   #ffffff;
-      --bg:      #f0f6fb;
-      --bg2:     #e4eff8;
-      --card-bg: #ffffff;
+/* Header */
+header{
+  position:sticky;top:0;
+  backdrop-filter:blur(14px);
+  background:rgba(10,46,74,.7);
+  border-bottom:1px solid rgba(255,255,255,.1);
+  padding:0 1.2rem;
+}
+.header-inner{
+  max-width:1100px;margin:auto;
+  height:64px;display:flex;align-items:center;
+}
+.title{font-family:'Plus Jakarta Sans';font-weight:900}
+.spacer{flex:1}
+.search{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  padding:.4rem .8rem;
+  border-radius:999px;
+  color:white;
+}
 
-      --text:    #0d2236;
-      --muted:   #5a7a93;
-      --danger:  #d23c3c;
-      --ok:      #15a36d;
+/* Layout */
+main{max-width:1100px;margin:auto;padding:2rem 1rem 4rem}
+.grid{
+  display:grid;
+  gap:1.2rem;
+}
+@media(min-width:700px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:1100px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+}
 
-      --radius:  22px;
-      --radius-lg: 28px;
+/* Room Card */
+.room{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:22px;
+  padding:1.2rem;
+  backdrop-filter:blur(14px);
+  transition:.4s ease;
+  position:relative;
+}
+.room:hover{
+  transform:translateY(-6px);
+  border-color:rgba(0,180,230,.4);
+}
+.room.family{
+  box-shadow:0 0 30px rgba(255,215,64,.25);
+  border-color:#ffd740;
+}
+.room h2{
+  font-family:'Plus Jakarta Sans';
+  font-size:1.1rem;
+}
+.meta{
+  font-size:.75rem;
+  opacity:.7;
+  margin-top:.2rem;
+}
+.people{
+  margin-top:.8rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.4rem;
+}
+.person{
+  background:rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:.3rem .7rem;
+  font-size:.75rem;
+}
+.actions{
+  margin-top:.8rem;
+  display:flex;
+  gap:.5rem;
+}
+.btn{
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.1);
+  padding:.4rem .8rem;
+  font-size:.75rem;
+  cursor:pointer;
+}
+.btn:hover{background:rgba(255,255,255,.2)}
 
-      --shadow:     0 8px 32px rgba(10,46,74,.13);
-      --shadow-lg:  0 20px 60px rgba(10,46,74,.22);
+.note{
+  margin-top:.6rem;
+  font-size:.75rem;
+  opacity:.8;
+}
+textarea{
+  width:100%;
+  margin-top:.4rem;
+  border-radius:12px;
+  padding:.4rem;
+  background:rgba(0,0,0,.3);
+  border:1px solid rgba(255,255,255,.2);
+  color:white;
+  resize:none;
+}
 
-      --glass: rgba(255,255,255,.10);
-      --glass-brd: rgba(255,255,255,.22);
+/* Confetti */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:999}
 
-      --ease: cubic-bezier(.22,.61,.36,1);
-      --ring: 0 0 0 3px rgba(0,180,230,.20);
-    }
-
-    /* ---------- Header ---------- */
-    .site-header {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
-      padding: 0 1.1rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 20px rgba(0,0,0,.28);
-    }
-    .header-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      height: 62px;
-      display: flex;
-      align-items: center;
-      gap: .9rem;
-    }
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: .6rem;
-      color: var(--white);
-      min-width: 0;
-    }
-    .header-brand i { color: var(--gold); font-size: 1.1rem; }
-    .header-brand-text { line-height: 1.1; min-width: 0; }
-    .header-brand-title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 900;
-      font-size: .95rem;
-      letter-spacing: .01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .header-brand-sub {
-      font-size: .72rem;
-      color: rgba(255,255,255,.60);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .header-spacer { flex: 1; }
-    .header-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      background: rgba(255,215,64,.14);
-      border: 1px solid rgba(255,215,64,.28);
-      color: var(--gold);
-      font-size: .72rem;
-      font-weight: 800;
-      padding: .35rem .75rem;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    /* ---------- Hero ---------- */
-    .hero {
-      background: linear-gradient(160deg, var(--navy) 0%, #0d3f60 60%, #0f5580 100%);
-      padding: 3.0rem 1.1rem 2.2rem;
-      position: relative;
-      overflow: hidden;
-      text-align: center;
-      color: var(--white);
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse at 70% 0%, rgba(0,180,230,.18) 0%, transparent 60%),
-        radial-gradient(ellipse at 20% 100%, rgba(255,215,64,.10) 0%, transparent 55%);
-      pointer-events: none;
-    }
-    .hero-inner {
-      position: relative;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.18);
-      color: rgba(255,255,255,.92);
-      font-size: .78rem;
-      font-weight: 700;
-      padding: .45rem 1rem;
-      border-radius: 999px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      margin-bottom: 1rem;
-    }
-    .hero-badge i { color: var(--gold); }
-    .hero h1 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 950;
-      font-size: clamp(1.9rem, 5vw, 3rem);
-      line-height: 1.08;
-      letter-spacing: -.01em;
-      margin-bottom: .65rem;
-    }
-    .hero h1 em { color: var(--accent); font-style: normal; }
-    .hero-sub {
-      color: rgba(255,255,255,.70);
-      font-size: .98rem;
-      line-height: 1.6;
-      max-width: 640px;
-      margin: 0 auto 1.35rem;
-    }
-
-    /* ---------- Search / Controls ---------- */
-    .controls {
-      display: grid;
-      gap: .8rem;
-      max-width: 860px;
-      margin: 0 auto;
-    }
-    .search-wrap {
-      display: flex;
-      align-items: center;
-      gap: .55rem;
-      background: rgba(255,255,255,.12);
-      border: 1px solid rgba(255,255,255,.22);
-      border-radius: 999px;
-      padding: .25rem .35rem .25rem 1.05rem;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: .18s var(--ease);
-    }
-    .search-wrap:focus-within {
-      border-color: rgba(0,180,230,.70);
-      box-shadow: var(--ring);
-      background: rgba(255,255,255,.16);
-    }
-    .search-wrap i {
-      color: rgba(255,255,255,.60);
-      font-size: .88rem;
-      flex: 0 0 auto;
-    }
-    .search-wrap input {
-      flex: 1;
-      background: none;
-      border: none;
-      outline: none;
-      color: var(--white);
-      font-size: .95rem;
-      min-width: 0;
-    }
-    .search-wrap input::placeholder { color: rgba(255,255,255,.48); }
-    .icon-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.12);
-      color: rgba(255,255,255,.92);
-      display: grid;
-      place-items: center;
-      transition: .18s var(--ease);
-    }
-    .icon-btn:hover { background: rgba(255,255,255,.22); }
-    .icon-btn:active { transform: scale(.98); }
-
-    .filter-row {
-      display: grid;
-      gap: .7rem;
-      grid-template-columns: 1fr;
-    }
-
-    .pillbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      justify-content: center;
-    }
-    .pill {
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.20);
-      background: rgba(255,255,255,.10);
-      color: rgba(255,255,255,.90);
-      padding: .48rem .8rem;
-      font-size: .78rem;
-      font-weight: 800;
-      letter-spacing: .01em;
-      transition: .18s var(--ease);
-      user-select: none;
-    }
-    .pill:hover { background: rgba(255,255,255,.16); border-color: rgba(0,180,230,.35); }
-    .pill.is-active {
-      background: rgba(255,215,64,.18);
-      border-color: rgba(255,215,64,.52);
-      box-shadow: 0 0 0 3px rgba(255,215,64,.14);
-      color: rgba(255,255,255,.96);
-    }
-
-    .meta-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      flex-wrap: wrap;
-      padding: 0 .25rem;
-      color: rgba(255,255,255,.72);
-      font-size: .78rem;
-      font-weight: 700;
-    }
-    .meta-row .stat {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      background: rgba(0,0,0,.14);
-      border: 1px solid rgba(255,255,255,.12);
-      padding: .35rem .6rem;
-      border-radius: 999px;
-    }
-    .meta-row .stat i { color: rgba(255,215,64,.95); }
-
-    /* ---------- Main ---------- */
-    .main {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2.1rem 1.1rem 5rem;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.1rem;
-    }
-    .section-head h2 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 900;
-      color: var(--navy);
-      font-size: 1.15rem;
-      letter-spacing: .01em;
-    }
-    .count-pill {
-      font-size: .82rem;
-      font-weight: 800;
-      color: var(--muted);
-      background: var(--bg2);
-      border: 1px solid rgba(10,46,74,.08);
-      padding: .34rem .75rem;
-      border-radius: 999px;
-    }
-
-    /* ---------- Cards ---------- */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 1.05rem;
-    }
-
-    .room-card {
-      grid-column: span 12;
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1.5px solid transparent;
-      overflow: hidden;
-      transition: transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s var(--ease);
-      display: grid;
-      position: relative;
-    }
-    .room-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-      border-color: rgba(0,180,230,.22);
-    }
-    .room-card::before {
-      content: '';
-      position: absolute;
-      left: 0; right: 0; top: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent), var(--gold));
-      opacity: .0;
-      transition: opacity .22s var(--ease);
-    }
-    .room-card:hover::before { opacity: 1; }
-
-    .room-top {
-      padding: 1.1rem 1.1rem .95rem;
-      display: grid;
-      gap: .65rem;
-    }
-    .room-title-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .8rem;
-      flex-wrap: wrap;
-    }
-    .room-title {
-      display: flex;
-      align-items: baseline;
-      gap: .7rem;
-      min-width: 0;
-    }
-    .room-num {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 950;
-      font-size: 1.35rem;
-      color: var(--accent);
-      letter-spacing: .01em;
-      line-height: 1;
-    }
-    .room-name {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 900;
-      color: var(--navy);
-      font-size: 1.0rem;
-      line-height: 1.1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 44ch;
-    }
-    .room-actions {
-      display: flex;
-      align-items: center;
-      gap: .45rem;
-    }
-    .mini-btn {
-      border-radius: 999px;
-      border: 1px solid rgba(10,46,74,.12);
-      background: rgba(240,246,251,.85);
-      color: var(--navy);
-      padding: .42rem .65rem;
-      font-size: .78rem;
-      font-weight: 850;
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      transition: .18s var(--ease);
-    }
-    .mini-btn:hover { background: rgba(0,180,230,.10); border-color: rgba(0,180,230,.22); }
-    .mini-btn:active { transform: scale(.99); }
-    .mini-btn i { font-size: .85em; }
-
-    .room-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-    }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      padding: .38rem .6rem;
-      border-radius: 999px;
-      border: 1px solid rgba(10,46,74,.10);
-      background: var(--bg2);
-      color: var(--muted);
-      font-size: .75rem;
-      font-weight: 800;
-    }
-    .tag i { color: rgba(0,180,230,.95); }
-    .tag.gold i { color: rgba(255,215,64,.95); }
-    .tag.ok {
-      background: rgba(21,163,109,.10);
-      border-color: rgba(21,163,109,.18);
-      color: rgba(13,34,54,.92);
-    }
-    .tag.ok i { color: var(--ok); }
-
-    .room-people {
-      display: grid;
-      gap: .4rem;
-      color: var(--text);
-      font-size: .88rem;
-      line-height: 1.5;
-    }
-    .people-line {
-      display: flex;
-      gap: .5rem;
-      align-items: flex-start;
-    }
-    .people-line i { color: rgba(10,46,74,.45); margin-top: .18rem; }
-
-    .room-bottom {
-      border-top: 1px solid rgba(10,46,74,.08);
-      padding: .85rem 1.1rem 1.05rem;
-      display: grid;
-      gap: .75rem;
-      background: linear-gradient(180deg, rgba(240,246,251,.65), rgba(255,255,255,.95));
-    }
-
-    .feature-list {
-      display: grid;
-      gap: .45rem;
-      color: var(--muted);
-      font-size: .84rem;
-    }
-    .feature {
-      display: flex;
-      gap: .55rem;
-      align-items: flex-start;
-    }
-    .feature i { color: rgba(0,180,230,.95); margin-top: .12rem; }
-
-    .note-wrap {
-      display: grid;
-      gap: .45rem;
-    }
-    .note-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .8rem;
-      flex-wrap: wrap;
-      color: var(--navy);
-      font-weight: 900;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: .92rem;
-    }
-    .note-head small {
-      color: var(--muted);
-      font-weight: 800;
-      font-family: 'Inter', sans-serif;
-    }
-    .note {
-      width: 100%;
-      min-height: 46px;
-      resize: vertical;
-      border-radius: 14px;
-      border: 1px solid rgba(10,46,74,.14);
-      background: rgba(255,255,255,.92);
-      padding: .7rem .8rem;
-      color: var(--text);
-      line-height: 1.5;
-      outline: none;
-      transition: .18s var(--ease);
-    }
-    .note:focus {
-      border-color: rgba(0,180,230,.55);
-      box-shadow: var(--ring);
-    }
-
-    /* ---------- Empty state ---------- */
-    .empty {
-      grid-column: 1 / -1;
-      padding: 3.5rem 1rem;
-      text-align: center;
-      color: var(--muted);
-    }
-    .empty i { font-size: 2.4rem; opacity: .45; margin-bottom: 1rem; display: block; }
-
-    /* ---------- Modal ---------- */
-    .backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(5,18,35,.86);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: env(safe-area-inset-top, 1rem) 1rem env(safe-area-inset-bottom, 1rem);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .22s var(--ease);
-    }
-    .backdrop.is-open { opacity: 1; pointer-events: auto; }
-    .modal {
-      width: min(98%, 860px);
-      max-height: calc(100vh - 2rem);
-      overflow: hidden;
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 30px 90px rgba(0,0,0,.48);
-      transform: translateY(12px) scale(.98);
-      transition: transform .24s var(--ease);
-      display: flex;
-      flex-direction: column;
-    }
-    .backdrop.is-open .modal { transform: translateY(0) scale(1); }
-    .modal-head {
-      background: linear-gradient(135deg, var(--navy), var(--blue));
-      padding: 1rem 1.1rem;
-      display: flex;
-      align-items: center;
-      gap: .85rem;
-    }
-    .modal-title {
-      flex: 1;
-      min-width: 0;
-      color: var(--white);
-    }
-    .modal-title .kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      font-size: .78rem;
-      font-weight: 800;
-      color: rgba(255,255,255,.78);
-    }
-    .modal-title .kicker i { color: rgba(255,215,64,.95); }
-    .modal-title h3 {
-      margin-top: .25rem;
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 950;
-      font-size: 1.12rem;
-      letter-spacing: .01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: var(--white);
-    }
-    .modal-close {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 1.5px solid rgba(255,255,255,.24);
-      background: rgba(255,255,255,.10);
-      color: var(--white);
-      display: grid;
-      place-items: center;
-      transition: .18s var(--ease);
-      flex: 0 0 auto;
-    }
-    .modal-close:hover { background: rgba(210,60,60,.50); border-color: rgba(210,60,60,.60); }
-
-    .modal-body {
-      padding: 1rem 1.1rem 1.1rem;
-      overflow: auto;
-      display: grid;
-      gap: .95rem;
-    }
-    .modal-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: .85rem;
-    }
-    .modal-card {
-      border-radius: 18px;
-      border: 1px solid rgba(10,46,74,.10);
-      background: rgba(240,246,251,.55);
-      padding: .85rem .9rem;
-      display: grid;
-      gap: .55rem;
-    }
-    .modal-card h4 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 950;
-      color: var(--navy);
-      font-size: .95rem;
-    }
-    .kv {
-      display: grid;
-      gap: .35rem;
-      color: var(--text);
-      font-size: .9rem;
-      line-height: 1.55;
-    }
-    .kv .row {
-      display: flex;
-      gap: .55rem;
-      align-items: flex-start;
-    }
-    .kv .row i { color: rgba(0,180,230,.95); margin-top: .12rem; }
-    .modal-actions {
-      display: flex;
-      gap: .55rem;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      padding-top: .2rem;
-    }
-
-    /* ---------- Toast ---------- */
-    .toast {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-      z-index: 2000;
-      background: rgba(10,46,74,.94);
-      color: rgba(255,255,255,.95);
-      border: 1px solid rgba(255,255,255,.14);
-      padding: .6rem .85rem;
-      border-radius: 999px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
-      display: flex;
-      align-items: center;
-      gap: .55rem;
-      font-weight: 800;
-      font-size: .82rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .18s var(--ease), transform .18s var(--ease);
-    }
-    .toast.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(-50%) translateY(-2px);
-    }
-    .toast i { color: rgba(255,215,64,.95); }
-
-    /* ---------- Responsive ---------- */
-    @media (min-width: 760px) {
-      .filter-row { grid-template-columns: 1fr auto; align-items: center; }
-      .meta-row { justify-content: center; gap: 1rem; }
-      .room-card { grid-column: span 6; }
-      .room-name { max-width: 36ch; }
-      .modal-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (min-width: 1060px) {
-      .room-card { grid-column: span 4; }
-    }
-    @media (max-width: 600px) {
-      .hero { padding: 2.4rem 1rem 1.9rem; }
-      .modal { border-radius: 20px 20px 0 0; width: 100%; max-height: 92vh; margin-top: auto; }
-      .backdrop { align-items: flex-end; padding: 0; }
-      .modal-body { padding: .95rem 1rem 1.05rem; }
-    }
-
-    /* ---------- Reduced motion ---------- */
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-    }
-  </style>
+</style>
 </head>
-
 <body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-inner">
-      <a href="index.html" class="header-brand" aria-label="Back to dashboard">
-        <i class="fas fa-crown" aria-hidden="true"></i>
-        <div class="header-brand-text">
-          <div class="header-brand-title">Royal Caribbean</div>
-          <div class="header-brand-sub">Adventure of the Seas</div>
-        </div>
-      </a>
-      <div class="header-spacer"></div>
-      <span class="header-pill" aria-label="Sail dates">
-        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-        Feb 14–20, 2026
-      </span>
-    </div>
-  </header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="hero-badge">
-        <i class="fas fa-bed" aria-hidden="true"></i>
-        Staterooms · Quick access, notes, and details
-      </div>
-      <h1>Your <em>Rooms</em> at a Glance</h1>
-      <p class="hero-sub">
-        Search by room number, deck, category, or guest. Add notes per room (saved locally on this device).
-      </p>
+<canvas id="ocean"></canvas>
+<div class="overlay"></div>
+<canvas id="confetti"></canvas>
 
-      <div class="controls" role="search">
-        <div class="search-wrap">
-          <i class="fas fa-search" aria-hidden="true"></i>
-          <input id="searchInput" type="search" autocomplete="off" placeholder="Search: 6650, Deck 6, Balcony, Aimee…" aria-label="Search rooms" />
-          <button id="clearBtn" class="icon-btn" type="button" aria-label="Clear search" hidden>
-            <i class="fas fa-times" aria-hidden="true"></i>
-          </button>
-        </div>
-
-        <div class="filter-row">
-          <div class="pillbar" aria-label="Filter by category">
-            <button class="pill is-active" type="button" data-filter="all" aria-pressed="true">All</button>
-            <button class="pill" type="button" data-filter="interior" aria-pressed="false">Interior</button>
-            <button class="pill" type="button" data-filter="balcony" aria-pressed="false">Balcony</button>
-            <button class="pill" type="button" data-filter="suite" aria-pressed="false">Suite</button>
-          </div>
-
-          <div class="meta-row" aria-label="Stats">
-            <span class="stat" id="countPill"><i class="fas fa-layer-group" aria-hidden="true"></i><span>0 rooms</span></span>
-            <span class="stat" id="notePill"><i class="fas fa-sticky-note" aria-hidden="true"></i><span>0 notes</span></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main -->
-  <main class="main" id="main">
-    <div class="section-head">
-      <h2>Stateroom Assignments</h2>
-      <span class="count-pill" id="resultsPill">Showing 0</span>
-    </div>
-
-    <section class="grid" id="roomGrid" aria-live="polite" aria-busy="false"></section>
-  </main>
-
-  <!-- Details Modal -->
-  <div id="backdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
-    <div class="modal" role="document">
-      <div class="modal-head">
-        <div class="modal-title">
-          <div class="kicker"><i class="fas fa-compass" aria-hidden="true"></i><span id="modalKicker">Stateroom</span></div>
-          <h3 id="modalTitle">Room</h3>
-        </div>
-        <button id="modalClose" class="modal-close" type="button" aria-label="Close details">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <div class="modal-grid">
-          <div class="modal-card">
-            <h4>At a glance</h4>
-            <div class="kv" id="modalKV"></div>
-          </div>
-
-          <div class="modal-card">
-            <h4>Guests</h4>
-            <div class="kv" id="modalGuests"></div>
-          </div>
-
-          <div class="modal-card">
-            <h4>Features</h4>
-            <div class="kv" id="modalFeatures"></div>
-          </div>
-
-          <div class="modal-card">
-            <h4>Notes</h4>
-            <div class="kv">
-              <div class="row"><i class="fas fa-sticky-note" aria-hidden="true"></i><div><strong>Saved locally</strong><div style="color:var(--muted);font-weight:700;font-size:.84rem;">Per device/browser. Not synced.</div></div></div>
-            </div>
-            <textarea id="modalNote" class="note" placeholder="Add a note for this room…"></textarea>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button id="copyRoomBtn" class="mini-btn" type="button"><i class="fas fa-copy" aria-hidden="true"></i>Copy room</button>
-          <button id="shareBtn" class="mini-btn" type="button"><i class="fas fa-share-nodes" aria-hidden="true"></i>Share</button>
-          <button id="closeBtn2" class="mini-btn" type="button"><i class="fas fa-check" aria-hidden="true"></i>Done</button>
-        </div>
-      </div>
-    </div>
+<header>
+  <div class="header-inner">
+    <div class="title">Staterooms</div>
+    <div class="spacer"></div>
+    <input type="text" id="search" class="search" placeholder="Find a person..." />
   </div>
+</header>
+
+<main>
+  <div class="grid" id="rooms"></div>
+</main>
+
+<script>
+(function(){
+'use strict';
+
+const DATA = [
+  {room:'6650', deck:'6', type:'Interior', people:['Bill','Melissa','Owen','Declan'], family:true},
+  {room:'8528', deck:'8', type:'Ocean View', people:['Aimee','Reese'], family:true},
+  {room:'8370', deck:'8', type:'Balcony', people:['Lea','Calab']},
+  {room:'8612', deck:'8', type:'Balcony', people:['Bella','TJ']},
+  {room:'3622', deck:'3', type:'Interior', people:['Phoebe','Ryan']}
+];
+
+const roomsEl=document.getElementById('rooms');
+const searchInput=document.getElementById('search');
+
+function render(filter=''){
+  roomsEl.innerHTML='';
+  DATA.filter(r=>{
+    return r.people.join(' ').toLowerCase().includes(filter.toLowerCase());
+  }).forEach(r=>{
+    const div=document.createElement('div');
+    div.className='room'+(r.family?' family':'');
+    div.innerHTML=`
+      <h2>Room ${r.room}</h2>
+      <div class="meta">Deck ${r.deck} · ${r.type}</div>
+      <div class="people">
+        ${r.people.map(p=>`<div class="person">${p}</div>`).join('')}
+      </div>
+      <div class="actions">
+        <button class="btn copy">Copy #</button>
+        <button class="btn locate">Highlight</button>
+      </div>
+      <div class="note">
+        Personal Note:
+        <textarea data-room="${r.room}" rows="2" placeholder="Add note..."></textarea>
+      </div>
+    `;
+    roomsEl.appendChild(div);
+
+    div.querySelector('.copy').addEventListener('click',()=>{
+      navigator.clipboard.writeText(r.room);
+      burstConfetti(window.innerWidth/2,100);
+    });
+
+    div.querySelector('.locate').addEventListener('click',()=>{
+      div.style.boxShadow='0 0 40px rgba(0,180,230,.5)';
+      setTimeout(()=>div.style.boxShadow='',1500);
+    });
+
+    const ta=div.querySelector('textarea');
+    ta.value=localStorage.getItem('note-'+r.room)||'';
+    ta.addEventListener('input',()=>{
+      localStorage.setItem('note-'+r.room,ta.value);
+    });
+  });
+}
+
+searchInput.addEventListener('input',e=>render(e.target.value));
+render();
+
+/* Confetti */
+const canvas=document.getElementById('confetti');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+let pieces=[];
+function burstConfetti(x,y){
+  for(let i=0;i<80;i++){
+    pieces.push({
+      x,y,
+      vx:(Math.random()-.5)*6,
+      vy:(Math.random()-1)*6,
+      g:.15,
+      size:4+Math.random()*3,
+      life:1
+    });
+  }
+}
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  pieces.forEach(p=>{
+    p.vy+=p.g;
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.life*=.97;
+    ctx.globalAlpha=p.life;
+    ctx.fillStyle=['#00b4e6','#ffd740','#fff'][Math.floor(Math.random()*3)];
+    ctx.fillRect(p.x,p.y,p.size,p.size);
+  });
+  pieces=pieces.filter(p=>p.life>.05);
+  requestAnimationFrame(animate);
+}
+animate();
+
+/* Ocean background */
+const ocean=document.getElementById('ocean');
+const octx=ocean.getContext('2d');
+ocean.width=window.innerWidth;
+ocean.height=window.innerHeight;
+let t=0;
+function draw(){
+  octx.clearRect(0,0,ocean.width,ocean.height);
+  octx.fillStyle='#071a2c';
+  octx.fillRect(0,0,ocean.width,ocean.height);
+  octx.beginPath();
+  for(let x=0;x<ocean.width;x++){
+    let y=Math.sin(x*.01+t)*20+ocean.height/2;
+    octx.lineTo(x,y);
+  }
+  octx.lineTo(ocean.width,ocean.height);
+  octx.lineTo(0,ocean.height);
+  octx.closePath();
+  octx.fillStyle='rgba(0,180,230,.12)';
+  octx.fill();
+  t+=.01;
+  requestAnimationFrame(draw);
+}
+draw();
+
+})();
+</script>
 
-  <!-- Toast -->
-  <div id="toast" class="toast" role="status" aria-live="polite">
-    <i class="fas fa-circle-check" aria-hidden="true"></i>
-    <span id="toastText">Copied</span>
-  </div>
-
-  <script>
-    (() => {
-      'use strict';
-
-      /** --------------------------------------------
-       * Data model (edit here)
-       * ---------------------------------------------*/
-      const ROOMS = [
-        {
-          room: '6650',
-          deck: '6',
-          location: 'Aft',
-          category: 'Interior',
-          code: 'N/A',
-          guests: [
-            { name: 'Adult 1', type: 'Adult' },
-            { name: 'Adult 2', type: 'Adult' },
-            { name: 'Child 1', type: 'Child' },
-            { name: 'Child 2', type: 'Child' },
-          ],
-          features: [
-            'Aft location — quick access to dining runs',
-            'Interior stateroom',
-            'Good darkness for sleep',
-            'Near Deck 6 activity flow',
-          ],
-          tags: ['Primary stateroom', 'Deck 6'],
-        },
-        {
-          room: '8528',
-          deck: '8',
-          location: 'N/A',
-          category: 'Balcony',
-          code: '4B',
-          guests: [
-            { name: 'Aimee', type: 'Adult' },
-            { name: 'Reese', type: 'Adult' },
-          ],
-          features: [
-            'Balcony stateroom',
-            'Fresh air + natural light',
-            'Great for morning coffee',
-          ],
-          tags: ['4B', 'Deck 8'],
-        },
-        {
-          room: '8370',
-          deck: '8',
-          location: 'N/A',
-          category: 'Interior',
-          code: 'N/A',
-          guests: [
-            { name: 'Lea', type: 'Adult' },
-            { name: 'Calab', type: 'Adult' },
-          ],
-          features: [
-            'Interior stateroom',
-            'Quiet retreat option',
-          ],
-          tags: ['Deck 8'],
-        },
-        {
-          room: '8612',
-          deck: '8',
-          location: 'N/A',
-          category: 'Interior',
-          code: '2D',
-          guests: [
-            { name: 'Bella', type: 'Adult' },
-            { name: 'TJ', type: 'Adult' },
-          ],
-          features: [
-            'Stateroom category 2D',
-            'Convenient Deck 8 access',
-          ],
-          tags: ['2D', 'Deck 8'],
-        },
-        {
-          room: '3622',
-          deck: '3',
-          location: 'Forward',
-          category: 'Interior',
-          code: 'N/A',
-          guests: [
-            { name: 'Phoebe', type: 'Adult' },
-            { name: 'Ryan', type: 'Adult' },
-          ],
-          features: [
-            'Interior room (~160 sq ft)',
-            'Perfect darkness for sleeping',
-            'Budget-friendly option',
-            'Close to forward elevators',
-          ],
-          tags: ['Deck 3', 'Forward'],
-        },
-      ];
-
-      /** --------------------------------------------
-       * DOM
-       * ---------------------------------------------*/
-      const $ = (id) => document.getElementById(id);
-
-      const roomGrid = $('roomGrid');
-      const searchInput = $('searchInput');
-      const clearBtn = $('clearBtn');
-      const resultsPill = $('resultsPill');
-      const countPill = $('countPill');
-      const notePill = $('notePill');
-
-      const backdrop = $('backdrop');
-      const modalClose = $('modalClose');
-      const closeBtn2 = $('closeBtn2');
-      const modalTitle = $('modalTitle');
-      const modalKicker = $('modalKicker');
-      const modalKV = $('modalKV');
-      const modalGuests = $('modalGuests');
-      const modalFeatures = $('modalFeatures');
-      const modalNote = $('modalNote');
-      const copyRoomBtn = $('copyRoomBtn');
-      const shareBtn = $('shareBtn');
-
-      const toast = $('toast');
-      const toastText = $('toastText');
-
-      const pills = Array.from(document.querySelectorAll('.pill[data-filter]'));
-
-      const REQUIRED = [roomGrid, searchInput, clearBtn, resultsPill, countPill, notePill, backdrop, modalClose, closeBtn2, modalTitle, modalKicker, modalKV, modalGuests, modalFeatures, modalNote, copyRoomBtn, shareBtn, toast, toastText];
-      if (REQUIRED.some((el) => !el)) {
-        console.error('[Rooms] Missing required DOM nodes. Check IDs.');
-        return;
-      }
-
-      /** --------------------------------------------
-       * State
-       * ---------------------------------------------*/
-      const LS_KEY = 'rccl.rooms.notes.v1';
-      let notes = safeParse(localStorage.getItem(LS_KEY), {});
-      let activeFilter = 'all';
-      let activeQuery = '';
-      let activeRoom = null; // object
-      let lastFocused = null;
-
-      /** --------------------------------------------
-       * Helpers
-       * ---------------------------------------------*/
-      function safeParse(json, fallback) {
-        try { return json ? JSON.parse(json) : fallback; } catch { return fallback; }
-      }
-
-      function saveNotes() {
-        try { localStorage.setItem(LS_KEY, JSON.stringify(notes)); } catch (e) { /* ignore quota */ }
-      }
-
-      function toastShow(message, icon = 'fa-circle-check') {
-        toastText.textContent = message;
-        const iconEl = toast.querySelector('i');
-        if (iconEl) iconEl.className = `fas ${icon}`;
-        toast.classList.add('show');
-        window.clearTimeout(toastShow._t);
-        toastShow._t = window.setTimeout(() => toast.classList.remove('show'), 1400);
-      }
-
-      function escapeHtml(s) {
-        return String(s).replace(/[&<>"']/g, (c) => ({
-          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        }[c]));
-      }
-
-      function normalize(s) {
-        return String(s).toLowerCase().trim();
-      }
-
-      function roomKey(room) {
-        return String(room.room);
-      }
-
-      function roomMatchesFilter(room) {
-        if (activeFilter === 'all') return true;
-        const cat = normalize(room.category);
-        return cat.includes(activeFilter);
-      }
-
-      function roomMatchesQuery(room) {
-        if (!activeQuery) return true;
-        const q = normalize(activeQuery);
-        const hay = [
-          room.room,
-          `deck ${room.deck}`,
-          room.deck,
-          room.location || '',
-          room.category || '',
-          room.code || '',
-          ...(room.tags || []),
-          ...(room.features || []),
-          ...(room.guests || []).map(g => g.name),
-        ].join(' ');
-        return normalize(hay).includes(q);
-      }
-
-      function getFilteredRooms() {
-        return ROOMS
-          .filter(roomMatchesFilter)
-          .filter(roomMatchesQuery)
-          .sort((a, b) => Number(b.deck) - Number(a.deck) || Number(a.room) - Number(b.room));
-      }
-
-      function countNotes() {
-        return Object.values(notes).filter(v => String(v || '').trim().length > 0).length;
-      }
-
-      /** --------------------------------------------
-       * Rendering
-       * ---------------------------------------------*/
-      function render() {
-        const list = getFilteredRooms();
-        roomGrid.setAttribute('aria-busy', 'true');
-        roomGrid.innerHTML = '';
-
-        resultsPill.textContent = `Showing ${list.length} of ${ROOMS.length}`;
-        countPill.querySelector('span').textContent = `${ROOMS.length} rooms`;
-        notePill.querySelector('span').textContent = `${countNotes()} notes`;
-
-        if (!list.length) {
-          roomGrid.innerHTML = `
-            <div class="empty">
-              <i class="fas fa-search" aria-hidden="true"></i>
-              <p><strong>No rooms match your search.</strong></p>
-              <p style="margin-top:.35rem;">Try a room number (e.g., 6650) or a deck (e.g., Deck 8).</p>
-            </div>
-          `;
-          roomGrid.setAttribute('aria-busy', 'false');
-          return;
-        }
-
-        for (const room of list) {
-          const key = roomKey(room);
-          const note = String(notes[key] || '');
-          const guests = (room.guests || []).map(g => `${g.name} (${g.type})`).join(', ');
-          const tags = buildTags(room);
-
-          const card = document.createElement('article');
-          card.className = 'room-card';
-          card.tabIndex = 0;
-          card.setAttribute('role', 'button');
-          card.setAttribute('aria-label', `Open room ${room.room} details`);
-          card.dataset.room = key;
-
-          card.innerHTML = `
-            <div class="room-top">
-              <div class="room-title-row">
-                <div class="room-title" title="Room and category">
-                  <div class="room-num">${escapeHtml(room.room)}</div>
-                  <div class="room-name">${escapeHtml(room.category)} · Deck ${escapeHtml(room.deck)}</div>
-                </div>
-
-                <div class="room-actions">
-                  <button type="button" class="mini-btn" data-action="copy" aria-label="Copy room ${escapeHtml(room.room)}">
-                    <i class="fas fa-copy" aria-hidden="true"></i>Copy
-                  </button>
-                  <button type="button" class="mini-btn" data-action="details" aria-label="View details for room ${escapeHtml(room.room)}">
-                    <i class="fas fa-circle-info" aria-hidden="true"></i>Details
-                  </button>
-                </div>
-              </div>
-
-              <div class="room-meta">${tags}</div>
-
-              <div class="room-people">
-                <div class="people-line">
-                  <i class="fas fa-users" aria-hidden="true"></i>
-                  <div><strong>Guests:</strong> ${escapeHtml(guests || '—')}</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="room-bottom">
-              <div class="feature-list">
-                ${(room.features || []).slice(0, 3).map(f => `
-                  <div class="feature"><i class="fas fa-sparkles" aria-hidden="true"></i><span>${escapeHtml(f)}</span></div>
-                `).join('')}
-              </div>
-
-              <div class="note-wrap">
-                <div class="note-head">
-                  <span>Room note</span>
-                  <small>${note.trim() ? 'Saved' : 'Empty'}</small>
-                </div>
-                <textarea class="note" data-note="${escapeHtml(key)}" placeholder="Add a note for room ${escapeHtml(room.room)}…">${escapeHtml(note)}</textarea>
-              </div>
-            </div>
-          `;
-
-          card.addEventListener('click', (e) => {
-            const btn = e.target && e.target.closest && e.target.closest('button[data-action]');
-            if (btn) {
-              const action = btn.getAttribute('data-action');
-              if (action === 'copy') { copyText(room.room); return; }
-              if (action === 'details') { openModal(room, card); return; }
-            }
-            openModal(room, card);
-          });
-
-          card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              openModal(room, card);
-            }
-          });
-
-          roomGrid.appendChild(card);
-        }
-
-        roomGrid.setAttribute('aria-busy', 'false');
-      }
-
-      function buildTags(room) {
-        const bits = [];
-        bits.push(`<span class="tag gold"><i class="fas fa-layer-group" aria-hidden="true"></i>Deck ${escapeHtml(room.deck)}</span>`);
-        if (room.location && room.location !== 'N/A') bits.push(`<span class="tag"><i class="fas fa-location-dot" aria-hidden="true"></i>${escapeHtml(room.location)}</span>`);
-        if (room.code && room.code !== 'N/A') bits.push(`<span class="tag"><i class="fas fa-ticket" aria-hidden="true"></i>${escapeHtml(room.code)}</span>`);
-        if (normalize(room.category).includes('interior')) bits.push(`<span class="tag"><i class="fas fa-moon" aria-hidden="true"></i>Interior</span>`);
-        if (normalize(room.category).includes('balcony')) bits.push(`<span class="tag ok"><i class="fas fa-wind" aria-hidden="true"></i>Balcony</span>`);
-        if (normalize(room.category).includes('suite')) bits.push(`<span class="tag ok"><i class="fas fa-gem" aria-hidden="true"></i>Suite</span>`);
-        for (const t of (room.tags || []).slice(0, 2)) {
-          bits.push(`<span class="tag"><i class="fas fa-tag" aria-hidden="true"></i>${escapeHtml(t)}</span>`);
-        }
-        return bits.join(' ');
-      }
-
-      /** --------------------------------------------
-       * Notes: inline per-card textarea
-       * ---------------------------------------------*/
-      roomGrid.addEventListener('input', (e) => {
-        const el = e.target;
-        if (!(el instanceof HTMLTextAreaElement)) return;
-        const key = el.getAttribute('data-note');
-        if (!key) return;
-
-        notes[key] = el.value;
-        saveNotes();
-        // update note count pill without full re-render
-        notePill.querySelector('span').textContent = `${countNotes()} notes`;
-      });
-
-      /** --------------------------------------------
-       * Search + filter
-       * ---------------------------------------------*/
-      function setActiveFilter(next) {
-        activeFilter = next;
-        for (const p of pills) {
-          const on = p.dataset.filter === next;
-          p.classList.toggle('is-active', on);
-          p.setAttribute('aria-pressed', on ? 'true' : 'false');
-        }
-        render();
-      }
-
-      for (const p of pills) {
-        p.addEventListener('click', () => setActiveFilter(p.dataset.filter || 'all'));
-      }
-
-      searchInput.addEventListener('input', () => {
-        activeQuery = searchInput.value || '';
-        clearBtn.hidden = !(activeQuery.trim().length > 0);
-        render();
-      });
-
-      clearBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        activeQuery = '';
-        clearBtn.hidden = true;
-        searchInput.focus();
-        render();
-      });
-
-      /** --------------------------------------------
-       * Modal
-       * ---------------------------------------------*/
-      function openModal(room, focusEl) {
-        activeRoom = room;
-        lastFocused = focusEl || document.activeElement;
-
-        const key = roomKey(room);
-        const note = String(notes[key] || '');
-
-        modalKicker.textContent = `Deck ${room.deck} · ${room.category}`;
-        modalTitle.textContent = `Room ${room.room}`;
-
-        modalKV.innerHTML = '';
-        modalGuests.innerHTML = '';
-        modalFeatures.innerHTML = '';
-
-        const kvRows = [
-          { icon: 'fa-door-open', label: 'Room', value: room.room },
-          { icon: 'fa-layer-group', label: 'Deck', value: room.deck },
-          { icon: 'fa-location-dot', label: 'Location', value: room.location && room.location !== 'N/A' ? room.location : '—' },
-          { icon: 'fa-tag', label: 'Category', value: room.category || '—' },
-          { icon: 'fa-ticket', label: 'Code', value: room.code && room.code !== 'N/A' ? room.code : '—' },
-        ];
-
-        for (const r of kvRows) modalKV.appendChild(makeRow(r.icon, `<strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}`));
-
-        const guests = (room.guests || []);
-        if (!guests.length) {
-          modalGuests.appendChild(makeRow('fa-users', '<strong>Guests:</strong> —'));
-        } else {
-          for (const g of guests) {
-            modalGuests.appendChild(makeRow('fa-user', `${escapeHtml(g.name)} <span style="color:var(--muted);font-weight:800">(${escapeHtml(g.type)})</span>`));
-          }
-        }
-
-        const feats = (room.features || []);
-        if (!feats.length) {
-          modalFeatures.appendChild(makeRow('fa-sparkles', '<strong>Features:</strong> —'));
-        } else {
-          for (const f of feats) modalFeatures.appendChild(makeRow('fa-sparkles', escapeHtml(f)));
-        }
-
-        modalNote.value = note;
-
-        backdrop.classList.add('is-open');
-        backdrop.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-
-        // Focus trap: focus close button
-        modalClose.focus();
-      }
-
-      function closeModal() {
-        backdrop.classList.remove('is-open');
-        backdrop.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-
-        // persist modal note
-        if (activeRoom) {
-          const key = roomKey(activeRoom);
-          notes[key] = modalNote.value;
-          saveNotes();
-          notePill.querySelector('span').textContent = `${countNotes()} notes`;
-
-          // update inline textarea in card if exists (no full rerender)
-          const inline = roomGrid.querySelector(`textarea.note[data-note="${CSS.escape(key)}"]`);
-          if (inline) inline.value = modalNote.value;
-        }
-
-        activeRoom = null;
-
-        // restore focus
-        if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-      }
-
-      function makeRow(icon, html) {
-        const div = document.createElement('div');
-        div.className = 'row';
-        div.innerHTML = `<i class="fas ${icon}" aria-hidden="true"></i><div>${html}</div>`;
-        return div;
-      }
-
-      backdrop.addEventListener('click', (e) => {
-        if (e.target === backdrop) closeModal();
-      });
-      modalClose.addEventListener('click', closeModal);
-      closeBtn2.addEventListener('click', closeModal);
-
-      document.addEventListener('keydown', (e) => {
-        if (!backdrop.classList.contains('is-open')) return;
-        if (e.key === 'Escape') closeModal();
-        // simple focus trap (two focusables: close + note + actions)
-        if (e.key === 'Tab') {
-          const focusables = backdrop.querySelectorAll('button, textarea, a, input, [tabindex]:not([tabindex="-1"])');
-          const list = Array.from(focusables).filter(el => !el.hasAttribute('disabled'));
-          if (!list.length) return;
-          const first = list[0];
-          const last = list[list.length - 1];
-          const active = document.activeElement;
-
-          if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
-          else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
-        }
-      });
-
-      /** --------------------------------------------
-       * Copy / Share
-       * ---------------------------------------------*/
-      async function copyText(text) {
-        const value = String(text || '').trim();
-        if (!value) return;
-
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(value);
-          } else {
-            // fallback
-            const ta = document.createElement('textarea');
-            ta.value = value;
-            ta.style.position = 'fixed';
-            ta.style.left = '-9999px';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            ta.remove();
-          }
-          toastShow(`Copied room ${value}`);
-        } catch {
-          toastShow('Copy blocked', 'fa-triangle-exclamation');
-        }
-      }
-
-      copyRoomBtn.addEventListener('click', () => {
-        if (!activeRoom) return;
-        copyText(activeRoom.room);
-      });
-
-      shareBtn.addEventListener('click', async () => {
-        if (!activeRoom) return;
-        const payload = {
-          title: `Room ${activeRoom.room} · Adventure of the Seas`,
-          text: `Room ${activeRoom.room} (Deck ${activeRoom.deck}) — ${activeRoom.category}`,
-        };
-        try {
-          if (navigator.share) {
-            await navigator.share(payload);
-            toastShow('Shared');
-          } else {
-            // fallback to copying a share string
-            await copyText(`${payload.text}`);
-          }
-        } catch {
-          // user cancel is fine; do nothing noisy
-        }
-      });
-
-      /** --------------------------------------------
-       * Init
-       * ---------------------------------------------*/
-      render();
-    })();
-  </script>
-
-  <!-- Verification hint (non-intrusive) -->
-  <noscript>
-    <div style="padding:1rem; text-align:center; color:#0d2236; background:#ffd740;">
-      This page needs JavaScript enabled to render room cards and notes.
-    </div>
-  </noscript>
 </body>
 </html>
