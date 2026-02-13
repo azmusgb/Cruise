@@ -801,6 +801,21 @@
   'use strict';
 
   // ===========================================
+  // ULTRA VERBOSE LOGGING SETUP
+  // ===========================================
+  const LOG = {
+    info: (...args) => console.log('📘 [INFO]', ...args),
+    warn: (...args) => console.warn('⚠️ [WARN]', ...args),
+    error: (...args) => console.error('❌ [ERROR]', ...args),
+    success: (...args) => console.log('✅ [SUCCESS]', ...args),
+    debug: (...args) => console.log('🔍 [DEBUG]', ...args),
+    step: (step, ...args) => console.log(`📌 [STEP ${step}]`, ...args)
+  };
+
+  LOG.info('Application starting...');
+  LOG.warn('This is a debug build with verbose logging');
+
+  // ===========================================
   // CONFIGURATION
   // ===========================================
   const DECKS = [
@@ -820,6 +835,8 @@
     {n:2,  name: "Deck 2",  hint: "Medical"}
   ];
 
+  LOG.info(`Loaded ${DECKS.length} deck configurations`);
+
   const CFG = {
     minZoom: 0.65,
     maxZoom: 6,
@@ -828,7 +845,6 @@
     inertiaFriction: 0.92,
     inertiaStop: 0.18,
     svgPaths: {
-      // Try multiple possible file naming conventions
       patterns: [
         (n) => `decks/deck-${String(n).padStart(2, '0')}-final.min.svg`,
         (n) => `decks/deck-${n}.svg`,
@@ -839,6 +855,8 @@
     }
   };
 
+  LOG.debug('Configuration loaded:', CFG);
+
   // ===========================================
   // STATE
   // ===========================================
@@ -847,8 +865,10 @@
   let scale = 1;
   let tx = 0;
   let ty = 0;
-  let contentW = 800; // Default fallback size
+  let contentW = 800;
   let contentH = 600;
+
+  LOG.debug('Initial state:', { filtered: filtered.length, currentIdx, scale });
 
   // Pointer handling
   const pointers = new Map();
@@ -859,7 +879,11 @@
   let pinchInit = null;
   let lastTap = { t: 0, x: 0, y: 0 };
 
-  // DOM Elements
+  // ===========================================
+  // DOM ELEMENTS
+  // ===========================================
+  LOG.step('1', 'Getting DOM elements...');
+  
   const elements = {
     grid: document.getElementById('deckGrid'),
     gridCount: document.getElementById('gridCount'),
@@ -884,46 +908,90 @@
     zoomLabel: document.getElementById('zoomLabel')
   };
 
+  // Log which elements were found
+  Object.entries(elements).forEach(([key, value]) => {
+    if (value) {
+      LOG.debug(`Element found: ${key}`);
+    } else {
+      LOG.warn(`Element missing: ${key}`);
+    }
+  });
+
   // Validate required elements
   const required = ['grid', 'gridCount', 'searchInput', 'searchClear', 'backdrop', 'planStage', 'planContent'];
+  let missingRequired = false;
+  
   for (const key of required) {
     if (!elements[key]) {
-      console.error(`[DeckNavigator] Missing required element: ${key}`);
-      return;
+      LOG.error(`Missing required element: ${key}`);
+      missingRequired = true;
     }
   }
+  
+  if (missingRequired) {
+    LOG.error('Cannot continue - missing required elements');
+    return;
+  }
+
+  LOG.success('All required DOM elements found');
 
   // ===========================================
   // UTILITY FUNCTIONS
   // ===========================================
-  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-  const nowMs = () => performance.now();
-  const stageRect = () => elements.planCanvas.getBoundingClientRect();
+  const clamp = (v, lo, hi) => {
+    const result = Math.max(lo, Math.min(hi, v));
+    LOG.debug(`Clamping ${v} to [${lo}, ${hi}] = ${result}`);
+    return result;
+  };
+  
+  const nowMs = () => {
+    const time = performance.now();
+    LOG.debug(`Current time: ${time}ms`);
+    return time;
+  };
+  
+  const stageRect = () => {
+    const rect = elements.planCanvas.getBoundingClientRect();
+    LOG.debug('Stage rect:', rect);
+    return rect;
+  };
 
-  // SVG path resolver with multiple pattern attempts
+  // SVG path resolver
   function findSvgPath(n) {
-    for (const pattern of CFG.svgPaths.patterns) {
+    LOG.step('2', `Finding SVG path for deck ${n}`);
+    for (let i = 0; i < CFG.svgPaths.patterns.length; i++) {
+      const pattern = CFG.svgPaths.patterns[i];
       const path = pattern(n);
-      // Return first pattern - actual fetching happens in loadDeck
-      // This just constructs possible paths for fetch to try
-      return path; // For simplicity, return first pattern
+      LOG.debug(`Pattern ${i + 1}: ${path}`);
     }
-    return `decks/deck-${String(n).padStart(2, '0')}.svg`; // Default fallback
+    const defaultPath = `decks/deck-${String(n).padStart(2, '0')}.svg`;
+    LOG.debug(`Using default path: ${defaultPath}`);
+    return defaultPath;
   }
 
   function svgPath(n) {
-    return new URL(findSvgPath(n), document.baseURI).href;
+    const path = findSvgPath(n);
+    const url = new URL(path, document.baseURI).href;
+    LOG.debug(`Full SVG URL: ${url}`);
+    return url;
   }
 
   // ===========================================
   // UI STATE MANAGEMENT
   // ===========================================
   function setLoader(loading) {
-    if (elements.planLoader) elements.planLoader.style.display = loading ? 'flex' : 'none';
-    if (elements.planError) elements.planError.style.display = 'none';
+    LOG.step('3', `Setting loader: ${loading ? 'ON' : 'OFF'}`);
+    if (elements.planLoader) {
+      elements.planLoader.style.display = loading ? 'flex' : 'none';
+      LOG.debug(`Loader display set to: ${elements.planLoader.style.display}`);
+    }
+    if (elements.planError) {
+      elements.planError.style.display = 'none';
+    }
   }
 
   function setError(showFallback = true) {
+    LOG.warn('Setting error state', { showFallback });
     if (elements.planLoader) elements.planLoader.style.display = 'none';
     if (elements.planError) {
       elements.planError.style.display = 'flex';
@@ -936,17 +1004,23 @@
   function setZoomLabel() {
     if (elements.zoomLabel) {
       elements.zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+      LOG.debug(`Zoom label updated: ${elements.zoomLabel.textContent}`);
     }
   }
 
   function stopInertia() {
-    if (inertiaRaf) cancelAnimationFrame(inertiaRaf);
-    inertiaRaf = 0;
+    if (inertiaRaf) {
+      LOG.debug('Stopping inertia animation');
+      cancelAnimationFrame(inertiaRaf);
+      inertiaRaf = 0;
+    }
   }
 
   function applyTransform() {
     if (elements.planContent) {
-      elements.planContent.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+      const transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+      elements.planContent.style.transform = transform;
+      LOG.debug(`Applied transform: ${transform}`);
       setZoomLabel();
     }
   }
@@ -955,19 +1029,26 @@
   // VIEWPORT CALCULATIONS
   // ===========================================
   function computeFitTransform() {
+    LOG.step('4', 'Computing fit transform');
     const r = stageRect();
     const vw = Math.max(1, r.width);
     const vh = Math.max(1, r.height);
     const cw = Math.max(1, contentW);
     const ch = Math.max(1, contentH);
 
+    LOG.debug('Viewport dimensions:', { vw, vh });
+    LOG.debug('Content dimensions:', { cw, ch });
+
     const s = clamp(Math.min(vw / cw, vh / ch), CFG.minZoom, CFG.maxZoom);
     const cx = (vw - cw * s) / 2;
     const cy = (vh - ch * s) / 2;
+
+    LOG.success(`Fit transform computed: scale=${s}, tx=${cx}, ty=${cy}`);
     return { s, x: cx, y: cy };
   }
 
   function clampToBounds() {
+    LOG.step('5', 'Clamping to bounds');
     const r = stageRect();
     const vw = Math.max(1, r.width);
     const vh = Math.max(1, r.height);
@@ -975,57 +1056,78 @@
     const ch = Math.max(1, contentH * scale);
     const margin = Math.min(110, Math.max(28, Math.round(Math.min(vw, vh) * 0.08)));
 
+    LOG.debug('Pre-clamp values:', { tx, ty, scale, cw, ch, vw, vh, margin });
+
     if (cw <= vw) {
       tx = (vw - cw) / 2;
+      LOG.debug('Content fits width, centering');
     } else {
       const minX = vw - cw - margin;
       const maxX = margin;
       tx = clamp(tx, minX, maxX);
+      LOG.debug(`Content too wide, clamping X to [${minX}, ${maxX}] = ${tx}`);
     }
 
     if (ch <= vh) {
       ty = (vh - ch) / 2;
+      LOG.debug('Content fits height, centering');
     } else {
       const minY = vh - ch - margin;
       const maxY = margin;
       ty = clamp(ty, minY, maxY);
+      LOG.debug(`Content too tall, clamping Y to [${minY}, ${maxY}] = ${ty}`);
     }
+
+    LOG.success('Clamped values:', { tx, ty });
   }
 
   function zoomAboutScreenPoint(screenX, screenY, newScale) {
+    LOG.step('6', `Zooming about screen point (${screenX}, ${screenY}) to scale ${newScale}`);
     const r = stageRect();
     const px = screenX - r.left;
     const py = screenY - r.top;
 
+    LOG.debug('Screen point relative to stage:', { px, py });
+
     const wx = (px - tx) / scale;
     const wy = (py - ty) / scale;
+
+    LOG.debug('World coordinates:', { wx, wy });
 
     scale = newScale;
     tx = px - wx * scale;
     ty = py - wy * scale;
+
+    LOG.debug('New transform:', { scale, tx, ty });
 
     clampToBounds();
     applyTransform();
   }
 
   function zoomBy(deltaSteps, screenX, screenY) {
+    LOG.step('7', `Zooming by ${deltaSteps} steps`);
     const factor = Math.pow(1 + CFG.zoomStep, deltaSteps);
     const newScale = clamp(scale * factor, CFG.minZoom, CFG.maxZoom);
+    LOG.debug(`Scale factor: ${factor}, new scale: ${newScale}`);
     zoomAboutScreenPoint(screenX, screenY, newScale);
   }
 
   function fitToScreen() {
+    LOG.step('8', 'Fitting to screen');
     const fit = computeFitTransform();
     scale = fit.s;
     tx = fit.x;
     ty = fit.y;
     stopInertia();
     applyTransform();
+    LOG.success('Fit to screen complete');
   }
 
   function resetView() {
+    LOG.step('9', 'Resetting view');
     fitToScreen();
     if (scale > 1.15) {
+      LOG.debug('Scale > 1.15, zooming to 1');
       const r = stageRect();
       zoomAboutScreenPoint(r.left + r.width / 2, r.top + r.height / 2, 1);
     }
@@ -1035,9 +1137,12 @@
   // FALLBACK SVG GENERATOR
   // ===========================================
   function generateFallbackSVG(deck) {
+    LOG.step('10', `Generating fallback SVG for deck ${deck.n}`);
     const colors = ['#0a2e4a', '#0f4f76', '#00b4e6', '#ffd740', '#c6a15b'];
     const color1 = colors[deck.n % colors.length];
     const color2 = colors[(deck.n + 1) % colors.length];
+    
+    LOG.debug('Fallback colors:', { color1, color2 });
     
     return `
       <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
@@ -1085,13 +1190,16 @@
 
   function loadFallbackSVG() {
     const deck = filtered[currentIdx];
-    console.log('[DeckNavigator] Loading fallback SVG for', deck.name);
+    LOG.warn(`Loading fallback SVG for ${deck.name}`);
     
     const svgText = generateFallbackSVG(deck);
+    LOG.debug(`Fallback SVG generated, length: ${svgText.length}`);
+    
     const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
     const svg = doc.querySelector('svg');
     
     if (!svg) {
+      LOG.error('Failed to parse fallback SVG');
       setError(false);
       return;
     }
@@ -1104,21 +1212,25 @@
     
     elements.planContent.innerHTML = '';
     elements.planContent.appendChild(svg);
+    LOG.success('Fallback SVG appended to DOM');
     
     // Get dimensions from viewBox
     const vb = (svg.getAttribute('viewBox') || '0 0 800 600').split(/\s+/).map(Number);
     if (vb.length === 4) {
       contentW = vb[2];
       contentH = vb[3];
+      LOG.debug('Fallback dimensions from viewBox:', { contentW, contentH });
     } else {
       contentW = 800;
       contentH = 600;
+      LOG.warn('Using default fallback dimensions');
     }
     
     setLoader(false);
     requestAnimationFrame(() => {
       fitToScreen();
       applyTransform();
+      LOG.success('Fallback SVG rendered');
     });
   }
 
@@ -1127,11 +1239,16 @@
   // ===========================================
   async function loadDeck() {
     const deck = filtered[currentIdx];
+    LOG.warn(`========== LOADING DECK ${deck.n} ==========`);
+    LOG.info(`Deck details:`, deck);
+    
     elements.modalNum.textContent = `Deck ${deck.n}`;
     elements.modalName.textContent = deck.hint;
     updateNavButtons();
 
     elements.planContent.innerHTML = '';
+    LOG.debug('Cleared plan content');
+    
     if (elements.planError) elements.planError.style.display = 'none';
     setLoader(true);
 
@@ -1142,45 +1259,62 @@
 
     // Try to load real SVG
     const path = svgPath(deck.n);
-    console.log('[DeckNavigator] Attempting to load:', path);
+    LOG.warn(`Fetching SVG from: ${path}`);
 
     try {
+      LOG.step('11', 'Starting fetch operation');
       const response = await fetch(path, { 
-        cache: 'force-cache',
+        cache: 'no-cache',
         mode: 'cors',
         credentials: 'same-origin'
       });
       
+      LOG.info('Fetch response:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        url: response.url,
+        type: response.type
+      });
+      
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status} - File not found`);
+        throw new Error(`HTTP ${response.status} - ${response.statusText}`);
       }
 
       const svgText = await response.text();
+      LOG.info(`SVG text received, length: ${svgText.length}`);
+      LOG.debug('SVG preview (first 200 chars):', svgText.substring(0, 200));
       
       // Validate that it looks like SVG
       if (!svgText.includes('<svg') && !svgText.includes('<SVG')) {
+        LOG.error('Response does not contain SVG tag');
         throw new Error('Response does not appear to be an SVG');
       }
+      LOG.success('SVG tag found in response');
 
       const parser = new DOMParser();
       const doc = parser.parseFromString(svgText, 'image/svg+xml');
+      LOG.debug('SVG parsed');
       
       // Check for parser errors
       const parserError = doc.querySelector('parsererror');
       if (parserError) {
+        LOG.error('Parser error found:', parserError.textContent);
         throw new Error('SVG parsing error: ' + parserError.textContent);
       }
 
       const svg = doc.querySelector('svg');
       if (!svg) {
+        LOG.error('No SVG element found in parsed document');
         throw new Error('No SVG root element found');
       }
 
-      // Success! Use the real SVG
-      console.log('[DeckNavigator] SVG loaded successfully');
-      
+      LOG.success('SVG element found');
+      LOG.debug('SVG attributes:', Array.from(svg.attributes).map(a => `${a.name}=${a.value}`));
+
       // Ensure viewBox exists
       if (!svg.getAttribute('viewBox')) {
+        LOG.warn('SVG has no viewBox, attempting to create');
         const wAttr = svg.getAttribute('width');
         const hAttr = svg.getAttribute('height');
         const w = wAttr ? parseFloat(String(wAttr).replace(/[^0-9.]/g, '')) : NaN;
@@ -1188,8 +1322,10 @@
         
         if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
           svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          LOG.success(`Created viewBox from dimensions: 0 0 ${w} ${h}`);
         } else {
           svg.setAttribute('viewBox', '0 0 800 600');
+          LOG.warn('Using default viewBox: 0 0 800 600');
         }
       }
 
@@ -1201,29 +1337,63 @@
 
       elements.planContent.innerHTML = '';
       elements.planContent.appendChild(svg);
+      LOG.success('SVG appended to DOM');
+      LOG.debug('planContent children:', elements.planContent.children.length);
 
       // Get dimensions
       const vb = (svg.getAttribute('viewBox') || '0 0 800 600').split(/\s+/).map(Number);
       if (vb.length === 4 && vb.every(Number.isFinite)) {
         contentW = vb[2];
         contentH = vb[3];
+        LOG.success('Content dimensions from viewBox:', { contentW, contentH });
       } else {
-        // Fallback to bounding rect
+        LOG.warn('Invalid viewBox, falling back to bounding rect');
         await new Promise(r => requestAnimationFrame(() => r()));
         const box = elements.planContent.getBoundingClientRect();
         contentW = Math.max(1, box.width);
         contentH = Math.max(1, box.height);
+        LOG.warn('Content dimensions from bounding rect:', { contentW, contentH });
       }
 
       setLoader(false);
+      LOG.info('Loader hidden, applying transform');
+      
       requestAnimationFrame(() => {
         fitToScreen();
         applyTransform();
+        LOG.success('Transform applied');
+        
+        // Final visibility check
+        setTimeout(() => {
+          const svgRect = elements.planContent.getBoundingClientRect();
+          const stageRect = elements.planCanvas.getBoundingClientRect();
+          LOG.info('Final render check:', {
+            svgVisible: svgRect.width > 0 && svgRect.height > 0,
+            svgDimensions: { width: svgRect.width, height: svgRect.height },
+            stageDimensions: { width: stageRect.width, height: stageRect.height },
+            transform: elements.planContent.style.transform,
+            contentW,
+            contentH,
+            scale,
+            tx,
+            ty
+          });
+          
+          if (svgRect.width === 0 || svgRect.height === 0) {
+            LOG.error('SVG has zero dimensions after render!');
+          } else {
+            LOG.success('✅ SVG is visible!');
+          }
+        }, 100);
       });
 
     } catch (error) {
-      console.warn('[DeckNavigator] Failed to load SVG:', error.message);
-      setError(true); // Show error with fallback button
+      LOG.error('Failed to load SVG:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      setError(true);
     }
   }
 
@@ -1231,11 +1401,13 @@
   // GRID RENDERING
   // ===========================================
   function renderGrid(list) {
+    LOG.step('12', `Rendering grid with ${list.length} items`);
     filtered = list;
     elements.grid.innerHTML = '';
     elements.gridCount.textContent = `${list.length} of ${DECKS.length}`;
 
     if (!list.length) {
+      LOG.warn('No decks match search, showing empty state');
       elements.grid.innerHTML = `
         <div class="empty-state">
           <i class="fas fa-search"></i>
@@ -1266,16 +1438,21 @@
       });
       elements.grid.appendChild(card);
     });
+    
+    LOG.success(`Grid rendered with ${list.length} cards`);
   }
 
   function openModal(idx) {
+    LOG.warn(`========== OPENING MODAL FOR DECK ${idx} ==========`);
     currentIdx = idx;
     elements.backdrop.classList.add('is-open');
     document.body.style.overflow = 'hidden';
+    LOG.debug('Modal opened, body overflow hidden');
     loadDeck();
   }
 
   function closeModal() {
+    LOG.warn('Closing modal');
     elements.backdrop.classList.remove('is-open');
     document.body.style.overflow = '';
     stopInertia();
@@ -1284,11 +1461,18 @@
     pinchInit = null;
     elements.planContent.innerHTML = '';
     elements.planContent.style.transform = '';
+    LOG.debug('Modal closed, state reset');
   }
 
   function updateNavButtons() {
-    if (elements.btnPrev) elements.btnPrev.disabled = currentIdx === 0;
-    if (elements.btnNext) elements.btnNext.disabled = currentIdx === filtered.length - 1;
+    if (elements.btnPrev) {
+      elements.btnPrev.disabled = currentIdx === 0;
+      LOG.debug(`Prev button disabled: ${elements.btnPrev.disabled}`);
+    }
+    if (elements.btnNext) {
+      elements.btnNext.disabled = currentIdx === filtered.length - 1;
+      LOG.debug(`Next button disabled: ${elements.btnNext.disabled}`);
+    }
   }
 
   // ===========================================
@@ -1296,7 +1480,7 @@
   // ===========================================
   function onPointerDown(e) {
     if (!elements.backdrop.classList.contains('is-open')) return;
-    if (!(e.target instanceof Element)) return;
+    LOG.debug('Pointer down:', { id: e.pointerId, x: e.clientX, y: e.clientY, type: e.pointerType });
 
     elements.planStage?.setPointerCapture?.(e.pointerId);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -1306,6 +1490,7 @@
       isPanning = true;
       lastPan = { x: e.clientX, y: e.clientY, t: nowMs() };
       velocity = { x: 0, y: 0 };
+      LOG.debug('Starting pan');
     }
 
     if (pointers.size === 2) {
@@ -1313,6 +1498,7 @@
       const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
       pinchInit = { dist: d, scale };
       isPanning = false;
+      LOG.debug('Starting pinch', { distance: d, currentScale: scale });
     }
   }
 
@@ -1336,6 +1522,8 @@
       lastPan = { x: e.clientX, y: e.clientY, t };
       clampToBounds();
       applyTransform();
+      
+      LOG.debug('Panning:', { dx, dy, velocity: { x: velocity.x, y: velocity.y } });
     }
 
     if (pointers.size === 2 && pinchInit) {
@@ -1348,16 +1536,21 @@
 
       const ratio = d / Math.max(1, pinchInit.dist);
       const newScale = clamp(pinchInit.scale * ratio, CFG.minZoom, CFG.maxZoom);
+      LOG.debug('Pinching:', { distance: d, ratio, newScale });
       zoomAboutScreenPoint(mid.x, mid.y, newScale);
     }
   }
 
   function onPointerUp(e) {
     if (!pointers.has(e.pointerId)) return;
+    LOG.debug('Pointer up:', { id: e.pointerId });
     pointers.delete(e.pointerId);
 
     if (pointers.size === 0) {
-      if (isPanning) startInertia();
+      if (isPanning) {
+        LOG.debug('Starting inertia');
+        startInertia();
+      }
       isPanning = false;
       pinchInit = null;
       elements.planStage?.releasePointerCapture?.(e.pointerId);
@@ -1369,6 +1562,7 @@
       isPanning = true;
       lastPan = { x: pt.x, y: pt.y, t: nowMs() };
       pinchInit = null;
+      LOG.debug('Switched to single pointer, continuing pan');
     }
   }
 
@@ -1377,7 +1571,7 @@
     let lastTick = performance.now();
     
     function tick(now) {
-      const dt = Math.min(32, now - lastTick); // Cap dt to avoid large jumps
+      const dt = Math.min(32, now - lastTick);
       lastTick = now;
 
       tx += velocity.x * dt;
@@ -1391,11 +1585,13 @@
 
       const speed = Math.hypot(velocity.x, velocity.y);
       if (speed < CFG.inertiaStop) {
+        LOG.debug('Inertia stopped');
         inertiaRaf = 0;
         return;
       }
       inertiaRaf = requestAnimationFrame(tick);
     }
+    LOG.debug('Inertia started');
     inertiaRaf = requestAnimationFrame(tick);
   }
 
@@ -1403,11 +1599,13 @@
     if (!elements.backdrop.classList.contains('is-open')) return;
     e.preventDefault();
     const steps = clamp((-e.deltaY / 120), -3, 3);
+    LOG.debug('Wheel zoom:', { deltaY: e.deltaY, steps });
     zoomBy(steps, e.clientX, e.clientY);
   }
 
   function onDblClick(e) {
     if (!elements.backdrop.classList.contains('is-open')) return;
+    LOG.debug('Double click zoom');
     zoomAboutScreenPoint(e.clientX, e.clientY, clamp(scale * CFG.zoomDbl, CFG.minZoom, CFG.maxZoom));
   }
 
@@ -1423,6 +1621,7 @@
     lastTap = { t, x: e.clientX, y: e.clientY };
 
     if (dt < 280 && dx < 26 && dy < 26) {
+      LOG.debug('Double tap detected');
       zoomAboutScreenPoint(e.clientX, e.clientY, clamp(scale * CFG.zoomDbl, CFG.minZoom, CFG.maxZoom));
     }
   }
@@ -1431,9 +1630,12 @@
   // EVENT LISTENERS
   // ===========================================
   function initEventListeners() {
+    LOG.step('13', 'Initializing event listeners');
+    
     // Search
     elements.searchInput.addEventListener('input', (e) => {
       const q = String(e.target.value || '').trim().toLowerCase();
+      LOG.debug('Search input:', { query: q });
       elements.searchClear.hidden = !q;
       renderGrid(q
         ? DECKS.filter(d =>
@@ -1446,6 +1648,7 @@
     });
 
     elements.searchClear.addEventListener('click', () => {
+      LOG.debug('Search cleared');
       elements.searchInput.value = '';
       elements.searchClear.hidden = true;
       renderGrid([...DECKS]);
@@ -1455,22 +1658,28 @@
     elements.btnClose?.addEventListener('click', closeModal);
     elements.btnPrev?.addEventListener('click', () => {
       if (currentIdx > 0) {
+        LOG.debug('Previous deck button clicked');
         currentIdx--;
         loadDeck();
       }
     });
     elements.btnNext?.addEventListener('click', () => {
       if (currentIdx < filtered.length - 1) {
+        LOG.debug('Next deck button clicked');
         currentIdx++;
         loadDeck();
       }
     });
 
     // Fallback button
-    elements.fallbackBtn?.addEventListener('click', loadFallbackSVG);
+    elements.fallbackBtn?.addEventListener('click', () => {
+      LOG.warn('Fallback button clicked');
+      loadFallbackSVG();
+    });
 
     // Zoom controls
     elements.zoomIn?.addEventListener('click', () => {
+      LOG.debug('Zoom in clicked');
       const r = stageRect();
       zoomAboutScreenPoint(
         r.left + r.width / 2, 
@@ -1479,6 +1688,7 @@
       );
     });
     elements.zoomOut?.addEventListener('click', () => {
+      LOG.debug('Zoom out clicked');
       const r = stageRect();
       zoomAboutScreenPoint(
         r.left + r.width / 2, 
@@ -1486,18 +1696,28 @@
         clamp(scale / (1 + CFG.zoomStep), CFG.minZoom, CFG.maxZoom)
       );
     });
-    elements.zoomFit?.addEventListener('click', fitToScreen);
-    elements.zoomReset?.addEventListener('click', resetView);
+    elements.zoomFit?.addEventListener('click', () => {
+      LOG.debug('Fit to screen clicked');
+      fitToScreen();
+    });
+    elements.zoomReset?.addEventListener('click', () => {
+      LOG.debug('Reset zoom clicked');
+      resetView();
+    });
 
     // Backdrop click to close
     elements.backdrop.addEventListener('click', (e) => {
-      if (e.target === elements.backdrop) closeModal();
+      if (e.target === elements.backdrop) {
+        LOG.debug('Backdrop clicked, closing modal');
+        closeModal();
+      }
     });
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (!elements.backdrop.classList.contains('is-open')) return;
       
+      LOG.debug('Keyboard event:', { key: e.key });
       switch (e.key) {
         case 'Escape': closeModal(); break;
         case 'ArrowLeft': elements.btnPrev?.click(); break;
@@ -1528,16 +1748,22 @@
     const ro = new ResizeObserver(() => {
       if (!elements.backdrop.classList.contains('is-open')) return;
       if (!contentW || !contentH) return;
+      LOG.debug('Resize observed, reclamping');
       clampToBounds();
       applyTransform();
     });
     ro.observe(elements.planCanvas);
+    LOG.success('ResizeObserver attached');
+
+    LOG.success('All event listeners initialized');
   }
 
   // ===========================================
   // INITIALIZATION
   // ===========================================
   function init() {
+    LOG.warn('========== DECK NAVIGATOR INITIALIZING ==========');
+    
     // Suppress Eruda errors (browser extension noise)
     const originalConsoleError = console.error;
     console.error = function(...args) {
@@ -1546,6 +1772,7 @@
       }
       originalConsoleError.apply(console, args);
     };
+    LOG.info('Eruda errors suppressed');
 
     // Set up event listeners
     initEventListeners();
@@ -1554,23 +1781,31 @@
     renderGrid([...DECKS]);
 
     // Log available paths for debugging
-    console.log('[DeckNavigator] Initialized. Looking for SVG files in:', 
-      CFG.svgPaths.patterns.map(p => p(15)).join(', '));
+    LOG.info('Available SVG patterns:');
+    CFG.svgPaths.patterns.forEach((p, i) => {
+      LOG.info(`  Pattern ${i + 1}: ${p(15)}`);
+    });
+
+    // Test deck folder accessibility
+    fetch('decks/test.svg')
+      .then(r => {
+        if (r.status === 404) {
+          LOG.warn('Decks folder exists but no test.svg found');
+        } else {
+          LOG.success('Decks folder is accessible');
+        }
+      })
+      .catch(() => {
+        LOG.error('Decks folder may not be accessible - check that it exists');
+      });
+
+    LOG.success('========== INITIALIZATION COMPLETE ==========');
+    LOG.warn('Open a deck to see detailed loading logs');
   }
 
   // Start the application
   init();
 })();
-</script>
-
-<!-- Optional: Add a simple test script to verify deck folder exists -->
-<script>
-  // Quick test for deck folder accessibility
-  (function testDeckFolder() {
-    fetch('decks/test.svg')
-      .then(r => console.log('📁 Decks folder test:', r.status === 404 ? 'Folder exists but no test.svg' : 'Accessible'))
-      .catch(() => console.log('📁 Decks folder may not be accessible'));
-  })();
 </script>
 
 </body>
