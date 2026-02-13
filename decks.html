@@ -1,1079 +1,893 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0a2e4a" />
-<title>Deck Explorer · Adventure of the Seas</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+<title>Deck Navigator · Adventure of the Seas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-:root{
-  --bg:#071a2c;
-  --navy:#0a2e4a;
-  --glass: rgba(255,255,255,.08);
-  --glass2: rgba(255,255,255,.12);
-  --brd: rgba(255,255,255,.16);
-  --accent:#00b4e6;
-  --gold:#ffd740;
-  --r: 22px;
-  --ease: cubic-bezier(.22,.61,.36,1);
+/* ── Reset & Base ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0a2e4a;
+  --navy2:   #083452;
+  --blue:    #0f4f76;
+  --accent:  #00b4e6;
+  --gold:    #ffd740;
+  --gold2:   #c6a15b;
+  --white:   #ffffff;
+  --bg:      #f0f6fb;
+  --bg2:     #e4eff8;
+  --card-bg: #ffffff;
+  --text:    #0d2236;
+  --muted:   #5a7a93;
+  --radius:  22px;
+  --shadow:  0 8px 32px rgba(10,46,74,.13);
+  --shadow-lg: 0 20px 60px rgba(10,46,74,.22);
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  font-family:'Inter',system-ui,-apple-system,sans-serif;
-  background:var(--bg);
-  color:#fff;
-  overflow:hidden;
-  -webkit-font-smoothing:antialiased;
-  text-rendering:optimizeLegibility;
-}
-button,input{font:inherit}
-a{color:inherit;text-decoration:none}
-:focus-visible{outline:3px solid rgba(0,180,230,.55);outline-offset:3px;border-radius:14px}
+html { scroll-behavior: smooth; }
 
-#ocean{position:fixed;inset:0;z-index:-3}
-.sky{
-  position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background:
-    radial-gradient(ellipse at 50% 18%, rgba(0,180,230,.14), transparent 60%),
-    radial-gradient(ellipse at 20% 88%, rgba(255,215,64,.10), transparent 55%),
-    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.68));
-}
-.vignette{
-  position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:
-    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.05), transparent 62%),
-    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.45), transparent 65%);
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* Header (mobile-first, compact) */
-header{
-  position:fixed;left:0;right:0;top:0;
-  z-index:1000;
-  padding-top: env(safe-area-inset-top);
-  background:rgba(10,46,74,.68);
+/* ── Header ───────────────────────────────────── */
+.site-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,.3);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: auto;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  text-decoration: none;
+  color: var(--white);
+}
+
+.header-brand i {
+  color: var(--gold);
+  font-size: 1.2rem;
+}
+
+.header-brand-text { line-height: 1.2; }
+
+.header-brand-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: .95rem;
+  color: var(--white);
+  display: block;
+}
+
+.header-brand-sub {
+  font-size: .7rem;
+  color: rgba(255,255,255,.55);
+  display: block;
+}
+
+.header-spacer { flex: 1; }
+
+.header-badge {
+  background: rgba(255,215,64,.15);
+  border: 1px solid rgba(255,215,64,.3);
+  color: var(--gold);
+  font-size: .72rem;
+  font-weight: 700;
+  padding: .3rem .75rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ── Hero ─────────────────────────────────────── */
+.hero {
+  background: linear-gradient(160deg, var(--navy) 0%, #0d3f60 60%, #0f5580 100%);
+  padding: 3.5rem 1.5rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 0%, rgba(0,180,230,.18) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 100%, rgba(255,215,64,.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.9);
+  font-size: .78rem;
+  font-weight: 600;
+  padding: .4rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+.hero-badge i { color: var(--gold); }
+
+.hero h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--white);
+  margin-bottom: .75rem;
+  line-height: 1.1;
+}
+
+.hero h1 em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.hero-sub {
+  color: rgba(255,255,255,.65);
+  font-size: .95rem;
+  max-width: 480px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+/* ── Search ───────────────────────────────────── */
+.search-wrap {
+  display: flex;
+  align-items: center;
+  max-width: 420px;
+  margin: 0 auto;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 999px;
+  padding: .2rem .2rem .2rem 1.1rem;
+  backdrop-filter: blur(8px);
+  transition: .2s;
+}
+
+.search-wrap:focus-within {
+  background: rgba(255,255,255,.18);
+  border-color: rgba(0,180,230,.7);
+  box-shadow: 0 0 0 3px rgba(0,180,230,.2);
+}
+
+.search-wrap i {
+  color: rgba(255,255,255,.55);
+  font-size: .85rem;
+  margin-right: .5rem;
+  flex-shrink: 0;
+}
+
+.search-wrap input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-size: .92rem;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.search-wrap input::placeholder { color: rgba(255,255,255,.45); }
+
+.search-wrap button {
+  background: rgba(255,255,255,.15);
+  border: none;
+  color: var(--white);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+}
+
+.search-wrap button:hover { background: rgba(255,255,255,.28); }
+
+/* ── Grid Section ─────────────────────────────── */
+.grid-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 5rem;
+}
+
+.grid-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.grid-meta h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--navy);
+}
+
+.grid-count {
+  font-size: .8rem;
+  color: var(--muted);
+  font-weight: 600;
+  background: var(--bg2);
+  padding: .3rem .8rem;
+  border-radius: 999px;
+}
+
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.1rem;
+}
+
+/* ── Deck Card ─────────────────────────────────── */
+.deck-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.25rem 1.25rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  border: 1.5px solid transparent;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.deck-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  opacity: 0;
+  transition: opacity .22s;
+}
+
+.deck-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(0,180,230,.25);
+}
+
+.deck-card:hover::before { opacity: 1; }
+
+.deck-card:active { transform: translateY(-2px) scale(.99); }
+
+.card-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 900;
+  font-size: 2.2rem;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: .3rem;
+}
+
+.card-name {
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--navy);
+  margin-bottom: .35rem;
+}
+
+.card-hint {
+  font-size: .75rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.card-hint i { font-size: .65rem; }
+
+.card-arrow {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 1.1rem;
+  width: 30px;
+  height: 30px;
+  background: var(--bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: .7rem;
+  transition: .2s;
+}
+
+.deck-card:hover .card-arrow {
+  background: var(--accent);
+  color: var(--white);
+}
+
+/* ── Empty State ────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--muted);
+  grid-column: 1 / -1;
+}
+
+.empty-state i { font-size: 2.5rem; margin-bottom: 1rem; opacity: .4; display: block; }
+
+/* ── Modal Backdrop ─────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5,18,35,.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom:1px solid rgba(255,255,255,.10);
-}
-.header-inner{
-  height:56px;
-  max-width:1400px;
-  margin:0 auto;
-  padding:0 .85rem;
-  display:flex;
-  align-items:center;
-  gap:.6rem;
-}
-.brand{
-  display:flex;
-  flex-direction:column;
-  line-height:1.05;
-  min-width: 110px;
-}
-.brand .t{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-weight:950;
-  letter-spacing:.01em;
-  font-size:.98rem;
-}
-.brand .s{
-  font-size:.70rem;
-  opacity:.62;
-  font-weight:850;
-}
-.spacer{flex:1}
-
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  padding:.44rem .78rem;
-  border-radius:999px;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.16);
-  font-weight:900;
-  font-size:.78rem;
-  white-space:nowrap;
-}
-.pill i{color:var(--gold)}
-
-.search{
-  width:min(52vw, 320px);
-  padding:.48rem .82rem;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.10);
-  color:rgba(255,255,255,.95);
-  font-weight:850;
-}
-.search::placeholder{color:rgba(255,255,255,.52)}
-.btn{
-  display:inline-flex;align-items:center;gap:.5rem;
-  padding:.48rem .78rem;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(255,255,255,.10);
-  color:rgba(255,255,255,.92);
-  font-weight:900;
-  font-size:.78rem;
-}
-.btn i{color:var(--gold)}
-
-/* Main layout: immersive viewer */
-.main{
-  position:absolute;
-  left:0;right:0;
-  top: calc(56px + env(safe-area-inset-top));
-  bottom: calc(78px + env(safe-area-inset-bottom));
-  padding:.8rem;
-  max-width:1400px;
-  margin:0 auto;
-}
-.viewer{
-  position:relative;
-  height:100%;
-  border-radius:var(--r);
-  background:rgba(0,0,0,.14);
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow: 0 18px 70px rgba(0,0,0,.35);
-  overflow:hidden;
-  touch-action:none;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-top, 1rem) 1rem env(safe-area-inset-bottom, 1rem);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
 }
 
-/* Floating HUD */
-.hud{
-  position:absolute; top:12px; right:12px;
-  display:flex; gap:.55rem;
-  z-index:50;
-}
-.hudbtn{
-  width:44px;height:44px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.16);
-  background:rgba(10,46,74,.62);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display:grid;place-items:center;
-  cursor:pointer;
-}
-.hudbtn i{color:var(--gold); font-size:1.05rem}
-
-/* Stage & SVG */
-.stage{
-  position:absolute; inset:0;
-  overflow:hidden;
-}
-.svgwrap{
-  position:absolute; left:0; top:0;
-  transform-origin: 0 0;
-  will-change: transform;
-}
-.svgwrap svg{
-  display:block;
-  max-width:none;
-  user-select:none;
-  -webkit-user-drag:none;
+.modal-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-/* Fallback image render */
-.fallback{
-  position:absolute; inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.06);
-}
-.fallback img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-  user-select:none;
-  -webkit-user-drag:none;
+/* ── Modal ──────────────────────────────────────── */
+.modal {
+  background: #fff;
+  border-radius: 28px;
+  width: min(98%, 1100px);
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,.45);
+  transform: scale(.96) translateY(12px);
+  transition: transform .28s cubic-bezier(.22,.61,.36,1);
 }
 
-/* Loader + Error */
-.overlay{
-  position:absolute; inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:.65rem;
-  background:rgba(0,0,0,.18);
-  z-index:40;
-}
-.overlay.on{display:flex}
-.spinner{
-  width:30px;height:30px;border-radius:999px;
-  border:3px solid rgba(255,255,255,.20);
-  border-top-color: rgba(0,180,230,.95);
-  animation: spin 1s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.overlay .msg{
-  font-weight:950;
-  opacity:.92;
-}
-.error{
-  position:absolute; inset:0;
-  display:none;
-  padding:1rem;
-  z-index:60;
-  background:rgba(0,0,0,.24);
-}
-.error.on{display:block}
-.error-card{
-  background:rgba(10,46,74,.78);
-  border:1px solid rgba(255,255,255,.16);
-  border-radius:18px;
-  padding:1rem;
-  box-shadow: 0 18px 70px rgba(0,0,0,.45);
-}
-.error-card h3{
-  font-family:'Plus Jakarta Sans',sans-serif;
-  font-weight:950;
-  font-size:1.05rem;
-  margin-bottom:.35rem;
-}
-.error-card .small{
-  opacity:.82;
-  font-weight:750;
-  line-height:1.45;
-  font-size:.88rem;
-}
-.error-card code{
-  display:block;
-  margin:.55rem 0;
-  padding:.55rem .65rem;
-  border-radius:12px;
-  background:rgba(0,0,0,.22);
-  border:1px solid rgba(255,255,255,.12);
-  overflow:auto;
+.modal-backdrop.is-open .modal {
+  transform: scale(1) translateY(0);
 }
 
-/* Highlight overlay */
-.rc-hit{ filter: drop-shadow(0 0 10px rgba(255,215,64,.85)); }
-.rc-overlay{ pointer-events:none; }
-
-/* Bottom deck rail */
-footer{
-  position:fixed; left:0; right:0; bottom:0;
-  z-index:1000;
-  padding-bottom: env(safe-area-inset-bottom);
-  background:rgba(10,46,74,.68);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top:1px solid rgba(255,255,255,.10);
-}
-.foot-inner{
-  height:78px;
-  max-width:1400px;
-  margin:0 auto;
-  padding:0 .85rem;
-  display:flex;
-  align-items:center;
-  gap:.75rem;
-}
-.status{
-  display:flex;align-items:center;gap:.5rem;
-  font-weight:900;font-size:.78rem;
-  opacity:.86;
-  min-width: 96px;
-}
-.dot{
-  width:9px;height:9px;border-radius:999px;
-  background: rgba(0,180,230,.95);
-  box-shadow: 0 0 0 0 rgba(0,180,230,.35);
-  animation: pulse 1.3s ease-out infinite;
-}
-@keyframes pulse{
-  0%{box-shadow:0 0 0 0 rgba(0,180,230,.35)}
-  100%{box-shadow:0 0 0 14px rgba(0,180,230,0)}
-}
-.deckrail{
-  flex:1;
-  display:flex;
-  gap:.45rem;
-  overflow:auto;
-  padding:.35rem .15rem;
-  scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-.deckrail::-webkit-scrollbar{display:none}
-.deckchip{
-  flex:0 0 auto;
-  scroll-snap-align:center;
-  padding:.52rem .85rem;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.08);
-  color:rgba(255,255,255,.92);
-  font-weight:950;
-  font-size:.78rem;
-  cursor:pointer;
-}
-.deckchip.active{
-  background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
-  color: rgba(8,28,46,.96);
-  border-color: rgba(255,255,255,.18);
-}
-.footerbtn{
-  flex:0 0 auto;
+/* ── Modal Header ───────────────────────────────── */
+.modal-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
-/* Toast */
-.toast{
-  position:fixed;
-  left:50%;
-  transform:translateX(-50%);
-  bottom: calc(96px + env(safe-area-inset-bottom));
-  z-index:2000;
-  background:rgba(10,46,74,.88);
-  border:1px solid rgba(255,255,255,.14);
-  padding:.62rem .85rem;
-  border-radius:16px;
-  box-shadow:0 18px 70px rgba(0,0,0,.45);
-  font-weight:950;
-  font-size:.82rem;
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .18s var(--ease), transform .18s var(--ease);
-}
-.toast.on{
-  opacity:1;
-  transform:translateX(-50%) translateY(-2px);
+.modal-header-info { flex: 1; min-width: 0; }
+
+.modal-deck-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 900;
+  font-size: 1.9rem;
+  color: var(--accent);
+  line-height: 1;
 }
 
-@media (prefers-reduced-motion: reduce){
-  *{animation:none !important; transition:none !important}
+.modal-deck-name {
+  font-size: .85rem;
+  color: rgba(255,255,255,.7);
+  margin-top: .1rem;
+}
+
+.modal-nav {
+  display: flex;
+  gap: .5rem;
+}
+
+.modal-nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.1);
+  color: var(--white);
+  cursor: pointer;
+  transition: .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+}
+
+.modal-nav-btn:hover { background: rgba(255,255,255,.25); }
+.modal-nav-btn:disabled { opacity: .3; cursor: default; }
+
+.modal-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.1);
+  color: var(--white);
+  cursor: pointer;
+  transition: .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  flex-shrink: 0;
+}
+
+.modal-close:hover { background: rgba(220,60,60,.5); border-color: rgba(220,60,60,.6); }
+
+/* ── Plan Viewer ────────────────────────────────── */
+.plan-viewer {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: radial-gradient(circle at center, #103a60, #071e33);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.plan-stage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  cursor: grab;
+  padding: 1rem;
+}
+
+.plan-stage:active { cursor: grabbing; }
+
+.plan-stage img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  transform-origin: center center;
+  transition: transform .15s ease;
+  border-radius: 8px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.plan-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: rgba(255,255,255,.6);
+  font-size: .9rem;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255,255,255,.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.plan-error {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  color: rgba(255,255,255,.5);
+  text-align: center;
+  padding: 2rem;
+}
+
+.plan-error i { font-size: 2.5rem; opacity: .4; }
+.plan-error p { font-size: .85rem; line-height: 1.6; }
+
+/* ── Zoom Bar ───────────────────────────────────── */
+.zoom-bar {
+  background: #f0f6fb;
+  border-top: 1px solid rgba(0,0,0,.07);
+  padding: .75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  flex-shrink: 0;
+}
+
+.zoom-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,.1);
+  background: var(--white);
+  color: var(--navy);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  transition: .18s;
+}
+
+.zoom-btn:hover { background: var(--accent); color: var(--white); border-color: var(--accent); }
+
+.zoom-label {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--navy);
+  min-width: 52px;
+  text-align: center;
+}
+
+.zoom-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(0,0,0,.1);
+  margin: 0 .2rem;
+}
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 600px) {
+  .hero { padding: 2.5rem 1rem 2rem; }
+  .modal { border-radius: 20px 20px 0 0; width: 100%; max-height: 92vh; margin-top: auto; }
+  .modal-backdrop { align-items: flex-end; padding: 0; }
+  .deck-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem; }
+  .card-num { font-size: 1.8rem; }
+  .modal-header { padding: 1rem 1.1rem; }
+  .modal-deck-num { font-size: 1.5rem; }
 }
 </style>
+
 </head>
 
 <body>
-<canvas id="ocean" aria-hidden="true"></canvas>
-<div class="sky" aria-hidden="true"></div>
-<div class="vignette" aria-hidden="true"></div>
 
-<header>
+<!-- ── Header ─────────────────────────────────────── -->
+
+<header class="site-header">
   <div class="header-inner">
-    <div class="brand">
-      <div class="t">Deck Explorer</div>
-      <div class="s">Zoom · pan · cabin search</div>
-    </div>
-
-    <div class="spacer"></div>
-
-    <span class="pill" id="pillDeck"><i class="fas fa-layer-group"></i><span>Deck 06</span></span>
-    <input class="search" id="roomSearch" inputmode="numeric" autocomplete="off" spellcheck="false"
-           placeholder="Find cabin # (e.g. 6650)" aria-label="Find cabin number">
-    <a class="btn" href="index.html" aria-label="Back to dashboard"><i class="fas fa-arrow-left"></i><span class="hide-sm">Dashboard</span></a>
+    <a href="#" class="header-brand">
+      <i class="fas fa-crown"></i>
+      <div class="header-brand-text">
+        <span class="header-brand-title">Royal Caribbean</span>
+        <span class="header-brand-sub">Adventure of the Seas</span>
+      </div>
+    </a>
+    <div class="header-spacer"></div>
+    <span class="header-badge"><i class="fas fa-calendar-alt" style="margin-right:.4rem"></i>Feb 14–20, 2026</span>
   </div>
 </header>
 
-<main class="main">
-  <section class="viewer" aria-label="Deck plan viewer">
-    <div class="hud" aria-label="Viewer controls">
-      <button class="hudbtn" id="btnZoomIn" title="Zoom in" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
-      <button class="hudbtn" id="btnZoomOut" title="Zoom out" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
-      <button class="hudbtn" id="btnReset" title="Fit to view" aria-label="Fit to view"><i class="fas fa-crosshairs"></i></button>
-    </div>
+<!-- ── Hero ───────────────────────────────────────── -->
 
-    <div class="stage" id="stage">
-      <div class="svgwrap" id="svgWrap" aria-label="SVG deck content"></div>
-
-      <div class="fallback" id="fallback" aria-label="Fallback deck image">
-        <img id="fallbackImg" alt="Deck plan (fallback)">
-      </div>
-
-      <div class="overlay" id="loading">
-        <div class="spinner" aria-hidden="true"></div>
-        <div class="msg" id="loadingMsg">Loading deck…</div>
-      </div>
-
-      <div class="error" id="error">
-        <div class="error-card" id="errorCard"></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="foot-inner">
-    <div class="status" id="status"><span class="dot"></span><span>Ready</span></div>
-    <div class="deckrail" id="deckRail" aria-label="Deck selector"></div>
-    <button class="btn footerbtn" id="btnFamily" type="button"><i class="fas fa-star"></i>Family</button>
+<section class="hero">
+  <div class="hero-badge">
+    <i class="fas fa-ship"></i>
+    Adventure of the Seas · 13 Decks
   </div>
-</footer>
+  <h1>Explore Every <em>Deck</em></h1>
+  <p class="hero-sub">Find staterooms, restaurants, pools, and amenities across every level of the ship.</p>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="search-wrap">
+    <i class="fas fa-search"></i>
+    <input id="searchInput" type="search" placeholder="Search decks…" autocomplete="off" aria-label="Search decks">
+    <button id="searchClear" hidden aria-label="Clear search"><i class="fas fa-times"></i></button>
+  </div>
+</section>
+
+<!-- ── Grid ───────────────────────────────────────── -->
+
+<section class="grid-section">
+  <div class="grid-meta">
+    <h2>Deck Plans</h2>
+    <span id="gridCount" class="grid-count"></span>
+  </div>
+  <div id="deckGrid" class="deck-grid"></div>
+</section>
+
+<!-- ── Modal ──────────────────────────────────────── -->
+
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalDeckName">
+
+  <div class="modal">
+
+```
+<header class="modal-header">
+  <div class="modal-header-info">
+    <div id="modalDeckNum" class="modal-deck-num"></div>
+    <div id="modalDeckName" class="modal-deck-name"></div>
+  </div>
+  <div class="modal-nav">
+    <button id="btnPrev" class="modal-nav-btn" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
+    <button id="btnNext" class="modal-nav-btn" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
+  </div>
+  <button id="btnClose" class="modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+</header>
+
+<div class="plan-viewer">
+  <div id="planLoader" class="plan-loader">
+    <div class="spinner"></div>
+    <span>Loading deck plan…</span>
+  </div>
+  <div id="planError" class="plan-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>Deck plan unavailable.<br>The image file may not be uploaded yet.</p>
+  </div>
+  <div id="planStage" class="plan-stage"></div>
+</div>
+
+<div class="zoom-bar">
+  <button id="zoomOut" class="zoom-btn" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
+  <span id="zoomLabel" class="zoom-label">100%</span>
+  <button id="zoomIn" class="zoom-btn" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
+  <div class="zoom-divider"></div>
+  <button id="zoomReset" class="zoom-btn" aria-label="Reset zoom"><i class="fas fa-compress-arrows-alt"></i></button>
+</div>
+```
+
+  </div>
+</div>
 
 <script>
 (() => {
   'use strict';
 
-  /* =========================
-     Deck SVG filenames
-     ========================= */
-  const DECKS = [2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(n => ({
-    n,
-    file: `deck-${String(n).padStart(2,'0')}-final.min.svg`
-  }));
+  /* ── Data ─────────────────────────────────── */
 
-  // Known cabins (you can extend)
-  const FAMILY_CABINS = ['6650','8528','8612','8370','3622'];
 
-  const STORAGE = {
-    deck: 'rccl.decks.activeDeck.v4',
-    zoom: 'rccl.decks.zoom.v4',
-    tx:   'rccl.decks.tx.v4',
-    ty:   'rccl.decks.ty.v4',
-    base: 'rccl.decks.basePath.v4'
-  };
+  /* ============================
+RCCL Deck Navigator
+============================ */
 
-  /* =========================
-     DOM
-     ========================= */
-  const stage = document.getElementById('stage');
-  const svgWrap = document.getElementById('svgWrap');
-  const fallback = document.getElementById('fallback');
-  const fallbackImg = document.getElementById('fallbackImg');
+const DECKS = [
+{n:15,name:“Deck 15”,svg:“decks/deck-15-final.min.svg”},
+{n:14,name:“Deck 14”,svg:“decks/deck-14-final.min.svg”},
+{n:13,name:“Deck 13”,svg:“decks/deck-13-final.min.svg”},
+{n:12,name:“Deck 12”,svg:“decks/deck-12-final.min.svg”},
+{n:11,name:“Deck 11”,svg:“decks/deck-11-final.min.svg”},
+{n:10,name:“Deck 10”,svg:“decks/deck-10-final.min.svg”},
+{n:9, name:“Deck 9”, svg:“decks/deck-09-final.min.svg”},
+{n:8, name:“Deck 8”, svg:“decks/deck-08-final.min.svg”},
+{n:7, name:“Deck 7”, svg:“decks/deck-07-final.min.svg”},
+{n:6, name:“Deck 6”, svg:“decks/deck-06-final.min.svg”},
+{n:5, name:“Deck 5”, svg:“decks/deck-05-final.min.svg”},
+{n:4, name:“Deck 4”, svg:“decks/deck-04-final.min.svg”},
+{n:3, name:“Deck 3”, svg:“decks/deck-03-final.min.svg”},
+{n:2, name:“Deck 2”, svg:“decks/deck-02-final.min.svg”}
+];
 
-  const pillDeck = document.getElementById('pillDeck');
-  const roomSearch = document.getElementById('roomSearch');
-  const status = document.getElementById('status');
+// ── DOM refs — matched to decks.html IDs ──────
 
-  const deckRail = document.getElementById('deckRail');
-
-  const btnZoomIn = document.getElementById('btnZoomIn');
-  const btnZoomOut = document.getElementById('btnZoomOut');
-  const btnReset = document.getElementById('btnReset');
-  const btnFamily = document.getElementById('btnFamily');
-
-  const loading = document.getElementById('loading');
-  const loadingMsg = document.getElementById('loadingMsg');
-
-  const error = document.getElementById('error');
-  const errorCard = document.getElementById('errorCard');
-
-  const toast = document.getElementById('toast');
-  const ocean = document.getElementById('ocean');
-
-  if (!stage || !svgWrap || !fallback || !fallbackImg || !pillDeck || !roomSearch || !status ||
-      !deckRail || !btnZoomIn || !btnZoomOut || !btnReset || !btnFamily ||
-      !loading || !loadingMsg || !error || !errorCard || !toast || !ocean) {
-    console.error('[decks] Missing required DOM elements.');
-    return;
+  function svgPath(n) {
+    const pad = String(n).padStart(2,'0');
+    return `decks/deck-${pad}-final.min.svg`;
   }
 
-  /* =========================
-     Helpers
-     ========================= */
-  const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
-  const pad2  = (n) => String(n).padStart(2,'0');
-  const digits = (s) => String(s||'').replace(/[^\d]/g,'');
-  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  /* ── State ────────────────────────────────── */
+  let filtered = [...DECKS];
+  let currentIdx = 0;
+  let zoom = 1;
 
-  let toastTimer = 0;
-  function showToast(msg){
-    toast.textContent = String(msg||'');
-    toast.classList.add('on');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('on'), 1400);
-  }
-  function setStatus(text){
-    const span = status.querySelector('span:last-child');
-    if (span) span.textContent = String(text||'');
-  }
-  function showLoading(on, msg){
-    loading.classList.toggle('on', !!on);
-    if (msg) loadingMsg.textContent = msg;
-  }
-  function showError(html){
-    error.classList.add('on');
-    errorCard.innerHTML = html;
-  }
-  function hideError(){
-    error.classList.remove('on');
-    errorCard.innerHTML = '';
-  }
+  /* ── Elements ────────────────────────────── */
+  const grid         = document.getElementById('deckGrid');
+  const gridCount    = document.getElementById('gridCount');
+  const searchInput  = document.getElementById('searchInput');
+  const searchClear  = document.getElementById('searchClear');
+  const backdrop     = document.getElementById('modalBackdrop');
+  const modalNum     = document.getElementById('modalDeckNum');
+  const modalName    = document.getElementById('modalDeckName');
+  const planStage    = document.getElementById('planStage');
+  const planLoader   = document.getElementById('planLoader');
+  const planError    = document.getElementById('planError');
+  const btnClose     = document.getElementById('btnClose');
+  const btnPrev      = document.getElementById('btnPrev');
+  const btnNext      = document.getElementById('btnNext');
+  const zoomInBtn    = document.getElementById('zoomIn');
+  const zoomOutBtn   = document.getElementById('zoomOut');
+  const zoomResetBtn = document.getElementById('zoomReset');
+  const zoomLabel    = document.getElementById('zoomLabel');
 
-  /* =========================
-     State (pan/zoom)
-     ========================= */
-  let activeDeck = Number(localStorage.getItem(STORAGE.deck) || 6);
-  if (!Number.isFinite(activeDeck)) activeDeck = 6;
+  /* ── Render Grid ─────────────────────────── */
+  function renderGrid(list) {
+    filtered = list;
+    grid.innerHTML = '';
+    gridCount.textContent = `${list.length} of ${DECKS.length}`;
 
-  let zoom = Number(localStorage.getItem(STORAGE.zoom) || 1);
-  let tx   = Number(localStorage.getItem(STORAGE.tx)   || 0);
-  let ty   = Number(localStorage.getItem(STORAGE.ty)   || 0);
-
-  zoom = clamp(zoom, 0.35, 5);
-
-  let currentSVG = null;      // inline SVG ref (for highlight/search)
-  let usingFallbackImg = false;
-
-  const pointers = new Map();
-  let isDragging = false;
-  let lastPan = {x:0,y:0};
-  let pinchStart = null;
-
-  function persistView(){
-    try{
-      localStorage.setItem(STORAGE.deck, String(activeDeck));
-      localStorage.setItem(STORAGE.zoom, String(zoom));
-      localStorage.setItem(STORAGE.tx, String(tx));
-      localStorage.setItem(STORAGE.ty, String(ty));
-    }catch{}
-  }
-
-  function applyTransform(){
-    svgWrap.style.transform = `translate(${tx}px, ${ty}px) scale(${zoom})`;
-    persistView();
-  }
-
-  /* =========================
-     Base path auto-discovery
-     ========================= */
-  function baseCandidates(){
-    // Try previously working base first
-    const savedBase = localStorage.getItem(STORAGE.base);
-    const list = [];
-
-    if (savedBase) list.push(savedBase);
-
-    // Common layouts:
-    // - decks.html next to /decks/
-    // - decks.html in /docs/ next to /docs/decks/
-    // - decks.html in /pages/ next to /pages/decks/
-    // - global /decks/
-    // - assets/decks/
-    list.push('./decks/');
-    list.push('../decks/');
-    list.push('../../decks/');
-    list.push('../../../decks/');
-    list.push('/decks/');
-
-    list.push('./assets/decks/');
-    list.push('../assets/decks/');
-    list.push('../../assets/decks/');
-    list.push('/assets/decks/');
-
-    // De-dupe while preserving order
-    const seen = new Set();
-    return list.filter(p => (p && !seen.has(p) && seen.add(p)));
-  }
-
-  async function fetchText(url){
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.text();
-  }
-
-  async function tryResolveDeckUrl(deckFile){
-    // Build absolute URL candidates from baseCandidates()
-    const bases = baseCandidates();
-    const tried = [];
-
-    for (const base of bases){
-      const u = new URL(base + deckFile, window.location.href).toString();
-      tried.push(u);
-      try{
-        // Cheap probe: try GET (GitHub Pages supports it; HEAD sometimes is quirky)
-        // Also avoid huge wait on slow networks by short delay between attempts.
-        const text = await fetchText(u);
-        return { ok:true, url:u, text, tried };
-      }catch(e){
-        // continue
-        await sleep(10);
-      }
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty-state">
+        <i class="fas fa-search"></i>
+        <p>No decks match your search.</p>
+      </div>`;
+      return;
     }
-    return { ok:false, tried };
-  }
 
-  /* =========================
-     SVG handling (inline + fallback img)
-     ========================= */
-  function clearSvg(){
-    svgWrap.innerHTML = '';
-    currentSVG = null;
-    usingFallbackImg = false;
-    fallback.style.display = 'none';
-  }
-
-  function ensureViewBox(svg){
-    if (!svg.getAttribute('viewBox')){
-      const w = parseFloat(svg.getAttribute('width') || '0');
-      const h = parseFloat(svg.getAttribute('height') || '0');
-      if (w > 0 && h > 0) svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    }
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-  }
-
-  function fitToViewport(){
-    if (!currentSVG) return;
-
-    const vb = currentSVG.viewBox && currentSVG.viewBox.baseVal;
-    const vbW = (vb && vb.width) ? vb.width : 1200;
-    const vbH = (vb && vb.height)? vb.height: 700;
-
-    const rect = stage.getBoundingClientRect();
-    const availW = Math.max(320, rect.width - 28);
-    const availH = Math.max(320, rect.height - 28);
-
-    const s = Math.min(availW / vbW, availH / vbH);
-    zoom = clamp(s, 0.35, 2.8);
-
-    tx = (rect.width/2) - (vbW/2) * zoom;
-    ty = (rect.height/2) - (vbH/2) * zoom;
-
-    applyTransform();
-  }
-
-  function removeOverlay(svg){
-    if (!svg) return;
-    const old = svg.querySelector('#rc-room-overlay');
-    if (old) old.remove();
-    svg.querySelectorAll('.rc-hit').forEach(el => el.classList.remove('rc-hit'));
-  }
-
-  function ensureOverlay(svg){
-    let g = svg.querySelector('#rc-room-overlay');
-    if (!g){
-      g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      g.setAttribute('id', 'rc-room-overlay');
-      g.setAttribute('class', 'rc-overlay');
-      svg.appendChild(g);
-    }
-    return g;
-  }
-
-  function findRoomElements(svg, roomNumber){
-    const q = digits(roomNumber);
-    if (!q) return [];
-
-    const hits = [];
-    svg.querySelectorAll(`[id*="${CSS.escape(q)}"]`).forEach(el => hits.push(el));
-    svg.querySelectorAll(`[aria-label*="${CSS.escape(q)}"], [data-room*="${CSS.escape(q)}"]`).forEach(el => hits.push(el));
-    svg.querySelectorAll('text, tspan').forEach(el => {
-      const t = (el.textContent || '').trim();
-      if (t === q) hits.push(el);
-    });
-
-    const seen = new Set();
-    return hits.filter(el => {
-      const key = `${el.tagName}|${el.id||''}|${el.getAttribute('aria-label')||''}|${(el.textContent||'').trim()}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
+    list.forEach((deck, i) => {
+      const card = document.createElement('div');
+      card.className = 'deck-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Open ${deck.name}`);
+      card.innerHTML = `
+        <div class="card-num">${deck.n}</div>
+        <div class="card-name">${deck.name}</div>
+        <div class="card-hint"><i class="fas fa-map-pin"></i>${deck.hint}</div>
+        <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
+      `;
+      card.addEventListener('click', () => openModal(i));
+      card.addEventListener('keypress', e => { if (e.key === 'Enter') openModal(i); });
+      grid.appendChild(card);
     });
   }
 
-  function focusOnBBox(bbox){
-    const rect = stage.getBoundingClientRect();
-    const targetX = rect.width/2;
-    const targetY = rect.height/2;
-    const cx = bbox.x + bbox.width/2;
-    const cy = bbox.y + bbox.height/2;
-    tx = targetX - (cx * zoom);
-    ty = targetY - (cy * zoom);
-    applyTransform();
+  /* ── Modal ───────────────────────────────── */
+  function openModal(idx) {
+    currentIdx = idx;
+    backdrop.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    loadDeck();
   }
 
-  function highlightRoom(roomNumber, {announce=true} = {}){
-    const q = digits(roomNumber);
-    if (!q) { if (announce) showToast('Enter a cabin number'); return false; }
-
-    if (usingFallbackImg){
-      if (announce) showToast('Deck shown (fallback). Highlight needs inline SVG.');
-      return false;
-    }
-    if (!currentSVG){
-      if (announce) showToast('Deck not loaded');
-      return false;
-    }
-
-    removeOverlay(currentSVG);
-
-    const hits = findRoomElements(currentSVG, q);
-    if (!hits.length){
-      if (announce) showToast(`Cabin ${q} not found here`);
-      return false;
-    }
-
-    hits.forEach(el => el.classList.add('rc-hit'));
-
-    let bboxTarget = hits[0];
-    if (bboxTarget.tagName.toLowerCase() === 'tspan' && bboxTarget.parentElement) bboxTarget = bboxTarget.parentElement;
-
-    let bbox;
-    try { bbox = bboxTarget.getBBox(); }
-    catch {
-      if (announce) showToast(`Cabin ${q} found (can't focus)`);
-      return true;
-    }
-
-    const g = ensureOverlay(currentSVG);
-    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    r.setAttribute('x', String(bbox.x - 12));
-    r.setAttribute('y', String(bbox.y - 10));
-    r.setAttribute('width', String(bbox.width + 24));
-    r.setAttribute('height', String(bbox.height + 20));
-    r.setAttribute('rx','10'); r.setAttribute('ry','10');
-    r.setAttribute('fill','rgba(255,215,64,0.10)');
-    r.setAttribute('stroke','rgba(255,215,64,0.95)');
-    r.setAttribute('stroke-width','3');
-    r.setAttribute('vector-effect','non-scaling-stroke');
-    g.appendChild(r);
-
-    zoom = clamp(Math.max(zoom, 1.05), 0.35, 5);
-    focusOnBBox(bbox);
-
-    if (announce) showToast(`Cabin ${q} highlighted`);
-    return true;
+  function closeModal() {
+    backdrop.classList.remove('is-open');
+    document.body.style.overflow = '';
+    planStage.innerHTML = '';
+    zoom = 1;
+    updateZoomLabel();
   }
 
-  function highlightFamilyCabins(){
-    if (usingFallbackImg){
-      showToast('Fallback view: Family highlight needs inline SVG.');
-      return false;
-    }
-    if (!currentSVG){
-      showToast('Deck not loaded');
-      return false;
-    }
+  function loadDeck() {
+    const deck = filtered[currentIdx];
+    modalNum.textContent  = `Deck ${deck.n}`;
+    modalName.textContent = deck.hint;
 
-    let first = null;
-    let count = 0;
-    for (const c of FAMILY_CABINS){
-      const hits = findRoomElements(currentSVG, c);
-      if (hits.length){
-        count++;
-        if (!first) first = c;
-      }
-    }
-    if (!count){
-      showToast('No family cabins detected on this deck');
-      return false;
-    }
-    highlightRoom(first, {announce:true});
-    if (count > 1) showToast(`Found ${count} family cabins here`);
-    return true;
+    btnPrev.disabled = currentIdx === 0;
+    btnNext.disabled = currentIdx === filtered.length - 1;
+
+    planStage.innerHTML = '';
+    planLoader.style.display = 'flex';
+    planError.style.display  = 'none';
+    zoom = 1;
+    updateZoomLabel();
+
+    const img = new Image();
+    img.alt = deck.name;
+    img.style.transform = 'scale(1)';
+
+    img.onload = () => {
+      planLoader.style.display = 'none';
+      planStage.appendChild(img);
+    };
+
+    img.onerror = () => {
+      planLoader.style.display = 'none';
+      planError.style.display  = 'flex';
+    };
+
+    img.src = svgPath(deck.n);
   }
 
-  async function loadDeck(deckNum){
-    hideError();
-    clearSvg();
-    setStatus('Loading…');
-
-    activeDeck = deckNum;
-    pillDeck.querySelector('span').textContent = `Deck ${pad2(deckNum)}`;
-    deckRail.querySelectorAll('.deckchip').forEach(ch => {
-      ch.classList.toggle('active', Number(ch.dataset.deck) === deckNum);
-    });
-
-    showLoading(true, `Preparing Deck ${pad2(deckNum)}…`);
-
-    const deck = DECKS.find(d => d.n === deckNum);
-    if (!deck){
-      showLoading(false);
-      setStatus('Error');
-      showError(`<h3>Deck not available</h3><div class="small">No SVG configured for deck ${esc(deckNum)}.</div>`);
-      return;
-    }
-
-    const resolved = await tryResolveDeckUrl(deck.file);
-
-    if (!resolved.ok){
-      showLoading(false);
-      setStatus('Load failed');
-
-      // Also try rendering as <img> with the most likely path (for a visual fallback)
-      const fallbackBase = baseCandidates()[0] || './decks/';
-      const fallbackUrl = new URL(fallbackBase + deck.file, window.location.href).toString();
-      fallbackImg.src = fallbackUrl;
-      fallback.style.display = 'flex';
-      usingFallbackImg = true;
-
-      showError(`
-        <h3>Deck SVG couldn’t be fetched</h3>
-        <div class="small">
-          This usually means <strong>the SVG path is wrong</strong> on GitHub Pages (folder mismatch).
-          <br><br>
-          <strong>Tried URLs:</strong>
-          ${resolved.tried.slice(0,8).map(u => `<code>${esc(u)}</code>`).join('')}
-          ${resolved.tried.length > 8 ? `<div class="small" style="margin-top:.35rem">(+${resolved.tried.length-8} more)</div>` : ``}
-          <br>
-          <strong>Fix:</strong> ensure <code>decks.html</code> is in the same folder level as <code>decks/</code>,
-          or move <code>decks/</code> to where this page expects it.
-          <br><br>
-          <strong>Tip:</strong> open one directly in Safari:
-          <code>${esc(resolved.tried[0] || '...')}</code>
-          If it 404s, that’s the root cause.
-        </div>
-      `);
-      showToast('SVG path mismatch');
-      return;
-    }
-
-    // Cache base path that worked
-    try{
-      const urlObj = new URL(resolved.url);
-      const base = resolved.url.replace(deck.file, '');
-      localStorage.setItem(STORAGE.base, base);
-    }catch{}
-
-    // Inline SVG
-    svgWrap.innerHTML = resolved.text;
-    const svg = svgWrap.querySelector('svg');
-    if (!svg){
-      showLoading(false);
-      setStatus('Error');
-      showError(`<h3>Invalid SVG file</h3><div class="small">Fetched content did not contain an <code>&lt;svg&gt;</code> element.</div>`);
-      return;
-    }
-
-    currentSVG = svg;
-    usingFallbackImg = false;
-    fallback.style.display = 'none';
-
-    ensureViewBox(svg);
-    removeOverlay(svg);
-
-    // Fit on load
-    fitToViewport();
-
-    showLoading(false);
-    setStatus(`Deck ${deckNum} ready`);
-    showToast(`Deck ${deckNum} loaded`);
+  /* ── Zoom ────────────────────────────────── */
+  function setZoom(val) {
+    zoom = Math.min(4, Math.max(0.5, val));
+    const img = planStage.querySelector('img');
+    if (img) img.style.transform = `scale(${zoom})`;
+    updateZoomLabel();
   }
 
-  /* =========================
-     Zoom & pan (mouse + touch + pinch)
-     ========================= */
-  function zoomAt(clientX, clientY, factor){
-    const rect = stage.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    const svgX = (x - tx) / zoom;
-    const svgY = (y - ty) / zoom;
-
-    zoom = clamp(zoom * factor, 0.35, 5);
-    tx = x - svgX * zoom;
-    ty = y - svgY * zoom;
-    applyTransform();
+  function updateZoomLabel() {
+    zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
   }
 
-  stage.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    zoomAt(e.clientX, e.clientY, e.deltaY > 0 ? 0.90 : 1.10);
-  }, { passive:false });
-
-  stage.addEventListener('pointerdown', (e) => {
-    stage.setPointerCapture(e.pointerId);
-    pointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
-
-    if (pointers.size === 1){
-      isDragging = true;
-      lastPan = {x:e.clientX,y:e.clientY};
-    } else if (pointers.size === 2){
-      const pts = Array.from(pointers.values());
-      const dx = pts[0].x - pts[1].x;
-      const dy = pts[0].y - pts[1].y;
-      const dist = Math.hypot(dx,dy);
-
-      const r = stage.getBoundingClientRect();
-      const centerX = (pts[0].x + pts[1].x)/2 - r.left;
-      const centerY = (pts[0].y + pts[1].y)/2 - r.top;
-
-      pinchStart = { dist, zoom, centerX, centerY };
-      isDragging = false;
-    }
+  /* ── Search ──────────────────────────────── */
+  searchInput.addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    searchClear.hidden = !q;
+    renderGrid(q
+      ? DECKS.filter(d =>
+          d.name.toLowerCase().includes(q) ||
+          String(d.n).includes(q) ||
+          d.hint.toLowerCase().includes(q)
+        )
+      : [...DECKS]
+    );
   });
 
-  stage.addEventListener('pointermove', (e) => {
-    if (!pointers.has(e.pointerId)) return;
-    pointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchClear.hidden = true;
+    renderGrid([...DECKS]);
+  });
 
-    if (pointers.size === 1 && isDragging){
-      const dx = e.clientX - lastPan.x;
-      const dy = e.clientY - lastPan.y;
-      lastPan = {x:e.clientX,y:e.clientY};
-      tx += dx; ty += dy;
-      applyTransform();
-      return;
+  /* ── Event Listeners ─────────────────────── */
+  btnClose.addEventListener('click', closeModal);
+  btnPrev.addEventListener('click',  () => { if (currentIdx > 0) { currentIdx--; loadDeck(); } });
+  btnNext.addEventListener('click',  () => { if (currentIdx < filtered.length - 1) { currentIdx++; loadDeck(); } });
+
+  zoomInBtn.addEventListener('click',    () => setZoom(zoom + 0.2));
+  zoomOutBtn.addEventListener('click',   () => setZoom(zoom - 0.2));
+  zoomResetBtn.addEventListener('click', () => setZoom(1));
+
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+
+  document.addEventListener('keydown', e => {
+    if (!backdrop.classList.contains('is-open')) return;
+    if (e.key === 'Escape')      closeModal();
+    if (e.key === 'ArrowLeft')   btnPrev.click();
+    if (e.key === 'ArrowRight')  btnNext.click();
+    if (e.key === '+')           setZoom(zoom + 0.2);
+    if (e.key === '-')           setZoom(zoom - 0.2);
+  });
+
+  /* ── Pinch-to-zoom (touch) ───────────────── */
+  let initDist = 0, initZoom = 1;
+
+  planStage.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      initDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      initZoom = zoom;
     }
+  }, { passive: true });
 
-    if (pointers.size === 2 && pinchStart){
-      const pts = Array.from(pointers.values());
-      const dx = pts[0].x - pts[1].x;
-      const dy = pts[0].y - pts[1].y;
-      const dist = Math.hypot(dx,dy);
-
-      const scale = dist / pinchStart.dist;
-      const nextZoom = clamp(pinchStart.zoom * scale, 0.35, 5);
-
-      const x = pinchStart.centerX;
-      const y = pinchStart.centerY;
-
-      const svgX = (x - tx) / zoom;
-      const svgY = (y - ty) / zoom;
-
-      zoom = nextZoom;
-      tx = x - svgX * zoom;
-      ty = y - svgY * zoom;
-      applyTransform();
+  planStage.addEventListener('touchmove', e => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      setZoom(initZoom * (dist / initDist));
     }
-  });
+  }, { passive: true });
 
-  function endPointer(e){
-    pointers.delete(e.pointerId);
-    if (pointers.size < 2) pinchStart = null;
-    if (pointers.size === 0) isDragging = false;
-  }
-  stage.addEventListener('pointerup', endPointer);
-  stage.addEventListener('pointercancel', endPointer);
-  stage.addEventListener('pointerleave', endPointer);
+  /* ── Init ────────────────────────────────── */
+  renderGrid([...DECKS]);
 
-  // Double-tap to fit
-  let lastTap = 0;
-  stage.addEventListener('pointerdown', () => {
-    const now = Date.now();
-    if (now - lastTap < 280) fitToViewport();
-    lastTap = now;
-  });
-
-  btnZoomIn.addEventListener('click', () => {
-    const r = stage.getBoundingClientRect();
-    zoomAt(r.left + r.width/2, r.top + r.height/2, 1.12);
-  });
-  btnZoomOut.addEventListener('click', () => {
-    const r = stage.getBoundingClientRect();
-    zoomAt(r.left + r.width/2, r.top + r.height/2, 0.89);
-  });
-  btnReset.addEventListener('click', () => fitToViewport());
-
-  /* =========================
-     Search
-     ========================= */
-  let searchTimer = 0;
-  roomSearch.addEventListener('input', () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      const q = digits(roomSearch.value);
-      if (!q) return;
-      highlightRoom(q, {announce:true});
-    }, 220);
-  });
-  roomSearch.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter'){
-      const q = digits(roomSearch.value);
-      if (!q) return;
-      highlightRoom(q, {announce:true});
-    }
-  });
-
-  btnFamily.addEventListener('click', () => highlightFamilyCabins());
-
-  /* =========================
-     Deck rail
-     ========================= */
-  function buildDeckRail(){
-    deckRail.innerHTML = '';
-    for (const d of DECKS){
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'deckchip' + (d.n === activeDeck ? ' active' : '');
-      b.dataset.deck = String(d.n);
-      b.textContent = `Deck ${pad2(d.n)}`;
-      b.addEventListener('click', () => loadDeck(d.n));
-      deckRail.appendChild(b);
-    }
-  }
-
-  /* =========================
-     Ocean background
-     ========================= */
-  const octx = ocean.getContext('2d');
-  let ot = 0;
-
-  function resizeOcean(){
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    ocean.width = Math.floor(window.innerWidth * dpr);
-    ocean.height = Math.floor(window.innerHeight * dpr);
-    ocean.style.width = window.innerWidth + 'px';
-    ocean.style.height = window.innerHeight + 'px';
-    octx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  window.addEventListener('resize', () => {
-    resizeOcean();
-    if (currentSVG && !usingFallbackImg) fitToViewport();
-  });
-
-  function drawOcean(){
-    const w = window.innerWidth, h = window.innerHeight;
-    octx.clearRect(0,0,w,h);
-    octx.fillStyle = '#071a2c';
-    octx.fillRect(0,0,w,h);
-
-    const g = octx.createLinearGradient(0,0,0,h);
-    g.addColorStop(0,'rgba(10,46,74,.10)');
-    g.addColorStop(1,'rgba(0,0,0,.32)');
-    octx.fillStyle = g;
-    octx.fillRect(0,0,w,h);
-
-    for (let i=0;i<3;i++){
-      const amp = 22 + i*12;
-      const len = 0.010 - i*0.0018;
-      const base = h*(0.52 + i*0.07);
-
-      octx.beginPath();
-      octx.moveTo(0, base);
-      for (let x=0;x<=w;x+=10){
-        const y = base + Math.sin(x*len + ot*(0.9+i*0.2)) * amp;
-        octx.lineTo(x,y);
-      }
-      octx.lineTo(w,h); octx.lineTo(0,h);
-      octx.closePath();
-      octx.fillStyle = `rgba(0,180,230,${0.11 - i*0.03})`;
-      octx.fill();
-    }
-
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    ot += reduce ? 0.004 : 0.012;
-    requestAnimationFrame(drawOcean);
-  }
-
-  /* =========================
-     Init
-     ========================= */
-  function init(){
-    resizeOcean();
-    drawOcean();
-
-    buildDeckRail();
-
-    if (!DECKS.some(d => d.n === activeDeck)) activeDeck = 6;
-
-    // Start in a known good state
-    applyTransform();
-    hideError();
-
-    loadDeck(activeDeck);
-
-    showToast('Deck Explorer (auto-path) loaded');
-  }
-
-  init();
 })();
 </script>
 
