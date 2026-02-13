@@ -1,1244 +1,1366 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#cfeaff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="manifest.json?v=2">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
-    <title>Staterooms | Adventure of the Seas</title>
-    <meta name="description" content="View your stateroom assignments, deck locations, and quick actions in a clean, light interface.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/base.css?v=3">
-  <link rel="stylesheet" href="css/utilities.css?v=3">
-  <link rel="stylesheet" href="css/components.css?v=3">
-    <link rel="stylesheet" href="css/feature-modules.css?v=3">
-    <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <script src="js/shared-layout.js?v=17" defer></script>
-  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
+  <meta name="theme-color" content="#0a2e4a" />
+  <title>Staterooms · Adventure of the Seas</title>
+
+  <!-- Fonts + Icons (external, everything else is baked-in) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    /* =========================================================
+       RCCL ROOMS — SINGLE FILE (CSS + JS baked in)
+       Mobile-first • Fast • Accessible • No globals
+       ========================================================= */
+
+    /* ---------- Reset ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid rgba(0,180,230,.45); outline-offset: 2px; border-radius: 10px; }
+
+    /* ---------- Tokens ---------- */
+    :root {
+      --navy:    #0a2e4a;
+      --navy2:   #083452;
+      --blue:    #0f4f76;
+      --accent:  #00b4e6;
+      --gold:    #ffd740;
+      --gold2:   #c6a15b;
+
+      --white:   #ffffff;
+      --bg:      #f0f6fb;
+      --bg2:     #e4eff8;
+      --card-bg: #ffffff;
+
+      --text:    #0d2236;
+      --muted:   #5a7a93;
+      --danger:  #d23c3c;
+      --ok:      #15a36d;
+
+      --radius:  22px;
+      --radius-lg: 28px;
+
+      --shadow:     0 8px 32px rgba(10,46,74,.13);
+      --shadow-lg:  0 20px 60px rgba(10,46,74,.22);
+
+      --glass: rgba(255,255,255,.10);
+      --glass-brd: rgba(255,255,255,.22);
+
+      --ease: cubic-bezier(.22,.61,.36,1);
+      --ring: 0 0 0 3px rgba(0,180,230,.20);
+    }
+
+    /* ---------- Header ---------- */
+    .site-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      padding: 0 1.1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,.28);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      color: var(--white);
+      min-width: 0;
+    }
+    .header-brand i { color: var(--gold); font-size: 1.1rem; }
+    .header-brand-text { line-height: 1.1; min-width: 0; }
+    .header-brand-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      font-size: .95rem;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-brand-sub {
+      font-size: .72rem;
+      color: rgba(255,255,255,.60);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-spacer { flex: 1; }
+    .header-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      background: rgba(255,215,64,.14);
+      border: 1px solid rgba(255,215,64,.28);
+      color: var(--gold);
+      font-size: .72rem;
+      font-weight: 800;
+      padding: .35rem .75rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      background: linear-gradient(160deg, var(--navy) 0%, #0d3f60 60%, #0f5580 100%);
+      padding: 3.0rem 1.1rem 2.2rem;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      color: var(--white);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 70% 0%, rgba(0,180,230,.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 100%, rgba(255,215,64,.10) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.92);
+      font-size: .78rem;
+      font-weight: 700;
+      padding: .45rem 1rem;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      margin-bottom: 1rem;
+    }
+    .hero-badge i { color: var(--gold); }
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: clamp(1.9rem, 5vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: -.01em;
+      margin-bottom: .65rem;
+    }
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero-sub {
+      color: rgba(255,255,255,.70);
+      font-size: .98rem;
+      line-height: 1.6;
+      max-width: 640px;
+      margin: 0 auto 1.35rem;
+    }
+
+    /* ---------- Search / Controls ---------- */
+    .controls {
+      display: grid;
+      gap: .8rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 999px;
+      padding: .25rem .35rem .25rem 1.05rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: .18s var(--ease);
+    }
+    .search-wrap:focus-within {
+      border-color: rgba(0,180,230,.70);
+      box-shadow: var(--ring);
+      background: rgba(255,255,255,.16);
+    }
+    .search-wrap i {
+      color: rgba(255,255,255,.60);
+      font-size: .88rem;
+      flex: 0 0 auto;
+    }
+    .search-wrap input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--white);
+      font-size: .95rem;
+      min-width: 0;
+    }
+    .search-wrap input::placeholder { color: rgba(255,255,255,.48); }
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.12);
+      color: rgba(255,255,255,.92);
+      display: grid;
+      place-items: center;
+      transition: .18s var(--ease);
+    }
+    .icon-btn:hover { background: rgba(255,255,255,.22); }
+    .icon-btn:active { transform: scale(.98); }
+
+    .filter-row {
+      display: grid;
+      gap: .7rem;
+      grid-template-columns: 1fr;
+    }
+
+    .pillbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      justify-content: center;
+    }
+    .pill {
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.90);
+      padding: .48rem .8rem;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+      transition: .18s var(--ease);
+      user-select: none;
+    }
+    .pill:hover { background: rgba(255,255,255,.16); border-color: rgba(0,180,230,.35); }
+    .pill.is-active {
+      background: rgba(255,215,64,.18);
+      border-color: rgba(255,215,64,.52);
+      box-shadow: 0 0 0 3px rgba(255,215,64,.14);
+      color: rgba(255,255,255,.96);
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      flex-wrap: wrap;
+      padding: 0 .25rem;
+      color: rgba(255,255,255,.72);
+      font-size: .78rem;
+      font-weight: 700;
+    }
+    .meta-row .stat {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.12);
+      padding: .35rem .6rem;
+      border-radius: 999px;
+    }
+    .meta-row .stat i { color: rgba(255,215,64,.95); }
+
+    /* ---------- Main ---------- */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.1rem 1.1rem 5rem;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.1rem;
+    }
+    .section-head h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      color: var(--navy);
+      font-size: 1.15rem;
+      letter-spacing: .01em;
+    }
+    .count-pill {
+      font-size: .82rem;
+      font-weight: 800;
+      color: var(--muted);
+      background: var(--bg2);
+      border: 1px solid rgba(10,46,74,.08);
+      padding: .34rem .75rem;
+      border-radius: 999px;
+    }
+
+    /* ---------- Cards ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.05rem;
+    }
+
+    .room-card {
+      grid-column: span 12;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1.5px solid transparent;
+      overflow: hidden;
+      transition: transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s var(--ease);
+      display: grid;
+      position: relative;
+    }
+    .room-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(0,180,230,.22);
+    }
+    .room-card::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; top: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      opacity: .0;
+      transition: opacity .22s var(--ease);
+    }
+    .room-card:hover::before { opacity: 1; }
+
+    .room-top {
+      padding: 1.1rem 1.1rem .95rem;
+      display: grid;
+      gap: .65rem;
+    }
+    .room-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      flex-wrap: wrap;
+    }
+    .room-title {
+      display: flex;
+      align-items: baseline;
+      gap: .7rem;
+      min-width: 0;
+    }
+    .room-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: 1.35rem;
+      color: var(--accent);
+      letter-spacing: .01em;
+      line-height: 1;
+    }
+    .room-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      color: var(--navy);
+      font-size: 1.0rem;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 44ch;
+    }
+    .room-actions {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .mini-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(10,46,74,.12);
+      background: rgba(240,246,251,.85);
+      color: var(--navy);
+      padding: .42rem .65rem;
+      font-size: .78rem;
+      font-weight: 850;
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      transition: .18s var(--ease);
+    }
+    .mini-btn:hover { background: rgba(0,180,230,.10); border-color: rgba(0,180,230,.22); }
+    .mini-btn:active { transform: scale(.99); }
+    .mini-btn i { font-size: .85em; }
+
+    .room-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .38rem .6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(10,46,74,.10);
+      background: var(--bg2);
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 800;
+    }
+    .tag i { color: rgba(0,180,230,.95); }
+    .tag.gold i { color: rgba(255,215,64,.95); }
+    .tag.ok {
+      background: rgba(21,163,109,.10);
+      border-color: rgba(21,163,109,.18);
+      color: rgba(13,34,54,.92);
+    }
+    .tag.ok i { color: var(--ok); }
+
+    .room-people {
+      display: grid;
+      gap: .4rem;
+      color: var(--text);
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+    .people-line {
+      display: flex;
+      gap: .5rem;
+      align-items: flex-start;
+    }
+    .people-line i { color: rgba(10,46,74,.45); margin-top: .18rem; }
+
+    .room-bottom {
+      border-top: 1px solid rgba(10,46,74,.08);
+      padding: .85rem 1.1rem 1.05rem;
+      display: grid;
+      gap: .75rem;
+      background: linear-gradient(180deg, rgba(240,246,251,.65), rgba(255,255,255,.95));
+    }
+
+    .feature-list {
+      display: grid;
+      gap: .45rem;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+    .feature {
+      display: flex;
+      gap: .55rem;
+      align-items: flex-start;
+    }
+    .feature i { color: rgba(0,180,230,.95); margin-top: .12rem; }
+
+    .note-wrap {
+      display: grid;
+      gap: .45rem;
+    }
+    .note-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      flex-wrap: wrap;
+      color: var(--navy);
+      font-weight: 900;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: .92rem;
+    }
+    .note-head small {
+      color: var(--muted);
+      font-weight: 800;
+      font-family: 'Inter', sans-serif;
+    }
+    .note {
+      width: 100%;
+      min-height: 46px;
+      resize: vertical;
+      border-radius: 14px;
+      border: 1px solid rgba(10,46,74,.14);
+      background: rgba(255,255,255,.92);
+      padding: .7rem .8rem;
+      color: var(--text);
+      line-height: 1.5;
+      outline: none;
+      transition: .18s var(--ease);
+    }
+    .note:focus {
+      border-color: rgba(0,180,230,.55);
+      box-shadow: var(--ring);
+    }
+
+    /* ---------- Empty state ---------- */
+    .empty {
+      grid-column: 1 / -1;
+      padding: 3.5rem 1rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty i { font-size: 2.4rem; opacity: .45; margin-bottom: 1rem; display: block; }
+
+    /* ---------- Modal ---------- */
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,18,35,.86);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top, 1rem) 1rem env(safe-area-inset-bottom, 1rem);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s var(--ease);
+    }
+    .backdrop.is-open { opacity: 1; pointer-events: auto; }
+    .modal {
+      width: min(98%, 860px);
+      max-height: calc(100vh - 2rem);
+      overflow: hidden;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 30px 90px rgba(0,0,0,.48);
+      transform: translateY(12px) scale(.98);
+      transition: transform .24s var(--ease);
+      display: flex;
+      flex-direction: column;
+    }
+    .backdrop.is-open .modal { transform: translateY(0) scale(1); }
+    .modal-head {
+      background: linear-gradient(135deg, var(--navy), var(--blue));
+      padding: 1rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+    }
+    .modal-title {
+      flex: 1;
+      min-width: 0;
+      color: var(--white);
+    }
+    .modal-title .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .78rem;
+      font-weight: 800;
+      color: rgba(255,255,255,.78);
+    }
+    .modal-title .kicker i { color: rgba(255,215,64,.95); }
+    .modal-title h3 {
+      margin-top: .25rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: 1.12rem;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--white);
+    }
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255,255,255,.24);
+      background: rgba(255,255,255,.10);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      transition: .18s var(--ease);
+      flex: 0 0 auto;
+    }
+    .modal-close:hover { background: rgba(210,60,60,.50); border-color: rgba(210,60,60,.60); }
+
+    .modal-body {
+      padding: 1rem 1.1rem 1.1rem;
+      overflow: auto;
+      display: grid;
+      gap: .95rem;
+    }
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .85rem;
+    }
+    .modal-card {
+      border-radius: 18px;
+      border: 1px solid rgba(10,46,74,.10);
+      background: rgba(240,246,251,.55);
+      padding: .85rem .9rem;
+      display: grid;
+      gap: .55rem;
+    }
+    .modal-card h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      color: var(--navy);
+      font-size: .95rem;
+    }
+    .kv {
+      display: grid;
+      gap: .35rem;
+      color: var(--text);
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+    .kv .row {
+      display: flex;
+      gap: .55rem;
+      align-items: flex-start;
+    }
+    .kv .row i { color: rgba(0,180,230,.95); margin-top: .12rem; }
+    .modal-actions {
+      display: flex;
+      gap: .55rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      padding-top: .2rem;
+    }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      z-index: 2000;
+      background: rgba(10,46,74,.94);
+      color: rgba(255,255,255,.95);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: .6rem .85rem;
+      border-radius: 999px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-weight: 800;
+      font-size: .82rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s var(--ease), transform .18s var(--ease);
+    }
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(-2px);
+    }
+    .toast i { color: rgba(255,215,64,.95); }
+
+    /* ---------- Responsive ---------- */
+    @media (min-width: 760px) {
+      .filter-row { grid-template-columns: 1fr auto; align-items: center; }
+      .meta-row { justify-content: center; gap: 1rem; }
+      .room-card { grid-column: span 6; }
+      .room-name { max-width: 36ch; }
+      .modal-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 1060px) {
+      .room-card { grid-column: span 4; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 2.4rem 1rem 1.9rem; }
+      .modal { border-radius: 20px 20px 0 0; width: 100%; max-height: 92vh; margin-top: auto; }
+      .backdrop { align-items: flex-end; padding: 0; }
+      .modal-body { padding: .95rem 1rem 1.05rem; }
+    }
+
+    /* ---------- Reduced motion ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
 </head>
-<body class="app-theme-rcc rooms-page page-shell">
-    <!-- Skip Link -->
-    <a href="#rooms-section" class="skip-link">Skip to rooms list</a>
 
-    <!-- Header Placeholder -->
-    <div id="sharedHeader" data-page="rooms"></div>
-
-    <!-- Hero Section -->
-    <section class="hero hero--rooms">
-        <div class="container">
-            <div class="hero__content">
-                <span class="hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</span>
-                <h1 class="hero__title heading--primary">Staterooms</h1>
-                <p class="hero__description">Our spaces — warm, quiet, contained.</p>
-                
-                <div class="hero__actions">
-                    <a href="decks.html" class="btn btn--primary">
-                        <i class="fas fa-map"></i> Open deck plan
-                    </a>
-                    <a href="index.html" class="btn btn--secondary">
-                        <i class="fas fa-arrow-left"></i> Back to dashboard
-                    </a>
-                </div>
-            </div>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="header-brand" aria-label="Back to dashboard">
+        <i class="fas fa-crown" aria-hidden="true"></i>
+        <div class="header-brand-text">
+          <div class="header-brand-title">Royal Caribbean</div>
+          <div class="header-brand-sub">Adventure of the Seas</div>
         </div>
-    </section>
+      </a>
+      <div class="header-spacer"></div>
+      <span class="header-pill" aria-label="Sail dates">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        Feb 14–20, 2026
+      </span>
+    </div>
+  </header>
 
-    <!-- Main Content -->
-    <main id="rooms-content" class="main">
-        <div class="container">
-            <!-- Navigation Bar -->
-            <nav class="nav-bar" aria-label="Stateroom navigation">
-                <div class="container nav-bar__inner">
-                    <div class="nav-heading">
-                        <h2 class="nav-heading__title">Find rooms</h2>
-                        <p class="nav-heading__subtitle">Search by number, name, or deck</p>
-                    </div>
-                    <div class="nav-controls">
-                        <div class="search-box">
-                            <label class="sr-only" for="roomSearchInput">Search rooms</label>
-                            <i class="fas fa-search" aria-hidden="true"></i>
-                            <input id="roomSearchInput" type="search" placeholder="Search by room number, name, or location" aria-label="Search staterooms by room number, name, or location" enterkeyhint="search" inputmode="search" autocapitalize="off" autocorrect="off" spellcheck="false">
-                        </div>
-                        <div class="filter-control" data-filter-root>
-                            <button id="filterToggle" class="filter-btn" type="button" aria-expanded="false" aria-controls="filterPanel" data-filter-toggle>
-                                <i class="fas fa-filter" aria-hidden="true"></i>
-                                Filter
-                            </button>
-                            <div id="filterPanel" class="filter-panel rccl-filter-panel" role="menu" aria-label="Room type filters" data-filter-panel data-filter-group="roomType">
-                                <button type="button" class="room-type-filter rccl-filter-option is-active" data-room-type="all" data-filter-option data-filter-value="all" role="menuitemradio" aria-checked="true">All rooms</button>
-                                <button type="button" class="room-type-filter rccl-filter-option" data-room-type="balcony" data-filter-option data-filter-value="balcony" role="menuitemradio" aria-checked="false">Balcony</button>
-                                <button type="button" class="room-type-filter rccl-filter-option" data-room-type="ocean-view" data-filter-option data-filter-value="ocean-view" role="menuitemradio" aria-checked="false">Ocean view</button>
-                                <button type="button" class="room-type-filter rccl-filter-option" data-room-type="interior" data-filter-option data-filter-value="interior" role="menuitemradio" aria-checked="false">Interior</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <i class="fas fa-bed" aria-hidden="true"></i>
+        Staterooms · Quick access, notes, and details
+      </div>
+      <h1>Your <em>Rooms</em> at a Glance</h1>
+      <p class="hero-sub">
+        Search by room number, deck, category, or guest. Add notes per room (saved locally on this device).
+      </p>
 
-            <section class="family-finder" aria-label="Find family members by name">
-                <h2 class="family-finder__title">Find My People</h2>
-                <p class="family-finder__subtitle">Jump straight to a guest's room and highlight the matching card.</p>
-                <div class="family-finder__controls">
-                    <label class="sr-only" for="guestFinderInput">Search guest name</label>
-                    <input id="guestFinderInput" type="search" placeholder="Type a guest name (for example: Melissa)" list="guestFinderList" enterkeyhint="search" inputmode="search" autocapitalize="words" />
-                    <button id="guestFinderFavorite" type="button" class="filter-btn">Save favorite</button>
-                    <button id="guestFinderClear" type="button" class="filter-btn">Clear</button>
-                </div>
-                <datalist id="guestFinderList"></datalist>
-                <div id="guestFinderQuick" class="family-finder__quick" aria-label="Quick family picks"></div>
-                <div id="guestFinderFavorites" class="family-finder__favorites" aria-label="Favorite people"></div>
-                <p id="guestFinderStatus" class="family-finder__status" role="status" aria-live="polite"></p>
-            </section>
-
-            <!-- Rooms Grid -->
-            <section id="rooms-section" class="rooms-section">
-                <div class="section-header">
-                    <div>
-                        <h2 class="section-title">Rooms</h2>
-                    </div>
-                </div>
-                
-                <section class="focus-section" id="todayFocusSection" aria-labelledby="todayFocusTitle">
-                    <div class="focus-section__header">
-                        <h3 id="todayFocusTitle" class="focus-section__title">
-                            Today's Focus
-                        </h3>
-                        <p class="focus-section__subtitle">Rooms requiring immediate action before sail-away</p>
-                    </div>
-                    <div class="rooms-grid focus-grid" id="focusGrid"></div>
-                </section>
-
-                <section class="focus-section focus-section--secondary" id="allSetSection" aria-labelledby="allSetTitle">
-                    <div class="focus-section__header">
-                        <h3 id="allSetTitle" class="focus-section__title">
-                            All Set
-                        </h3>
-                        <p class="focus-section__subtitle">Ready rooms with no immediate blockers</p>
-                    </div>
-                    <div class="rooms-grid" id="allSetGrid"></div>
-                </section>
-
-                <div class="rooms-grid" id="roomsGridSource" hidden>
-                    <!-- Room 1 -->
-                    <article class="room-card room-card--warm room-card--interior animate-fade-in" data-room="6650" data-room-type="interior" data-muster-complete="false" data-linked-room="6651" data-room-priority="urgent" data-room-note="Muster not completed">
-                        <div class="room-card__header">
-                            <span class="room-number">1</span>
-                            <div class="room-type">
-                                <div class="room-type__icon">
-                                    <i class="fas fa-bed"></i>
-                                </div>
-                                <h3 class="room-type__name">6650</h3>
-                            </div>
-                            <span class="room-location">
-                                <i class="fas fa-layer-group"></i> Deck 6 · Aft
-                            </span>
-                        </div>
-
-                        <div class="room-card__content">
-                            <div class="room-features">
-                                <span class="feature-tag">
-                                    <i class="fas fa-user"></i> 4 guests
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-id-badge"></i> Booking 4519230
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-life-ring"></i> Muster D22
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-water"></i> Aft wake views
-                                </span>
-                            </div>
-                            <div class="guest-roster" aria-label="Guests in room 6650">
-                                <p class="guest-roster__label"><i class="fas fa-users" aria-hidden="true"></i>Guest Roster</p>
-                                <ul class="guest-roster__list">
-                                    <li class="guest-pill">Melissa</li>
-                                    <li class="guest-pill">Declan</li>
-                                    <li class="guest-pill">Owen</li>
-                                    <li class="guest-pill">William</li>
-                                </ul>
-                            </div>
-                            <p class="room-meta-details">Quieter aft ride with strong wake views.</p>
-                            
-                            <div class="room-card__actions">
-                                <button type="button" class="room-details-btn" data-room-details>
-                                    <i class="fas fa-info-circle" aria-hidden="true"></i>
-                                    <span>Room details</span>
-                                </button>
-                                <a href="decks.html?room=6650" class="view-deck-btn">
-                                    <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                                    <span>Locate on deck</span>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <!-- Room 2 -->
-                    <article class="room-card room-card--warm room-card--interior animate-fade-in" data-room="6651" data-room-type="interior" data-muster-complete="true" data-linked-room="6650">
-                        <div class="room-card__header">
-                            <span class="room-number">2</span>
-                            <div class="room-type">
-                                <div class="room-type__icon">
-                                    <i class="fas fa-bed"></i>
-                                </div>
-                                <h3 class="room-type__name">6651</h3>
-                            </div>
-                            <span class="room-location">
-                                <i class="fas fa-layer-group"></i> Deck 6
-                            </span>
-                        </div>
-
-                        <div class="room-card__content">
-                            <div class="room-features">
-                                <span class="feature-tag">
-                                    <i class="fas fa-user"></i> 2 guests
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-id-badge"></i> Booking 6788946
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-life-ring"></i> Muster D22
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-users"></i> Linked reservation
-                                </span>
-                            </div>
-                            <div class="guest-roster" aria-label="Guests in room 6651">
-                                <p class="guest-roster__label"><i class="fas fa-users" aria-hidden="true"></i>Guest Roster</p>
-                                <ul class="guest-roster__list">
-                                    <li class="guest-pill">Abel</li>
-                                    <li class="guest-pill">Amy</li>
-                                </ul>
-                            </div>
-                            <p class="room-meta-details">Linked to 6650 with shared muster station.</p>
-                            
-                            <div class="room-card__actions">
-                                <button type="button" class="room-details-btn" data-room-details>
-                                    <i class="fas fa-info-circle" aria-hidden="true"></i>
-                                    <span>Room details</span>
-                                </button>
-                                <a href="decks.html?room=6651" class="view-deck-btn">
-                                    <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                                    <span>Locate on deck</span>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <!-- Room 3 -->
-                    <article class="room-card room-card--warm room-card--ocean-view animate-fade-in" data-room="8528" data-room-type="ocean-view" data-muster-complete="true">
-                        <div class="room-card__header">
-                            <span class="room-number">3</span>
-                            <div class="room-type">
-                                <div class="room-type__icon">
-                                    <i class="fas fa-user-friends"></i>
-                                </div>
-                                <h3 class="room-type__name">8528</h3>
-                            </div>
-                            <span class="room-location">
-                                <i class="fas fa-layer-group"></i> Deck 8
-                            </span>
-                        </div>
-
-                        <div class="room-card__content">
-                            <div class="room-features">
-                                <span class="feature-tag">
-                                    <i class="fas fa-user"></i> 2 guests
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-id-badge"></i> Booking 4352113
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-life-ring"></i> Muster A2
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-ship"></i> Linked sailing record
-                                </span>
-                            </div>
-                            <div class="guest-roster" aria-label="Guests in room 8528">
-                                <p class="guest-roster__label"><i class="fas fa-users" aria-hidden="true"></i>Guest Roster</p>
-                                <ul class="guest-roster__list">
-                                    <li class="guest-pill">Aimee</li>
-                                    <li class="guest-pill">Karin</li>
-                                </ul>
-                            </div>
-                            <p class="room-meta-details">Deck 8 assignment with separate muster flow.</p>
-                            
-                            <div class="room-card__actions">
-                                <button type="button" class="room-details-btn" data-room-details>
-                                    <i class="fas fa-info-circle" aria-hidden="true"></i>
-                                    <span>Room details</span>
-                                </button>
-                                <a href="decks.html?room=8528" class="view-deck-btn">
-                                    <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                                    <span>Locate on deck</span>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <!-- Room 4 -->
-                    <article class="room-card room-card--warm room-card--ocean-view animate-fade-in" data-room="8612" data-room-type="ocean-view" data-muster-complete="true">
-                        <div class="room-card__header">
-                            <span class="room-number">4</span>
-                            <div class="room-type">
-                                <div class="room-type__icon">
-                                    <i class="fas fa-user-friends"></i>
-                                </div>
-                                <h3 class="room-type__name">8612</h3>
-                            </div>
-                            <span class="room-location">
-                                <i class="fas fa-layer-group"></i> Deck 8
-                            </span>
-                        </div>
-
-                        <div class="room-card__content">
-                            <div class="room-features">
-                                <span class="feature-tag">
-                                    <i class="fas fa-user"></i> 2 guests
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-id-badge"></i> Booking 4406580
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-life-ring"></i> Muster C16
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-ship"></i> Linked sailing record
-                                </span>
-                            </div>
-                            <div class="guest-roster" aria-label="Guests in room 8612">
-                                <p class="guest-roster__label"><i class="fas fa-users" aria-hidden="true"></i>Guest Roster</p>
-                                <ul class="guest-roster__list">
-                                    <li class="guest-pill">Isabella</li>
-                                    <li class="guest-pill">Walter</li>
-                                </ul>
-                            </div>
-                            <p class="room-meta-details">Deck 8 room with C16 muster assignment.</p>
-                            
-                            <div class="room-card__actions">
-                                <button type="button" class="room-details-btn" data-room-details>
-                                    <i class="fas fa-info-circle" aria-hidden="true"></i>
-                                    <span>Room details</span>
-                                </button>
-                                <a href="decks.html?room=8612" class="view-deck-btn">
-                                    <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                                    <span>Locate on deck</span>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                    
-                    <!-- Room 5 -->
-                    <article class="room-card room-card--warm room-card--interior animate-fade-in" data-room="3622" data-room-type="interior" data-muster-complete="false" data-room-priority="attention" data-room-note="Arrival-day check still pending">
-                        <div class="room-card__header">
-                            <span class="room-number">5</span>
-                            <div class="room-type">
-                                <div class="room-type__icon">
-                                    <i class="fas fa-bed"></i>
-                                </div>
-                                <h3 class="room-type__name">3622</h3>
-                            </div>
-                            <span class="room-location">
-                                <i class="fas fa-layer-group"></i> Deck 3 · Forward
-                            </span>
-                        </div>
-
-                        <div class="room-card__content">
-                            <div class="room-features">
-                                <span class="feature-tag">
-                                    <i class="fas fa-user"></i> 2 guests
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-expand"></i> 160 sq ft
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-moon"></i> Dark sleep environment
-                                </span>
-                                <span class="feature-tag">
-                                    <i class="fas fa-elevator"></i> Forward elevators nearby
-                                </span>
-                            </div>
-                            <div class="guest-roster" aria-label="Guests in room 3622">
-                                <p class="guest-roster__label"><i class="fas fa-users" aria-hidden="true"></i>Guest Roster</p>
-                                <ul class="guest-roster__list">
-                                    <li class="guest-pill">Phoebe</li>
-                                    <li class="guest-pill">Ryan</li>
-                                </ul>
-                            </div>
-                            <p class="room-meta-details">Budget-friendly interior room at the front of the ship.</p>
-                            
-                            <div class="room-card__actions">
-                                <button type="button" class="room-details-btn" data-room-details>
-                                    <i class="fas fa-info-circle" aria-hidden="true"></i>
-                                    <span>Room details</span>
-                                </button>
-                                <a href="decks.html?room=3622" class="view-deck-btn">
-                                    <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                                    <span>Locate on deck</span>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-                <p id="noSearchResults" class="no-search-results" hidden>Try clearing filters or searching by room number (for example: 6650).</p>
-            </section>
-
-            <!-- Quick Actions -->
-            <section id="quick-actions" class="quick-actions">
-                <h2 class="section-title">Quick Actions</h2>
-                <p class="section-subtitle">Grouped by task so guests can find the right action faster</p>
-                
-                <section class="action-group" aria-labelledby="orderingActionsTitle">
-                    <h3 id="orderingActionsTitle" class="action-group__title">Ordering</h3>
-                    <div class="actions-grid">
-                        <a href="index.html" class="action-item rccl-tooltip-target" data-tooltip="Unlock and enter your assigned stateroom.">
-                            <div class="action-icon">
-                                <i class="fas fa-key" aria-hidden="true"></i>
-                            </div>
-                            <div class="action-content">
-                                <h4>Digital Key</h4>
-                                <p>Access your stateroom</p>
-                            </div>
-                        </a>
-
-                        <a href="dining.html" class="action-item rccl-tooltip-target" data-tooltip="Order meals, drinks, and amenity delivery.">
-                            <div class="action-icon">
-                                <i class="fas fa-concierge-bell" aria-hidden="true"></i>
-                            </div>
-                            <div class="action-content">
-                                <h4>Room Service</h4>
-                                <p>Order food & beverages</p>
-                            </div>
-                        </a>
-                    </div>
-                </section>
-
-                <section class="action-group" aria-labelledby="assistanceActionsTitle">
-                    <h3 id="assistanceActionsTitle" class="action-group__title">Assistance</h3>
-                    <div class="actions-grid">
-                        <a href="decks.html" class="action-item rccl-tooltip-target" data-tooltip="Find your room and major ship venues.">
-                            <div class="action-icon">
-                                <i class="fas fa-map" aria-hidden="true"></i>
-                            </div>
-                            <div class="action-content">
-                                <h4>Deck Plans</h4>
-                                <p>Explore ship layout</p>
-                            </div>
-                        </a>
-
-                        <a href="contacts.html" class="action-item rccl-tooltip-target" data-tooltip="Contact support for cabin questions or issues.">
-                            <div class="action-icon">
-                                <i class="fas fa-user-headset" aria-hidden="true"></i>
-                            </div>
-                            <div class="action-content">
-                                <h4>Guest Services</h4>
-                                <p>Get assistance</p>
-                            </div>
-                        </a>
-                    </div>
-                </section>
-            </section>
+      <div class="controls" role="search">
+        <div class="search-wrap">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="searchInput" type="search" autocomplete="off" placeholder="Search: 6650, Deck 6, Balcony, Aimee…" aria-label="Search rooms" />
+          <button id="clearBtn" class="icon-btn" type="button" aria-label="Clear search" hidden>
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
         </div>
-    </main>
 
-    <!-- Room Detail Modal -->
-    <div id="roomModal" class="room-modal rccl-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription" aria-hidden="true" data-modal>
-        <div class="modal-content rccl-modal__content">
-            <div class="modal-header rccl-modal__header">
-                <h3 id="modalTitle">Room Details</h3>
-                <button id="modalCloseBtn" type="button" class="header-action" aria-label="Close room details" data-modal-close>
-                    <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
-            </div>
-            <p id="modalDescription" class="modal-description">Review room highlights and continue to deck placement.</p>
-            <div id="modalBody" style="padding: 20px 24px 24px;">
-                <!-- Content loaded dynamically -->
-            </div>
+        <div class="filter-row">
+          <div class="pillbar" aria-label="Filter by category">
+            <button class="pill is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+            <button class="pill" type="button" data-filter="interior" aria-pressed="false">Interior</button>
+            <button class="pill" type="button" data-filter="balcony" aria-pressed="false">Balcony</button>
+            <button class="pill" type="button" data-filter="suite" aria-pressed="false">Suite</button>
+          </div>
+
+          <div class="meta-row" aria-label="Stats">
+            <span class="stat" id="countPill"><i class="fas fa-layer-group" aria-hidden="true"></i><span>0 rooms</span></span>
+            <span class="stat" id="notePill"><i class="fas fa-sticky-note" aria-hidden="true"></i><span>0 notes</span></span>
+          </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main -->
+  <main class="main" id="main">
+    <div class="section-head">
+      <h2>Stateroom Assignments</h2>
+      <span class="count-pill" id="resultsPill">Showing 0</span>
     </div>
 
-    <div id="roomComparisonRail" class="comparison-rail" hidden aria-live="polite">
-        <div class="comparison-rail__header">
-            <h3>Comparing <span id="compareCount">0</span> room(s)</h3>
-            <button type="button" id="clearComparisonBtn" class="header-action" aria-label="Close comparison rail">
-                <i class="fas fa-times" aria-hidden="true"></i>
-            </button>
+    <section class="grid" id="roomGrid" aria-live="polite" aria-busy="false"></section>
+  </main>
+
+  <!-- Details Modal -->
+  <div id="backdrop" class="backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal" role="document">
+      <div class="modal-head">
+        <div class="modal-title">
+          <div class="kicker"><i class="fas fa-compass" aria-hidden="true"></i><span id="modalKicker">Stateroom</span></div>
+          <h3 id="modalTitle">Room</h3>
         </div>
-        <div id="comparisonGrid" class="comparison-grid"></div>
+        <button id="modalClose" class="modal-close" type="button" aria-label="Close details">
+          <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="modal-card">
+            <h4>At a glance</h4>
+            <div class="kv" id="modalKV"></div>
+          </div>
+
+          <div class="modal-card">
+            <h4>Guests</h4>
+            <div class="kv" id="modalGuests"></div>
+          </div>
+
+          <div class="modal-card">
+            <h4>Features</h4>
+            <div class="kv" id="modalFeatures"></div>
+          </div>
+
+          <div class="modal-card">
+            <h4>Notes</h4>
+            <div class="kv">
+              <div class="row"><i class="fas fa-sticky-note" aria-hidden="true"></i><div><strong>Saved locally</strong><div style="color:var(--muted);font-weight:700;font-size:.84rem;">Per device/browser. Not synced.</div></div></div>
+            </div>
+            <textarea id="modalNote" class="note" placeholder="Add a note for this room…"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="copyRoomBtn" class="mini-btn" type="button"><i class="fas fa-copy" aria-hidden="true"></i>Copy room</button>
+          <button id="shareBtn" class="mini-btn" type="button"><i class="fas fa-share-nodes" aria-hidden="true"></i>Share</button>
+          <button id="closeBtn2" class="mini-btn" type="button"><i class="fas fa-check" aria-hidden="true"></i>Done</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="keyboardHint" class="keyboard-hint" hidden aria-live="polite">
-        <kbd>Ctrl</kbd>+<kbd>J</kbd>/<kbd>K</kbd> navigate rooms · <kbd>R</kbd> details · <kbd>D</kbd> deck · <kbd>?</kbd> help
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <i class="fas fa-circle-check" aria-hidden="true"></i>
+    <span id="toastText">Copied</span>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /** --------------------------------------------
+       * Data model (edit here)
+       * ---------------------------------------------*/
+      const ROOMS = [
+        {
+          room: '6650',
+          deck: '6',
+          location: 'Aft',
+          category: 'Interior',
+          code: 'N/A',
+          guests: [
+            { name: 'Adult 1', type: 'Adult' },
+            { name: 'Adult 2', type: 'Adult' },
+            { name: 'Child 1', type: 'Child' },
+            { name: 'Child 2', type: 'Child' },
+          ],
+          features: [
+            'Aft location — quick access to dining runs',
+            'Interior stateroom',
+            'Good darkness for sleep',
+            'Near Deck 6 activity flow',
+          ],
+          tags: ['Primary stateroom', 'Deck 6'],
+        },
+        {
+          room: '8528',
+          deck: '8',
+          location: 'N/A',
+          category: 'Balcony',
+          code: '4B',
+          guests: [
+            { name: 'Aimee', type: 'Adult' },
+            { name: 'Reese', type: 'Adult' },
+          ],
+          features: [
+            'Balcony stateroom',
+            'Fresh air + natural light',
+            'Great for morning coffee',
+          ],
+          tags: ['4B', 'Deck 8'],
+        },
+        {
+          room: '8370',
+          deck: '8',
+          location: 'N/A',
+          category: 'Interior',
+          code: 'N/A',
+          guests: [
+            { name: 'Lea', type: 'Adult' },
+            { name: 'Calab', type: 'Adult' },
+          ],
+          features: [
+            'Interior stateroom',
+            'Quiet retreat option',
+          ],
+          tags: ['Deck 8'],
+        },
+        {
+          room: '8612',
+          deck: '8',
+          location: 'N/A',
+          category: 'Interior',
+          code: '2D',
+          guests: [
+            { name: 'Bella', type: 'Adult' },
+            { name: 'TJ', type: 'Adult' },
+          ],
+          features: [
+            'Stateroom category 2D',
+            'Convenient Deck 8 access',
+          ],
+          tags: ['2D', 'Deck 8'],
+        },
+        {
+          room: '3622',
+          deck: '3',
+          location: 'Forward',
+          category: 'Interior',
+          code: 'N/A',
+          guests: [
+            { name: 'Phoebe', type: 'Adult' },
+            { name: 'Ryan', type: 'Adult' },
+          ],
+          features: [
+            'Interior room (~160 sq ft)',
+            'Perfect darkness for sleeping',
+            'Budget-friendly option',
+            'Close to forward elevators',
+          ],
+          tags: ['Deck 3', 'Forward'],
+        },
+      ];
+
+      /** --------------------------------------------
+       * DOM
+       * ---------------------------------------------*/
+      const $ = (id) => document.getElementById(id);
+
+      const roomGrid = $('roomGrid');
+      const searchInput = $('searchInput');
+      const clearBtn = $('clearBtn');
+      const resultsPill = $('resultsPill');
+      const countPill = $('countPill');
+      const notePill = $('notePill');
+
+      const backdrop = $('backdrop');
+      const modalClose = $('modalClose');
+      const closeBtn2 = $('closeBtn2');
+      const modalTitle = $('modalTitle');
+      const modalKicker = $('modalKicker');
+      const modalKV = $('modalKV');
+      const modalGuests = $('modalGuests');
+      const modalFeatures = $('modalFeatures');
+      const modalNote = $('modalNote');
+      const copyRoomBtn = $('copyRoomBtn');
+      const shareBtn = $('shareBtn');
+
+      const toast = $('toast');
+      const toastText = $('toastText');
+
+      const pills = Array.from(document.querySelectorAll('.pill[data-filter]'));
+
+      const REQUIRED = [roomGrid, searchInput, clearBtn, resultsPill, countPill, notePill, backdrop, modalClose, closeBtn2, modalTitle, modalKicker, modalKV, modalGuests, modalFeatures, modalNote, copyRoomBtn, shareBtn, toast, toastText];
+      if (REQUIRED.some((el) => !el)) {
+        console.error('[Rooms] Missing required DOM nodes. Check IDs.');
+        return;
+      }
+
+      /** --------------------------------------------
+       * State
+       * ---------------------------------------------*/
+      const LS_KEY = 'rccl.rooms.notes.v1';
+      let notes = safeParse(localStorage.getItem(LS_KEY), {});
+      let activeFilter = 'all';
+      let activeQuery = '';
+      let activeRoom = null; // object
+      let lastFocused = null;
+
+      /** --------------------------------------------
+       * Helpers
+       * ---------------------------------------------*/
+      function safeParse(json, fallback) {
+        try { return json ? JSON.parse(json) : fallback; } catch { return fallback; }
+      }
+
+      function saveNotes() {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(notes)); } catch (e) { /* ignore quota */ }
+      }
+
+      function toastShow(message, icon = 'fa-circle-check') {
+        toastText.textContent = message;
+        const iconEl = toast.querySelector('i');
+        if (iconEl) iconEl.className = `fas ${icon}`;
+        toast.classList.add('show');
+        window.clearTimeout(toastShow._t);
+        toastShow._t = window.setTimeout(() => toast.classList.remove('show'), 1400);
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+      }
+
+      function normalize(s) {
+        return String(s).toLowerCase().trim();
+      }
+
+      function roomKey(room) {
+        return String(room.room);
+      }
+
+      function roomMatchesFilter(room) {
+        if (activeFilter === 'all') return true;
+        const cat = normalize(room.category);
+        return cat.includes(activeFilter);
+      }
+
+      function roomMatchesQuery(room) {
+        if (!activeQuery) return true;
+        const q = normalize(activeQuery);
+        const hay = [
+          room.room,
+          `deck ${room.deck}`,
+          room.deck,
+          room.location || '',
+          room.category || '',
+          room.code || '',
+          ...(room.tags || []),
+          ...(room.features || []),
+          ...(room.guests || []).map(g => g.name),
+        ].join(' ');
+        return normalize(hay).includes(q);
+      }
+
+      function getFilteredRooms() {
+        return ROOMS
+          .filter(roomMatchesFilter)
+          .filter(roomMatchesQuery)
+          .sort((a, b) => Number(b.deck) - Number(a.deck) || Number(a.room) - Number(b.room));
+      }
+
+      function countNotes() {
+        return Object.values(notes).filter(v => String(v || '').trim().length > 0).length;
+      }
+
+      /** --------------------------------------------
+       * Rendering
+       * ---------------------------------------------*/
+      function render() {
+        const list = getFilteredRooms();
+        roomGrid.setAttribute('aria-busy', 'true');
+        roomGrid.innerHTML = '';
+
+        resultsPill.textContent = `Showing ${list.length} of ${ROOMS.length}`;
+        countPill.querySelector('span').textContent = `${ROOMS.length} rooms`;
+        notePill.querySelector('span').textContent = `${countNotes()} notes`;
+
+        if (!list.length) {
+          roomGrid.innerHTML = `
+            <div class="empty">
+              <i class="fas fa-search" aria-hidden="true"></i>
+              <p><strong>No rooms match your search.</strong></p>
+              <p style="margin-top:.35rem;">Try a room number (e.g., 6650) or a deck (e.g., Deck 8).</p>
+            </div>
+          `;
+          roomGrid.setAttribute('aria-busy', 'false');
+          return;
+        }
+
+        for (const room of list) {
+          const key = roomKey(room);
+          const note = String(notes[key] || '');
+          const guests = (room.guests || []).map(g => `${g.name} (${g.type})`).join(', ');
+          const tags = buildTags(room);
+
+          const card = document.createElement('article');
+          card.className = 'room-card';
+          card.tabIndex = 0;
+          card.setAttribute('role', 'button');
+          card.setAttribute('aria-label', `Open room ${room.room} details`);
+          card.dataset.room = key;
+
+          card.innerHTML = `
+            <div class="room-top">
+              <div class="room-title-row">
+                <div class="room-title" title="Room and category">
+                  <div class="room-num">${escapeHtml(room.room)}</div>
+                  <div class="room-name">${escapeHtml(room.category)} · Deck ${escapeHtml(room.deck)}</div>
+                </div>
+
+                <div class="room-actions">
+                  <button type="button" class="mini-btn" data-action="copy" aria-label="Copy room ${escapeHtml(room.room)}">
+                    <i class="fas fa-copy" aria-hidden="true"></i>Copy
+                  </button>
+                  <button type="button" class="mini-btn" data-action="details" aria-label="View details for room ${escapeHtml(room.room)}">
+                    <i class="fas fa-circle-info" aria-hidden="true"></i>Details
+                  </button>
+                </div>
+              </div>
+
+              <div class="room-meta">${tags}</div>
+
+              <div class="room-people">
+                <div class="people-line">
+                  <i class="fas fa-users" aria-hidden="true"></i>
+                  <div><strong>Guests:</strong> ${escapeHtml(guests || '—')}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="room-bottom">
+              <div class="feature-list">
+                ${(room.features || []).slice(0, 3).map(f => `
+                  <div class="feature"><i class="fas fa-sparkles" aria-hidden="true"></i><span>${escapeHtml(f)}</span></div>
+                `).join('')}
+              </div>
+
+              <div class="note-wrap">
+                <div class="note-head">
+                  <span>Room note</span>
+                  <small>${note.trim() ? 'Saved' : 'Empty'}</small>
+                </div>
+                <textarea class="note" data-note="${escapeHtml(key)}" placeholder="Add a note for room ${escapeHtml(room.room)}…">${escapeHtml(note)}</textarea>
+              </div>
+            </div>
+          `;
+
+          card.addEventListener('click', (e) => {
+            const btn = e.target && e.target.closest && e.target.closest('button[data-action]');
+            if (btn) {
+              const action = btn.getAttribute('data-action');
+              if (action === 'copy') { copyText(room.room); return; }
+              if (action === 'details') { openModal(room, card); return; }
+            }
+            openModal(room, card);
+          });
+
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openModal(room, card);
+            }
+          });
+
+          roomGrid.appendChild(card);
+        }
+
+        roomGrid.setAttribute('aria-busy', 'false');
+      }
+
+      function buildTags(room) {
+        const bits = [];
+        bits.push(`<span class="tag gold"><i class="fas fa-layer-group" aria-hidden="true"></i>Deck ${escapeHtml(room.deck)}</span>`);
+        if (room.location && room.location !== 'N/A') bits.push(`<span class="tag"><i class="fas fa-location-dot" aria-hidden="true"></i>${escapeHtml(room.location)}</span>`);
+        if (room.code && room.code !== 'N/A') bits.push(`<span class="tag"><i class="fas fa-ticket" aria-hidden="true"></i>${escapeHtml(room.code)}</span>`);
+        if (normalize(room.category).includes('interior')) bits.push(`<span class="tag"><i class="fas fa-moon" aria-hidden="true"></i>Interior</span>`);
+        if (normalize(room.category).includes('balcony')) bits.push(`<span class="tag ok"><i class="fas fa-wind" aria-hidden="true"></i>Balcony</span>`);
+        if (normalize(room.category).includes('suite')) bits.push(`<span class="tag ok"><i class="fas fa-gem" aria-hidden="true"></i>Suite</span>`);
+        for (const t of (room.tags || []).slice(0, 2)) {
+          bits.push(`<span class="tag"><i class="fas fa-tag" aria-hidden="true"></i>${escapeHtml(t)}</span>`);
+        }
+        return bits.join(' ');
+      }
+
+      /** --------------------------------------------
+       * Notes: inline per-card textarea
+       * ---------------------------------------------*/
+      roomGrid.addEventListener('input', (e) => {
+        const el = e.target;
+        if (!(el instanceof HTMLTextAreaElement)) return;
+        const key = el.getAttribute('data-note');
+        if (!key) return;
+
+        notes[key] = el.value;
+        saveNotes();
+        // update note count pill without full re-render
+        notePill.querySelector('span').textContent = `${countNotes()} notes`;
+      });
+
+      /** --------------------------------------------
+       * Search + filter
+       * ---------------------------------------------*/
+      function setActiveFilter(next) {
+        activeFilter = next;
+        for (const p of pills) {
+          const on = p.dataset.filter === next;
+          p.classList.toggle('is-active', on);
+          p.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+        render();
+      }
+
+      for (const p of pills) {
+        p.addEventListener('click', () => setActiveFilter(p.dataset.filter || 'all'));
+      }
+
+      searchInput.addEventListener('input', () => {
+        activeQuery = searchInput.value || '';
+        clearBtn.hidden = !(activeQuery.trim().length > 0);
+        render();
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        activeQuery = '';
+        clearBtn.hidden = true;
+        searchInput.focus();
+        render();
+      });
+
+      /** --------------------------------------------
+       * Modal
+       * ---------------------------------------------*/
+      function openModal(room, focusEl) {
+        activeRoom = room;
+        lastFocused = focusEl || document.activeElement;
+
+        const key = roomKey(room);
+        const note = String(notes[key] || '');
+
+        modalKicker.textContent = `Deck ${room.deck} · ${room.category}`;
+        modalTitle.textContent = `Room ${room.room}`;
+
+        modalKV.innerHTML = '';
+        modalGuests.innerHTML = '';
+        modalFeatures.innerHTML = '';
+
+        const kvRows = [
+          { icon: 'fa-door-open', label: 'Room', value: room.room },
+          { icon: 'fa-layer-group', label: 'Deck', value: room.deck },
+          { icon: 'fa-location-dot', label: 'Location', value: room.location && room.location !== 'N/A' ? room.location : '—' },
+          { icon: 'fa-tag', label: 'Category', value: room.category || '—' },
+          { icon: 'fa-ticket', label: 'Code', value: room.code && room.code !== 'N/A' ? room.code : '—' },
+        ];
+
+        for (const r of kvRows) modalKV.appendChild(makeRow(r.icon, `<strong>${escapeHtml(r.label)}:</strong> ${escapeHtml(r.value)}`));
+
+        const guests = (room.guests || []);
+        if (!guests.length) {
+          modalGuests.appendChild(makeRow('fa-users', '<strong>Guests:</strong> —'));
+        } else {
+          for (const g of guests) {
+            modalGuests.appendChild(makeRow('fa-user', `${escapeHtml(g.name)} <span style="color:var(--muted);font-weight:800">(${escapeHtml(g.type)})</span>`));
+          }
+        }
+
+        const feats = (room.features || []);
+        if (!feats.length) {
+          modalFeatures.appendChild(makeRow('fa-sparkles', '<strong>Features:</strong> —'));
+        } else {
+          for (const f of feats) modalFeatures.appendChild(makeRow('fa-sparkles', escapeHtml(f)));
+        }
+
+        modalNote.value = note;
+
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        // Focus trap: focus close button
+        modalClose.focus();
+      }
+
+      function closeModal() {
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+
+        // persist modal note
+        if (activeRoom) {
+          const key = roomKey(activeRoom);
+          notes[key] = modalNote.value;
+          saveNotes();
+          notePill.querySelector('span').textContent = `${countNotes()} notes`;
+
+          // update inline textarea in card if exists (no full rerender)
+          const inline = roomGrid.querySelector(`textarea.note[data-note="${CSS.escape(key)}"]`);
+          if (inline) inline.value = modalNote.value;
+        }
+
+        activeRoom = null;
+
+        // restore focus
+        if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+      }
+
+      function makeRow(icon, html) {
+        const div = document.createElement('div');
+        div.className = 'row';
+        div.innerHTML = `<i class="fas ${icon}" aria-hidden="true"></i><div>${html}</div>`;
+        return div;
+      }
+
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) closeModal();
+      });
+      modalClose.addEventListener('click', closeModal);
+      closeBtn2.addEventListener('click', closeModal);
+
+      document.addEventListener('keydown', (e) => {
+        if (!backdrop.classList.contains('is-open')) return;
+        if (e.key === 'Escape') closeModal();
+        // simple focus trap (two focusables: close + note + actions)
+        if (e.key === 'Tab') {
+          const focusables = backdrop.querySelectorAll('button, textarea, a, input, [tabindex]:not([tabindex="-1"])');
+          const list = Array.from(focusables).filter(el => !el.hasAttribute('disabled'));
+          if (!list.length) return;
+          const first = list[0];
+          const last = list[list.length - 1];
+          const active = document.activeElement;
+
+          if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+        }
+      });
+
+      /** --------------------------------------------
+       * Copy / Share
+       * ---------------------------------------------*/
+      async function copyText(text) {
+        const value = String(text || '').trim();
+        if (!value) return;
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(value);
+          } else {
+            // fallback
+            const ta = document.createElement('textarea');
+            ta.value = value;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+          }
+          toastShow(`Copied room ${value}`);
+        } catch {
+          toastShow('Copy blocked', 'fa-triangle-exclamation');
+        }
+      }
+
+      copyRoomBtn.addEventListener('click', () => {
+        if (!activeRoom) return;
+        copyText(activeRoom.room);
+      });
+
+      shareBtn.addEventListener('click', async () => {
+        if (!activeRoom) return;
+        const payload = {
+          title: `Room ${activeRoom.room} · Adventure of the Seas`,
+          text: `Room ${activeRoom.room} (Deck ${activeRoom.deck}) — ${activeRoom.category}`,
+        };
+        try {
+          if (navigator.share) {
+            await navigator.share(payload);
+            toastShow('Shared');
+          } else {
+            // fallback to copying a share string
+            await copyText(`${payload.text}`);
+          }
+        } catch {
+          // user cancel is fine; do nothing noisy
+        }
+      });
+
+      /** --------------------------------------------
+       * Init
+       * ---------------------------------------------*/
+      render();
+    })();
+  </script>
+
+  <!-- Verification hint (non-intrusive) -->
+  <noscript>
+    <div style="padding:1rem; text-align:center; color:#0d2236; background:#ffd740;">
+      This page needs JavaScript enabled to render room cards and notes.
     </div>
-
-    <!-- Footer Placeholder -->
-    <div id="sharedFooter"></div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('roomSearchInput');
-            const guestFinderInput = document.getElementById('guestFinderInput');
-            const guestFinderList = document.getElementById('guestFinderList');
-            const guestFinderQuick = document.getElementById('guestFinderQuick');
-            const guestFinderStatus = document.getElementById('guestFinderStatus');
-            const guestFinderFavorite = document.getElementById('guestFinderFavorite');
-            const guestFinderFavorites = document.getElementById('guestFinderFavorites');
-            const guestFinderClear = document.getElementById('guestFinderClear');
-            const roomCards = Array.from(document.querySelectorAll('#roomsGridSource .room-card'));
-            const focusGrid = document.getElementById('focusGrid');
-            const allSetGrid = document.getElementById('allSetGrid');
-            const todayFocusSection = document.getElementById('todayFocusSection');
-            const allSetSection = document.getElementById('allSetSection');
-            const searchSummary = document.getElementById('searchSummary');
-            const noSearchResults = document.getElementById('noSearchResults');
-            const filterToggle = document.getElementById('filterToggle');
-            const filterPanel = document.getElementById('filterPanel');
-            const mobileStatsToggle = document.getElementById('mobileStatsToggle');
-            const statsGridWrap = document.getElementById('statsGridWrap');
-            const roomModal = document.getElementById('roomModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDescription = document.getElementById('modalDescription');
-            const modalBody = document.getElementById('modalBody');
-            const comparisonRail = document.getElementById('roomComparisonRail');
-            const compareCount = document.getElementById('compareCount');
-            const comparisonGrid = document.getElementById('comparisonGrid');
-            const clearComparisonBtn = document.getElementById('clearComparisonBtn');
-            const keyboardHint = document.getElementById('keyboardHint');
-            const totalRooms = roomCards.length;
-
-            let activeType = 'all';
-            let currentVisibleCards = [];
-            let keyboardRoomIndex = 0;
-            let currentModalRoomIndex = -1;
-            const compareSet = new Set();
-            const guestToCards = new Map();
-            const GUEST_FAVORITES_KEY = 'rooms-favorite-guests-v1';
-            let favoriteGuests = [];
-
-            function computeRoomPriority(card) {
-                const musterComplete = card.dataset.musterComplete === 'true';
-                const explicitPriority = card.dataset.roomPriority || '';
-                if (!musterComplete || explicitPriority === 'urgent') return 3;
-                if (card.dataset.linkedRoom || explicitPriority === 'attention') return 2;
-                return 1;
-            }
-
-            function clearPersonHighlights() {
-                roomCards.forEach((card) => card.classList.remove('room-card--person-match'));
-            }
-
-            function setGuestFinderStatus(message) {
-                if (guestFinderStatus) {
-                    guestFinderStatus.textContent = message;
-                }
-            }
-
-            function normalizeGuestName(name) {
-                return String(name || '')
-                    .trim()
-                    .replace(/\s+/g, ' ')
-                    .toLowerCase();
-            }
-
-            function toDisplayGuestName(name) {
-                return String(name || '')
-                    .trim()
-                    .replace(/\s+/g, ' ')
-                    .split(' ')
-                    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-                    .join(' ');
-            }
-
-            function readFavoriteGuests() {
-                try {
-                    const raw = localStorage.getItem(GUEST_FAVORITES_KEY);
-                    const parsed = raw ? JSON.parse(raw) : [];
-                    return Array.isArray(parsed) ? parsed.map(normalizeGuestName).filter(Boolean) : [];
-                } catch (_error) {
-                    return [];
-                }
-            }
-
-            function writeFavoriteGuests(names) {
-                localStorage.setItem(GUEST_FAVORITES_KEY, JSON.stringify(names));
-            }
-
-            function renderFavoriteGuests() {
-                if (!guestFinderFavorites) return;
-                if (!favoriteGuests.length) {
-                    guestFinderFavorites.innerHTML = '';
-                    return;
-                }
-
-                guestFinderFavorites.innerHTML = favoriteGuests.map((name) => (
-                    `<button type="button" class="family-finder__quick-btn family-finder__quick-btn--favorite" data-favorite-name="${toDisplayGuestName(name)}">★ ${toDisplayGuestName(name)}</button>`
-                )).join('');
-
-                guestFinderFavorites.querySelectorAll('[data-favorite-name]').forEach((button) => {
-                    button.addEventListener('click', function() {
-                        const name = this.getAttribute('data-favorite-name') || '';
-                        guestFinderInput.value = name;
-                        runGuestLookup(name);
-                    });
-                });
-            }
-
-            function collectGuestsFromCard(card) {
-                return Array.from(card.querySelectorAll('.guest-pill'))
-                    .map((pill) => (pill.textContent || '').trim())
-                    .filter(Boolean);
-            }
-
-            function indexGuests() {
-                roomCards.forEach((card) => {
-                    collectGuestsFromCard(card).forEach((name) => {
-                        const key = name.toLowerCase();
-                        const cards = guestToCards.get(key) || [];
-                        cards.push(card);
-                        guestToCards.set(key, cards);
-                    });
-                });
-            }
-
-            function setRoomTypeFilterAll() {
-                activeType = 'all';
-                document.querySelectorAll('.room-type-filter').forEach((button) => {
-                    const isAll = (button.dataset.roomType || '') === 'all';
-                    button.classList.toggle('is-active', isAll);
-                    button.setAttribute('aria-checked', String(isAll));
-                });
-                filterToggle?.classList.remove('filter-btn--active');
-                closeFilterPanel();
-            }
-
-            function runGuestLookup(rawValue, options = {}) {
-                const value = String(rawValue || '').trim();
-                if (!value) {
-                    clearPersonHighlights();
-                    setGuestFinderStatus('');
-                    if (options.clearSearch) {
-                        searchInput.value = '';
-                        updateRoomVisibility();
-                    }
-                    return;
-                }
-
-                setRoomTypeFilterAll();
-                searchInput.value = value;
-                updateRoomVisibility();
-
-                const normalized = value.toLowerCase();
-                const matches = guestToCards.get(normalized) || [];
-                const visibleMatches = matches.filter((card) => currentVisibleCards.includes(card));
-                const targetCard = visibleMatches[0];
-
-                clearPersonHighlights();
-                if (!targetCard) {
-                    setGuestFinderStatus(`No room match found for "${value}".`);
-                    return;
-                }
-
-                targetCard.classList.add('room-card--person-match');
-                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                targetCard.setAttribute('tabindex', '-1');
-                targetCard.focus({ preventScroll: true });
-                const roomNumber = targetCard.dataset.room || '';
-                setGuestFinderStatus(`${value} is in room ${roomNumber}.`);
-            }
-
-            function initGuestFinder() {
-                if (!guestFinderInput || !guestFinderList) return;
-
-                const allGuestNames = Array.from(guestToCards.keys())
-                    .map((key) => toDisplayGuestName(key))
-                    .sort((a, b) => a.localeCompare(b));
-
-                guestFinderList.innerHTML = allGuestNames
-                    .map((name) => `<option value="${name}"></option>`)
-                    .join('');
-
-                if (guestFinderQuick) {
-                    guestFinderQuick.innerHTML = allGuestNames.slice(0, 8).map((name) => (
-                        `<button type="button" class="family-finder__quick-btn" data-guest-name="${name}">${name}</button>`
-                    )).join('');
-                    guestFinderQuick.querySelectorAll('[data-guest-name]').forEach((button) => {
-                        button.addEventListener('click', function() {
-                            const name = this.getAttribute('data-guest-name') || '';
-                            guestFinderInput.value = name;
-                            runGuestLookup(name);
-                        });
-                    });
-                }
-
-                guestFinderInput.addEventListener('change', function() {
-                    runGuestLookup(this.value);
-                });
-
-                guestFinderInput.addEventListener('keydown', function(event) {
-                    if (event.key !== 'Enter') return;
-                    event.preventDefault();
-                    runGuestLookup(this.value);
-                });
-
-                guestFinderClear?.addEventListener('click', function() {
-                    guestFinderInput.value = '';
-                    runGuestLookup('', { clearSearch: true });
-                    guestFinderInput.focus();
-                });
-
-                favoriteGuests = readFavoriteGuests().filter((name) => guestToCards.has(name));
-                writeFavoriteGuests(favoriteGuests);
-                renderFavoriteGuests();
-
-                guestFinderFavorite?.addEventListener('click', function() {
-                    const normalized = normalizeGuestName(guestFinderInput.value);
-                    if (!normalized) {
-                        setGuestFinderStatus('Enter a guest name before saving a favorite.');
-                        return;
-                    }
-                    if (!guestToCards.has(normalized)) {
-                        setGuestFinderStatus(`"${guestFinderInput.value.trim()}" is not in the guest list.`);
-                        return;
-                    }
-                    if (!favoriteGuests.includes(normalized)) {
-                        favoriteGuests.unshift(normalized);
-                        favoriteGuests = favoriteGuests.slice(0, 8);
-                        writeFavoriteGuests(favoriteGuests);
-                        renderFavoriteGuests();
-                    }
-                    setGuestFinderStatus(`${toDisplayGuestName(normalized)} saved to favorites.`);
-                });
-            }
-
-            function getRoomFacts(card) {
-                const roomNumber = card.dataset.room || '';
-                const roomType = card.dataset.roomType || 'stateroom';
-                const location = card.querySelector('.room-location')?.textContent?.trim() || 'Unknown location';
-                const guestCount = card.querySelectorAll('.guest-pill').length;
-                const muster = Array.from(card.querySelectorAll('.feature-tag')).map((t) => t.textContent.trim()).find((text) => /muster/i.test(text)) || 'Not listed';
-                return { roomNumber, roomType, location, guestCount, muster };
-            }
-
-            function renderStatusBadges(card) {
-                const header = card.querySelector('.room-card__header');
-                if (!header) return;
-
-                const existing = card.querySelector('.room-card__status-bar');
-                if (existing) existing.remove();
-
-                const statusBar = document.createElement('div');
-                statusBar.className = 'room-card__status-bar';
-
-                const musterComplete = card.dataset.musterComplete === 'true';
-                if (musterComplete) {
-                    statusBar.insertAdjacentHTML('beforeend', '<span class="status-badge status-badge--success"><i class="fas fa-check-circle" aria-hidden="true"></i>Muster complete</span>');
-                } else {
-                    statusBar.insertAdjacentHTML('beforeend', '<span class="status-badge status-badge--warning"><i class="fas fa-life-ring" aria-hidden="true"></i>Muster not completed</span>');
-                }
-
-                if (card.dataset.linkedRoom) {
-                    statusBar.insertAdjacentHTML('beforeend', `<span class="status-badge status-badge--info"><i class="fas fa-link" aria-hidden="true"></i>Linked to ${card.dataset.linkedRoom}</span>`);
-                }
-
-                if (card.dataset.roomNote) {
-                    statusBar.insertAdjacentHTML('beforeend', `<span class="status-badge status-badge--info"><i class="fas fa-bolt" aria-hidden="true"></i>${card.dataset.roomNote}</span>`);
-                }
-
-                header.insertAdjacentElement('beforebegin', statusBar);
-            }
-
-            function ensureCompareButton(card) {
-                const actions = card.querySelector('.room-card__actions');
-                if (!actions || actions.querySelector('.compare-toggle-btn')) return;
-                const roomNumber = card.dataset.room || '';
-                const compareBtn = document.createElement('button');
-                compareBtn.type = 'button';
-                compareBtn.className = 'compare-toggle-btn';
-                compareBtn.dataset.compareRoom = roomNumber;
-                compareBtn.innerHTML = '<i class="fas fa-columns" aria-hidden="true"></i><span>Compare room</span>';
-                actions.appendChild(compareBtn);
-            }
-
-            function renderComparisonRail() {
-                const selected = roomCards.filter((card) => compareSet.has(card.dataset.room));
-                compareCount.textContent = String(selected.length);
-
-                if (!selected.length) {
-                    comparisonRail.hidden = true;
-                    comparisonGrid.innerHTML = '';
-                    return;
-                }
-
-                comparisonGrid.innerHTML = selected.map((card) => {
-                    const facts = getRoomFacts(card);
-                    return `
-                        <div class="comparison-column">
-                            <h4>${facts.roomNumber} · ${facts.roomType.replace('-', ' ')}</h4>
-                            <ul class="comparison-list">
-                                <li><span>Guests:</span> ${facts.guestCount}</li>
-                                <li><span>Location:</span> ${facts.location}</li>
-                                <li><span>Muster:</span> ${facts.muster}</li>
-                            </ul>
-                        </div>
-                    `;
-                }).join('');
-
-                comparisonRail.hidden = false;
-            }
-
-            roomCards.forEach((card) => {
-                renderStatusBadges(card);
-                ensureCompareButton(card);
-            });
-            indexGuests();
-            initGuestFinder();
-
-            function updateRoomVisibility() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                let visibleCount = 0;
-                const visibleCards = [];
-
-                roomCards.forEach((card) => {
-                    const roomNumber = card.dataset.room || '';
-                    const roomName = card.querySelector('.room-type__name')?.textContent || '';
-                    const roomLocation = card.querySelector('.room-location')?.textContent || '';
-                    const roomFeatures = card.querySelector('.room-features')?.textContent || '';
-                    const roomGuests = collectGuestsFromCard(card).join(' ');
-                    const roomType = card.dataset.roomType || 'all';
-                    const searchableText = `${roomNumber} ${roomName} ${roomLocation} ${roomFeatures} ${roomGuests}`.toLowerCase();
-
-                    const matchesSearch = !searchTerm || searchableText.includes(searchTerm);
-                    const matchesType = activeType === 'all' || roomType === activeType;
-                    const shouldShow = matchesSearch && matchesType;
-
-                    if (shouldShow) {
-                        visibleCount += 1;
-                        visibleCards.push(card);
-                    }
-                });
-
-                visibleCards.sort((a, b) => computeRoomPriority(b) - computeRoomPriority(a));
-                currentVisibleCards = visibleCards;
-                keyboardRoomIndex = Math.min(keyboardRoomIndex, Math.max(visibleCards.length - 1, 0));
-
-                if (focusGrid) focusGrid.innerHTML = '';
-                if (allSetGrid) allSetGrid.innerHTML = '';
-
-                visibleCards.forEach((card) => {
-                    card.hidden = false;
-                    card.style.display = 'flex';
-                    const priority = computeRoomPriority(card);
-                    const compareBtn = card.querySelector('.compare-toggle-btn');
-                    const isCompared = compareSet.has(card.dataset.room);
-                    compareBtn?.classList.toggle('is-active', isCompared);
-                    if (compareBtn) {
-                        compareBtn.querySelector('span').textContent = isCompared ? 'Selected for compare' : 'Compare room';
-                    }
-                    if (priority >= 2 && focusGrid) {
-                        focusGrid.appendChild(card);
-                    } else if (allSetGrid) {
-                        allSetGrid.appendChild(card);
-                    }
-                });
-
-                if (todayFocusSection) {
-                    todayFocusSection.hidden = !focusGrid || focusGrid.children.length === 0;
-                }
-                if (allSetSection) {
-                    allSetSection.hidden = !allSetGrid || allSetGrid.children.length === 0;
-                }
-
-                if (searchSummary) {
-                    searchSummary.textContent = '';
-                }
-                if (noSearchResults) {
-                    noSearchResults.hidden = visibleCount !== 0;
-                }
-                renderComparisonRail();
-            }
-
-            function closeFilterPanel() {
-                if (!filterPanel) return;
-                filterPanel.classList.remove('is-open');
-                filterToggle.setAttribute('aria-expanded', 'false');
-            }
-
-            document.addEventListener('rccl:filter-change', function(event) {
-                if (!event.detail || event.detail.group !== 'roomType') return;
-                activeType = event.detail.value || 'all';
-                filterToggle.classList.toggle('filter-btn--active', activeType !== 'all');
-                closeFilterPanel();
-                clearPersonHighlights();
-                updateRoomVisibility();
-            });
-
-            searchInput.addEventListener('input', function() {
-                clearPersonHighlights();
-                setGuestFinderStatus('');
-                updateRoomVisibility();
-            });
-
-            function focusedRoomCard() {
-                return currentVisibleCards[keyboardRoomIndex] || null;
-            }
-
-            function focusRoomAt(index) {
-                if (!currentVisibleCards.length) return;
-                keyboardRoomIndex = (index + currentVisibleCards.length) % currentVisibleCards.length;
-                const card = focusedRoomCard();
-                card?.setAttribute('tabindex', '-1');
-                card?.focus({ preventScroll: false });
-                card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            function showKeyboardHintTemporarily() {
-                if (!keyboardHint) return;
-                keyboardHint.hidden = false;
-                window.clearTimeout(showKeyboardHintTemporarily._timer);
-                showKeyboardHintTemporarily._timer = window.setTimeout(() => {
-                    keyboardHint.hidden = true;
-                }, 3800);
-            }
-
-            function focusedRoomAction(type) {
-                const card = focusedRoomCard();
-                if (!card) return;
-                if (type === 'details') {
-                    card.querySelector('[data-room-details]')?.click();
-                    return;
-                }
-                if (type === 'deck') {
-                    const deckLink = card.querySelector('.view-deck-btn');
-                    if (deckLink) window.location.href = deckLink.href;
-                }
-            }
-
-            // Keyboard power mode
-            document.addEventListener('keydown', function(e) {
-                const target = e.target;
-                const typingContext = target && (
-                    target.tagName === 'INPUT' ||
-                    target.tagName === 'TEXTAREA' ||
-                    target.isContentEditable
-                );
-
-                if (e.key === '/' && !typingContext && e.target !== searchInput) {
-                    e.preventDefault();
-                    searchInput.focus();
-                    return;
-                }
-
-                if (e.key === '?') {
-                    e.preventDefault();
-                    showKeyboardHintTemporarily();
-                    return;
-                }
-
-                if (typingContext) return;
-
-                if (e.key === 'Escape') {
-                    closeRoomModal();
-                    if (compareSet.size) {
-                        compareSet.clear();
-                        roomCards.forEach((card) => {
-                            const compareBtn = card.querySelector('.compare-toggle-btn');
-                            compareBtn?.classList.remove('is-active');
-                            if (compareBtn) compareBtn.querySelector('span').textContent = 'Compare room';
-                        });
-                        renderComparisonRail();
-                    }
-                    return;
-                }
-
-                if (e.ctrlKey && e.key.toLowerCase() === 'j') {
-                    e.preventDefault();
-                    focusRoomAt(keyboardRoomIndex + 1);
-                    return;
-                }
-
-                if (e.ctrlKey && e.key.toLowerCase() === 'k') {
-                    e.preventDefault();
-                    focusRoomAt(keyboardRoomIndex - 1);
-                    return;
-                }
-
-                if (e.key.toLowerCase() === 'r') {
-                    e.preventDefault();
-                    focusedRoomAction('details');
-                    return;
-                }
-
-                if (e.key.toLowerCase() === 'd') {
-                    e.preventDefault();
-                    focusedRoomAction('deck');
-                }
-            });
-
-            if (filterToggle && filterPanel) {
-                filterToggle.addEventListener('click', function() {
-                    const shouldOpen = !filterPanel.classList.contains('is-open');
-                    filterPanel.classList.toggle('is-open', shouldOpen);
-                    filterToggle.setAttribute('aria-expanded', String(shouldOpen));
-                });
-
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('[data-filter-root]')) {
-                        closeFilterPanel();
-                    }
-                });
-
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        closeFilterPanel();
-                    }
-                });
-            }
-
-            if (mobileStatsToggle && statsGridWrap) {
-                mobileStatsToggle.addEventListener('click', function() {
-                    const isOpen = statsGridWrap.classList.toggle('is-open');
-                    mobileStatsToggle.setAttribute('aria-expanded', String(isOpen));
-                    const label = mobileStatsToggle.querySelector('span');
-                    const icon = mobileStatsToggle.querySelector('i');
-                    if (label) {
-                        label.textContent = isOpen ? 'Hide summary' : 'Show summary';
-                    }
-                    if (icon) {
-                        icon.classList.toggle('fa-chevron-down', !isOpen);
-                        icon.classList.toggle('fa-chevron-up', isOpen);
-                    }
-                    if (isOpen) {
-                        const firstStat = statsGridWrap.querySelector('.stat-card');
-                        if (firstStat) {
-                            firstStat.setAttribute('tabindex', '-1');
-                            firstStat.focus();
-                        }
-                    }
-                });
-            }
-
-            // Explicit room details button handler to avoid card-level action ambiguity
-            roomCards.forEach(card => {
-                const detailsBtn = card.querySelector('[data-room-details]');
-                if (!detailsBtn) return;
-
-                detailsBtn.addEventListener('click', function() {
-                    const roomNumber = card.dataset.room;
-                    const roomName = card.querySelector('.room-type__name').textContent;
-                    const roomLocation = card.querySelector('.room-location').textContent;
-                    showRoomModal(roomNumber, roomName, roomLocation);
-                });
-
-                const compareBtn = card.querySelector('.compare-toggle-btn');
-                compareBtn?.addEventListener('click', function() {
-                    const roomNumber = card.dataset.room;
-                    if (!roomNumber) return;
-                    if (compareSet.has(roomNumber)) {
-                        compareSet.delete(roomNumber);
-                    } else {
-                        compareSet.add(roomNumber);
-                    }
-                    compareBtn.classList.toggle('is-active', compareSet.has(roomNumber));
-                    compareBtn.querySelector('span').textContent = compareSet.has(roomNumber) ? 'Selected for compare' : 'Compare room';
-                    renderComparisonRail();
-                });
-            });
-
-            // Room modal functions
-            function showRoomModal(roomNumber, roomName, location) {
-                const roomCard = roomCards.find((card) => card.dataset.room === roomNumber);
-                const guestCount = roomCard ? roomCard.querySelectorAll('.guest-pill').length : 2;
-                const featureTags = roomCard ? Array.from(roomCard.querySelectorAll('.feature-tag')) : [];
-                const sqftTag = featureTags.find((tag) => /sq\s*ft/i.test(tag.textContent || ''));
-                const sqftText = sqftTag ? (sqftTag.textContent || '').trim() : 'Size varies';
-                const hasBalcony = roomCard ? roomCard.dataset.roomType === 'balcony' : roomName.includes('Balcony');
-                const roomTypeName = roomCard
-                    ? (roomCard.dataset.roomType || 'stateroom').replace('-', ' ')
-                    : 'stateroom';
-                const roomDescription = roomCard ? (roomCard.querySelector('.room-meta-details')?.textContent || '').trim() : '';
-                const highlights = featureTags
-                    .map((tag) => (tag.textContent || '').trim())
-                    .filter(Boolean)
-                    .filter((text) => !/sq\s*ft/i.test(text))
-                    .slice(0, 2);
-                modalTitle.textContent = `Room ${roomNumber}`;
-                modalDescription.textContent = `${roomTypeName.charAt(0).toUpperCase()}${roomTypeName.slice(1)} details and deck placement.`;
-                closeFilterPanel();
-                currentModalRoomIndex = currentVisibleCards.findIndex((card) => card.dataset.room === roomNumber);
-                
-                modalBody.innerHTML = `
-                    <div class="modal-room-location">
-                        <i class="fas fa-layer-group" aria-hidden="true"></i>
-                        <span>${location}</span>
-                    </div>
-
-                    <div class="room-highlights-grid">
-                        <span class="highlight-badge">
-                            <i class="fas fa-user" aria-hidden="true"></i>
-                            <span>${guestCount} ${guestCount === 1 ? 'guest' : 'guests'}</span>
-                        </span>
-                        <span class="highlight-badge">
-                            <i class="fas fa-expand" aria-hidden="true"></i>
-                            <span>${sqftText}</span>
-                        </span>
-                        ${hasBalcony ? `
-                        <span class="highlight-badge">
-                            <i class="fas fa-wind" aria-hidden="true"></i>
-                            <span>Private balcony</span>
-                        </span>
-                        ` : ''}
-                        ${highlights.map((text) => `
-                        <span class="highlight-badge">
-                            <i class="fas fa-check-circle" aria-hidden="true"></i>
-                            <span>${text}</span>
-                        </span>
-                        `).join('')}
-                    </div>
-
-                    <p class="modal-body-copy">${roomDescription || 'Use deck view to confirm nearby elevators and venue access before arrival.'}</p>
-                    <p class="modal-hint">Opens deck plan focused on room ${roomNumber}.</p>
-
-                    <div class="modal-actions">
-                        <button type="button" class="modal-secondary-btn modal-prev-room">
-                            <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                            <span>Previous room</span>
-                        </button>
-                        <button type="button" class="modal-secondary-btn modal-next-room">
-                            <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                            <span>Next room</span>
-                        </button>
-                        <a href="decks.html?room=${roomNumber}" class="modal-primary-btn">
-                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                            <span>Show on deck plan</span>
-                        </a>
-                        <button type="button" class="modal-secondary-btn modal-continue-room">
-                            <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                            <span>Continue browsing</span>
-                        </button>
-                    </div>
-                `;
-
-                if (window.RCCLModal && typeof window.RCCLModal.open === 'function') {
-                    window.RCCLModal.open('roomModal');
-                } else {
-                    roomModal.classList.add('room-modal--open');
-                }
-                const modalContinue = modalBody.querySelector('.modal-continue-room');
-                modalContinue?.focus();
-                modalContinue?.addEventListener('click', closeRoomModal, { once: true });
-                modalBody.querySelector('.modal-prev-room')?.addEventListener('click', function() {
-                    moveModalRoom(-1);
-                });
-                modalBody.querySelector('.modal-next-room')?.addEventListener('click', function() {
-                    moveModalRoom(1);
-                });
-            }
-
-            function moveModalRoom(step) {
-                if (!currentVisibleCards.length) return;
-                if (currentModalRoomIndex < 0) {
-                    currentModalRoomIndex = 0;
-                } else {
-                    currentModalRoomIndex = (currentModalRoomIndex + step + currentVisibleCards.length) % currentVisibleCards.length;
-                }
-                const card = currentVisibleCards[currentModalRoomIndex];
-                if (!card) return;
-                const roomNumber = card.dataset.room;
-                const roomName = card.querySelector('.room-type__name')?.textContent || roomNumber;
-                const roomLocation = card.querySelector('.room-location')?.textContent || 'Unknown location';
-                showRoomModal(roomNumber, roomName, roomLocation);
-            }
-
-            function closeRoomModal() {
-                if (window.RCCLModal && typeof window.RCCLModal.close === 'function') {
-                    window.RCCLModal.close('roomModal');
-                } else {
-                    roomModal.classList.remove('room-modal--open');
-                }
-            }
-
-            // Filter buttons
-            const filterButtons = document.querySelectorAll('.filter-link');
-            filterButtons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    if (this.getAttribute('href').startsWith('#')) {
-                        e.preventDefault();
-
-                        const targetId = this.getAttribute('href');
-                        const targetElement = document.querySelector(targetId);
-                        
-                        if (targetElement) {
-                            window.scrollTo({
-                                top: targetElement.offsetTop - 80,
-                                behavior: 'smooth'
-                            });
-                        }
-                    }
-                });
-            });
-
-            // Initialize animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.remove('is-reveal-pending');
-                        entry.target.classList.add('animate-fade-in');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.stat-card, .room-card, .action-item').forEach(el => {
-                el.classList.remove('animate-fade-in');
-                el.classList.add('is-reveal-pending');
-                observer.observe(el);
-            });
-
-            updateRoomVisibility();
-
-            clearComparisonBtn?.addEventListener('click', function() {
-                compareSet.clear();
-                roomCards.forEach((card) => {
-                    const compareBtn = card.querySelector('.compare-toggle-btn');
-                    compareBtn?.classList.remove('is-active');
-                    if (compareBtn) compareBtn.querySelector('span').textContent = 'Compare room';
-                });
-                renderComparisonRail();
-            });
-
-            let modalTouchStartX = 0;
-            let modalTouchStartY = 0;
-            roomModal?.addEventListener('touchstart', function(e) {
-                const touch = e.touches[0];
-                if (!touch) return;
-                modalTouchStartX = touch.clientX;
-                modalTouchStartY = touch.clientY;
-            }, { passive: true });
-
-            roomModal?.addEventListener('touchend', function(e) {
-                const touch = e.changedTouches[0];
-                const modalIsOpen = roomModal.getAttribute('aria-hidden') === 'false' || roomModal.classList.contains('room-modal--open');
-                if (!touch || !modalIsOpen) return;
-                const dx = touch.clientX - modalTouchStartX;
-                const dy = touch.clientY - modalTouchStartY;
-                if (Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-                moveModalRoom(dx > 0 ? -1 : 1);
-            });
-
-            // Floating toasts removed per UX update.
-        });
-    </script>
+  </noscript>
 </body>
 </html>
