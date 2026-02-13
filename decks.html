@@ -13,45 +13,34 @@
   --gold: #ffd740;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
   background: radial-gradient(circle at 50% 30%, #104870, #061c2e 70%);
   color: white;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
-/* Ambient ocean motion */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(120deg, rgba(0,180,230,.08), rgba(0,0,0,.2));
-  animation: drift 18s infinite alternate ease-in-out;
-  pointer-events: none;
-}
-
-@keyframes drift {
-  from { transform: translateX(-20px); }
-  to   { transform: translateX(20px); }
-}
-
+/* Header */
 header {
-  position: relative;
   padding: 1rem 1.5rem;
   background: rgba(0,0,0,.35);
   backdrop-filter: blur(10px);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 10;
 }
 
 header h1 {
   margin: 0;
   font-size: 1.1rem;
+  font-weight: 600;
 }
 
 header a {
@@ -62,48 +51,39 @@ header a {
 
 /* Viewer */
 .viewer {
-  position: absolute;
-  inset: 70px 0 70px 0;
-  overflow: hidden;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  padding: 1rem;
 }
 
 .stage {
-  position: relative;
-  cursor: grab;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
 }
 
-.stage:active {
-  cursor: grabbing;
-}
-
-.transform {
-  transform-origin: center center;
+.stage img {
+  display: block;
+  max-width: 90vw;
+  max-height: 75vh;
+  width: auto;
+  height: auto;
   transition: transform .15s ease;
-}
-
-/* Glow frame */
-.viewer::after {
-  content: "";
-  position: absolute;
-  inset: 20px;
-  border-radius: 20px;
-  box-shadow:
-    0 0 40px rgba(0,180,230,.4),
-    inset 0 0 40px rgba(0,180,230,.25);
-  pointer-events: none;
+  transform-origin: center center;
 }
 
 /* Controls */
 .controls {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
   padding: .75rem;
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: .75rem;
   background: rgba(0,0,0,.35);
   backdrop-filter: blur(8px);
@@ -119,48 +99,31 @@ header a {
   cursor: pointer;
 }
 
+.controls button:active {
+  transform: scale(.95);
+}
+
 .zoom-display {
   min-width: 60px;
   text-align: center;
   font-weight: bold;
 }
-.stage {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-}
-.transform {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform-origin: center center;
-}
 </style>
 </head>
+
 <body>
 
 <header>
   <h1>Deck 04 · Entertainment</h1>
-  <a href="index.html">← Back</a>
+  <a href="index.html">← Back to Decks</a>
 </header>
 
 <div class="viewer">
-  <div class="stage" id="stage">
-    <div class="transform" id="transform">
-      <img id="deckImage"
-     src="decks/deck-04-final.min.svg"
-     alt="Deck 04 Plan"
-     draggable="false"
-     style="
-       display:block;
-       max-width:90vw;
-       max-height:70vh;
-       width:auto;
-       height:auto;
-     ">
-    </div>
+  <div class="stage">
+    <img id="deckImage"
+         src="decks/deck-04-final.min.svg"
+         alt="Deck 04 Plan"
+         draggable="false">
   </div>
 </div>
 
@@ -173,64 +136,36 @@ header a {
 
 <script>
 (() => {
-  const transform = document.getElementById('transform');
-  const stage = document.getElementById('stage');
   const img = document.getElementById('deckImage');
   const zoomDisplay = document.getElementById('zoomDisplay');
 
   let scale = 1;
-  let posX = 0;
-  let posY = 0;
-  let isDragging = false;
-  let startX, startY;
 
-  function update() {
-  transform.style.transform =
-    `translate(calc(-50% + ${posX}px), calc(-50% + ${posY}px)) scale(${scale})`;
-  transform.style.position = "absolute";
-  transform.style.left = "50%";
-  transform.style.top = "50%";
-  zoomDisplay.textContent = Math.round(scale * 100) + "%";
-}
-  document.getElementById('zoomIn').onclick = () => {
+  function updateZoom() {
+    img.style.transform = `scale(${scale})`;
+    zoomDisplay.textContent = Math.round(scale * 100) + "%";
+  }
+
+  document.getElementById('zoomIn').addEventListener('click', () => {
     scale = Math.min(scale + 0.2, 3);
-    update();
-  };
+    updateZoom();
+  });
 
-  document.getElementById('zoomOut').onclick = () => {
+  document.getElementById('zoomOut').addEventListener('click', () => {
     scale = Math.max(scale - 0.2, 0.5);
-    update();
-  };
+    updateZoom();
+  });
 
-  document.getElementById('zoomReset').onclick = () => {
+  document.getElementById('zoomReset').addEventListener('click', () => {
     scale = 1;
-    posX = 0;
-    posY = 0;
-    update();
-  };
-
-  stage.addEventListener('mousedown', e => {
-    isDragging = true;
-    startX = e.clientX - posX;
-    startY = e.clientY - posY;
+    updateZoom();
   });
 
-  window.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    posX = e.clientX - startX;
-    posY = e.clientY - startY;
-    update();
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
-
-  img.onerror = () => {
+  img.addEventListener('error', () => {
     img.src = 'decks/deck-04.png';
-  };
+  });
 
-  update();
+  updateZoom();
 })();
 </script>
 
