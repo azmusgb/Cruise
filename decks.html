@@ -676,54 +676,291 @@ body {
 (() => {
   'use strict';
 
-  /* ── Data ─────────────────────────────────── */
+  /**
+   * Deck Navigator (SVG-as-is)
+   * - Inline SVG fetch (no SVG modification required)
+   * - GPU pan/zoom + inertia + wheel zoom-to-cursor + pinch zoom + double-tap zoom
+   * - Smooth animated deck transitions
+   * - Deck carousel preview (thumbnails)
+   * - Subtle ocean ambient motion background (canvas)
+   * - Glow edge lighting around SVG
+   *
+   * Assumes HTML provides these IDs:
+   *  - deckGrid, gridCount, searchInput, searchClear
+   *  - modalBackdrop, modalDeckNum, modalDeckName
+   *  - planStage, planLoader, planError
+   *  - btnClose, btnPrev, btnNext, zoomIn, zoomOut, zoomReset, zoomLabel
+   */
+
+  /* ────────────────────────────────────────────────────────────────
+   * Data
+   * ──────────────────────────────────────────────────────────────── */
   const DECKS = [
-    {n:15, name:"Deck 15", hint:"Sun Deck · Sports"},
-    {n:14, name:"Deck 14", hint:"Pool · Solarium"},
-    {n:13, name:"Deck 13", hint:"Windjammer · Café"},
-    {n:12, name:"Deck 12", hint:"Solarium · Spa"},
-    {n:11, name:"Deck 11", hint:"Staterooms"},
-    {n:10, name:"Deck 10", hint:"Staterooms · Suites"},
-    {n:9,  name:"Deck 9",  hint:"Staterooms"},
-    {n:8,  name:"Deck 8",  hint:"Staterooms"},
-    {n:7,  name:"Deck 7",  hint:"Staterooms"},
-    {n:6,  name:"Deck 6",  hint:"Staterooms"},
-    {n:5,  name:"Deck 5",  hint:"Staterooms"},
-    {n:4,  name:"Deck 4",  hint:"Entertainment · Shops"},
-    {n:3,  name:"Deck 3",  hint:"Dining · Atrium"},
-    {n:2,  name:"Deck 2",  hint:"Dining · Lobby"},
+    { n: 15, name: "Deck 15", hint: "Sun Deck · Sports" },
+    { n: 14, name: "Deck 14", hint: "Pool · Solarium" },
+    { n: 13, name: "Deck 13", hint: "Windjammer · Café" },
+    { n: 12, name: "Deck 12", hint: "Solarium · Spa" },
+    { n: 11, name: "Deck 11", hint: "Staterooms" },
+    { n: 10, name: "Deck 10", hint: "Staterooms · Suites" },
+    { n: 9,  name: "Deck 9",  hint: "Staterooms" },
+    { n: 8,  name: "Deck 8",  hint: "Staterooms" },
+    { n: 7,  name: "Deck 7",  hint: "Staterooms" },
+    { n: 6,  name: "Deck 6",  hint: "Staterooms" },
+    { n: 5,  name: "Deck 5",  hint: "Staterooms" },
+    { n: 4,  name: "Deck 4",  hint: "Entertainment · Shops" },
+    { n: 3,  name: "Deck 3",  hint: "Dining · Atrium" },
+    { n: 2,  name: "Deck 2",  hint: "Dining · Lobby" },
   ];
 
   function svgPath(n) {
-    const pad = String(n).padStart(2,'0');
+    const pad = String(n).padStart(2, '0');
     return `decks/deck-${pad}-final.min.svg`;
   }
 
-  /* ── State ────────────────────────────────── */
+  /* ────────────────────────────────────────────────────────────────
+   * Elements (defensive)
+   * ──────────────────────────────────────────────────────────────── */
+  const $ = (id) => document.getElementById(id);
+
+  const grid         = $('deckGrid');
+  const gridCount    = $('gridCount');
+  const searchInput  = $('searchInput');
+  const searchClear  = $('searchClear');
+
+  const backdrop     = $('modalBackdrop');
+  const modalNum     = $('modalDeckNum');
+  const modalName    = $('modalDeckName');
+
+  const planStage    = $('planStage');
+  const planLoader   = $('planLoader');
+  const planError    = $('planError');
+
+  const btnClose     = $('btnClose');
+  const btnPrev      = $('btnPrev');
+  const btnNext      = $('btnNext');
+
+  const zoomInBtn    = $('zoomIn');
+  const zoomOutBtn   = $('zoomOut');
+  const zoomResetBtn = $('zoomReset');
+  const zoomLabel    = $('zoomLabel');
+
+  const REQUIRED = [grid, gridCount, searchInput, searchClear, backdrop, modalNum, modalName, planStage, planLoader, planError,
+                    btnClose, btnPrev, btnNext, zoomInBtn, zoomOutBtn, zoomResetBtn, zoomLabel];
+
+  if (REQUIRED.some(Boolean) === false) {
+    console.error('[DeckNavigator] Missing required DOM elements. Check IDs in HTML.');
+    return;
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Inject UX CSS (self-contained upgrades)
+   * ──────────────────────────────────────────────────────────────── */
+  const injectedStyle = document.createElement('style');
+  injectedStyle.textContent = `
+    /* Deck carousel preview */
+    .deck-carousel-wrap {
+      margin-top: 1.15rem;
+      display: grid;
+      gap: .65rem;
+    }
+    .deck-carousel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      color: rgba(255,255,255,.78);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .01em;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 .2rem;
+    }
+    .deck-carousel {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      gap: .7rem;
+      overflow-x: auto;
+      padding: .25rem .15rem .45rem;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .deck-carousel::-webkit-scrollbar { display: none; }
+    .deck-chip {
+      scroll-snap-align: start;
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .55rem;
+      align-items: center;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+      padding: .5rem .65rem;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+      min-width: 168px;
+      user-select: none;
+    }
+    .deck-chip:hover { transform: translateY(-2px); background: rgba(255,255,255,.12); border-color: rgba(0,180,230,.45); }
+    .deck-chip:active { transform: translateY(-1px) scale(.99); }
+    .deck-chip.is-active { border-color: rgba(255,215,64,.55); box-shadow: 0 0 0 3px rgba(255,215,64,.14); }
+    .deck-chip-num {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #0a2e4a;
+      background: linear-gradient(135deg, #ffd740, rgba(0,180,230,.85));
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      font-family: ui-sans-serif, system-ui, -apple-system, 'Inter', sans-serif;
+      font-size: .9rem;
+    }
+    .deck-chip-meta { min-width: 0; }
+    .deck-chip-title {
+      color: rgba(255,255,255,.92);
+      font-weight: 800;
+      font-size: .8rem;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .deck-chip-sub {
+      color: rgba(255,255,255,.55);
+      font-size: .7rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: .1rem;
+    }
+    .deck-chip-thumb {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.22);
+      box-shadow: 0 14px 30px rgba(0,0,0,.28);
+      display: grid;
+      place-items: center;
+    }
+    .deck-chip-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .92;
+      filter: saturate(1.05) contrast(1.05);
+    }
+
+    /* Plan viewer enhancements */
+    .plan-stage {
+      position: relative;
+    }
+    .ocean-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: .26;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      filter: blur(.2px);
+    }
+    .svg-shell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 100%;
+      padding: 1rem;
+    }
+    .svg-transform-layer {
+      will-change: transform;
+      transform-origin: 0 0;
+      touch-action: none;
+      border-radius: 14px;
+      /* Glow edge lighting */
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.10),
+        0 14px 60px rgba(0,0,0,.55),
+        0 0 22px rgba(0,180,230,.22),
+        0 0 28px rgba(255,215,64,.12);
+      background: rgba(255,255,255,.02);
+    }
+    .svg-transform-layer svg {
+      display: block;
+      width: min(980px, 100%);
+      height: auto;
+      shape-rendering: geometricPrecision;
+      text-rendering: optimizeLegibility;
+      image-rendering: optimizeQuality;
+      filter: drop-shadow(0 10px 28px rgba(0,0,0,.38));
+      border-radius: 14px;
+    }
+
+    /* Smooth animated deck transitions */
+    .deck-fade-enter {
+      opacity: 0;
+      transform: translateY(10px) scale(.99);
+    }
+    .deck-fade-enter.deck-fade-enter-active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      transition: opacity .32s ease, transform .32s cubic-bezier(.2,.9,.2,1);
+    }
+    .deck-fade-exit {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .deck-fade-exit.deck-fade-exit-active {
+      opacity: 0;
+      transform: translateY(-10px) scale(.985);
+      transition: opacity .26s ease, transform .26s ease;
+    }
+
+    /* Reduced motion respect */
+    @media (prefers-reduced-motion: reduce) {
+      .deck-chip, .deck-chip:hover, .deck-chip:active { transition: none !important; transform: none !important; }
+      .deck-fade-enter.deck-fade-enter-active,
+      .deck-fade-exit.deck-fade-exit-active { transition: none !important; }
+    }
+  `;
+  document.head.appendChild(injectedStyle);
+
+  /* ────────────────────────────────────────────────────────────────
+   * State
+   * ──────────────────────────────────────────────────────────────── */
   let filtered = [...DECKS];
   let currentIdx = 0;
-  let zoom = 1;
 
-  /* ── Elements ────────────────────────────── */
-  const grid         = document.getElementById('deckGrid');
-  const gridCount    = document.getElementById('gridCount');
-  const searchInput  = document.getElementById('searchInput');
-  const searchClear  = document.getElementById('searchClear');
-  const backdrop     = document.getElementById('modalBackdrop');
-  const modalNum     = document.getElementById('modalDeckNum');
-  const modalName    = document.getElementById('modalDeckName');
-  const planStage    = document.getElementById('planStage');
-  const planLoader   = document.getElementById('planLoader');
-  const planError    = document.getElementById('planError');
-  const btnClose     = document.getElementById('btnClose');
-  const btnPrev      = document.getElementById('btnPrev');
-  const btnNext      = document.getElementById('btnNext');
-  const zoomInBtn    = document.getElementById('zoomIn');
-  const zoomOutBtn   = document.getElementById('zoomOut');
-  const zoomResetBtn = document.getElementById('zoomReset');
-  const zoomLabel    = document.getElementById('zoomLabel');
+  // Pan/zoom state
+  let transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
+  let activeLayer = null;
+  let isDragging = false;
+  let lastX = 0;
+  let lastY = 0;
+  let lastT = 0;
+  let inertiaRAF = 0;
 
-  /* ── Render Grid ─────────────────────────── */
+  // pinch state
+  let pinchInitDist = 0;
+  let pinchInitScale = 1;
+
+  // double tap
+  let lastTapMs = 0;
+
+  // ocean canvas
+  let ocean = null;
+
+  /* ────────────────────────────────────────────────────────────────
+   * Grid + carousel
+   * ──────────────────────────────────────────────────────────────── */
   function renderGrid(list) {
     filtered = list;
     grid.innerHTML = '';
@@ -750,137 +987,606 @@ body {
         <div class="card-arrow"><i class="fas fa-arrow-right"></i></div>
       `;
       card.addEventListener('click', () => openModal(i));
-      card.addEventListener('keypress', e => { if (e.key === 'Enter') openModal(i); });
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(i); }});
       grid.appendChild(card);
+    });
+
+    syncCarousel();
+  }
+
+  function ensureCarousel() {
+    const hero = document.querySelector('.hero');
+    if (!hero) return null;
+
+    let wrap = hero.querySelector('.deck-carousel-wrap');
+    if (wrap) return wrap;
+
+    wrap = document.createElement('div');
+    wrap.className = 'deck-carousel-wrap';
+
+    const head = document.createElement('div');
+    head.className = 'deck-carousel-head';
+    head.innerHTML = dockText(`
+      <span><i class="fas fa-layer-group" style="margin-right:.45rem;color:rgba(255,215,64,.95)"></i>Quick deck jump</span>
+      <span style="color:rgba(255,255,255,.55)">Swipe · Tap</span>
+    `);
+
+    const carousel = document.createElement('div');
+    carousel.className = 'deck-carousel';
+    carousel.setAttribute('aria-label', 'Deck carousel preview');
+    carousel.setAttribute('role', 'list');
+
+    wrap.appendChild(head);
+    wrap.appendChild(carousel);
+
+    // insert after search
+    const searchWrap = hero.querySelector('.search-wrap');
+    if (searchWrap && searchWrap.parentElement) {
+      searchWrap.parentElement.appendChild(wrap);
+    } else {
+      hero.appendChild(wrap);
+    }
+
+    return wrap;
+  }
+
+  function dockText(html) {
+    const t = document.createElement('template');
+    t.innerHTML = String(html).trim();
+    return t.content;
+  }
+
+  function buildCarouselItems() {
+    const wrap = ensureCarousel();
+    if (!wrap) return;
+
+    const carousel = wrap.querySelector('.deck-carousel');
+    if (!carousel) return;
+
+    carousel.innerHTML = '';
+
+    const items = filtered.length ? filtered : DECKS;
+
+    items.forEach((deck, i) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'deck-chip';
+      chip.setAttribute('role', 'listitem');
+      chip.setAttribute('aria-label', `Open ${deck.name}`);
+      chip.dataset.deckNumber = String(deck.n);
+
+      const thumb = document.createElement('div');
+      thumb.className = 'deck-chip-thumb';
+
+      const img = document.createElement('img');
+      img.alt = `${deck.name} thumbnail`;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.src = svgPath(deck.n);
+      img.onerror = () => {
+        // keep it subtle; no noisy UI
+        img.remove();
+        thumb.textContent = '⋯';
+        thumb.style.color = 'rgba(255,255,255,.7)';
+        thumb.style.fontWeight = '800';
+      };
+
+      thumb.appendChild(img);
+
+      chip.innerHTML = `
+        <div class="deck-chip-num">${deck.n}</div>
+        <div class="deck-chip-meta">
+          <div class="deck-chip-title">${escapeHtml(deck.name)}</div>
+          <div class="deck-chip-sub">${escapeHtml(deck.hint)}</div>
+        </div>
+      `;
+      chip.insertBefore(thumb, chip.firstChild);
+
+      chip.addEventListener('click', () => {
+        // Find this deck in filtered list
+        const idx = filtered.findIndex(d => d.n === deck.n);
+        openModal(idx >= 0 ? idx : i);
+      });
+
+      carousel.appendChild(chip);
     });
   }
 
-  /* ── Modal ───────────────────────────────── */
+  function syncCarousel() {
+    buildCarouselItems();
+    highlightCarouselActive();
+  }
+
+  function highlightCarouselActive() {
+    const wrap = document.querySelector('.deck-carousel-wrap');
+    if (!wrap) return;
+    const carousel = wrap.querySelector('.deck-carousel');
+    if (!carousel) return;
+
+    const open = backdrop.classList.contains('is-open');
+    const deck = open ? filtered[currentIdx] : null;
+
+    carousel.querySelectorAll('.deck-chip').forEach(btn => {
+      const n = Number(btn.dataset.deckNumber);
+      btn.classList.toggle('is-active', !!deck && n === deck.n);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Modal open/close
+   * ──────────────────────────────────────────────────────────────── */
   function openModal(idx) {
-    currentIdx = idx;
+    currentIdx = Math.max(0, Math.min(idx, filtered.length - 1));
     backdrop.classList.add('is-open');
     document.body.style.overflow = 'hidden';
-    loadDeck();
+    highlightCarouselActive();
+    loadDeck({ animate: false });
   }
 
   function closeModal() {
     backdrop.classList.remove('is-open');
     document.body.style.overflow = '';
+
     planStage.innerHTML = '';
-    zoom = 1;
-    updateZoomLabel();
+    cleanupInertia();
+    stopOcean();
+
+    transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
+    activeLayer = null;
+
+    zoomLabel.textContent = '100%';
+    highlightCarouselActive();
   }
 
-  function loadDeck() {
+  /* ────────────────────────────────────────────────────────────────
+   * Smooth deck transitions + inline SVG loader
+   * ──────────────────────────────────────────────────────────────── */
+  async function loadDeck({ animate = true } = {}) {
     const deck = filtered[currentIdx];
-    modalNum.textContent  = `Deck ${deck.n}`;
+    if (!deck) return;
+
+    modalNum.textContent = `Deck ${deck.n}`;
     modalName.textContent = deck.hint;
 
     btnPrev.disabled = currentIdx === 0;
     btnNext.disabled = currentIdx === filtered.length - 1;
 
-    planStage.innerHTML = '';
+    planError.style.display = 'none';
     planLoader.style.display = 'flex';
-    planError.style.display  = 'none';
-    zoom = 1;
-    updateZoomLabel();
 
-    const img = new Image();
-    img.alt = deck.name;
-    img.style.transform = 'scale(1)';
+    const oldShell = planStage.querySelector('.svg-shell');
+    if (oldShell && animate && !prefersReducedMotion()) {
+      await animateOut(oldShell);
+      oldShell.remove();
+    } else if (oldShell) {
+      oldShell.remove();
+    }
 
-    img.onload = () => {
+    // Reset transform state for new deck
+    cleanupInertia();
+    transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
+    activeLayer = null;
+    zoomLabel.textContent = '100%';
+
+    // Build shell + ocean canvas
+    const shell = document.createElement('div');
+    shell.className = 'svg-shell deck-fade-enter';
+    planStage.appendChild(shell);
+
+    startOcean(shell);
+
+    try {
+      const response = await fetch(svgPath(deck.n), { cache: 'force-cache' });
+      if (!response.ok) throw new Error(`SVG fetch failed: ${response.status}`);
+
+      const svgText = await response.text();
+      const wrapper = document.createElement('div');
+
+      // NOTE: We do not modify the SVG's internal structure; we only inline it for rendering quality.
+      wrapper.innerHTML = svgText;
+
+      const svg = wrapper.querySelector('svg');
+      if (!svg) throw new Error('No <svg> root found');
+
+      // Make responsive without touching internal paths
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+
+      const layer = document.createElement('div');
+      layer.className = 'svg-transform-layer';
+      layer.appendChild(svg);
+
+      shell.appendChild(layer);
+
       planLoader.style.display = 'none';
-      planStage.appendChild(img);
+
+      enablePanZoom(layer);
+      attachTouchZoom(planStage);
+      highlightCarouselActive();
+
+      if (animate && !prefersReducedMotion()) {
+        requestAnimationFrame(() => {
+          shell.classList.add('deck-fade-enter-active');
+        });
+      } else {
+        shell.classList.add('deck-fade-enter-active');
+      }
+    } catch (err) {
+      console.error(err);
+      planLoader.style.display = 'none';
+      planError.style.display = 'flex';
+      stopOcean();
+    }
+  }
+
+  function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function animateOut(node) {
+    return new Promise(resolve => {
+      node.classList.add('deck-fade-exit');
+      // next frame trigger transition
+      requestAnimationFrame(() => {
+        node.classList.add('deck-fade-exit-active');
+        const done = () => {
+          node.removeEventListener('transitionend', done);
+          resolve();
+        };
+        node.addEventListener('transitionend', done, { once: true });
+        // fallback
+        setTimeout(resolve, 320);
+      });
+    });
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Pan/zoom engine (GPU + inertia + wheel zoom-to-cursor)
+   * ──────────────────────────────────────────────────────────────── */
+  function enablePanZoom(layer) {
+    activeLayer = layer;
+    activeLayer.style.willChange = 'transform';
+    activeLayer.style.transformOrigin = '0 0';
+    activeLayer.style.touchAction = 'none';
+
+    updateTransform();
+
+    layer.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      lastT = performance.now();
+      transformState.vx = 0;
+      transformState.vy = 0;
+      layer.setPointerCapture(e.pointerId);
+    });
+
+    layer.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+
+      const now = performance.now();
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      const dt = Math.max(8, now - lastT);
+
+      transformState.x += dx;
+      transformState.y += dy;
+
+      transformState.vx = dx / dt;
+      transformState.vy = dy / dt;
+
+      lastX = e.clientX;
+      lastY = e.clientY;
+      lastT = now;
+
+      updateTransform();
+    });
+
+    layer.addEventListener('pointerup', () => {
+      isDragging = false;
+      applyInertia();
+    });
+
+    layer.addEventListener('pointercancel', () => {
+      isDragging = false;
+    });
+
+    planStage.addEventListener('wheel', onWheel, { passive: false });
+  }
+
+  function onWheel(e) {
+    // only when modal open and svg present
+    if (!backdrop.classList.contains('is-open')) return;
+    if (!activeLayer) return;
+
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.095 : 0.91;
+    zoomAtPoint(e.clientX, e.clientY, factor);
+  }
+
+  function zoomAtPoint(clientX, clientY, factor) {
+    const rect = planStage.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    const newScale = clamp(transformState.scale * factor, 0.5, 4);
+
+    transformState.x = x - ((x - transformState.x) * (newScale / transformState.scale));
+    transformState.y = y - ((y - transformState.y) * (newScale / transformState.scale));
+    transformState.scale = newScale;
+
+    updateTransform();
+  }
+
+  function setZoom(newScale) {
+    transformState.scale = clamp(newScale, 0.5, 4);
+    updateTransform();
+  }
+
+  function resetView() {
+    transformState = { scale: 1, x: 0, y: 0, vx: 0, vy: 0 };
+    updateTransform();
+  }
+
+  function updateTransform() {
+    if (!activeLayer) return;
+    activeLayer.style.transform =
+      `translate3d(${transformState.x}px, ${transformState.y}px, 0) scale(${transformState.scale})`;
+    zoomLabel.textContent = `${Math.round(transformState.scale * 100)}%`;
+  }
+
+  function applyInertia() {
+    if (prefersReducedMotion()) return;
+
+    cleanupInertia();
+    const friction = 0.94;
+
+    const step = () => {
+      transformState.x += transformState.vx * 16;
+      transformState.y += transformState.vy * 16;
+
+      transformState.vx *= friction;
+      transformState.vy *= friction;
+
+      updateTransform();
+
+      if (Math.abs(transformState.vx) > 0.001 || Math.abs(transformState.vy) > 0.001) {
+        inertiaRAF = requestAnimationFrame(step);
+      }
     };
 
-    img.onerror = () => {
-      planLoader.style.display = 'none';
-      planError.style.display  = 'flex';
+    inertiaRAF = requestAnimationFrame(step);
+  }
+
+  function cleanupInertia() {
+    if (inertiaRAF) cancelAnimationFrame(inertiaRAF);
+    inertiaRAF = 0;
+  }
+
+  function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Touch pinch zoom + double-tap zoom
+   * ──────────────────────────────────────────────────────────────── */
+  function attachTouchZoom(stage) {
+    // prevent duplicating listeners on repeated loads
+    if (stage.dataset.touchZoomAttached === '1') return;
+    stage.dataset.touchZoomAttached = '1';
+
+    stage.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        pinchInitDist = distance(e.touches[0], e.touches[1]);
+        pinchInitScale = transformState.scale;
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        const dist = distance(e.touches[0], e.touches[1]);
+        const ratio = dist / (pinchInitDist || dist);
+        setZoom(pinchInitScale * ratio);
+      }
+    }, { passive: true });
+
+    stage.addEventListener('pointerup', (e) => {
+      const now = Date.now();
+      if (now - lastTapMs < 280) {
+        // double-tap zoom in around tap point
+        zoomAtPoint(e.clientX, e.clientY, 1.45);
+      }
+      lastTapMs = now;
+    }, { passive: true });
+  }
+
+  function distance(a, b) {
+    const dx = a.clientX - b.clientX;
+    const dy = a.clientY - b.clientY;
+    return Math.hypot(dx, dy);
+  }
+
+  /* ────────────────────────────────────────────────────────────────
+   * Ocean ambient motion background (canvas)
+   * ──────────────────────────────────────────────────────────────── */
+  function startOcean(shell) {
+    stopOcean();
+
+    if (prefersReducedMotion()) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.className = 'ocean-canvas';
+    shell.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return;
+
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+    const resize = () => {
+      const r = shell.getBoundingClientRect();
+      canvas.width = Math.max(2, Math.floor(r.width * dpr));
+      canvas.height = Math.max(2, Math.floor(r.height * dpr));
     };
 
-    img.src = svgPath(deck.n);
+    resize();
+
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(shell);
+
+    let t = 0;
+    let raf = 0;
+
+    const render = () => {
+      t += 0.012;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      // subtle gradient wash
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, 'rgba(0,180,230,.20)');
+      g.addColorStop(0.45, 'rgba(255,215,64,.08)');
+      g.addColorStop(1, 'rgba(15,79,118,.18)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+
+      // wave lines
+      ctx.globalCompositeOperation = 'screen';
+      ctx.lineWidth = 1.2 * dpr;
+      ctx.strokeStyle = 'rgba(255,255,255,.10)';
+
+      const bands = 5;
+      for (let b = 0; b < bands; b++) {
+        const y0 = (h / (bands + 1)) * (b + 1);
+        ctx.beginPath();
+        const amp = (8 + b * 6) * dpr;
+        const freq = (0.010 + b * 0.003);
+        for (let x = 0; x <= w; x += 8 * dpr) {
+          const y = y0 + Math.sin((x * freq) + (t * (1.4 + b * 0.18))) * amp;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // drifting particles (tiny)
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 22; i++) {
+        const px = (Math.sin(t * 0.7 + i) * 0.5 + 0.5) * w;
+        const py = (Math.cos(t * 0.6 + i * 1.7) * 0.5 + 0.5) * h;
+        const r = (1.2 + (i % 3)) * dpr;
+        ctx.fillStyle = 'rgba(255,255,255,.06)';
+        ctx.beginPath();
+        ctx.arc(px, py, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalCompositeOperation = 'source-over';
+      raf = requestAnimationFrame(render);
+    };
+
+    raf = requestAnimationFrame(render);
+
+    ocean = {
+      canvas,
+      ro,
+      raf: () => raf,
+      stop: () => {
+        cancelAnimationFrame(raf);
+        ro.disconnect();
+        canvas.remove();
+      }
+    };
   }
 
-  /* ── Zoom ────────────────────────────────── */
-  function setZoom(val) {
-    zoom = Math.min(4, Math.max(0.5, val));
-    const img = planStage.querySelector('img');
-    if (img) img.style.transform = `scale(${zoom})`;
-    updateZoomLabel();
+  function stopOcean() {
+    if (!ocean) return;
+    try { ocean.stop(); } catch (_) {}
+    ocean = null;
   }
 
-  function updateZoomLabel() {
-    zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
-  }
-
-  /* ── Search ──────────────────────────────── */
-  searchInput.addEventListener('input', e => {
-    const q = e.target.value.trim().toLowerCase();
+  /* ────────────────────────────────────────────────────────────────
+   * Search
+   * ──────────────────────────────────────────────────────────────── */
+  searchInput.addEventListener('input', (e) => {
+    const q = String(e.target.value || '').trim().toLowerCase();
     searchClear.hidden = !q;
-    renderGrid(q
+
+    const list = q
       ? DECKS.filter(d =>
           d.name.toLowerCase().includes(q) ||
           String(d.n).includes(q) ||
           d.hint.toLowerCase().includes(q)
         )
-      : [...DECKS]
-    );
+      : [...DECKS];
+
+    renderGrid(list);
   });
 
   searchClear.addEventListener('click', () => {
     searchInput.value = '';
     searchClear.hidden = true;
     renderGrid([...DECKS]);
+    // keep focus for keyboard flow
+    searchInput.focus({ preventScroll: true });
   });
 
-  /* ── Event Listeners ─────────────────────── */
+  /* ────────────────────────────────────────────────────────────────
+   * Controls
+   * ──────────────────────────────────────────────────────────────── */
   btnClose.addEventListener('click', closeModal);
-  btnPrev.addEventListener('click',  () => { if (currentIdx > 0) { currentIdx--; loadDeck(); } });
-  btnNext.addEventListener('click',  () => { if (currentIdx < filtered.length - 1) { currentIdx++; loadDeck(); } });
 
-  zoomInBtn.addEventListener('click',    () => setZoom(zoom + 0.2));
-  zoomOutBtn.addEventListener('click',   () => setZoom(zoom - 0.2));
-  zoomResetBtn.addEventListener('click', () => setZoom(1));
-
-  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
-
-  document.addEventListener('keydown', e => {
-    if (!backdrop.classList.contains('is-open')) return;
-    if (e.key === 'Escape')      closeModal();
-    if (e.key === 'ArrowLeft')   btnPrev.click();
-    if (e.key === 'ArrowRight')  btnNext.click();
-    if (e.key === '+')           setZoom(zoom + 0.2);
-    if (e.key === '-')           setZoom(zoom - 0.2);
+  btnPrev.addEventListener('click', () => {
+    if (currentIdx > 0) {
+      currentIdx--;
+      highlightCarouselActive();
+      loadDeck({ animate: true });
+    }
   });
 
-  /* ── Pinch-to-zoom (touch) ───────────────── */
-  let initDist = 0, initZoom = 1;
-
-  planStage.addEventListener('touchstart', e => {
-    if (e.touches.length === 2) {
-      initDist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      initZoom = zoom;
+  btnNext.addEventListener('click', () => {
+    if (currentIdx < filtered.length - 1) {
+      currentIdx++;
+      highlightCarouselActive();
+      loadDeck({ animate: true });
     }
-  }, { passive: true });
+  });
 
-  planStage.addEventListener('touchmove', e => {
-    if (e.touches.length === 2) {
-      const dist = Math.hypot(
-        e.touches[0].clientX - e.touches[1].clientX,
-        e.touches[0].clientY - e.touches[1].clientY
-      );
-      setZoom(initZoom * (dist / initDist));
-    }
-  }, { passive: true });
+  zoomInBtn.addEventListener('click', () => setZoom(transformState.scale + 0.20));
+  zoomOutBtn.addEventListener('click', () => setZoom(transformState.scale - 0.20));
+  zoomResetBtn.addEventListener('click', () => resetView());
 
-  /* ── Init ────────────────────────────────── */
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!backdrop.classList.contains('is-open')) return;
+
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'ArrowLeft') btnPrev.click();
+    if (e.key === 'ArrowRight') btnNext.click();
+
+    if (e.key === '+' || e.key === '=') setZoom(transformState.scale + 0.12);
+    if (e.key === '-') setZoom(transformState.scale - 0.12);
+
+    if (e.key === '0') resetView();
+  });
+
+  /* ────────────────────────────────────────────────────────────────
+   * Init
+   * ──────────────────────────────────────────────────────────────── */
   renderGrid([...DECKS]);
+  buildCarouselItems();
 
 })();
+  
 </script>
 
 </body>
