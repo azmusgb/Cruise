@@ -1,1237 +1,1102 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0A2E4A">
 <title>Deck Navigator · Adventure of the Seas</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  :root {
-    --ocean: #0a4a7c;
-    --ocean-mid: #0d6aad;
-    --ocean-light: #1a8fd1;
-    --sky: #e8f4fd;
-    --sky-deep: #cce8f7;
-    --gold: #f0a500;
-    --gold-light: #ffd166;
-    --sand: #fef9f0;
-    --foam: #ffffff;
-    --text-dark: #0b1e33;
-    --text-mid: #3a5068;
-    --text-soft: #6b8299;
-    --radius-xl: 24px;
-    --radius-lg: 16px;
-    --radius-md: 12px;
-    --radius-sm: 8px;
-    --shadow-card: 0 4px 24px rgba(10,74,124,0.10);
-    --shadow-lift: 0 12px 40px rgba(10,74,124,0.18);
-    --shadow-modal: 0 32px 80px rgba(5,20,45,0.38);
-    --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  }
+:root{
+–navy:#0A2E4A;
+–navy-mid:#1C4E6C;
+–navy-light:#2A6F97;
+–gold:#C6A15B;
+–gold-pale:#F5EDD8;
+–sky:#EFF6FB;
+–sky-mid:#D8ECF5;
+–white:rgba(255,255,255,0.92);
+–glass:rgba(255,255,255,0.72);
+–border:rgba(255,255,255,0.55);
+–shadow-sm:0 2px 8px rgba(10,46,74,0.07);
+–shadow-md:0 8px 28px rgba(10,46,74,0.12);
+–shadow-lg:0 20px 50px rgba(10,46,74,0.20);
+–shadow-xl:0 36px 72px rgba(5,20,40,0.32);
+–r-card:28px;
+–r-pill:999px;
+–ease:cubic-bezier(0.22,1,0.36,1);
+}
 
-  html { scroll-behavior: smooth; }
+html{scroll-behavior:smooth}
+body{
+font-family:-apple-system,BlinkMacSystemFont,‘Segoe UI’,system-ui,sans-serif;
+background:var(–sky);
+background-image:
+radial-gradient(ellipse at 15% 25%,rgba(180,220,245,0.45) 0%,transparent 40%),
+radial-gradient(ellipse at 88% 75%,rgba(160,210,238,0.30) 0%,transparent 38%);
+color:var(–navy);
+line-height:1.5;
+-webkit-font-smoothing:antialiased;
+min-height:100vh;
+overflow-x:hidden;
+}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    background: var(--sky);
-    color: var(--text-dark);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ── SKIP ── */
+.skip-link{position:fixed;top:-50px;left:16px;background:var(–navy);color:#fff;padding:10px 22px;border-radius:var(–r-pill);z-index:9999;transition:top .2s;font-weight:600}
+.skip-link:focus{top:12px;outline:3px solid var(–gold)}
 
-  /* ── HEADER ── */
-  .header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(10,74,124,0.96);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255,255,255,0.10);
-    padding: 0 24px;
-  }
-  .header-inner {
-    max-width: 1200px; margin: 0 auto;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 60px; gap: 16px;
-  }
-  .header-brand {
-    display: flex; align-items: center; gap: 10px;
-    text-decoration: none;
-  }
-  .header-brand-icon {
-    width: 34px; height: 34px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--gold), var(--gold-light));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px; color: var(--ocean); flex-shrink: 0;
-  }
-  .header-brand-text { color: white; }
-  .header-brand-title { font-size: 0.92rem; font-weight: 700; line-height: 1.2; }
-  .header-brand-sub { font-size: 0.70rem; opacity: 0.65; line-height: 1.2; }
-  .header-dates {
-    background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 999px; padding: 5px 14px;
-    font-size: 0.76rem; color: rgba(255,255,255,0.85); font-weight: 500;
-    white-space: nowrap;
-  }
+/* ── HEADER ── */
+.hdr{
+position:sticky;top:0;z-index:200;
+background:rgba(10,46,74,0.95);
+backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,0.10);
+}
+.hdr-inner{
+max-width:1280px;margin:0 auto;
+display:flex;align-items:center;justify-content:space-between;
+height:58px;padding:0 24px;gap:16px;
+}
+.hdr-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.hdr-crown{
+width:36px;height:36px;border-radius:11px;flex-shrink:0;
+background:linear-gradient(135deg,var(–gold),#e8c97a);
+display:flex;align-items:center;justify-content:center;
+font-size:15px;color:var(–navy);box-shadow:0 4px 12px rgba(198,161,91,0.35);
+}
+.hdr-text{color:#fff}
+.hdr-title{font-size:.9rem;font-weight:700;line-height:1.15}
+.hdr-sub{font-size:.68rem;opacity:.60;line-height:1.15}
+.hdr-dates{
+background:rgba(255,255,255,0.10);
+border:1px solid rgba(255,255,255,0.16);
+border-radius:var(–r-pill);
+padding:5px 14px;
+font-size:.75rem;color:rgba(255,255,255,0.80);font-weight:500;
+white-space:nowrap;
+}
 
-  /* ── HERO ── */
-  .hero {
-    background: linear-gradient(165deg, var(--ocean) 0%, var(--ocean-mid) 55%, #1a90cc 100%);
-    padding: 52px 24px 0;
-    position: relative; overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
-  .hero-waves {
-    position: absolute; bottom: -2px; left: 0; right: 0;
-    height: 60px;
-  }
-  .hero-inner {
-    max-width: 1200px; margin: 0 auto;
-    position: relative; z-index: 1;
-  }
-  .hero-label {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.20);
-    border-radius: 999px; padding: 5px 12px;
-    font-size: 0.74rem; font-weight: 600; color: rgba(255,255,255,0.90);
-    margin-bottom: 16px; letter-spacing: 0.02em;
-  }
-  .hero-label i { color: var(--gold-light); font-size: 0.70rem; }
-  .hero-title {
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800; color: white;
-    line-height: 1.1; letter-spacing: -0.03em;
-    margin-bottom: 12px;
-  }
-  .hero-title span { color: var(--gold-light); }
-  .hero-sub {
-    font-size: 1.05rem; color: rgba(255,255,255,0.72);
-    max-width: 420px; line-height: 1.5; margin-bottom: 32px;
-  }
-  .hero-stats {
-    display: flex; gap: 24px; margin-bottom: 48px; flex-wrap: wrap;
-  }
-  .hero-stat {
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .hero-stat-num {
-    font-size: 1.6rem; font-weight: 800; color: white; line-height: 1;
-  }
-  .hero-stat-label { font-size: 0.72rem; color: rgba(255,255,255,0.55); font-weight: 500; }
-  .hero-stat-div {
-    width: 1px; background: rgba(255,255,255,0.18); align-self: stretch;
-  }
+/* ── HERO ── */
+.hero{
+background:linear-gradient(160deg,var(–navy) 0%,var(–navy-mid) 60%,#1f7eb5 100%);
+padding:52px 24px 0;
+position:relative;overflow:hidden;
+}
+.hero::before{
+content:’’;position:absolute;inset:0;
+background:url(“data:image/svg+xml,%3Csvg width=‘80’ height=‘80’ viewBox=‘0 0 80 80’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cg fill=’%23ffffff’ fill-opacity=‘0.025’%3E%3Ccircle cx=‘40’ cy=‘40’ r=‘2’/%3E%3C/g%3E%3C/svg%3E”);
+pointer-events:none;
+}
+.hero-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{
+display:inline-flex;align-items:center;gap:7px;
+background:rgba(255,255,255,0.12);
+border:1px solid rgba(255,255,255,0.22);
+border-radius:var(–r-pill);padding:5px 14px;
+font-size:.75rem;font-weight:600;color:rgba(255,255,255,.90);
+margin-bottom:18px;
+}
+.hero-badge i{color:#ffd166;font-size:.70rem}
+.hero-h1{
+font-size:clamp(1.9rem,5vw,3rem);
+font-weight:800;color:#fff;
+line-height:1.10;letter-spacing:-.03em;
+margin-bottom:10px;
+}
+.hero-h1 em{font-style:normal;color:#ffd166}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,.68);max-width:380px;margin-bottom:34px;line-height:1.55}
+.hero-kpis{display:flex;gap:20px;margin-bottom:44px;flex-wrap:wrap}
+.kpi{display:flex;flex-direction:column;gap:1px}
+.kpi-n{font-size:1.55rem;font-weight:800;color:#fff;line-height:1;letter-spacing:-.03em}
+.kpi-l{font-size:.70rem;color:rgba(255,255,255,.50);font-weight:500}
+.kpi-div{width:1px;background:rgba(255,255,255,.16);align-self:stretch}
 
-  /* ── SEARCH BAR ── */
-  .search-bar-wrap {
-    background: rgba(255,255,255,0.10);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.20);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    padding: 20px 24px 0;
-  }
-  .search-bar {
-    display: flex; align-items: center; gap: 12px;
-    background: white;
-    border-radius: var(--radius-lg);
-    padding: 14px 20px;
-    box-shadow: 0 8px 32px rgba(5,20,45,0.20);
-    margin-bottom: 20px;
-  }
-  .search-bar i { color: var(--ocean-light); font-size: 1rem; flex-shrink: 0; }
-  .search-bar input {
-    flex: 1; border: none; outline: none;
-    font-size: 1rem; color: var(--text-dark);
-    background: transparent;
-    font-family: inherit;
-  }
-  .search-bar input::placeholder { color: var(--text-soft); }
-  .search-count {
-    font-size: 0.78rem; color: var(--text-soft);
-    font-weight: 600; white-space: nowrap;
-    transition: opacity 200ms;
-  }
+/* ── SEARCH LEDGE ── */
+.search-ledge{
+background:rgba(255,255,255,0.11);
+border:1px solid rgba(255,255,255,0.18);
+border-bottom:none;
+border-radius:var(–r-card) var(–r-card) 0 0;
+padding:20px 24px 0;
+}
+.search-bar{
+display:flex;align-items:center;gap:12px;
+background:#fff;
+border-radius:18px;
+padding:13px 20px;
+box-shadow:0 8px 32px rgba(5,20,45,0.22);
+margin-bottom:0;
+}
+.search-bar i{color:var(–navy-light);font-size:.95rem;flex-shrink:0}
+.search-bar input{flex:1;border:none;outline:none;font-size:.97rem;color:var(–navy);background:transparent;font-family:inherit}
+.search-bar input::placeholder{color:#7b9cae}
+.search-ct{font-size:.76rem;font-weight:700;color:#7b9cae;white-space:nowrap;transition:color .2s}
+.search-ct.has-results{color:var(–navy-mid)}
+.search-wave{display:block;margin-top:-1px}
 
-  /* ── MAIN LAYOUT ── */
-  .page-body {
-    max-width: 1200px; margin: 0 auto;
-    padding: 0 24px 80px;
-  }
+/* ── BODY ── */
+.body{max-width:1280px;margin:0 auto;padding:0 24px 80px}
 
-  /* ── FILTER TABS ── */
-  .filter-tabs {
-    display: flex; gap: 8px; padding: 24px 0 20px;
-    overflow-x: auto; scrollbar-width: none;
-  }
-  .filter-tabs::-webkit-scrollbar { display: none; }
-  .ftab {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 9px 18px; border-radius: 999px;
-    border: 1.5px solid transparent;
-    font-size: 0.85rem; font-weight: 600;
-    cursor: pointer; white-space: nowrap;
-    transition: all 200ms var(--ease);
-    background: white;
-    color: var(--text-mid);
-    border-color: rgba(10,74,124,0.12);
-    box-shadow: var(--shadow-card);
-  }
-  .ftab i { font-size: 0.8rem; }
-  .ftab.active {
-    background: var(--ocean); color: white;
-    border-color: var(--ocean);
-    box-shadow: 0 6px 20px rgba(10,74,124,0.28);
-  }
-  .ftab:hover:not(.active) {
-    border-color: var(--ocean-light); color: var(--ocean);
-    transform: translateY(-1px);
-  }
-  .ftab-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    flex-shrink: 0;
-  }
+/* ── FILTER ROW ── */
+.filters{
+display:flex;gap:8px;padding:22px 0 18px;
+overflow-x:auto;scrollbar-width:none;
+}
+.filters::-webkit-scrollbar{display:none}
+.ftab{
+display:inline-flex;align-items:center;gap:7px;
+padding:9px 20px;border-radius:var(–r-pill);
+border:1.5px solid rgba(10,46,74,0.11);
+background:#fff;color:var(–navy-mid);
+font-size:.84rem;font-weight:600;
+cursor:pointer;white-space:nowrap;
+box-shadow:var(–shadow-sm);
+transition:all 200ms var(–ease);
+}
+.ftab i,.ftab .dot{font-size:.72rem}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ftab:hover:not(.active){border-color:var(–navy-light);color:var(–navy);transform:translateY(-1px)}
+.ftab.active{background:var(–navy);color:#fff;border-color:var(–navy);box-shadow:0 6px 18px rgba(10,46,74,0.26)}
 
-  /* ── SECTION HEADER ── */
-  .section-header {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .section-title {
-    font-size: 1.15rem; font-weight: 700; color: var(--text-dark);
-  }
-  .section-count {
-    font-size: 0.8rem; color: var(--text-soft); font-weight: 600;
-  }
+/* ── SECTION HEAD ── */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+.sec-title{font-size:1.1rem;font-weight:700;color:var(–navy)}
+.sec-ct{font-size:.78rem;font-weight:600;color:#8aabb8}
 
-  /* ── DECK GRID ── */
-  .deck-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-  }
+/* ── GRID ── */
+.deck-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+gap:18px;
+}
 
-  /* ── DECK CARD ── */
-  .deck-card {
-    background: white;
-    border-radius: var(--radius-xl);
-    border: 1.5px solid rgba(10,74,124,0.08);
-    box-shadow: var(--shadow-card);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 260ms var(--ease), box-shadow 260ms var(--ease), border-color 260ms var(--ease);
-    position: relative;
-  }
-  .deck-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lift);
-    border-color: rgba(10,74,124,0.18);
-  }
-  .deck-card:active { transform: translateY(-2px); }
+/* ── CARD ── */
+.card{
+background:#fff;
+border-radius:var(–r-card);
+border:1.5px solid rgba(10,46,74,0.07);
+box-shadow:var(–shadow-sm);
+overflow:hidden;cursor:pointer;
+transition:transform 260ms var(–ease),box-shadow 260ms var(–ease),border-color 240ms;
+position:relative;
+animation:cardIn 300ms var(–ease) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card:hover{transform:translateY(-5px);box-shadow:var(–shadow-lg);border-color:rgba(10,46,74,0.16)}
+.card:active{transform:translateY(-2px)}
+.card:focus-visible{outline:3px solid var(–gold);outline-offset:2px}
 
-  .deck-card-header {
-    padding: 20px 20px 14px;
-    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
-  }
-  .deck-card-num {
-    width: 48px; height: 48px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: 800; flex-shrink: 0;
-    letter-spacing: -0.02em;
-  }
-  .deck-card-num.cat-entertainment { background: #eef3ff; color: #3b5bdb; }
-  .deck-card-num.cat-wellness { background: #e8faf3; color: #099268; }
-  .deck-card-num.cat-essential { background: #fff8e6; color: #d08b00; }
+/* my-deck ring */
+.card.my-deck{border-color:var(–gold);box-shadow:0 0 0 3px rgba(198,161,91,0.18),var(–shadow-sm)}
+.my-badge{
+position:absolute;top:13px;right:13px;
+background:var(–gold);color:var(–navy);
+font-size:.62rem;font-weight:800;
+padding:3px 9px;border-radius:var(–r-pill);
+letter-spacing:.04em;text-transform:uppercase;
+box-shadow:0 2px 8px rgba(198,161,91,0.40);
+}
 
-  .deck-card-meta { flex: 1; }
-  .deck-card-name { font-size: 1rem; font-weight: 700; color: var(--text-dark); line-height: 1.2; }
-  .deck-card-sub { font-size: 0.80rem; color: var(--text-soft); margin-top: 3px; }
-  .deck-card-arrow {
-    width: 30px; height: 30px; border-radius: 10px;
-    background: var(--sky); color: var(--ocean-mid);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; flex-shrink: 0; margin-top: 2px;
-    transition: background 200ms, transform 200ms;
-  }
-  .deck-card:hover .deck-card-arrow {
-    background: var(--ocean); color: white; transform: translateX(2px);
-  }
+.card-top{padding:18px 18px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.card-num{
+width:46px;height:46px;border-radius:13px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.05rem;font-weight:800;flex-shrink:0;
+}
+.ent .card-num{background:#EEF2FF;color:#3730A3}
+.wel .card-num{background:#ECFDF5;color:#065F46}
+.ess .card-num{background:#FFFBEB;color:#92400E}
 
-  .deck-card-plan {
-    margin: 0 16px; border-radius: var(--radius-md);
-    overflow: hidden; background: var(--sky-deep);
-    height: 90px; position: relative;
-  }
-  .deck-card-plan-placeholder {
-    width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .deck-card-plan svg { opacity: 0.35; }
+.card-meta{flex:1}
+.card-name{font-size:.97rem;font-weight:700;color:var(–navy);line-height:1.2}
+.card-sub{font-size:.78rem;color:#5a849b;margin-top:3px}
+.card-arrow{
+width:29px;height:29px;border-radius:9px;
+background:var(–sky);color:var(–navy-mid);
+display:flex;align-items:center;justify-content:center;
+font-size:.68rem;flex-shrink:0;margin-top:2px;
+transition:background 200ms,color 200ms,transform 200ms;
+}
+.card:hover .card-arrow{background:var(–navy);color:#fff;transform:translateX(2px)}
 
-  .deck-card-footer {
-    padding: 12px 20px 16px;
-    display: flex; gap: 6px; flex-wrap: wrap;
-  }
-  .deck-tag {
-    font-size: 0.72rem; font-weight: 600;
-    padding: 3px 9px; border-radius: 999px;
-    line-height: 1.6;
-  }
-  .deck-tag.cat-entertainment { background: #eef3ff; color: #3b5bdb; }
-  .deck-tag.cat-wellness { background: #e8faf3; color: #099268; }
-  .deck-tag.cat-essential { background: #fff8e6; color: #d08b00; }
+/* thumbnail strip */
+.card-thumb{
+margin:0 14px;border-radius:14px;
+overflow:hidden;background:var(–sky-mid);
+height:84px;position:relative;
+}
+.card-thumb svg{display:block;width:100%;height:100%}
 
-  /* My deck highlight */
-  .deck-card.is-my-deck {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(240,165,0,0.12), var(--shadow-card);
-  }
-  .my-deck-badge {
-    position: absolute; top: 12px; right: 12px;
-    background: var(--gold); color: var(--ocean);
-    font-size: 0.65rem; font-weight: 800;
-    padding: 3px 8px; border-radius: 999px;
-    letter-spacing: 0.04em; text-transform: uppercase;
-    box-shadow: 0 2px 8px rgba(240,165,0,0.35);
-  }
+.card-tags{padding:12px 18px 16px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{
+font-size:.70rem;font-weight:600;
+padding:3px 10px;border-radius:var(–r-pill);line-height:1.6;
+}
+.ent .tag{background:#EEF2FF;color:#3730A3}
+.wel .tag{background:#ECFDF5;color:#065F46}
+.ess .tag{background:#FFFBEB;color:#92400E}
 
-  /* Empty state */
-  .empty-state {
-    grid-column: 1/-1;
-    padding: 64px 24px; text-align: center;
-    display: none;
-  }
-  .empty-state.visible { display: block; }
-  .empty-icon { font-size: 3rem; margin-bottom: 16px; }
-  .empty-title { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
-  .empty-sub { font-size: 0.9rem; color: var(--text-soft); margin-bottom: 20px; }
-  .btn-reset {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 22px; border-radius: 999px;
-    background: var(--ocean); color: white;
-    font-size: 0.88rem; font-weight: 700;
-    border: none; cursor: pointer;
-    transition: transform 200ms, box-shadow 200ms;
-    box-shadow: 0 6px 20px rgba(10,74,124,0.24);
-  }
-  .btn-reset:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(10,74,124,0.32); }
+/* empty */
+.empty{
+grid-column:1/-1;padding:64px 24px;text-align:center;
+display:none;
+}
+.empty.show{display:block}
+.empty-ico{font-size:2.8rem;margin-bottom:14px}
+.empty-t{font-size:1.15rem;font-weight:700;margin-bottom:8px}
+.empty-s{font-size:.88rem;color:#7b9cae;margin-bottom:20px}
+.btn-reset{
+display:inline-flex;align-items:center;gap:8px;
+padding:10px 24px;border-radius:var(–r-pill);
+background:var(–navy);color:#fff;
+font-size:.86rem;font-weight:700;border:none;cursor:pointer;
+box-shadow:0 6px 18px rgba(10,46,74,0.24);
+transition:transform 200ms,box-shadow 200ms;
+}
+.btn-reset:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(10,46,74,0.32)}
 
-  /* ── MODAL BACKDROP ── */
-  .modal-backdrop {
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(5,20,45,0.65);
-    backdrop-filter: blur(8px);
-    opacity: 0; pointer-events: none;
-    transition: opacity 300ms var(--ease);
-    display: flex; align-items: center; justify-content: center;
-    padding: 16px;
-  }
-  .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+/* ── SPINE ── */
+.spine{
+position:fixed;right:18px;top:50%;
+transform:translateY(-50%);
+display:flex;flex-direction:column;gap:4px;
+z-index:99;
+}
+.spine-btn{
+width:38px;height:26px;border-radius:8px;
+background:rgba(255,255,255,0.82);
+border:1px solid rgba(10,46,74,0.13);
+font-size:.60rem;font-weight:800;color:var(–navy-mid);
+cursor:pointer;
+transition:all 170ms;
+display:flex;align-items:center;justify-content:center;
+box-shadow:var(–shadow-sm);
+}
+.spine-btn:hover,.spine-btn.active{
+background:var(–navy);color:#fff;
+box-shadow:0 4px 14px rgba(10,46,74,0.26);
+}
+@media(max-width:1000px){.spine{display:none}}
 
-  /* ── MODAL ── */
-  .modal {
-    background: white;
-    border-radius: var(--radius-xl);
-    box-shadow: var(--modal-shadow);
-    width: 100%; max-width: 900px;
-    max-height: calc(100vh - 32px);
-    display: flex; flex-direction: column;
-    overflow: hidden;
-    transform: scale(0.96) translateY(12px);
-    opacity: 0;
-    transition: transform 320ms var(--ease), opacity 280ms var(--ease);
-  }
-  .modal-backdrop.open .modal {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
+/* ── MODAL BACKDROP ── */
+.backdrop{
+position:fixed;inset:0;z-index:300;
+background:rgba(5,18,36,0.60);
+backdrop-filter:blur(12px);
+opacity:0;pointer-events:none;
+transition:opacity 300ms var(–ease);
+display:flex;align-items:center;justify-content:center;
+padding:12px;
+}
+.backdrop.open{opacity:1;pointer-events:auto}
 
-  /* Modal header */
-  .modal-header {
-    padding: 20px 24px 16px;
-    border-bottom: 1px solid rgba(10,74,124,0.08);
-    display: flex; align-items: flex-start; gap: 16px;
-  }
-  .modal-deck-badge {
-    width: 54px; height: 54px; border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem; font-weight: 800;
-    flex-shrink: 0;
-  }
-  .modal-deck-badge.cat-entertainment { background: #eef3ff; color: #3b5bdb; }
-  .modal-deck-badge.cat-wellness { background: #e8faf3; color: #099268; }
-  .modal-deck-badge.cat-essential { background: #fff8e6; color: #d08b00; }
+/* ── MODAL ── */
+.modal{
+background:#fff;
+border-radius:36px;
+box-shadow:var(–shadow-xl);
+width:100%;max-width:960px;
+max-height:calc(100dvh - 24px);
+display:flex;flex-direction:column;
+overflow:hidden;
+transform:scale(.96) translateY(14px);
+opacity:0;
+transition:transform 320ms var(–ease),opacity 280ms var(–ease);
+}
+.backdrop.open .modal{transform:scale(1) translateY(0);opacity:1}
 
-  .modal-header-text { flex: 1; }
-  .modal-title { font-size: 1.35rem; font-weight: 800; color: var(--text-dark); line-height: 1.2; }
-  .modal-subtitle { font-size: 0.88rem; color: var(--text-soft); margin-top: 4px; }
-  .modal-desc { font-size: 0.92rem; color: var(--text-mid); margin-top: 8px; line-height: 1.5; }
-  .modal-close {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: var(--sky); border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-mid); font-size: 0.85rem;
-    transition: background 180ms, color 180ms;
-    flex-shrink: 0;
-  }
-  .modal-close:hover { background: #fee2e2; color: #dc2626; }
+/* modal header */
+.modal-hdr{
+padding:20px 22px 16px;
+border-bottom:1px solid rgba(10,46,74,0.07);
+display:flex;align-items:flex-start;gap:14px;
+flex-shrink:0;
+}
+.modal-num{
+width:52px;height:52px;border-radius:15px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.15rem;font-weight:800;flex-shrink:0;
+}
+.modal-num.ent{background:#EEF2FF;color:#3730A3}
+.modal-num.wel{background:#ECFDF5;color:#065F46}
+.modal-num.ess{background:#FFFBEB;color:#92400E}
 
-  /* Modal nav strip */
-  .modal-nav {
-    display: flex; align-items: center; gap: 8px;
-    padding: 12px 24px;
-    border-bottom: 1px solid rgba(10,74,124,0.08);
-    overflow-x: auto; scrollbar-width: none;
-    background: var(--sand);
-  }
-  .modal-nav::-webkit-scrollbar { display: none; }
-  .modal-nav-btn {
-    display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 8px 12px; border-radius: var(--radius-md);
-    border: 1.5px solid transparent;
-    background: white; cursor: pointer;
-    min-width: 64px; white-space: nowrap;
-    transition: all 180ms var(--ease);
-    color: var(--text-mid);
-  }
-  .modal-nav-btn span:first-child { font-size: 0.75rem; font-weight: 800; }
-  .modal-nav-btn span:last-child { font-size: 0.60rem; opacity: 0.7; }
-  .modal-nav-btn.active {
-    background: var(--ocean); color: white;
-    border-color: var(--ocean);
-    box-shadow: 0 4px 14px rgba(10,74,124,0.28);
-  }
-  .modal-nav-btn:hover:not(.active) { border-color: var(--ocean-light); color: var(--ocean); }
+.modal-txt{flex:1;min-width:0}
+.modal-name{font-size:1.30rem;font-weight:800;color:var(–navy);line-height:1.15}
+.modal-sub{font-size:.84rem;color:#5a849b;margin-top:3px}
+.modal-desc{font-size:.90rem;color:var(–navy-mid);margin-top:8px;line-height:1.55}
 
-  /* Modal plan area */
-  .modal-plan-area {
-    flex: 1; overflow: hidden; position: relative;
-    background: #eaf4fc;
-    min-height: 320px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .modal-plan-canvas {
-    position: relative; width: 100%; height: 100%;
-    display: flex; align-items: center; justify-content: center;
-    overflow: auto;
-  }
-  .modal-plan-svg-wrap {
-    position: relative; display: inline-flex;
-    transform-origin: center center;
-    transition: transform 280ms var(--ease);
-    padding: 24px;
-  }
-  .deck-plan-graphic {
-    width: 100%; max-width: 720px; height: auto;
-    display: block; border-radius: var(--radius-md);
-    background: white;
-  }
+.modal-close{
+width:36px;height:36px;border-radius:10px;flex-shrink:0;
+background:var(–sky);border:none;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+color:var(–navy-mid);font-size:.82rem;
+transition:background 170ms,color 170ms;
+}
+.modal-close:hover{background:#fee2e2;color:#dc2626}
 
-  /* Zoom controls */
-  .modal-zoom-bar {
-    position: absolute; bottom: 16px; right: 16px;
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(255,255,255,0.90); backdrop-filter: blur(8px);
-    border: 1px solid rgba(10,74,124,0.12);
-    border-radius: 999px; padding: 6px 10px;
-    box-shadow: 0 4px 16px rgba(10,74,124,0.12);
-  }
-  .zoom-btn {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: none; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; color: var(--ocean);
-    transition: background 150ms;
-  }
-  .zoom-btn:hover { background: var(--sky-deep); }
-  .zoom-val { font-size: 0.76rem; font-weight: 700; color: var(--text-mid); min-width: 36px; text-align: center; }
+/* deck strip nav */
+.modal-strip{
+display:flex;align-items:center;gap:6px;
+padding:10px 22px;
+border-bottom:1px solid rgba(10,46,74,0.07);
+overflow-x:auto;scrollbar-width:none;
+background:#FAFCFE;flex-shrink:0;
+}
+.modal-strip::-webkit-scrollbar{display:none}
+.strip-btn{
+display:inline-flex;flex-direction:column;align-items:center;gap:2px;
+padding:7px 11px;border-radius:11px;
+border:1.5px solid transparent;
+background:#fff;cursor:pointer;min-width:58px;
+white-space:nowrap;color:var(–navy-mid);
+transition:all 160ms var(–ease);
+box-shadow:var(–shadow-sm);
+flex-shrink:0;
+}
+.strip-btn b{font-size:.72rem;font-weight:800}
+.strip-btn span{font-size:.58rem;opacity:.65;max-width:60px;overflow:hidden;text-overflow:ellipsis}
+.strip-btn.active{background:var(–navy);color:#fff;border-color:var(–navy);box-shadow:0 4px 14px rgba(10,46,74,0.26)}
+.strip-btn:hover:not(.active){border-color:var(–navy-light);color:var(–navy)}
 
-  /* Modal deck nav arrows */
-  .modal-deck-prev,
-  .modal-deck-next {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(255,255,255,0.88); backdrop-filter: blur(8px);
-    border: 1px solid rgba(10,74,124,0.12);
-    box-shadow: 0 4px 16px rgba(10,74,124,0.12);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    font-size: 0.8rem; color: var(--ocean);
-    transition: all 180ms; z-index: 2;
-  }
-  .modal-deck-prev { left: 12px; }
-  .modal-deck-next { right: 12px; }
-  .modal-deck-prev:hover, .modal-deck-next:hover { background: var(--ocean); color: white; }
+/* plan viewer */
+.plan-area{
+flex:1;min-height:0;
+position:relative;
+background:#EFF6FB;
+display:flex;align-items:stretch;
+}
+.plan-canvas{
+flex:1;overflow:auto;
+display:flex;align-items:center;justify-content:center;
+position:relative;
+cursor:grab;
+min-height:260px;
+}
+.plan-canvas.dragging{cursor:grabbing}
+.plan-inner{
+transform-origin:center center;
+transition:transform 250ms var(–ease);
+padding:20px;
+display:flex;align-items:center;justify-content:center;
+min-width:100%;min-height:100%;
+}
+.plan-inner img,.plan-inner svg,.plan-inner object{
+display:block;
+max-width:100%;height:auto;
+border-radius:14px;
+box-shadow:0 4px 20px rgba(10,46,74,0.10);
+background:#fff;
+user-select:none;pointer-events:none;
+}
+/* fallback placeholder */
+.plan-placeholder{
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+gap:12px;padding:40px;
+min-width:320px;min-height:200px;
+background:#fff;border-radius:14px;
+box-shadow:0 4px 20px rgba(10,46,74,0.08);
+}
+.plan-placeholder .deck-big{font-size:5rem;font-weight:900;color:var(–sky-mid);line-height:1;letter-spacing:-.05em}
+.plan-placeholder p{font-size:.82rem;color:#7b9cae;text-align:center;max-width:200px}
 
-  /* Modal highlights */
-  .modal-highlights {
-    padding: 16px 24px;
-    border-top: 1px solid rgba(10,74,124,0.08);
-    display: flex; align-items: center; gap: 10px;
-    flex-wrap: wrap;
-    background: white;
-  }
-  .modal-highlights-label {
-    font-size: 0.74rem; font-weight: 700; color: var(--text-soft);
-    text-transform: uppercase; letter-spacing: 0.06em; margin-right: 4px;
-  }
-  .highlight-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 13px; border-radius: 999px;
-    background: var(--sky); color: var(--ocean);
-    font-size: 0.80rem; font-weight: 600;
-    border: 1.5px solid rgba(10,74,124,0.12);
-    cursor: pointer;
-    transition: all 180ms;
-  }
-  .highlight-chip i { font-size: 0.7rem; }
-  .highlight-chip:hover { background: var(--ocean); color: white; border-color: var(--ocean); }
+/* loading skeleton */
+.plan-skeleton{
+width:100%;max-width:700px;height:220px;border-radius:14px;
+background:linear-gradient(90deg,#e8f2f8 25%,#d5e8f2 50%,#e8f2f8 75%);
+background-size:200% 100%;
+animation:shimmer 1.4s infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-  /* My room chip */
-  .my-room-chip {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 6px 14px; border-radius: 999px;
-    background: linear-gradient(135deg, #fff8e6, #ffedb8);
-    color: var(--gold); border: 1.5px solid rgba(240,165,0,0.35);
-    font-size: 0.80rem; font-weight: 700;
-    box-shadow: 0 3px 12px rgba(240,165,0,0.15);
-  }
+/* zoom bar */
+.zoom-bar{
+position:absolute;bottom:14px;right:14px;
+display:flex;align-items:center;gap:4px;
+background:rgba(255,255,255,0.88);backdrop-filter:blur(8px);
+border:1px solid rgba(10,46,74,0.11);
+border-radius:var(–r-pill);padding:5px 10px;
+box-shadow:var(–shadow-md);z-index:2;
+}
+.zoom-btn{
+width:28px;height:28px;border-radius:50%;
+background:none;border:none;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+font-size:.72rem;color:var(–navy);
+transition:background 140ms;
+}
+.zoom-btn:hover{background:var(–sky-mid)}
+.zoom-v{font-size:.73rem;font-weight:700;color:var(–navy-mid);min-width:34px;text-align:center}
 
-  /* ── DECK PLAN VISUALS ── */
-  .plan-wrap {
-    width: 100%; max-width: 720px;
-    background: white; border-radius: var(--radius-md);
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(10,74,124,0.08);
-  }
-  .plan-inner {
-    position: relative; width: 100%;
-    padding-bottom: 32%;
-  }
-  .plan-inner svg {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-  }
+/* prev/next arrows */
+.plan-prev,.plan-next{
+position:absolute;top:50%;transform:translateY(-50%);
+width:38px;height:38px;border-radius:50%;
+background:rgba(255,255,255,0.85);backdrop-filter:blur(8px);
+border:1px solid rgba(10,46,74,0.11);
+box-shadow:var(–shadow-md);
+cursor:pointer;display:flex;align-items:center;justify-content:center;
+font-size:.76rem;color:var(–navy);
+transition:all 180ms;z-index:3;
+}
+.plan-prev{left:10px}.plan-next{right:10px}
+.plan-prev:hover,.plan-next:hover{background:var(–navy);color:#fff}
+.plan-prev:disabled,.plan-next:disabled{opacity:.30;pointer-events:none}
 
-  /* SVG deck plans */
-  .ship-plan { fill: none; }
-  .ship-hull { fill: #eaf4fc; stroke: #94c5e8; stroke-width: 1.5; }
-  .ship-room { fill: #d0e9f7; stroke: #6aaed6; stroke-width: 0.8; }
-  .ship-room.highlight { fill: #bde3f5; }
-  .ship-corridor { fill: #c8dff0; stroke: none; }
-  .ship-special { fill: #ffedd5; stroke: #fb923c; stroke-width: 0.8; }
-  .ship-pool { fill: #93c5fd; stroke: #3b82f6; stroke-width: 0.8; }
-  .ship-label { font-size: 5px; fill: #2c5f8a; font-family: system-ui; font-weight: 600; }
-  .ship-label-sm { font-size: 3.5px; fill: #4a7fa5; font-family: system-ui; }
-  .ship-stairwell { fill: #fef3c7; stroke: #d97706; stroke-width: 0.8; }
-  .ship-elevator { fill: #ede9fe; stroke: #7c3aed; stroke-width: 0.8; }
-  .ship-my-room { fill: #fef9c3; stroke: #f0a500; stroke-width: 1.5; }
+/* highlights footer */
+.modal-foot{
+padding:14px 22px;
+border-top:1px solid rgba(10,46,74,0.07);
+display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+flex-shrink:0;background:#fff;
+}
+.foot-lbl{font-size:.70rem;font-weight:700;color:#8aabb8;text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
+.chip{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 13px;border-radius:var(–r-pill);
+background:var(–sky);color:var(–navy);
+font-size:.78rem;font-weight:600;
+border:1.5px solid rgba(10,46,74,0.10);
+cursor:default;transition:all 170ms;
+}
+.chip i{font-size:.68rem;opacity:.75}
+.room-chip{
+background:linear-gradient(135deg,#fffbeb,#fef3c7);
+color:#92400E;border-color:rgba(198,161,91,0.35);
+box-shadow:0 2px 8px rgba(198,161,91,0.15);
+}
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 640px) {
-    .hero { padding: 36px 16px 0; }
-    .search-bar-wrap { padding: 16px 16px 0; }
-    .page-body { padding: 0 16px 80px; }
-    .header { padding: 0 16px; }
-    .hero-stats { gap: 16px; }
-    .deck-grid { grid-template-columns: 1fr; }
-    .modal-header { padding: 16px; }
-    .modal-nav { padding: 10px 16px; }
-    .modal-highlights { padding: 12px 16px; }
-    .modal-plan-area { min-height: 240px; }
-  }
-
-  /* Anim utils */
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  .deck-card { animation: fadeIn 280ms var(--ease) both; }
-
-  /* ── VERTICAL DECK SPINE ── */
-  .deck-spine-wrap {
-    position: fixed; right: 20px; top: 50%;
-    transform: translateY(-50%);
-    display: flex; flex-direction: column; gap: 5px;
-    z-index: 90;
-  }
-  .spine-btn {
-    width: 36px; height: 28px; border-radius: 8px;
-    background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-    border: 1px solid rgba(10,74,124,0.14);
-    font-size: 0.62rem; font-weight: 800;
-    color: var(--ocean); cursor: pointer;
-    transition: all 180ms;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 8px rgba(10,74,124,0.08);
-  }
-  .spine-btn:hover, .spine-btn.active {
-    background: var(--ocean); color: white;
-    box-shadow: 0 4px 14px rgba(10,74,124,0.24);
-  }
-  @media (max-width: 960px) { .deck-spine-wrap { display: none; } }
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+.hero{padding:36px 16px 0}
+.search-ledge{padding:16px 16px 0}
+.body{padding:0 16px 80px}
+.hdr-inner{padding:0 16px}
+.hero-kpis{gap:14px}
+.deck-grid{grid-template-columns:1fr}
+.modal-hdr{padding:14px 16px}
+.modal-strip{padding:8px 14px}
+.modal-foot{padding:10px 14px}
+.plan-canvas{min-height:200px}
+.modal{border-radius:24px}
+}
 </style>
+
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- HEADER -->
-<header class="header">
-  <div class="header-inner">
-    <a href="#" class="header-brand">
-      <div class="header-brand-icon"><i class="fas fa-crown"></i></div>
-      <div class="header-brand-text">
-        <div class="header-brand-title">Royal Caribbean</div>
-        <div class="header-brand-sub">Adventure of the Seas</div>
+
+<header class="hdr" role="banner">
+  <div class="hdr-inner">
+    <a href="#" class="hdr-brand">
+      <div class="hdr-crown"><i class="fas fa-crown"></i></div>
+      <div class="hdr-text">
+        <div class="hdr-title">Royal Caribbean</div>
+        <div class="hdr-sub">Adventure of the Seas</div>
       </div>
     </a>
-    <div class="header-dates"><i class="fas fa-calendar" style="margin-right:6px;opacity:0.7"></i>Feb 14 – 20, 2026</div>
+    <div class="hdr-dates"><i class="fas fa-calendar-days" style="margin-right:6px;opacity:.7"></i>Feb 14–20, 2026</div>
   </div>
 </header>
 
 <!-- HERO -->
+
 <section class="hero">
   <div class="hero-inner">
-    <div class="hero-label"><i class="fas fa-location-dot"></i> You are on Deck 6 · Room 6650</div>
-    <h1 class="hero-title">Find anything<br><span>on the ship.</span></h1>
-    <p class="hero-sub">Tap any deck to explore the full plan. Your stateroom is always one tap away.</p>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-num">14</div>
-        <div class="hero-stat-label">Guest decks</div>
-      </div>
-      <div class="hero-stat-div"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">60+</div>
-        <div class="hero-stat-label">Venues</div>
-      </div>
-      <div class="hero-stat-div"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-num">3,807</div>
-        <div class="hero-stat-label">Guests</div>
-      </div>
+    <div class="hero-badge"><i class="fas fa-location-dot"></i> Deck 6 · Room 6650</div>
+    <h1 class="hero-h1">Find anything<br><em>on the ship.</em></h1>
+    <p class="hero-sub">Tap any deck for the full plan. Your room is always one tap away.</p>
+    <div class="hero-kpis">
+      <div class="kpi"><div class="kpi-n">14</div><div class="kpi-l">Guest decks</div></div>
+      <div class="kpi-div"></div>
+      <div class="kpi"><div class="kpi-n">60+</div><div class="kpi-l">Venues</div></div>
+      <div class="kpi-div"></div>
+      <div class="kpi"><div class="kpi-n">3,807</div><div class="kpi-l">Guests</div></div>
     </div>
-
-    <!-- Search inside hero bottom -->
-    <div class="search-bar-wrap">
+    <!-- search ledge merges with hero bottom -->
+    <div class="search-ledge">
       <div class="search-bar">
         <i class="fas fa-magnifying-glass"></i>
-        <input type="search" id="searchInput" placeholder="Search decks, venues, or amenities…" autocomplete="off">
-        <span class="search-count" id="searchCount">14 decks</span>
+        <input id="search" type="search" placeholder="Search decks, venues, amenities… (press /)" autocomplete="off" aria-label="Search decks">
+        <span class="search-ct" id="ct">14 decks</span>
       </div>
     </div>
   </div>
-
-  <svg class="hero-waves" viewBox="0 0 1440 60" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0 30 C 200 50, 400 10, 720 30 S 1100 55, 1440 25 L1440 60 L0 60 Z" fill="#e8f4fd"/>
+  <!-- wave transition -->
+  <svg class="search-wave" viewBox="0 0 1440 28" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;width:100%;height:28px">
+    <path d="M0 14 C360 28 720 0 1440 14 L1440 28 L0 28 Z" fill="#EFF6FB"/>
   </svg>
 </section>
 
-<!-- BODY -->
-<div class="page-body">
+<!-- MAIN -->
 
-  <!-- Filter tabs -->
-  <div class="filter-tabs" id="filterTabs" role="tablist">
-    <button class="ftab active" data-filter="all" role="tab" aria-selected="true">
+<main id="main" class="body">
+  <!-- filters -->
+  <div class="filters" id="filters" role="tablist" aria-label="Filter decks">
+    <button class="ftab active" data-f="all" role="tab" aria-selected="true">
       <i class="fas fa-ship"></i> All Decks
     </button>
-    <button class="ftab" data-filter="entertainment" role="tab">
-      <span class="ftab-dot" style="background:#3b5bdb"></span>
-      Entertainment
+    <button class="ftab" data-f="ent" role="tab" aria-selected="false">
+      <span class="dot" style="background:#3730A3"></span> Entertainment
     </button>
-    <button class="ftab" data-filter="wellness" role="tab">
-      <span class="ftab-dot" style="background:#099268"></span>
-      Wellness
+    <button class="ftab" data-f="wel" role="tab" aria-selected="false">
+      <span class="dot" style="background:#065F46"></span> Wellness
     </button>
-    <button class="ftab" data-filter="essential" role="tab">
-      <span class="ftab-dot" style="background:#d08b00"></span>
-      Staterooms & Services
+    <button class="ftab" data-f="ess" role="tab" aria-selected="false">
+      <span class="dot" style="background:#92400E"></span> Staterooms &amp; Services
     </button>
-    <button class="ftab" data-filter="my-deck" role="tab">
-      <i class="fas fa-star" style="color:var(--gold)"></i>
-      My Deck
+    <button class="ftab" data-f="mine" role="tab" aria-selected="false">
+      <i class="fas fa-star" style="color:var(--gold)"></i> My Deck
     </button>
   </div>
 
-  <!-- Grid header -->
-  <div class="section-header">
-    <h2 class="section-title" id="gridLabel">All decks</h2>
-    <span class="section-count" id="gridCount"></span>
+  <div class="sec-head">
+    <h2 class="sec-title" id="gridLabel">All decks</h2>
+    <span class="sec-ct" id="gridCt"></span>
   </div>
 
-  <!-- Deck grid -->
-  <div class="deck-grid" id="deckGrid" role="list">
-    <!-- Cards injected by JS -->
-    <div class="empty-state" id="emptyState">
-      <div class="empty-icon">🔍</div>
-      <div class="empty-title">No decks found</div>
-      <div class="empty-sub">Try a different search or filter</div>
+  <div class="deck-grid" id="grid" role="list">
+    <div class="empty" id="empty">
+      <div class="empty-ico">🔍</div>
+      <div class="empty-t">No decks match</div>
+      <div class="empty-s">Try a different search or filter</div>
       <button class="btn-reset" id="resetBtn"><i class="fas fa-rotate-left"></i> Reset</button>
     </div>
   </div>
-</div>
+</main>
 
-<!-- DECK SPINE NAV -->
-<div class="deck-spine-wrap" id="deckSpine"></div>
+<!-- SPINE -->
+
+<nav class="spine" id="spine" aria-label="Jump to deck"></nav>
 
 <!-- MODAL -->
-<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-label="Deck detail">
+
+<div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-label="Deck plan viewer">
   <div class="modal" id="modal">
-
-    <!-- Modal header -->
-    <div class="modal-header">
-      <div class="modal-deck-badge" id="modalBadge"></div>
-      <div class="modal-header-text">
-        <div class="modal-title" id="modalTitle"></div>
-        <div class="modal-subtitle" id="modalSubtitle"></div>
-        <div class="modal-desc" id="modalDesc"></div>
+    <div class="modal-hdr">
+      <div class="modal-num" id="mNum"></div>
+      <div class="modal-txt">
+        <div class="modal-name" id="mName"></div>
+        <div class="modal-sub" id="mSub"></div>
+        <div class="modal-desc" id="mDesc"></div>
       </div>
-      <button class="modal-close" id="modalClose" aria-label="Close"><i class="fas fa-times"></i></button>
+      <button class="modal-close" id="mClose" aria-label="Close deck plan"><i class="fas fa-times"></i></button>
     </div>
-
-    <!-- Deck nav strip -->
-    <div class="modal-nav" id="modalNav"></div>
-
-    <!-- Plan area -->
-    <div class="modal-plan-area" id="planArea">
-      <button class="modal-deck-prev" id="prevDeck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
-      <div class="modal-plan-canvas" id="planCanvas">
-        <div class="modal-plan-svg-wrap" id="svgWrap">
-          <div id="planContent"></div>
-        </div>
+    <div class="modal-strip" id="mStrip"></div>
+    <div class="plan-area">
+      <button class="plan-prev" id="planPrev" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
+      <div class="plan-canvas" id="planCanvas">
+        <div class="plan-inner" id="planInner"></div>
       </div>
-      <button class="modal-deck-next" id="nextDeck" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
-      <div class="modal-zoom-bar">
-        <button class="zoom-btn" id="zoomOut" title="Zoom out"><i class="fas fa-minus"></i></button>
-        <span class="zoom-val" id="zoomVal">100%</span>
-        <button class="zoom-btn" id="zoomIn" title="Zoom in"><i class="fas fa-plus"></i></button>
-        <button class="zoom-btn" id="zoomReset" title="Reset"><i class="fas fa-compress"></i></button>
+      <button class="plan-next" id="planNext" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
+      <div class="zoom-bar">
+        <button class="zoom-btn" id="zOut" title="Zoom out"><i class="fas fa-minus"></i></button>
+        <span class="zoom-v" id="zVal">100%</span>
+        <button class="zoom-btn" id="zIn" title="Zoom in"><i class="fas fa-plus"></i></button>
+        <button class="zoom-btn" id="zReset" title="Reset zoom"><i class="fas fa-compress"></i></button>
       </div>
     </div>
-
-    <!-- Highlights -->
-    <div class="modal-highlights" id="modalHighlights"></div>
+    <div class="modal-foot" id="mFoot"></div>
   </div>
 </div>
 
 <script>
 (function(){
-  // ── DATA ──
-  const MY_DECK = 6;
-  const MY_ROOM = '6650';
+'use strict';
 
-  const decks = [
-    {
-      n: 15, name: 'Deck 15', sub: 'Sports & Observation', cat: 'wellness',
-      desc: 'Rock climbing wall, jogging track, mini-golf, and open-air sports courts with panoramic ocean views.',
-      highlights: ['Rock Climbing', 'Jogging Track', 'Mini-Golf', 'Ocean Views'],
-      icons: ['fa-person-climbing','fa-person-running','fa-flag','fa-binoculars']
-    },
-    {
-      n: 14, name: 'Deck 14', sub: 'Sky Deck', cat: 'entertainment',
-      desc: 'Viking Crown Lounge for 360° panoramas, sky bar, and quiet observation areas fore and aft.',
-      highlights: ['Viking Crown Lounge', 'Sky Bar', 'Observation Decks'],
-      icons: ['fa-martini-glass','fa-glass-water','fa-binoculars']
-    },
-    {
-      n: 13, name: 'Deck 13', sub: 'Adventure Zone', cat: 'entertainment',
-      desc: 'FlowRider surf simulator, Adventure Ocean kids club, and access to sky deck activities.',
-      highlights: ['FlowRider', 'Adventure Ocean', 'Sky Deck Access'],
-      icons: ['fa-water','fa-child-reaching','fa-stairs']
-    },
-    {
-      n: 12, name: 'Deck 12', sub: 'Pool Deck', cat: 'wellness',
-      desc: 'Main outdoor pool with live music, adults-only Solarium indoor pool, Windjammer buffet, and Pool Bar.',
-      highlights: ['Main Pool', 'Solarium', 'Windjammer Café', 'Pool Bar'],
-      icons: ['fa-person-swimming','fa-spa','fa-utensils','fa-beer-mug-empty']
-    },
-    {
-      n: 11, name: 'Deck 11', sub: 'Fitness & Spa', cat: 'wellness',
-      desc: 'Vitality Spa with thermal suite, panoramic fitness center, salon, and juice bar.',
-      highlights: ['Vitality Spa', 'Fitness Center', 'Salon', 'Juice Bar'],
-      icons: ['fa-spa','fa-dumbbell','fa-scissors','fa-blender']
-    },
-    {
-      n: 10, name: 'Deck 10', sub: 'Stateroom Corridor', cat: 'essential',
-      desc: 'Premium staterooms with aft balconies. Elevator lobby C/D provides fastest access to dining decks.',
-      highlights: ['Premium Staterooms', 'Aft Balconies', 'Elevator Lobby C/D'],
-      icons: ['fa-bed','fa-door-open','fa-elevator']
-    },
-    {
-      n: 9, name: 'Deck 9', sub: 'Midship Cabins', cat: 'essential',
-      desc: 'Family-friendly staterooms centrally located for easy access to all amenities above and below.',
-      highlights: ['Family Staterooms', 'Midship Location', 'Balcony Cabins'],
-      icons: ['fa-bed','fa-family','fa-door-open']
-    },
-    {
-      n: 8, name: 'Deck 8', sub: 'Stateroom Access', cat: 'essential',
-      desc: 'Interior and oceanview staterooms. Convenient stairwell access fore and aft.',
-      highlights: ['Interior Cabins', 'Oceanview Cabins', 'Aft Stairwell'],
-      icons: ['fa-bed','fa-eye','fa-stairs']
-    },
-    {
-      n: 7, name: 'Deck 7', sub: 'Cabin Transit', cat: 'essential',
-      desc: 'Quiet corridor of staterooms. Elevator stacks C and D. Best midship route between dining and activities.',
-      highlights: ['Staterooms', 'Elevator C & D', 'Quiet Corridor'],
-      icons: ['fa-bed','fa-elevator','fa-route']
-    },
-    {
-      n: 6, name: 'Deck 6', sub: 'Stateroom Ring', cat: 'essential',
-      desc: 'Your home deck. Room 6650 sits near the aft — quieter, with gentle wake views. Midship elevators take you anywhere in under 2 minutes.',
-      highlights: ['Room 6650 (Aft)', 'Midship Elevators', 'Wake Views', 'Quiet Zone'],
-      icons: ['fa-star','fa-elevator','fa-water','fa-volume-xmark'],
-      isMyDeck: true
-    },
-    {
-      n: 5, name: 'Deck 5', sub: 'Promenade Level', cat: 'entertainment',
-      desc: 'Royal Promenade — the ship\'s main street. Café Promenade (24h), Ben & Jerry\'s, parades, shops, and guest services.',
-      highlights: ['Café Promenade 24h', 'Guest Services', 'Shops', 'Promenade Parades'],
-      icons: ['fa-coffee','fa-concierge-bell','fa-bag-shopping','fa-masks-theater']
-    },
-    {
-      n: 4, name: 'Deck 4', sub: 'Dining & Entertainment', cat: 'entertainment',
-      desc: 'Main dining room (lower), Studio B ice rink, Royal Theater (upper level), and Casino Royale.',
-      highlights: ['Main Dining Room', 'Studio B Ice Rink', 'Royal Theater', 'Casino Royale'],
-      icons: ['fa-utensils','fa-snowflake','fa-masks-theater','fa-dice']
-    },
-    {
-      n: 3, name: 'Deck 3', sub: 'Lobby & Guest Services', cat: 'essential',
-      desc: 'Grand lobby atrium, shore excursions desk, Crown & Anchor, Boleros Latin bar, and Champagne Bar.',
-      highlights: ['Grand Lobby', 'Shore Excursions', 'Champagne Bar', 'Boleros Bar'],
-      icons: ['fa-hotel','fa-map-location-dot','fa-champagne-glasses','fa-music']
-    },
-    {
-      n: 2, name: 'Deck 2', sub: 'Medical & Embarkation', cat: 'essential',
-      desc: 'Medical center, embarkation/disembarkation gangway, and crew support areas.',
-      highlights: ['Medical Center', 'Gangway', 'Crew Services'],
-      icons: ['fa-kit-medical','fa-door-open','fa-id-card']
-    }
-  ];
+// ── DECK DATA ──────────────────────────────────────────────────────────────
+// svg: the actual file path used in the plan viewer
+// pdf: path to PDF if it exists (from the GitHub listing: deck-02.pdf, deck-05.pdf etc.)
+// thumb: category used for the card thumbnail colour scheme
+const DECKS = [
+  {
+    n:15, name:'Deck 15', sub:'Sports & Observation', cat:'wel',
+    svg:'decks/deck-15-final.min.svg',
+    pdf:'decks/deck-15.pdf',
+    img:'decks/deck-15.png',
+    desc:'Rock climbing wall, jogging track, mini-golf and open-air sports courts with panoramic ocean views.',
+    tags:['Rock Climbing','Jogging Track','Mini-Golf','Ocean Views'],
+    icons:['fa-person-climbing','fa-person-running','fa-flag','fa-binoculars'],
+  },
+  {
+    n:14, name:'Deck 14', sub:'Sky Deck', cat:'ent',
+    svg:'decks/deck-14-final.min.svg',
+    pdf:'decks/deck-14.pdf',
+    img:'decks/deck-14.png',
+    desc:'Viking Crown Lounge for 360° panoramas, sky bar and quiet observation terraces.',
+    tags:['Viking Crown','Sky Bar','Observation Deck'],
+    icons:['fa-martini-glass','fa-glass-water','fa-binoculars'],
+  },
+  {
+    n:13, name:'Deck 13', sub:'Adventure Zone', cat:'ent',
+    svg:'decks/deck-13-final.min.svg',
+    pdf:'decks/deck-13.pdf',
+    img:'decks/deck-13.png',
+    desc:'FlowRider surf simulator, Adventure Ocean kids club and rock climbing wall access.',
+    tags:['FlowRider','Adventure Ocean','Climbing Wall'],
+    icons:['fa-water','fa-child-reaching','fa-mountain'],
+  },
+  {
+    n:12, name:'Deck 12', sub:'Pool Deck', cat:'wel',
+    svg:'decks/deck-12-final.min.svg',
+    pdf:'decks/deck-12.pdf',
+    img:'decks/deck-12.png',
+    desc:'Main outdoor pool with live music, adults-only Solarium indoor pool, Windjammer buffet and Pool Bar.',
+    tags:['Main Pool','Solarium','Windjammer Café','Pool Bar'],
+    icons:['fa-person-swimming','fa-spa','fa-utensils','fa-beer-mug-empty'],
+  },
+  {
+    n:11, name:'Deck 11', sub:'Fitness & Spa', cat:'wel',
+    svg:'decks/deck-11-final.min.svg',
+    pdf:'decks/deck-11.pdf',
+    img:'decks/deck-11.png',
+    desc:'Vitality Spa with thermal suite and massages, panoramic fitness centre, salon and juice bar.',
+    tags:['Vitality Spa','Fitness Centre','Salon','Juice Bar'],
+    icons:['fa-spa','fa-dumbbell','fa-scissors','fa-blender'],
+  },
+  {
+    n:10, name:'Deck 10', sub:'Stateroom Corridor', cat:'ess',
+    svg:'decks/deck-10-final.min.svg',
+    pdf:'decks/deck-10.pdf',
+    img:'decks/deck-10.png',
+    desc:'Premium staterooms with aft balconies. Elevator lobby C/D is the fastest route to dining decks.',
+    tags:['Premium Cabins','Aft Balconies','Elevator C/D'],
+    icons:['fa-bed','fa-door-open','fa-elevator'],
+  },
+  {
+    n:9, name:'Deck 9', sub:'Midship Cabins', cat:'ess',
+    svg:'decks/deck-09-final.min.svg',
+    pdf:'decks/deck-09.pdf',
+    img:'decks/deck-09.png',
+    desc:'Family-friendly staterooms in the centre of the ship — easiest access to activities above and dining below.',
+    tags:['Family Staterooms','Midship','Balcony Cabins'],
+    icons:['fa-bed','fa-family','fa-door-open'],
+  },
+  {
+    n:8, name:'Deck 8', sub:'Stateroom Access', cat:'ess',
+    svg:'decks/deck-08-final.min.svg',
+    pdf:'decks/deck-08.pdf',
+    img:'decks/deck-08.png',
+    desc:'Interior and oceanview staterooms. Aft stairwell provides a quiet route to entertainment decks.',
+    tags:['Interior Cabins','Oceanview Cabins','Aft Stairwell'],
+    icons:['fa-bed','fa-eye','fa-stairs'],
+  },
+  {
+    n:7, name:'Deck 7', sub:'Cabin Transit', cat:'ess',
+    svg:'decks/deck-07-final.min.svg',
+    pdf:'decks/deck-07.pdf',
+    img:'decks/deck-07.png',
+    desc:'Quiet stateroom corridor. Elevator stacks C and D here — fastest midship route between dining and upper activities.',
+    tags:['Staterooms','Elevator C & D','Quiet Corridor'],
+    icons:['fa-bed','fa-elevator','fa-route'],
+  },
+  {
+    n:6, name:'Deck 6', sub:'Stateroom Ring', cat:'ess',
+    svg:'decks/deck-06-final.min.svg',
+    pdf:'decks/deck-06.pdf',
+    img:'decks/deck-06.png',
+    desc:'Your home deck. Room 6650 sits near the aft — quieter, with wake views. Midship elevators reach anywhere in 90 seconds.',
+    tags:['Room 6650 (Aft)','Midship Elevators','Wake Views','Quiet Zone'],
+    icons:['fa-star','fa-elevator','fa-water','fa-volume-xmark'],
+    isMyDeck:true,
+  },
+  {
+    n:5, name:'Deck 5', sub:'Promenade Level', cat:'ent',
+    svg:'decks/deck-05-final.min.svg',
+    pdf:'decks/deck-05.pdf',
+    img:'decks/deck-05.png',
+    desc:'Royal Promenade — the ship\'s main street. Café Promenade (24 h), Ben & Jerry\'s, shops, parades and Guest Services.',
+    tags:['Café Promenade 24h','Guest Services','Shops','Parades'],
+    icons:['fa-mug-hot','fa-concierge-bell','fa-bag-shopping','fa-masks-theater'],
+  },
+  {
+    n:4, name:'Deck 4', sub:'Dining & Entertainment', cat:'ent',
+    svg:'decks/deck-04-final.min.svg',
+    pdf:'decks/deck-04.pdf',
+    img:'decks/deck-04.png',
+    desc:'Main Dining Room (lower level), Studio B ice rink, Royal Theater upper level and Casino Royale.',
+    tags:['Main Dining','Studio B','Royal Theater','Casino Royale'],
+    icons:['fa-utensils','fa-snowflake','fa-masks-theater','fa-dice'],
+  },
+  {
+    n:3, name:'Deck 3', sub:'Lobby & Guest Services', cat:'ess',
+    svg:'decks/deck-03-final.min.svg',
+    pdf:'decks/deck-03.pdf',
+    img:'decks/deck-03.png',
+    desc:'Grand atrium lobby, Shore Excursions desk, Crown & Anchor lounge, Boleros and Champagne Bar.',
+    tags:['Grand Lobby','Shore Excursions','Champagne Bar','Boleros'],
+    icons:['fa-hotel','fa-map-location-dot','fa-champagne-glasses','fa-music'],
+  },
+  {
+    n:2, name:'Deck 2', sub:'Medical & Embarkation', cat:'ess',
+    svg:'decks/deck-02-final.min.svg',
+    pdf:'decks/deck-02.pdf',
+    img:'decks/deck-02.png',
+    desc:'Medical centre, embarkation and disembarkation gangway, and crew support facilities.',
+    tags:['Medical Centre','Gangway','Crew Services'],
+    icons:['fa-kit-medical','fa-door-open','fa-id-card'],
+  },
+];
 
-  // Sort by deck number desc
-  decks.sort((a,b) => b.n - a.n);
+const MY_DECK = 6;
+const catLabel = {all:'All decks',ent:'Entertainment',wel:'Wellness',ess:'Staterooms & Services',mine:'My Deck'};
 
-  // ── STATE ──
-  let activeFilter = 'all';
-  let searchTerm = '';
-  let currentDeck = null;
-  let zoom = 1;
+// ── STATE ────────────────────────────────────────────────────────────────
+let activeFilter = 'all';
+let query = '';
+let current = null; // deck object currently open
+let zoom = 1;
+let isDragging = false, dragX = 0, dragY = 0, scrollLeft = 0, scrollTop = 0;
 
-  // ── ELEMENTS ──
-  const grid = document.getElementById('deckGrid');
-  const emptyState = document.getElementById('emptyState');
-  const searchInput = document.getElementById('searchInput');
-  const searchCount = document.getElementById('searchCount');
-  const gridLabel = document.getElementById('gridLabel');
-  const gridCount = document.getElementById('gridCount');
-  const filterTabs = document.getElementById('filterTabs');
-  const backdrop = document.getElementById('modalBackdrop');
-  const modal = document.getElementById('modal');
-  const modalBadge = document.getElementById('modalBadge');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalSubtitle = document.getElementById('modalSubtitle');
-  const modalDesc = document.getElementById('modalDesc');
-  const modalNav = document.getElementById('modalNav');
-  const planContent = document.getElementById('planContent');
-  const modalHighlights = document.getElementById('modalHighlights');
-  const modalClose = document.getElementById('modalClose');
-  const prevBtn = document.getElementById('prevDeck');
-  const nextBtn = document.getElementById('nextDeck');
-  const zoomIn = document.getElementById('zoomIn');
-  const zoomOut = document.getElementById('zoomOut');
-  const zoomReset = document.getElementById('zoomReset');
-  const zoomVal = document.getElementById('zoomVal');
-  const svgWrap = document.getElementById('svgWrap');
-  const spine = document.getElementById('deckSpine');
-  const resetBtn = document.getElementById('resetBtn');
+// ── DOM ──────────────────────────────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const qs = sel => document.querySelector(sel);
 
-  // ── PLAN SVG GENERATOR ──
-  function generateDeckPlan(deck) {
-    const n = deck.n;
-    const W = 720, H = 200;
+const searchEl  = $('search');
+const ctEl      = $('ct');
+const gridEl    = $('grid');
+const emptyEl   = $('empty');
+const filterBar = $('filters');
+const gridLabel = $('gridLabel');
+const gridCt    = $('gridCt');
+const spineEl   = $('spine');
+const resetBtn  = $('resetBtn');
 
-    // Bow taper: ship is narrower at ends
-    const bowX = 60;
-    const sternX = W - 40;
+const backdrop  = $('backdrop');
+const mNum      = $('mNum');
+const mName     = $('mName');
+const mSub      = $('mSub');
+const mDesc     = $('mDesc');
+const mClose    = $('mClose');
+const mStrip    = $('mStrip');
+const planCanvas= $('planCanvas');
+const planInner = $('planInner');
+const mFoot     = $('mFoot');
+const planPrev  = $('planPrev');
+const planNext  = $('planNext');
+const zIn       = $('zIn');
+const zOut      = $('zOut');
+const zReset    = $('zReset');
+const zVal      = $('zVal');
 
-    // Hull outline path (simplified ship profile)
-    const hullPath = `M ${bowX} ${H*0.15}
-      Q ${bowX*0.4} ${H*0.5} ${bowX} ${H*0.85}
-      L ${sternX} ${H*0.92}
-      Q ${W*0.98} ${H*0.5} ${sternX} ${H*0.08}
-      Z`;
+// ── FILTER / SEARCH ───────────────────────────────────────────────────────
+function filtered() {
+  return DECKS.filter(d => {
+    const fOk = activeFilter === 'all'
+      || (activeFilter === 'mine' && d.isMyDeck)
+      || d.cat === activeFilter;
+    const q = query.trim().toLowerCase();
+    const tOk = !q || d.name.toLowerCase().includes(q)
+      || d.sub.toLowerCase().includes(q)
+      || d.tags.join(' ').toLowerCase().includes(q)
+      || d.desc.toLowerCase().includes(q);
+    return fOk && tOk;
+  });
+}
 
-    let rooms = '';
-    let labels = '';
-    let specials = '';
+// ── THUMB SVG ─────────────────────────────────────────────────────────────
+const THUMBS = {
+  ent:['#EEF2FF','#3730A3'],
+  wel:['#ECFDF5','#065F46'],
+  ess:['#FFFBEB','#92400E'],
+};
+const DECK_ICONS = {15:'🏃',14:'🍸',13:'🏄',12:'🏊',11:'🧖',10:'🛏️',9:'🛏️',8:'🛏️',7:'🛏️',6:'⭐',5:'🎭',4:'🎲',3:'🛎️',2:'🏥'};
+function thumb(d) {
+  const [bg, ac] = THUMBS[d.cat] || THUMBS.ess;
+  const em = DECK_ICONS[d.n] || '🚢';
+  return `<svg viewBox="0 0 280 84" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="280" height="84" fill="${bg}"/>
+    <!-- ship silhouette lanes -->
+    <rect x="12" y="28" width="256" height="30" rx="6" fill="${ac}" opacity=".10"/>
+    ${[12,60,104,148,192,236].map(x=>`<rect x="${x}" y="30" width="36" height="26" rx="4" fill="${ac}" opacity=".18"/>`).join('')}
+    <!-- corridor -->
+    <rect x="12" y="40" width="256" height="6" rx="2" fill="${ac}" opacity=".22"/>
+    <!-- emoji -->
+    <text x="140" y="50" text-anchor="middle" dominant-baseline="middle" font-size="22" opacity=".55">${em}</text>
+    <!-- deck number watermark -->
+    <text x="14" y="74" font-size="40" font-weight="900" fill="${ac}" opacity=".07" font-family="system-ui" letter-spacing="-2">${d.n}</text>
+  </svg>`;
+}
 
-    // Helper: row of cabins
-    function cabinRow(y, h, count, startX, endX, cls, prefix) {
-      const avail = endX - startX;
-      const cw = avail / count;
-      for (let i = 0; i < count; i++) {
-        const cx = startX + i * cw;
-        rooms += `<rect x="${cx+0.5}" y="${y+0.5}" width="${cw-1}" height="${h-1}" class="ship-room ${cls}" rx="1"/>`;
-        if (i % 3 === 1 && prefix) {
-          const rn = prefix + String(Math.floor(startX/10)*10 + i*2 + 2).padStart(2,'0');
-          labels += `<text x="${cx + cw/2}" y="${y + h*0.65}" text-anchor="middle" class="ship-label-sm">${rn}</text>`;
-        }
-      }
-    }
+// ── RENDER CARDS ──────────────────────────────────────────────────────────
+function renderCards() {
+  // remove existing cards (not the empty state)
+  gridEl.querySelectorAll('.card').forEach(el => el.remove());
 
-    // Shared structure: corridor + stairs + elevators
-    const corrY = H * 0.47, corrH = H * 0.08;
-    rooms += `<rect x="${bowX+2}" y="${corrY}" width="${sternX-bowX-4}" height="${corrH}" class="ship-corridor"/>`;
+  const list = filtered();
+  ctEl.textContent = `${list.length} deck${list.length !== 1 ? 's' : ''}`;
+  ctEl.className = `search-ct${list.length ? ' has-results' : ''}`;
+  gridLabel.textContent = catLabel[activeFilter] || 'Decks';
+  gridCt.textContent = `${list.length} shown`;
 
-    // Elevator positions
-    const elevPos = [W*0.3, W*0.5, W*0.7];
-    elevPos.forEach(ex => {
-      rooms += `<rect x="${ex-7}" y="${corrY-9}" width="14" height="${corrH+18}" class="ship-elevator" rx="2"/>`;
-      labels += `<text x="${ex}" y="${corrY+corrH/2+1.5}" text-anchor="middle" class="ship-label-sm">EL</text>`;
-    });
+  if (!list.length) { emptyEl.classList.add('show'); return; }
+  emptyEl.classList.remove('show');
 
-    // Stairwells
-    [W*0.22, W*0.8].forEach(sx => {
-      rooms += `<rect x="${sx-8}" y="${corrY-8}" width="16" height="${corrH+16}" class="ship-stairwell" rx="2"/>`;
-      labels += `<text x="${sx}" y="${corrY+corrH/2+1.5}" text-anchor="middle" class="ship-label-sm">ST</text>`;
-    });
+  list.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = `card ${d.cat}${d.isMyDeck ? ' my-deck' : ''}`;
+    el.setAttribute('role','listitem');
+    el.setAttribute('tabindex','0');
+    el.setAttribute('aria-label',`Open ${d.name}: ${d.sub}`);
+    el.style.animationDelay = `${i * 35}ms`;
 
-    if ([6,7,8,9,10].includes(n)) {
-      // Stateroom decks – port & starboard rows
-      const portY = corrY - H*0.28, portH = H*0.22;
-      const stbdY = corrY + corrH + H*0.06, stbdH = H*0.22;
-
-      const isMyDeck = n === 6;
-      const myRoomIndex = 10; // aft-ish position
-
-      for (let i = 0; i < 18; i++) {
-        const cx = bowX + 20 + i * ((sternX - bowX - 40) / 18);
-        const cw = (sternX - bowX - 40) / 18 - 1.5;
-        const isMyRoom = isMyDeck && i === myRoomIndex;
-        rooms += `<rect x="${cx}" y="${portY}" width="${cw}" height="${portH}" class="${isMyRoom ? 'ship-my-room' : 'ship-room'}" rx="1.5"/>`;
-        rooms += `<rect x="${cx}" y="${stbdY}" width="${cw}" height="${stbdH}" class="ship-room" rx="1.5"/>`;
-        if (isMyRoom) {
-          labels += `<text x="${cx + cw/2}" y="${portY + portH*0.65}" text-anchor="middle" class="ship-label" style="font-size:4.5px;fill:#b45309">${MY_ROOM}</text>`;
-          labels += `<text x="${cx + cw/2}" y="${portY + portH*1.1}" text-anchor="middle" class="ship-label-sm" style="fill:#b45309">★</text>`;
-        }
-      }
-      labels += `<text x="${W*0.5}" y="${portY - 4}" text-anchor="middle" class="ship-label">PORT</text>`;
-      labels += `<text x="${W*0.5}" y="${stbdY + stbdH + 10}" text-anchor="middle" class="ship-label">STARBOARD</text>`;
-
-    } else if (n === 12) {
-      // Pool deck
-      specials += `<rect x="${W*0.3}" y="${H*0.12}" width="${W*0.22}" height="${H*0.34}" class="ship-pool" rx="6"/>`;
-      labels += `<text x="${W*0.41}" y="${H*0.32}" text-anchor="middle" class="ship-label">MAIN POOL</text>`;
-      specials += `<rect x="${W*0.62}" y="${H*0.12}" width="${W*0.18}" height="${H*0.30}" class="ship-pool" rx="5" style="fill:#bae6fd"/>`;
-      labels += `<text x="${W*0.71}" y="${H*0.30}" text-anchor="middle" class="ship-label">SOLARIUM</text>`;
-      specials += `<rect x="${W*0.08}" y="${H*0.58}" width="${W*0.20}" height="${H*0.30}" class="ship-special" rx="4"/>`;
-      labels += `<text x="${W*0.18}" y="${H*0.76}" text-anchor="middle" class="ship-label">WINDJAMMER</text>`;
-      specials += `<rect x="${W*0.84}" y="${H*0.14}" width="${W*0.10}" height="${H*0.72}" class="ship-special" rx="4" style="fill:#fde68a"/>`;
-      labels += `<text x="${W*0.89}" y="${H*0.52}" text-anchor="middle" class="ship-label" style="writing-mode:vertical-rl;font-size:4px">POOL BAR</text>`;
-
-    } else if (n === 11) {
-      specials += `<rect x="${W*0.55}" y="${H*0.12}" width="${W*0.30}" height="${H*0.36}" class="ship-special" rx="5" style="fill:#fce7f3;stroke:#db2777"/>`;
-      labels += `<text x="${W*0.70}" y="${H*0.33}" text-anchor="middle" class="ship-label" style="fill:#9d174d">VITALITY SPA</text>`;
-      specials += `<rect x="${W*0.18}" y="${H*0.12}" width="${W*0.28}" height="${H*0.36}" class="ship-special" rx="5" style="fill:#f0fdf4;stroke:#16a34a"/>`;
-      labels += `<text x="${W*0.32}" y="${H*0.33}" text-anchor="middle" class="ship-label" style="fill:#15803d">FITNESS CTR</text>`;
-      specials += `<rect x="${W*0.55}" y="${H*0.57}" width="${W*0.18}" height="${H*0.28}" class="ship-room" rx="4" style="fill:#ffe4e6"/>`;
-      labels += `<text x="${W*0.64}" y="${H*0.74}" text-anchor="middle" class="ship-label-sm">SALON</text>`;
-
-    } else if (n === 5) {
-      // Promenade
-      specials += `<rect x="${W*0.12}" y="${H*0.35}" width="${W*0.76}" height="${H*0.30}" class="ship-room" rx="3" style="fill:#fef3c7;stroke:#d97706"/>`;
-      labels += `<text x="${W*0.5}" y="${H*0.54}" text-anchor="middle" class="ship-label" style="fill:#92400e">ROYAL PROMENADE</text>`;
-      specials += `<rect x="${W*0.08}" y="${H*0.12}" width="${W*0.14}" height="${H*0.22}" class="ship-special" rx="3"/>`;
-      labels += `<text x="${W*0.15}" y="${H*0.25}" text-anchor="middle" class="ship-label-sm">CAFE 24H</text>`;
-      specials += `<rect x="${W*0.82}" y="${H*0.12}" width="${W*0.10}" height="${H*0.22}" class="ship-special" rx="3" style="fill:#ede9fe;stroke:#7c3aed"/>`;
-      labels += `<text x="${W*0.87}" y="${H*0.25}" text-anchor="middle" class="ship-label-sm">SHOPS</text>`;
-
-    } else if (n === 4) {
-      specials += `<rect x="${W*0.08}" y="${H*0.10}" width="${W*0.32}" height="${H*0.80}" class="ship-special" rx="5" style="fill:#fef9c3;stroke:#ca8a04"/>`;
-      labels += `<text x="${W*0.24}" y="${H*0.54}" text-anchor="middle" class="ship-label">MAIN DINING</text>`;
-      specials += `<rect x="${W*0.46}" y="${H*0.10}" width="${W*0.28}" height="${H*0.45}" class="ship-special" rx="5" style="fill:#e0f2fe;stroke:#0284c7"/>`;
-      labels += `<text x="${W*0.60}" y="${H*0.35}" text-anchor="middle" class="ship-label">STUDIO B</text>`;
-      specials += `<rect x="${W*0.78}" y="${H*0.10}" width="${W*0.14}" height="${H*0.78}" class="ship-special" rx="4" style="fill:#fce7f3;stroke:#db2777"/>`;
-      labels += `<text x="${W*0.85}" y="${H*0.52}" text-anchor="middle" class="ship-label-sm">CASINO</text>`;
-
-    } else if (n === 3) {
-      specials += `<rect x="${W*0.35}" y="${H*0.08}" width="${W*0.30}" height="${H*0.84}" class="ship-special" rx="8" style="fill:#fef3c7;stroke:#d97706"/>`;
-      labels += `<text x="${W*0.50}" y="${H*0.54}" text-anchor="middle" class="ship-label">GRAND LOBBY</text>`;
-      specials += `<rect x="${W*0.72}" y="${H*0.12}" width="${W*0.16}" height="${H*0.36}" class="ship-special" rx="4" style="fill:#ede9fe;stroke:#7c3aed"/>`;
-      labels += `<text x="${W*0.80}" y="${H*0.32}" text-anchor="middle" class="ship-label-sm">SHORE EXC</text>`;
-      specials += `<rect x="${W*0.10}" y="${H*0.12}" width="${W*0.18}" height="${H*0.36}" class="ship-special" rx="4" style="fill:#f0fdf4;stroke:#16a34a"/>`;
-      labels += `<text x="${W*0.19}" y="${H*0.32}" text-anchor="middle" class="ship-label-sm">CHAMPAGNE</text>`;
-
-    } else if (n === 13) {
-      specials += `<rect x="${W*0.35}" y="${H*0.08}" width="${W*0.30}" height="${H*0.84}" class="ship-pool" rx="6" style="fill:#67e8f9;stroke:#0891b2"/>`;
-      labels += `<text x="${W*0.50}" y="${H*0.54}" text-anchor="middle" class="ship-label">FLOWRIDER</text>`;
-      specials += `<rect x="${W*0.08}" y="${H*0.12}" width="${W*0.22}" height="${H*0.76}" class="ship-special" rx="5" style="fill:#fce7f3;stroke:#db2777"/>`;
-      labels += `<text x="${W*0.19}" y="${H*0.54}" text-anchor="middle" class="ship-label-sm">ADV OCEAN</text>`;
-
-    } else if (n === 14) {
-      specials += `<rect x="${W*0.20}" y="${H*0.08}" width="${W*0.60}" height="${H*0.84}" class="ship-special" rx="8" style="fill:#e0e7ff;stroke:#4338ca"/>`;
-      labels += `<text x="${W*0.50}" y="${H*0.52}" text-anchor="middle" class="ship-label">VIKING CROWN LOUNGE</text>`;
-
-    } else if (n === 15) {
-      // Sports deck - track around perimeter
-      specials += `<rect x="${bowX+8}" y="${H*0.08}" width="${sternX-bowX-16}" height="${H*0.84}" class="ship-room" rx="10" style="fill:#f0fdf4;stroke:#16a34a;stroke-width:4;fill-opacity:0.4"/>`;
-      specials += `<rect x="${bowX+24}" y="${H*0.22}" width="${sternX-bowX-48}" height="${H*0.56}" class="ship-room" rx="6" style="fill:#f0fdf4;stroke:#16a34a"/>`;
-      labels += `<text x="${W*0.50}" y="${H*0.54}" text-anchor="middle" class="ship-label">SPORTS COURT</text>`;
-      labels += `<text x="${W*0.50}" y="${H*0.16}" text-anchor="middle" class="ship-label-sm">JOGGING TRACK</text>`;
-
-    } else if (n === 2) {
-      specials += `<rect x="${W*0.08}" y="${H*0.12}" width="${W*0.22}" height="${H*0.70}" class="ship-special" rx="5" style="fill:#fee2e2;stroke:#dc2626"/>`;
-      labels += `<text x="${W*0.19}" y="${H*0.50}" text-anchor="middle" class="ship-label" style="fill:#991b1b">MEDICAL</text>`;
-      specials += `<rect x="${W*0.72}" y="${H*0.12}" width="${W*0.20}" height="${H*0.70}" class="ship-room" rx="5"/>`;
-      labels += `<text x="${W*0.82}" y="${H*0.50}" text-anchor="middle" class="ship-label-sm">GANGWAY</text>`;
-    }
-
-    // Deck number watermark
-    const watermark = `<text x="${W/2}" y="${H/2+16}" text-anchor="middle" style="font-size:80px;fill:rgba(10,74,124,0.04);font-weight:800;font-family:system-ui">${n}</text>`;
-
-    return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:720px;height:auto;display:block;border-radius:12px;background:white;box-shadow:0 2px 16px rgba(10,74,124,0.08)">
-      ${watermark}
-      <path d="${hullPath}" class="ship-hull"/>
-      ${rooms}
-      ${specials}
-      ${labels}
-      <!-- Bow label -->
-      <text x="${bowX - 8}" y="${H/2 + 4}" text-anchor="end" class="ship-label" style="fill:#6b8299;font-size:6px">BOW</text>
-      <text x="${sternX + 8}" y="${H/2 + 4}" text-anchor="start" class="ship-label" style="fill:#6b8299;font-size:6px">STERN</text>
-      <!-- Deck badge -->
-      <rect x="${W/2 - 20}" y="4" width="40" height="14" rx="7" style="fill:rgba(10,74,124,0.08)"/>
-      <text x="${W/2}" y="14" text-anchor="middle" class="ship-label" style="font-size:5.5px;fill:#0a4a7c;font-weight:800">DECK ${n}</text>
-    </svg>`;
-  }
-
-  // ── RENDER CARDS ──
-  function getFiltered() {
-    return decks.filter(d => {
-      const catMatch = activeFilter === 'all'
-        || (activeFilter === 'my-deck' && d.isMyDeck)
-        || d.cat === activeFilter;
-      const s = searchTerm.toLowerCase().trim();
-      const textMatch = !s || d.name.toLowerCase().includes(s) || d.sub.toLowerCase().includes(s)
-        || d.highlights.join(' ').toLowerCase().includes(s) || d.desc.toLowerCase().includes(s);
-      return catMatch && textMatch;
-    });
-  }
-
-  function renderCards() {
-    const filtered = getFiltered();
-    // Remove old cards
-    grid.querySelectorAll('.deck-card').forEach(el => el.remove());
-
-    searchCount.textContent = `${filtered.length} deck${filtered.length !== 1 ? 's' : ''}`;
-    gridCount.textContent = `${filtered.length} shown`;
-
-    const labels = { all:'All decks', entertainment:'Entertainment', wellness:'Wellness', essential:'Staterooms & Services', 'my-deck':'My Deck' };
-    gridLabel.textContent = labels[activeFilter] || 'Decks';
-
-    if (filtered.length === 0) {
-      emptyState.classList.add('visible');
-      return;
-    }
-    emptyState.classList.remove('visible');
-
-    filtered.forEach((deck, i) => {
-      const card = document.createElement('div');
-      card.className = 'deck-card' + (deck.isMyDeck ? ' is-my-deck' : '');
-      card.setAttribute('role','listitem');
-      card.setAttribute('tabindex','0');
-      card.style.animationDelay = `${i * 40}ms`;
-
-      const h1 = deck.highlights[0] || '', h2 = deck.highlights[1] || '', h3 = deck.highlights[2] || '';
-
-      card.innerHTML = `
-        ${deck.isMyDeck ? '<div class="my-deck-badge">★ My Deck</div>' : ''}
-        <div class="deck-card-header">
-          <div class="deck-card-num cat-${deck.cat}">${deck.n}</div>
-          <div class="deck-card-meta">
-            <div class="deck-card-name">${deck.name}</div>
-            <div class="deck-card-sub">${deck.sub}</div>
-          </div>
-          <div class="deck-card-arrow"><i class="fas fa-arrow-right"></i></div>
+    const t1 = d.tags[0]||'', t2 = d.tags[1]||'', t3 = d.tags[2]||'';
+    el.innerHTML = `
+      ${d.isMyDeck ? '<div class="my-badge">★ My Deck</div>' : ''}
+      <div class="card-top">
+        <div class="card-num">${d.n}</div>
+        <div class="card-meta">
+          <div class="card-name">${d.name}</div>
+          <div class="card-sub">${d.sub}</div>
         </div>
-        <div class="deck-card-plan">
-          <div class="deck-card-plan-placeholder">
-            ${getDeckThumb(deck.n, deck.cat)}
-          </div>
-        </div>
-        <div class="deck-card-footer">
-          ${[h1,h2,h3].filter(Boolean).map(h => `<span class="deck-tag cat-${deck.cat}">${h}</span>`).join('')}
-        </div>
-      `;
-
-      card.addEventListener('click', () => openDeck(deck));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDeck(deck); }});
-      grid.insertBefore(card, emptyState);
-    });
-  }
-
-  function getDeckThumb(n, cat) {
-    // Small inline SVG thumbnail
-    const colors = { entertainment: ['#eef3ff','#3b5bdb'], wellness: ['#e8faf3','#099268'], essential: ['#fff8e6','#d08b00'] };
-    const [bg, ac] = colors[cat] || colors.essential;
-    const icons = { 12:'🏊', 11:'🧖', 5:'🎭', 4:'🎲', 13:'🏄', 14:'🍸', 15:'🏃', 3:'🛎', 6:'⭐', 2:'🏥' };
-    return `<svg viewBox="0 0 120 40" style="width:100%;height:100%">
-      <rect width="120" height="40" fill="${bg}"/>
-      <rect x="8" y="12" width="104" height="16" rx="4" fill="${ac}" opacity="0.15"/>
-      <rect x="8" y="14" width="20" height="12" rx="3" fill="${ac}" opacity="0.3"/>
-      <rect x="32" y="14" width="16" height="12" rx="3" fill="${ac}" opacity="0.2"/>
-      <rect x="52" y="14" width="16" height="12" rx="3" fill="${ac}" opacity="0.2"/>
-      <rect x="72" y="14" width="16" height="12" rx="3" fill="${ac}" opacity="0.2"/>
-      <rect x="92" y="14" width="20" height="12" rx="3" fill="${ac}" opacity="0.3"/>
-      <text x="60" y="24" text-anchor="middle" style="font-size:10px;fill:${ac};opacity:0.6;font-family:system-ui">${icons[n]||'🚢'}</text>
-    </svg>`;
-  }
-
-  // ── SPINE NAV ──
-  function renderSpine() {
-    spine.innerHTML = decks.map(d =>
-      `<button class="spine-btn${d.n === currentDeck?.n ? ' active' : ''}" data-n="${d.n}" title="${d.name}">${d.n}</button>`
-    ).join('');
-    spine.querySelectorAll('.spine-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const deck = decks.find(d => d.n === +btn.dataset.n);
-        if (deck) openDeck(deck);
-      });
-    });
-  }
-
-  // ── MODAL ──
-  function openDeck(deck) {
-    currentDeck = deck;
-    zoom = 1;
-    updateZoom();
-    populateModal(deck);
-    backdrop.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    renderSpine();
-  }
-
-  function closeDeck() {
-    backdrop.classList.remove('open');
-    document.body.style.overflow = '';
-    currentDeck = null;
-    renderSpine();
-  }
-
-  function populateModal(deck) {
-    modalBadge.className = `modal-deck-badge cat-${deck.cat}`;
-    modalBadge.textContent = deck.n;
-    modalTitle.textContent = deck.name;
-    modalSubtitle.textContent = deck.sub;
-    modalDesc.textContent = deck.desc;
-
-    // Plan
-    planContent.innerHTML = generateDeckPlan(deck);
-
-    // Highlights
-    modalHighlights.innerHTML = `
-      <span class="modal-highlights-label">Find</span>
-      ${deck.isMyDeck ? `<span class="my-room-chip"><i class="fas fa-star"></i> Room ${MY_ROOM}</span>` : ''}
-      ${deck.highlights.map((h,i) =>
-        `<button class="highlight-chip"><i class="fas ${deck.icons?.[i]||'fa-circle'} "></i>${h}</button>`
-      ).join('')}
+        <div class="card-arrow"><i class="fas fa-arrow-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="card-thumb">${thumb(d)}</div>
+      <div class="card-tags">
+        ${[t1,t2,t3].filter(Boolean).map(t=>`<span class="tag">${t}</span>`).join('')}
+      </div>
     `;
+    el.addEventListener('click', () => openDeck(d));
+    el.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){e.preventDefault();openDeck(d);} });
+    gridEl.insertBefore(el, emptyEl);
+  });
+}
 
-    // Nav strip
-    modalNav.innerHTML = decks.map(d =>
-      `<button class="modal-nav-btn${d.n === deck.n ? ' active' : ''}" data-n="${d.n}">
-        <span>${d.n}</span><span>${d.sub.split(' ')[0]}</span>
-      </button>`
-    ).join('');
-
-    modalNav.querySelectorAll('.modal-nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const d = decks.find(x => x.n === +btn.dataset.n);
-        if (d) { zoom = 1; updateZoom(); populateModal(d); currentDeck = d; renderSpine(); }
-      });
+// ── SPINE ─────────────────────────────────────────────────────────────────
+function renderSpine() {
+  spineEl.innerHTML = DECKS.map(d =>
+    `<button class="spine-btn${current&&current.n===d.n?' active':''}" data-n="${d.n}" title="${d.name}: ${d.sub}" aria-label="Jump to ${d.name}">${d.n}</button>`
+  ).join('');
+  spineEl.querySelectorAll('.spine-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dk = DECKS.find(d => d.n === +btn.dataset.n);
+      if (dk) openDeck(dk);
     });
+  });
+}
 
-    // Scroll active nav into view
-    setTimeout(() => {
-      const active = modalNav.querySelector('.modal-nav-btn.active');
-      if (active) active.scrollIntoView({ inline: 'center', behavior: 'smooth' });
-    }, 80);
+// ── ZOOM ──────────────────────────────────────────────────────────────────
+function setZoom(v) {
+  zoom = Math.min(3.5, Math.max(0.5, v));
+  planInner.style.transform = `scale(${zoom})`;
+  zVal.textContent = Math.round(zoom*100)+'%';
+}
 
-    // Prev / next
-    const idx = decks.findIndex(d => d.n === deck.n);
-    prevBtn.disabled = idx === 0;
-    nextBtn.disabled = idx === decks.length - 1;
-    prevBtn.style.opacity = idx === 0 ? '0.35' : '1';
-    nextBtn.style.opacity = idx === decks.length - 1 ? '0.35' : '1';
-  }
+// ── PAN (pointer drag) ────────────────────────────────────────────────────
+function initPan() {
+  planCanvas.addEventListener('pointerdown', e => {
+    if (zoom <= 1) return;
+    isDragging = true;
+    planCanvas.classList.add('dragging');
+    dragX = e.clientX; dragY = e.clientY;
+    scrollLeft = planCanvas.scrollLeft;
+    scrollTop  = planCanvas.scrollTop;
+    planCanvas.setPointerCapture(e.pointerId);
+  });
+  planCanvas.addEventListener('pointermove', e => {
+    if (!isDragging) return;
+    planCanvas.scrollLeft = scrollLeft - (e.clientX - dragX);
+    planCanvas.scrollTop  = scrollTop  - (e.clientY - dragY);
+  });
+  planCanvas.addEventListener('pointerup',     () => { isDragging=false; planCanvas.classList.remove('dragging'); });
+  planCanvas.addEventListener('pointercancel', () => { isDragging=false; planCanvas.classList.remove('dragging'); });
+}
 
-  function updateZoom() {
-    svgWrap.style.transform = `scale(${zoom})`;
-    zoomVal.textContent = Math.round(zoom * 100) + '%';
-  }
+// ── LOAD SVG into viewer ──────────────────────────────────────────────────
+function loadPlan(d) {
+  // Show skeleton while loading
+  planInner.innerHTML = '<div class="plan-skeleton"></div>';
+  zoom = 1;
+  planInner.style.transform = 'scale(1)';
+  zVal.textContent = '100%';
 
-  // ── EVENTS ──
-  // Filters
-  filterTabs.addEventListener('click', e => {
-    const btn = e.target.closest('.ftab');
-    if (!btn) return;
-    filterTabs.querySelectorAll('.ftab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected','true');
-    activeFilter = btn.dataset.filter;
-    renderCards();
+  // Try loading the SVG as an <img> (works for external SVG files)
+  // If it 404s we fall back to a deck illustration placeholder
+  const img = new Image();
+  img.alt = d.name + ' deck plan';
+  img.src = d.svg;
+  img.style.cssText = 'max-width:100%;height:auto;border-radius:14px;box-shadow:0 4px 20px rgba(10,46,74,.10);background:#fff;user-select:none;pointer-events:none;display:block';
+
+  img.onload = () => { planInner.innerHTML = ''; planInner.appendChild(img); };
+  img.onerror = () => {
+    // Fallback: try the .png thumbnail, then generated placeholder
+    const fallbackImg = new Image();
+    fallbackImg.alt = d.name;
+    fallbackImg.src = d.img;
+    fallbackImg.style.cssText = img.style.cssText;
+    fallbackImg.onload = () => { planInner.innerHTML = ''; planInner.appendChild(fallbackImg); };
+    fallbackImg.onerror = () => {
+      // Generated SVG placeholder with ship profile
+      planInner.innerHTML = buildFallbackSVG(d);
+    };
+  };
+}
+
+function buildFallbackSVG(d) {
+  const [bg, ac] = THUMBS[d.cat] || THUMBS.ess;
+  return `<div class="plan-placeholder">
+    <div class="deck-big">${d.n}</div>
+    <p style="font-weight:700;font-size:.95rem;color:var(--navy);margin-bottom:4px">${d.name}</p>
+    <p>${d.sub}</p>
+    <p style="margin-top:8px;font-size:.75rem;color:#8aabb8">Plan image loading from <code>decks/deck-${String(d.n).padStart(2,'0')}-final.min.svg</code></p>
+  </div>`;
+}
+
+// ── OPEN / CLOSE MODAL ────────────────────────────────────────────────────
+function openDeck(d) {
+  current = d;
+  setZoom(1);
+
+  // header
+  mNum.textContent = d.n;
+  mNum.className = `modal-num ${d.cat}`;
+  mName.textContent = d.name;
+  mSub.textContent  = d.sub;
+  mDesc.textContent = d.desc;
+
+  // strip nav
+  mStrip.innerHTML = DECKS.map(dk =>
+    `<button class="strip-btn${dk.n===d.n?' active':''}" data-n="${dk.n}" aria-label="${dk.name}">
+       <b>${dk.n}</b><span>${dk.sub.split(' ')[0]}</span>
+     </button>`
+  ).join('');
+  mStrip.querySelectorAll('.strip-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dk = DECKS.find(x => x.n === +btn.dataset.n);
+      if (dk) openDeck(dk);
+    });
+  });
+  // scroll active strip btn into view
+  requestAnimationFrame(() => {
+    const active = mStrip.querySelector('.strip-btn.active');
+    if (active) active.scrollIntoView({inline:'center',behavior:'smooth'});
   });
 
-  // Search
-  searchInput.addEventListener('input', e => {
-    searchTerm = e.target.value;
-    renderCards();
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === '/' && document.activeElement !== searchInput && !backdrop.classList.contains('open')) {
-      e.preventDefault(); searchInput.focus();
-    }
-    if (e.key === 'Escape') closeDeck();
-    if (backdrop.classList.contains('open')) {
-      if (e.key === 'ArrowLeft') { const idx = decks.findIndex(d => d.n === currentDeck?.n); if (idx > 0) openDeck(decks[idx-1]); }
-      if (e.key === 'ArrowRight') { const idx = decks.findIndex(d => d.n === currentDeck?.n); if (idx < decks.length-1) openDeck(decks[idx+1]); }
-    }
-  });
+  // plan
+  loadPlan(d);
 
-  // Modal close
-  modalClose.addEventListener('click', closeDeck);
-  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeDeck(); });
+  // prev / next
+  const idx = DECKS.findIndex(x => x.n === d.n);
+  planPrev.disabled = idx <= 0;
+  planNext.disabled = idx >= DECKS.length - 1;
 
-  // Zoom
-  zoomIn.addEventListener('click', () => { zoom = Math.min(3, zoom + 0.25); updateZoom(); });
-  zoomOut.addEventListener('click', () => { zoom = Math.max(0.5, zoom - 0.25); updateZoom(); });
-  zoomReset.addEventListener('click', () => { zoom = 1; updateZoom(); });
+  // footer chips
+  const roomChip = d.isMyDeck
+    ? `<span class="chip room-chip"><i class="fas fa-star"></i> Room 6650</span>`
+    : '';
+  mFoot.innerHTML = `
+    <span class="foot-lbl">On this deck</span>
+    ${roomChip}
+    ${d.tags.map((t,i)=>`<span class="chip"><i class="fas ${d.icons[i]||'fa-circle'}" aria-hidden="true"></i>${t}</span>`).join('')}
+  `;
 
-  // Prev / next
-  prevBtn.addEventListener('click', () => {
-    const idx = decks.findIndex(d => d.n === currentDeck?.n);
-    if (idx > 0) openDeck(decks[idx - 1]);
-  });
-  nextBtn.addEventListener('click', () => {
-    const idx = decks.findIndex(d => d.n === currentDeck?.n);
-    if (idx < decks.length - 1) openDeck(decks[idx + 1]);
-  });
-
-  // Reset / empty state
-  resetBtn?.addEventListener('click', () => {
-    searchTerm = ''; searchInput.value = ''; activeFilter = 'all';
-    filterTabs.querySelectorAll('.ftab').forEach(b => { b.classList.toggle('active', b.dataset.filter === 'all'); });
-    renderCards();
-  });
-
-  // ── INIT ──
-  renderCards();
+  // open
+  backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  mClose.focus();
   renderSpine();
+}
 
-  // Keyboard shortcut hint
-  setTimeout(() => {
-    if (window.innerWidth > 900) {
-      searchInput.placeholder = 'Search decks, venues…   Press / to focus';
-    }
-  }, 1200);
+function closeDeck() {
+  backdrop.classList.remove('open');
+  document.body.style.overflow = '';
+  current = null;
+  renderSpine();
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────────
+// Filter tabs
+filterBar.addEventListener('click', e => {
+  const btn = e.target.closest('.ftab');
+  if (!btn) return;
+  filterBar.querySelectorAll('.ftab').forEach(b => {
+    b.classList.toggle('active', b===btn);
+    b.setAttribute('aria-selected', b===btn ? 'true':'false');
+  });
+  activeFilter = btn.dataset.f;
+  renderCards();
+});
+
+// Search
+searchEl.addEventListener('input', e => {
+  query = e.target.value;
+  renderCards();
+});
+
+// Global keys
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== searchEl && !backdrop.classList.contains('open')) {
+    e.preventDefault(); searchEl.focus();
+  }
+  if (e.key === 'Escape' && backdrop.classList.contains('open')) closeDeck();
+  if (backdrop.classList.contains('open')) {
+    const idx = DECKS.findIndex(d => d.n === current?.n);
+    if (e.key === 'ArrowLeft'  && idx > 0)              openDeck(DECKS[idx-1]);
+    if (e.key === 'ArrowRight' && idx < DECKS.length-1) openDeck(DECKS[idx+1]);
+  }
+});
+
+// Modal close button & backdrop
+mClose.addEventListener('click', closeDeck);
+backdrop.addEventListener('click', e => { if (e.target === backdrop) closeDeck(); });
+
+// Prev / next arrows
+planPrev.addEventListener('click', () => {
+  const idx = DECKS.findIndex(d => d.n === current?.n);
+  if (idx > 0) openDeck(DECKS[idx-1]);
+});
+planNext.addEventListener('click', () => {
+  const idx = DECKS.findIndex(d => d.n === current?.n);
+  if (idx < DECKS.length-1) openDeck(DECKS[idx+1]);
+});
+
+// Zoom
+zIn.addEventListener('click',    () => setZoom(zoom + 0.25));
+zOut.addEventListener('click',   () => setZoom(zoom - 0.25));
+zReset.addEventListener('click', () => setZoom(1));
+// Pinch-zoom (touch)
+let lastDist = null;
+planCanvas.addEventListener('touchmove', e => {
+  if (e.touches.length !== 2) { lastDist=null; return; }
+  e.preventDefault();
+  const dx = e.touches[0].clientX - e.touches[1].clientX;
+  const dy = e.touches[0].clientY - e.touches[1].clientY;
+  const dist = Math.hypot(dx,dy);
+  if (lastDist !== null) setZoom(zoom * (dist/lastDist));
+  lastDist = dist;
+}, {passive:false});
+planCanvas.addEventListener('touchend', () => { lastDist=null; });
+
+// Reset
+resetBtn.addEventListener('click', () => {
+  query = ''; searchEl.value = '';
+  activeFilter = 'all';
+  filterBar.querySelectorAll('.ftab').forEach(b => {
+    b.classList.toggle('active', b.dataset.f==='all');
+    b.setAttribute('aria-selected', b.dataset.f==='all'?'true':'false');
+  });
+  renderCards();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+initPan();
+renderCards();
+renderSpine();
+
+// Convenience: / shortcut hint after 1.5s on desktop
+setTimeout(() => {
+  if (window.innerWidth > 900 && !searchEl.value) {
+    searchEl.placeholder = 'Search decks, venues, amenities…  (press / to focus)';
+  }
+}, 1500);
 
 })();
 </script>
+
 </body>
 </html>
