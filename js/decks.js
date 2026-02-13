@@ -13,7 +13,8 @@
      CONFIG
   ========================================================= */
 
-  const BASE_PATH = `${window.location.origin}/Cruise/decks/`;
+const BASE_PATH = './decks/';
+
 
   const DECK_NUMBERS = [
     "02","03","04","05","06","07",
