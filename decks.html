@@ -2,88 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0a2e4a">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Deck Explorer · Adventure of the Seas</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
-/* ==========================================
-   CINEMATIC DECK EXPLORER
-   ========================================== */
-
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-  font-family:'Inter',system-ui,sans-serif;
+  font-family:'Inter',system-ui;
   background:#071a2c;
   color:#fff;
   overflow:hidden;
 }
 
-/* Background */
-#ocean{position:fixed;inset:0;z-index:-2}
-.overlay{
-  position:fixed;inset:0;z-index:-1;
-  background:radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.15), transparent 60%),
-             linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,.65));
-}
-
 /* Header */
 header{
   position:fixed;top:0;width:100%;
-  backdrop-filter:blur(14px);
-  background:rgba(10,46,74,.7);
-  border-bottom:1px solid rgba(255,255,255,.1);
-  padding:0 1rem;
   height:60px;
-  display:flex;
-  align-items:center;
+  backdrop-filter:blur(12px);
+  background:rgba(10,46,74,.8);
+  display:flex;align-items:center;
+  padding:0 1rem;
   z-index:100;
 }
-.title{
-  font-family:'Plus Jakarta Sans';
-  font-weight:900;
-}
+.title{font-family:'Plus Jakarta Sans';font-weight:900}
 .spacer{flex:1}
 .search{
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.15);
   padding:.4rem .8rem;
   border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.1);
   color:white;
-  width:160px;
 }
 
-/* Deck Selector */
-.deck-bar{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  backdrop-filter:blur(12px);
-  background:rgba(10,46,74,.7);
-  padding:.6rem;
-  display:flex;
-  justify-content:center;
-  gap:.5rem;
-  z-index:100;
-}
-.deck-btn{
-  padding:.4rem .8rem;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.1);
-  font-size:.75rem;
-  cursor:pointer;
-}
-.deck-btn.active{
-  background:#00b4e6;
-  color:#071a2c;
-}
-
-/* Canvas Area */
+/* Viewer */
 .viewer{
   position:absolute;
   top:60px;
@@ -91,44 +44,51 @@ header{
   left:0;
   right:0;
   overflow:hidden;
+  touch-action:none;
   cursor:grab;
 }
-canvas#deckCanvas{
+canvas{
   position:absolute;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
 }
 
-/* Highlight */
-.highlight{
-  position:absolute;
-  border:3px solid #ffd740;
-  border-radius:6px;
-  box-shadow:0 0 20px rgba(255,215,64,.6);
-  pointer-events:none;
-  animation:pulse 1.5s infinite;
+/* Deck Selector */
+.deck-bar{
+  position:fixed;
+  bottom:0;width:100%;
+  height:60px;
+  backdrop-filter:blur(12px);
+  background:rgba(10,46,74,.8);
+  display:flex;justify-content:center;align-items:center;
+  gap:.5rem;
 }
-@keyframes pulse{
-  0%{box-shadow:0 0 10px rgba(255,215,64,.4)}
-  50%{box-shadow:0 0 30px rgba(255,215,64,.8)}
-  100%{box-shadow:0 0 10px rgba(255,215,64,.4)}
+.deck-btn{
+  padding:.4rem .9rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.1);
+  color:white;
+  font-size:.8rem;
+  cursor:pointer;
+}
+.deck-btn.active{
+  background:#00b4e6;
+  color:#071a2c;
 }
 </style>
 </head>
 <body>
 
-<canvas id="ocean"></canvas>
-<div class="overlay"></div>
-
 <header>
   <div class="title">Deck Explorer</div>
   <div class="spacer"></div>
-  <input type="text" id="searchRoom" class="search" placeholder="Find cabin #">
+  <input id="search" class="search" placeholder="Find cabin #" />
 </header>
 
-<div class="viewer">
-  <canvas id="deckCanvas" width="1200" height="600"></canvas>
+<div class="viewer" id="viewer">
+  <canvas id="deckCanvas"></canvas>
 </div>
 
 <div class="deck-bar" id="deckBar"></div>
@@ -137,123 +97,145 @@ canvas#deckCanvas{
 (function(){
 'use strict';
 
-const DECKS=[3,6,8];
-const ROOMS={
+/* ---------------- CONFIG ---------------- */
+
+const DECKS = [3,6,8];
+const ROOMS = {
   3:['3622'],
   6:['6650'],
   8:['8528','8370','8612']
 };
 
-const deckBar=document.getElementById('deckBar');
-const canvas=document.getElementById('deckCanvas');
-const ctx=canvas.getContext('2d');
-const viewer=document.querySelector('.viewer');
-const search=document.getElementById('searchRoom');
+/* ---------------- DOM ---------------- */
 
-let currentDeck=6;
-let scale=1;
-let offsetX=0,offsetY=0;
-let dragging=false,startX,startY;
+const viewer = document.getElementById('viewer');
+const canvas = document.getElementById('deckCanvas');
+const ctx = canvas.getContext('2d');
+const deckBar = document.getElementById('deckBar');
+const search = document.getElementById('search');
 
-function renderDeck(){
+if(!viewer || !canvas || !ctx || !deckBar || !search){
+  console.error('Required DOM elements missing.');
+  return;
+}
+
+/* ---------------- STATE ---------------- */
+
+let currentDeck = 6;
+let scale = 1;
+let offsetX = 0;
+let offsetY = 0;
+let dragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+
+/* ---------------- INIT ---------------- */
+
+function resizeCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = viewer.clientWidth * dpr;
+  canvas.height = viewer.clientHeight * dpr;
+  canvas.style.width = viewer.clientWidth + 'px';
+  canvas.style.height = viewer.clientHeight + 'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  draw();
+}
+window.addEventListener('resize', resizeCanvas);
+
+/* ---------------- DRAW ---------------- */
+
+function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.save();
+  ctx.translate(canvas.width/2 + offsetX, canvas.height/2 + offsetY);
+  ctx.scale(scale,scale);
+
   ctx.fillStyle='#0a2e4a';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillRect(-600,-300,1200,600);
 
   ctx.fillStyle='#00b4e6';
   ctx.font='40px Inter';
-  ctx.fillText('Deck '+currentDeck,50,80);
+  ctx.fillText('Deck '+currentDeck,-520,-220);
 
-  ctx.fillStyle='#fff';
   ctx.font='20px Inter';
 
-  ROOMS[currentDeck].forEach((r,i)=>{
-    ctx.fillRect(200+i*120,200,100,60);
+  ROOMS[currentDeck].forEach((room,i)=>{
+    const x=-400+i*200;
+    const y=0;
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(x,y,120,60);
     ctx.fillStyle='#071a2c';
-    ctx.fillText(r,215+i*120,240);
-    ctx.fillStyle='#fff';
+    ctx.fillText(room,x+20,y+35);
   });
+
+  ctx.restore();
 }
+
+/* ---------------- DECK BUTTONS ---------------- */
 
 DECKS.forEach(d=>{
   const btn=document.createElement('button');
   btn.className='deck-btn'+(d===currentDeck?' active':'');
   btn.textContent='Deck '+d;
-  btn.onclick=()=>{
+  btn.addEventListener('click',()=>{
     currentDeck=d;
     document.querySelectorAll('.deck-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    renderDeck();
-  };
+    draw();
+  });
   deckBar.appendChild(btn);
 });
 
+/* ---------------- SEARCH ---------------- */
+
 search.addEventListener('input',()=>{
-  const val=search.value.trim();
+  const val = search.value.trim();
   if(!val) return;
-  Object.entries(ROOMS).forEach(([deck,list])=>{
+
+  for(const [deck,list] of Object.entries(ROOMS)){
     if(list.includes(val)){
-      currentDeck=parseInt(deck);
+      currentDeck = Number(deck);
       document.querySelectorAll('.deck-btn').forEach(b=>{
         b.classList.toggle('active',b.textContent.includes(deck));
       });
-      renderDeck();
-      alert('Cabin '+val+' is on Deck '+deck);
+      draw();
     }
-  });
+  }
 });
+
+/* ---------------- ZOOM ---------------- */
 
 viewer.addEventListener('wheel',e=>{
   e.preventDefault();
-  scale+=e.deltaY*-0.001;
-  scale=Math.min(Math.max(.5,scale),3);
-  canvas.style.transform=`translate(-50%,-50%) scale(${scale})`;
-});
+  const zoom = e.deltaY > 0 ? 0.9 : 1.1;
+  scale *= zoom;
+  scale = Math.max(0.5, Math.min(scale, 3));
+  draw();
+},{passive:false});
 
-viewer.addEventListener('mousedown',e=>{
+/* ---------------- DRAG ---------------- */
+
+viewer.addEventListener('pointerdown',e=>{
   dragging=true;
-  startX=e.clientX-offsetX;
-  startY=e.clientY-offsetY;
-  viewer.style.cursor='grabbing';
+  dragStartX = e.clientX - offsetX;
+  dragStartY = e.clientY - offsetY;
+  viewer.setPointerCapture(e.pointerId);
 });
-viewer.addEventListener('mouseup',()=>{
-  dragging=false;
-  viewer.style.cursor='grab';
-});
-viewer.addEventListener('mousemove',e=>{
+viewer.addEventListener('pointermove',e=>{
   if(!dragging) return;
-  offsetX=e.clientX-startX;
-  offsetY=e.clientY-startY;
-  canvas.style.left=`calc(50% + ${offsetX}px)`;
-  canvas.style.top=`calc(50% + ${offsetY}px)`;
+  offsetX = e.clientX - dragStartX;
+  offsetY = e.clientY - dragStartY;
+  draw();
+});
+viewer.addEventListener('pointerup',e=>{
+  dragging=false;
+  viewer.releasePointerCapture(e.pointerId);
 });
 
-renderDeck();
+/* ---------------- START ---------------- */
 
-/* Ocean Background */
-const ocean=document.getElementById('ocean');
-const octx=ocean.getContext('2d');
-ocean.width=window.innerWidth;
-ocean.height=window.innerHeight;
-let t=0;
-function draw(){
-  octx.clearRect(0,0,ocean.width,ocean.height);
-  octx.fillStyle='#071a2c';
-  octx.fillRect(0,0,ocean.width,ocean.height);
-  octx.beginPath();
-  for(let x=0;x<ocean.width;x++){
-    let y=Math.sin(x*.01+t)*20+ocean.height/2;
-    octx.lineTo(x,y);
-  }
-  octx.lineTo(ocean.width,ocean.height);
-  octx.lineTo(0,ocean.height);
-  octx.closePath();
-  octx.fillStyle='rgba(0,180,230,.12)';
-  octx.fill();
-  t+=.01;
-  requestAnimationFrame(draw);
-}
-draw();
+resizeCanvas();
 
 })();
 </script>
