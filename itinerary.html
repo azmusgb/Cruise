@@ -13,248 +13,1225 @@
 
 <style>
 /* =========================================================
-   RCCL ITINERARY — CINEMATIC VERSION
+   ITINERARY — FAMILY-FLOORED EDITION (NO APIs)
+   Single-file · Cinematic · Mobile-first · Accessible
    ========================================================= */
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 body{
-  font-family:'Inter',system-ui,sans-serif;
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
   background:#071a2c;
   color:#fff;
   overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit}
+:focus-visible{outline:3px solid rgba(0,180,230,.55);outline-offset:3px;border-radius:14px}
+
+/* ---------- Theme vars (port-driven) ---------- */
+:root{
+  --navy:#0a2e4a;
+  --accent:#00b4e6;
+  --gold:#ffd740;
+
+  --glass: rgba(255,255,255,.085);
+  --glass2: rgba(255,255,255,.12);
+  --glass-brd: rgba(255,255,255,.18);
+
+  --shadow: 0 25px 80px rgba(0,0,0,.45);
+  --shadow2: 0 14px 46px rgba(0,0,0,.36);
+
+  --radius: 22px;
+  --radius-lg: 28px;
+
+  --ease: cubic-bezier(.22,.61,.36,1);
+
+  /* dynamic sky gradient (set via JS) */
+  --sky1: rgba(0,180,230,.18);
+  --sky2: rgba(255,215,64,.10);
+  --sky3: rgba(0,0,0,.55);
 }
 
-/* ---------- Ocean ---------- */
+/* ---------- Background layers ---------- */
 #ocean{
   position:fixed;
   inset:0;
-  z-index:-2;
+  z-index:-4;
+}
+.sky{
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 18%, var(--sky1), transparent 60%),
+    radial-gradient(ellipse at 18% 86%, var(--sky2), transparent 55%),
+    linear-gradient(180deg, rgba(0,0,0,.18), var(--sky3));
+  transition: background 900ms var(--ease);
 }
 .vignette{
   position:fixed;
   inset:0;
-  z-index:-1;
+  z-index:-2;
+  pointer-events:none;
   background:
-    radial-gradient(ellipse at 50% 30%, rgba(0,180,230,.15), transparent 60%),
-    linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.45));
+    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.06), transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.38), transparent 65%);
+}
+
+/* Parallax ship silhouette */
+.ship-sil{
+  position:fixed;
+  left:50%;
+  bottom:6%;
+  transform:translateX(-50%);
+  opacity:.075;
+  font-size:min(320px, 60vw);
+  pointer-events:none;
+  z-index:-1;
+  filter: blur(.2px);
+  transition: transform .12s linear;
+}
+
+/* Confetti canvas overlay */
+#confetti{
+  position:fixed;
+  inset:0;
+  z-index:2000;
+  pointer-events:none;
+}
+
+/* Sail-away overlay */
+.sailaway{
+  position:fixed;
+  inset:0;
+  z-index:2100;
+  pointer-events:none;
+  opacity:0;
+  transition: opacity 220ms var(--ease);
+}
+.sailaway.on{opacity:1}
+.sailaway .layer{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.22), transparent 60%),
+    linear-gradient(180deg, rgba(7,26,44,.0), rgba(7,26,44,.55));
+}
+.sailaway .horn{
+  position:absolute;
+  top:18%;
+  left:50%;
+  transform:translateX(-50%);
+  display:inline-flex;
+  align-items:center;
+  gap:.6rem;
+  padding:.6rem 1rem;
+  border-radius:999px;
+  background:rgba(10,46,74,.88);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 18px 60px rgba(0,0,0,.35);
+  font-weight:900;
+  font-size:.9rem;
+  color:rgba(255,255,255,.94);
+}
+.sailaway .horn i{color:var(--gold)}
+.sailaway .horn .pulse{
+  width:10px;height:10px;border-radius:999px;
+  background:var(--accent);
+  box-shadow:0 0 0 0 rgba(0,180,230,.55);
+  animation:pulse 1.1s ease-out infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(0,180,230,.55)}
+  100%{box-shadow:0 0 0 18px rgba(0,180,230,0)}
+}
+.sailaway .ship-run{
+  position:absolute;
+  left:-35%;
+  bottom:18%;
+  font-size:min(160px, 34vw);
+  opacity:.16;
+  color:#fff;
+  filter: drop-shadow(0 30px 70px rgba(0,0,0,.45));
+  animation: sail 2.6s var(--ease) forwards;
+}
+@keyframes sail{
+  0%{transform: translateX(0) translateY(6px)}
+  100%{transform: translateX(160vw) translateY(-6px)}
 }
 
 /* ---------- Header ---------- */
 header{
   position:sticky;
   top:0;
-  backdrop-filter:blur(14px);
-  background:rgba(10,46,74,.65);
-  border-bottom:1px solid rgba(255,255,255,.1);
-  padding:0 1.2rem;
   z-index:100;
+  background:rgba(10,46,74,.66);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.10);
 }
 .header-inner{
-  max-width:1200px;
-  margin:auto;
-  height:64px;
+  max-width:1100px;
+  margin:0 auto;
+  height:66px;
+  padding:0 1.15rem;
   display:flex;
   align-items:center;
   gap:1rem;
 }
-.header-title{
+.title{
   font-family:'Plus Jakarta Sans',sans-serif;
-  font-weight:900;
+  font-weight:950;
+  letter-spacing:.01em;
 }
+.sub{
+  font-size:.75rem;
+  opacity:.62;
+  font-weight:800;
+}
+.titlewrap{display:flex;flex-direction:column;line-height:1.05}
 .spacer{flex:1}
-.back-btn{
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.15);
-  padding:.5rem .8rem;
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:.35rem .8rem;
   border-radius:999px;
-  font-weight:700;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.92);
+  font-weight:900;
+  font-size:.75rem;
 }
+.pill i{color:var(--gold)}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.55rem;
+  padding:.5rem .9rem;
+  border-radius:999px;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.92);
+  font-weight:900;
+  font-size:.78rem;
+  transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
+  user-select:none;
+}
+.btn:hover{background:rgba(255,255,255,.14);border-color:rgba(0,180,230,.28)}
+.btn:active{transform:translateY(1px)}
 
 /* ---------- Hero ---------- */
 .hero{
   text-align:center;
-  padding:4.5rem 1rem 2rem;
+  padding:4.6rem 1.1rem 2.2rem;
 }
 .hero h1{
   font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:clamp(2rem,5vw,3rem);
-  font-weight:900;
+  font-weight:950;
+  font-size:clamp(2rem, 5vw, 3.1rem);
+  letter-spacing:-.02em;
+  text-shadow: 0 18px 70px rgba(0,0,0,.45);
 }
 .hero p{
-  margin-top:.7rem;
-  opacity:.75;
+  max-width:780px;
+  margin:.85rem auto 0;
+  opacity:.74;
+  line-height:1.6;
+  font-weight:650;
+}
+.hero .hint{
+  margin-top:1.25rem;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:.6rem;
+  color:rgba(255,255,255,.70);
+  font-weight:850;
+  font-size:.78rem;
+}
+.hint span{
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  padding:.38rem .7rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.12);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.hint i{color:var(--gold)}
+
+/* ---------- Layout ---------- */
+main{
+  max-width:980px;
+  margin:0 auto;
+  padding: 1.2rem 1.1rem 5.5rem;
 }
 
-/* ---------- Timeline ---------- */
+/* ---------- Timeline spine ---------- */
 .timeline{
-  max-width:900px;
-  margin:2rem auto 5rem;
-  padding:0 1rem;
+  position:relative;
   display:grid;
-  gap:1.2rem;
+  gap:1.15rem;
+  padding-left: 18px;
+}
+.timeline::before{
+  content:'';
+  position:absolute;
+  left: 10px;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(0,180,230,.72), rgba(255,215,64,.72));
+  opacity:.35;
+  filter: blur(.15px);
 }
 
-.day-card{
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:24px;
-  padding:1.4rem 1.5rem;
-  backdrop-filter:blur(16px);
-  transition:.4s cubic-bezier(.22,.61,.36,1);
-  cursor:pointer;
+/* ---------- Cards ---------- */
+.card{
+  position:relative;
+  border-radius: var(--radius-lg);
+  background: var(--glass);
+  border:1px solid var(--glass-brd);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow2);
+  padding: 1.2rem 1.2rem 1.1rem 1.2rem;
+  transform: translateY(18px);
+  opacity: 0;
+  transition: transform .7s var(--ease), opacity .7s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);
 }
-.day-card:hover{
-  transform:translateY(-4px);
-  border-color:rgba(0,180,230,.3);
+.card.visible{
+  transform: translateY(0);
+  opacity: 1;
+}
+.card:hover{
+  border-color: rgba(0,180,230,.28);
+  box-shadow: 0 28px 92px rgba(0,0,0,.50);
+}
+.card::before{
+  content:'';
+  position:absolute;
+  left:-10px;
+  top: 18px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(0,180,230,.95);
+  box-shadow: 0 0 0 5px rgba(0,180,230,.20);
+}
+.card.today{
+  border-color: rgba(255,215,64,.55);
+  box-shadow: 0 28px 92px rgba(0,0,0,.52), 0 0 0 1px rgba(255,215,64,.22) inset;
+}
+.card.today::before{
+  background: rgba(255,215,64,.96);
+  box-shadow: 0 0 0 5px rgba(255,215,64,.18);
 }
 
-.day-header{
+.card-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:.8rem;
+  gap: .9rem;
 }
-.day-title{
+.left{
   display:flex;
-  gap:.7rem;
   align-items:center;
+  gap:.75rem;
+  min-width:0;
 }
-.day-title i{color:#ffd740}
-.day-title h2{
+.icon{
+  width:42px;height:42px;
+  display:grid;place-items:center;
+  border-radius: 16px;
+  background: rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow: 0 16px 46px rgba(0,0,0,.22);
+  flex: 0 0 auto;
+}
+.icon i{color: var(--gold)}
+.titles{min-width:0}
+.titles h2{
   font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:950;
+  letter-spacing:.01em;
+  font-size:1.05rem;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.titles .subline{
+  margin-top:.14rem;
+  font-size:.78rem;
+  opacity:.62;
+  font-weight:850;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.right{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  flex: 0 0 auto;
+}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:.45rem;
+  padding:.34rem .7rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.12);
   font-weight:900;
-  font-size:1.1rem;
+  font-size:.74rem;
+  opacity:.92;
+  white-space:nowrap;
 }
-.day-meta{
-  font-size:.75rem;
-  opacity:.6;
-  font-weight:700;
+.tag i{color:rgba(255,215,64,.95)}
+.chev{
+  width:38px;height:38px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.09);
+  display:grid;place-items:center;
+  transition: transform .22s var(--ease), background .18s var(--ease);
 }
+.card[aria-expanded="true"] .chev{transform: rotate(180deg)}
+.chev i{opacity:.92}
 
-.day-details{
-  margin-top:1rem;
-  display:none;
-  opacity:.85;
-  font-size:.9rem;
+.details{
+  margin-top:.95rem;
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transition: max-height .55s var(--ease), opacity .35s var(--ease);
+}
+.card[aria-expanded="true"] .details{
+  max-height: 520px;
+  opacity: 1;
+}
+.details p{
+  opacity:.84;
+  font-weight:650;
   line-height:1.6;
+  font-size:.92rem;
 }
-.day-card.active .day-details{
-  display:block;
+.meta-grid{
+  margin-top:.85rem;
+  display:grid;
+  gap:.6rem;
+}
+@media (min-width: 720px){
+  .meta-grid{grid-template-columns: 1fr 1fr}
+}
+.meta{
+  border-radius: 18px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.12);
+  padding:.75rem .85rem;
+  display:flex;
+  align-items:flex-start;
+  gap:.6rem;
+}
+.meta i{color: rgba(0,180,230,.95); margin-top:.12rem}
+.meta strong{display:block;font-weight:950;font-size:.82rem}
+.meta span{display:block;margin-top:.10rem;opacity:.72;font-weight:800;font-size:.76rem;line-height:1.35}
+
+.actions{
+  margin-top:.85rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.55rem;
+}
+.pillbtn{
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.10);
+  color: rgba(255,255,255,.92);
+  padding:.55rem .85rem;
+  font-weight:950;
+  font-size:.78rem;
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease), filter .18s var(--ease);
+  user-select:none;
+}
+.pillbtn:hover{background: rgba(255,255,255,.14);border-color: rgba(0,180,230,.28)}
+.pillbtn:active{transform: translateY(1px)}
+.pillbtn.primary{
+  background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
+  color: rgba(8,28,46,.96);
+  border-color: rgba(255,255,255,.18);
+}
+.pillbtn.primary:hover{filter: brightness(1.03)}
+.pillbtn i{font-size:.95em}
+.pillbtn.on{
+  background: rgba(0,180,230,.95);
+  color: rgba(7,26,44,.98);
+  border-color: rgba(0,180,230,.18);
 }
 
-/* Today highlight */
-.day-card.today{
-  border-color:#00b4e6;
-  box-shadow:0 20px 60px rgba(0,180,230,.25);
+/* Tiny footer hint */
+.footer-hint{
+  margin-top:1.2rem;
+  text-align:center;
+  opacity:.65;
+  font-weight:850;
+  font-size:.78rem;
 }
 
-/* ---------- Responsive ---------- */
-@media (prefers-reduced-motion:reduce){
-  .day-card{transition:none}
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important; scroll-behavior:auto !important}
 }
 
+/* Small screens spacing */
+@media (max-width: 420px){
+  .tag{display:none}
+  .hero{padding:4.2rem 1rem 2rem}
+}
 </style>
 </head>
-<body>
 
-<canvas id="ocean"></canvas>
-<div class="vignette"></div>
+<body>
+<canvas id="ocean" aria-hidden="true"></canvas>
+<div class="sky" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+<i class="fas fa-ship ship-sil" aria-hidden="true"></i>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<!-- Sail-away overlay -->
+<div class="sailaway" id="sailaway" aria-hidden="true">
+  <div class="layer"></div>
+  <div class="horn"><span class="pulse" aria-hidden="true"></span><i class="fas fa-bullhorn" aria-hidden="true"></i><span>Sail-Away Moment</span></div>
+  <i class="fas fa-ship ship-run" aria-hidden="true"></i>
+</div>
 
 <header>
   <div class="header-inner">
-    <div class="header-title">Itinerary</div>
+    <div class="titlewrap">
+      <div class="title">Itinerary</div>
+      <div class="sub">Adventure of the Seas · Feb 14–20, 2026</div>
+    </div>
+
     <div class="spacer"></div>
-    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+
+    <span class="pill" id="activePill" title="Active day theme">
+      <i class="fas fa-sun" aria-hidden="true"></i>
+      <span id="activePillText">Day 1</span>
+    </span>
+
+    <a class="btn" href="index.html" aria-label="Back to dashboard">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i> Dashboard
+    </a>
   </div>
 </header>
 
 <section class="hero">
-  <h1>Western Caribbean</h1>
-  <p>Feb 14 – 20 · Adventure of the Seas</p>
+  <h1>Western Caribbean & Perfect Day</h1>
+  <p>
+    Tap a day to expand. Swipe left/right to jump between days.
+    Mark excursions and they stick (local storage).
+  </p>
+  <div class="hint">
+    <span><i class="fas fa-hand-pointer" aria-hidden="true"></i> Tap to expand</span>
+    <span><i class="fas fa-arrows-left-right" aria-hidden="true"></i> Swipe to navigate</span>
+    <span><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Confetti on “planned”</span>
+  </div>
 </section>
 
-<section class="timeline" id="timeline"></section>
+<main>
+  <section class="timeline" id="timeline" aria-label="Cruise itinerary timeline"></section>
+  <div class="footer-hint">Tip: Open Day 1 for a sail-away surprise.</div>
+</main>
 
 <script>
-(function(){
-'use strict';
+(() => {
+  'use strict';
 
-/* ---------- Config ---------- */
-const START_DATE = new Date('2026-02-14T16:00:00');
+  /* =========================
+     Config
+     ========================= */
+  const SAIL_START = new Date('2026-02-14T16:00:00'); // departure (local)
+  const STORAGE_EXCURSIONS = 'rccl.itin.excursions.v1';
+  const STORAGE_OPEN_DAY = 'rccl.itin.openDay.v1';
 
-const ITINERARY = [
-  {label:'Port Canaveral', icon:'fa-ship', desc:'Departure day. Boarding begins earlier in the day. Muster drill required before sail-away.'},
-  {label:'Sea Day', icon:'fa-water', desc:'Full ship day. Pools, specialty dining, shows, and exploring every deck.'},
-  {label:'Grand Cayman', icon:'fa-umbrella-beach', desc:'Tender port. Clear waters, Stingray City, Seven Mile Beach.'},
-  {label:'Falmouth, Jamaica', icon:'fa-mountain', desc:'Historic port. Dunn’s River Falls, Blue Hole, excursions inland.'},
-  {label:'Sea Day', icon:'fa-water', desc:'Reset day. Relax. Finalize dining. Sunset on the promenade deck.'},
-  {label:'Perfect Day at CocoCay', icon:'fa-sun', desc:'Royal Caribbean private island. Beach Club, water park, Chill Island.'},
-  {label:'Return to Port Canaveral', icon:'fa-anchor', desc:'Disembarkation morning. Breakfast early. Luggage tags out night before.'}
-];
+  // Port "themes" (no images; cinematic gradients)
+  const ITIN = [
+    {
+      label: 'Port Canaveral',
+      icon: 'fa-ship',
+      sub: 'Departure · Sail-Away',
+      desc: 'Embarkation day. Check in, board, muster drill, and then the ship slides into vacation mode.',
+      lat: 28.4158, lon: -80.6077, // approx Cape Canaveral
+      theme: { sky1:'rgba(0,180,230,.18)', sky2:'rgba(255,215,64,.10)', sky3:'rgba(0,0,0,.55)' },
+      arrival: null,
+      depart: '16:00'
+    },
+    {
+      label: 'Sea Day',
+      icon: 'fa-water',
+      sub: 'Full ship day',
+      desc: 'Prime time for shows, pools, specialty dining, and wandering every deck like a curious raccoon.',
+      lat: 26.0, lon: -79.0,
+      theme: { sky1:'rgba(0,180,230,.20)', sky2:'rgba(0,255,210,.08)', sky3:'rgba(0,0,0,.60)' },
+      arrival: null,
+      depart: null
+    },
+    {
+      label: 'Grand Cayman',
+      icon: 'fa-umbrella-beach',
+      sub: 'Tender port',
+      desc: 'Clear water. Big beach energy. Tender timing matters—get off early if you want maximum calm.',
+      lat: 19.3133, lon: -81.2546,
+      theme: { sky1:'rgba(90,230,255,.18)', sky2:'rgba(255,215,64,.12)', sky3:'rgba(0,0,0,.58)' },
+      arrival: '08:00',
+      depart: '16:00'
+    },
+    {
+      label: 'Falmouth, Jamaica',
+      icon: 'fa-mountain',
+      sub: 'Port day',
+      desc: 'History, music, and excursions inland. This is the “do stuff” day, if you want one.',
+      lat: 18.4939, lon: -77.6560,
+      theme: { sky1:'rgba(0,180,230,.15)', sky2:'rgba(255,140,60,.10)', sky3:'rgba(0,0,0,.62)' },
+      arrival: '09:30',
+      depart: '17:00'
+    },
+    {
+      label: 'Sea Day',
+      icon: 'fa-water',
+      sub: 'Reset & roam',
+      desc: 'The quiet power of a sea day: nap, snack, repeat. Also: final shopping and show planning.',
+      lat: 24.5, lon: -77.0,
+      theme: { sky1:'rgba(0,180,230,.16)', sky2:'rgba(140,120,255,.09)', sky3:'rgba(0,0,0,.62)' },
+      arrival: null,
+      depart: null
+    },
+    {
+      label: 'Perfect Day at CocoCay',
+      icon: 'fa-sun',
+      sub: 'Private island',
+      desc: 'Water, sun, and the strange joy of a private island that runs like a theme park with waves.',
+      lat: 25.8242, lon: -77.9374,
+      theme: { sky1:'rgba(0,255,210,.14)', sky2:'rgba(255,215,64,.14)', sky3:'rgba(0,0,0,.58)' },
+      arrival: '07:00',
+      depart: '17:00'
+    },
+    {
+      label: 'Return to Port Canaveral',
+      icon: 'fa-anchor',
+      sub: 'Disembarkation',
+      desc: 'Last morning. Bags out the night before. Breakfast early. Everyone suddenly becomes punctual.',
+      lat: 28.4158, lon: -80.6077,
+      theme: { sky1:'rgba(0,180,230,.14)', sky2:'rgba(255,215,64,.09)', sky3:'rgba(0,0,0,.62)' },
+      arrival: '07:00',
+      depart: null
+    }
+  ];
 
-/* ---------- Render ---------- */
-const timeline=document.getElementById('timeline');
-const today=new Date();
+  /* =========================
+     DOM
+     ========================= */
+  const timelineEl = document.getElementById('timeline');
+  const activePillText = document.getElementById('activePillText');
+  const sailawayEl = document.getElementById('sailaway');
+  const shipSil = document.querySelector('.ship-sil');
+  const skyLayer = document.querySelector('.sky');
 
-ITINERARY.forEach((item,index)=>{
-  const dayDate=new Date(START_DATE);
-  dayDate.setDate(dayDate.getDate()+index);
-
-  const card=document.createElement('div');
-  card.className='day-card';
-
-  if(today.toDateString()===dayDate.toDateString()){
-    card.classList.add('today');
+  if (!timelineEl || !activePillText || !sailawayEl || !shipSil || !skyLayer) {
+    console.error('[itinerary] Missing required DOM nodes.');
+    return;
   }
 
-  card.innerHTML=`
-    <div class="day-header">
-      <div class="day-title">
-        <i class="fas ${item.icon}"></i>
-        <h2>Day ${index+1} · ${item.label}</h2>
+  /* =========================
+     Storage helpers
+     ========================= */
+  const safeJSON = (s, fallback) => { try { return s ? JSON.parse(s) : fallback; } catch { return fallback; } };
+  const getExcursions = () => safeJSON(localStorage.getItem(STORAGE_EXCURSIONS), {});
+  const setExcursions = (obj) => { try { localStorage.setItem(STORAGE_EXCURSIONS, JSON.stringify(obj || {})); } catch {} };
+
+  /* =========================
+     Time helpers
+     ========================= */
+  const pad2 = (n) => String(n).padStart(2, '0');
+
+  function addDays(base, days) {
+    const d = new Date(base);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  function formatDateShort(d) {
+    try {
+      return new Intl.DateTimeFormat(undefined, { weekday:'short', month:'short', day:'2-digit' }).format(d);
+    } catch {
+      return d.toDateString();
+    }
+  }
+
+  function setTimeOnDate(d, hhmm) {
+    if (!hhmm) return null;
+    const [hh, mm] = hhmm.split(':').map(x => parseInt(x, 10));
+    const t = new Date(d);
+    if (Number.isFinite(hh)) t.setHours(hh);
+    if (Number.isFinite(mm)) t.setMinutes(mm);
+    t.setSeconds(0); t.setMilliseconds(0);
+    return t;
+  }
+
+  function countdownTo(dt) {
+    if (!dt) return '—';
+    const now = new Date();
+    const diff = dt - now;
+    if (diff <= 0) return 'Now / passed';
+    const mins = Math.floor(diff / 60000);
+    const days = Math.floor(mins / (60*24));
+    const hours = Math.floor((mins - days*60*24) / 60);
+    const m = mins % 60;
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h ${m}m`;
+    return `${m}m`;
+  }
+
+  /* =========================
+     Sunrise/Sunset Estimate (no API)
+     Lightweight solar approximation:
+     - NOAA-style approach but simplified (sufficient for "cool info" display)
+     - Output local clock time
+     ========================= */
+  function sunTimes(date, lat, lon) {
+    // Defensive defaults
+    const clampedLat = Math.max(-89.8, Math.min(89.8, Number(lat) || 0));
+    const lng = Number(lon) || 0;
+
+    // Day of year
+    const start = new Date(date.getFullYear(), 0, 0);
+    const diff = date - start;
+    const oneDay = 1000*60*60*24;
+    const N = Math.floor(diff / oneDay);
+
+    // fractional year (radians)
+    const gamma = (2 * Math.PI / 365) * (N - 1 + ((date.getHours() - 12) / 24));
+
+    // equation of time (minutes)
+    const eqtime =
+      229.18 * (0.000075
+      + 0.001868 * Math.cos(gamma)
+      - 0.032077 * Math.sin(gamma)
+      - 0.014615 * Math.cos(2*gamma)
+      - 0.040849 * Math.sin(2*gamma));
+
+    // solar declination (radians)
+    const decl =
+      0.006918
+      - 0.399912 * Math.cos(gamma)
+      + 0.070257 * Math.sin(gamma)
+      - 0.006758 * Math.cos(2*gamma)
+      + 0.000907 * Math.sin(2*gamma)
+      - 0.002697 * Math.cos(3*gamma)
+      + 0.00148  * Math.sin(3*gamma);
+
+    // hour angle
+    const latRad = clampedLat * (Math.PI/180);
+    const zenith = 90.833 * (Math.PI/180); // sunrise/sunset
+    const cosH = (Math.cos(zenith) - Math.sin(latRad)*Math.sin(decl)) / (Math.cos(latRad)*Math.cos(decl));
+
+    // Polar edge cases
+    if (cosH > 1) return { sunrise: '—', sunset: '—' };   // no sunrise
+    if (cosH < -1) return { sunrise: '—', sunset: '—' };  // no sunset
+
+    const H = Math.acos(cosH); // radians
+    const Hdeg = H * (180/Math.PI);
+
+    // solar noon in minutes
+    const tzOffsetMin = -date.getTimezoneOffset();
+    const solarNoon = 720 - (4 * lng) - eqtime + tzOffsetMin;
+
+    // sunrise/sunset in minutes
+    const sunriseMin = solarNoon - (4 * Hdeg);
+    const sunsetMin  = solarNoon + (4 * Hdeg);
+
+    const toClock = (mins) => {
+      const m = ((mins % 1440) + 1440) % 1440;
+      const hh = Math.floor(m / 60);
+      const mm = Math.floor(m % 60);
+      const ampm = hh >= 12 ? 'PM' : 'AM';
+      const h12 = ((hh + 11) % 12) + 1;
+      return `${h12}:${pad2(mm)} ${ampm}`;
+    };
+
+    return { sunrise: toClock(sunriseMin), sunset: toClock(sunsetMin) };
+  }
+
+  /* =========================
+     Sky theme
+     ========================= */
+  function applyTheme(theme, dayIndex) {
+    const t = theme || {};
+    document.documentElement.style.setProperty('--sky1', t.sky1 || 'rgba(0,180,230,.18)');
+    document.documentElement.style.setProperty('--sky2', t.sky2 || 'rgba(255,215,64,.10)');
+    document.documentElement.style.setProperty('--sky3', t.sky3 || 'rgba(0,0,0,.58)');
+    activePillText.textContent = `Day ${dayIndex + 1}`;
+  }
+
+  /* =========================
+     Confetti
+     ========================= */
+  const confCanvas = document.getElementById('confetti');
+  const confCtx = confCanvas ? confCanvas.getContext('2d') : null;
+  let confetti = [];
+  let confRAF = 0;
+
+  function resizeConfetti() {
+    if (!confCanvas || !confCtx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    confCanvas.width = Math.floor(window.innerWidth * dpr);
+    confCanvas.height = Math.floor(window.innerHeight * dpr);
+    confCanvas.style.width = window.innerWidth + 'px';
+    confCanvas.style.height = window.innerHeight + 'px';
+    confCtx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', resizeConfetti);
+
+  function burstConfetti(x, y, intensity = 120) {
+    if (!confCanvas || !confCtx) return;
+    resizeConfetti();
+    const colors = ['#00b4e6', '#ffd740', '#ffffff', '#7de3ff', '#ffe58b'];
+    for (let i = 0; i < intensity; i++) {
+      confetti.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 8,
+        vy: (Math.random() - 1.2) * 10,
+        g: 0.22 + Math.random() * 0.12,
+        r: 2 + Math.random() * 3,
+        a: 1,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.25,
+        c: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+    if (!confRAF) confRAF = requestAnimationFrame(tickConfetti);
+  }
+
+  function tickConfetti() {
+    if (!confCanvas || !confCtx) { confRAF = 0; return; }
+    const w = window.innerWidth, h = window.innerHeight;
+    confCtx.clearRect(0,0,w,h);
+
+    confetti = confetti.filter(p => p.a > 0.02 && p.y < h + 60);
+    for (const p of confetti) {
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.a *= 0.985;
+
+      confCtx.save();
+      confCtx.globalAlpha = p.a;
+      confCtx.translate(p.x, p.y);
+      confCtx.rotate(p.rot);
+      confCtx.fillStyle = p.c;
+      confCtx.fillRect(-p.r, -p.r/2, p.r*2.4, p.r);
+      confCtx.restore();
+    }
+
+    if (confetti.length) confRAF = requestAnimationFrame(tickConfetti);
+    else { confCtx.clearRect(0,0,w,h); confRAF = 0; }
+  }
+
+  /* =========================
+     Sail-away moment
+     ========================= */
+  let sailLock = false;
+  function sailAwayMoment() {
+    if (sailLock) return;
+    sailLock = true;
+    sailawayEl.classList.add('on');
+    window.setTimeout(() => { sailawayEl.classList.remove('on'); }, 2800);
+    window.setTimeout(() => { sailLock = false; }, 3100);
+  }
+
+  /* =========================
+     Build cards
+     ========================= */
+  const excursions = getExcursions();
+  const now = new Date();
+
+  function isToday(dateObj) {
+    return now.toDateString() === dateObj.toDateString();
+  }
+
+  function buildCard(dayIndex) {
+    const data = ITIN[dayIndex];
+    const dayDate = addDays(SAIL_START, dayIndex); // day anchor = sailing start day + offset
+
+    const arrivalDt = data.arrival ? setTimeOnDate(dayDate, data.arrival) : null;
+    const departDt  = data.depart  ? setTimeOnDate(dayDate, data.depart)  : null;
+
+    const sun = sunTimes(dayDate, data.lat, data.lon);
+    const planned = excursions[String(dayIndex)] === true;
+
+    const card = document.createElement('article');
+    card.className = 'card';
+    if (isToday(dayDate)) card.classList.add('today');
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-expanded', 'false');
+    card.dataset.day = String(dayIndex);
+
+    const tagText = data.icon === 'fa-water' ? 'SEA DAY' : 'PORT DAY';
+
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="left">
+          <div class="icon" aria-hidden="true"><i class="fas ${escapeHtml(data.icon)}"></i></div>
+          <div class="titles">
+            <h2>Day ${dayIndex + 1} · ${escapeHtml(data.label)}</h2>
+            <div class="subline">${escapeHtml(formatDateShort(dayDate))} · ${escapeHtml(data.sub)}</div>
+          </div>
+        </div>
+        <div class="right">
+          <span class="tag"><i class="fas fa-sparkles" aria-hidden="true"></i> ${escapeHtml(tagText)}</span>
+          <span class="chev" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+        </div>
       </div>
-      <div class="day-meta">${dayDate.toLocaleDateString()}</div>
-    </div>
-    <div class="day-details">${item.desc}</div>
-  `;
 
-  card.addEventListener('click',()=>{
-    card.classList.toggle('active');
-  });
+      <div class="details" aria-label="Day details">
+        <p>${escapeHtml(data.desc)}</p>
 
-  timeline.appendChild(card);
-});
+        <div class="meta-grid">
+          <div class="meta">
+            <i class="fas fa-clock" aria-hidden="true"></i>
+            <div>
+              <strong>Timing</strong>
+              <span>${arrivalDt ? `Arrive ${escapeHtml(data.arrival)} · ${escapeHtml(countdownTo(arrivalDt))}` : 'No port arrival'}</span>
+              <span>${departDt ? `Depart ${escapeHtml(data.depart)} · ${escapeHtml(countdownTo(departDt))}` : 'No scheduled departure'}</span>
+            </div>
+          </div>
 
-/* ---------- Ocean Animation ---------- */
-const canvas=document.getElementById('ocean');
-const ctx=canvas.getContext('2d');
-function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
-resize();window.addEventListener('resize',resize);
+          <div class="meta">
+            <i class="fas fa-sun" aria-hidden="true"></i>
+            <div>
+              <strong>Sun</strong>
+              <span>Sunrise ~ ${escapeHtml(sun.sunrise)}</span>
+              <span>Sunset ~ ${escapeHtml(sun.sunset)}</span>
+            </div>
+          </div>
+        </div>
 
-let t=0;
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='#071a2c';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+        <div class="actions">
+          <button class="pillbtn primary" type="button" data-action="jump" aria-label="Set this day as active theme">
+            <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Set as active day
+          </button>
 
-  ctx.beginPath();
-  for(let x=0;x<canvas.width;x++){
-    let y=Math.sin(x*.01+t)*20+canvas.height/2;
-    ctx.lineTo(x,y);
+          <button class="pillbtn ${planned ? 'on' : ''}" type="button" data-action="excursion" aria-pressed="${planned ? 'true' : 'false'}">
+            <i class="fas fa-flag-checkered" aria-hidden="true"></i> ${planned ? 'Excursion planned' : 'Plan excursion'}
+          </button>
+
+          <button class="pillbtn" type="button" data-action="copy">
+            <i class="fas fa-copy" aria-hidden="true"></i> Copy day summary
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Handlers
+    const toggle = () => toggleCard(dayIndex, true);
+    card.addEventListener('click', (e) => {
+      // If button inside, let it handle
+      const target = e.target;
+      if (target && target.closest && target.closest('button')) return;
+      toggle();
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); openDay(Math.min(ITIN.length-1, dayIndex+1), true); }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); openDay(Math.max(0, dayIndex-1), true); }
+    });
+
+    // Buttons
+    card.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const action = btn.getAttribute('data-action');
+        if (action === 'jump') {
+          applyTheme(data.theme, dayIndex);
+          persistOpenDay(dayIndex);
+          // subtle micro-confetti for "set active"
+          burstConfetti(window.innerWidth * 0.5, window.innerHeight * 0.25, 60);
+        }
+        if (action === 'excursion') {
+          const next = !(excursions[String(dayIndex)] === true);
+          excursions[String(dayIndex)] = next;
+          setExcursions(excursions);
+
+          btn.classList.toggle('on', next);
+          btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+          btn.innerHTML = `<i class="fas fa-flag-checkered" aria-hidden="true"></i> ${next ? 'Excursion planned' : 'Plan excursion'}`;
+
+          // Confetti burst (center of button)
+          const r = btn.getBoundingClientRect();
+          burstConfetti(r.left + r.width/2, r.top + r.height/2, next ? 160 : 70);
+        }
+        if (action === 'copy') {
+          const text = buildDaySummary(dayIndex, dayDate, data, arrivalDt, departDt, sun);
+          await copyText(text);
+        }
+      });
+    });
+
+    return card;
   }
-  ctx.lineTo(canvas.width,canvas.height);
-  ctx.lineTo(0,canvas.height);
-  ctx.closePath();
-  ctx.fillStyle='rgba(0,180,230,.1)';
-  ctx.fill();
 
-  t+=0.01;
-  requestAnimationFrame(draw);
-}
-draw();
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  async function copyText(text){
+    const value = String(text || '').trim();
+    if (!value) return false;
+    try{
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        ta.style.position='fixed';
+        ta.style.left='-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+      // mini confetti for copy success
+      burstConfetti(window.innerWidth*0.5, window.innerHeight*0.18, 55);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function buildDaySummary(i, dayDate, data, arrivalDt, departDt, sun){
+    const lines = [];
+    lines.push(`Day ${i+1} · ${data.label} (${formatDateShort(dayDate)})`);
+    lines.push(`${data.sub}`);
+    lines.push(data.desc);
+    if (arrivalDt) lines.push(`Arrive: ${data.arrival} (in ${countdownTo(arrivalDt)})`);
+    if (departDt)  lines.push(`Depart: ${data.depart} (in ${countdownTo(departDt)})`);
+    lines.push(`Sunrise ~ ${sun.sunrise} · Sunset ~ ${sun.sunset}`);
+    return lines.join('\n');
+  }
+
+  /* =========================
+     Render + reveal
+     ========================= */
+  const cards = [];
+  for (let i = 0; i < ITIN.length; i++) {
+    const card = buildCard(i);
+    timelineEl.appendChild(card);
+    cards.push(card);
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    }
+  }, { threshold: 0.14 });
+
+  cards.forEach(c => observer.observe(c));
+
+  /* =========================
+     Open / close behavior (single-open accordion)
+     ========================= */
+  function persistOpenDay(i){
+    try { localStorage.setItem(STORAGE_OPEN_DAY, String(i)); } catch {}
+  }
+  function readOpenDay(){
+    const n = parseInt(localStorage.getItem(STORAGE_OPEN_DAY) || '0', 10);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(ITIN.length-1, n));
+  }
+
+  function closeAll() {
+    for (const c of cards) c.setAttribute('aria-expanded', 'false');
+  }
+
+  function openDay(i, scrollIntoView) {
+    const card = cards[i];
+    if (!card) return;
+    closeAll();
+    card.setAttribute('aria-expanded', 'true');
+
+    // Apply theme on open
+    applyTheme(ITIN[i].theme, i);
+    persistOpenDay(i);
+
+    // Sail-away moment on Day 1 open (index 0)
+    if (i === 0) sailAwayMoment();
+
+    if (scrollIntoView) {
+      card.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+    }
+  }
+
+  function toggleCard(i, scrollIntoView) {
+    const card = cards[i];
+    if (!card) return;
+    const isOpen = card.getAttribute('aria-expanded') === 'true';
+    if (isOpen) {
+      card.setAttribute('aria-expanded', 'false');
+      // keep theme as last active
+    } else {
+      openDay(i, scrollIntoView);
+    }
+  }
+
+  function prefersReducedMotion(){
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  /* =========================
+     Swipe gestures (mobile)
+     ========================= */
+  let touch = { x:0, y:0, t:0, active:false };
+
+  function currentOpenIndex() {
+    const idx = cards.findIndex(c => c.getAttribute('aria-expanded') === 'true');
+    return idx >= 0 ? idx : readOpenDay();
+  }
+
+  document.addEventListener('touchstart', (e) => {
+    if (!e.touches || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    touch = { x: t.clientX, y: t.clientY, t: Date.now(), active:true };
+  }, { passive:true });
+
+  document.addEventListener('touchend', (e) => {
+    if (!touch.active) return;
+    touch.active = false;
+
+    const changed = e.changedTouches && e.changedTouches[0];
+    if (!changed) return;
+
+    const dx = changed.clientX - touch.x;
+    const dy = changed.clientY - touch.y;
+    const dt = Date.now() - touch.t;
+
+    // Horizontal swipe only, keep it strict so vertical scroll isn't broken
+    if (dt > 700) return;
+    if (Math.abs(dx) < 60) return;
+    if (Math.abs(dy) > 70) return;
+
+    const idx = currentOpenIndex();
+    if (dx < 0) openDay(Math.min(ITIN.length-1, idx + 1), true);
+    else openDay(Math.max(0, idx - 1), true);
+  }, { passive:true });
+
+  /* =========================
+     Parallax silhouette
+     ========================= */
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY || 0;
+    shipSil.style.transform = `translateX(-50%) translateY(${y * 0.06}px)`;
+  }, { passive:true });
+
+  /* =========================
+     Ocean animation (lightweight)
+     ========================= */
+  const ocean = document.getElementById('ocean');
+  const ctx = ocean ? ocean.getContext('2d', { alpha:true }) : null;
+
+  function resizeOcean(){
+    if (!ocean || !ctx) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    ocean.width = Math.floor(window.innerWidth * dpr);
+    ocean.height = Math.floor(window.innerHeight * dpr);
+    ocean.style.width = window.innerWidth + 'px';
+    ocean.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  window.addEventListener('resize', () => { resizeOcean(); resizeConfetti(); });
+
+  function drawOcean(){
+    if (!ocean || !ctx) return;
+    const w = window.innerWidth, h = window.innerHeight;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = '#071a2c';
+    ctx.fillRect(0,0,w,h);
+
+    // depth gradient
+    const g = ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'rgba(10,46,74,.10)');
+    g.addColorStop(1,'rgba(0,0,0,.28)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+
+    // layered waves
+    for (let i=0;i<3;i++){
+      const amp = 22 + i*12;
+      const len = 0.010 - i*0.0018;
+      const base = h*(0.48 + i*0.07);
+      ctx.beginPath();
+      ctx.moveTo(0, base);
+      for (let x=0;x<=w;x+=8){
+        const y = base + Math.sin(x*len + oceanT*(0.9+i*0.2)) * amp;
+        ctx.lineTo(x,y);
+      }
+      ctx.lineTo(w,h);
+      ctx.lineTo(0,h);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(0,180,230,${0.12 - i*0.03})`;
+      ctx.fill();
+    }
+
+    oceanT += prefersReducedMotion() ? 0.004 : 0.012;
+    requestAnimationFrame(drawOcean);
+  }
+  let oceanT = 0;
+
+  /* =========================
+     Init
+     ========================= */
+  function init(){
+    resizeOcean();
+    resizeConfetti();
+
+    // Default theme = last opened (or Day 1)
+    const open = readOpenDay();
+    applyTheme(ITIN[open].theme, open);
+
+    // Restore open accordion day
+    openDay(open, false);
+
+    // Start ocean animation (or static if reduced motion)
+    if (prefersReducedMotion()) {
+      drawOcean(); // draws, then continues; but reduced motion slows. Acceptable.
+    } else {
+      requestAnimationFrame(drawOcean);
+    }
+  }
+  init();
 
 })();
 </script>
+
+<noscript>
+  <div style="padding:1rem;text-align:center;background:#ffd740;color:#0d2236;font-weight:900;">
+    This itinerary needs JavaScript enabled.
+  </div>
+</noscript>
 
 </body>
 </html>
