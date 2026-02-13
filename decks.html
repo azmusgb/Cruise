@@ -7,6 +7,7 @@
 
 <style>
 :root {
+  --navy-dark: #061c2e;
   --navy: #0a2e4a;
   --blue: #0f4f76;
   --accent: #00b4e6;
@@ -15,24 +16,22 @@
 
 * { box-sizing: border-box; }
 
-body {
+html, body {
   margin: 0;
+  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  background: linear-gradient(180deg, #0b3554, #061c2e);
+  background: radial-gradient(circle at center, #0f4f76 0%, #061c2e 75%);
   color: white;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
 }
 
 /* HEADER */
 header {
-  padding: 1rem 1.5rem;
-  background: rgba(0,0,0,.35);
-  backdrop-filter: blur(8px);
+  padding: 1rem 1.25rem;
+  background: linear-gradient(90deg, #08263e, #0f4f76);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
 }
 
 header h1 {
@@ -47,25 +46,34 @@ header a {
   font-weight: 600;
 }
 
-/* VIEWPORT */
+/* VIEWER */
 .viewer {
-  flex: 1;
+  height: calc(100vh - 130px);
   overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 1rem 0;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem 3rem;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* IMAGE */
-.viewer img {
-  width: 95vw;
-  max-width: 1200px;
+/* CINEMATIC FRAME */
+.frame {
+  background: linear-gradient(180deg, #ffffff, #f2f6f9);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow:
+    0 40px 80px rgba(0,0,0,.45),
+    0 0 80px rgba(0,180,230,.25);
+  max-width: 95vw;
+}
+
+/* SVG IMAGE */
+.frame img {
+  width: min(95vw, 900px);
   height: auto;
   display: block;
-  border-radius: 16px;
-  box-shadow:
-    0 0 40px rgba(0,180,230,.25);
+  border-radius: 12px;
 }
 
 /* CONTROLS */
@@ -75,17 +83,22 @@ header a {
   justify-content: center;
   gap: .75rem;
   background: rgba(0,0,0,.35);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
 }
 
 .controls button {
   background: var(--accent);
   border: none;
   padding: .5rem .9rem;
-  border-radius: 6px;
+  border-radius: 8px;
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: transform .15s ease;
+}
+
+.controls button:active {
+  transform: scale(.95);
 }
 
 .zoom-display {
@@ -104,9 +117,11 @@ header a {
 </header>
 
 <div class="viewer">
-  <img id="deckImage"
-       src="decks/deck-04-final.min.svg"
-       alt="Deck 04 Plan">
+  <div class="frame">
+    <img id="deckImage"
+         src="decks/deck-04-final.min.svg"
+         alt="Deck 04 Plan">
+  </div>
 </div>
 
 <div class="controls">
@@ -124,7 +139,7 @@ header a {
   let zoom = 1;
 
   function updateZoom() {
-    img.style.width = (95 * zoom) + "vw";
+    img.style.width = `min(${95 * zoom}vw, ${900 * zoom}px)`;
     zoomDisplay.textContent = Math.round(zoom * 100) + "%";
   }
 
@@ -144,7 +159,7 @@ header a {
   });
 
   img.addEventListener('error', () => {
-    img.src = "decks/deck-04.png";
+    console.error("SVG failed to load.");
   });
 
 })();
