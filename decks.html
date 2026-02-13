@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Deck 04 · Adventure of the Seas</title>
 
 <style>
@@ -13,9 +14,7 @@
   --gold: #ffd740;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -27,7 +26,7 @@ body {
   height: 100vh;
 }
 
-/* Header */
+/* HEADER */
 header {
   padding: 1rem 1.5rem;
   background: rgba(0,0,0,.35);
@@ -49,36 +48,48 @@ header a {
   font-weight: 600;
 }
 
-/* Viewer */
+/* VIEWER */
 .viewer {
+  position: relative;
   flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
-  overflow: hidden;
+  align-items: center;
   padding: 1rem;
 }
 
+/* Glow frame */
+.viewer::after {
+  content: "";
+  position: absolute;
+  inset: 20px;
+  border-radius: 18px;
+  box-shadow:
+    0 0 60px rgba(0,180,230,.25),
+    inset 0 0 40px rgba(0,180,230,.2);
+  pointer-events: none;
+}
+
+/* SCROLL STAGE */
 .stage {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  justify-content: center;
 }
 
+/* IMAGE */
 .stage img {
   display: block;
-  max-width: none;
-max-height: none;
-  width: auto;
-  height: auto;
+  transform-origin: top center;
   transition: transform .15s ease;
-  transform-origin: center center;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* Controls */
+/* CONTROLS */
 .controls {
   padding: .75rem;
   display: flex;
@@ -97,6 +108,7 @@ max-height: none;
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: transform .1s ease;
 }
 
 .controls button:active {
@@ -119,7 +131,7 @@ max-height: none;
 </header>
 
 <div class="viewer">
-  <div class="stage">
+  <div class="stage" id="stage">
     <img id="deckImage"
          src="decks/deck-04-final.min.svg"
          alt="Deck 04 Plan"
@@ -131,24 +143,23 @@ max-height: none;
   <button id="zoomOut">−</button>
   <div class="zoom-display" id="zoomDisplay">100%</div>
   <button id="zoomIn">+</button>
-  <button id="zoomReset">Reset</button>
+  <button id="zoomReset">Fit</button>
 </div>
 
 <script>
-
-    (() => {
+(() => {
   const img = document.getElementById('deckImage');
   const zoomDisplay = document.getElementById('zoomDisplay');
 
   let scale = 1;
 
   function fitToScreen() {
-    const vw = window.innerWidth * 0.95;
+    const viewportWidth = window.innerWidth * 0.95;
     const naturalWidth = img.naturalWidth;
 
     if (!naturalWidth) return;
 
-    scale = vw / naturalWidth;
+    scale = viewportWidth / naturalWidth;
     updateZoom();
   }
 
@@ -158,12 +169,12 @@ max-height: none;
   }
 
   document.getElementById('zoomIn').addEventListener('click', () => {
-    scale = Math.min(scale + 0.2, 5);
+    scale = Math.min(scale + 0.25, 5);
     updateZoom();
   });
 
   document.getElementById('zoomOut').addEventListener('click', () => {
-    scale = Math.max(scale - 0.2, 0.2);
+    scale = Math.max(scale - 0.25, 0.25);
     updateZoom();
   });
 
@@ -177,6 +188,10 @@ max-height: none;
 
   img.addEventListener('error', () => {
     img.src = 'decks/deck-04.png';
+  });
+
+  window.addEventListener('resize', () => {
+    fitToScreen();
   });
 
 })();
