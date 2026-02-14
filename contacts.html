@@ -1,299 +1,694 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0a2e4a">
-<title>Contacts · Adventure of the Seas</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+  <meta name="theme-color" content="#0a2e4a">
+  <title>Contacts · Adventure of the Seas</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Fonts + Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Inter',system-ui;
-  background:#071a2c;
-  color:white;
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-}
+  <style>
+    /* =========================================================
+       RCCL CRUISE HUB — CONTACTS (unified aesthetic)
+       ========================================================= */
 
-/* Background */
-#ocean{position:fixed;inset:0;z-index:-2}
-.overlay{
-  position:fixed;inset:0;z-index:-1;
-  background:
-    radial-gradient(ellipse at 50% 15%, rgba(0,180,230,.15), transparent 60%),
-    linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.75));
-}
+    /* ---------- Reset ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body{
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #071a2c;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a{ color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid rgba(0,180,230,.45); outline-offset: 2px; border-radius: 12px; }
 
-/* Header */
-header{
-  padding:1.6rem 1rem 1.2rem;
-  text-align:center;
-}
-header h1{
-  font-family:'Plus Jakarta Sans';
-  font-weight:900;
-  font-size:1.8rem;
-}
-header .sub{
-  margin-top:.4rem;
-  opacity:.7;
-  font-weight:600;
-  font-size:.9rem;
-}
+    /* ---------- Tokens ---------- */
+    :root{
+      --navy:#0a2e4a;
+      --navy2:#083452;
+      --blue:#0f4f76;
+      --accent:#00b4e6;
+      --gold:#ffd740;
+      --gold2:#c6a15b;
 
-/* Layout */
-main{
-  max-width:900px;
-  margin:auto;
-  padding:1rem;
-  padding-bottom:4rem;
-}
+      --text:#0d2236;
+      --muted:#5a7a93;
 
-.section-title{
-  font-family:'Plus Jakarta Sans';
-  font-weight:900;
-  font-size:1.05rem;
-  margin-bottom:.8rem;
-  margin-top:1.4rem;
-  opacity:.95;
-}
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.11);
+      --glass-brd: rgba(255,255,255,.18);
 
-.card{
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:22px;
-  padding:1.2rem;
-  backdrop-filter:blur(14px);
-  margin-bottom:1rem;
-}
+      --shadow: 0 25px 80px rgba(0,0,0,.45);
+      --shadow2: 0 12px 40px rgba(0,0,0,.35);
 
-.contact-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:.75rem;
-  border-radius:14px;
-  background:rgba(255,255,255,.06);
-  margin-bottom:.6rem;
-  gap:.8rem;
-}
+      --radius: 22px;
+      --radius-lg: 28px;
 
-.contact-info{
-  display:flex;
-  flex-direction:column;
-}
+      --ease: cubic-bezier(.22,.61,.36,1);
+      --ring: 0 0 0 3px rgba(0,180,230,.18);
+    }
 
-.contact-info strong{
-  font-weight:700;
-}
+    /* ---------- Ocean canvas ---------- */
+    #ocean {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+    }
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(0,180,230,.12), transparent 60%),
+        radial-gradient(ellipse at 20% 90%, rgba(255,215,64,.10), transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(255,215,64,.07), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.35));
+    }
 
-.contact-info span{
-  font-size:.85rem;
-  opacity:.75;
-  margin-top:.2rem;
-}
+    /* ---------- Header ---------- */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,46,74,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .header-inner{
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 66px;
+      padding: 0 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      color: rgba(255,255,255,.95);
+    }
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      min-width: 0;
+    }
+    .brand i{ color: var(--gold); }
+    .brand-text{ min-width: 0; line-height: 1.05; }
+    .brand-title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-sub{
+      font-size: .75rem;
+      color: rgba(255,255,255,.62);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .spacer{ flex: 1; }
 
-.actions{
-  display:flex;
-  gap:.4rem;
-}
+    .hdr-pill{
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,215,64,.12);
+      border: 1px solid rgba(255,215,64,.28);
+      color: var(--gold);
+      padding: .35rem .8rem;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: .75rem;
+      white-space: nowrap;
+    }
+    .hdr-pill i{ opacity: .95; }
 
-.btn{
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.12);
-  color:white;
-  padding:.4rem .7rem;
-  border-radius:999px;
-  font-size:.75rem;
-  font-weight:700;
-  cursor:pointer;
-  white-space:nowrap;
-  display:flex;
-  align-items:center;
-  gap:.3rem;
-}
+    .hdr-iconbtn{
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.95);
+      display: grid;
+      place-items: center;
+      transition: transform .18s var(--ease), background .18s var(--ease);
+    }
+    .hdr-iconbtn:hover{ background: rgba(255,255,255,.14); }
+    .hdr-iconbtn:active{ transform: scale(.98); }
 
-.btn.call{
-  background:#00b4e6;
-  color:#071a2c;
-}
+    /* ---------- Drawer nav ---------- */
+    .drawer-backdrop{
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s var(--ease);
+    }
+    .drawer-backdrop.open{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: min(92vw, 360px);
+      background: rgba(10,46,74,.86);
+      border-left: 1px solid rgba(255,255,255,.12);
+      box-shadow: -20px 0 80px rgba(0,0,0,.45);
+      transform: translateX(20px);
+      opacity: 0;
+      transition: transform .24s var(--ease), opacity .24s var(--ease);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1rem 1.15rem;
+    }
+    .drawer-backdrop.open .drawer{
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .drawer-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding-bottom: .9rem;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.95);
+    }
+    .drawer-head h3{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      font-size: 1.05rem;
+    }
+    .nav{
+      padding: .95rem 0;
+      display: grid;
+      gap: .55rem;
+      overflow: auto;
+    }
+    .nav a{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .7rem .75rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      transition: background .18s var(--ease), border-color .18s var(--ease), transform .18s var(--ease);
+    }
+    .nav a:hover{ background: rgba(255,255,255,.10); border-color: rgba(0,180,230,.24); transform: translateY(-1px); }
+    .nav a i{ color: var(--gold); width: 18px; text-align: center; }
+    .nav a.active{ background: rgba(255,215,64,.12); border-color: var(--gold); }
 
-.warning{
-  font-size:.8rem;
-  opacity:.7;
-  margin-top:.4rem;
-}
+    .drawer-foot{
+      margin-top: auto;
+      padding-top: .85rem;
+      border-top: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.70);
+      font-weight: 800;
+      font-size: .78rem;
+      display: grid;
+      gap: .6rem;
+    }
 
-.toast{
-  position:fixed;
-  left:50%;
-  transform:translateX(-50%);
-  bottom:calc(20px + env(safe-area-inset-bottom));
-  background:rgba(10,46,74,.9);
-  padding:.6rem .9rem;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.2);
-  font-weight:700;
-  opacity:0;
-  transition:opacity .2s ease, transform .2s ease;
-}
-.toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(-4px);
-}
-</style>
+    /* ---------- Main content ---------- */
+    main{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.15rem 5rem;
+    }
+
+    .page-title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      color: rgba(255,255,255,.96);
+      margin-bottom: .25rem;
+    }
+    .page-sub{
+      color: rgba(255,255,255,.7);
+      font-weight: 600;
+      font-size: .9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      margin: 1.8rem 0 .8rem;
+      color: rgba(255,255,255,.95);
+    }
+
+    .card{
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 1.2rem;
+      margin-bottom: 1.2rem;
+      color: rgba(255,255,255,.95);
+    }
+
+    .contact-row{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .75rem;
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      margin-bottom: .6rem;
+      gap: .8rem;
+    }
+    .contact-info{
+      display: flex;
+      flex-direction: column;
+    }
+    .contact-info strong{
+      font-weight: 700;
+      font-size: .95rem;
+    }
+    .contact-info span{
+      font-size: .8rem;
+      opacity: .7;
+      margin-top: .1rem;
+    }
+    .actions{
+      display: flex;
+      gap: .5rem;
+      flex-shrink: 0;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.12);
+      color: white;
+      padding: .4rem .8rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      transition: .18s;
+    }
+    .btn:hover{ background: rgba(255,255,255,.2); }
+    .btn.call{
+      background: var(--accent);
+      color: #0a2e4a;
+      border-color: transparent;
+    }
+    .btn.call:hover{ background: #1ac6ff; }
+
+    .warning{
+      font-size: .8rem;
+      opacity: .7;
+      margin-top: .6rem;
+      padding: 0 .2rem;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      z-index: 3000;
+      background: rgba(10,46,74,.94);
+      color: white;
+      border: 1px solid rgba(255,255,255,.14);
+      padding: .62rem .9rem;
+      border-radius: 999px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-weight: 900;
+      font-size: .82rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: .18s;
+    }
+    .toast.show{ opacity: 1; }
+
+    /* Back to top */
+    .back-to-top{
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+      background: var(--accent);
+      color: #0a2e4a;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 800;
+    }
+    .back-to-top.show{ display: flex; }
+
+    /* Bottom nav for mobile (like index) */
+    .bottom-nav{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 990;
+      display: none;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      background: rgba(241,250,255,.92);
+      border-top: 1px solid rgba(8,89,136,.18);
+      backdrop-filter: blur(10px);
+    }
+    .bottom-nav__item{
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(8,89,136,.14);
+      background: rgba(255,255,255,.64);
+      color: #1f567c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: .65rem;
+      font-weight: 700;
+    }
+    .bottom-nav__item.active{ border-color: var(--gold); background: rgba(255,190,92,.22); }
+    @media (max-width: 767px){
+      body{ padding-bottom: 80px; }
+      .bottom-nav{ display: grid; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+    }
+  </style>
 </head>
 <body>
+  <canvas id="ocean" width="375" height="609"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
 
-<canvas id="ocean"></canvas>
-<div class="overlay"></div>
-
-<header>
-  <h1>Important Contacts</h1>
-  <div class="sub">Adventure of the Seas · Feb 14–20, 2026</div>
-</header>
-
-<main>
-
-<div class="section-title">Onboard (Ship)</div>
-
-<div class="card">
-  <div class="contact-row">
-    <div class="contact-info">
-      <strong>Guest Services</strong>
-      <span>Dial 0 from cabin phone</span>
+  <!-- Header (same as index/decks/rooms) -->
+  <header>
+    <div class="header-inner">
+      <div class="brand" title="Cruise Hub">
+        <i class="fas fa-crown" aria-hidden="true"></i>
+        <div class="brand-text">
+          <div class="brand-title">Adventure of the Seas</div>
+          <div class="brand-sub">Rahe Family & Friends · Contacts</div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <span class="hdr-pill" id="sailPill" aria-label="Sail dates">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        Feb 14–20, 2026
+      </span>
+      <button class="hdr-iconbtn" id="menuBtn" type="button" aria-label="Open menu">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
     </div>
-    <div class="actions">
-      <button class="btn" onclick="copyText('Dial 0 from cabin phone')"><i class="fa fa-copy"></i>Copy</button>
+  </header>
+
+  <!-- Main content -->
+  <main>
+    <h1 class="page-title">Important Contacts</h1>
+    <div class="page-sub">Adventure of the Seas · Feb 14–20, 2026</div>
+
+    <div class="section-title">Onboard (Ship)</div>
+    <div class="card">
+      <div class="contact-row">
+        <div class="contact-info">
+          <strong>Guest Services</strong>
+          <span>Dial 0 from cabin phone</span>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="copyText('Dial 0 from cabin phone')"><i class="fa fa-copy"></i>Copy</button>
+        </div>
+      </div>
+
+      <div class="contact-row">
+        <div class="contact-info">
+          <strong>Medical Center</strong>
+          <span>Deck 2 · Midship</span>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="copyText('Deck 2 Midship Medical Center')"><i class="fa fa-copy"></i>Copy</button>
+        </div>
+      </div>
+
+      <div class="contact-row">
+        <div class="contact-info">
+          <strong>Ship Security</strong>
+          <span>Emergency onboard only</span>
+        </div>
+        <div class="actions">
+          <button class="btn call" onclick="alert('Use onboard phone to contact security.')"><i class="fa fa-phone"></i>Call</button>
+        </div>
+      </div>
     </div>
+
+    <div class="section-title">Royal Caribbean (Shore)</div>
+    <div class="card">
+      <div class="contact-row">
+        <div class="contact-info">
+          <strong>Royal Caribbean Customer Service</strong>
+          <span><a href="tel:866-562-7625" style="color:inherit; text-decoration:underline;">866-562-7625</a></span>
+        </div>
+        <div class="actions">
+          <a class="btn call" href="tel:+18665627625"><i class="fa fa-phone"></i>Call</a>
+          <button class="btn" onclick="copyText('866-562-7625')"><i class="fa fa-copy"></i>Copy</button>
+        </div>
+      </div>
+
+      <div class="contact-row">
+        <div class="contact-info">
+          <strong>Travel Insurance</strong>
+          <span>Check policy card</span>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="copyText('Check insurance policy card for number')"><i class="fa fa-copy"></i>Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Port &amp; Local Emergency</div>
+    <div class="card">
+      <div class="contact-row">
+        <div class="contact-info">
+          <strong>Emergency (U.S.)</strong>
+          <span>911</span>
+        </div>
+        <div class="actions">
+          <a class="btn call" href="tel:911"><i class="fa fa-phone"></i>Call</a>
+        </div>
+      </div>
+      <div class="warning">
+        For international ports, ask ship security for correct local emergency number.
+      </div>
+    </div>
+  </main>
+
+  <!-- Back to top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+
+  <!-- Drawer menu (same as other pages) -->
+  <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true">
+    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="drawer-head">
+        <h3>Navigate</h3>
+        <button class="hdr-iconbtn" id="closeDrawerBtn" type="button" aria-label="Close menu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="itinerary.html"><i class="fas fa-route"></i> Itinerary</a>
+        <a href="rooms.html"><i class="fas fa-bed"></i> Rooms</a>
+        <a href="decks.html"><i class="fas fa-layer-group"></i> Decks</a>
+        <a href="contacts.html" class="active"><i class="fas fa-phone"></i> Contacts</a>
+        <a href="operations.html"><i class="fas fa-list-check"></i> Checklist</a>
+        <a href="dining.html"><i class="fas fa-utensils"></i> Dining</a>
+        <a href="tips.html"><i class="fas fa-lightbulb"></i> Tips</a>
+      </nav>
+    </aside>
   </div>
 
-  <div class="contact-row">
-    <div class="contact-info">
-      <strong>Medical Center</strong>
-      <span>Deck 2 · Midship</span>
-    </div>
-    <div class="actions">
-      <button class="btn" onclick="copyText('Deck 2 Midship Medical Center')"><i class="fa fa-copy"></i>Copy</button>
-    </div>
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <i class="fas fa-circle-check"></i>
+    <span id="toastText">Copied</span>
   </div>
 
-  <div class="contact-row">
-    <div class="contact-info">
-      <strong>Ship Security</strong>
-      <span>Emergency onboard only</span>
-    </div>
-    <div class="actions">
-      <button class="btn call" onclick="alert('Use onboard phone to contact security.')"><i class="fa fa-phone"></i>Call</button>
-    </div>
-  </div>
-</div>
-
-<div class="section-title">Royal Caribbean (Shore)</div>
-
-<div class="card">
-
-  <div class="contact-row">
-    <div class="contact-info">
-      <strong>Royal Caribbean Customer Service</strong>
-      <span>866-562-7625</span>
-    </div>
-    <div class="actions">
-      <a class="btn call" href="tel:+18665627625"><i class="fa fa-phone"></i>Call</a>
-      <button class="btn" onclick="copyText('866-562-7625')"><i class="fa fa-copy"></i>Copy</button>
-    </div>
+  <!-- Bottom nav (mobile) -->
+  <div class="bottom-nav">
+    <a href="index.html" class="bottom-nav__item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="itinerary.html" class="bottom-nav__item"><i class="fas fa-route"></i><span>Plan</span></a>
+    <a href="rooms.html" class="bottom-nav__item"><i class="fas fa-bed"></i><span>Rooms</span></a>
+    <a href="decks.html" class="bottom-nav__item"><i class="fas fa-ship"></i><span>Map</span></a>
+    <button class="bottom-nav__item" id="moreBtnMobile"><i class="fas fa-ellipsis"></i><span>More</span></button>
   </div>
 
-  <div class="contact-row">
-    <div class="contact-info">
-      <strong>Travel Insurance</strong>
-      <span>Check policy card</span>
+  <script>
+    (function() {
+      'use strict';
+
+      // ---------- DOM elements ----------
+      const menuBtn = document.getElementById('menuBtn');
+      const drawerBackdrop = document.getElementById('drawerBackdrop');
+      const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+      const backToTop = document.getElementById('backToTop');
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toastText');
+      const moreBtnMobile = document.getElementById('moreBtnMobile');
+
+      // ---------- Copy function (global for onclick) ----------
+      window.copyText = function(text) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Copied');
+        }).catch(() => {
+          showToast('Unable to copy');
+        });
+      };
+
+      function showToast(msg) {
+        toastText.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => toast.classList.remove('show'), 1500);
+      }
+
+      // ---------- Drawer ----------
+      let lastFocus = null;
+      function openDrawer() {
+        lastFocus = document.activeElement;
+        drawerBackdrop.classList.add('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'false');
+        closeDrawerBtn.focus();
+        document.body.style.overflow = 'hidden';
+      }
+      function closeDrawer() {
+        drawerBackdrop.classList.remove('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      }
+      menuBtn.addEventListener('click', openDrawer);
+      closeDrawerBtn.addEventListener('click', closeDrawer);
+      drawerBackdrop.addEventListener('click', (e) => {
+        if (e.target === drawerBackdrop) closeDrawer();
+      });
+
+      // Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawerBackdrop.classList.contains('open')) closeDrawer();
+      });
+
+      // ---------- Back to top ----------
+      window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('show', window.scrollY > 400);
+      });
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+      // ---------- Mobile "More" button ----------
+      moreBtnMobile.addEventListener('click', openDrawer);
+
+      // ---------- Ocean background (rich version from index) ----------
+      const ocean = document.getElementById('ocean');
+      const octx = ocean.getContext('2d');
+      function resizeOcean() {
+        ocean.width = window.innerWidth;
+        ocean.height = window.innerHeight;
+      }
+      resizeOcean();
+      window.addEventListener('resize', resizeOcean);
+
+      let t = 0;
+      function drawOcean() {
+        octx.clearRect(0, 0, ocean.width, ocean.height);
+        octx.fillStyle = '#071a2c';
+        octx.fillRect(0, 0, ocean.width, ocean.height);
+
+        // depth gradient
+        const grad = octx.createLinearGradient(0, 0, 0, ocean.height);
+        grad.addColorStop(0, 'rgba(10,46,74,.08)');
+        grad.addColorStop(1, 'rgba(0,0,0,.22)');
+        octx.fillStyle = grad;
+        octx.fillRect(0, 0, ocean.width, ocean.height);
+
+        // waves
+        const waves = [
+          { amp: 22, len: 0.010, y: 0.46, alpha: 0.11 },
+          { amp: 30, len: 0.008, y: 0.54, alpha: 0.09 },
+          { amp: 38, len: 0.006, y: 0.62, alpha: 0.07 },
+        ];
+        for (let i = 0; i < waves.length; i++) {
+          const w = waves[i];
+          octx.beginPath();
+          const baseY = ocean.height * w.y;
+          octx.moveTo(0, baseY);
+          for (let x = 0; x <= ocean.width; x += 8) {
+            const y = baseY + Math.sin(x * w.len + t * (0.8 + i * 0.15)) * w.amp;
+            octx.lineTo(x, y);
+          }
+          octx.lineTo(ocean.width, ocean.height);
+          octx.lineTo(0, ocean.height);
+          octx.closePath();
+          octx.fillStyle = `rgba(0,180,230,${w.alpha})`;
+          octx.fill();
+
+          // gold shimmer
+          octx.beginPath();
+          octx.moveTo(0, baseY - 16);
+          for (let x = 0; x <= ocean.width; x += 10) {
+            const y = (baseY - 16) + Math.sin(x * (w.len * 1.2) + t * (1.2 + i * 0.2)) * (w.amp * 0.22);
+            octx.lineTo(x, y);
+          }
+          octx.strokeStyle = `rgba(255,215,64,${w.alpha * 0.38})`;
+          octx.lineWidth = 1.2;
+          octx.stroke();
+        }
+        t += 0.012;
+        requestAnimationFrame(drawOcean);
+      }
+      drawOcean();
+    })();
+  </script>
+
+  <noscript>
+    <div style="padding:1rem; text-align:center; background:#ffd740; color:#0d2236; font-weight:900;">
+      This page needs JavaScript enabled.
     </div>
-    <div class="actions">
-      <button class="btn" onclick="copyText('Check insurance policy card for number')"><i class="fa fa-copy"></i>Copy</button>
-    </div>
-  </div>
-
-</div>
-
-<div class="section-title">Port & Local Emergency</div>
-
-<div class="card">
-  <div class="contact-row">
-    <div class="contact-info">
-      <strong>Emergency (U.S.)</strong>
-      <span>911</span>
-    </div>
-    <div class="actions">
-      <a class="btn call" href="tel:911"><i class="fa fa-phone"></i>Call</a>
-    </div>
-  </div>
-
-  <div class="warning">
-    For international ports, ask ship security for correct local emergency number.
-  </div>
-</div>
-
-</main>
-
-<div class="toast" id="toast"></div>
-
-<script>
-(function(){
-'use strict';
-
-/* Copy to clipboard */
-window.copyText=function(text){
-  if(!text) return;
-  navigator.clipboard.writeText(text).then(()=>{
-    showToast('Copied');
-  }).catch(()=>{
-    showToast('Unable to copy');
-  });
-};
-
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),1500);
-}
-
-/* Ocean background */
-const ocean=document.getElementById('ocean');
-const ctx=ocean.getContext('2d');
-ocean.width=window.innerWidth;
-ocean.height=window.innerHeight;
-let t=0;
-
-function draw(){
-  ctx.clearRect(0,0,ocean.width,ocean.height);
-  ctx.fillStyle='#071a2c';
-  ctx.fillRect(0,0,ocean.width,ocean.height);
-
-  ctx.beginPath();
-  for(let x=0;x<ocean.width;x++){
-    let y=Math.sin(x*.01+t)*20+ocean.height/2;
-    ctx.lineTo(x,y);
-  }
-  ctx.lineTo(ocean.width,ocean.height);
-  ctx.lineTo(0,ocean.height);
-  ctx.closePath();
-  ctx.fillStyle='rgba(0,180,230,.12)';
-  ctx.fill();
-
-  t+=.01;
-  requestAnimationFrame(draw);
-}
-draw();
-
-})();
-</script>
-
+  </noscript>
 </body>
 </html>
