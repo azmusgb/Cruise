@@ -2,164 +2,165 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Deck 04 · Adventure of the Seas</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --navy-dark: #061c2e;
-  --navy: #0a2e4a;
-  --blue: #0f4f76;
+  --navy-1: #08293f;
+  --navy-2: #0c3b5c;
   --accent: #00b4e6;
-  --gold: #ffd740;
+  --gold: #ffd34d;
 }
 
-* { box-sizing: border-box; }
-
-html, body {
+* {
+  box-sizing: border-box;
   margin: 0;
-  height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  background: radial-gradient(circle at center, #0f4f76 0%, #061c2e 75%);
+  padding: 0;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: linear-gradient(180deg, var(--navy-1), var(--navy-2));
   color: white;
 }
 
-/* HEADER */
-header {
-  padding: 1rem 1.25rem;
-  background: linear-gradient(90deg, #08263e, #0f4f76);
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 70px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,.4);
-}
-
-header h1 {
-  margin: 0;
-  font-size: 1.1rem;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: linear-gradient(90deg, #0a2e4a, #083452);
   font-weight: 600;
 }
 
-header a {
+.header a {
   color: var(--gold);
   text-decoration: none;
-  font-weight: 600;
 }
 
-/* VIEWER */
 .viewer {
-  height: calc(100vh - 130px);
-  overflow: auto;
+  padding: 30px 20px 120px 20px;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 2rem 1rem 3rem;
-  -webkit-overflow-scrolling: touch;
 }
 
-/* CINEMATIC FRAME */
-.frame {
-  background: linear-gradient(180deg, #ffffff, #f2f6f9);
-  border-radius: 22px;
-  padding: 20px;
-  box-shadow:
-    0 40px 80px rgba(0,0,0,.45),
-    0 0 80px rgba(0,180,230,.25);
-  max-width: 95vw;
+.svg-wrapper {
+  transform-origin: top center;
+  transition: transform 0.25s ease;
 }
 
-/* SVG IMAGE */
-.frame img {
-  width: min(95vw, 900px);
+object {
+  width: 100%;
+  max-width: 900px;
   height: auto;
   display: block;
-  border-radius: 12px;
+  background: white;
+  border-radius: 20px;
+  box-shadow:
+    0 0 0 4px rgba(255,255,255,0.08),
+    0 20px 50px rgba(0,0,0,0.6);
 }
 
-/* CONTROLS */
 .controls {
-  padding: .75rem;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(90deg, #062133, #0b3a59);
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: .75rem;
-  background: rgba(0,0,0,.35);
-  backdrop-filter: blur(10px);
+  gap: 20px;
 }
 
 .controls button {
-  background: var(--accent);
+  width: 60px;
+  height: 45px;
+  border-radius: 12px;
   border: none;
-  padding: .5rem .9rem;
-  border-radius: 8px;
+  background: var(--accent);
   color: white;
+  font-size: 20px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform .15s ease;
 }
 
-.controls button:active {
-  transform: scale(.95);
-}
-
-.zoom-display {
-  min-width: 60px;
+.controls span {
+  min-width: 70px;
   text-align: center;
-  font-weight: bold;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  object {
+    max-width: 100%;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Deck 04 · Entertainment</h1>
+<div class="header">
+  <div>Deck 04 · Entertainment</div>
   <a href="index.html">← Back to Decks</a>
-</header>
+</div>
 
 <div class="viewer">
-  <div class="frame">
-    <img id="deckImage"
-         src="decks/deck-04-final.min.svg"
-         alt="Deck 04 Plan">
+  <div class="svg-wrapper" id="svgWrapper">
+    <object
+      type="image/svg+xml"
+      data="decks/deck-04-final.min.svg">
+    </object>
   </div>
 </div>
 
 <div class="controls">
   <button id="zoomOut">−</button>
-  <div class="zoom-display" id="zoomDisplay">100%</div>
+  <span id="zoomValue">100%</span>
   <button id="zoomIn">+</button>
-  <button id="zoomReset">Reset</button>
+  <button id="resetZoom">Reset</button>
 </div>
 
 <script>
-(() => {
-  const img = document.getElementById('deckImage');
-  const zoomDisplay = document.getElementById('zoomDisplay');
+(function () {
 
-  let zoom = 1;
+  const wrapper = document.getElementById("svgWrapper");
+  const zoomValue = document.getElementById("zoomValue");
+
+  let scale = 1;
 
   function updateZoom() {
-    img.style.width = `min(${95 * zoom}vw, ${900 * zoom}px)`;
-    zoomDisplay.textContent = Math.round(zoom * 100) + "%";
+    wrapper.style.transform = "scale(" + scale + ")";
+    zoomValue.textContent = Math.round(scale * 100) + "%";
   }
 
-  document.getElementById('zoomIn').addEventListener('click', () => {
-    zoom = Math.min(zoom + 0.25, 4);
-    updateZoom();
+  document.getElementById("zoomIn").addEventListener("click", () => {
+    if (scale < 3) {
+      scale += 0.1;
+      updateZoom();
+    }
   });
 
-  document.getElementById('zoomOut').addEventListener('click', () => {
-    zoom = Math.max(zoom - 0.25, 0.5);
-    updateZoom();
+  document.getElementById("zoomOut").addEventListener("click", () => {
+    if (scale > 0.5) {
+      scale -= 0.1;
+      updateZoom();
+    }
   });
 
-  document.getElementById('zoomReset').addEventListener('click', () => {
-    zoom = 1;
+  document.getElementById("resetZoom").addEventListener("click", () => {
+    scale = 1;
     updateZoom();
-  });
-
-  img.addEventListener('error', () => {
-    console.error("SVG failed to load.");
   });
 
 })();
