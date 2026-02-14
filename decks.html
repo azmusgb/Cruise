@@ -136,8 +136,23 @@ object {
 
   const wrapper = document.getElementById("svgWrapper");
   const zoomValue = document.getElementById("zoomValue");
+  const svgObject = document.querySelector("object");
 
   let scale = 1;
+
+  function fitToViewport() {
+    const headerHeight = document.querySelector(".header").offsetHeight;
+    const controlsHeight = document.querySelector(".controls").offsetHeight;
+
+    const availableHeight = window.innerHeight - headerHeight - controlsHeight - 60;
+
+    const svgHeight = svgObject.offsetHeight;
+
+    if (svgHeight > availableHeight) {
+      scale = availableHeight / svgHeight;
+      updateZoom();
+    }
+  }
 
   function updateZoom() {
     wrapper.style.transform = "scale(" + scale + ")";
@@ -162,6 +177,9 @@ object {
     scale = 1;
     updateZoom();
   });
+
+  svgObject.addEventListener("load", fitToViewport);
+  window.addEventListener("resize", fitToViewport);
 
 })();
 </script>
