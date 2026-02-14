@@ -11,12 +11,12 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 
 :root{
-  --deep:#083452;
+  --deep:#07263a;
   --mid:#0f4f76;
-  --light:#00b4e6;
+  --bright:#00b4e6;
   --sun:#ffd966;
-  --sand:#f6efe4;
-  --foam:#e6f9ff;
+  --sand:#f5efe2;
+  --foam:#e8fbff;
   --white:#ffffff;
 }
 
@@ -26,95 +26,109 @@ body{
   overflow-x:hidden;
   color:white;
   background:
-    radial-gradient(circle at 50% -10%, rgba(255,217,102,0.5), transparent 55%),
-    linear-gradient(180deg, var(--mid), var(--deep));
+    radial-gradient(circle at 50% 10%, rgba(255,205,102,.7), transparent 55%),
+    linear-gradient(180deg, #ff8a00 0%, #ff4d6d 25%, #0f4f76 60%, #07263a 100%);
 }
 
-/* ocean shimmer */
-body::after{
+/* moving ocean layers */
+body::before{
   content:"";
   position:fixed;
-  inset:0;
-  background:linear-gradient(120deg,
-    transparent 0%,
-    rgba(255,255,255,0.04) 45%,
-    rgba(255,255,255,0.07) 50%,
-    rgba(255,255,255,0.04) 55%,
-    transparent 100%);
-  animation:oceanMove 10s linear infinite;
+  bottom:0;
+  left:0;
+  width:200%;
+  height:45%;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255,255,255,.12), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.05), transparent 70%);
+  animation:ocean 18s linear infinite;
   pointer-events:none;
 }
 
-@keyframes oceanMove{
-  from{transform:translateX(-50%);}
-  to{transform:translateX(50%);}
+@keyframes ocean{
+  from{transform:translateX(0);}
+  to{transform:translateX(-50%);}
 }
+
+/* palm silhouettes */
+.palm{
+  position:fixed;
+  bottom:0;
+  width:220px;
+  opacity:.15;
+  pointer-events:none;
+  z-index:1;
+}
+
+.palm.left{left:0;}
+.palm.right{right:0; transform:scaleX(-1);}
 
 /* header */
 .header{
-  padding:24px 28px;
+  padding:30px 32px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  position:relative;
+  z-index:5;
 }
 
 .title small{
   text-transform:uppercase;
   letter-spacing:2px;
-  opacity:0.7;
+  opacity:.8;
   font-size:.8rem;
 }
 
 .title h1{
-  font-size:1.9rem;
+  font-size:2rem;
   font-weight:800;
+  line-height:1.2;
 }
 
 .back{
   text-decoration:none;
   color:var(--sun);
-  background:rgba(255,255,255,0.1);
-  padding:10px 20px;
+  font-weight:700;
+  padding:10px 22px;
   border-radius:40px;
-  font-weight:600;
+  background:rgba(255,255,255,.15);
+  backdrop-filter:blur(10px);
   transition:.25s;
 }
 
 .back:hover{
   background:var(--sun);
-  color:var(--deep);
+  color:#07263a;
   transform:translateY(-2px);
 }
 
 /* viewer */
 .viewer{
-  padding:20px 20px 160px;
+  padding:10px 20px 180px;
   display:flex;
   justify-content:center;
-  align-items:center;
+  position:relative;
+  z-index:5;
 }
 
 .card{
   background:var(--sand);
-  border-radius:40px;
-  padding:30px;
+  border-radius:50px;
+  padding:40px;
   box-shadow:
-    0 40px 80px rgba(0,0,0,.4),
+    0 50px 120px rgba(0,0,0,.5),
     0 0 0 8px rgba(255,255,255,.15) inset;
-  position:relative;
-  overflow:hidden;
+  transform:translateY(40px);
+  opacity:0;
+  animation:cardIn .8s ease forwards;
 }
 
-.card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle at 50% 30%, rgba(255,255,255,.25), transparent 60%);
-  pointer-events:none;
+@keyframes cardIn{
+  to{transform:translateY(0);opacity:1;}
 }
 
 .svg-container{
-  position:relative;
   overflow:hidden;
   touch-action:none;
 }
@@ -125,73 +139,81 @@ body::after{
   cursor:grab;
 }
 
-.svg-wrapper:active{
-  cursor:grabbing;
-}
+.svg-wrapper:active{cursor:grabbing;}
 
 object{
   width:100%;
   max-width:1000px;
   height:auto;
   display:block;
-  border-radius:28px;
+  border-radius:30px;
   background:white;
 }
 
 /* controls */
 .controls{
   position:fixed;
-  bottom:30px;
+  bottom:40px;
   left:50%;
   transform:translateX(-50%);
-  background:linear-gradient(90deg,var(--light),var(--mid));
-  padding:14px 26px;
-  border-radius:60px;
+  background:linear-gradient(90deg,var(--bright),#6dd5fa);
+  padding:16px 32px;
+  border-radius:80px;
   display:flex;
   align-items:center;
   gap:28px;
-  box-shadow:0 25px 60px rgba(0,0,0,.4);
+  box-shadow:0 35px 80px rgba(0,0,0,.5);
+  z-index:10;
 }
 
 .controls button{
   width:60px;
-  height:50px;
+  height:52px;
   border:none;
   border-radius:40px;
-  font-size:26px;
+  font-size:28px;
   font-weight:800;
   background:white;
-  color:var(--mid);
+  color:#0f4f76;
   cursor:pointer;
   transition:.2s;
 }
 
 .controls button:hover{
-  transform:translateY(-3px) scale(1.05);
+  transform:translateY(-4px) scale(1.08);
   background:var(--sun);
 }
 
 #reset{
   width:auto;
-  padding:0 24px;
+  padding:0 26px;
   font-size:1rem;
 }
 
 .zoom{
-  font-size:1.3rem;
-  font-weight:700;
-  min-width:80px;
+  font-size:1.4rem;
+  font-weight:800;
+  min-width:90px;
   text-align:center;
 }
 
 @media(max-width:600px){
-  .title h1{font-size:1.5rem;}
-  .controls{gap:16px;padding:12px 18px;}
-  .controls button{width:50px;height:44px;}
+  .title h1{font-size:1.6rem;}
+  .controls{gap:18px;padding:14px 20px;}
+  .controls button{width:50px;height:46px;}
 }
 </style>
 </head>
 <body>
+
+<!-- Palm SVGs -->
+<svg class="palm left" viewBox="0 0 200 400">
+<path fill="#000" d="M100 400 C90 300 120 250 100 150 C80 250 110 300 100 400 Z"/>
+</svg>
+
+<svg class="palm right" viewBox="0 0 200 400">
+<path fill="#000" d="M100 400 C90 300 120 250 100 150 C80 250 110 300 100 400 Z"/>
+</svg>
 
 <div class="header">
   <div class="title">
@@ -207,8 +229,7 @@ object{
       <div class="svg-wrapper" id="wrapper">
         <object type="image/svg+xml"
                 data="decks/deck-04-final.min.svg"
-                id="deck">
-        </object>
+                id="deck"></object>
       </div>
     </div>
   </div>
@@ -229,7 +250,6 @@ object{
   const zoomIn=document.getElementById("zoomIn");
   const zoomOut=document.getElementById("zoomOut");
   const reset=document.getElementById("reset");
-  const container=document.getElementById("container");
 
   let scale=1;
   let posX=0;
@@ -244,68 +264,34 @@ object{
   }
 
   function fit(){
-    const availableW=window.innerWidth-60;
-    const availableH=window.innerHeight-280;
-
+    const availableW=window.innerWidth-80;
+    const availableH=window.innerHeight-320;
     const svgW=deck.offsetWidth||900;
     const svgH=deck.offsetHeight||600;
-
-    const ratio=Math.min(
-      availableW/svgW,
-      availableH/svgH,
-      1
-    );
-
-    scale=Math.max(ratio,.3);
-    posX=0;
-    posY=0;
+    const ratio=Math.min(availableW/svgW,availableH/svgH,1);
+    scale=Math.max(ratio,.35);
+    posX=0; posY=0;
     update();
   }
 
-  zoomIn.addEventListener("click",()=>{
-    scale=Math.min(scale+.15,3);
-    update();
-  });
+  zoomIn.onclick=()=>{scale=Math.min(scale+.15,3);update();};
+  zoomOut.onclick=()=>{scale=Math.max(scale-.15,.35);update();};
+  reset.onclick=fit;
 
-  zoomOut.addEventListener("click",()=>{
-    scale=Math.max(scale-.15,.3);
-    update();
-  });
-
-  reset.addEventListener("click",fit);
-
-  /* drag */
-  wrapper.addEventListener("mousedown",e=>{
+  wrapper.onmousedown=e=>{
     dragging=true;
     startX=e.clientX-posX;
     startY=e.clientY-posY;
-  });
+  };
 
-  window.addEventListener("mouseup",()=>dragging=false);
+  window.onmouseup=()=>dragging=false;
 
-  window.addEventListener("mousemove",e=>{
+  window.onmousemove=e=>{
     if(!dragging)return;
     posX=e.clientX-startX;
     posY=e.clientY-startY;
     update();
-  });
-
-  /* touch drag */
-  wrapper.addEventListener("touchstart",e=>{
-    if(e.touches.length!==1)return;
-    dragging=true;
-    startX=e.touches[0].clientX-posX;
-    startY=e.touches[0].clientY-posY;
-  });
-
-  window.addEventListener("touchend",()=>dragging=false);
-
-  window.addEventListener("touchmove",e=>{
-    if(!dragging||e.touches.length!==1)return;
-    posX=e.touches[0].clientX-startX;
-    posY=e.touches[0].clientY-startY;
-    update();
-  });
+  };
 
   deck.addEventListener("load",fit);
   window.addEventListener("resize",fit);
