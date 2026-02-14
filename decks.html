@@ -6,25 +6,18 @@
   <meta name="theme-color" content="#0a2e4a" />
   <title>Deck Navigator · Adventure of the Seas</title>
 
-  <!-- Fonts -->
+  <!-- Fonts (weights limited to 800 for Plus Jakarta Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
     /* =========================================================
-       DECK NAVIGATOR v4.9 — CINEMATIC RCCL EDITION
-       - PointerEvents only
-       - State-driven deck selection
-       - Real fit math
-       - Loading + error UI
-       - Center-on-venue
-       - iOS safe areas
+       DECK NAVIGATOR v5.0 — INLINE SVG, ACCESSIBLE, PERFORMANT
        ========================================================= */
-
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{
@@ -37,7 +30,7 @@
     }
     a{color:inherit;text-decoration:none}
     button{font:inherit}
-    :focus-visible{outline:3px solid rgba(0,180,230,.65); outline-offset:3px; border-radius:14px}
+    :focus-visible{outline:3px solid #00b4e6; outline-offset:3px; border-radius:14px}
     @media (prefers-reduced-motion: reduce){
       *{animation:none !important; transition:none !important; scroll-behavior:auto !important}
     }
@@ -46,502 +39,223 @@
       --navy:#0a2e4a;
       --accent:#00b4e6;
       --gold:#ffd740;
-
       --glass: rgba(255,255,255,.085);
-      --glass2: rgba(255,255,255,.12);
       --glass-brd: rgba(255,255,255,.18);
-
       --shadow: 0 25px 80px rgba(0,0,0,.45);
-      --shadow2: 0 14px 46px rgba(0,0,0,.36);
-
       --radius: 22px;
-      --radius-lg: 28px;
-
       --ease: cubic-bezier(.22,.61,.36,1);
-
-      --sky1: rgba(0,180,230,.18);
-      --sky2: rgba(255,215,64,.10);
-      --sky3: rgba(0,0,0,.55);
     }
 
-    /* ---------- Background layers ---------- */
+    /* Background layers */
     #ocean{position:fixed; inset:0; z-index:-4;}
     .sky{
-      position:fixed; inset:0; z-index:-3;
-      pointer-events:none;
-      background:
-        radial-gradient(ellipse at 50% 18%, var(--sky1), transparent 60%),
-        radial-gradient(ellipse at 18% 86%, var(--sky2), transparent 55%),
-        linear-gradient(180deg, rgba(0,0,0,.18), var(--sky3));
-      transition: background 900ms var(--ease);
+      position:fixed; inset:0; z-index:-3; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 18%, rgba(0,180,230,.18), transparent 60%),
+                 radial-gradient(ellipse at 18% 86%, rgba(255,215,64,.10), transparent 55%),
+                 linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.55));
     }
     .vignette{
-      position:fixed; inset:0; z-index:-2;
-      pointer-events:none;
-      background:
-        radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.06), transparent 62%),
-        radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.38), transparent 65%);
+      position:fixed; inset:0; z-index:-2; pointer-events:none;
+      background:radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.06), transparent 62%),
+                 radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.38), transparent 65%);
     }
     .ship-sil{
-      position:fixed;
-      left:50%;
-      bottom:6%;
-      transform:translateX(-50%);
-      opacity:.06;
-      font-size:min(320px, 60vw);
-      pointer-events:none;
-      z-index:-1;
-      filter: blur(.2px);
-      transition: transform .12s linear;
+      position:fixed; left:50%; bottom:6%; transform:translateX(-50%);
+      opacity:.06; font-size:min(320px, 60vw); pointer-events:none; z-index:-1;
+      filter: blur(.2px); transition: transform 0.1s linear;
     }
 
-    /* ---------- Header ---------- */
+    /* Header */
     header{
-      position:sticky;
-      top:0;
-      z-index:100;
-      background:rgba(10,46,74,.66);
-      backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
+      position:sticky; top:0; z-index:100;
+      background:rgba(10,46,74,.66); backdrop-filter:blur(14px);
       border-bottom:1px solid rgba(255,255,255,.10);
     }
     .header-inner{
-      height:66px;
-      padding:0 1.05rem;
-      display:flex;
-      align-items:center;
-      gap:1rem;
+      height:66px; padding:0 1.05rem; display:flex; align-items:center; gap:1rem;
     }
     .titlewrap{display:flex; flex-direction:column; line-height:1.05; min-width:0}
     .title{
-      font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:950;
-      letter-spacing:.01em;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:min(62vw, 520px);
+      font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;
+      letter-spacing:.01em; white-space:nowrap; overflow:hidden;
+      text-overflow:ellipsis; max-width:min(62vw, 520px);
     }
     .sub{
-      font-size:.75rem;
-      opacity:.62;
-      font-weight:850;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:min(62vw, 520px);
+      font-size:.75rem; opacity:.75; font-weight:700; white-space:nowrap;
+      overflow:hidden; text-overflow:ellipsis; max-width:min(62vw, 520px);
     }
     .spacer{flex:1}
 
     .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:.5rem;
-      padding:.35rem .8rem;
-      border-radius:999px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.16);
-      color:rgba(255,255,255,.92);
-      font-weight:950;
-      font-size:.75rem;
-      user-select:none;
-      white-space:nowrap;
+      display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .8rem;
+      border-radius:999px; background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16); color:rgba(255,255,255,.92);
+      font-weight:700; font-size:.75rem; user-select:none; white-space:nowrap;
     }
     .pill i{color:var(--gold)}
     .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:.55rem;
-      padding:.55rem .9rem;
-      border-radius:999px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.16);
-      color:rgba(255,255,255,.92);
-      font-weight:950;
-      font-size:.78rem;
-      transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
-      user-select:none;
-      cursor:pointer;
+      display:inline-flex; align-items:center; justify-content:center; gap:.55rem;
+      padding:.55rem .9rem; border-radius:999px; background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16); color:rgba(255,255,255,.92);
+      font-weight:700; font-size:.78rem; transition: background .18s var(--ease);
+      user-select:none; cursor:pointer;
     }
-    .btn:hover{background:rgba(255,255,255,.14);border-color:rgba(0,180,230,.28)}
+    .btn:hover{background:rgba(255,255,255,.14); border-color:rgba(0,180,230,.28)}
     .btn:active{transform:translateY(1px)}
     .btn i{color:var(--gold)}
-
     .primary{
-      background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
-      color: rgba(8,28,46,.96);
-      border-color: rgba(255,255,255,.18);
-      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      background: linear-gradient(135deg, #00b4e6, #ffd740);
+      color: #0a2e4a; border-color: rgba(255,255,255,.18);
     }
-    .primary i{color: rgba(8,28,46,.92)}
-    .primary:hover{filter:brightness(1.03)}
 
-    /* ---------- Viewer ---------- */
-    .viewer{
-      position:fixed;
-      top:66px;
-      left:0;
-      right:0;
-      bottom:0;
-    }
+    /* Viewer */
+    .viewer{position:fixed; top:66px; left:0; right:0; bottom:0;}
     .frame{
-      position:absolute;
-      inset:12px 12px calc(14px + env(safe-area-inset-bottom)) 12px;
-      border-radius: 24px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.16);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      touch-action:none; /* required for PointerEvents pan/zoom */
+      position:absolute; inset:12px 12px calc(14px + env(safe-area-inset-bottom)) 12px;
+      border-radius:24px; background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(16px);
+      box-shadow:var(--shadow); overflow:hidden; touch-action:none;
     }
-
     .stage{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     }
     .panZoom{
-      transform-origin: 0 0;
-      will-change: transform;
-      transition: transform 220ms var(--ease);
+      transform-origin:0 0; will-change:transform; transition:transform 220ms var(--ease);
     }
-
-    /* <object> sized by CSS; we measure it after load */
-    #deckObject{
-      width:min(1020px, 92vw);
-      height:auto;
-      display:block;
-      filter:
-        drop-shadow(0 40px 120px rgba(0,0,0,.55))
-        drop-shadow(0 0 60px rgba(0,180,230,.20));
+    #inlineSvg{
+      display:block; width:auto; height:auto; max-width:none; max-height:none;
+      filter:drop-shadow(0 40px 120px rgba(0,0,0,.55)) drop-shadow(0 0 60px rgba(0,180,230,.20));
     }
-
-    /* Subtle glowing edge frame */
     .glow{
-      pointer-events:none;
-      position:absolute; inset:0;
-      border-radius:24px;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.06) inset,
-        0 0 40px rgba(0,180,230,.10),
-        0 0 80px rgba(255,215,64,.06);
-      opacity:.9;
+      pointer-events:none; position:absolute; inset:0; border-radius:24px;
+      box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,
+                 0 0 40px rgba(0,180,230,.10), 0 0 80px rgba(255,215,64,.06);
     }
 
-    /* ---------- Controls (iOS safe-area aware) ---------- */
-    .controls{
-      position:absolute; inset:0;
-      pointer-events:none;
-      z-index:50;
-    }
-
-    /* Right-side vertical zoom (thumb-friendly) */
+    /* Controls */
+    .controls{position:absolute; inset:0; pointer-events:none; z-index:50;}
     .zoomStack{
-      position:absolute;
-      right:14px;
-      bottom:calc(110px + env(safe-area-inset-bottom));
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      pointer-events:auto;
-      z-index:60;
+      position:absolute; right:14px; bottom:calc(110px + env(safe-area-inset-bottom));
+      display:flex; flex-direction:column; gap:10px; pointer-events:auto; z-index:60;
     }
     .ctrlIconBtn{
-      width:50px;height:50px;
-      border-radius:18px;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.16);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      color: rgba(255,255,255,.92);
-      display:grid;place-items:center;
-      box-shadow: 0 16px 46px rgba(0,0,0,.22);
-      cursor:pointer;
-      transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
-      user-select:none;
+      width:50px; height:50px; border-radius:18px; background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16); backdrop-filter:blur(14px);
+      color:#fff; display:grid; place-items:center; box-shadow:0 16px 46px rgba(0,0,0,.22);
+      cursor:pointer; transition:background .18s var(--ease);
     }
-    .ctrlIconBtn:hover{background:rgba(255,255,255,.14);border-color:rgba(0,180,230,.28)}
-    .ctrlIconBtn:active{transform:translateY(1px)}
+    .ctrlIconBtn:hover{background:rgba(255,255,255,.14); border-color:rgba(0,180,230,.28)}
     .ctrlIconBtn i{color:var(--gold)}
-    .ctrlIconBtn[disabled]{opacity:.55; cursor:not-allowed}
-
-    /* Bottom dock: mode + zoom readout */
-    .dock{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:calc(14px + env(safe-area-inset-bottom));
-      display:flex;
-      align-items:center;
-      gap:10px;
-      pointer-events:auto;
-      z-index:60;
-      padding:.45rem .5rem;
-      border-radius: 999px;
-      background: rgba(0,0,0,.14);
-      border:1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: 0 18px 60px rgba(0,0,0,.28);
-      max-width: calc(100% - 24px);
-    }
-
-    .segmented{
-      display:flex;
-      border-radius:999px;
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-    }
-    .segmented button{
-      border:none;
-      background:transparent;
-      color: rgba(255,255,255,.92);
-      font-weight:950;
-      font-size:.78rem;
-      padding:.55rem .9rem;
-      cursor:pointer;
-      user-select:none;
-      transition: background .18s var(--ease), color .18s var(--ease);
-      white-space:nowrap;
-    }
-    /* High-contrast active state: not a rainbow gradient */
-    .segmented button.active{
-      background: rgba(255,215,64,.92);
-      color: rgba(8,28,46,.96);
-    }
-
-    .zoomReadout{
-      display:inline-flex;
-      align-items:center;
-      gap:.5rem;
-      padding:.52rem .75rem;
-      border-radius:999px;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      color: rgba(255,255,255,.92);
-      font-weight:950;
-      font-size:.78rem;
-      white-space:nowrap;
-      user-select:none;
-    }
-    .zoomReadout i{color:var(--gold)}
-    .zoomReadout .modeTag{
-      opacity:.75;
-      font-weight:900;
-    }
-
-    /* Recenter FAB */
     .recenter{
-      position:absolute;
-      left:14px;
-      bottom:calc(14px + env(safe-area-inset-bottom));
-      pointer-events:auto;
-      z-index:60;
-      width:54px;height:54px;
-      border-radius:999px;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.16);
-      display:grid;place-items:center;
-      box-shadow: 0 18px 60px rgba(0,0,0,.30);
-      cursor:pointer;
-      opacity:0;
-      transform:scale(.88);
-      transition: opacity .2s var(--ease), transform .2s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
+      position:absolute; left:14px; bottom:calc(14px + env(safe-area-inset-bottom));
+      pointer-events:auto; z-index:60; width:54px; height:54px; border-radius:999px;
+      background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16);
+      display:grid; place-items:center; box-shadow:0 18px 60px rgba(0,0,0,.30);
+      cursor:pointer; opacity:0; transform:scale(.88); transition:opacity .2s var(--ease), transform .2s var(--ease);
     }
     .recenter.show{opacity:1; transform:scale(1)}
-    .recenter:hover{background:rgba(255,255,255,.14);border-color:rgba(0,180,230,.28)}
     .recenter i{color:var(--gold)}
+    .dock{
+      position:absolute; left:50%; transform:translateX(-50%);
+      bottom:calc(14px + env(safe-area-inset-bottom)); display:flex; align-items:center; gap:10px;
+      pointer-events:auto; z-index:60; padding:.45rem .5rem; border-radius:999px;
+      background:rgba(0,0,0,.14); border:1px solid rgba(255,255,255,.14);
+      backdrop-filter:blur(14px); box-shadow:0 18px 60px rgba(0,0,0,.28);
+    }
+    .segmented{
+      display:flex; border-radius:999px; overflow:hidden; border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+    }
+    .segmented button{
+      border:none; background:transparent; color:rgba(255,255,255,.92); font-weight:700;
+      font-size:.78rem; padding:.55rem .9rem; cursor:pointer; transition:background .18s var(--ease);
+      white-space:nowrap;
+    }
+    .segmented button.active{background:#ffd740; color:#0a2e4a;}
+    .zoomReadout{
+      display:inline-flex; align-items:center; gap:.5rem; padding:.52rem .75rem;
+      border-radius:999px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+      color:#fff; font-weight:700; font-size:.78rem; white-space:nowrap;
+    }
+    .zoomReadout i{color:var(--gold)}
 
-    /* ---------- Deck selection modal ---------- */
+    /* Modal with focus trap */
     .modal{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.40);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      display:none;
-      z-index:3000;
-      padding: 16px;
+      position:fixed; inset:0; background:rgba(0,0,0,.40); backdrop-filter:blur(8px);
+      display:none; z-index:3000; padding:16px;
     }
     .modal.show{display:block}
     .modalCard{
-      max-width: 720px;
-      margin: 80px auto 0;
-      background: rgba(255,255,255,.085);
-      border:1px solid rgba(255,255,255,.18);
-      border-radius: 24px;
-      box-shadow: 0 30px 110px rgba(0,0,0,.55);
-      overflow:hidden;
+      max-width:720px; margin:80px auto 0; background:rgba(255,255,255,.085);
+      border:1px solid rgba(255,255,255,.18); border-radius:24px;
+      box-shadow:0 30px 110px rgba(0,0,0,.55); overflow:hidden;
     }
     .modalHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding: 14px 16px;
-      background: rgba(10,46,74,.66);
-      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 16px; background:rgba(10,46,74,.66); border-bottom:1px solid rgba(255,255,255,.10);
     }
-    .modalTitle{
-      font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:950;
-      letter-spacing:.01em;
-    }
-    .modalBody{padding: 14px 16px 16px}
+    .modalTitle{font-family:'Plus Jakarta Sans',sans-serif; font-weight:800;}
+    .modalBody{padding:14px 16px 16px}
     .deckGrid{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap:10px;
+      display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px;
     }
-    @media (min-width: 540px){
-      .deckGrid{grid-template-columns: repeat(4, minmax(0,1fr));}
-    }
+    @media (min-width:540px){.deckGrid{grid-template-columns:repeat(4,minmax(0,1fr));}}
     .deckTile{
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.12);
-      padding: 12px 10px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      cursor:pointer;
-      transition: transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
-      user-select:none;
+      border-radius:18px; border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.12);
+      padding:12px 10px; display:flex; flex-direction:column; gap:6px; cursor:pointer;
+      transition:transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
       min-height:64px;
     }
-    .deckTile:hover{transform: translateY(-1px); border-color: rgba(0,180,230,.28); background: rgba(255,255,255,.10)}
-    .deckTile.active{
-      border-color: rgba(255,215,64,.55);
-      box-shadow: 0 0 0 1px rgba(255,215,64,.20) inset;
-    }
-    .deckNum{
-      font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:950;
-      letter-spacing:.01em;
-      font-size: 1rem;
-    }
-    .deckPath{
-      font-size:.72rem;
-      opacity:.68;
-      font-weight:850;
-      word-break:break-all;
-      line-height:1.2;
-    }
+    .deckTile:hover{transform:translateY(-1px); border-color:rgba(0,180,230,.28); background:rgba(255,255,255,.10)}
+    .deckTile.active{border-color:rgba(255,215,64,.55); box-shadow:0 0 0 1px rgba(255,215,64,.20) inset;}
+    .deckNum{font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1rem;}
+    .deckPath{font-size:.72rem; opacity:.7; font-weight:600; word-break:break-all;}
     .deckStatus{
-      font-size:.72rem;
-      font-weight:900;
-      opacity:.85;
-      display:flex;
-      gap:.45rem;
-      align-items:center;
+      font-size:.72rem; font-weight:700; display:flex; gap:.45rem; align-items:center;
     }
     .deckStatus i{color:var(--gold)}
     .deckStatus.missing i{color:#ff6b6b}
+    /* focus trap helpers */
+    .focus-trap-start, .focus-trap-end { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
 
-    /* ---------- Loading + error overlays ---------- */
+    /* Overlays */
     .overlay{
-      position:absolute; inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      gap:.9rem;
-      background: rgba(7,26,44,.78);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      z-index:200;
-      text-align:center;
-      padding: 18px;
+      position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+      flex-direction:column; gap:.9rem; background:rgba(7,26,44,.78); backdrop-filter:blur(12px);
+      z-index:200; text-align:center; padding:18px;
     }
     .overlay.show{display:flex}
-
     .spinner{
-      width:44px;height:44px;border-radius:999px;
-      border:3px solid rgba(255,255,255,.18);
-      border-top-color: rgba(0,180,230,.75);
-      animation: spin 1s linear infinite;
+      width:44px; height:44px; border-radius:999px; border:3px solid rgba(255,255,255,.18);
+      border-top-color:#00b4e6; animation:spin 1s linear infinite;
     }
     @keyframes spin{to{transform:rotate(360deg)}}
-    .overlay h2{
-      font-family:'Plus Jakarta Sans',sans-serif;
-      font-weight:950;
-      letter-spacing:.01em;
-      font-size:1.1rem;
-    }
-    .overlay p{
-      opacity:.82;
-      font-weight:700;
-      line-height:1.5;
-      max-width: 520px;
-    }
-    .overlay .small{
-      opacity:.68;
-      font-weight:800;
-      font-size:.78rem;
-      word-break:break-all;
-      max-width: 720px;
-    }
+    .overlay h2{font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:1.1rem;}
+    .overlay p{opacity:.9; font-weight:600; max-width:520px;}
+    .overlay .small{opacity:.7; font-size:.78rem; word-break:break-all;}
 
-    /* Intro overlay (first-load only) */
+    /* Intro */
     .intro{
-      position:fixed; inset:0;
-      z-index:4000;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      pointer-events:none;
-      background:
-        radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.22), transparent 60%),
-        linear-gradient(180deg, rgba(7,26,44,.0), rgba(7,26,44,.65));
+      position:fixed; inset:0; z-index:4000; display:none; align-items:center; justify-content:center;
+      pointer-events:none; background:radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.22), transparent 60%),
+                         linear-gradient(180deg, rgba(7,26,44,.0), rgba(7,26,44,.65));
     }
     .intro.show{display:flex}
     .introCard{
-      pointer-events:none;
-      display:flex;
-      align-items:center;
-      gap:.7rem;
-      padding:.85rem 1.1rem;
-      border-radius:999px;
-      background:rgba(10,46,74,.88);
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow:0 18px 60px rgba(0,0,0,.35);
-      color:rgba(255,255,255,.94);
-      font-weight:950;
-      font-size:.9rem;
-      transform: translateY(6px);
-      opacity:0;
-      animation: introIn 900ms var(--ease) forwards;
+      display:flex; align-items:center; gap:.7rem; padding:.85rem 1.1rem; border-radius:999px;
+      background:rgba(10,46,74,.88); border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 18px 60px rgba(0,0,0,.35); color:#fff; font-weight:700; font-size:.9rem;
+      transform:translateY(6px); opacity:0; animation:introIn 900ms var(--ease) forwards;
     }
     .introCard i{color:var(--gold)}
     .introPulse{
-      width:10px;height:10px;border-radius:999px;
-      background:var(--accent);
-      box-shadow:0 0 0 0 rgba(0,180,230,.55);
-      animation:pulse 1.1s ease-out infinite;
+      width:10px; height:10px; border-radius:999px; background:var(--accent);
+      box-shadow:0 0 0 0 rgba(0,180,230,.55); animation:pulse 1.1s ease-out infinite;
     }
-    @keyframes pulse{
-      0%{box-shadow:0 0 0 0 rgba(0,180,230,.55)}
-      100%{box-shadow:0 0 0 18px rgba(0,180,230,0)}
-    }
-    @keyframes introIn{
-      0%{opacity:0; transform: translateY(10px)}
-      100%{opacity:1; transform: translateY(0)}
-    }
-
-    /* Small screens */
-    @media (max-width: 420px){
-      .title{max-width: 54vw}
-      .sub{max-width: 54vw}
-      .zoomStack{right:10px}
-    }
+    @keyframes pulse{0%{box-shadow:0 0 0 0 #00b4e6}100%{box-shadow:0 0 0 18px rgba(0,180,230,0)}}
+    @keyframes introIn{0%{opacity:0; transform:translateY(10px)}100%{opacity:1; transform:translateY(0)}}
   </style>
 </head>
-
 <body>
   <canvas id="ocean" aria-hidden="true"></canvas>
   <div class="sky" aria-hidden="true"></div>
@@ -562,78 +276,59 @@
         <div class="title" id="hdrTitle">Deck Navigator</div>
         <div class="sub" id="hdrSub">Adventure of the Seas</div>
       </div>
-
       <div class="spacer"></div>
-
       <span class="pill" id="deckPill" title="Active deck">
         <i class="fas fa-layer-group" aria-hidden="true"></i>
         <span id="deckPillText">Deck</span>
       </span>
-
       <button class="btn primary" id="openDecksBtn" type="button" aria-haspopup="dialog" aria-controls="deckModal">
-        <i class="fas fa-layer-group" aria-hidden="true"></i>
-        Decks
+        <i class="fas fa-layer-group" aria-hidden="true"></i> Decks
       </button>
-
       <a class="btn" href="index.html" aria-label="Back to dashboard">
-        <i class="fas fa-arrow-left" aria-hidden="true"></i>
-        Dashboard
+        <i class="fas fa-arrow-left" aria-hidden="true"></i> Dashboard
       </a>
     </div>
   </header>
 
-  <div class="viewer" role="application" aria-label="Deck navigator">
+  <div class="viewer" aria-label="Deck navigator">
     <div class="frame" id="frame" aria-label="Deck canvas" tabindex="0">
       <div class="stage" id="stage">
         <div class="panZoom" id="panZoom">
-          <object id="deckObject" type="image/svg+xml" aria-label="Active deck SVG"></object>
+          <!-- Inline SVG injected here -->
+          <div id="svgContainer" style="display: contents;"></div>
         </div>
       </div>
-
       <div class="glow" aria-hidden="true"></div>
 
-      <!-- overlays -->
-      <div class="overlay" id="loadingOverlay" aria-live="polite" aria-atomic="true">
+      <!-- Overlays -->
+      <div class="overlay" id="loadingOverlay" aria-live="polite">
         <div class="spinner" aria-hidden="true"></div>
         <h2>Loading deck…</h2>
-        <p>Pulling the map into focus. Cruise Wi-Fi is… a vibe.</p>
+        <p>Pulling the map into focus. Cruise Wi‑Fi is… a vibe.</p>
         <div class="small" id="loadingPath"></div>
       </div>
 
-      <div class="overlay" id="errorOverlay" aria-live="assertive" aria-atomic="true">
-        <i class="fas fa-triangle-exclamation fa-2x" aria-hidden="true" style="color:#ff6b6b;"></i>
+      <div class="overlay" id="errorOverlay" aria-live="assertive">
+        <i class="fas fa-triangle-exclamation fa-2x" style="color:#ff6b6b;" aria-hidden="true"></i>
         <h2>Deck failed to load</h2>
         <p id="errorMsg">We couldn’t load this SVG.</p>
         <div class="small" id="errorPath"></div>
         <div style="display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; margin-top:.2rem;">
-          <button class="btn primary" id="retryBtn" type="button">
-            <i class="fas fa-rotate-right" aria-hidden="true"></i>
-            Retry
-          </button>
-          <button class="btn" id="openDecksBtn2" type="button">
-            <i class="fas fa-layer-group" aria-hidden="true"></i>
-            Choose another deck
-          </button>
+          <button class="btn primary" id="retryBtn" type="button"><i class="fas fa-rotate-right" aria-hidden="true"></i> Retry</button>
+          <button class="btn" id="openDecksBtn2" type="button"><i class="fas fa-layer-group" aria-hidden="true"></i> Choose another deck</button>
+          <button class="btn" id="dismissErrorBtn" type="button"><i class="fas fa-times" aria-hidden="true"></i> Dismiss</button>
         </div>
       </div>
 
       <!-- Controls -->
       <div class="controls" aria-hidden="false">
         <div class="zoomStack" role="group" aria-label="Zoom controls">
-          <button class="ctrlIconBtn" id="zoomInBtn" type="button" aria-label="Zoom in">
-            <i class="fas fa-plus" aria-hidden="true"></i>
-          </button>
-          <button class="ctrlIconBtn" id="zoomOutBtn" type="button" aria-label="Zoom out">
-            <i class="fas fa-minus" aria-hidden="true"></i>
-          </button>
-          <button class="ctrlIconBtn" id="resetBtn" type="button" aria-label="Recenter and fit view">
-            <i class="fas fa-crosshairs" aria-hidden="true"></i>
-          </button>
+          <button class="ctrlIconBtn" id="zoomInBtn" type="button" aria-label="Zoom in"><i class="fas fa-plus" aria-hidden="true"></i></button>
+          <button class="ctrlIconBtn" id="zoomOutBtn" type="button" aria-label="Zoom out"><i class="fas fa-minus" aria-hidden="true"></i></button>
+          <button class="ctrlIconBtn" id="resetBtn" type="button" aria-label="Recenter and fit view"><i class="fas fa-crosshairs" aria-hidden="true"></i></button>
         </div>
 
-        <button class="recenter" id="recenterBtn" type="button" aria-label="Recenter view">
-          <i class="fas fa-crosshairs" aria-hidden="true"></i>
-        </button>
+        <button class="recenter" id="recenterBtn" type="button" aria-label="Recenter view"><i class="fas fa-crosshairs" aria-hidden="true"></i></button>
 
         <div class="dock" role="group" aria-label="View mode and zoom readout">
           <div class="segmented" role="group" aria-label="View mode">
@@ -641,7 +336,6 @@
             <button id="modeFill" type="button" aria-pressed="false">Fill</button>
             <button id="mode100" type="button" aria-pressed="false">100%</button>
           </div>
-
           <div class="zoomReadout" id="zoomReadout" aria-label="Zoom percentage and active mode">
             <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
             <span id="zoomPct">100%</span>
@@ -652,33 +346,26 @@
     </div>
   </div>
 
-  <!-- Deck modal -->
+  <!-- Deck modal with focus trap -->
   <div class="modal" id="deckModal" role="dialog" aria-modal="true" aria-label="Choose a deck">
+    <span class="focus-trap-start" tabindex="0"></span>
     <div class="modalCard">
       <div class="modalHead">
         <div class="modalTitle">Choose a deck</div>
-        <button class="btn" id="closeDecksBtn" type="button" aria-label="Close deck chooser">
-          <i class="fas fa-xmark" aria-hidden="true"></i>
-          Close
-        </button>
+        <button class="btn" id="closeDecksBtn" type="button" aria-label="Close deck chooser"><i class="fas fa-xmark" aria-hidden="true"></i> Close</button>
       </div>
       <div class="modalBody">
         <div style="display:flex; gap:.6rem; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:.75rem;">
-          <div style="opacity:.78;font-weight:850;font-size:.82rem;">
-            Tip: Use ←/→ to change decks. +/− to zoom. 0 to reset.
-          </div>
+          <div style="opacity:.9; font-weight:600; font-size:.82rem;">Tip: ←/→ change decks. +/− zoom. 0 reset.</div>
           <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
-            <button class="btn" id="prevDeckBtn" type="button" aria-label="Previous deck">
-              <i class="fas fa-chevron-left" aria-hidden="true"></i> Prev
-            </button>
-            <button class="btn" id="nextDeckBtn" type="button" aria-label="Next deck">
-              Next <i class="fas fa-chevron-right" aria-hidden="true"></i>
-            </button>
+            <button class="btn" id="prevDeckBtn" type="button" aria-label="Previous deck"><i class="fas fa-chevron-left" aria-hidden="true"></i> Prev</button>
+            <button class="btn" id="nextDeckBtn" type="button" aria-label="Next deck">Next <i class="fas fa-chevron-right" aria-hidden="true"></i></button>
           </div>
         </div>
         <div class="deckGrid" id="deckGrid" aria-label="Deck list"></div>
       </div>
     </div>
+    <span class="focus-trap-end" tabindex="0"></span>
   </div>
 
   <noscript>
@@ -691,92 +378,60 @@
 (() => {
   'use strict';
 
-  /* =========================================================
-     WARN-level milestone logging + clean info logs
-     ========================================================= */
+  // ----- Logging (milestones as info, not warn) -----
   const DEBUG = true;
   const Log = {
-    milestone: (msg, data) => { if (DEBUG) console.warn('[DeckNav][MILESTONE]', msg, data || ''); },
-    warn:      (msg, data) => { if (DEBUG) console.warn('[DeckNav][WARN]', msg, data || ''); },
-    info:      (msg, data) => { if (DEBUG) console.log('[DeckNav]', msg, data || ''); },
-    error:     (msg, data) => { console.error('[DeckNav][ERROR]', msg, data || ''); }
+    milestone: (msg, data) => { if (DEBUG) console.info('[DeckNav]', msg, data || ''); },
+    warn:      (msg, data) => { if (DEBUG) console.warn('[DeckNav]', msg, data || ''); },
+    error:     (msg, data) => { console.error('[DeckNav]', msg, data || ''); }
   };
 
-  /* =========================================================
-     Config: Deck manifest (edit here)
-     Adventure of the Seas decks typically 2–14 (no 13).
-     Missing files are handled gracefully via error overlay.
-     ========================================================= */
-  const DECK_MANIFEST = [
-    2,3,4,5,6,7,8,9,10,11,12,14
-  ].map(n => ({
+  // ----- Deck manifest -----
+  const DECK_MANIFEST = [2,3,4,5,6,7,8,9,10,11,12,14].map(n => ({
     num: n,
     id: String(n).padStart(2,'0'),
     path: `decks/deck-${String(n).padStart(2,'0')}-final.min.svg`
   }));
 
-  /* =========================================================
-     DOM
-     ========================================================= */
+  // ----- DOM elements -----
   const frame = document.getElementById('frame');
   const stage = document.getElementById('stage');
   const panZoom = document.getElementById('panZoom');
-  const deckObject = document.getElementById('deckObject');
-
+  const svgContainer = document.getElementById('svgContainer'); // will hold inline svg
   const openDecksBtn = document.getElementById('openDecksBtn');
   const openDecksBtn2 = document.getElementById('openDecksBtn2');
   const closeDecksBtn = document.getElementById('closeDecksBtn');
   const deckModal = document.getElementById('deckModal');
   const deckGrid = document.getElementById('deckGrid');
-
   const prevDeckBtn = document.getElementById('prevDeckBtn');
   const nextDeckBtn = document.getElementById('nextDeckBtn');
-
   const deckPillText = document.getElementById('deckPillText');
-
   const loadingOverlay = document.getElementById('loadingOverlay');
   const errorOverlay = document.getElementById('errorOverlay');
   const loadingPath = document.getElementById('loadingPath');
   const errorMsg = document.getElementById('errorMsg');
   const errorPath = document.getElementById('errorPath');
   const retryBtn = document.getElementById('retryBtn');
-
+  const dismissErrorBtn = document.getElementById('dismissErrorBtn');
   const zoomInBtn = document.getElementById('zoomInBtn');
   const zoomOutBtn = document.getElementById('zoomOutBtn');
   const resetBtn = document.getElementById('resetBtn');
   const recenterBtn = document.getElementById('recenterBtn');
-
   const modeFitBtn = document.getElementById('modeFit');
   const modeFillBtn = document.getElementById('modeFill');
   const mode100Btn = document.getElementById('mode100');
-
   const zoomPctEl = document.getElementById('zoomPct');
   const modeTagEl = document.getElementById('modeTag');
-
   const intro = document.getElementById('intro');
 
-  /* =========================================================
-     Guard required nodes
-     ========================================================= */
-  const required = [
-    frame, stage, panZoom, deckObject,
-    deckModal, deckGrid,
-    loadingOverlay, errorOverlay
-  ];
-  if (required.some(x => !x)) {
-    Log.error('Missing required DOM nodes. Page is incomplete.');
-    return;
-  }
-
-  /* =========================================================
-     State (single source of truth)
-     ========================================================= */
-  const STORAGE_KEY = 'rccl.decknav.state.v1';
+  // ----- State (single source of truth) -----
+  const STORAGE_KEY = 'rccl.decknav.state.v2';
   const INTRO_KEY = 'rccl.decknav.introShown.v1';
+  const SVG_CACHE = new Map(); // cache fetched SVG text
 
   const State = {
     deckIndex: 0,
-    viewMode: 'fit', // 'fit' | 'fill' | '100'
+    viewMode: 'fit',          // 'fit' | 'fill' | '100'
     scale: 1,
     tx: 0,
     ty: 0,
@@ -784,14 +439,13 @@
     maxScale: 5.0,
     baseW: 1000,
     baseH: 1000,
-    objectReady: false,
-    svgDocReady: false,
-    lastLoadError: null
+    svgLoaded: false,         // true when SVG is in DOM and measured
+    loadTimer: null,
+    animationFrame: null,
+    visibilityHidden: false,
   };
 
-  function safeJSONParse(s, fallback) {
-    try { return s ? JSON.parse(s) : fallback; } catch { return fallback; }
-  }
+  // ----- Persistence helpers -----
   function persistState() {
     try {
       const slim = {
@@ -802,48 +456,46 @@
         ty: State.ty
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
-    } catch {}
-  }
-  function restoreState() {
-    const saved = safeJSONParse(localStorage.getItem(STORAGE_KEY), null);
-    if (!saved) return;
-    if (Number.isFinite(saved.deckIndex)) State.deckIndex = clampInt(saved.deckIndex, 0, DECK_MANIFEST.length - 1);
-    if (typeof saved.viewMode === 'string') State.viewMode = ['fit','fill','100'].includes(saved.viewMode) ? saved.viewMode : 'fit';
-    if (Number.isFinite(saved.scale)) State.scale = clamp(saved.scale, State.minScale, State.maxScale);
-    if (Number.isFinite(saved.tx)) State.tx = saved.tx;
-    if (Number.isFinite(saved.ty)) State.ty = saved.ty;
+    } catch (e) { Log.warn('persistState failed', e); }
   }
 
-  /* =========================================================
-     Utilities
-     ========================================================= */
-  function prefersReducedMotion() {
-    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function restoreState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (!saved) return;
+      if (Number.isFinite(saved.deckIndex)) State.deckIndex = clampInt(saved.deckIndex, 0, DECK_MANIFEST.length-1);
+      if (typeof saved.viewMode === 'string') State.viewMode = ['fit','fill','100'].includes(saved.viewMode) ? saved.viewMode : 'fit';
+      if (Number.isFinite(saved.scale)) State.scale = clamp(saved.scale, State.minScale, State.maxScale);
+      if (Number.isFinite(saved.tx)) State.tx = saved.tx;
+      if (Number.isFinite(saved.ty)) State.ty = saved.ty;
+    } catch (e) { Log.warn('restoreState failed', e); }
   }
-  function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
-  function clampInt(v, min, max) { return Math.min(Math.max(Math.trunc(v), min), max); }
+
+  // ----- Utilities -----
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+  const clampInt = (v, min, max) => Math.min(Math.max(Math.trunc(v), min), max);
+  const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
   function setOverlay(which, show, msg, path) {
     if (which === 'loading') {
       loadingOverlay.classList.toggle('show', !!show);
       if (path) loadingPath.textContent = path;
-      return;
-    }
-    if (which === 'error') {
+    } else if (which === 'error') {
       errorOverlay.classList.toggle('show', !!show);
       if (msg) errorMsg.textContent = msg;
       if (path) errorPath.textContent = path;
-      return;
     }
   }
 
   function setModeButtons(mode) {
-    const all = [modeFitBtn, modeFillBtn, mode100Btn];
-    all.forEach(b => { if (!b) return; b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
-
+    [modeFitBtn, modeFillBtn, mode100Btn].forEach(b => {
+      if (!b) return;
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     const map = { fit: modeFitBtn, fill: modeFillBtn, '100': mode100Btn };
     const btn = map[mode];
-    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-pressed','true'); }
+    if (btn) { btn.classList.add('active'); btn.setAttribute('aria-pressed', 'true'); }
     modeTagEl.textContent = mode === '100' ? '100%' : (mode === 'fill' ? 'Fill' : 'Fit');
   }
 
@@ -851,68 +503,34 @@
     zoomPctEl.textContent = `${Math.round(State.scale * 100)}%`;
   }
 
-  function showIntroOnce() {
-    if (prefersReducedMotion()) return;
-    try {
-      const shown = sessionStorage.getItem(INTRO_KEY);
-      if (shown) return;
-      sessionStorage.setItem(INTRO_KEY, '1');
-      intro.classList.add('show');
-      window.setTimeout(() => intro.classList.remove('show'), 1100);
-    } catch {}
-  }
-
-  /* =========================================================
-     Transform engine (screen mapping)
-     We use: transform: scale(s) translate(tx, ty)
-     so translation is applied AFTER scaling (easier + standard map feel).
-     screen = scale * (content + translate)
-     NOTE: CSS applies right-to-left; we set it as: translate(...) scale(...)
-     which means scale then translate (translation in screen px).
-     We'll keep translate THEN scale? No: we want translation NOT scaled.
-     So we do: scale(...) translate(...)? That would scale translation. Bad.
-     Correct: translate(...) scale(...) => scale first, then translate (not scaled).
-     Thus: screen = scale*content + translate.
-     ========================================================= */
   function applyTransform() {
     panZoom.style.transform = `translate(${State.tx}px, ${State.ty}px) scale(${State.scale})`;
     updateZoomReadout();
-
     const moved = Math.abs(State.tx) > 30 || Math.abs(State.ty) > 30;
     recenterBtn.classList.toggle('show', moved);
   }
 
+  // ----- Geometry / fit calculations -----
   function computeFitScale(mode) {
     const fr = frame.getBoundingClientRect();
-    const pad = 0; // frame already padded via glass
-    const vw = Math.max(1, fr.width - pad);
-    const vh = Math.max(1, fr.height - pad);
-
-    const sW = vw / Math.max(1, State.baseW);
-    const sH = vh / Math.max(1, State.baseH);
-
-    if (mode === 'fill') {
-      // width-first immersive default
-      return sW * 1.08; // hero overscale
-    }
-    if (mode === 'fit') {
-      return Math.min(sW, sH) * 1.03; // slight lift so it doesn't feel postage-stamp
-    }
+    const vw = Math.max(1, fr.width);
+    const vh = Math.max(1, fr.height);
+    const sW = vw / State.baseW;
+    const sH = vh / State.baseH;
+    if (mode === 'fill') return sW * 1.08;
+    if (mode === 'fit') return Math.min(sW, sH) * 1.03;
     return 1;
   }
 
   function resetToMode(mode) {
     State.viewMode = mode;
     setModeButtons(mode);
-
     if (mode === '100') {
       State.scale = 1;
-      State.tx = 0;
-      State.ty = 0;
+      State.tx = 0; State.ty = 0;
     } else {
       State.scale = clamp(computeFitScale(mode), State.minScale, State.maxScale);
-      State.tx = 0;
-      State.ty = 0;
+      State.tx = 0; State.ty = 0;
     }
     applyTransform();
     persistState();
@@ -922,190 +540,131 @@
     const fr = frame.getBoundingClientRect();
     const pX = clientX - fr.left;
     const pY = clientY - fr.top;
-
     const oldScale = State.scale;
     const clamped = clamp(newScale, State.minScale, State.maxScale);
     const ratio = clamped / oldScale;
-
-    // Zoom about point p (screen space)
     State.tx = pX - (pX - State.tx) * ratio;
     State.ty = pY - (pY - State.ty) * ratio;
     State.scale = clamped;
-
     applyTransform();
     persistState();
   }
 
-  /* =========================================================
-     Deck loading with error handling
-     ========================================================= */
-  async function probeDeck(path, timeoutMs = 6500) {
-    const ctrl = new AbortController();
-    const t = window.setTimeout(() => ctrl.abort(), timeoutMs);
-    try {
-      const res = await fetch(path, { cache: 'no-cache', signal: ctrl.signal });
-      window.clearTimeout(t);
-      return { ok: res.ok, status: res.status };
-    } catch (e) {
-      window.clearTimeout(t);
-      return { ok: false, status: 0, error: e };
-    }
-  }
-
-  function getActiveDeck() {
-    return DECK_MANIFEST[State.deckIndex] || DECK_MANIFEST[0];
-  }
-
-  function setDeckPill() {
-    const d = getActiveDeck();
-    deckPillText.textContent = `Deck ${d.num}`;
-  }
-
-  function clearObjectHandlers() {
-    deckObject.onload = null;
-    // <object> doesn't reliably fire onerror in all browsers.
-    // We handle error via fetch probe + timeout.
-  }
-
+  // ----- Inline SVG loading (replaces <object>) -----
   async function loadActiveDeck({ reason = 'unknown' } = {}) {
-    const d = getActiveDeck();
-    if (!d) return;
+    const deck = DECK_MANIFEST[State.deckIndex] || DECK_MANIFEST[0];
+    if (!deck) return;
 
-    Log.milestone('Load deck start', { reason, deckIndex: State.deckIndex, path: d.path });
+    Log.milestone('Load deck start', { reason, deck: deck.num, path: deck.path });
 
-    State.objectReady = false;
-    State.svgDocReady = false;
-    State.lastLoadError = null;
+    // Clear any pending load timer
+    if (State.loadTimer) clearTimeout(State.loadTimer);
+    State.svgLoaded = false;
 
     setOverlay('error', false);
-    setOverlay('loading', true, null, d.path);
+    setOverlay('loading', true, null, deck.path);
 
-    // probe first (handles missing SVGs + gives status)
-    const probe = await probeDeck(d.path);
-    if (!probe.ok) {
-      const msg = probe.status ? `HTTP ${probe.status} while fetching deck.` : `Network/timeout while fetching deck.`;
-      Log.warn('Deck probe failed', { path: d.path, status: probe.status, error: probe.error ? String(probe.error) : null });
-      State.lastLoadError = { msg, path: d.path, status: probe.status };
-      setOverlay('loading', false);
-      setOverlay('error', true, msg, d.path);
-      renderDeckGrid(); // mark missing
-      return;
+    // If cached, use it
+    let svgText = SVG_CACHE.get(deck.path);
+    if (!svgText) {
+      try {
+        const res = await fetch(deck.path, { cache: 'force-cache' }); // allow caching
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        svgText = await res.text();
+        SVG_CACHE.set(deck.path, svgText);
+      } catch (err) {
+        Log.warn('Fetch failed', { path: deck.path, error: err.message });
+        setOverlay('loading', false);
+        setOverlay('error', true, `Failed to load deck ${deck.num}.`, deck.path);
+        renderDeckGrid();
+        return;
+      }
     }
 
-    clearObjectHandlers();
+    // Parse and inject SVG
+    try {
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+      const svgElement = svgDoc.documentElement;
 
-    // load into object
-    deckObject.setAttribute('data', d.path);
+      // Ensure viewBox for scaling
+      if (!svgElement.hasAttribute('viewBox') && svgElement.hasAttribute('width') && svgElement.hasAttribute('height')) {
+        const w = parseFloat(svgElement.getAttribute('width'));
+        const h = parseFloat(svgElement.getAttribute('height'));
+        if (!isNaN(w) && !isNaN(h)) {
+          svgElement.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        }
+      }
 
-    // onload: measure, compute base size, reset view for mode
-    deckObject.onload = () => {
-      Log.milestone('Object onload fired', { path: d.path });
+      // Clear previous SVG
+      while (svgContainer.firstChild) svgContainer.removeChild(svgContainer.firstChild);
+      svgContainer.appendChild(svgElement);
 
-      // Wait a frame so layout settles
+      // Give it an id for easy querying
+      svgElement.id = 'inlineSvg';
+
+      // Wait for layout to measure intrinsic size
       requestAnimationFrame(() => {
-        // Measure object size in its untransformed state.
-        // Because object is inside panZoom, and panZoom is transformed,
-        // we temporarily neutralize transforms for measurement.
-        const prev = panZoom.style.transform;
-        panZoom.style.transform = 'translate(0px,0px) scale(1)';
-        const r = deckObject.getBoundingClientRect();
-        panZoom.style.transform = prev;
+        const rect = svgElement.getBoundingClientRect();
+        State.baseW = rect.width > 10 ? rect.width : frame.clientWidth * 0.9;
+        State.baseH = rect.height > 10 ? rect.height : frame.clientHeight * 0.9;
+        State.svgLoaded = true;
 
-        // Defensive: if size is nonsense, fallback to frame size
-        const fr = frame.getBoundingClientRect();
-        const w = (r.width && r.width > 10) ? r.width : Math.max(100, fr.width * 0.9);
-        const h = (r.height && r.height > 10) ? r.height : Math.max(100, fr.height * 0.9);
+        Log.milestone('Measured inline SVG', { baseW: State.baseW, baseH: State.baseH });
 
-        State.baseW = w;
-        State.baseH = h;
-        State.objectReady = true;
-
-        Log.milestone('Measured base deck rect', { baseW: State.baseW, baseH: State.baseH });
-
-        // Reset based on current mode (fit/fill/100)
         resetToMode(State.viewMode);
-
         setDeckPill();
         setOverlay('loading', false);
         renderDeckGrid();
 
-        // If URL hash targets a venue element id, try to center on it
+        // If URL hash, center on that venue
         tryHashVenue();
       });
-    };
 
-    // Failsafe: if onload never fires, show error after a timeout
-    window.setTimeout(() => {
-      if (!State.objectReady) {
-        Log.warn('Object onload timeout', { path: d.path });
-        State.lastLoadError = { msg: 'Timed out waiting for SVG to load.', path: d.path, status: 0 };
-        setOverlay('loading', false);
-        setOverlay('error', true, 'Timed out waiting for SVG to load.', d.path);
-        renderDeckGrid();
-      }
-    }, 7500);
+    } catch (err) {
+      Log.error('SVG injection failed', err);
+      setOverlay('loading', false);
+      setOverlay('error', true, 'SVG parsing failed.', deck.path);
+      renderDeckGrid();
+    }
   }
 
-  /* =========================================================
-     Deck selection UI (modal) — state-driven
-     ========================================================= */
-  function openDeckModal() {
-    deckModal.classList.add('show');
-    renderDeckGrid();
-    // focus first active tile for keyboard users
-    const active = deckGrid.querySelector('.deckTile.active');
-    if (active) active.focus();
-    Log.milestone('Deck modal opened');
-  }
-  function closeDeckModal() {
-    deckModal.classList.remove('show');
-    openDecksBtn.focus();
-    Log.milestone('Deck modal closed');
-  }
-
-  async function deckExistsFast(path) {
-    // Use cached knowledge if we have it in DOM dataset
-    // Otherwise do a light probe (short timeout).
-    const probe = await probeDeck(path, 2200);
-    return probe.ok;
+  // ----- Deck selection UI -----
+  function setDeckPill() {
+    const d = DECK_MANIFEST[State.deckIndex] || DECK_MANIFEST[0];
+    deckPillText.textContent = `Deck ${d.num}`;
   }
 
   function renderDeckGrid() {
     if (!deckGrid) return;
     deckGrid.innerHTML = '';
+    const activeDeck = DECK_MANIFEST[State.deckIndex];
+    const currentErrorPath = errorOverlay.classList.contains('show') ? errorPath.textContent : null;
 
-    const active = getActiveDeck();
-    const missingPath = State.lastLoadError && State.lastLoadError.path ? State.lastLoadError.path : null;
-
-    for (let i = 0; i < DECK_MANIFEST.length; i++) {
-      const d = DECK_MANIFEST[i];
+    DECK_MANIFEST.forEach((d, i) => {
       const tile = document.createElement('button');
       tile.type = 'button';
-      tile.className = 'deckTile' + (i === State.deckIndex ? ' active' : '');
+      tile.className = `deckTile ${i === State.deckIndex ? 'active' : ''}`;
       tile.setAttribute('aria-label', `Select deck ${d.num}`);
-      tile.dataset.index = String(i);
+      tile.dataset.index = i;
 
       const status = document.createElement('div');
       status.className = 'deckStatus';
-      const statusIcon = document.createElement('i');
-      statusIcon.className = 'fas fa-map';
+      const icon = document.createElement('i');
+      icon.className = 'fas fa-map';
       const statusText = document.createElement('span');
       statusText.textContent = 'Ready';
 
-      // If current active deck is in error, mark it
-      if (missingPath && missingPath === d.path) {
+      if (currentErrorPath === d.path) {
         status.classList.add('missing');
-        statusIcon.className = 'fas fa-triangle-exclamation';
-        statusText.textContent = 'Missing/failed';
+        icon.className = 'fas fa-triangle-exclamation';
+        statusText.textContent = 'Failed';
       }
 
-      status.appendChild(statusIcon);
+      status.appendChild(icon);
       status.appendChild(statusText);
 
-      tile.innerHTML = `
-        <div class="deckNum">Deck ${d.num}</div>
-        <div class="deckPath">${d.path}</div>
-      `;
+      tile.innerHTML = `<div class="deckNum">Deck ${d.num}</div><div class="deckPath">${d.path}</div>`;
       tile.appendChild(status);
 
       tile.addEventListener('click', async () => {
@@ -1116,7 +675,7 @@
       });
 
       deckGrid.appendChild(tile);
-    }
+    });
   }
 
   function stepDeck(delta) {
@@ -1127,36 +686,36 @@
     loadActiveDeck({ reason: delta > 0 ? 'nextDeck' : 'prevDeck' });
   }
 
-  /* =========================================================
-     Center-on-venue math
-     - Works when SVG has identifiable elements.
-     - We support:
-       1) URL hash: #<elementId>
-       2) any element with id matching
-       3) optional: elements with [data-venue], [data-venue-name], or class "venue"
-     ========================================================= */
-  function getEmbeddedSvgRoot() {
-  try {
-    const doc = deckObject.contentDocument;
+  // ----- Modal focus trap -----
+  let previousFocus = null;
+  function openDeckModal() {
+    previousFocus = document.activeElement;
+    deckModal.classList.add('show');
+    renderDeckGrid();
 
-    if (!doc) {
-      Log.warn('SVG contentDocument is null');
-      return null;
-    }
+    // Focus first interactive element inside modal
+    const focusable = deckModal.querySelector('button, [tabindex="0"]:not(.focus-trap-start):not(.focus-trap-end)');
+    if (focusable) focusable.focus();
 
-    const svg = doc.documentElement;
-
-    if (!svg || svg.tagName.toLowerCase() !== 'svg') {
-      Log.warn('SVG root not found or invalid');
-      return null;
-    }
-
-    return svg;
-  } catch (e) {
-    Log.error('Error accessing embedded SVG', e);
-    return null;
+    // Trap focus
+    const trapStart = deckModal.querySelector('.focus-trap-start');
+    const trapEnd = deckModal.querySelector('.focus-trap-end');
+    trapStart.addEventListener('focus', () => {
+      const lastFocusable = deckModal.querySelectorAll('button, [tabindex="0"]:not(.focus-trap-start):not(.focus-trap-end)');
+      if (lastFocusable.length) lastFocusable[lastFocusable.length-1].focus();
+    });
+    trapEnd.addEventListener('focus', () => {
+      const firstFocusable = deckModal.querySelector('button, [tabindex="0"]:not(.focus-trap-start):not(.focus-trap-end)');
+      if (firstFocusable) firstFocusable.focus();
+    });
   }
-}
+
+  function closeDeckModal() {
+    deckModal.classList.remove('show');
+    if (previousFocus) previousFocus.focus();
+  }
+
+  // ----- Venue centering (inline SVG) -----
   function tryHashVenue() {
     const hash = (location.hash || '').trim();
     if (!hash || hash.length < 2) return;
@@ -1165,115 +724,65 @@
   }
 
   function centerOnVenueById(id, { animate = true } = {}) {
-  const svg = getEmbeddedSvgRoot();
-  if (!svg) return false;
-
-  let target = null;
-  try {
-    target = svg.getElementById(id) || svg.querySelector(`#${CSS.escape(id)}`);
-  } catch (e) {
-    Log.warn('Venue query failed', { id, error: e });
-    return false;
+    const svg = document.getElementById('inlineSvg');
+    if (!svg) return false;
+    const target = svg.getElementById(id) || svg.querySelector(`#${CSS.escape(id)}`);
+    if (!target) {
+      Log.warn('Venue not found', { id });
+      return false;
+    }
+    return centerOnSvgElement(target, { animate });
   }
-
-  if (!target) {
-    Log.warn('Venue element not found', { id });
-    return false;
-  }
-
-  return centerOnSvgElement(target, { animate });
-}
 
   function centerOnSvgElement(el, { animate = true } = {}) {
-    // Compute target center in screen pixels, then adjust translation.
-    // Since our panZoom transform is applied to the <object> container,
-    // we can use DOMRects (screen space) and compute needed delta.
-
     const fr = frame.getBoundingClientRect();
-
-    // Temporarily disable transition for snappy center if requested
     const prevTransition = panZoom.style.transition;
     if (!animate || prefersReducedMotion()) panZoom.style.transition = 'none';
 
-    // Get current target screen rect
     const targetRect = el.getBoundingClientRect();
-    const targetCX = targetRect.left + targetRect.width / 2;
-    const targetCY = targetRect.top + targetRect.height / 2;
+    const targetCX = targetRect.left + targetRect.width/2;
+    const targetCY = targetRect.top + targetRect.height/2;
+    const frameCX = fr.left + fr.width/2;
+    const frameCY = fr.top + fr.height/2;
 
-    // Frame center (screen)
-    const frameCX = fr.left + fr.width / 2;
-    const frameCY = fr.top + fr.height / 2;
-
-    // Delta in screen pixels: how far we need to move target to center
-    const dx = frameCX - targetCX;
-    const dy = frameCY - targetCY;
-
-    // Translation is in screen px (because translate applied after scale).
-    State.tx += dx;
-    State.ty += dy;
-
+    State.tx += frameCX - targetCX;
+    State.ty += frameCY - targetCY;
     applyTransform();
     persistState();
 
-    // Restore transition
     if (!animate || prefersReducedMotion()) {
       requestAnimationFrame(() => { panZoom.style.transition = prevTransition; });
     }
-
-    Log.milestone('Centered on venue', { dx, dy, id: el.id || null });
     return true;
   }
 
-  /* =========================================================
-     PointerEvents Pan + Pinch Zoom (no touch listeners)
-     ========================================================= */
+  // ----- Pointer gestures (unchanged but now work on inline SVG) -----
   const pointers = new Map();
-  let gesture = {
-    isPanning: false,
-    startTx: 0,
-    startTy: 0,
-    startX: 0,
-    startY: 0,
-    startDist: 0,
-    startScale: 1,
-    startMidX: 0,
-    startMidY: 0
-  };
+  let gesture = { isPanning: false, startTx:0, startTy:0, startX:0, startY:0, startDist:0, startScale:1, startMidX:0, startMidY:0 };
 
   function pointerMidpoint() {
     const vals = Array.from(pointers.values());
-    const ax = vals[0].x, ay = vals[0].y;
-    const bx = vals[1].x, by = vals[1].y;
-    return { x: (ax + bx) / 2, y: (ay + by) / 2 };
+    return { x: (vals[0].x + vals[1].x)/2, y: (vals[0].y + vals[1].y)/2 };
   }
   function pointerDistance() {
     const vals = Array.from(pointers.values());
-    const dx = vals[0].x - vals[1].x;
-    const dy = vals[0].y - vals[1].y;
-    return Math.hypot(dx, dy);
+    return Math.hypot(vals[0].x - vals[1].x, vals[0].y - vals[1].y);
   }
 
   function onPointerDown(e) {
     frame.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
     if (pointers.size === 1) {
       gesture.isPanning = true;
-      gesture.startTx = State.tx;
-      gesture.startTy = State.ty;
-      gesture.startX = e.clientX;
-      gesture.startY = e.clientY;
+      gesture.startTx = State.tx; gesture.startTy = State.ty;
+      gesture.startX = e.clientX; gesture.startY = e.clientY;
     } else if (pointers.size === 2) {
-      // start pinch
       gesture.isPanning = false;
       gesture.startScale = State.scale;
       gesture.startDist = pointerDistance();
       const mid = pointerMidpoint();
-      gesture.startMidX = mid.x;
-      gesture.startMidY = mid.y;
+      gesture.startMidX = mid.x; gesture.startMidY = mid.y;
     }
-
-    Log.info('pointerdown', { id: e.pointerId, count: pointers.size });
   }
 
   function onPointerMove(e) {
@@ -1281,110 +790,71 @@
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     if (pointers.size === 1 && gesture.isPanning) {
-      const dx = e.clientX - gesture.startX;
-      const dy = e.clientY - gesture.startY;
-      State.tx = gesture.startTx + dx;
-      State.ty = gesture.startTy + dy;
+      State.tx = gesture.startTx + (e.clientX - gesture.startX);
+      State.ty = gesture.startTy + (e.clientY - gesture.startY);
       applyTransform();
-      return;
-    }
-
-    if (pointers.size === 2) {
+    } else if (pointers.size === 2) {
       const dist = pointerDistance();
-      if (!Number.isFinite(dist) || dist <= 0) return;
-
-      const scaleFactor = dist / Math.max(1, gesture.startDist);
+      if (dist <= 0) return;
+      const scaleFactor = dist / gesture.startDist;
       const targetScale = clamp(gesture.startScale * scaleFactor, State.minScale, State.maxScale);
-
-      // zoom about midpoint
       const mid = pointerMidpoint();
       setScaleAroundPoint(targetScale, mid.x, mid.y);
-
-      // while pinching, stop mode being "100" (user is actively scaling)
-      if (State.viewMode === '100') {
-        State.viewMode = 'fit';
-        setModeButtons(State.viewMode);
-      }
-      return;
+      if (State.viewMode === '100') { State.viewMode = 'fit'; setModeButtons('fit'); }
     }
   }
 
   function onPointerUp(e) {
     pointers.delete(e.pointerId);
-
     if (pointers.size === 1) {
-      // resume panning from current pointer
       const rem = Array.from(pointers.values())[0];
       gesture.isPanning = true;
-      gesture.startTx = State.tx;
-      gesture.startTy = State.ty;
-      gesture.startX = rem.x;
-      gesture.startY = rem.y;
+      gesture.startTx = State.tx; gesture.startTy = State.ty;
+      gesture.startX = rem.x; gesture.startY = rem.y;
     } else {
       gesture.isPanning = false;
     }
-
     persistState();
-    Log.info('pointerup', { id: e.pointerId, remaining: pointers.size });
   }
 
   function onPointerCancel(e) {
     pointers.delete(e.pointerId);
     gesture.isPanning = false;
     persistState();
-    Log.warn('pointercancel', { id: e.pointerId, remaining: pointers.size });
   }
 
-  /* Mouse wheel zoom (desktop) */
   function onWheel(e) {
-    // allow page scroll? we are overflow hidden; so wheel is for zoom.
     e.preventDefault();
     const delta = e.deltaY;
     const zoom = delta > 0 ? 0.92 : 1.08;
     const next = clamp(State.scale * zoom, State.minScale, State.maxScale);
     setScaleAroundPoint(next, e.clientX, e.clientY);
-
-    if (State.viewMode === '100') {
-      State.viewMode = 'fit';
-      setModeButtons(State.viewMode);
-    }
+    if (State.viewMode === '100') { State.viewMode = 'fit'; setModeButtons('fit'); }
   }
 
-  /* =========================================================
-     Controls wiring
-     ========================================================= */
+  // ----- Event wiring -----
   function wireControls() {
     openDecksBtn.addEventListener('click', openDeckModal);
     openDecksBtn2.addEventListener('click', openDeckModal);
     closeDecksBtn.addEventListener('click', closeDeckModal);
-
-    deckModal.addEventListener('click', (e) => {
-      if (e.target === deckModal) closeDeckModal();
-    });
+    deckModal.addEventListener('click', (e) => { if (e.target === deckModal) closeDeckModal(); });
 
     prevDeckBtn.addEventListener('click', () => stepDeck(-1));
     nextDeckBtn.addEventListener('click', () => stepDeck(1));
 
     retryBtn.addEventListener('click', () => loadActiveDeck({ reason: 'retry' }));
+    dismissErrorBtn.addEventListener('click', () => setOverlay('error', false));
 
     zoomInBtn.addEventListener('click', () => {
-      const next = clamp(State.scale * 1.15, State.minScale, State.maxScale);
-      setScaleAroundPoint(next, frame.getBoundingClientRect().left + frame.getBoundingClientRect().width/2,
-                               frame.getBoundingClientRect().top  + frame.getBoundingClientRect().height/2);
-      State.viewMode = 'fit';
-      setModeButtons(State.viewMode);
-      persistState();
+      const fr = frame.getBoundingClientRect();
+      setScaleAroundPoint(State.scale * 1.15, fr.left + fr.width/2, fr.top + fr.height/2);
+      State.viewMode = 'fit'; setModeButtons('fit'); persistState();
     });
-
     zoomOutBtn.addEventListener('click', () => {
-      const next = clamp(State.scale / 1.15, State.minScale, State.maxScale);
-      setScaleAroundPoint(next, frame.getBoundingClientRect().left + frame.getBoundingClientRect().width/2,
-                               frame.getBoundingClientRect().top  + frame.getBoundingClientRect().height/2);
-      State.viewMode = 'fit';
-      setModeButtons(State.viewMode);
-      persistState();
+      const fr = frame.getBoundingClientRect();
+      setScaleAroundPoint(State.scale / 1.15, fr.left + fr.width/2, fr.top + fr.height/2);
+      State.viewMode = 'fit'; setModeButtons('fit'); persistState();
     });
-
     resetBtn.addEventListener('click', () => resetToMode(State.viewMode === '100' ? 'fit' : State.viewMode));
     recenterBtn.addEventListener('click', () => resetToMode(State.viewMode === '100' ? 'fit' : State.viewMode));
 
@@ -1392,69 +862,67 @@
     modeFillBtn.addEventListener('click', () => resetToMode('fill'));
     mode100Btn.addEventListener('click', () => resetToMode('100'));
 
-    // Pointer gestures
     frame.addEventListener('pointerdown', onPointerDown);
     frame.addEventListener('pointermove', onPointerMove);
     frame.addEventListener('pointerup', onPointerUp);
     frame.addEventListener('pointercancel', onPointerCancel);
-
-    // Wheel zoom
     frame.addEventListener('wheel', onWheel, { passive: false });
 
-    // Keyboard shortcuts (frame focusable)
+    // Keyboard shortcuts
     frame.addEventListener('keydown', (e) => {
       const k = e.key;
-      if (k === 'ArrowLeft') { e.preventDefault(); stepDeck(-1); return; }
-      if (k === 'ArrowRight'){ e.preventDefault(); stepDeck(1); return; }
-      if (k === '+' || k === '=') { e.preventDefault(); zoomInBtn.click(); return; }
-      if (k === '-' || k === '_') { e.preventDefault(); zoomOutBtn.click(); return; }
-      if (k === '0') { e.preventDefault(); resetBtn.click(); return; }
-      if (k === 'Escape' && deckModal.classList.contains('show')) { e.preventDefault(); closeDeckModal(); return; }
-      if (k === 'd' || k === 'D') { e.preventDefault(); openDeckModal(); return; }
+      if (k === 'ArrowLeft') { e.preventDefault(); stepDeck(-1); }
+      else if (k === 'ArrowRight') { e.preventDefault(); stepDeck(1); }
+      else if (k === '+' || k === '=') { e.preventDefault(); zoomInBtn.click(); }
+      else if (k === '-' || k === '_') { e.preventDefault(); zoomOutBtn.click(); }
+      else if (k === '0') { e.preventDefault(); resetBtn.click(); }
+      else if (k === 'Escape' && deckModal.classList.contains('show')) { e.preventDefault(); closeDeckModal(); }
+      else if (k === 'd' || k === 'D') { e.preventDefault(); openDeckModal(); }
     });
 
-    window.addEventListener('hashchange', () => tryHashVenue());
+    window.addEventListener('hashchange', tryHashVenue);
   }
 
-  /* =========================================================
-     Ocean background (lightweight)
-     ========================================================= */
+  // ----- Ocean background (performance: pause when hidden) -----
   const ocean = document.getElementById('ocean');
-  const ctx = ocean ? ocean.getContext('2d', { alpha:true }) : null;
+  const ctx = ocean?.getContext('2d');
   let oceanT = 0;
 
   function resizeOcean() {
     if (!ocean || !ctx) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    ocean.width = Math.floor(window.innerWidth * dpr);
-    ocean.height = Math.floor(window.innerHeight * dpr);
-    ocean.style.width = window.innerWidth + 'px';
-    ocean.style.height = window.innerHeight + 'px';
+    ocean.width = Math.floor(innerWidth * dpr);
+    ocean.height = Math.floor(innerHeight * dpr);
+    ocean.style.width = innerWidth + 'px';
+    ocean.style.height = innerHeight + 'px';
     ctx.setTransform(dpr,0,0,dpr,0,0);
   }
 
   function drawOcean() {
-    if (!ocean || !ctx) return;
-    const w = window.innerWidth, h = window.innerHeight;
+    if (!ocean || !ctx || State.visibilityHidden) {
+      State.animationFrame = requestAnimationFrame(drawOcean);
+      return;
+    }
+    const w = innerWidth, h = innerHeight;
     ctx.clearRect(0,0,w,h);
     ctx.fillStyle = '#071a2c';
     ctx.fillRect(0,0,w,h);
 
-    const g = ctx.createLinearGradient(0,0,0,h);
-    g.addColorStop(0,'rgba(10,46,74,.10)');
-    g.addColorStop(1,'rgba(0,0,0,.28)');
-    ctx.fillStyle = g;
+    const grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0,'rgba(10,46,74,.10)');
+    grad.addColorStop(1,'rgba(0,0,0,.28)');
+    ctx.fillStyle = grad;
     ctx.fillRect(0,0,w,h);
 
     const speed = prefersReducedMotion() ? 0.004 : 0.012;
 
-    for (let i=0;i<3;i++){
+    for (let i=0; i<3; i++) {
       const amp = 22 + i*12;
       const len = 0.010 - i*0.0018;
       const base = h*(0.48 + i*0.07);
       ctx.beginPath();
       ctx.moveTo(0, base);
-      for (let x=0;x<=w;x+=8){
+      for (let x=0; x<=w; x+=8) {
         const y = base + Math.sin(x*len + oceanT*(0.9+i*0.2)) * amp;
         ctx.lineTo(x,y);
       }
@@ -1466,70 +934,71 @@
     }
 
     oceanT += speed;
-    requestAnimationFrame(drawOcean);
+    State.animationFrame = requestAnimationFrame(drawOcean);
   }
 
-  /* Ship silhouette subtle parallax */
+  // Visibility API
+  document.addEventListener('visibilitychange', () => {
+    State.visibilityHidden = document.hidden;
+  });
+
+  // Ship parallax (throttled)
   const shipSil = document.querySelector('.ship-sil');
+  let lastShipMove = 0;
   window.addEventListener('pointermove', (e) => {
     if (!shipSil) return;
-    const x = (e.clientX / Math.max(1, window.innerWidth)) - 0.5;
+    const now = performance.now();
+    if (now - lastShipMove < 16) return; // ~60fps
+    lastShipMove = now;
+    const x = (e.clientX / Math.max(1, innerWidth)) - 0.5;
     shipSil.style.transform = `translateX(-50%) translateY(${x * 8}px)`;
   }, { passive: true });
 
-  /* =========================================================
-     Init
-     ========================================================= */
+  // Intro once per session
+  function showIntroOnce() {
+    if (prefersReducedMotion()) return;
+    try {
+      if (sessionStorage.getItem(INTRO_KEY)) return;
+      sessionStorage.setItem(INTRO_KEY, '1');
+      intro.classList.add('show');
+      setTimeout(() => intro.classList.remove('show'), 1100);
+    } catch {}
+  }
+
+  // ----- Init -----
   async function init() {
     Log.milestone('Init start');
-
     restoreState();
-    setModeButtons(State.viewMode);
-    setDeckPill();
-    updateZoomReadout();
 
-    wireControls();
-
-    // Ocean background
-    resizeOcean();
-    requestAnimationFrame(drawOcean);
-    window.addEventListener('resize', () => {
-      resizeOcean();
-      // recompute fit when orientation changes, but only if in fit/fill
-      if (State.viewMode !== '100' && State.objectReady) {
-        resetToMode(State.viewMode);
-      }
-    });
-
-    // Intro only once per session
-    showIntroOnce();
-
-    // initial deck selection:
-    // - allow URL param ?deck=04 to force selection (optional)
-    const url = new URL(window.location.href);
-    const deckParam = (url.searchParams.get('deck') || '').trim();
+    // URL deck param
+    const url = new URL(location.href);
+    const deckParam = url.searchParams.get('deck')?.trim();
     if (deckParam) {
       const idx = DECK_MANIFEST.findIndex(d => d.id === deckParam || String(d.num) === deckParam);
       if (idx >= 0) State.deckIndex = idx;
-    } else {
-      // fallback: if hash refers to venue, we keep current deck
     }
 
+    setModeButtons(State.viewMode);
     setDeckPill();
-    renderDeckGrid();
+    updateZoomReadout();
+    wireControls();
 
+    resizeOcean();
+    State.animationFrame = requestAnimationFrame(drawOcean);
+    window.addEventListener('resize', () => {
+      resizeOcean();
+      if (State.viewMode !== '100' && State.svgLoaded) resetToMode(State.viewMode);
+    });
+
+    showIntroOnce();
+    renderDeckGrid();
     await loadActiveDeck({ reason: 'init' });
 
-    Log.milestone('Init complete', {
-      deck: getActiveDeck(),
-      viewMode: State.viewMode
-    });
+    Log.milestone('Init complete');
   }
 
   init();
-
 })();
 </script>
-
 </body>
 </html>
