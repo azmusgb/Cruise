@@ -1,189 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Deck Navigator · Adventure of the Seas</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800;900&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
 <style>
-  /* ----- RESET & VARIABLES (merged) ----- */
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{font-family:'Inter',system-ui,sans-serif;background:#071a2c;color:#fff;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom,0px))}
-  button{cursor:pointer;font:inherit;border:none;background:none;color:inherit}
-  a{color:inherit;text-decoration:none}
+  /* ----- RESET & VARIABLES ----- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #071a2c;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  button { cursor: pointer; font: inherit; border: none; background: none; color: inherit; }
+  a { color: inherit; text-decoration: none; }
+
   :root{
-    --navy:#0a2e4a;--accent:#00b4e6;--gold:#ffd740;
-    --glass:rgba(255,255,255,.07);--brd:rgba(255,255,255,.11);
-    --ease:cubic-bezier(.22,.61,.36,1);
+    --navy: #0a2e4a;
+    --accent: #00b4e6;
+    --gold: #ffd740;
+    --glass: rgba(255,255,255,.07);
+    --brd: rgba(255,255,255,.11);
+    --ease: cubic-bezier(.22,.61,.36,1);
   }
 
   /* ----- OCEAN ----- */
-  #ocean{position:fixed;inset:0;z-index:-2}
-  .vignette{position:fixed;inset:0;z-index:-1;pointer-events:none;
-    background:radial-gradient(ellipse at 50% 20%,rgba(0,180,230,.1),transparent 55%),
-               linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.45))}
+  #ocean { position: fixed; inset: 0; z-index: -2; }
+  .vignette {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.10), transparent 55%),
+      linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.45));
+  }
 
   /* ----- HEADER ----- */
-  header{position:sticky;top:0;z-index:200;background:rgba(10,46,74,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--brd)}
-  .hdr{max-width:900px;margin:0 auto;height:56px;padding:0 1rem;display:flex;align-items:center;gap:.65rem}
-  .brand-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:.95rem;line-height:1.1}
-  .brand-sub{font-size:.67rem;color:rgba(255,255,255,.5)}
-  .spacer{flex:1}
-  .hdr-pill{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,215,64,.12);border:1px solid rgba(255,215,64,.28);color:var(--gold);padding:.28rem .7rem;border-radius:999px;font-weight:800;font-size:.7rem;white-space:nowrap}
-  .hdr-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--brd);background:var(--glass);display:grid;place-items:center;font-size:.85rem}
+  header {
+    position: sticky; top: 0; z-index: 200;
+    background: rgba(10,46,74,.72);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--brd);
+  }
+  .hdr { max-width: 900px; margin: 0 auto; height: 56px; padding: 0 1rem; display: flex; align-items: center; gap: .65rem; }
+  .brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: .95rem; line-height: 1.1; }
+  .brand-sub { font-size: .67rem; color: rgba(255,255,255,.50); }
+  .spacer { flex: 1; }
+  .hdr-pill {
+    display: inline-flex; align-items: center; gap: .35rem;
+    background: rgba(255,215,64,.12);
+    border: 1px solid rgba(255,215,64,.28);
+    color: var(--gold);
+    padding: .28rem .7rem;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: .7rem;
+    white-space: nowrap;
+  }
+  .hdr-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--brd);
+    background: var(--glass);
+    display: grid; place-items: center;
+    font-size: .85rem;
+  }
 
   /* ----- HERO ----- */
-  .hero{max-width:900px;margin:0 auto;padding:2rem 1rem .75rem;text-align:center}
-  .hero h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:clamp(1.7rem,5vw,2.6rem);letter-spacing:-.02em;margin-bottom:.3rem}
-  .hero p{color:rgba(255,255,255,.55);font-size:.9rem;font-weight:500}
+  .hero { max-width: 900px; margin: 0 auto; padding: 2rem 1rem .75rem; text-align: center; }
+  .hero h1 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.7rem, 5vw, 2.6rem);
+    letter-spacing: -.02em;
+    margin-bottom: .3rem;
+  }
+  .hero p { color: rgba(255,255,255,.55); font-size: .9rem; font-weight: 500; }
 
   /* ----- SEARCH ----- */
-  .search-wrap{max-width:900px;margin:.75rem auto 0;padding:0 1rem}
-  .search-box{display:flex;align-items:center;gap:.55rem;background:rgba(255,255,255,.09);border:1px solid var(--brd);border-radius:999px;padding:.5rem 1rem;transition:.18s}
-  .search-box:focus-within{border-color:rgba(0,180,230,.5);background:rgba(255,255,255,.12)}
-  .search-box i{color:var(--gold);flex-shrink:0;font-size:.85rem}
-  .search-box input{background:transparent;border:none;outline:none;color:#fff;width:100%;font-size:.9rem}
-  .search-box input::placeholder{color:rgba(255,255,255,.38)}
+  .search-wrap { max-width: 900px; margin: .75rem auto 0; padding: 0 1rem; }
+  .search-box {
+    display: flex; align-items: center; gap: .55rem;
+    background: rgba(255,255,255,.09);
+    border: 1px solid var(--brd);
+    border-radius: 999px;
+    padding: .5rem 1rem;
+    transition: .18s;
+  }
+  .search-box:focus-within { border-color: rgba(0,180,230,.50); background: rgba(255,255,255,.12); }
+  .search-box i { color: var(--gold); flex-shrink: 0; font-size: .85rem; }
+  .search-box input { background: transparent; border: none; outline: none; color: #fff; width: 100%; font-size: .9rem; }
+  .search-box input::placeholder { color: rgba(255,255,255,.38); }
 
   /* ----- FILTER PILLS ----- */
-  .filters{display:flex;gap:.4rem;overflow-x:auto;padding:.75rem 1rem;max-width:900px;margin:0 auto;scrollbar-width:none}
-  .filters::-webkit-scrollbar{display:none}
-  .f-btn{background:var(--glass);border:1px solid var(--brd);border-radius:999px;padding:.42rem .95rem;font-weight:700;font-size:.78rem;color:rgba(255,255,255,.8);white-space:nowrap;transition:.18s}
-  .f-btn.active{background:var(--accent);color:var(--navy);border-color:var(--accent)}
+  .filters { display: flex; gap: .4rem; overflow-x: auto; padding: .75rem 1rem; max-width: 900px; margin: 0 auto; scrollbar-width: none; }
+  .filters::-webkit-scrollbar{ display: none; }
+  .f-btn {
+    background: var(--glass);
+    border: 1px solid var(--brd);
+    border-radius: 999px;
+    padding: .42rem .95rem;
+    font-weight: 700;
+    font-size: .78rem;
+    color: rgba(255,255,255,.80);
+    white-space: nowrap;
+    transition: .18s;
+  }
+  .f-btn.active { background: var(--accent); color: var(--navy); border-color: var(--accent); }
 
   /* ----- CONTENT ----- */
-  .content{max-width:900px;margin:0 auto;padding:0 1rem}
+  .content { max-width: 900px; margin: 0 auto; padding: 0 1rem; }
 
   /* ----- SECTION HEADER ----- */
-  .sec-head{display:flex;align-items:center;gap:.55rem;margin:1.4rem 0 .65rem}
-  .sec-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:.8rem;flex-shrink:0}
-  .sec-icon.ent{background:rgba(168,85,247,.2);color:#c084fc}
-  .sec-icon.wel{background:rgba(34,197,94,.15);color:#4ade80}
-  .sec-icon.ess{background:rgba(0,180,230,.15);color:var(--accent)}
-  .sec-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;font-size:.95rem;letter-spacing:.01em}
-  .sec-count{margin-left:auto;font-size:.75rem;color:rgba(255,255,255,.38);font-weight:600}
+  .sec-head { display: flex; align-items: center; gap: .55rem; margin: 1.4rem 0 .65rem; }
+  .sec-icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-size: .8rem; flex-shrink: 0; }
+  .sec-icon.ent { background: rgba(168,85,247,.20); color: #c084fc; }
+  .sec-icon.wel { background: rgba(34,197,94,.15); color: #4ade80; }
+  .sec-icon.ess { background: rgba(0,180,230,.15); color: var(--accent); }
+  .sec-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: .95rem; letter-spacing: .01em; }
+  .sec-count { margin-left: auto; font-size: .75rem; color: rgba(255,255,255,.38); font-weight: 600; }
 
   /* ----- DECK GRID / CARDS ----- */
-  .deck-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-  @media(min-width:560px){.deck-grid{grid-template-columns:repeat(3,1fr)}}
-  @media(min-width:760px){.deck-grid{grid-template-columns:repeat(4,1fr)}}
-  .deck-card{background:var(--glass);border:1px solid var(--brd);border-radius:18px;padding:.85rem .8rem;cursor:pointer;transition:.2s var(--ease);display:flex;flex-direction:column;gap:.45rem;position:relative;overflow:hidden}
-  .deck-card::before{content:'';position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,180,230,.18),transparent 70%);transition:.2s}
-  .deck-card:hover{transform:translateY(-2px);border-color:rgba(0,180,230,.35)}
-  .deck-card:hover::before{opacity:1}
-  .deck-card:active{transform:scale(.97)}
-  .card-top{display:flex;align-items:center;justify-content:space-between}
-  .card-num{width:32px;height:32px;border-radius:10px;background:var(--accent);color:var(--navy);font-weight:900;font-size:.8rem;display:grid;place-items:center;flex-shrink:0}
-  .card-arrow{color:rgba(255,255,255,.25);font-size:.7rem;transition:.2s}
-  .deck-card:hover .card-arrow{color:var(--accent);transform:translateX(2px)}
-  .card-name{font-weight:800;font-size:.88rem;line-height:1.2}
-  .card-sub{font-size:.72rem;color:var(--gold);font-weight:600;line-height:1.2}
-  .card-tags{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.1rem}
-  .card-tag{background:rgba(255,255,255,.08);border-radius:999px;padding:.12rem .5rem;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.7)}
+  .deck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  @media(min-width:560px){ .deck-grid{ grid-template-columns: repeat(3, 1fr); } }
+  @media(min-width:760px){ .deck-grid{ grid-template-columns: repeat(4, 1fr); } }
+
+  .deck-card {
+    background: var(--glass);
+    border: 1px solid var(--brd);
+    border-radius: 18px;
+    padding: .85rem .8rem;
+    cursor: pointer;
+    transition: .2s var(--ease);
+    display: flex; flex-direction: column; gap: .45rem;
+    position: relative; overflow: hidden;
+  }
+  .deck-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    opacity: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0,180,230,.18), transparent 70%);
+    transition: .2s;
+  }
+  .deck-card:hover { transform: translateY(-2px); border-color: rgba(0,180,230,.35); }
+  .deck-card:hover::before { opacity: 1; }
+  .deck-card:active { transform: scale(.97); }
+
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .card-num {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: var(--accent); color: var(--navy);
+    font-weight: 900; font-size: .8rem;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .card-arrow { color: rgba(255,255,255,.25); font-size: .7rem; transition: .2s; }
+  .deck-card:hover .card-arrow { color: var(--accent); transform: translateX(2px); }
+  .card-name { font-weight: 800; font-size: .88rem; line-height: 1.2; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .1rem; }
+  .card-tag {
+    background: rgba(255,255,255,.08);
+    border-radius: 999px;
+    padding: .12rem .5rem;
+    font-size: .65rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.70);
+  }
 
   /* ----- STATEROOM CHIP ROW ----- */
-  .cabin-row{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.2rem}
-  .cabin-row::-webkit-scrollbar{display:none}
-  .cabin-chip{display:flex;align-items:center;gap:.4rem;background:var(--glass);border:1px solid var(--brd);border-radius:999px;padding:.45rem .85rem;cursor:pointer;transition:.18s;white-space:nowrap;flex-shrink:0}
-  .cabin-chip:hover{background:rgba(255,255,255,.12);border-color:rgba(0,180,230,.3)}
-  .cabin-chip:active{transform:scale(.96)}
-  .chip-num{width:22px;height:22px;border-radius:50%;background:rgba(0,180,230,.2);color:var(--accent);font-weight:900;font-size:.68rem;display:grid;place-items:center;flex-shrink:0}
-  .chip-label{font-size:.78rem;font-weight:700}
-  .chip-sub{font-size:.65rem;color:rgba(255,255,255,.45);font-weight:500}
+  .cabin-row { display: flex; gap: .4rem; overflow-x: auto; scrollbar-width: none; padding-bottom: .2rem; }
+  .cabin-row::-webkit-scrollbar { display: none; }
+  .cabin-chip {
+    display: flex; align-items: center; gap: .4rem;
+    background: var(--glass);
+    border: 1px solid var(--brd);
+    border-radius: 999px;
+    padding: .45rem .85rem;
+    cursor: pointer;
+    transition: .18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .cabin-chip:hover { background: rgba(255,255,255,.12); border-color: rgba(0,180,230,.30); }
+  .cabin-chip:active { transform: scale(.96); }
+  .chip-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,180,230,.20);
+    color: var(--accent);
+    font-weight: 900; font-size: .68rem;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .chip-label { font-size: .78rem; font-weight: 700; }
 
   /* ----- OVERVIEW CARD ----- */
-  .overview-card{background:linear-gradient(135deg,rgba(0,180,230,.15),rgba(0,180,230,.05));border:1px solid rgba(0,180,230,.25);border-radius:18px;padding:1rem;cursor:pointer;display:flex;align-items:center;gap:.85rem;transition:.2s var(--ease);margin-bottom:.6rem}
-  .overview-card:hover{border-color:rgba(0,180,230,.5);transform:translateY(-1px)}
-  .overview-icon{width:42px;height:42px;border-radius:13px;background:rgba(0,180,230,.2);display:grid;place-items:center;font-size:1rem;color:var(--accent);flex-shrink:0}
-  .overview-text strong{display:block;font-weight:800;font-size:.95rem;margin-bottom:.15rem}
-  .overview-text span{font-size:.78rem;color:rgba(255,255,255,.55)}
-  .overview-arrow{margin-left:auto;color:var(--accent);font-size:.85rem}
+  .overview-card {
+    background: linear-gradient(135deg, rgba(0,180,230,.15), rgba(0,180,230,.05));
+    border: 1px solid rgba(0,180,230,.25);
+    border-radius: 18px;
+    padding: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: .85rem;
+    transition: .2s var(--ease);
+    margin-bottom: .6rem;
+  }
+  .overview-card:hover { border-color: rgba(0,180,230,.50); transform: translateY(-1px); }
+  .overview-icon {
+    width: 42px; height: 42px; border-radius: 13px;
+    background: rgba(0,180,230,.20);
+    display: grid; place-items: center;
+    font-size: 1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .overview-text strong { display: block; font-weight: 800; font-size: .95rem; margin-bottom: .15rem; }
+  .overview-text span { font-size: .78rem; color: rgba(255,255,255,.55); }
+  .overview-arrow { margin-left: auto; color: var(--accent); font-size: .85rem; }
 
   /* ----- EMPTY STATE ----- */
-  .empty{text-align:center;padding:3rem 1rem;color:rgba(255,255,255,.35);font-weight:600;display:none}
-  .empty i{display:block;font-size:2rem;margin-bottom:.5rem;opacity:.4}
+  .empty { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,.35); font-weight: 600; display: none; }
+  .empty i { display: block; font-size: 2rem; margin-bottom: .5rem; opacity: .4; }
 
-  /* ----- MODAL – bottom sheet + premium rail ----- */
-  .modal{position:fixed;inset:0;z-index:500;display:none;align-items:flex-end;justify-content:center}
-  .modal.open{display:flex}
-  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(10px)}
-  .modal-sheet{
-    position:relative;z-index:1;background:#0c2d45;
-    border:1px solid rgba(255,255,255,.1);
-    width:100%;max-width:860px;
-    height:92dvh;
-    border-radius:26px 26px 0 0;
-    display:flex;flex-direction:column;overflow:hidden;
-    box-shadow:0 -20px 80px rgba(0,0,0,.5);
-    animation:slideUp .26s var(--ease) both
+  /* ----- MODAL ----- */
+  .modal { position: fixed; inset: 0; z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+  .modal.open { display: flex; }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(10px); }
+  .modal-sheet {
+    position: relative; z-index: 1;
+    background: #0c2d45;
+    border: 1px solid rgba(255,255,255,.10);
+    width: 100%; max-width: 860px;
+    height: 92dvh;
+    border-radius: 26px 26px 0 0;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 -20px 80px rgba(0,0,0,.5);
+    animation: slideUp .26s var(--ease) both;
   }
-  @keyframes slideUp{from{transform:translateY(56px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes slideUp { from{ transform: translateY(56px); opacity: 0; } to{ transform: translateY(0); opacity: 1; } }
   @media(min-width:600px){
-    .modal{align-items:center}
-    .modal-sheet{height:88vh;max-height:760px;border-radius:26px;animation:fadeUp .2s var(--ease) both}
-    @keyframes fadeUp{from{transform:scale(.97) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+    .modal { align-items: center; }
+    .modal-sheet { height: 88vh; max-height: 760px; border-radius: 26px; animation: fadeUp .2s var(--ease) both; }
+    @keyframes fadeUp { from{ transform: scale(.97) translateY(8px); opacity: 0; } to{ transform: none; opacity: 1; } }
   }
-  .drag-handle{display:flex;justify-content:center;padding:.55rem 0 .15rem;flex-shrink:0}
-  .drag-handle span{width:34px;height:4px;background:rgba(255,255,255,.18);border-radius:4px}
-  @media(min-width:600px){.drag-handle{display:none}}
-  .modal-bar{display:flex;align-items:center;gap:.45rem;padding:.55rem .9rem .55rem;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
-  .modal-nav{width:34px;height:34px;border-radius:50%;background:var(--glass);border:1px solid var(--brd);display:grid;place-items:center;font-size:.78rem;transition:.15s;flex-shrink:0}
-  .modal-nav:disabled{opacity:.25;pointer-events:none}
-  .modal-nav:hover:not(:disabled){background:rgba(255,255,255,.14)}
-  .modal-titles{flex:1;min-width:0}
-  .modal-title{font-weight:900;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .modal-sub{font-size:.68rem;color:rgba(255,255,255,.45);font-weight:500}
-  .modal-close-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--brd);display:grid;place-items:center;flex-shrink:0}
-  .modal-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
 
-  /* Plan viewer: scrollable for pan, and supports premium reveal */
+  .drag-handle { display: flex; justify-content: center; padding: .55rem 0 .15rem; flex-shrink: 0; }
+  .drag-handle span { width: 34px; height: 4px; background: rgba(255,255,255,.18); border-radius: 4px; }
+  @media(min-width:600px){ .drag-handle{ display: none; } }
+
+  .modal-bar {
+    display: flex; align-items: center; gap: .45rem;
+    padding: .55rem .9rem .55rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    flex-shrink: 0;
+  }
+  .modal-nav {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--glass); border: 1px solid var(--brd);
+    display: grid; place-items: center; font-size: .78rem;
+    transition: .15s; flex-shrink: 0;
+  }
+  .modal-nav:disabled { opacity: .25; pointer-events: none; }
+  .modal-nav:hover:not(:disabled) { background: rgba(255,255,255,.14); }
+
+  .modal-titles { flex: 1; min-width: 0; }
+  .modal-title { font-weight: 900; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .modal-sub { font-size: .68rem; color: rgba(255,255,255,.45); font-weight: 500; }
+  .modal-mode { font-size: .65rem; font-weight: 800; color: var(--gold); opacity: .85; margin-top: .12rem; }
+
+  .modal-close-btn {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,.08); border: 1px solid var(--brd);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+
+  .modal-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; position: relative; }
+
+  /* Plan viewer: map engine viewport (no scroll; transform-based) */
   .plan-viewer{
-    position:relative;
-    background:linear-gradient(160deg,#1a5577,#267599);
-    overflow:auto;
-    touch-action:none;
-    height:clamp(180px,42vw,380px);
-    border-bottom:1px solid rgba(255,255,255,.07);
-    overscroll-behavior:contain;
+    position: relative;
+    background: linear-gradient(160deg, #1a5577, #267599);
+    overflow: hidden;
+    touch-action: none;
+    height: 58vh;
+    max-height: 560px;
+    min-height: 320px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    overscroll-behavior: contain;
   }
 
   .plan-img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    transform-origin:center;
-    transition:transform .14s var(--ease), opacity .22s ease;
-    display:block;
-    pointer-events:none;
-    user-select:none;
-    opacity:0;
-    filter:none;
-    will-change:transform, opacity, filter;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-origin: 0 0;
+    transition: opacity .22s ease, filter .2s ease;
+    display: block;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    will-change: transform, opacity;
   }
-  .plan-img.loaded{opacity:1}
+  .plan-img.loaded{ opacity: 1; }
 
   /* Cinematic intro zoom + soft glow */
-  .plan-img.intro{
-    transform:scale(1.05);
-    animation:cinematicZoom 700ms var(--ease) both;
-  }
-  @keyframes cinematicZoom{to{transform:scale(1)}}
-  .plan-img.glow{
-    filter:drop-shadow(0 0 22px rgba(0,180,230,.35));
-  }
+  .plan-img.glow{ filter: drop-shadow(0 0 22px rgba(0,180,230,.35)); }
 
   /* Light sweep overlay */
   .plan-viewer::after{
     content:'';
-    position:absolute; inset:0;
-    pointer-events:none;
-    opacity:0;
-    background:linear-gradient(
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
       110deg,
       transparent 0%,
       rgba(255,215,64,.06) 40%,
@@ -191,224 +326,377 @@
       rgba(255,215,64,.06) 60%,
       transparent 100%
     );
-    background-size:200% 100%;
-    transform:translateZ(0);
+    background-size: 200% 100%;
+    transform: translateZ(0);
   }
   .plan-viewer.light-sweep::after{
-    opacity:1;
-    animation:sweep 900ms ease forwards;
+    opacity: 1;
+    animation: sweep 900ms ease forwards;
   }
-  @keyframes sweep{
-    from{background-position:200% 0}
-    to{background-position:-200% 0}
+  @keyframes sweep { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+  /* Hotspots are inside hotspotsLayer which is transformed with the image */
+  .hotspots-layer{
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    z-index: 10;
+    transform-origin: 0 0;
+    will-change: transform;
   }
 
-  /* Hotspots overlay */
-  .hotspots-layer{position:absolute;inset:0;pointer-events:none;z-index:10}
   .hotspot-btn{
-    position:absolute;transform:translate(-50%,-50%);
-    width:36px;height:36px;border-radius:50%;
-    background:var(--accent);border:2px solid white;
-    color:var(--navy);font-weight:900;font-size:.85rem;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;pointer-events:auto;
-    box-shadow:0 2px 6px rgba(0,0,0,.3);
-    transition:.15s;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid white;
+    color: var(--navy);
+    font-weight: 900;
+    font-size: .75rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,.30);
+    transition: .15s;
   }
-  .hotspot-btn:hover{transform:translate(-50%,-50%) scale(1.1);background:#fff;border-color:var(--accent)}
-  .hotspot-btn.active{box-shadow:0 0 0 3px var(--gold);background:var(--gold);border-color:var(--navy);color:var(--navy)}
+  .hotspot-btn:hover{ transform: translate(-50%,-50%) scale(1.08); background: #fff; border-color: var(--accent); }
+  .hotspot-btn.active{ box-shadow: 0 0 0 3px var(--gold); background: var(--gold); border-color: var(--navy); color: var(--navy); }
 
-  /* Smart mode (time-aware) */
-  .hotspot-btn.dim{opacity:.22;filter:grayscale(.6);transform:translate(-50%,-50%) scale(.98)}
+  /* Smart mode: informative, not punitive */
+  .hotspot-btn.dim{ opacity: .55; filter: saturate(.85); }
   .hotspot-btn.smart-highlight{
-    box-shadow:0 0 0 4px rgba(255,215,64,.65);
-    animation:pulseGlow 1.8s ease-in-out infinite;
+    box-shadow: 0 0 0 2px rgba(255,215,64,.45);
+    animation: pulseGlow 1.8s ease-in-out infinite;
   }
   @keyframes pulseGlow{
-    0%,100%{box-shadow:0 0 0 3px rgba(255,215,64,.62)}
-    50%{box-shadow:0 0 0 7px rgba(255,215,64,.18)}
+    0%,100% { box-shadow: 0 0 0 2px rgba(255,215,64,.45); }
+    50%     { box-shadow: 0 0 0 4px rgba(255,215,64,.18); }
   }
 
-  /* Shimmer skeleton */
-  .shimmer{position:absolute;inset:0;z-index:2;background:linear-gradient(160deg,#1a5577,#267599);pointer-events:none;transition:opacity .25s ease}
-  .shimmer::after{content:'';position:absolute;inset:0;
-    background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.08) 40%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.08) 60%,transparent 100%);
-    background-size:200% 100%;
-    animation:shimmer 1.4s infinite linear}
-  @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
-  .shimmer.hidden{opacity:0;pointer-events:none}
+  /* Shimmer */
+  .shimmer{
+    position: absolute; inset: 0; z-index: 2;
+    background: linear-gradient(160deg, #1a5577, #267599);
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .shimmer::after{
+    content:'';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.08) 40%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.08) 60%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite linear;
+  }
+  @keyframes shimmer{ from{ background-position: 200% 0; } to{ background-position: -200% 0; } }
+  .shimmer.hidden{ opacity: 0; pointer-events: none; }
 
-  /* Slide transitions */
-  .plan-img.slide-out-left {animation:slideOutLeft .18s var(--ease) both}
-  .plan-img.slide-out-right{animation:slideOutRight .18s var(--ease) both}
-  .plan-img.slide-in-left  {animation:slideInLeft  .22s var(--ease) both}
-  .plan-img.slide-in-right {animation:slideInRight .22s var(--ease) both}
-  @keyframes slideOutLeft {to  {transform:translateX(-18%) scale(.96);opacity:0}}
-  @keyframes slideOutRight{to  {transform:translateX( 18%) scale(.96);opacity:0}}
-  @keyframes slideInLeft  {from{transform:translateX( 18%) scale(.96);opacity:0}to{transform:translateX(0) scale(1);opacity:1}}
-  @keyframes slideInRight {from{transform:translateX(-18%) scale(.96);opacity:0}to{transform:translateX(0) scale(1);opacity:1}}
+  .zoom-row{
+    display: flex; align-items: center; gap: .45rem;
+    padding: .55rem .9rem;
+    background: rgba(0,0,0,.18);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    flex-shrink: 0;
+    margin-bottom: 4px;
+  }
+  .zoom-btn{
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--glass); border: 1px solid var(--brd);
+    display: grid; place-items: center;
+    font-size: .78rem; flex-shrink: 0;
+    transition: .15s;
+  }
+  .zoom-btn:hover{ background: var(--accent); color: var(--navy); }
+  .zoom-track{ flex: 1; max-width: 170px; accent-color: var(--accent); }
+  .zoom-pct{ font-size: .72rem; font-weight: 800; color: rgba(255,255,255,.55); min-width: 40px; text-align: right; }
 
-  .zoom-row{display:flex;align-items:center;gap:.45rem;padding:.55rem .9rem;background:rgba(0,0,0,.18);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
-  .zoom-btn{width:32px;height:32px;border-radius:50%;background:var(--glass);border:1px solid var(--brd);display:grid;place-items:center;font-size:.78rem;flex-shrink:0;transition:.15s}
-  .zoom-btn:hover{background:var(--accent);color:var(--navy)}
-  .zoom-track{flex:1;max-width:150px;accent-color:var(--accent)}
-  .zoom-pct{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.5);min-width:34px;text-align:right}
+  .chips-row{
+    display: flex; gap: .35rem; overflow-x: auto;
+    padding: .55rem .9rem;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    scrollbar-width: none;
+    flex-shrink: 0;
+    margin-bottom: 6px;
+  }
+  .chips-row:empty{ display: none; }
+  .chips-row::-webkit-scrollbar{ display: none; }
+  .chip{
+    background: var(--glass);
+    border: 1px solid var(--brd);
+    border-radius: 999px;
+    padding: .3rem .7rem;
+    font-size: .72rem;
+    font-weight: 800;
+    white-space: nowrap;
+    transition: .15s;
+    flex-shrink: 0;
+  }
+  .chip.active{ background: var(--accent); color: var(--navy); border-color: var(--accent); }
 
-  .chips-row{display:flex;gap:.35rem;overflow-x:auto;padding:.55rem .9rem;border-bottom:1px solid rgba(255,255,255,.06);scrollbar-width:none;flex-shrink:0}
-  .chips-row:empty{display:none}
-  .chips-row::-webkit-scrollbar{display:none}
-  .chip{background:var(--glass);border:1px solid var(--brd);border-radius:999px;padding:.3rem .7rem;font-size:.72rem;font-weight:700;white-space:nowrap;transition:.15s;flex-shrink:0}
-  .chip.active{background:var(--accent);color:var(--navy);border-color:var(--accent)}
+  .legend{ padding: .65rem .9rem; display: grid; gap: .4rem; margin-top: 8px; }
+  .legend-item{
+    display: flex; align-items: flex-start; gap: .6rem;
+    background: var(--glass);
+    border: 1px solid var(--brd);
+    border-radius: 13px;
+    padding: .6rem .75rem;
+    transition: .15s;
+    text-align: left;
+    cursor: pointer;
+  }
+  .legend-item:hover, .legend-item.active{ background: rgba(0,180,230,.13); border-color: rgba(0,180,230,.35); }
+  .legend-n{
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent);
+    color: var(--navy);
+    font-weight: 900;
+    font-size: .72rem;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .legend-t strong{ display: block; font-size: .84rem; font-weight: 800; margin-bottom: .1rem; }
+  .legend-t span{ font-size: .75rem; color: rgba(255,255,255,.55); }
 
-  .legend{padding:.65rem .9rem;display:grid;gap:.4rem}
-  .legend-item{display:flex;align-items:flex-start;gap:.6rem;background:var(--glass);border:1px solid var(--brd);border-radius:13px;padding:.6rem .75rem;transition:.15s;text-align:left;cursor:pointer}
-  .legend-item:hover,.legend-item.active{background:rgba(0,180,230,.13);border-color:rgba(0,180,230,.35)}
-  .legend-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--navy);font-weight:900;font-size:.72rem;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
-  .legend-t strong{display:block;font-size:.84rem;font-weight:700;margin-bottom:.1rem}
-  .legend-t span{font-size:.75rem;color:rgba(255,255,255,.55)}
-
-  .modal-footer{display:flex;gap:.4rem;padding:.65rem .9rem calc(.65rem + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,.08);background:#0c2d45;flex-shrink:0}
-  .foot-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;background:var(--glass);border:1px solid var(--brd);border-radius:999px;padding:.55rem .4rem;font-size:.75rem;font-weight:700;transition:.15s}
-  .foot-btn:hover{background:rgba(255,255,255,.13)}
-  .foot-btn.primary{background:var(--accent);color:var(--navy);border-color:var(--accent)}
-  .foot-btn:disabled,.foot-btn[aria-disabled="true"]{opacity:.3;pointer-events:none}
+  .modal-footer{
+    display: flex; gap: .4rem;
+    padding: .65rem .9rem calc(.65rem + env(safe-area-inset-bottom,0px));
+    border-top: 1px solid rgba(255,255,255,.08);
+    background: #0c2d45;
+    flex-shrink: 0;
+  }
+  .foot-btn{
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: .4rem;
+    background: var(--glass);
+    border: 1px solid var(--brd);
+    border-radius: 999px;
+    padding: .55rem .4rem;
+    font-size: .75rem;
+    font-weight: 800;
+    transition: .15s;
+  }
+  .foot-btn:hover{ background: rgba(255,255,255,.13); }
+  .foot-btn.primary{ background: var(--accent); color: var(--navy); border-color: var(--accent); }
+  .foot-btn:disabled, .foot-btn[aria-disabled="true"]{ opacity: .3; pointer-events: none; }
 
   /* Premium Quick Jump Rail */
   .deck-rail{
-    position:absolute;
-    right:10px;
-    top:78px;
-    bottom:84px;
-    width:52px;
-    display:flex;
-    align-items:stretch;
-    justify-content:center;
-    z-index:20;
-    pointer-events:none;
+    position: absolute;
+    right: 10px;
+    top: 78px;
+    bottom: 84px;
+    width: 52px;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    z-index: 20;
+    pointer-events: none;
   }
   .rail-wrap{
-    width:46px;
-    border-radius:22px;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.10);
-    box-shadow:0 16px 50px rgba(0,0,0,.25);
-    backdrop-filter:blur(10px);
-    display:flex;
-    flex-direction:column;
-    padding:8px 6px;
-    gap:8px;
-    pointer-events:auto;
-    user-select:none;
-    -webkit-user-select:none;
-    touch-action:none;
+    width: 46px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 16px 50px rgba(0,0,0,.25);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    padding: 8px 6px;
+    gap: 8px;
+    pointer-events: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
   }
   .rail-track{
-    position:relative;
-    flex:1;
-    border-radius:18px;
-    background:linear-gradient(180deg,rgba(0,0,0,.14),rgba(0,0,0,.05));
-    border:1px solid rgba(255,255,255,.06);
-    overflow:hidden;
+    position: relative;
+    flex: 1;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(0,0,0,.14), rgba(0,0,0,.05));
+    border: 1px solid rgba(255,255,255,.06);
+    overflow: hidden;
   }
   .rail-track::before{
     content:'';
     position:absolute; inset:0;
-    background:radial-gradient(ellipse at 50% 12%, rgba(0,180,230,.14), transparent 65%);
+    background: radial-gradient(ellipse at 50% 12%, rgba(0,180,230,.14), transparent 65%);
     opacity:.8;
     pointer-events:none;
   }
+  .rail-tick{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    width:6px; height:6px;
+    border-radius:50%;
+    background: rgba(255,255,255,.22);
+    pointer-events:none;
+  }
+  .rail-tick.active{
+    width:8px; height:8px;
+    background: rgba(255,215,64,.55);
+    box-shadow: 0 0 0 3px rgba(255,215,64,.12);
+  }
+
   .rail-thumb{
     position:absolute;
     left:50%;
     transform:translate(-50%,-50%);
-    width:32px;
-    height:34px;
-    border-radius:18px;
-    background:linear-gradient(180deg, rgba(255,215,64,.95), rgba(255,215,64,.7));
-    color:var(--navy);
-    font-weight:900;
-    display:grid;
-    place-items:center;
-    border:1px solid rgba(10,46,74,.35);
-    box-shadow:0 10px 26px rgba(0,0,0,.28);
-    transition:transform .12s var(--ease), filter .12s var(--ease);
-    will-change:top, transform;
+    width: 28px;
+    height: 30px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255,215,64,.95), rgba(255,215,64,.70));
+    color: var(--navy);
+    font-weight: 900;
+    font-size: .70rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(10,46,74,.35);
+    box-shadow: 0 10px 26px rgba(0,0,0,.28);
+    transition: transform .12s var(--ease), filter .12s var(--ease);
+    will-change: top, transform;
   }
   .rail-thumb.dragging{
-    transform:translate(-50%,-50%) scale(1.04);
-    filter:saturate(1.05) brightness(1.02);
+    transform: translate(-50%,-50%) scale(1.04);
+    filter: saturate(1.05) brightness(1.02);
   }
   .rail-label{
-    height:28px;
-    display:grid;
-    place-items:center;
-    font-weight:900;
-    font-size:.68rem;
-    color:rgba(255,255,255,.58);
-    border-radius:14px;
-    border:1px solid transparent;
-    transition:.14s var(--ease);
+    height: 28px;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: .68rem;
+    color: rgba(255,255,255,.58);
+    border-radius: 14px;
+    border: 1px solid transparent;
+    transition: .14s var(--ease);
   }
   .rail-label.active{
-    color:var(--gold);
-    background:rgba(255,215,64,.10);
-    border-color:rgba(255,215,64,.18);
+    color: var(--gold);
+    background: rgba(255,215,64,.10);
+    border-color: rgba(255,215,64,.18);
   }
-  .rail-mini{
-    display:grid;
-    gap:6px;
-  }
+  .rail-mini{ display: grid; gap: 6px; }
   .rail-mini button{
-    width:100%;
-    height:28px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(255,255,255,.06);
-    display:grid;
-    place-items:center;
-    font-weight:900;
-    font-size:.68rem;
-    color:rgba(255,255,255,.82);
-    transition:.14s var(--ease);
+    width: 100%;
+    height: 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.06);
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: .68rem;
+    color: rgba(255,255,255,.82);
+    transition: .14s var(--ease);
   }
-  .rail-mini button:hover{background:rgba(255,255,255,.10);border-color:rgba(0,180,230,.22)}
-  .rail-mini button:active{transform:scale(.98)}
-  .rail-mini button[disabled]{opacity:.35;pointer-events:none}
+  .rail-mini button:hover{ background: rgba(255,255,255,.10); border-color: rgba(0,180,230,.22); }
+  .rail-mini button:active{ transform: scale(.98); }
+  .rail-mini button[disabled]{ opacity: .35; pointer-events: none; }
 
-  /* Hide rail on very small screens if it crowds */
   @media(max-width:360px){
-    .deck-rail{display:none}
+    .deck-rail{ display:none; }
+  }
+  @media(max-width:600px){
+    .deck-rail{ right: 6px; width: 46px; }
+    .rail-wrap{ width: 42px; padding: 8px 5px; }
   }
 
-  /* Reduced motion: respect user preference */
+  /* Reduced motion */
   @media (prefers-reduced-motion: reduce){
-    html{scroll-behavior:auto}
-    .plan-img.intro{animation:none;transform:none}
-    .plan-viewer.light-sweep::after{animation:none;opacity:0}
-    .hotspot-btn.smart-highlight{animation:none}
-    .plan-img.slide-out-left,.plan-img.slide-out-right,.plan-img.slide-in-left,.plan-img.slide-in-right{animation:none}
-    .modal-sheet{animation:none}
+    html{ scroll-behavior: auto; }
+    .plan-viewer.light-sweep::after{ animation: none; opacity: 0; }
+    .hotspot-btn.smart-highlight{ animation: none; }
+    .modal-sheet{ animation: none; }
   }
 
   /* ----- DRAWER ----- */
-  .drawer-backdrop{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.62);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
-  .drawer-backdrop.open{opacity:1;pointer-events:auto}
-  .drawer{position:absolute;top:0;right:0;height:100%;width:min(92vw,360px);background:rgba(10,46,74,.86);border-left:1px solid rgba(255,255,255,.12);box-shadow:-20px 0 80px rgba(0,0,0,.45);transform:translateX(20px);opacity:0;transition:transform .24s var(--ease), opacity .24s var(--ease);display:flex;flex-direction:column;padding:1rem}
-  .drawer-backdrop.open .drawer{transform:translateX(0);opacity:1}
-  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:.9rem;border-bottom:1px solid rgba(255,255,255,.1);color:#fff}
-  .drawer-head h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900}
-  .drawer .nav{display:grid;gap:.55rem;padding:.95rem 0;overflow:auto}
-  .drawer .nav a{display:flex;align-items:center;gap:.7rem;padding:.7rem .75rem;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:rgba(255,255,255,.92);font-weight:800;transition:.18s}
-  .drawer .nav a:hover{background:rgba(255,255,255,.1);border-color:rgba(0,180,230,.24);transform:translateY(-1px)}
-  .drawer .nav a i{color:var(--gold);width:18px;text-align:center}
+  .drawer-backdrop{
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,.62);
+    backdrop-filter: blur(14px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s var(--ease);
+  }
+  .drawer-backdrop.open{ opacity: 1; pointer-events: auto; }
+  .drawer{
+    position: absolute; top: 0; right: 0; height: 100%;
+    width: min(92vw, 360px);
+    background: rgba(10,46,74,.86);
+    border-left: 1px solid rgba(255,255,255,.12);
+    box-shadow: -20px 0 80px rgba(0,0,0,.45);
+    transform: translateX(20px);
+    opacity: 0;
+    transition: transform .24s var(--ease), opacity .24s var(--ease);
+    display: flex; flex-direction: column;
+    padding: 1rem;
+  }
+  .drawer-backdrop.open .drawer{ transform: translateX(0); opacity: 1; }
+  .drawer-head{
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: .9rem;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+    color: #fff;
+  }
+  .drawer-head h3{ font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; }
+  .drawer .nav{ display: grid; gap: .55rem; padding: .95rem 0; overflow: auto; }
+  .drawer .nav a{
+    display: flex; align-items: center; gap: .7rem;
+    padding: .7rem .75rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.92);
+    font-weight: 800;
+    transition: .18s;
+  }
+  .drawer .nav a:hover{
+    background: rgba(255,255,255,.10);
+    border-color: rgba(0,180,230,.24);
+    transform: translateY(-1px);
+  }
+  .drawer .nav a i{ color: var(--gold); width: 18px; text-align: center; }
 
   /* ----- BACK TO TOP ----- */
-  .back-to-top{position:fixed;bottom:100px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:var(--navy);border:none;box-shadow:0 8px 20px rgba(0,0,0,.2);display:none;align-items:center;justify-content:center;z-index:800;cursor:pointer}
-  .back-to-top.show{display:flex}
+  .back-to-top{
+    position: fixed;
+    bottom: 100px; right: 20px;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--navy);
+    border: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 800;
+  }
+  .back-to-top.show{ display: flex; }
 
   /* ----- TOAST ----- */
-  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:3000;background:rgba(10,46,74,.94);color:#fff;border:1px solid rgba(255,255,255,.14);padding:.62rem .9rem;border-radius:999px;box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;align-items:center;gap:.55rem;font-weight:900;font-size:.82rem;opacity:0;pointer-events:none;transition:.18s}
-  .toast.show{opacity:1}
+  .toast{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom,0px) + 16px);
+    z-index: 3000;
+    background: rgba(10,46,74,.94);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.14);
+    padding: .62rem .9rem;
+    border-radius: 999px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    display: flex; align-items: center; gap: .55rem;
+    font-weight: 900;
+    font-size: .82rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: .18s;
+  }
+  .toast.show{ opacity: 1; }
 </style>
 </head>
 
@@ -437,7 +725,7 @@
   <div class="search-wrap">
     <div class="search-box">
       <i class="fas fa-search"></i>
-      <input id="deckSearch" type="search" placeholder="Search decks or venues…" autocomplete="off">
+      <input id="deckSearch" type="search" placeholder="Search decks or venues…" autocomplete="off" />
     </div>
   </div>
 
@@ -464,6 +752,7 @@
         <div class="modal-titles">
           <div class="modal-title" id="modalTitle"></div>
           <div class="modal-sub" id="modalSub"></div>
+          <div class="modal-mode" id="modalMode" aria-live="polite"></div>
         </div>
         <button class="modal-close-btn" id="modalClose" aria-label="Close"><i class="fas fa-times"></i></button>
       </div>
@@ -471,7 +760,7 @@
       <div class="modal-body">
         <div class="plan-viewer" id="planViewer" aria-label="Deck plan viewer">
           <div class="shimmer" id="shimmer"></div>
-          <img class="plan-img" id="planImg" src="" alt="" draggable="false">
+          <img class="plan-img" id="planImg" src="" alt="" draggable="false" />
           <div class="hotspots-layer" id="hotspotsLayer"></div>
         </div>
 
@@ -493,10 +782,12 @@
 
         <div class="zoom-row">
           <button class="zoom-btn" id="zoomOut" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
-          <input type="range" class="zoom-track" id="zoomRange" min="50" max="300" value="100" aria-label="Zoom range">
+          <input type="range" class="zoom-track" id="zoomRange" min="50" max="400" value="100" aria-label="Zoom range" />
           <button class="zoom-btn" id="zoomIn" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
           <span class="zoom-pct" id="zoomPct">100%</span>
-          <button class="zoom-btn" id="zoomReset" aria-label="Reset zoom"><i class="fas fa-compress-arrows-alt"></i></button>
+
+          <!-- Auto-fit button -->
+          <button class="zoom-btn" id="zoomFit" aria-label="Auto fit"><i class="fas fa-arrows-to-circle"></i></button>
         </div>
 
         <div class="chips-row" id="chipsRow"></div>
@@ -545,19 +836,19 @@
   'use strict';
 
   /* ===========================
-     DATA (upgraded: spot types)
+     DATA (update paths to match your repo)
      =========================== */
   const DECKS = [
-    { n:0,  name:'All Decks',  sub:'Ship Overview', tags:['Full layout','Orientation'], cat:'essential', img:'decks/deck-all.svg', svg:'decks/deck-all.min.svg', pdf:'', chips:[], spots:[] },
+    { n:0,  name:'All Decks',  sub:'Ship Overview', tags:['Full layout','Orientation'], cat:'essential', svg:'decks/deck-all.min.svg', pdf:'', chips:[], spots:[] },
 
-    { n:5,  name:'Deck 5', sub:'Royal Promenade', tags:['Shops','Dining','Parades'], cat:'entertainment', img:'decks/deck-05.png', svg:'decks/deck-05-final.min.svg', pdf:'decks/deck-05.pdf',
+    { n:5,  name:'Deck 5', sub:'Royal Promenade', tags:['Shops','Dining','Parades'], cat:'entertainment', svg:'decks/deck-05-final.min.svg', pdf:'decks/deck-05.pdf',
       chips:['Cafe Promenade','Guest Services'],
       spots:[
         { t:'Cafe Promenade', n:'24h coffee & snacks', x:55, y:48, type:'dining' },
         { t:'Guest Services', n:'Crown & Anchor desk', x:48, y:60, type:'service' }
       ] },
 
-    { n:4,  name:'Deck 4', sub:'Dining & Entertainment', tags:['Main Dining','Theater','Casino'], cat:'entertainment', img:'decks/deck-04.png', svg:'decks/deck-04-final.min.svg', pdf:'',
+    { n:4,  name:'Deck 4', sub:'Dining & Entertainment', tags:['Main Dining','Theater','Casino'], cat:'entertainment', svg:'decks/deck-04-final.min.svg', pdf:'',
       chips:['Main Dining','Royal Theater','Casino'],
       spots:[
         { t:'Main Dining Room', n:'Dinner 6–9:30pm', x:35, y:55, type:'dining' },
@@ -565,22 +856,25 @@
         { t:'Casino Royale', n:'Slots, tables, poker', x:50, y:70, type:'entertainment' }
       ] },
 
-    { n:3,  name:'Deck 3', sub:'Lobby & Guest Services', tags:['Grand Lobby','Shore Ex','Retail'], cat:'entertainment', img:'decks/deck-03.png', svg:'decks/deck-03-final.min.svg', pdf:'',
+    { n:3,  name:'Deck 3', sub:'Lobby & Guest Services', tags:['Grand Lobby','Shore Ex','Retail'], cat:'entertainment', svg:'decks/deck-03-final.min.svg', pdf:'',
       chips:['Grand Lobby','Shore Excursions'],
       spots:[
         { t:'Grand Lobby', n:'Atrium & champagne bar', x:40, y:50, type:'essential' },
         { t:'Shore Excursions', n:'Booking desk', x:55, y:45, type:'service' }
       ] },
 
-    { n:14, name:'Deck 14', sub:'Sky Deck', tags:['Viking Crown','Views','Lounges'], cat:'entertainment', img:'decks/deck-14.png', svg:'decks/deck-14-final.min.svg', pdf:'',
-      chips:['Viking Crown'],
-      spots:[{ t:'Viking Crown Lounge', n:'360° sky bar', x:50, y:30, type:'entertainment' }] },
+    { n:2,  name:'Deck 2', sub:'Medical & Crew', tags:['Medical','Crew','Embark'], cat:'essential', svg:'decks/deck-02-final.min.svg', pdf:'',
+      chips:['Medical Center'],
+      spots:[{ t:'Medical Center', n:'24h emergency care', x:50, y:50, type:'essential' }] },
 
-    { n:13, name:'Deck 13', sub:'Adventure Zone', tags:['Rock Wall','Activities'], cat:'entertainment', img:'decks/deck-13.png', svg:'decks/deck-13-final.min.svg', pdf:'',
-      chips:['Rock Wall'],
-      spots:[{ t:'Rock Climbing Wall', n:'Up to 40ft tall', x:60, y:70, type:'activity' }] },
+    { n:11, name:'Deck 11', sub:'Fitness & Spa', tags:['Vitality Spa','Gym','Wellness'], cat:'wellness', svg:'decks/deck-11-final.min.svg', pdf:'',
+      chips:['Vitality Spa','Fitness'],
+      spots:[
+        { t:'Vitality Spa', n:'Thermal suite & massages', x:48, y:44, type:'wellness' },
+        { t:'Fitness Center', n:'Panoramic treadmills', x:30, y:55, type:'wellness' }
+      ] },
 
-    { n:12, name:'Deck 12', sub:'Pool Deck', tags:['Main Pool','Solarium','Windjammer'], cat:'wellness', img:'decks/deck-12.png', svg:'decks/deck-12-final.min.svg', pdf:'',
+    { n:12, name:'Deck 12', sub:'Pool Deck', tags:['Main Pool','Solarium','Windjammer'], cat:'wellness', svg:'decks/deck-12-final.min.svg', pdf:'',
       chips:['Main Pool','Solarium','Windjammer'],
       spots:[
         { t:'Main Pool', n:'Live music & bar', x:40, y:60, type:'activity' },
@@ -588,7 +882,15 @@
         { t:'Windjammer Cafe', n:'Buffet with ocean view', x:20, y:70, type:'dining' }
       ] },
 
-    { n:15, name:'Deck 15', sub:'Sports & Observation', tags:['FlowRider','Jog Track','Views'], cat:'wellness', img:'decks/deck-15.png', svg:'decks/deck-15-final.min.svg', pdf:'',
+    { n:13, name:'Deck 13', sub:'Adventure Zone', tags:['Rock Wall','Activities'], cat:'entertainment', svg:'decks/deck-13-final.min.svg', pdf:'',
+      chips:['Rock Wall'],
+      spots:[{ t:'Rock Climbing Wall', n:'Up to 40ft tall', x:60, y:70, type:'activity' }] },
+
+    { n:14, name:'Deck 14', sub:'Sky Deck', tags:['Viking Crown','Views','Lounges'], cat:'entertainment', svg:'decks/deck-14-final.min.svg', pdf:'',
+      chips:['Viking Crown'],
+      spots:[{ t:'Viking Crown Lounge', n:'360° sky bar', x:50, y:30, type:'entertainment' }] },
+
+    { n:15, name:'Deck 15', sub:'Sports & Observation', tags:['FlowRider','Jog Track','Views'], cat:'wellness', svg:'decks/deck-15-final.min.svg', pdf:'',
       chips:['FlowRider','Mini Golf'],
       spots:[
         { t:'FlowRider', n:'Surf simulator', x:30, y:40, type:'activity' },
@@ -596,29 +898,15 @@
         { t:'Running Track', n:'Outdoor jogging loop', x:50, y:80, type:'activity' }
       ] },
 
-    { n:11, name:'Deck 11', sub:'Fitness & Spa', tags:['Vitality Spa','Gym','Wellness'], cat:'wellness', img:'decks/deck-11.png', svg:'decks/deck-11-final.min.svg', pdf:'',
-      chips:['Vitality Spa','Fitness'],
-      spots:[
-        { t:'Vitality Spa', n:'Thermal suite & massages', x:48, y:44, type:'wellness' },
-        { t:'Fitness Center', n:'Panoramic treadmills', x:30, y:55, type:'wellness' }
-      ] },
-
-    { n:10, name:'Deck 10', sub:'Staterooms', tags:['Cabins','Elevators'], cat:'cabin', img:'decks/deck-10.png', svg:'decks/deck-10-final.min.svg', pdf:'', chips:[], spots:[] },
-    { n:9,  name:'Deck 9',  sub:'Staterooms', tags:['Cabins','Family'], cat:'cabin', img:'decks/deck-09.png', svg:'decks/deck-09-final.min.svg', pdf:'', chips:[], spots:[] },
-    { n:8,  name:'Deck 8',  sub:'Staterooms', tags:['Cabins','Aft access'], cat:'cabin', img:'decks/deck-08.png', svg:'decks/deck-08-final.min.svg', pdf:'', chips:[], spots:[] },
-    { n:7,  name:'Deck 7',  sub:'Staterooms', tags:['Cabins','Quiet'], cat:'cabin', img:'decks/deck-07.png', svg:'decks/deck-07-final.min.svg', pdf:'', chips:[], spots:[] },
-
-    { n:6,  name:'Deck 6', sub:'Staterooms', tags:['Cabins','Midship'], cat:'cabin', img:'decks/deck-06.png', svg:'decks/deck-06-final.min.svg', pdf:'',
-      chips:['Midship Elevators'],
-      spots:[{ t:'Midship Elevators', n:'Fastest route to dining & promenade', x:52, y:50, type:'essential' }] },
-
-    { n:2,  name:'Deck 2', sub:'Medical & Crew', tags:['Medical','Crew','Embark'], cat:'essential', img:'decks/deck-02.png', svg:'decks/deck-02-final.min.svg', pdf:'',
-      chips:['Medical Center'],
-      spots:[{ t:'Medical Center', n:'24h emergency care', x:50, y:50, type:'essential' }] },
+    { n:6,  name:'Deck 6', sub:'Staterooms', tags:['Cabins','Midship'], cat:'cabin', svg:'decks/deck-06-final.min.svg', pdf:'', chips:[], spots:[] },
+    { n:7,  name:'Deck 7', sub:'Staterooms', tags:['Cabins'], cat:'cabin', svg:'decks/deck-07-final.min.svg', pdf:'', chips:[], spots:[] },
+    { n:8,  name:'Deck 8', sub:'Staterooms', tags:['Cabins'], cat:'cabin', svg:'decks/deck-08-final.min.svg', pdf:'', chips:[], spots:[] },
+    { n:9,  name:'Deck 9', sub:'Staterooms', tags:['Cabins'], cat:'cabin', svg:'decks/deck-09-final.min.svg', pdf:'', chips:[], spots:[] },
+    { n:10, name:'Deck 10', sub:'Staterooms', tags:['Cabins'], cat:'cabin', svg:'decks/deck-10-final.min.svg', pdf:'', chips:[], spots:[] },
   ];
 
   const SECTIONS = [
-    { key:'entertainment', label:'Entertainment', icon:'fas fa-masks-theater', cls:'ent', decks: DECKS.filter(d => d.cat==='entertainment').map(d=>d.n) },
+    { key:'entertainment', label:'Entertainment', icon:'fas fa-masks-theater', cls:'ent', decks: DECKS.filter(d => d.cat==='entertainment' && d.n!==0).map(d=>d.n) },
     { key:'wellness',      label:'Wellness & Activities', icon:'fas fa-water-ladder', cls:'wel', decks: DECKS.filter(d => d.cat==='wellness').map(d=>d.n) },
     { key:'essential',     label:'Essential', icon:'fas fa-compass', cls:'ess', decks: DECKS.filter(d => d.cat==='essential' && d.n!==0).map(d=>d.n) },
     { key:'cabin',         label:'Stateroom Decks', icon:'fas fa-bed', cls:'ess', decks: DECKS.filter(d => d.cat==='cabin').map(d=>d.n) },
@@ -634,18 +922,6 @@
   let filt = 'all';
   let query = '';
   let currentDeck = null;
-  let zoom = 100;
-
-  let panning = false;
-  let panStart = { x:0, y:0, scrollX:0, scrollY:0 };
-
-  let pinching = false;
-  let pinchDist0 = 0;
-  let pinchZoom0 = 100;
-
-  let railDragging = false;
-  let railRaf = 0;
-  let lastRailIdx = -1;
 
   /* ===========================
      DOM
@@ -660,6 +936,7 @@
   const modalSheet = $('modalSheet');
   const modalTitle = $('modalTitle');
   const modalSub = $('modalSub');
+  const modalMode = $('modalMode');
 
   const planViewer = $('planViewer');
   const planImg = $('planImg');
@@ -668,6 +945,9 @@
 
   const zoomRange = $('zoomRange');
   const zoomPct = $('zoomPct');
+  const zoomFit = $('zoomFit');
+  const zoomInBtn = $('zoomIn');
+  const zoomOutBtn = $('zoomOut');
 
   const chipsRow = $('chipsRow');
   const legend = $('legend');
@@ -686,7 +966,6 @@
   const toast = $('toast');
   const toastText = $('toastText');
 
-  const railWrap = $('railWrap');
   const railTrack = $('railTrack');
   const railThumb = $('railThumb');
   const railUp = $('railUp');
@@ -696,9 +975,7 @@
   /* ===========================
      UTIL
      =========================== */
-  function safeFocus(el) {
-    try { el && el.focus && el.focus(); } catch (_) {}
-  }
+  function safeFocus(el) { try { el && el.focus && el.focus(); } catch (_) {} }
 
   function showToast(msg) {
     toastText.textContent = msg;
@@ -707,19 +984,20 @@
     showToast._t = window.setTimeout(() => toast.classList.remove('show'), 2000);
   }
 
-  function showShimmer() {
-    shimmer.classList.remove('hidden');
-    planImg.classList.remove('loaded');
-  }
-  function hideShimmer() {
-    shimmer.classList.add('hidden');
-    planImg.classList.add('loaded');
+  function showShimmer() { shimmer.classList.remove('hidden'); planImg.classList.remove('loaded'); }
+  function hideShimmer() { shimmer.classList.add('hidden'); planImg.classList.add('loaded'); }
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
   }
 
   function clearSpotStates() {
-    hotspotsLayer.querySelectorAll('.hotspot-btn').forEach(btn => {
-      btn.classList.remove('active','dim','smart-highlight');
-    });
+    hotspotsLayer.querySelectorAll('.hotspot-btn').forEach(btn => btn.classList.remove('active','dim','smart-highlight'));
     legend.querySelectorAll('.legend-item').forEach(item => item.classList.remove('active'));
   }
 
@@ -732,16 +1010,21 @@
     const visible = (n) => {
       const d = byNum(n);
       if (!d) return false;
-      const matchCat = (filt === 'all') || (d.cat === filt) || (filt === 'essential' && d.cat === 'cabin');
-      const hay = `${d.name} ${d.sub} ${d.tags.join(' ')}`.toLowerCase();
+
+      const matchCat =
+        (filt === 'all') ||
+        (d.cat === filt) ||
+        (filt === 'essential' && d.cat === 'cabin');
+
+      const hay = `${d.name} ${d.sub} ${(d.tags||[]).join(' ')}`.toLowerCase();
       const matchQ = (!q) || hay.includes(q);
+
       return matchCat && matchQ;
     };
 
     let html = '';
     let anyVisible = false;
 
-    // Overview
     const ovVis = (filt === 'all' || filt === 'essential') && (!q || 'all decks overview ship orientation blueprint'.includes(q));
     if (ovVis) {
       anyVisible = true;
@@ -779,13 +1062,13 @@
         html += `<div class="deck-grid">`;
         visDecks.forEach(n => {
           const d = byNum(n);
-          const tags = (d.tags || []).slice(0,3).map(t=>`<span class="card-tag">${t}</span>`).join('');
-          html += `<div class="deck-card" data-n="${n}" role="button" tabindex="0" aria-label="Open ${d.sub}">
+          const tags = (d.tags || []).slice(0,3).map(t=>`<span class="card-tag">${escapeHtml(t)}</span>`).join('');
+          html += `<div class="deck-card" data-n="${n}" role="button" tabindex="0" aria-label="Open ${escapeHtml(d.sub)}">
             <div class="card-top">
               <span class="card-num">${n}</span>
               <i class="fas fa-chevron-right card-arrow"></i>
             </div>
-            <div class="card-name">${d.sub}</div>
+            <div class="card-name">${escapeHtml(d.sub)}</div>
             <div class="card-tags">${tags}</div>
           </div>`;
         });
@@ -812,10 +1095,7 @@
   }
 
   function renderLegend(deck) {
-    if (!deck || !deck.spots) {
-      legend.innerHTML = '';
-      return;
-    }
+    if (!deck || !deck.spots) { legend.innerHTML = ''; return; }
     legend.innerHTML = deck.spots.map((s,i) => `
       <button class="legend-item" data-spot-idx="${i}" aria-label="Highlight ${escapeHtml(s.t)}">
         <span class="legend-n">${i+1}</span>
@@ -823,56 +1103,44 @@
       </button>`).join('');
   }
 
-  function escapeHtml(str) {
-    return String(str || '')
-      .replaceAll('&','&amp;')
-      .replaceAll('<','&lt;')
-      .replaceAll('>','&gt;')
-      .replaceAll('"','&quot;')
-      .replaceAll("'","&#039;");
-  }
-
-  function highlightSpot(idx) {
+  function highlightSpot(idx, { zoomTo = false } = {}) {
     clearSpotStates();
-
-    const spotBtn = hotspotsLayer.querySelector(`.hotspot-btn[data-spot-idx="${idx}"]`);
-    const legendItem = legend.querySelector(`.legend-item[data-spot-idx="${idx}"]`);
+    const spotBtn = hotspotsLayer.querySelector(\`.hotspot-btn[data-spot-idx="\${idx}"]\`);
+    const legendItem = legend.querySelector(\`.legend-item[data-spot-idx="\${idx}"]\`);
     if (spotBtn) spotBtn.classList.add('active');
     if (legendItem) legendItem.classList.add('active');
 
-    // keep legend item visible
     if (legendItem) {
       try { legendItem.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'nearest' }); } catch (_) {}
+    }
+
+    if (zoomTo && spotBtn) {
+      zoomToHotspotElement(spotBtn);
     }
   }
 
   /* ===========================
-     SMART MODE (time-aware)
+     SMART MODE
      =========================== */
   function getSmartModeNow() {
-    const now = new Date();
-    const h = now.getHours();
-
-    // Dinner window (local device time)
-    if (h >= 17 && h < 22) return 'dining';
-    // Morning
-    if (h >= 6 && h < 10) return 'breakfast';
-    // Daytime activities
-    if (h >= 10 && h < 17) return 'activity';
+    const h = new Date().getHours();
+    if (h >= 17 && h < 22) return { key: 'dining', label: 'Dinner Mode Active' };
+    if (h >= 6  && h < 10) return { key: 'breakfast', label: 'Morning Mode Active' };
+    if (h >= 10 && h < 17) return { key: 'activity', label: 'Activity Mode Active' };
     return null;
   }
 
   function applySmartMode(deck) {
-    if (!deck || !deck.spots || deck.spots.length === 0) return;
+    if (!deck || !deck.spots || deck.spots.length === 0) { modalMode.textContent = ''; return; }
 
-    const mode = getSmartModeNow();
-    if (!mode) return;
+    const modeObj = getSmartModeNow();
+    if (!modeObj) { modalMode.textContent = ''; return; }
 
-    // Map breakfast to dining for now unless you add breakfast-specific types later
-    const target = (mode === 'breakfast') ? 'dining' : mode;
+    modalMode.textContent = modeObj.label;
+    const target = (modeObj.key === 'breakfast') ? 'dining' : modeObj.key;
 
     deck.spots.forEach((s, i) => {
-      const btn = hotspotsLayer.querySelector(`.hotspot-btn[data-spot-idx="${i}"]`);
+      const btn = hotspotsLayer.querySelector(\`.hotspot-btn[data-spot-idx="\${i}"]\`);
       if (!btn) return;
       if ((s.type || '').toLowerCase() === target) {
         btn.classList.add('smart-highlight');
@@ -883,146 +1151,45 @@
   }
 
   /* ===========================
-     CINEMATIC ENTRY
+     CINEMATIC REVEAL
      =========================== */
   function runCinematicReveal() {
     if (reducedMotion) return;
-
-    // Light sweep
     planViewer.classList.add('light-sweep');
     window.setTimeout(() => planViewer.classList.remove('light-sweep'), 950);
-
-    // Soft glow pulse on image
     planImg.classList.add('glow');
     window.setTimeout(() => planImg.classList.remove('glow'), 650);
   }
 
-  function runIntroZoomOnce() {
-    if (reducedMotion) return;
-    planImg.classList.add('intro');
-    planImg.addEventListener('animationend', () => planImg.classList.remove('intro'), { once:true });
-  }
-
   /* ===========================
-     DECK SWITCHING + IMAGE LOAD
+     RAIL TICKS
      =========================== */
-  function currentOrderedIndex() {
-    if (!currentDeck) return -1;
-    return ordered.findIndex(x => x.n === currentDeck.n);
+  function railDecks() { return ordered; }
+
+  function clearRailTicks() {
+    railTrack.querySelectorAll('.rail-tick').forEach(t => t.remove());
   }
 
-  function setZoom(v) {
-    const clamped = Math.min(300, Math.max(50, v));
-    zoom = clamped;
-    zoomRange.value = String(clamped);
-    zoomPct.textContent = clamped + '%';
-    planImg.style.transform = `scale(${clamped/100})`;
+  function renderRailTicks(activeDeckNum) {
+    clearRailTicks();
 
-    // When zoom returns to baseline, recenter scroll
-    if (clamped <= 100) {
-      planViewer.scrollLeft = 0;
-      planViewer.scrollTop = 0;
-    }
-  }
+    const list = railDecks();
+    if (!list.length) return;
 
-  function setDeck(deck, dir, opts = {}) {
-    if (!deck) return;
+    const rect = railTrack.getBoundingClientRect();
+    const yMin = 18;
+    const yMax = rect.height - 18;
 
-    const firstOpen = !!opts.firstOpen;
-    currentDeck = deck;
+    list.forEach((d, i) => {
+      const t = (list.length <= 1) ? 0 : i / (list.length - 1);
+      const y = yMin + t * (yMax - yMin);
 
-    modalTitle.textContent = deck.name + (deck.n ? ` — ${deck.sub}` : '');
-    modalSub.textContent = (deck.tags || []).join(' · ');
-
-    // Prev/Next enable
-    const idx = ordered.findIndex(x => x.n === deck.n);
-    prevBtn.disabled = idx <= 0;
-    nextBtn.disabled = idx >= ordered.length - 1;
-
-    // PDF
-    if (deck.pdf) { btnPDF.href = deck.pdf; btnPDF.removeAttribute('aria-disabled'); }
-    else { btnPDF.href = '#'; btnPDF.setAttribute('aria-disabled','true'); }
-
-    // Chips + legend
-    chipsRow.innerHTML = (deck.chips || []).map(c => `<button class="chip" aria-label="Filter ${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('');
-    renderLegend(deck);
-
-    // Rail update
-    updateRailToDeck(deck);
-
-    // Image transition
-    const animOut = dir === 'left' ? 'slide-out-left' : dir === 'right' ? 'slide-out-right' : null;
-    const animIn  = dir === 'left' ? 'slide-in-left'  : dir === 'right' ? 'slide-in-right'  : null;
-
-    const swap = () => {
-      planImg.className = 'plan-img'; // reset all classes
-      showShimmer();
-
-      // Prefer SVG
-      const src = deck.svg || deck.img || '';
-      planImg.src = src;
-      planImg.alt = deck.name;
-
-      planImg.onload = () => {
-        hideShimmer();
-
-        // intro / sweep / glow
-        if (firstOpen) runIntroZoomOnce();
-        runCinematicReveal();
-
-        if (animIn && !reducedMotion) planImg.classList.add(animIn);
-
-        // hotspots after load
-        renderHotspots(deck);
-        clearSpotStates();
-        applySmartMode(deck);
-      };
-
-      planImg.onerror = () => {
-        hideShimmer();
-        renderHotspots(deck);
-        clearSpotStates();
-        showToast('Deck image failed to load');
-      };
-    };
-
-    if (animOut && !reducedMotion && planImg.classList.contains('loaded')) {
-      planImg.classList.add(animOut);
-      planImg.addEventListener('animationend', swap, { once:true });
-    } else {
-      swap();
-    }
-
-    // reset zoom on deck change
-    setZoom(100);
-  }
-
-  function openModal(deck) {
-    setDeck(deck, null, { firstOpen:true });
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    safeFocus(modalCloseBtn());
-  }
-
-  function modalCloseBtn() {
-    return $('modalClose') || $('btnClose2');
-  }
-
-  function closeModal() {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-    clearSpotStates();
-    // stop rail drag
-    railDragging = false;
-    railThumb.classList.remove('dragging');
-  }
-
-  /* ===========================
-     QUICK JUMP RAIL
-     =========================== */
-  function railDecks() {
-    // Use ordered (excludes 0). That’s the premium deck glide list.
-    return ordered;
+      const tick = document.createElement('div');
+      tick.className = 'rail-tick';
+      tick.style.top = \`\${y}px\`;
+      if (activeDeckNum != null && d.n === activeDeckNum) tick.classList.add('active');
+      railTrack.appendChild(tick);
+    });
   }
 
   function updateRailToDeck(deck) {
@@ -1030,21 +1197,308 @@
     const idx = list.findIndex(d => d.n === deck.n);
     if (idx < 0) return;
 
-    // Thumb position
     const trackRect = railTrack.getBoundingClientRect();
-    const yMin = 18; // visual padding inside track
+    const yMin = 18;
     const yMax = trackRect.height - 18;
     const t = (list.length <= 1) ? 0 : idx / (list.length - 1);
     const y = yMin + t * (yMax - yMin);
 
-    railThumb.style.top = `${y}px`;
+    railThumb.style.top = \`\${y}px\`;
     railThumb.textContent = String(deck.n);
-    railActiveLabel.textContent = `D${deck.n}`;
+    railActiveLabel.textContent = \`D\${deck.n}\`;
 
-    // Up/Down enable
     railUp.disabled = idx <= 0;
     railDown.disabled = idx >= list.length - 1;
   }
+
+  /* ===========================
+     TRANSFORM MAP ENGINE
+     - momentum pan
+     - boundaries
+     - pinch zoom
+     - double tap zoom
+     - zoom-to-hotspot
+     - auto-fit
+     =========================== */
+  const map = {
+    scale: 1,
+    x: 0,
+    y: 0,
+    minScale: 0.5,
+    maxScale: 4.0,
+
+    // Momentum
+    vx: 0,
+    vy: 0,
+    isPanning: false,
+    lastPt: null,
+    raf: 0,
+
+    // Pinch
+    isPinching: false,
+    pinchDist0: 0,
+    pinchScale0: 1,
+
+    // Double tap
+    lastTapTs: 0,
+
+    // Layout
+    imgW: 0,
+    imgH: 0,
+
+    apply() {
+      planImg.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
+      hotspotsLayer.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
+    },
+
+    setImageNaturalSize() {
+      // Some SVGs may report 0 naturalWidth on certain browsers if blocked/failed.
+      this.imgW = planImg.naturalWidth || planImg.width || 0;
+      this.imgH = planImg.naturalHeight || planImg.height || 0;
+    },
+
+    bounds() {
+      const vw = planViewer.clientWidth;
+      const vh = planViewer.clientHeight;
+
+      const iw = this.imgW * this.scale;
+      const ih = this.imgH * this.scale;
+
+      // If image smaller than viewport: keep centered
+      const minX = Math.min(0, vw - iw);
+      const minY = Math.min(0, vh - ih);
+
+      return { vw, vh, iw, ih, minX, minY };
+    },
+
+    clamp() {
+      const { vw, vh, iw, ih, minX, minY } = this.bounds();
+
+      if (iw <= vw) this.x = (vw - iw) / 2;
+      else this.x = Math.max(minX, Math.min(0, this.x));
+
+      if (ih <= vh) this.y = (vh - ih) / 2;
+      else this.y = Math.max(minY, Math.min(0, this.y));
+    },
+
+    setScale(nextScale, centerClientX, centerClientY) {
+      const clamped = Math.max(this.minScale, Math.min(this.maxScale, nextScale));
+      if (this.imgW <= 0 || this.imgH <= 0) {
+        this.scale = clamped;
+        this.clamp();
+        this.apply();
+        return;
+      }
+
+      if (typeof centerClientX === 'number' && typeof centerClientY === 'number') {
+        const rect = planViewer.getBoundingClientRect();
+        const cx = centerClientX - rect.left;
+        const cy = centerClientY - rect.top;
+
+        // Convert viewport point to image-space point under current transform
+        const ix = (cx - this.x) / this.scale;
+        const iy = (cy - this.y) / this.scale;
+
+        this.scale = clamped;
+        // Keep that image-space point under the same viewport point
+        this.x = cx - ix * this.scale;
+        this.y = cy - iy * this.scale;
+      } else {
+        this.scale = clamped;
+      }
+
+      this.clamp();
+      this.apply();
+    },
+
+    setZoomPercent(pct, centerClientX, centerClientY) {
+      const s = Math.max(this.minScale, Math.min(this.maxScale, pct / 100));
+      this.setScale(s, centerClientX, centerClientY);
+      updateZoomUI();
+    },
+
+    fit() {
+      this.stopMomentum();
+      this.setImageNaturalSize();
+
+      const vw = planViewer.clientWidth;
+      const vh = planViewer.clientHeight;
+
+      if (this.imgW <= 0 || this.imgH <= 0 || vw <= 0 || vh <= 0) {
+        // fail-safe: reset
+        this.scale = 1; this.x = 0; this.y = 0;
+        this.apply();
+        updateZoomUI();
+        return;
+      }
+
+      const fitScale = Math.min(vw / this.imgW, vh / this.imgH);
+      this.scale = Math.max(this.minScale, Math.min(this.maxScale, fitScale));
+
+      const iw = this.imgW * this.scale;
+      const ih = this.imgH * this.scale;
+
+      this.x = (vw - iw) / 2;
+      this.y = (vh - ih) / 2;
+
+      this.apply();
+      updateZoomUI();
+    },
+
+    startMomentum() {
+      this.stopMomentum();
+
+      const step = () => {
+        // decay tuned to feel like a map, not a hockey puck
+        this.x += this.vx;
+        this.y += this.vy;
+
+        this.vx *= 0.92;
+        this.vy *= 0.92;
+
+        // clamp boundaries with a mild brake when hitting edges
+        const beforeX = this.x;
+        const beforeY = this.y;
+
+        this.clamp();
+
+        if (this.x !== beforeX) this.vx *= 0.55;
+        if (this.y !== beforeY) this.vy *= 0.55;
+
+        this.apply();
+
+        if (Math.abs(this.vx) > 0.35 || Math.abs(this.vy) > 0.35) {
+          this.raf = requestAnimationFrame(step);
+        } else {
+          this.raf = 0;
+        }
+      };
+
+      this.raf = requestAnimationFrame(step);
+    },
+
+    stopMomentum() {
+      if (this.raf) {
+        cancelAnimationFrame(this.raf);
+        this.raf = 0;
+      }
+    }
+  };
+
+  function updateZoomUI() {
+    const pct = Math.round(map.scale * 100);
+    zoomRange.value = String(Math.max(50, Math.min(400, pct)));
+    zoomPct.textContent = pct + '%';
+  }
+
+  function zoomToHotspotElement(btnEl) {
+    // Zoom to a predictable level and center on hotspot
+    const rect = btnEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const target = Math.min(map.maxScale, Math.max(map.scale, 2.2));
+    map.setScale(target, cx, cy);
+    updateZoomUI();
+  }
+
+  // Pinch support
+  function touchDist(t1, t2) {
+    return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+  }
+
+  function setModalGlowForDeck(deck) {
+    if (!deck) return;
+    const glow =
+      deck.cat === 'wellness' ? '0 -20px 80px rgba(0,200,150,.25)' :
+      deck.cat === 'entertainment' ? '0 -20px 80px rgba(168,85,247,.25)' :
+      '0 -20px 80px rgba(0,180,230,.25)';
+
+    const base = '0 -20px 80px rgba(0,0,0,.5)';
+    modalSheet.style.boxShadow = `${base}, ${glow}`;
+  }
+
+  function currentOrderedIndex() {
+    if (!currentDeck) return -1;
+    return ordered.findIndex(x => x.n === currentDeck.n);
+  }
+
+  function setDeck(deck, opts = {}) {
+    if (!deck) return;
+
+    currentDeck = deck;
+    setModalGlowForDeck(deck);
+
+    modalTitle.textContent = deck.name + (deck.n ? ` — ${deck.sub}` : '');
+    modalSub.textContent = (deck.tags || []).join(' · ');
+    modalMode.textContent = '';
+
+    const idx = ordered.findIndex(x => x.n === deck.n);
+    prevBtn.disabled = idx <= 0;
+    nextBtn.disabled = idx >= ordered.length - 1;
+
+    if (deck.pdf) { btnPDF.href = deck.pdf; btnPDF.removeAttribute('aria-disabled'); }
+    else { btnPDF.href = '#'; btnPDF.setAttribute('aria-disabled','true'); }
+
+    chipsRow.innerHTML = (deck.chips || []).map(c => `<button class="chip" aria-label="Filter ${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('');
+    renderLegend(deck);
+
+    updateRailToDeck(deck);
+    requestAnimationFrame(() => renderRailTicks(deck.n));
+
+    // Load SVG
+    showShimmer();
+    planImg.className = 'plan-img';
+    planImg.src = deck.svg || '';
+    planImg.alt = deck.name;
+
+    planImg.onload = () => {
+      hideShimmer();
+      planImg.classList.add('loaded');
+
+      // Ensure hotspots and map size are synced
+      renderHotspots(deck);
+      clearSpotStates();
+
+      // Fit + center after load
+      map.setImageNaturalSize();
+      map.fit();
+
+      applySmartMode(deck);
+      runCinematicReveal();
+
+      showToast(`Loaded Deck ${deck.n || ''}`.trim());
+    };
+
+    planImg.onerror = () => {
+      hideShimmer();
+      renderHotspots(deck);
+      clearSpotStates();
+      modalMode.textContent = '';
+      showToast('Deck image failed to load (check path)');
+    };
+  }
+
+  function openModal(deck) {
+    setDeck(deck, { firstOpen: true });
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    safeFocus($('modalClose'));
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    clearSpotStates();
+    map.stopMomentum();
+  }
+
+  /* ===========================
+     RAIL DRAG
+     =========================== */
+  let railDragging = false;
+  let railRaf = 0;
+  let lastRailIdx = -1;
 
   function idxFromClientY(clientY) {
     const list = railDecks();
@@ -1067,20 +1521,16 @@
     const next = list[idx];
     if (!currentDeck || next.n === currentDeck.n) return;
 
-    const currentIdx = list.findIndex(d => d.n === currentDeck.n);
-    const dir = (currentIdx < idx) ? 'left' : 'right';
-    setDeck(next, dir, { firstOpen:false });
-
-    // light haptic if available
-    try {
-      if (navigator.vibrate) navigator.vibrate(8);
-    } catch (_) {}
+    setDeck(next);
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {}
   }
 
   function railPointerDown(e) {
     if (!modal.classList.contains('open')) return;
     railDragging = true;
     railThumb.classList.add('dragging');
+    lastRailIdx = -1;
+
     if (railTrack.setPointerCapture && e.pointerId != null) {
       try { railTrack.setPointerCapture(e.pointerId); } catch (_) {}
     }
@@ -1089,20 +1539,24 @@
 
   function railPointerMove(e) {
     if (!railDragging) return;
-    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
-    if (!clientY && clientY !== 0) return;
 
-    // Move thumb immediately (fast)
-    const list = railDecks();
+    const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+    if (clientY == null) return;
+
     const rect = railTrack.getBoundingClientRect();
     const y = Math.min(rect.bottom, Math.max(rect.top, clientY)) - rect.top;
     railThumb.style.top = `${y}px`;
 
-    // Deck change throttled with rAF + distinct index
     if (!railRaf) {
       railRaf = requestAnimationFrame(() => {
         railRaf = 0;
         const idx = idxFromClientY(clientY);
+
+        if (lastRailIdx === -1) {
+          lastRailIdx = idx;
+          setDeckByRailIndex(idx);
+          return;
+        }
         if (idx !== lastRailIdx) {
           lastRailIdx = idx;
           setDeckByRailIndex(idx);
@@ -1115,102 +1569,17 @@
     railDragging = false;
     railThumb.classList.remove('dragging');
     lastRailIdx = -1;
-    // snap thumb precisely to current deck
     if (currentDeck) updateRailToDeck(currentDeck);
   }
 
   /* ===========================
-     PAN / PINCH (kept, polished)
-     =========================== */
-  const dist = (ts) => Math.hypot(ts[0].clientX - ts[1].clientX, ts[0].clientY - ts[1].clientY);
-
-  planViewer.addEventListener('touchstart', (e) => {
-    if (!modal.classList.contains('open')) return;
-
-    if (e.touches.length === 2) {
-      pinching = true;
-      pinchDist0 = dist(e.touches);
-      pinchZoom0 = zoom;
-      e.preventDefault();
-      return;
-    }
-
-    if (e.touches.length === 1 && zoom > 100) {
-      panning = true;
-      panStart = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-        scrollX: planViewer.scrollLeft,
-        scrollY: planViewer.scrollTop
-      };
-    }
-  }, { passive:false });
-
-  planViewer.addEventListener('touchmove', (e) => {
-    if (!modal.classList.contains('open')) return;
-
-    if (pinching && e.touches.length === 2) {
-      const d = dist(e.touches);
-      const next = Math.round(pinchZoom0 * d / Math.max(10, pinchDist0));
-      setZoom(next);
-      e.preventDefault();
-      return;
-    }
-
-    if (panning && e.touches.length === 1) {
-      const dx = e.touches[0].clientX - panStart.x;
-      const dy = e.touches[0].clientY - panStart.y;
-      planViewer.scrollLeft = panStart.scrollX - dx;
-      planViewer.scrollTop = panStart.scrollY - dy;
-      e.preventDefault();
-    }
-  }, { passive:false });
-
-  planViewer.addEventListener('touchend', () => { panning = false; pinching = false; }, { passive:true });
-
-  planViewer.addEventListener('pointerdown', (e) => {
-    if (!modal.classList.contains('open')) return;
-    if (zoom <= 100) return;
-    // ignore if rail is interacting
-    if (railDragging) return;
-
-    panning = true;
-    panStart = { x: e.clientX, y: e.clientY, scrollX: planViewer.scrollLeft, scrollY: planViewer.scrollTop };
-    try { planViewer.setPointerCapture(e.pointerId); } catch (_) {}
-  });
-  planViewer.addEventListener('pointermove', (e) => {
-    if (!panning) return;
-    const dx = e.clientX - panStart.x;
-    const dy = e.clientY - panStart.y;
-    planViewer.scrollLeft = panStart.scrollX - dx;
-    planViewer.scrollTop = panStart.scrollY - dy;
-  });
-  planViewer.addEventListener('pointerup', () => panning = false);
-  planViewer.addEventListener('pointercancel', () => panning = false);
-
-  /* ===========================
-     SWIPE DOWN TO CLOSE
-     =========================== */
-  let startY = 0;
-  modalSheet.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive:true });
-  modalSheet.addEventListener('touchend', (e) => {
-    const endY = e.changedTouches[0].clientY;
-    if (endY - startY > 86) closeModal();
-  }, { passive:true });
-
-  /* ===========================
      EVENTS
      =========================== */
-  // Filters
   $('filters').addEventListener('click', (e) => {
     const b = e.target.closest('.f-btn');
     if (!b) return;
 
-    document.querySelectorAll('.f-btn').forEach(x => {
-      x.classList.remove('active');
-      x.setAttribute('aria-pressed', 'false');
-    });
-
+    document.querySelectorAll('.f-btn').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-pressed', 'false'); });
     b.classList.add('active');
     b.setAttribute('aria-pressed', 'true');
 
@@ -1218,10 +1587,8 @@
     render();
   });
 
-  // Search
   $('deckSearch').addEventListener('input', (e) => { query = e.target.value || ''; render(); });
 
-  // Click cards
   content.addEventListener('click', (e) => {
     const card = e.target.closest('[data-n]');
     if (!card) return;
@@ -1229,7 +1596,6 @@
     if (d) openModal(d);
   });
 
-  // Keyboard open on focused card
   content.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
     const card = e.target.closest('[data-n]');
@@ -1239,10 +1605,10 @@
     if (d) openModal(d);
   });
 
-  // Close modal
   backdrop.addEventListener('click', closeModal);
   $('modalClose').addEventListener('click', closeModal);
   $('btnClose2').addEventListener('click', closeModal);
+
   document.addEventListener('keydown', (e) => {
     if (!modal.classList.contains('open')) return;
     if (e.key === 'Escape') closeModal();
@@ -1250,53 +1616,50 @@
     if (e.key === 'ArrowRight') nextBtn.click();
   });
 
-  // Prev/Next deck (true glide)
   prevBtn.addEventListener('click', () => {
     const idx = currentOrderedIndex();
     if (idx <= 0) return;
-    setDeck(ordered[idx - 1], 'right', { firstOpen:false });
+    setDeck(ordered[idx - 1]);
   });
   nextBtn.addEventListener('click', () => {
     const idx = currentOrderedIndex();
     if (idx < 0 || idx >= ordered.length - 1) return;
-    setDeck(ordered[idx + 1], 'left', { firstOpen:false });
+    setDeck(ordered[idx + 1]);
   });
 
-  // Zoom controls
-  $('zoomIn').addEventListener('click', () => setZoom(zoom + 25));
-  $('zoomOut').addEventListener('click', () => setZoom(zoom - 25));
-  $('zoomReset').addEventListener('click', () => setZoom(100));
-  zoomRange.addEventListener('input', (e) => setZoom(Number(e.target.value || 100)));
+  zoomInBtn.addEventListener('click', () => map.setZoomPercent((map.scale * 100) + 25));
+  zoomOutBtn.addEventListener('click', () => map.setZoomPercent((map.scale * 100) - 25));
+  zoomFit.addEventListener('click', () => map.fit());
 
-  // Chips -> highlight matching spot
+  zoomRange.addEventListener('input', (e) => {
+    const v = Number(e.target.value || 100);
+    map.setZoomPercent(v);
+  });
+
   chipsRow.addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');
     if (!chip || !currentDeck || !currentDeck.spots) return;
     const text = chip.textContent.trim().toLowerCase();
     const idx = currentDeck.spots.findIndex(s => (s.t || '').toLowerCase().includes(text));
-    if (idx !== -1) highlightSpot(idx);
+    if (idx !== -1) highlightSpot(idx, { zoomTo: true });
   });
 
-  // Legend click
   legend.addEventListener('click', (e) => {
     const item = e.target.closest('.legend-item');
     if (!item) return;
     const idx = Number(item.dataset.spotIdx);
-    if (!Number.isNaN(idx)) highlightSpot(idx);
+    if (!Number.isNaN(idx)) highlightSpot(idx, { zoomTo: true });
   });
 
-  // Hotspot click
   hotspotsLayer.addEventListener('click', (e) => {
     const btn = e.target.closest('.hotspot-btn');
     if (!btn) return;
     const idx = Number(btn.dataset.spotIdx);
-    if (!Number.isNaN(idx)) highlightSpot(idx);
+    if (!Number.isNaN(idx)) highlightSpot(idx, { zoomTo: true });
   });
 
-  // My Location (non-invasive placeholder)
   btnLoc.addEventListener('click', () => showToast('My Location: coming soon'));
 
-  // Drawer
   function openDrawer() {
     drawerBackdrop.classList.add('open');
     drawerBackdrop.setAttribute('aria-hidden', 'false');
@@ -1313,40 +1676,25 @@
   closeDrawerBtn.addEventListener('click', closeDrawer);
   drawerBackdrop.addEventListener('click', (e) => { if (e.target === drawerBackdrop) closeDrawer(); });
 
-  // Back to top
-  window.addEventListener('scroll', () => {
-    backToTop.classList.toggle('show', window.scrollY > 400);
-  });
+  window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 400));
   backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' }));
 
-  // Keyboard shortcut '/'
-  document.addEventListener('keydown', (e) => {
-    if (e.key === '/' && document.activeElement !== $('deckSearch')) {
-      e.preventDefault();
-      $('deckSearch').focus();
-    }
-  });
-
-  /* ===========================
-     RAIL EVENTS
-     =========================== */
-  // Track pointer
+  /* Rail events */
   railTrack.addEventListener('pointerdown', railPointerDown);
   railTrack.addEventListener('pointermove', railPointerMove);
   railTrack.addEventListener('pointerup', railPointerUp);
   railTrack.addEventListener('pointercancel', railPointerUp);
 
-  // Touch support (iOS sometimes prefers touch events on nested)
   railTrack.addEventListener('touchstart', (e) => {
     railDragging = true;
     railThumb.classList.add('dragging');
+    lastRailIdx = -1;
     railPointerMove(e);
     e.preventDefault();
-  }, { passive:false });
-  railTrack.addEventListener('touchmove', (e) => { railPointerMove(e); e.preventDefault(); }, { passive:false });
-  railTrack.addEventListener('touchend', () => railPointerUp(), { passive:true });
+  }, { passive: false });
+  railTrack.addEventListener('touchmove', (e) => { railPointerMove(e); e.preventDefault(); }, { passive: false });
+  railTrack.addEventListener('touchend', () => railPointerUp(), { passive: true });
 
-  // Up/Down buttons
   railUp.addEventListener('click', () => {
     if (!currentDeck) return;
     const idx = railDecks().findIndex(d => d.n === currentDeck.n);
@@ -1358,12 +1706,117 @@
     setDeckByRailIndex(Math.min(railDecks().length - 1, idx + 1));
   });
 
+  window.addEventListener('resize', () => {
+    if (modal.classList.contains('open') && currentDeck) {
+      updateRailToDeck(currentDeck);
+      renderRailTicks(currentDeck.n);
+      // refit to new viewport size
+      map.fit();
+    }
+  });
+
   /* ===========================
-     OCEAN BACKGROUND (polished)
+     MAP ENGINE INPUT
+     =========================== */
+  // Pointer pan with momentum
+  planViewer.addEventListener('pointerdown', (e) => {
+    if (!modal.classList.contains('open')) return;
+    // Ignore pan if user is dragging rail
+    if (railDragging) return;
+
+    map.stopMomentum();
+    map.isPanning = true;
+    map.lastPt = { x: e.clientX, y: e.clientY };
+    map.vx = 0; map.vy = 0;
+
+    try { planViewer.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  planViewer.addEventListener('pointermove', (e) => {
+    if (!map.isPanning) return;
+
+    const dx = e.clientX - map.lastPt.x;
+    const dy = e.clientY - map.lastPt.y;
+
+    map.x += dx;
+    map.y += dy;
+
+    map.vx = dx;
+    map.vy = dy;
+
+    map.lastPt = { x: e.clientX, y: e.clientY };
+
+    map.clamp();
+    map.apply();
+  });
+
+  planViewer.addEventListener('pointerup', () => {
+    if (!map.isPanning) return;
+    map.isPanning = false;
+    map.startMomentum();
+  });
+  planViewer.addEventListener('pointercancel', () => {
+    map.isPanning = false;
+    map.stopMomentum();
+  });
+
+  // iOS pinch zoom
+  planViewer.addEventListener('touchstart', (e) => {
+    if (!modal.classList.contains('open')) return;
+
+    if (e.touches.length === 2) {
+      map.isPinching = true;
+      map.stopMomentum();
+      map.pinchDist0 = touchDist(e.touches[0], e.touches[1]);
+      map.pinchScale0 = map.scale;
+      e.preventDefault();
+      return;
+    }
+  }, { passive: false });
+
+  planViewer.addEventListener('touchmove', (e) => {
+    if (!map.isPinching) return;
+    if (e.touches.length !== 2) return;
+
+    const d = touchDist(e.touches[0], e.touches[1]);
+    const factor = d / Math.max(10, map.pinchDist0);
+
+    const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+    map.setScale(map.pinchScale0 * factor, centerX, centerY);
+    updateZoomUI();
+    e.preventDefault();
+  }, { passive: false });
+
+  planViewer.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) map.isPinching = false;
+  }, { passive: true });
+
+  // Double tap zoom (100% ⇄ 200%) anchored to tap point
+  planViewer.addEventListener('touchend', (e) => {
+    if (!modal.classList.contains('open')) return;
+    if (map.isPinching) return;
+
+    const now = Date.now();
+    const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+    if (!touch) return;
+
+    if (now - map.lastTapTs < 280) {
+      const targetPct = (Math.round(map.scale * 100) <= 110) ? 200 : 100;
+      map.setZoomPercent(targetPct, touch.clientX, touch.clientY);
+      map.lastTapTs = 0;
+    } else {
+      map.lastTapTs = now;
+    }
+  }, { passive: true });
+
+  /* ===========================
+     OCEAN BACKGROUND
      =========================== */
   const oceanCanvas = $('ocean');
   if (oceanCanvas) {
-    const ctx = oceanCanvas.getContext('2d', { alpha:true });
+    const ctx = oceanCanvas.getContext('2d', { alpha: true });
     const waves = [
       { amp: 22, len: 0.010, speed: 0.010, y: 0.46, alpha: 0.11 },
       { amp: 30, len: 0.008, speed: 0.013, y: 0.54, alpha: 0.09 },
@@ -1379,23 +1832,19 @@
       oceanCanvas.style.height = window.innerHeight + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-
     resize();
     window.addEventListener('resize', resize);
 
     function draw() {
-      // Pause when tab hidden
       if (document.hidden) { requestAnimationFrame(draw); return; }
 
       const w = window.innerWidth;
       const h = window.innerHeight;
       ctx.clearRect(0, 0, w, h);
 
-      // Deep base
       ctx.fillStyle = '#071a2c';
       ctx.fillRect(0, 0, w, h);
 
-      // Waves
       waves.forEach((wa, i) => {
         const baseY = h * wa.y;
         ctx.beginPath();
@@ -1420,9 +1869,6 @@
      INIT
      =========================== */
   render();
-
-  // If you want a default “featured” deck on load, uncomment:
-  // openModal(byNum(5));
 
 })();
 </script>
