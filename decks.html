@@ -3,28 +3,214 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Adventure of the Seas · Deck Navigator</title>
+<meta name="theme-color" content="#0a2e4a" />
+<title>Deck Navigator · Adventure of the Seas</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
 <style>
-/* Minimal style kept identical to prior version */
-html,body{margin:0;padding:0;height:100%;overflow:hidden;font-family:Inter,system-ui;}
+/* =========================================================
+   DECK NAVIGATOR V4 — CINEMATIC RCCL EDITION
+   ========================================================= */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 body{
-  background:linear-gradient(180deg,#0f4f76,#083452);
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:#071a2c;
   color:#fff;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-.viewer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-.frame{width:95%;height:85%;border-radius:24px;background:rgba(255,255,255,.05);position:relative;overflow:hidden;touch-action:none;}
-.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-.panZoom{transform-origin:center;will-change:transform;transition:transform 240ms cubic-bezier(.2,.8,.25,1);}
-.deckObject{width:min(920px,90vw);height:auto;border-radius:24px;background:#efe6d6;}
+
+:root{
+  --sky1: rgba(0,180,230,.18);
+  --sky2: rgba(255,215,64,.10);
+  --sky3: rgba(0,0,0,.55);
+
+  --glass: rgba(255,255,255,.085);
+  --glass-brd: rgba(255,255,255,.18);
+
+  --gold:#ffd740;
+  --accent:#00b4e6;
+
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+
+/* Background */
+#ocean{position:fixed;inset:0;z-index:-4}
+.sky{
+  position:fixed;inset:0;z-index:-3;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 18%, var(--sky1), transparent 60%),
+    radial-gradient(ellipse at 18% 86%, var(--sky2), transparent 55%),
+    linear-gradient(180deg, rgba(0,0,0,.18), var(--sky3));
+  transition: background 900ms var(--ease);
+}
+.vignette{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255,255,255,.06), transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.38), transparent 65%);
+}
+.ship-sil{
+  position:fixed;left:50%;bottom:6%;
+  transform:translateX(-50%);
+  opacity:.06;
+  font-size:min(300px,60vw);
+  pointer-events:none;
+  z-index:-1;
+}
+
+/* Header */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,46,74,.66);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+.header-inner{
+  max-width:1100px;margin:0 auto;
+  height:66px;padding:0 1.15rem;
+  display:flex;align-items:center;gap:1rem;
+}
+.title{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-weight:950;
+}
+.sub{font-size:.75rem;opacity:.6;font-weight:800}
+.titlewrap{display:flex;flex-direction:column;line-height:1.05}
+.spacer{flex:1}
+
+.btn{
+  border-radius:999px;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.92);
+  padding:.5rem .9rem;
+  font-weight:900;
+  font-size:.78rem;
+  display:inline-flex;
+  align-items:center;
+  gap:.55rem;
+  transition: background .18s var(--ease), border-color .18s var(--ease);
+}
+.btn:hover{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(0,180,230,.28);
+}
+.btn i{color:var(--gold)}
+
+/* Viewer */
+.viewer{
+  position:absolute;inset:66px 0 0 0;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.frame{
+  width:95%;height:86%;
+  border-radius:28px;
+  background:var(--glass);
+  border:1px solid var(--glass-brd);
+  backdrop-filter:blur(16px);
+  box-shadow:0 25px 80px rgba(0,0,0,.45);
+  position:relative;
+  overflow:hidden;
+  touch-action:none;
+}
+
+.stage{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.panZoom{
+  transform-origin:center;
+  will-change:transform;
+  transition:transform 240ms var(--ease);
+}
+
+.deckObject{
+  width:min(920px,90vw);
+  height:auto;
+  filter: drop-shadow(0 25px 70px rgba(0,180,230,.18));
+}
+
+/* Controls */
+.controls{
+  position:absolute;bottom:16px;left:0;right:0;
+  pointer-events:none;
+}
+
+.zoomCluster{
+  position:absolute;left:50%;
+  transform:translateX(-50%);
+  display:flex;gap:12px;
+  pointer-events:auto;
+}
+
+.modeCluster{
+  position:absolute;right:16px;
+  display:flex;gap:8px;
+  pointer-events:auto;
+}
+
+.zoomPct{
+  font-weight:900;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  padding:.45rem .75rem;
+  border-radius:999px;
+}
+
+.recenter{
+  position:absolute;left:16px;bottom:16px;
+  pointer-events:auto;
+  opacity:0;
+  transition:opacity .25s var(--ease);
+}
+.recenter.show{opacity:1}
+
+/* Error UI */
+.errorUI{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  gap:1rem;
+  background:rgba(7,26,44,.85);
+  backdrop-filter:blur(10px);
+  text-align:center;
+  font-weight:800;
+  display:none;
+}
+.errorUI.show{display:flex}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important}
+}
 </style>
 </head>
 
 <body>
+
+<canvas id="ocean"></canvas>
+<div class="sky"></div>
+<div class="vignette"></div>
+<i class="fas fa-ship ship-sil"></i>
+
+<header>
+  <div class="header-inner">
+    <div class="titlewrap">
+      <div class="title">Deck Navigator</div>
+      <div class="sub">Adventure of the Seas · Feb 14–20, 2026</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" id="deckJumpBtn"><i class="fas fa-layer-group"></i> Decks</button>
+  </div>
+</header>
 
 <div class="viewer">
   <div class="frame" id="frame">
@@ -33,6 +219,30 @@ body{
         <object id="deckObject" class="deckObject" type="image/svg+xml"></object>
       </div>
     </div>
+
+    <div class="controls">
+      <div class="zoomCluster">
+        <button class="btn" id="zoomOut">−</button>
+        <div class="zoomPct" id="zoomLabel">100%</div>
+        <button class="btn" id="zoomIn">+</button>
+      </div>
+
+      <div class="modeCluster">
+        <button class="btn" id="modeFill">Fill</button>
+        <button class="btn" id="modeAll">All</button>
+      </div>
+
+      <button class="btn recenter" id="recenterBtn">
+        <i class="fas fa-crosshairs"></i> Center
+      </button>
+    </div>
+
+    <div class="errorUI" id="errorUI">
+      <i class="fas fa-triangle-exclamation fa-2x"></i>
+      <div>Deck failed to load.</div>
+      <button class="btn" id="retryBtn">Retry</button>
+    </div>
+
   </div>
 </div>
 
@@ -40,237 +250,198 @@ body{
 (() => {
 "use strict";
 
-/* ─────────────────────────────────────────────────────────────
-   DEBUG LOGGER
-───────────────────────────────────────────────────────────── */
-
+/* =============================
+   LOGGING
+============================= */
 const DEBUG = true;
-
 const Log = {
-  info(label, data){
-    if (!DEBUG) return;
-    console.log(`%c[DeckNav INFO] ${label}`, "color:#4de7c8;font-weight:600;", data ?? "");
-  },
-  warn(label, data){
-    if (!DEBUG) return;
-    console.warn(`%c[DeckNav WARN] ${label}`, "color:#ffb703;font-weight:700;", data ?? "");
-  },
-  error(label, data){
-    if (!DEBUG) return;
-    console.error(`%c[DeckNav ERROR] ${label}`, "color:#ff6b6b;font-weight:800;", data ?? "");
-  },
-  milestone(label){
-    if (!DEBUG) return;
-    console.log(`%c[DeckNav MILESTONE] ${label}`, "color:#00b4e6;font-weight:800;");
-  }
+  info:(m,d)=>DEBUG&&console.log("[DeckNav]",m,d||""),
+  warn:(m,d)=>DEBUG&&console.warn("[DeckNav]",m,d||""),
+  error:(m,d)=>DEBUG&&console.error("[DeckNav]",m,d||"")
 };
 
-Log.milestone("Script Loaded");
-
-/* ─────────────────────────────────────────────────────────────
+/* =============================
    Deck Data
-───────────────────────────────────────────────────────────── */
-
-const DECKS = [
-  { id:"03", svg:"decks/deck-03-final.min.svg" },
-  { id:"04", svg:"decks/deck-04-final.min.svg" },
-  { id:"05", svg:"decks/deck-05-final.min.svg" }
+============================= */
+const DECKS=[
+  {id:"03",svg:"decks/deck-03-final.min.svg"},
+  {id:"04",svg:"decks/deck-04-final.min.svg"},
+  {id:"05",svg:"decks/deck-05-final.min.svg"}
 ];
 
-let activeIndex = 1; // default deck 04
-Log.info("Initial deck index", activeIndex);
+let activeIndex=1;
 
-/* ─────────────────────────────────────────────────────────────
+/* =============================
    DOM
-───────────────────────────────────────────────────────────── */
+============================= */
+const frame=document.getElementById("frame");
+const panZoom=document.getElementById("panZoom");
+const deckObject=document.getElementById("deckObject");
+const zoomLabel=document.getElementById("zoomLabel");
+const errorUI=document.getElementById("errorUI");
+const recenterBtn=document.getElementById("recenterBtn");
 
-const frame = document.getElementById("frame");
-const panZoom = document.getElementById("panZoom");
-const deckObject = document.getElementById("deckObject");
-
-if (!frame || !panZoom || !deckObject){
-  Log.error("Missing required DOM nodes");
-  return;
-}
-
-Log.milestone("DOM Ready");
-
-/* ─────────────────────────────────────────────────────────────
+/* =============================
    State
-───────────────────────────────────────────────────────────── */
+============================= */
+let scale=1,tx=0,ty=0,fitScale=1;
+let viewMode="fill";
+let baseW=800,baseH=1200;
 
-let scale = 1;
-let tx = 0;
-let ty = 0;
-let fitScale = 1;
+const clamp=(v,min,max)=>Math.min(Math.max(v,min),max);
 
-let baseDeckW = 800;
-let baseDeckH = 1200;
-
-const clamp = (v,min,max)=>Math.min(Math.max(v,min),max);
-
-/* ─────────────────────────────────────────────────────────────
-   Transform
-───────────────────────────────────────────────────────────── */
+function updateLabel(){
+  zoomLabel.textContent=Math.round(scale*100)+"% · "+viewMode;
+}
 
 function applyTransform(){
-  panZoom.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-  Log.info("Transform Applied", {scale,tx,ty});
+  panZoom.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
+  updateLabel();
+  recenterBtn.classList.toggle("show",Math.abs(tx)>40||Math.abs(ty)>40);
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Measurement
-───────────────────────────────────────────────────────────── */
-
-function measureDeck(){
-  const rect = deckObject.getBoundingClientRect();
-  Log.info("Deck Bounding Rect", rect);
-
-  if(rect.width < 50 || rect.height < 50){
-    Log.warn("Deck measurement suspiciously small", rect);
-  }
-
-  baseDeckW = rect.width || baseDeckW;
-  baseDeckH = rect.height || baseDeckH;
-
-  Log.info("Base Deck Dimensions", {baseDeckW,baseDeckH});
-}
-
-/* ─────────────────────────────────────────────────────────────
+/* =============================
    Fit
-───────────────────────────────────────────────────────────── */
-
+============================= */
 function computeFit(){
-  const r = frame.getBoundingClientRect();
-  Log.info("Frame Rect", r);
-
-  const sW = r.width / baseDeckW;
-  const sH = r.height / baseDeckH;
-  fitScale = Math.min(sW,sH);
-
-  if(!isFinite(fitScale) || fitScale <= 0){
-    Log.warn("Invalid fitScale computed", fitScale);
-    fitScale = 1;
-  }
-
-  Log.info("Computed fitScale", fitScale);
+  const r=frame.getBoundingClientRect();
+  const sW=r.width/baseW;
+  const sH=r.height/baseH;
+  fitScale=viewMode==="fill"?sW:Math.min(sW,sH);
+  if(!isFinite(fitScale)||fitScale<=0) fitScale=1;
 }
 
-function resetToFit(){
+function resetView(){
   computeFit();
-  scale = fitScale;
-  tx = 0;
-  ty = 0;
+  scale=fitScale;
+  tx=0;ty=0;
   applyTransform();
-  Log.milestone("Reset To Fit Complete");
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Deck Loading
-───────────────────────────────────────────────────────────── */
-
-async function loadDeck(index){
-  const deck = DECKS[index];
-  Log.milestone("Deck Load Requested");
-  Log.info("Deck Data", deck);
-
-  if(!deck){
-    Log.error("Deck index invalid", index);
-    return;
-  }
+/* =============================
+   Load Deck
+============================= */
+async function loadDeck(i){
+  const d=DECKS[i];
+  if(!d){Log.error("Invalid deck index");return;}
+  errorUI.classList.remove("show");
 
   try{
-    const res = await fetch(deck.svg, {cache:"no-cache"});
-    Log.info("Fetch Status", res.status);
-
-    if(!res.ok){
-      Log.warn("SVG fetch failed", deck.svg);
-      return;
-    }
+    const res=await fetch(d.svg,{cache:"no-cache"});
+    if(!res.ok) throw new Error("Fetch failed");
   }catch(e){
-    Log.error("Fetch threw error", e);
+    Log.error("Deck load error",e);
+    errorUI.classList.add("show");
     return;
   }
 
-  deckObject.setAttribute("data", deck.svg);
-  Log.info("SVG data attribute set", deck.svg);
-
-  deckObject.onload = ()=>{
-    Log.milestone("SVG Object Load Event Fired");
-
+  deckObject.setAttribute("data",d.svg);
+  deckObject.onload=()=>{
     requestAnimationFrame(()=>{
-      measureDeck();
-      resetToFit();
+      const rect=deckObject.getBoundingClientRect();
+      baseW=rect.width;baseH=rect.height;
+      resetView();
     });
-  };
-
-  deckObject.onerror = ()=>{
-    Log.error("SVG Object Failed To Load", deck.svg);
   };
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Gesture (PointerEvents only)
-───────────────────────────────────────────────────────────── */
+/* =============================
+   Controls
+============================= */
+document.getElementById("zoomIn").onclick=()=>{
+  scale=clamp(scale*1.15,.5,4);
+  applyTransform();
+};
+document.getElementById("zoomOut").onclick=()=>{
+  scale=clamp(scale/1.15,.5,4);
+  applyTransform();
+};
+document.getElementById("modeFill").onclick=()=>{
+  viewMode="fill";
+  resetView();
+};
+document.getElementById("modeAll").onclick=()=>{
+  viewMode="all";
+  resetView();
+};
+recenterBtn.onclick=resetView;
+document.getElementById("retryBtn").onclick=()=>loadDeck(activeIndex);
 
-let pointers = new Map();
-let startPan = {x:0,y:0,tx:0,ty:0};
+/* =============================
+   Pointer Events
+============================= */
+let pointers=new Map();
+let startPan={x:0,y:0,tx:0,ty:0};
 
 frame.addEventListener("pointerdown",e=>{
   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  startPan = {x:e.clientX,y:e.clientY,tx,ty};
+  startPan={x:e.clientX,y:e.clientY,tx,ty};
   frame.setPointerCapture(e.pointerId);
-  Log.info("Pointer Down", e.pointerId);
 });
-
 frame.addEventListener("pointermove",e=>{
-  if(!pointers.has(e.pointerId)) return;
-
+  if(!pointers.has(e.pointerId))return;
   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-
-  if(pointers.size === 1){
-    const dx = e.clientX - startPan.x;
-    const dy = e.clientY - startPan.y;
-    tx = startPan.tx + dx;
-    ty = startPan.ty + dy;
+  if(pointers.size===1){
+    const dx=e.clientX-startPan.x;
+    const dy=e.clientY-startPan.y;
+    tx=startPan.tx+dx;
+    ty=startPan.ty+dy;
     applyTransform();
-  }
-
-  if(pointers.size === 2){
-    const pts = Array.from(pointers.values());
-    const dx = pts[0].x - pts[1].x;
-    const dy = pts[0].y - pts[1].y;
-    const dist = Math.hypot(dx,dy);
-    scale = clamp(dist/200, .5, 4);
-    applyTransform();
-    Log.info("Pinch Scale", scale);
   }
 });
-
 frame.addEventListener("pointerup",e=>{
   pointers.delete(e.pointerId);
-  Log.info("Pointer Up", e.pointerId);
 });
 
-/* ─────────────────────────────────────────────────────────────
-   Resize
-───────────────────────────────────────────────────────────── */
+/* =============================
+   Ocean
+============================= */
+const ocean=document.getElementById("ocean");
+const ctx=ocean.getContext("2d",{alpha:true});
+let t=0;
 
-window.addEventListener("resize",()=>{
-  Log.milestone("Window Resize Detected");
-  resetToFit();
-});
+function resizeOcean(){
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  ocean.width=window.innerWidth*dpr;
+  ocean.height=window.innerHeight*dpr;
+  ocean.style.width=window.innerWidth+"px";
+  ocean.style.height=window.innerHeight+"px";
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener("resize",resizeOcean);
 
-/* ─────────────────────────────────────────────────────────────
-   INIT
-───────────────────────────────────────────────────────────── */
+function drawOcean(){
+  const w=window.innerWidth,h=window.innerHeight;
+  ctx.clearRect(0,0,w,h);
+  for(let i=0;i<3;i++){
+    const amp=20+i*10;
+    const base=h*(.5+i*.05);
+    ctx.beginPath();
+    ctx.moveTo(0,base);
+    for(let x=0;x<w;x+=8){
+      ctx.lineTo(x,base+Math.sin(x*.01+t*(.9+i*.2))*amp);
+    }
+    ctx.lineTo(w,h);
+    ctx.lineTo(0,h);
+    ctx.closePath();
+    ctx.fillStyle=`rgba(0,180,230,${.12-i*.03})`;
+    ctx.fill();
+  }
+  t+=.012;
+  requestAnimationFrame(drawOcean);
+}
 
-Log.milestone("Initialization Start");
-loadDeck(activeIndex);
-Log.milestone("Initialization Complete");
+/* =============================
+   Init
+============================= */
+function init(){
+  resizeOcean();
+  requestAnimationFrame(drawOcean);
+  loadDeck(activeIndex);
+}
+init();
 
 })();
 </script>
-
 </body>
 </html>
