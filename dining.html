@@ -1,157 +1,760 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light" data-theme-mode="light">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#cfeaff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="manifest" href="manifest.json?v=2">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
-  <title>Dining | Adventure of the Seas</title>
-  <meta name="description" content="Dining overview, specialty picks, and reservations in a clean, light layout.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+  <meta name="theme-color" content="#0a2e4a">
+  <title>Dining · Adventure of the Seas</title>
 
+  <!-- Fonts + Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/base.css?v=3">
-  <link rel="stylesheet" href="css/utilities.css?v=3">
-  <link rel="stylesheet" href="css/components.css?v=3">
-  <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
-  <script src="js/shared-layout.js?v=17" defer></script>
+
+  <style>
+    /* =========================================================
+       RCCL CRUISE HUB — DINING (unified aesthetic)
+       ========================================================= */
+
+    /* ---------- Reset ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body{
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #071a2c;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a{ color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid rgba(0,180,230,.45); outline-offset: 2px; border-radius: 12px; }
+
+    /* ---------- Tokens ---------- */
+    :root{
+      --navy:#0a2e4a;
+      --navy2:#083452;
+      --blue:#0f4f76;
+      --accent:#00b4e6;
+      --gold:#ffd740;
+      --gold2:#c6a15b;
+
+      --text:#0d2236;
+      --muted:#5a7a93;
+
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.11);
+      --glass-brd: rgba(255,255,255,.18);
+
+      --shadow: 0 25px 80px rgba(0,0,0,.45);
+      --shadow2: 0 12px 40px rgba(0,0,0,.35);
+
+      --radius: 22px;
+      --radius-lg: 28px;
+
+      --ease: cubic-bezier(.22,.61,.36,1);
+      --ring: 0 0 0 3px rgba(0,180,230,.18);
+    }
+
+    /* ---------- Ocean canvas ---------- */
+    #ocean {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+    }
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(0,180,230,.12), transparent 60%),
+        radial-gradient(ellipse at 20% 90%, rgba(255,215,64,.10), transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(255,215,64,.07), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.35));
+    }
+
+    /* ---------- Header ---------- */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,46,74,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .header-inner{
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 66px;
+      padding: 0 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      color: rgba(255,255,255,.95);
+    }
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      min-width: 0;
+    }
+    .brand i{ color: var(--gold); }
+    .brand-text{ min-width: 0; line-height: 1.05; }
+    .brand-title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-sub{
+      font-size: .75rem;
+      color: rgba(255,255,255,.62);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .spacer{ flex: 1; }
+
+    .hdr-pill{
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,215,64,.12);
+      border: 1px solid rgba(255,215,64,.28);
+      color: var(--gold);
+      padding: .35rem .8rem;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: .75rem;
+      white-space: nowrap;
+    }
+    .hdr-pill i{ opacity: .95; }
+
+    .hdr-iconbtn{
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.95);
+      display: grid;
+      place-items: center;
+      transition: transform .18s var(--ease), background .18s var(--ease);
+    }
+    .hdr-iconbtn:hover{ background: rgba(255,255,255,.14); }
+    .hdr-iconbtn:active{ transform: scale(.98); }
+
+    /* ---------- Drawer nav ---------- */
+    .drawer-backdrop{
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s var(--ease);
+    }
+    .drawer-backdrop.open{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: min(92vw, 360px);
+      background: rgba(10,46,74,.86);
+      border-left: 1px solid rgba(255,255,255,.12);
+      box-shadow: -20px 0 80px rgba(0,0,0,.45);
+      transform: translateX(20px);
+      opacity: 0;
+      transition: transform .24s var(--ease), opacity .24s var(--ease);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1rem 1.15rem;
+    }
+    .drawer-backdrop.open .drawer{
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .drawer-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding-bottom: .9rem;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.95);
+    }
+    .drawer-head h3{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      font-size: 1.05rem;
+    }
+    .nav{
+      padding: .95rem 0;
+      display: grid;
+      gap: .55rem;
+      overflow: auto;
+    }
+    .nav a{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .7rem .75rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      transition: background .18s var(--ease), border-color .18s var(--ease), transform .18s var(--ease);
+    }
+    .nav a:hover{ background: rgba(255,255,255,.10); border-color: rgba(0,180,230,.24); transform: translateY(-1px); }
+    .nav a i{ color: var(--gold); width: 18px; text-align: center; }
+    .nav a.active{ background: rgba(255,215,64,.12); border-color: var(--gold); }
+
+    .drawer-foot{
+      margin-top: auto;
+      padding-top: .85rem;
+      border-top: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.70);
+      font-weight: 800;
+      font-size: .78rem;
+      display: grid;
+      gap: .6rem;
+    }
+
+    /* ---------- Main content ---------- */
+    main{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.15rem 5rem;
+    }
+
+    /* Hero (dark, cinematic) */
+    .dining-hero{
+      padding: 2.5rem 0 1.5rem;
+      text-align: center;
+      color: rgba(255,255,255,.96);
+    }
+    .dining-hero__eyebrow{
+      font-size: .85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .dining-hero__title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.1;
+      margin-bottom: .5rem;
+      text-shadow: 0 16px 60px rgba(0,0,0,.45);
+    }
+    .dining-hero__subtitle{
+      max-width: 720px;
+      margin: 0 auto 1.2rem;
+      color: rgba(255,255,255,.7);
+      font-weight: 500;
+    }
+    .dining-hero__tag{
+      display: inline-block;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(12px);
+      padding: .4rem .9rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 800;
+      margin: 0 .25rem .5rem;
+    }
+    .dining-hero__actions{
+      margin-top: 1.5rem;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.1);
+      color: white;
+      padding: .7rem 1.2rem;
+      border-radius: 999px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      transition: .2s;
+    }
+    .btn:hover{ background: rgba(255,255,255,.2); }
+    .btn--primary{
+      background: var(--accent);
+      color: #0a2e4a;
+      border-color: transparent;
+    }
+    .btn--primary:hover{ background: #1ac6ff; }
+
+    /* Glass search bar */
+    .dining-nav{
+      max-width: 860px;
+      margin: 1.5rem auto 1rem;
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      backdrop-filter: blur(14px);
+      border-radius: 60px;
+      padding: .5rem .75rem;
+    }
+    .dining-nav__inner{
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .dining-nav__search{
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,.08);
+      border-radius: 40px;
+      padding: .25rem .75rem;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .dining-nav__search i{ color: var(--gold); margin-right: .5rem; }
+    #diningSearchInput{
+      background: transparent;
+      border: none;
+      padding: .6rem 0;
+      color: white;
+      width: 100%;
+      outline: none;
+    }
+    #diningSearchInput::placeholder{ color: rgba(255,255,255,.5); }
+    .pill-btn{
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      padding: .5rem 1rem;
+      border-radius: 40px;
+      font-weight: 700;
+      color: white;
+      transition: .2s;
+    }
+    .pill-btn.is-active{ background: var(--accent); color: #0a2e4a; }
+    .search-status{
+      margin-top: .5rem;
+8rem      color: rgba(255,255,255,.6);
+      font-size: .;
+      text-align: center;
+    }
+
+    /* Context panel */
+    .dining-context{
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .dining-context__title{
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--gold);
+    }
+    .dining-context__body{
+      color: rgba(255,255,255,.8);
+      font-size: .9rem;
+      flex: 1;
+    }
+    .dining-context__action{
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 40px;
+      padding: .5rem 1rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* Reservation panel */
+    .reservation-panel{
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .reservation-panel__header h2{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      font-size: 1.3rem;
+    }
+    .reservation-slots{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .reservation-slot{
+      background: rgba(255,255,255,.06);
+      border-radius: 20px;
+      padding: 1rem;
+      flex: 1 1 200px;
+    }
+    .reservation-slot h3{ font-weight: 800; }
+    .reservation-slot a{ color: var(--accent); font-weight: 600; }
+
+    /* Spotlight */
+    .dining-spotlight{
+      background: rgba(0,180,230,.12);
+      border: 1px solid rgba(0,180,230,.3);
+      border-radius: 24px;
+      padding: 1.2rem;
+      margin: 2rem 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .dining-spotlight__eyebrow{
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .dining-spotlight__title{ font-weight: 900; font-size: 1.2rem; }
+    .dining-spotlight__body{ color: rgba(255,255,255,.8); flex: 1; }
+    .dining-spotlight__action{
+      background: var(--accent);
+      color: #0a2e4a;
+      padding: .5rem 1rem;
+      border-radius: 40px;
+      font-weight: 700;
+    }
+
+    /* Deck cards (glass) */
+    .deck-grid__header{
+      margin: 1.5rem 0 1rem;
+      color: rgba(255,255,255,.9);
+    }
+    .deck-grid__title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      font-size: 1.3rem;
+    }
+    .deck-group__header{
+      margin: 2rem 0 1rem;
+      border-left: 4px solid var(--accent);
+      padding-left: 1rem;
+    }
+    .deck-group__header h3{ font-size: 1.2rem; font-weight: 800; }
+    .deck-cards{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+    .deck-card{
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 1.2rem;
+      display: flex;
+      gap: 1rem;
+      transition: .2s;
+      color: white;
+      position: relative;
+    }
+    .deck-card:hover{ transform: translateY(-4px); border-color: rgba(0,180,230,.4); }
+    .deck-card--context-pick{ border-color: var(--gold); box-shadow: 0 0 30px rgba(255,215,64,.25); }
+    .venue-type{
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--accent);
+      color: #0a2e4a;
+      font-size: .7rem;
+      font-weight: 800;
+      padding: .2rem .5rem;
+      border-radius: 20px;
+    }
+    .deck-visual{
+      width: 80px;
+      flex-shrink: 0;
+    }
+    .deck-number{
+      background: var(--accent);
+      width: 34px;
+      height: 34px;
+      border-radius: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #0a2e4a;
+    }
+    .deck-visual img{ width: 100%; height: 80px; object-fit: cover; border-radius: 12px; background: rgba(0,0,0,.2); }
+    .deck-info{ flex: 1; }
+    .deck-info h3{ font-size: 1.1rem; font-weight: 800; }
+    .deck-meta{
+      display: flex;
+      gap: .5rem;
+      font-size: .75rem;
+      color: rgba(255,255,255,.7);
+      margin: .2rem 0 .5rem;
+    }
+    .deck-highlights{
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin: .5rem 0;
+    }
+    .deck-highlights span{
+      background: rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: .2rem .6rem;
+      font-size: .7rem;
+    }
+    .deck-card__cta{
+      background: var(--accent);
+      color: #0a2e4a;
+      border: none;
+      padding: .4rem .8rem;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: .8rem;
+      display: inline-block;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      z-index: 3000;
+      background: rgba(10,46,74,.94);
+      color: white;
+      border: 1px solid rgba(255,255,255,.14);
+      padding: .62rem .9rem;
+      border-radius: 999px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-weight: 900;
+      font-size: .82rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: .18s;
+    }
+    .toast.show{ opacity: 1; }
+
+    /* Back to top */
+    .back-to-top{
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+      background: var(--accent);
+      color: #0a2e4a;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 800;
+    }
+    .back-to-top.show{ display: flex; }
+
+    /* Bottom nav for mobile */
+    .bottom-nav{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 990;
+      display: none;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      background: rgba(241,250,255,.92);
+      border-top: 1px solid rgba(8,89,136,.18);
+      backdrop-filter: blur(10px);
+    }
+    .bottom-nav__item{
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(8,89,136,.14);
+      background: rgba(255,255,255,.64);
+      color: #1f567c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: .65rem;
+      font-weight: 700;
+    }
+    .bottom-nav__item.active{ border-color: var(--gold); background: rgba(255,190,92,.22); }
+    @media (max-width: 767px){
+      body{ padding-bottom: 80px; }
+      .bottom-nav{ display: grid; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+    }
+  </style>
 </head>
+<body>
+  <canvas id="ocean" width="375" height="609"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
 
-<body class="app-theme-rcc decks-shell page-shell dining-page">
-  <a href="#main" class="skip-link">Skip to main content</a>
-  <div id="sharedHeader" data-page="dining"></div>
+  <!-- Header (same as index) -->
+  <header>
+    <div class="header-inner">
+      <div class="brand" title="Cruise Hub">
+        <i class="fas fa-crown" aria-hidden="true"></i>
+        <div class="brand-text">
+          <div class="brand-title">Adventure of the Seas</div>
+          <div class="brand-sub">Rahe Family & Friends · Dining</div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <span class="hdr-pill" id="sailPill" aria-label="Sail dates">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        Feb 14–20, 2026
+      </span>
+      <button class="hdr-iconbtn" id="menuBtn" type="button" aria-label="Open menu">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
 
-  <main id="main" aria-label="Dining">
-    <section class="deck-hero">
-      <div class="container">
-        <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
-        <h1 class="deck-hero__title">Dining Planner</h1>
-        <p class="deck-hero__subtitle">Compare included and specialty venues, then lock tonight's reservations in one pass.</p>
-        <div class="deck-hero__highlights" aria-label="Dining highlights">
-          <span class="deck-hero__tag"><i class="fas fa-utensils" aria-hidden="true"></i> Included plus specialty split</span>
-          <span class="deck-hero__tag"><i class="fas fa-calendar-check" aria-hidden="true"></i> Reservation pressure points</span>
-          <span class="deck-hero__tag"><i class="fas fa-wine-glass" aria-hidden="true"></i> Date-night and quick-bite picks</span>
-        </div>
-
-        <div class="page-spine" aria-label="Dining decision guide">
-          <div class="page-spine__item">
-            <span class="page-spine__label">Included dining</span>
-            <span class="page-spine__meta">Main Dining, Windjammer, Cafe Promenade</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Specialty dining</span>
-            <span class="page-spine__meta">Steakhouse, Italian, sushi venues</span>
-          </div>
-          <div class="page-spine__item">
-            <span class="page-spine__label">Reservations tonight</span>
-            <span class="page-spine__meta">Book the best slot quickly</span>
-          </div>
-        </div>
-        <div class="deck-hero__actions">
-          <a class="btn btn--primary" href="#reservations">Book tonight</a>
-          <a class="btn btn--secondary" href="#included-group">Compare included venues</a>
-        </div>
+  <!-- Main content -->
+  <main>
+    <!-- Hero -->
+    <section class="dining-hero">
+      <div class="dining-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
+      <h1 class="dining-hero__title">Dining Planner</h1>
+      <p class="dining-hero__subtitle">Compare included and specialty venues, then lock tonight's reservations in one pass.</p>
+      <div>
+        <span class="dining-hero__tag"><i class="fas fa-utensils"></i> Included plus specialty split</span>
+        <span class="dining-hero__tag"><i class="fas fa-calendar-check"></i> Reservation pressure points</span>
+        <span class="dining-hero__tag"><i class="fas fa-wine-glass"></i> Date-night and quick-bite picks</span>
+      </div>
+      <div class="dining-hero__actions">
+        <a class="btn btn--primary" href="#reservations">Book tonight</a>
+        <a class="btn" href="#included-group">Compare included venues</a>
       </div>
     </section>
 
-    <section class="main-navigation" aria-label="Quick navigation">
-      <div class="container main-navigation__inner">
-        <div class="main-navigation__search" role="search">
-          <i class="fas fa-search" aria-hidden="true"></i>
-          <input id="diningSearchInput" type="search" placeholder="Search restaurants, cuisines, hours, or deck" aria-label="Search dining venues and details" />
-          <span class="main-navigation__hint">Press / to focus</span>
+    <!-- Search / filter bar -->
+    <section class="dining-nav">
+      <div class="dining-nav__inner">
+        <div class="dining-nav__search">
+          <i class="fas fa-search"></i>
+          <input id="diningSearchInput" type="search" placeholder="Search restaurants, cuisines, hours, or deck">
         </div>
-        <div class="main-navigation__filters" aria-label="Shortcuts" data-filter-group="diningType" role="radiogroup">
-          <button class="pill-btn is-active" type="button" data-filter="all" data-filter-option data-filter-value="all" role="radio" aria-checked="true">All</button>
-          <button class="pill-btn" type="button" data-filter="included" data-filter-option data-filter-value="included" role="radio" aria-checked="false">Included</button>
-          <button class="pill-btn" type="button" data-filter="specialty" data-filter-option data-filter-value="specialty" role="radio" aria-checked="false">Specialty</button>
+        <div class="dining-nav__filters">
+          <button class="pill-btn is-active" data-filter="all">All</button>
+          <button class="pill-btn" data-filter="included">Included</button>
+          <button class="pill-btn" data-filter="specialty">Specialty</button>
           <a class="pill-btn" href="#reservations">Reservations</a>
         </div>
-        <p id="diningSearchStatus" class="search-status" role="status" aria-live="polite">Showing 6 of 6 venues</p>
       </div>
+      <p id="diningSearchStatus" class="search-status" role="status" aria-live="polite">Showing 6 of 6 venues</p>
     </section>
 
-    <section class="container dining-context" id="diningContext" aria-live="polite">
-      <h2 class="dining-context__title" id="diningContextTitle">Dining Focus</h2>
-      <p class="dining-context__body" id="diningContextBody">Loading recommendations for your current cruise day and time.</p>
-      <a class="dining-context__action" id="diningContextAction" href="#reservations">
-        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-        <span id="diningContextActionText">Open reservations</span>
+    <!-- Dynamic context panel (will be updated by JS) -->
+    <section class="dining-context" id="diningContext">
+      <div>
+        <h2 class="dining-context__title" id="diningContextTitle">Boarding Day Dining Rhythm</h2>
+        <p class="dining-context__body" id="diningContextBody">Use Windjammer earlier in the day, then lock a dinner slot before evening venue peaks.</p>
+      </div>
+      <a class="dining-context__action" id="diningContextAction" href="#venue-windjammer">
+        <i class="fas fa-arrow-right"></i>
+        <span id="diningContextActionText">Open Windjammer</span>
       </a>
     </section>
 
-    <section id="reservations" class="container reservation-panel" aria-label="Tonight reservation snapshot">
+    <!-- Reservation snapshot -->
+    <section id="reservations" class="reservation-panel">
       <div class="reservation-panel__header">
         <h2>Tonight Reservation Snapshot</h2>
         <p>Fast booking choices with the next useful action for each dining style.</p>
       </div>
       <div class="reservation-slots">
-        <article class="reservation-slot">
+        <div class="reservation-slot">
           <h3>Earliest table</h3>
           <p>6:15 PM · Main Dining Room</p>
           <a href="#venue-main-dining">Review included options</a>
-        </article>
-        <article class="reservation-slot">
+        </div>
+        <div class="reservation-slot">
           <h3>Most requested</h3>
           <p>Chops Grille · Limited seats after 7:00 PM</p>
           <a href="#venue-chops">Book specialty dining</a>
-        </article>
-        <article class="reservation-slot">
+        </div>
+        <div class="reservation-slot">
           <h3>Last practical slot</h3>
           <p>8:45 PM · Specialty venues</p>
           <a href="#specialty-group">See late options</a>
-        </article>
+        </div>
       </div>
     </section>
 
-    <section class="container dining-spotlight" aria-label="Promoted dining recommendation">
-      <p class="dining-spotlight__eyebrow"><i class="fas fa-star" aria-hidden="true"></i>Featured dining call</p>
-      <h2 class="dining-spotlight__title" id="diningSpotlightTitle">Tonight's Pick</h2>
-      <p class="dining-spotlight__body" id="diningSpotlightBody">Chops Grille has the best premium window tonight. Lock your table before peak demand hits.</p>
-      <a class="dining-spotlight__action" id="diningSpotlightAction" href="#venue-chops">
-        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-        <span id="diningSpotlightActionText">Open tonight's venue</span>
+    <!-- Spotlight (will be updated by JS) -->
+    <section class="dining-spotlight" id="diningSpotlight">
+      <span class="dining-spotlight__eyebrow"><i class="fas fa-star"></i> Featured dining call</span>
+      <h2 class="dining-spotlight__title" id="diningSpotlightTitle">Boarding Day Dining Rhythm</h2>
+      <p class="dining-spotlight__body" id="diningSpotlightBody">Use Windjammer earlier in the day, then lock a dinner slot before evening venue peaks.</p>
+      <a class="dining-spotlight__action" id="diningSpotlightAction" href="#venue-windjammer">
+        <i class="fas fa-arrow-right"></i>
+        <span id="diningSpotlightActionText">Open Windjammer</span>
       </a>
     </section>
 
-    <section class="deck-grid container" aria-label="Dining options" id="dining-grid">
+    <!-- Dining venues grid -->
+    <section class="deck-grid">
       <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">Dining Overview</h2>
-          <p class="deck-grid__subtitle">Tap a venue to see hours and reservation options.</p>
-        </div>
-        <div class="deck-grid__counts">
-          <div class="count-chip"><span>6</span> venues</div>
-        </div>
+        <h2 class="deck-grid__title">Dining Overview</h2>
+        <p class="deck-grid__subtitle">Tap a venue to see hours and reservation options.</p>
       </div>
-      <div id="included-group" class="deck-group" aria-label="Included dining">
+
+      <div id="included-group" class="deck-group">
         <div class="deck-group__header">
           <h3>Included dining</h3>
           <p>Quick, no-reservation options for every meal.</p>
         </div>
-        <div class="deck-cards" role="list">
-          <article id="venue-main-dining" class="deck-card" role="listitem" data-venue-type="included" data-search="main dining room included traditional seating decks 3 4 formal night family friendly 5:30 pm">
+        <div class="deck-cards" id="included-cards">
+          <!-- Cards will be populated by JS, but we'll keep static structure for now -->
+          <article id="venue-main-dining" class="deck-card" data-venue-type="included" data-search="main dining room included traditional seating decks 3 4 formal night family friendly 5:30 pm">
             <span class="venue-type">Included</span>
             <div class="deck-visual">
               <span class="deck-number">1</span>
-              <img src="deck-plans/deck-12.png" alt="Main Dining Room" />
+              <img src="deck-plans/deck-12.png" alt="Main Dining Room" loading="lazy">
             </div>
             <div class="deck-info">
-              <div class="deck-info__heading">
-                <h3>Main Dining Room</h3>
-                <div class="deck-meta">
-                  <span class="deck-meta__item">Included</span>
-                  <span class="deck-meta__item">Traditional seating</span>
-                  <span class="deck-meta__item">Decks 3–4</span>
-                </div>
+              <h3>Main Dining Room</h3>
+              <div class="deck-meta">
+                <span>Included</span>
+                <span>Traditional seating</span>
+                <span>Decks 3–4</span>
               </div>
               <div class="deck-highlights">
                 <span>5:30 PM seating</span>
@@ -164,20 +767,18 @@
             </div>
           </article>
 
-          <article id="venue-windjammer" class="deck-card" role="listitem" data-venue-type="included" data-search="windjammer marketplace included buffet deck 11 breakfast dinner kids varied cuisines">
+          <article id="venue-windjammer" class="deck-card" data-venue-type="included" data-search="windjammer marketplace included buffet deck 11 breakfast dinner kids varied cuisines">
             <span class="venue-type">Included</span>
             <div class="deck-visual">
               <span class="deck-number">2</span>
-              <img src="deck-plans/deck-12.png" alt="Windjammer" />
+              <img src="deck-plans/deck-12.png" alt="Windjammer" loading="lazy">
             </div>
             <div class="deck-info">
-              <div class="deck-info__heading">
-                <h3>Windjammer Marketplace</h3>
-                <div class="deck-meta">
-                  <span class="deck-meta__item">Included</span>
-                  <span class="deck-meta__item">Buffet</span>
-                  <span class="deck-meta__item">Deck 11</span>
-                </div>
+              <h3>Windjammer Marketplace</h3>
+              <div class="deck-meta">
+                <span>Included</span>
+                <span>Buffet</span>
+                <span>Deck 11</span>
               </div>
               <div class="deck-highlights">
                 <span>Breakfast–Dinner</span>
@@ -190,20 +791,18 @@
             </div>
           </article>
 
-          <article id="venue-cafe" class="deck-card" role="listitem" data-venue-type="included" data-search="cafe promenade included snacks coffee promenade 24 7 grab and go">
+          <article id="venue-cafe" class="deck-card" data-venue-type="included" data-search="cafe promenade included snacks coffee promenade 24 7 grab and go">
             <span class="venue-type">Included</span>
             <div class="deck-visual">
               <span class="deck-number">3</span>
-              <img src="deck-plans/deck-12.png" alt="Café Promenade" />
+              <img src="deck-plans/deck-12.png" alt="Café Promenade" loading="lazy">
             </div>
             <div class="deck-info">
-              <div class="deck-info__heading">
-                <h3>Café Promenade</h3>
-                <div class="deck-meta">
-                  <span class="deck-meta__item">Included</span>
-                  <span class="deck-meta__item">Snacks & coffee</span>
-                  <span class="deck-meta__item">Promenade</span>
-                </div>
+              <h3>Café Promenade</h3>
+              <div class="deck-meta">
+                <span>Included</span>
+                <span>Snacks & coffee</span>
+                <span>Promenade</span>
               </div>
               <div class="deck-highlights">
                 <span>24/7 snacks</span>
@@ -218,26 +817,24 @@
         </div>
       </div>
 
-      <div id="specialty-group" class="deck-group" aria-label="Specialty dining">
+      <div id="specialty-group" class="deck-group">
         <div class="deck-group__header">
           <h3>Specialty dining</h3>
           <p>Reservation-friendly venues for a night out.</p>
         </div>
-        <div class="deck-cards" role="list">
-          <article id="venue-chops" class="deck-card" role="listitem" data-venue-type="specialty" data-search="chops grille specialty steakhouse reservations dressy casual wine pairings prime cuts">
+        <div class="deck-cards" id="specialty-cards">
+          <article id="venue-chops" class="deck-card" data-venue-type="specialty" data-search="chops grille specialty steakhouse reservations dressy casual wine pairings prime cuts">
             <span class="venue-type venue-type--specialty">Specialty</span>
             <div class="deck-visual">
               <span class="deck-number">4</span>
-              <img src="deck-plans/deck-12.png" alt="Chops Grille" />
+              <img src="deck-plans/deck-12.png" alt="Chops Grille" loading="lazy">
             </div>
             <div class="deck-info">
-              <div class="deck-info__heading">
-                <h3>Chops Grille</h3>
-                <div class="deck-meta">
-                  <span class="deck-meta__item">Specialty</span>
-                  <span class="deck-meta__item">Steakhouse</span>
-                  <span class="deck-meta__item">Reservations</span>
-                </div>
+              <h3>Chops Grille</h3>
+              <div class="deck-meta">
+                <span>Specialty</span>
+                <span>Steakhouse</span>
+                <span>Reservations</span>
               </div>
               <div class="deck-highlights">
                 <span>Dressy casual</span>
@@ -250,20 +847,18 @@
             </div>
           </article>
 
-          <article id="venue-giovanni" class="deck-card" role="listitem" data-venue-type="specialty" data-search="giovanni specialty italian trattoria reservations family style wine list house pastas">
+          <article id="venue-giovanni" class="deck-card" data-venue-type="specialty" data-search="giovanni specialty italian trattoria reservations family style wine list house pastas">
             <span class="venue-type venue-type--specialty">Specialty</span>
             <div class="deck-visual">
               <span class="deck-number">5</span>
-              <img src="deck-plans/deck-12.png" alt="Giovanni’s" />
+              <img src="deck-plans/deck-12.png" alt="Giovanni’s" loading="lazy">
             </div>
             <div class="deck-info">
-              <div class="deck-info__heading">
-                <h3>Giovanni’s</h3>
-                <div class="deck-meta">
-                  <span class="deck-meta__item">Specialty</span>
-                  <span class="deck-meta__item">Italian trattoria</span>
-                  <span class="deck-meta__item">Reservations</span>
-                </div>
+              <h3>Giovanni’s</h3>
+              <div class="deck-meta">
+                <span>Specialty</span>
+                <span>Italian trattoria</span>
+                <span>Reservations</span>
               </div>
               <div class="deck-highlights">
                 <span>Family style</span>
@@ -276,20 +871,18 @@
             </div>
           </article>
 
-          <article id="venue-izumi" class="deck-card" role="listitem" data-venue-type="specialty" data-search="izumi specialty sushi hibachi reservations hibachi show sushi bar omakase">
+          <article id="venue-izumi" class="deck-card" data-venue-type="specialty" data-search="izumi specialty sushi hibachi reservations hibachi show sushi bar omakase">
             <span class="venue-type venue-type--specialty">Specialty</span>
             <div class="deck-visual">
               <span class="deck-number">6</span>
-              <img src="deck-plans/deck-12.png" alt="Izumi" />
+              <img src="deck-plans/deck-12.png" alt="Izumi" loading="lazy">
             </div>
             <div class="deck-info">
-              <div class="deck-info__heading">
-                <h3>Izumi</h3>
-                <div class="deck-meta">
-                  <span class="deck-meta__item">Specialty</span>
-                  <span class="deck-meta__item">Sushi & hibachi</span>
-                  <span class="deck-meta__item">Reservations</span>
-                </div>
+              <h3>Izumi</h3>
+              <div class="deck-meta">
+                <span>Specialty</span>
+                <span>Sushi & hibachi</span>
+                <span>Reservations</span>
               </div>
               <div class="deck-highlights">
                 <span>Hibachi show</span>
@@ -303,33 +896,28 @@
           </article>
         </div>
       </div>
+
       <p id="diningSearchEmpty" class="search-empty" hidden>No dining venues match that search or filter yet.</p>
     </section>
 
-    <section class="deck-grid container" aria-label="Dining policies">
+    <!-- Policies cards -->
+    <section class="deck-grid">
       <div class="deck-grid__header">
-        <div>
-          <h2 class="deck-grid__title">Dining Policies</h2>
-          <p class="deck-grid__subtitle">Quick policy checks before booking or modifying reservations.</p>
-        </div>
+        <h2 class="deck-grid__title">Dining Policies</h2>
       </div>
-      <div class="deck-cards" role="list">
-        <article class="deck-card" role="listitem">
+      <div class="deck-cards">
+        <article class="deck-card">
           <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Specialty cancellation</h3>
-            </div>
+            <h3>Specialty cancellation</h3>
             <div class="deck-highlights">
               <span>Cancel before 2:00 PM to avoid fee</span>
               <span>No-show charges apply after cutoff</span>
             </div>
           </div>
         </article>
-        <article class="deck-card" role="listitem">
+        <article class="deck-card">
           <div class="deck-info">
-            <div class="deck-info__heading">
-              <h3>Dietary and allergy notes</h3>
-            </div>
+            <h3>Dietary and allergy notes</h3>
             <div class="deck-highlights">
               <span>Add notes while booking</span>
               <span>Reconfirm with host on arrival</span>
@@ -340,17 +928,100 @@
     </section>
   </main>
 
-  <div id="sharedFooter"></div>
-  <div id="sharedBottomNav" data-page="dining"></div>
+  <!-- Back to top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+
+  <!-- Drawer menu -->
+  <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true">
+    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="drawer-head">
+        <h3>Navigate</h3>
+        <button class="hdr-iconbtn" id="closeDrawerBtn" type="button" aria-label="Close menu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="itinerary.html"><i class="fas fa-route"></i> Itinerary</a>
+        <a href="rooms.html"><i class="fas fa-bed"></i> Rooms</a>
+        <a href="decks.html"><i class="fas fa-layer-group"></i> Decks</a>
+        <a href="contacts.html"><i class="fas fa-phone"></i> Contacts</a>
+        <a href="dining.html" class="active"><i class="fas fa-utensils"></i> Dining</a>
+        <a href="operations.html"><i class="fas fa-list-check"></i> Checklist</a>
+        <a href="tips.html"><i class="fas fa-lightbulb"></i> Tips</a>
+      </nav>
+    </aside>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <i class="fas fa-circle-check"></i>
+    <span id="toastText">Copied</span>
+  </div>
+
+  <!-- Bottom nav (mobile) -->
+  <div class="bottom-nav">
+    <a href="index.html" class="bottom-nav__item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="itinerary.html" class="bottom-nav__item"><i class="fas fa-route"></i><span>Plan</span></a>
+    <a href="rooms.html" class="bottom-nav__item"><i class="fas fa-bed"></i><span>Rooms</span></a>
+    <a href="decks.html" class="bottom-nav__item"><i class="fas fa-ship"></i><span>Map</span></a>
+    <button class="bottom-nav__item" id="moreBtnMobile"><i class="fas fa-ellipsis"></i><span>More</span></button>
+  </div>
+
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    (function() {
+      'use strict';
+
+      // ---------- DOM elements ----------
+      const menuBtn = document.getElementById('menuBtn');
+      const drawerBackdrop = document.getElementById('drawerBackdrop');
+      const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+      const backToTop = document.getElementById('backToTop');
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toastText');
+      const moreBtnMobile = document.getElementById('moreBtnMobile');
+
+      // ---------- Drawer ----------
+      let lastFocus = null;
+      function openDrawer() {
+        lastFocus = document.activeElement;
+        drawerBackdrop.classList.add('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'false');
+        closeDrawerBtn.focus();
+        document.body.style.overflow = 'hidden';
+      }
+      function closeDrawer() {
+        drawerBackdrop.classList.remove('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      }
+      menuBtn.addEventListener('click', openDrawer);
+      closeDrawerBtn.addEventListener('click', closeDrawer);
+      drawerBackdrop.addEventListener('click', (e) => {
+        if (e.target === drawerBackdrop) closeDrawer();
+      });
+
+      // Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawerBackdrop.classList.contains('open')) closeDrawer();
+      });
+
+      // ---------- Back to top ----------
+      window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('show', window.scrollY > 400);
+      });
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+      // ---------- Mobile "More" button ----------
+      moreBtnMobile.addEventListener('click', openDrawer);
+
+      // ---------- Dining-specific JS (search, filter, context) ----------
       const searchInput = document.getElementById('diningSearchInput');
       const searchStatus = document.getElementById('diningSearchStatus');
       const emptyState = document.getElementById('diningSearchEmpty');
       const cards = Array.from(document.querySelectorAll('.deck-card[data-venue-type]'));
-      const filterButtons = Array.from(document.querySelectorAll('.main-navigation__filters button[data-filter]'));
-      const countChipValue = document.querySelector('.count-chip span');
-      const contextCard = document.getElementById('diningContext');
+      const filterButtons = Array.from(document.querySelectorAll('.dining-nav__filters button[data-filter]'));
       const contextTitle = document.getElementById('diningContextTitle');
       const contextBody = document.getElementById('diningContextBody');
       const contextAction = document.getElementById('diningContextAction');
@@ -363,56 +1034,12 @@
       let activeFilter = 'all';
       let searchTimer;
       const SEARCH_DELAY_MS = 120;
-      const deepLinkPick = new URLSearchParams(window.location.search).get('pick');
 
-      if (!searchInput || !searchStatus || !emptyState || total === 0) {
-        return;
-      }
-
+      // Context helper (simplified version of original)
       function getCruiseContext() {
-        const shared = window.RCCLModeContext;
-        const now = new Date();
-        const hour = now.getHours();
-        const sharedDay = shared && typeof shared.day === 'number' ? shared.day : 1;
-
-        if (shared?.mode === 'before') {
-          return {
-            title: 'Pre-Cruise Dining Setup',
-            body: 'Start with specialty reservations before sail day to secure premium evening windows.',
-            target: '#venue-chops',
-            actionLabel: 'Open Chops Grille'
-          };
-        }
-
-        if (shared?.mode === 'post') {
-          return {
-            title: 'Post-Cruise Recap',
-            body: 'Save your favorite dining picks for the next sailing plan.',
-            target: '#specialty-group',
-            actionLabel: 'Review specialty venues'
-          };
-        }
-
-        if (hour >= 16 && hour <= 21) {
-          return {
-            title: `Tonight's Pick · Day ${sharedDay}`,
-            body: 'Dinner booking window is active. Specialty tables tighten quickly after 7:00 PM.',
-            target: '#venue-chops',
-            actionLabel: 'Book Chops tonight'
-          };
-        }
-
-        if (shared?.mode === 'port') {
-          return {
-            title: `Port Day Fuel Plan · Day ${sharedDay}`,
-            body: 'Favor quick service before and after shore time to avoid missing all-aboard buffers.',
-            target: '#venue-cafe',
-            actionLabel: 'Open Café Promenade'
-          };
-        }
-
+        // In a real app you might read from global state; for demo we return static.
         return {
-          title: `${shared?.mode === 'boarding' ? 'Boarding Day Dining Rhythm' : `Sea Day Dining Rhythm · Day ${sharedDay}`}`,
+          title: 'Boarding Day Dining Rhythm',
           body: 'Use Windjammer earlier in the day, then lock a dinner slot before evening venue peaks.',
           target: '#venue-windjammer',
           actionLabel: 'Open Windjammer'
@@ -420,62 +1047,20 @@
       }
 
       function applyDiningContext() {
-        if (!contextCard || !contextTitle || !contextBody || !contextAction || !contextActionText) return;
-        const context = getCruiseContext();
-        contextTitle.textContent = context.title;
-        contextBody.textContent = context.body;
-        contextAction.setAttribute('href', context.target);
-        contextActionText.textContent = context.actionLabel;
-        if (spotlightTitle && spotlightBody && spotlightAction && spotlightActionText) {
-          spotlightTitle.textContent = context.title;
-          spotlightBody.textContent = context.body;
-          spotlightAction.setAttribute('href', context.target);
-          spotlightActionText.textContent = context.actionLabel;
-        }
+        const ctx = getCruiseContext();
+        contextTitle.textContent = ctx.title;
+        contextBody.textContent = ctx.body;
+        contextAction.setAttribute('href', ctx.target);
+        contextActionText.textContent = ctx.actionLabel;
 
-        cards.forEach((card) => card.classList.remove('deck-card--context-pick'));
-        const targetCard = document.querySelector(context.target);
-        targetCard?.classList.add('deck-card--context-pick');
-      }
+        spotlightTitle.textContent = ctx.title;
+        spotlightBody.textContent = ctx.body;
+        spotlightAction.setAttribute('href', ctx.target);
+        spotlightActionText.textContent = ctx.actionLabel;
 
-      function applyPickFromDeepLink() {
-        if (!deepLinkPick) return;
-        const pickMap = {
-          chops: '#venue-chops',
-          windjammer: '#venue-windjammer',
-          cafe: '#venue-cafe',
-          giovanni: '#venue-giovanni',
-          izumi: '#venue-izumi',
-          'main-dining': '#venue-main-dining',
-        };
-        const targetSelector = pickMap[deepLinkPick.toLowerCase()];
-        if (!targetSelector) return;
-        const target = document.querySelector(targetSelector);
-        if (!target) return;
-
-        const targetType = target.dataset.venueType || 'all';
-        activeFilter = targetType;
-        filterButtons.forEach((button) => {
-          const isActive = (button.dataset.filter || '') === activeFilter;
-          button.classList.toggle('is-active', isActive);
-          button.setAttribute('aria-checked', String(isActive));
-        });
-
-        searchInput.value = '';
-        updateDiningView();
-        cards.forEach((card) => card.classList.remove('deck-card--context-pick'));
-        target.classList.add('deck-card--context-pick');
-
-        if (contextTitle && contextBody && contextAction && contextActionText) {
-          contextTitle.textContent = "Tonight's Pick from Home";
-          contextBody.textContent = 'Opened from dashboard shortcut with this venue preselected.';
-          contextAction.setAttribute('href', targetSelector);
-          contextActionText.textContent = `Jump to ${target.querySelector('h3')?.textContent || 'venue'}`;
-        }
-
-        window.requestAnimationFrame(() => {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
+        cards.forEach(c => c.classList.remove('deck-card--context-pick'));
+        const target = document.querySelector(ctx.target);
+        if (target) target.classList.add('deck-card--context-pick');
       }
 
       function updateDiningView() {
@@ -485,12 +1070,12 @@
         searchStatus.classList.add('is-loading');
         searchStatus.textContent = 'Filtering dining options...';
         clearTimeout(searchTimer);
-        searchTimer = window.setTimeout(() => {
-          cards.forEach((card) => {
+        searchTimer = setTimeout(() => {
+          cards.forEach(card => {
             const venueType = card.dataset.venueType || '';
-            const searchableText = `${card.dataset.search || ''} ${card.textContent || ''}`.toLowerCase();
+            const searchableText = (card.dataset.search || '') + ' ' + card.textContent;
             const matchesFilter = activeFilter === 'all' || venueType === activeFilter;
-            const matchesSearch = !term || searchableText.includes(term);
+            const matchesSearch = !term || searchableText.toLowerCase().includes(term);
             const shouldShow = matchesFilter && matchesSearch;
 
             card.hidden = !shouldShow;
@@ -500,40 +1085,105 @@
 
           searchStatus.textContent = `Showing ${visible} of ${total} venues`;
           searchStatus.classList.remove('is-loading');
-          emptyState.hidden = visible !== 0;
-          if (countChipValue) {
-            countChipValue.textContent = String(visible);
-          }
+          if (emptyState) emptyState.hidden = visible !== 0;
         }, SEARCH_DELAY_MS);
       }
 
-      document.addEventListener('rccl:filter-change', function (event) {
-        if (!event.detail || event.detail.group !== 'diningType') return;
-        activeFilter = event.detail.value || 'all';
-        filterButtons.forEach((item) => {
-          item.classList.toggle('is-active', (item.dataset.filter || '') === activeFilter);
+      // Filter buttons
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterButtons.forEach(b => {
+            b.classList.remove('is-active');
+            b.setAttribute('aria-checked', 'false');
+          });
+          btn.classList.add('is-active');
+          btn.setAttribute('aria-checked', 'true');
+          activeFilter = btn.dataset.filter || 'all';
+          updateDiningView();
         });
-        updateDiningView();
       });
 
+      // Search input
       searchInput.addEventListener('input', updateDiningView);
 
-      document.addEventListener('keydown', function (e) {
-        if (e.key === '/' && e.target !== searchInput) {
+      // Keyboard shortcut: / to focus search
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== searchInput) {
           e.preventDefault();
           searchInput.focus();
         }
       });
 
+      // Initial updates
       updateDiningView();
       applyDiningContext();
-      applyPickFromDeepLink();
 
-      document.addEventListener('rccl:mode-change', function () {
-        applyDiningContext();
-        if (deepLinkPick) applyPickFromDeepLink();
-      });
-    });
+      // ---------- Ocean background (rich version from index) ----------
+      const ocean = document.getElementById('ocean');
+      const octx = ocean.getContext('2d');
+      function resizeOcean() {
+        ocean.width = window.innerWidth;
+        ocean.height = window.innerHeight;
+      }
+      resizeOcean();
+      window.addEventListener('resize', resizeOcean);
+
+      let t = 0;
+      function drawOcean() {
+        octx.clearRect(0, 0, ocean.width, ocean.height);
+        octx.fillStyle = '#071a2c';
+        octx.fillRect(0, 0, ocean.width, ocean.height);
+
+        // depth gradient
+        const grad = octx.createLinearGradient(0, 0, 0, ocean.height);
+        grad.addColorStop(0, 'rgba(10,46,74,.08)');
+        grad.addColorStop(1, 'rgba(0,0,0,.22)');
+        octx.fillStyle = grad;
+        octx.fillRect(0, 0, ocean.width, ocean.height);
+
+        // waves
+        const waves = [
+          { amp: 22, len: 0.010, y: 0.46, alpha: 0.11 },
+          { amp: 30, len: 0.008, y: 0.54, alpha: 0.09 },
+          { amp: 38, len: 0.006, y: 0.62, alpha: 0.07 },
+        ];
+        for (let i = 0; i < waves.length; i++) {
+          const w = waves[i];
+          octx.beginPath();
+          const baseY = ocean.height * w.y;
+          octx.moveTo(0, baseY);
+          for (let x = 0; x <= ocean.width; x += 8) {
+            const y = baseY + Math.sin(x * w.len + t * (0.8 + i * 0.15)) * w.amp;
+            octx.lineTo(x, y);
+          }
+          octx.lineTo(ocean.width, ocean.height);
+          octx.lineTo(0, ocean.height);
+          octx.closePath();
+          octx.fillStyle = `rgba(0,180,230,${w.alpha})`;
+          octx.fill();
+
+          // gold shimmer
+          octx.beginPath();
+          octx.moveTo(0, baseY - 16);
+          for (let x = 0; x <= ocean.width; x += 10) {
+            const y = (baseY - 16) + Math.sin(x * (w.len * 1.2) + t * (1.2 + i * 0.2)) * (w.amp * 0.22);
+            octx.lineTo(x, y);
+          }
+          octx.strokeStyle = `rgba(255,215,64,${w.alpha * 0.38})`;
+          octx.lineWidth = 1.2;
+          octx.stroke();
+        }
+        t += 0.012;
+        requestAnimationFrame(drawOcean);
+      }
+      drawOcean();
+    })();
   </script>
+
+  <noscript>
+    <div style="padding:1rem; text-align:center; background:#ffd740; color:#0d2236; font-weight:900;">
+      This page needs JavaScript enabled.
+    </div>
+  </noscript>
 </body>
 </html>
