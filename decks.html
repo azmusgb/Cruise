@@ -241,63 +241,162 @@ object{
   <button id="zoomIn">+</button>
   <button id="reset">Reset</button>
 </div>
-
 <script>
 (function(){
-  const wrapper=document.getElementById("wrapper");
-  const deck=document.getElementById("deck");
-  const zoomVal=document.getElementById("zoomVal");
-  const zoomIn=document.getElementById("zoomIn");
-  const zoomOut=document.getElementById("zoomOut");
-  const reset=document.getElementById("reset");
+  const wrapper = document.getElementById("wrapper");
+  const deckObject = document.getElementById("deck");
+  const zoomVal = document.getElementById("zoomVal");
+  const zoomIn = document.getElementById("zoomIn");
+  const zoomOut = document.getElementById("zoomOut");
+  const reset = document.getElementById("reset");
+  const container = document.getElementById("container");
 
-  let scale=1;
-  let posX=0;
-  let posY=0;
-  let startX,startY;
-  let dragging=false;
+  let scale = 1;
+  let minScale = 0.4;
+  let maxScale = 3;
+  let posX = 0;
+  let posY = 0;
+  let startX = 0;
+  let startY = 0;
+  let dragging = false;
+
+  let svgWidth = 1000;
+  let svgHeight = 600;
+
+  function clamp(value, min, max){
+    return Math.min(Math.max(value, min), max);
+  }
 
   function update(){
-    wrapper.style.transform=
-      `translate(${posX}px,${posY}px) scale(${scale})`;
-    zoomVal.textContent=Math.round(scale*100)+"%";
+    wrapper.style.transform =
+      `translate(${posX}px, ${posY}px) scale(${scale})`;
+    zoomVal.textContent = Math.round(scale * 100) + "%";
   }
 
-  function fit(){
-    const availableW=window.innerWidth-80;
-    const availableH=window.innerHeight-320;
-    const svgW=deck.offsetWidth||900;
-    const svgH=deck.offsetHeight||600;
-    const ratio=Math.min(availableW/svgW,availableH/svgH,1);
-    scale=Math.max(ratio,.35);
-    posX=0; posY=0;
+  function centerContent(){
+    const rect = container.getBoundingClientRect();
+    const contentW = svgWidth * scale;
+    const contentH = svgHeight * scale;
+
+    posX = (rect.width - contentW) / 2;
+    posY = (rect.height - contentH) / 2;
+
     update();
   }
 
-  zoomIn.onclick=()=>{scale=Math.min(scale+.15,3);update();};
-  zoomOut.onclick=()=>{scale=Math.max(scale-.15,.35);update();};
-  reset.onclick=fit;
+  function fitToViewport(){
+    const rect = container.getBoundingClientRect();
 
-  wrapper.onmousedown=e=>{
-    dragging=true;
-    startX=e.clientX-posX;
-    startY=e.clientY-posY;
+    const widthRatio = rect.width / svgWidth;
+    const heightRatio = rect.height / svgHeight;
+
+    scale = Math.min(widthRatio, heightRatio, 1);
+    scale = clamp(scale, minScale, maxScale);
+
+    centerContent();
+  }
+
+  function getSVGSize(){
+    try{
+      const svgDoc = deckObject.contentDocument;
+      if(!svgDoc) return;
+
+      const svg = svgDoc.querySelector("svg");
+      if(!svg) return;
+
+      const viewBox = svg.getAttribute("viewBox");
+      if(viewBox){
+        const parts = viewBox.split(" ");
+        svgWidth = parseFloat(parts[2]);
+        svgHeight = parseFloat(parts[3]);
+      }
+    }catch(e){
+      console.warn("Could not read SVG size");
+    }
+  }
+
+  /* Smooth zoom toward center */
+  function zoom(delta){
+    const newScale = clamp(scale + delta, minScale, maxScale);
+    if(newScale === scale) return;
+
+    scale = newScale;
+    centerContent();
+  }
+
+  zoomIn.onclick = () => zoom(0.15);
+  zoomOut.onclick = () => zoom(-0.15);
+  reset.onclick = fitToViewport;
+
+  /* Drag pan */
+  wrapper.onmousedown = e=>{
+    dragging = true;
+    startX = e.clientX - posX;
+    startY = e.clientY - posY;
+    wrapper.style.cursor = "grabbing";
   };
 
-  window.onmouseup=()=>dragging=false;
+  window.onmouseup = ()=>{
+    dragging = false;
+    wrapper.style.cursor = "grab";
+  };
 
-  window.onmousemove=e=>{
-    if(!dragging)return;
-    posX=e.clientX-startX;
-    posY=e.clientY-startY;
+  window.onmousemove = e=>{
+    if(!dragging) return;
+    posX = e.clientX - startX;
+    posY = e.clientY - startY;
     update();
   };
 
-  deck.addEventListener("load",fit);
-  window.addEventListener("resize",fit);
-  setTimeout(fit,100);
+  /* Wheel zoom */
+  container.addEventListener("wheel", e=>{
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    zoom(delta);
+  }, { passive:false });
+
+  /* Touch pinch zoom */
+  let initialDistance = 0;
+
+  container.addEventListener("touchstart", e=>{
+    if(e.touches.length === 2){
+      initialDistance = getDistance(e.touches[0], e.touches[1]);
+    }
+  });
+
+  container.addEventListener("touchmove", e=>{
+    if(e.touches.length === 2){
+      e.preventDefault();
+      const newDistance = getDistance(e.touches[0], e.touches[1]);
+      const delta = (newDistance - initialDistance) * 0.002;
+      zoom(delta);
+      initialDistance = newDistance;
+    }
+  }, { passive:false });
+
+  function getDistance(t1, t2){
+    return Math.sqrt(
+      Math.pow(t2.clientX - t1.clientX,2) +
+      Math.pow(t2.clientY - t1.clientY,2)
+    );
+  }
+
+  /* Load handling */
+  deckObject.addEventListener("load", ()=>{
+    getSVGSize();
+    fitToViewport();
+  });
+
+  window.addEventListener("resize", fitToViewport);
+
+  setTimeout(()=>{
+    getSVGSize();
+    fitToViewport();
+  },200);
+
 })();
 </script>
+
 
 </body>
 </html>
