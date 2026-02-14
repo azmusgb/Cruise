@@ -1,505 +1,632 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Adventure of the Seas · Deck Navigator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Adventure of the Seas · Deck Navigator</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html, body { height:100%; }
-  :root{
-    --navy:#0A2E4A;
-    --navy2:#083452;
-    --sea:#0f4f76;
-    --aqua:#00b4e6;
-    --mint:#4de7c8;
-    --sun:#ffb703;
-    --coral:#ff6b6b;
-    --sand:#efe6d6;
-    --glass: rgba(255,255,255,.12);
-    --glass2: rgba(255,255,255,.18);
-    --shadow: rgba(0,0,0,.55);
-    --panelH: 82px;
-    --carouselH: 118px;
-  }
+  <style>
+    /* ─────────────────────────────────────────────────────────────
+      Reset + Tokens
+    ───────────────────────────────────────────────────────────── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    :root{
+      --navy:#0A2E4A;
+      --navy2:#083452;
+      --sea:#0f4f76;
+      --aqua:#00b4e6;
+      --mint:#4de7c8;
+      --sun:#ffb703;
+      --coral:#ff6b6b;
+      --sand:#efe6d6;
+      --glass: rgba(255,255,255,.12);
+      --glass2: rgba(255,255,255,.18);
+      --shadow: rgba(0,0,0,.55);
 
-  body{
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    color:#fff;
-    overflow:hidden;
-    background:
-      radial-gradient(1100px 700px at 18% 20%, rgba(0,180,230,.35), transparent 60%),
-      radial-gradient(900px 600px at 80% 28%, rgba(255,183,3,.18), transparent 55%),
-      linear-gradient(180deg, var(--sea), var(--navy2));
-    position:relative;
-  }
+      --panelH: 82px;
+      --carouselH: 118px;
 
-  /* ocean shimmer */
-  body::before{
-    content:"";
-    position:absolute;
-    inset:-20%;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(255,255,255,.10), transparent 55%),
-      radial-gradient(circle at 65% 40%, rgba(255,255,255,.08), transparent 60%),
-      radial-gradient(circle at 40% 75%, rgba(255,255,255,.06), transparent 60%);
-    opacity:.65;
-    filter: blur(0.2px);
-    transform: translate3d(var(--bgx, 0px), var(--bgy, 0px), 0);
-    transition: transform 80ms linear;
-    pointer-events:none;
-  }
+      --focus: rgba(255,183,3,.95);
+      --focusShadow: rgba(255,183,3,.35);
+    }
 
-  /* header */
-  .topbar{
-    position:relative;
-    padding: 22px 18px 16px;
-    background: linear-gradient(135deg, rgba(255,183,3,.95), rgba(255,107,107,.85));
-    border-bottom-left-radius: 26px;
-    border-bottom-right-radius: 26px;
-    box-shadow: 0 16px 50px rgba(0,0,0,.35);
-  }
-  .topbar .kicker{
-    letter-spacing: 3px;
-    font-size: .75rem;
-    opacity:.92;
-  }
-  .topbar .title{
-    margin-top: 6px;
-    font-weight: 900;
-    font-size: 1.75rem;
-    line-height: 1.05;
-    text-shadow: 0 8px 30px rgba(0,0,0,.25);
-  }
-  .topbar .subtitle{
-    margin-top: 6px;
-    font-weight: 600;
-    opacity:.9;
-  }
-  .topbar .back{
-    position:absolute;
-    right: 14px;
-    top: 18px;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.18);
-    border: 1px solid rgba(255,255,255,.26);
-    color:#fff;
-    text-decoration:none;
-    font-weight: 700;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 12px 28px rgba(0,0,0,.22);
-  }
-  .topbar .back:active{ transform: scale(.98); }
+    body{
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:#fff;
+      overflow:hidden;
+      background:
+        radial-gradient(1100px 700px at 18% 20%, rgba(0,180,230,.35), transparent 60%),
+        radial-gradient(900px 600px at 80% 28%, rgba(255,183,3,.18), transparent 55%),
+        linear-gradient(180deg, var(--sea), var(--navy2));
+      position:relative;
+    }
 
-  /* viewer */
-  .viewer{
-    position:absolute;
-    left:0; right:0;
-    top: 116px;
-    bottom: calc(var(--panelH) + var(--carouselH) + 18px);
-    padding: 14px 14px 0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
+    /* ocean shimmer (subtle parallax driven by CSS vars) */
+    body::before{
+      content:"";
+      position:absolute;
+      inset:-20%;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.10), transparent 55%),
+        radial-gradient(circle at 65% 40%, rgba(255,255,255,.08), transparent 60%),
+        radial-gradient(circle at 40% 75%, rgba(255,255,255,.06), transparent 60%);
+      opacity:.65;
+      filter: blur(0.2px);
+      transform: translate3d(var(--bgx, 0px), var(--bgy, 0px), 0);
+      pointer-events:none;
+      will-change: transform;
+    }
 
-  .frame{
-    width:100%;
-    height:100%;
-    border-radius: 28px;
-    background: rgba(0,0,0,.14);
-    border: 1px solid rgba(255,255,255,.10);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-    position:relative;
-    overflow:hidden;
-    touch-action: none; /* we handle pan/pinch/swipe */
-  }
+    /* ─────────────────────────────────────────────────────────────
+      Accessibility helpers
+    ───────────────────────────────────────────────────────────── */
+    .sr-only{
+      position:absolute;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+      border:0;
+      white-space:nowrap;
+    }
 
-  /* glow sweep overlay */
-  .frame::after{
-    content:"";
-    position:absolute;
-    inset:-40%;
-    background:
-      radial-gradient(circle at 25% 40%, rgba(0,180,230,.18), transparent 60%),
-      radial-gradient(circle at 65% 55%, rgba(77,231,200,.14), transparent 60%),
-      linear-gradient(115deg,
-        transparent 0%,
-        rgba(255,255,255,.18) 42%,
-        rgba(255,255,255,.08) 52%,
-        transparent 70%);
-    transform: translateX(-35%) rotate(12deg);
-    opacity: 0;
-    pointer-events:none;
-    mix-blend-mode: screen;
-  }
-  .frame.sweep::after{
-    opacity: .85;
-    animation: glowSweep 2.4s ease-in-out 1;
-  }
-  @keyframes glowSweep{
-    0%   { transform: translateX(-60%) rotate(12deg); opacity:0; }
-    18%  { opacity:.75; }
-    55%  { opacity:.9; }
-    100% { transform: translateX(60%) rotate(12deg); opacity:0; }
-  }
+    :focus-visible{
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+      box-shadow: 0 0 0 4px var(--focusShadow);
+    }
 
-  .stage{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform-origin: center center;
-    will-change: transform;
-    transition: transform 240ms cubic-bezier(.2,.8,.25,1);
-  }
+    /* ─────────────────────────────────────────────────────────────
+      Header
+    ───────────────────────────────────────────────────────────── */
+    .topbar{
+      position:relative;
+      padding: 22px 18px 16px;
+      background: linear-gradient(135deg, rgba(255,183,3,.95), rgba(255,107,107,.85));
+      border-bottom-left-radius: 26px;
+      border-bottom-right-radius: 26px;
+      box-shadow: 0 16px 50px rgba(0,0,0,.35);
+    }
+    .topbar .kicker{
+      letter-spacing: 3px;
+      font-size: .75rem;
+      opacity:.92;
+    }
+    .topbar .title{
+      margin-top: 6px;
+      font-weight: 900;
+      font-size: 1.75rem;
+      line-height: 1.05;
+      text-shadow: 0 8px 30px rgba(0,0,0,.25);
+    }
+    .topbar .subtitle{
+      margin-top: 6px;
+      font-weight: 600;
+      opacity:.9;
+    }
+    .topbar .back{
+      position:absolute;
+      right: 14px;
+      top: 18px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      border: 1px solid rgba(255,255,255,.26);
+      color:#fff;
+      text-decoration:none;
+      font-weight: 800;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.22);
+    }
+    .topbar .back:active{ transform: scale(.98); }
 
-  .deckShell{
-    position:relative;
-    transform: translate(-50%, -50%);
-    filter:
-      drop-shadow(0 30px 60px rgba(0,0,0,.55));
-  }
+    /* ─────────────────────────────────────────────────────────────
+      Viewer
+    ───────────────────────────────────────────────────────────── */
+    .viewer{
+      position:absolute;
+      left:0; right:0;
+      top: 116px;
+      bottom: calc(var(--panelH) + var(--carouselH) + 18px);
+      padding: 14px 14px 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
 
-  .deckObject{
-    width:min(920px, calc(100vw - 40px));
-    height:auto;
-    display:block;
-    border-radius: 28px;
-    background: var(--sand);
-    box-shadow:
-      0 0 0 10px rgba(255,255,255,.16),
-      0 0 0 1px rgba(0,0,0,.10),
-      0 0 80px rgba(0,180,230,.20),
-      0 35px 90px rgba(0,0,0,.55);
-  }
+    .frame{
+      width:100%;
+      height:100%;
+      border-radius: 28px;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      position:relative;
+      overflow:hidden;
+      touch-action: none; /* unified PointerEvents for pan/pinch */
+    }
 
-  /* edge glow "lighting" */
-  .edgeGlow{
-    position:absolute;
-    inset:-10px;
-    border-radius: 34px;
-    pointer-events:none;
-    background:
-      radial-gradient(circle at 30% 25%, rgba(0,180,230,.30), transparent 55%),
-      radial-gradient(circle at 70% 75%, rgba(77,231,200,.22), transparent 58%),
-      radial-gradient(circle at 50% 50%, rgba(255,255,255,.12), transparent 65%);
-    opacity:.85;
-    filter: blur(0.2px);
-    z-index:-1;
-  }
+    /* glow sweep overlay */
+    .frame::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:
+        radial-gradient(circle at 25% 40%, rgba(0,180,230,.18), transparent 60%),
+        radial-gradient(circle at 65% 55%, rgba(77,231,200,.14), transparent 60%),
+        linear-gradient(115deg,
+          transparent 0%,
+          rgba(255,255,255,.18) 42%,
+          rgba(255,255,255,.08) 52%,
+          transparent 70%);
+      transform: translateX(-35%) rotate(12deg);
+      opacity: 0;
+      pointer-events:none;
+      mix-blend-mode: screen;
+    }
+    .frame.sweep::after{
+      opacity: .85;
+      animation: glowSweep 2.4s ease-in-out 1;
+    }
+    @keyframes glowSweep{
+      0%   { transform: translateX(-60%) rotate(12deg); opacity:0; }
+      18%  { opacity:.75; }
+      55%  { opacity:.9; }
+      100% { transform: translateX(60%) rotate(12deg); opacity:0; }
+    }
 
-  /* hotspots overlay */
-  .hotspots{
-    position:absolute;
-    inset:0;
-    pointer-events:none;
-  }
-  .hotspot{
-    position:absolute;
-    transform: translate(-50%, -50%);
-    pointer-events:auto;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding: 10px 12px;
-    border-radius: 999px;
-    background: rgba(10,46,74,.72);
-    border: 1px solid rgba(255,255,255,.22);
-    box-shadow: 0 18px 40px rgba(0,0,0,.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    cursor:pointer;
-    user-select:none;
-  }
-  .hotspot:active{ transform: translate(-50%, -50%) scale(.98); }
-  .hotspot .dot{
-    width: 14px; height:14px; border-radius:999px;
-    background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25));
-    box-shadow: 0 0 0 4px rgba(0,180,230,.25), 0 0 20px rgba(0,180,230,.55);
-  }
-  .hotspot .label{
-    font-weight:800;
-    font-size:.9rem;
-    letter-spacing:.2px;
-    white-space:nowrap;
-  }
-  .hotspot .emoji{
-    font-size: 1.05rem;
-    opacity:.95;
-  }
+    /* Stage centers content; pan/zoom applied on .panZoom only */
+    .stage{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+      width: 0; height: 0;
+      pointer-events:none;
+    }
 
-  /* bottom carousel */
-  .carouselWrap{
-    position:absolute;
-    left:0; right:0;
-    bottom: var(--panelH);
-    height: var(--carouselH);
-    padding: 10px 10px 12px;
-    display:flex;
-    align-items:flex-end;
-    pointer-events:auto;
-  }
-  .carousel{
-    width:100%;
-    display:flex;
-    gap: 12px;
-    overflow:auto;
-    padding: 6px 6px 10px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-  .carousel::-webkit-scrollbar{ height: 0; }
-  .card{
-    flex: 0 0 110px;
-    height: 96px;
-    border-radius: 18px;
-    background: rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.16);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 20px 40px rgba(0,0,0,.28);
-    overflow:hidden;
-    position:relative;
-    scroll-snap-align: start;
-    cursor:pointer;
-    user-select:none;
-  }
-  .card.active{
-    border-color: rgba(255,183,3,.85);
-    box-shadow:
-      0 22px 50px rgba(0,0,0,.34),
-      0 0 0 2px rgba(255,183,3,.35) inset;
-  }
-  .thumb{
-    position:absolute;
-    inset:0;
-    background: rgba(0,0,0,.10);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .thumb img{
-    width: 92%;
-    height: 92%;
-    object-fit: contain;
-    filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
-  }
-  .card .meta{
-    position:absolute;
-    left:0; right:0; bottom:0;
-    padding: 8px 10px;
-    background: linear-gradient(180deg, transparent, rgba(0,0,0,.50));
-    font-weight: 900;
-    letter-spacing:.3px;
-    font-size:.9rem;
-  }
-  .card .meta small{
-    display:block;
-    font-weight:700;
-    opacity:.85;
-    font-size:.75rem;
-    margin-top:2px;
-  }
+    .panZoom{
+      position:absolute;
+      left:0; top:0;
+      transform-origin: center center;
+      will-change: transform;
+      transition: transform 240ms cubic-bezier(.2,.8,.25,1);
+      pointer-events:auto; /* actual interaction surface */
+    }
 
-  /* controls */
-  .controls{
-    position:absolute;
-    left:50%;
-    bottom: 14px;
-    transform: translateX(-50%);
-    height: var(--panelH);
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, rgba(0,180,230,.92), rgba(15,79,118,.92));
-    border: 1px solid rgba(255,255,255,.20);
-    display:flex;
-    align-items:center;
-    gap: 12px;
-    box-shadow: 0 26px 70px rgba(0,0,0,.55);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-  }
-  .btn{
-    width: 56px;
-    height: 56px;
-    border-radius: 999px;
-    border:none;
-    cursor:pointer;
-    background: rgba(255,255,255,.92);
-    color: var(--navy);
-    font-size: 24px;
-    font-weight: 900;
-    display:grid;
-    place-items:center;
-    box-shadow: 0 16px 26px rgba(0,0,0,.25);
-    user-select:none;
-  }
-  .btn:active{ transform: scale(.94); }
-  .zoomPct{
-    width: 86px;
-    text-align:center;
-    font-weight: 900;
-    font-size: 1.15rem;
-    letter-spacing:.6px;
-    color:#fff;
-    text-shadow: 0 10px 30px rgba(0,0,0,.35);
-  }
-  .btnReset{
-    width:auto;
-    padding: 0 18px;
-    font-size: 1rem;
-    font-weight: 900;
-    background: linear-gradient(135deg, rgba(77,231,200,.95), rgba(255,255,255,.92));
-  }
+    .deckShell{
+      position:relative;
+      display:grid;
+      place-items:center;
+      filter: drop-shadow(0 30px 60px rgba(0,0,0,.55));
+      opacity: 1;
+      transition: opacity 220ms ease;
+    }
 
-  /* Venue popup (bottom sheet) */
-  .sheet{
-    position:absolute;
-    left:0; right:0; bottom:-60%;
-    padding: 14px 14px 18px;
-    transition: transform 320ms cubic-bezier(.2,.8,.25,1);
-    transform: translateY(0);
-    z-index: 30;
-    pointer-events:none;
-  }
-  .sheet.open{
-    transform: translateY(-58%);
-    pointer-events:auto;
-  }
-  .sheetInner{
-    margin: 0 auto;
-    max-width: 740px;
-    border-radius: 24px;
-    background: rgba(10,46,74,.76);
-    border: 1px solid rgba(255,255,255,.18);
-    box-shadow: 0 26px 90px rgba(0,0,0,.65);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    overflow:hidden;
-  }
-  .sheetTop{
-    padding: 12px 14px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background: rgba(255,255,255,.08);
-  }
-  .grab{
-    width: 44px; height: 5px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.35);
-    margin: 0 auto;
-  }
-  .sheetBody{
-    padding: 14px 16px 16px;
-  }
-  .venueTitle{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-weight: 900;
-    font-size: 1.2rem;
-    letter-spacing:.2px;
-  }
-  .venueDesc{
-    margin-top: 8px;
-    opacity:.92;
-    line-height: 1.35;
-  }
-  .sheetActions{
-    margin-top: 14px;
-    display:flex;
-    gap: 10px;
-    flex-wrap:wrap;
-  }
-  .pill{
-    padding: 10px 12px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.20);
-    background: rgba(255,255,255,.10);
-    color:#fff;
-    text-decoration:none;
-    font-weight: 800;
-    cursor:pointer;
-    user-select:none;
-  }
-  .pill.primary{
-    background: linear-gradient(135deg, rgba(255,183,3,.95), rgba(255,107,107,.85));
-    border-color: rgba(255,255,255,.20);
-    color:#08263d;
-  }
+    .deckObject{
+      width:min(920px, calc(100vw - 40px));
+      height:auto;
+      display:block;
+      border-radius: 28px;
+      background: var(--sand);
+      box-shadow:
+        0 0 0 10px rgba(255,255,255,.16),
+        0 0 0 1px rgba(0,0,0,.10),
+        0 0 80px rgba(0,180,230,.20),
+        0 35px 90px rgba(0,0,0,.55);
+    }
 
-  @media (max-width: 430px){
-    .topbar .title{ font-size: 1.55rem; }
-    .card{ flex-basis: 104px; }
-    .controls{ width: calc(100% - 16px); justify-content:center; }
-  }
+    /* edge glow "lighting" */
+    .edgeGlow{
+      position:absolute;
+      inset:-10px;
+      border-radius: 34px;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(0,180,230,.30), transparent 55%),
+        radial-gradient(circle at 70% 75%, rgba(77,231,200,.22), transparent 58%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.12), transparent 65%);
+      opacity:.85;
+      filter: blur(0.2px);
+      z-index:-1;
+    }
 
-  /* reduce motion support */
-  @media (prefers-reduced-motion: reduce){
-    .stage, .sheet, .frame.sweep::after { transition:none !important; animation:none !important; }
-    body::before{ transition:none !important; }
-  }
-</style>
+    /* hotspots in same centered coordinate system as deck */
+    .hotspots{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:0;
+      height:0;
+      pointer-events:none;
+    }
+
+    .hotspot{
+      position:absolute;
+      transform: translate(-50%, -50%);
+      pointer-events:auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(10,46,74,.72);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor:pointer;
+      user-select:none;
+      max-width: min(72vw, 360px);
+    }
+    .hotspot:active{ transform: translate(-50%, -50%) scale(.98); }
+    .hotspot .dot{
+      width: 14px; height:14px; border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25));
+      box-shadow: 0 0 0 4px rgba(0,180,230,.25), 0 0 20px rgba(0,180,230,.55);
+      flex: 0 0 auto;
+    }
+    .hotspot .label{
+      font-weight:900;
+      font-size:.9rem;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hotspot .emoji{
+      font-size: 1.05rem;
+      opacity:.95;
+      flex: 0 0 auto;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+      Bottom carousel (JS-rendered only)
+    ───────────────────────────────────────────────────────────── */
+    .carouselWrap{
+      position:absolute;
+      left:0; right:0;
+      bottom: var(--panelH);
+      height: var(--carouselH);
+      padding: 10px 10px 12px;
+      display:flex;
+      align-items:flex-end;
+      pointer-events:auto;
+    }
+    .carousel{
+      width:100%;
+      display:flex;
+      gap: 12px;
+      overflow:auto;
+      padding: 6px 6px 10px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .carousel::-webkit-scrollbar{ height: 0; }
+
+    .card{
+      flex: 0 0 110px;
+      height: 96px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 20px 40px rgba(0,0,0,.28);
+      overflow:hidden;
+      position:relative;
+      scroll-snap-align: start;
+      cursor:pointer;
+      user-select:none;
+      color:#fff;
+      padding: 0;
+    }
+    .card[aria-selected="true"]{
+      border-color: rgba(255,183,3,.85);
+      box-shadow:
+        0 22px 50px rgba(0,0,0,.34),
+        0 0 0 2px rgba(255,183,3,.35) inset;
+    }
+    .thumb{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .thumb img{
+      width: 92%;
+      height: 92%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+    }
+    .card .meta{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      padding: 8px 10px;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.50));
+      font-weight: 900;
+      letter-spacing:.3px;
+      font-size:.9rem;
+      text-align:left;
+    }
+    .card .meta small{
+      display:block;
+      font-weight:800;
+      opacity:.85;
+      font-size:.75rem;
+      margin-top:2px;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+      Controls
+    ───────────────────────────────────────────────────────────── */
+    .controls{
+      position:absolute;
+      left:50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      height: var(--panelH);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0,180,230,.92), rgba(15,79,118,.92));
+      border: 1px solid rgba(255,255,255,.20);
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      box-shadow: 0 26px 70px rgba(0,0,0,.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .btn{
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      border:none;
+      cursor:pointer;
+      background: rgba(255,255,255,.92);
+      color: var(--navy);
+      font-size: 24px;
+      font-weight: 900;
+      display:grid;
+      place-items:center;
+      box-shadow: 0 16px 26px rgba(0,0,0,.25);
+      user-select:none;
+    }
+    .btn:active{ transform: scale(.94); }
+    .zoomPct{
+      width: 90px;
+      text-align:center;
+      font-weight: 900;
+      font-size: 1.15rem;
+      letter-spacing:.6px;
+      color:#fff;
+      text-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .btnReset{
+      width:auto;
+      padding: 0 18px;
+      font-size: 1rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, rgba(77,231,200,.95), rgba(255,255,255,.92));
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+      Error overlay
+    ───────────────────────────────────────────────────────────── */
+    .errorOverlay{
+      position:absolute;
+      inset: 14px;
+      border-radius: 24px;
+      background: rgba(10,46,74,.80);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 26px 90px rgba(0,0,0,.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 16px;
+      display:none;
+      z-index: 40;
+    }
+    .errorOverlay.show{ display:block; }
+    .errorTitle{
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing:.2px;
+    }
+    .errorDesc{
+      margin-top: 8px;
+      opacity:.92;
+      line-height: 1.35;
+    }
+    .errorActions{
+      margin-top: 12px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+
+    /* ─────────────────────────────────────────────────────────────
+      Venue popup (bottom sheet)
+    ───────────────────────────────────────────────────────────── */
+    .sheet{
+      position:absolute;
+      left:0; right:0; bottom:-60%;
+      padding: 14px 14px 18px;
+      transition: transform 320ms cubic-bezier(.2,.8,.25,1);
+      transform: translateY(0);
+      z-index: 30;
+      pointer-events:none;
+    }
+    .sheet.open{
+      transform: translateY(-58%);
+      pointer-events:auto;
+    }
+    .sheetInner{
+      margin: 0 auto;
+      max-width: 740px;
+      border-radius: 24px;
+      background: rgba(10,46,74,.76);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 26px 90px rgba(0,0,0,.65);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      overflow:hidden;
+    }
+    .sheetTop{
+      padding: 12px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background: rgba(255,255,255,.08);
+    }
+    .grab{
+      width: 44px; height: 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.35);
+      margin: 0 auto;
+    }
+    .sheetBody{
+      padding: 14px 16px 16px;
+    }
+    .venueTitle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing:.2px;
+    }
+    .venueDesc{
+      margin-top: 8px;
+      opacity:.92;
+      line-height: 1.35;
+    }
+    .sheetActions{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.10);
+      color:#fff;
+      text-decoration:none;
+      font-weight: 900;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill.primary{
+      background: linear-gradient(135deg, rgba(255,183,3,.95), rgba(255,107,107,.85));
+      border-color: rgba(255,255,255,.20);
+      color:#08263d;
+    }
+
+    /* backdrop click-catcher when sheet is open */
+    .backdrop{
+      position:absolute;
+      inset:0;
+      background: transparent;
+      z-index: 25;
+      display:none;
+    }
+    .backdrop.show{ display:block; }
+
+    /* ─────────────────────────────────────────────────────────────
+      Responsive tweaks
+    ───────────────────────────────────────────────────────────── */
+    @media (max-width: 430px){
+      .topbar .title{ font-size: 1.55rem; }
+      .card{ flex-basis: 104px; }
+      .controls{ width: calc(100% - 16px); justify-content:center; }
+      .zoomPct{ width: 80px; }
+    }
+
+    /* reduce motion support */
+    @media (prefers-reduced-motion: reduce){
+      .panZoom, .sheet, .frame.sweep::after { transition:none !important; animation:none !important; }
+      body::before{ transition:none !important; }
+    }
+  </style>
 </head>
 
 <body>
   <header class="topbar" aria-label="Deck viewer header">
     <a class="back" href="index.html" aria-label="Back to decks">← Back</a>
     <div class="kicker">ADVENTURE OF THE SEAS</div>
-    <div class="title" id="hdrTitle">Deck 04 · Entertainment</div>
-    <div class="subtitle" id="hdrSub">Tap venues · Swipe to change decks · Pinch/drag to explore</div>
+    <div class="title" id="hdrTitle">Deck Navigator</div>
+    <div class="subtitle" id="hdrSub">Swipe to change decks · Pinch/drag to explore · Tap venues</div>
   </header>
 
   <main class="viewer" aria-label="Deck viewer">
     <div class="frame" id="frame" aria-label="Interactive deck frame">
-      <div class="stage" id="stage">
-        <div class="deckShell" id="deckShell">
-          <div class="edgeGlow" aria-hidden="true"></div>
+      <div class="stage" aria-hidden="true">
+        <div class="panZoom" id="panZoom">
+          <div class="deckShell" id="deckShell">
+            <div class="edgeGlow" aria-hidden="true"></div>
 
-          <object class="deckObject" id="deckObject"
-                  type="image/svg+xml"
-                  data="decks/deck-04-final.min.svg"
-                  aria-label="Deck plan"></object>
+            <!-- JS is single source of truth: no hardcoded data attribute -->
+            <object class="deckObject" id="deckObject" type="image/svg+xml" aria-label="Deck plan"></object>
 
-          <div class="hotspots" id="hotspots" aria-label="Venue hotspots"></div>
+            <div class="hotspots" id="hotspots" aria-label="Venue hotspots"></div>
+          </div>
         </div>
       </div>
+
+      <!-- Error overlay -->
+      <div class="errorOverlay" id="errorOverlay" role="alert" aria-live="assertive">
+        <div class="errorTitle" id="errorTitle">Deck failed to load</div>
+        <div class="errorDesc" id="errorDesc">We couldn’t load the SVG for this deck. Check the file path and try again.</div>
+        <div class="errorActions">
+          <button class="pill primary" id="retryLoad" type="button">Retry</button>
+          <button class="pill" id="copyPath" type="button">Copy SVG path</button>
+          <button class="pill" id="goPrevDeck" type="button">Previous deck</button>
+          <button class="pill" id="goNextDeck" type="button">Next deck</button>
+        </div>
+      </div>
+
+      <!-- Backdrop click-catcher (for sheet open) -->
+      <div class="backdrop" id="backdrop" aria-hidden="true"></div>
     </div>
   </main>
 
   <section class="carouselWrap" aria-label="Deck carousel">
-    <div class="carousel" id="carousel"></div>
+    <div class="carousel" id="carousel" role="listbox" aria-label="Select a deck"></div>
   </section>
 
   <nav class="controls" aria-label="Zoom controls">
-    <button class="btn" id="zoomOut" aria-label="Zoom out">−</button>
-    <div class="zoomPct" id="zoomLabel">100%</div>
-    <button class="btn" id="zoomIn" aria-label="Zoom in">+</button>
-    <button class="btn btnReset" id="resetZoom" aria-label="Reset view">Reset</button>
+    <button class="btn" id="zoomOut" type="button" aria-label="Zoom out">−</button>
+    <div class="zoomPct" id="zoomLabel" aria-live="polite">100%</div>
+    <button class="btn" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+    <button class="btn btnReset" id="resetZoom" type="button" aria-label="Reset view">Reset</button>
+    <span class="sr-only" id="gestureHint">Use two fingers to pinch zoom and drag to pan.</span>
   </nav>
 
+  <!-- Venue sheet -->
   <div class="sheet" id="sheet" aria-hidden="true">
-    <div class="sheetInner" role="dialog" aria-modal="true" aria-label="Venue details">
+    <div class="sheetInner" role="dialog" aria-modal="true" aria-labelledby="venueTitle" aria-describedby="venueDesc">
       <div class="sheetTop">
         <div class="grab" aria-hidden="true"></div>
-        <button class="pill" id="closeSheet" aria-label="Close venue popup">Close</button>
+        <button class="pill" id="closeSheet" type="button" aria-label="Close venue popup">Close</button>
       </div>
       <div class="sheetBody">
-        <div class="venueTitle" id="venueTitle">🎭 Venue</div>
+        <div class="venueTitle" id="venueTitle">📍 Venue</div>
         <div class="venueDesc" id="venueDesc">Details…</div>
         <div class="sheetActions">
-          <button class="pill primary" id="centerOnVenue">Center on venue</button>
-          <button class="pill" id="glowSweep">Glow sweep</button>
+          <button class="pill primary" id="centerOnVenue" type="button">Center on venue</button>
+          <button class="pill" id="glowSweep" type="button">Glow sweep</button>
         </div>
       </div>
     </div>
@@ -507,34 +634,22 @@
 
 <script>
 (() => {
-  // -------------------------
-  // Deck Data (extend anytime)
-  // -------------------------
-  // Hotspots are % positions relative to the deck object's rendered box:
-  // x/y in [0..1]
+  "use strict";
+
+  /* ─────────────────────────────────────────────────────────────
+    Deck Data
+  ───────────────────────────────────────────────────────────── */
   const DECKS = [
+    { id: "02", name: "Deck 02", subtitle: "Lower Promenade", svg: "decks/deck-02-final.min.svg", hotspots: [] },
     {
-      id: "02",
-      name: "Deck 02",
-      subtitle: "Lower Promenade",
-      svg: "decks/deck-02-final.min.svg",
-      hotspots: []
-    },
-    {
-      id: "03",
-      name: "Deck 03",
-      subtitle: "Promenade",
-      svg: "decks/deck-03-final.min.svg",
+      id: "03", name: "Deck 03", subtitle: "Promenade", svg: "decks/deck-03-final.min.svg",
       hotspots: [
         { id:"duck",  x:0.70, y:0.33, emoji:"🍺", title:"The Duck & Dog Pub", desc:"Classic pub energy. Good place to regroup the crew." },
         { id:"shops", x:0.80, y:0.45, emoji:"🛍️", title:"Shops", desc:"Souvenirs and last-minute cruise essentials." }
       ]
     },
     {
-      id: "04",
-      name: "Deck 04",
-      subtitle: "Entertainment",
-      svg: "decks/deck-04-final.min.svg",
+      id: "04", name: "Deck 04", subtitle: "Entertainment", svg: "decks/deck-04-final.min.svg",
       hotspots: [
         { id:"lyric",   x:0.52, y:0.16, emoji:"🎭", title:"Lyric Theatre", desc:"Showtime. Big seats, big sound, big family wow." },
         { id:"casino",  x:0.47, y:0.50, emoji:"🎰", title:"Casino Royale", desc:"Bright lights, blackjack dreams, and suspiciously confident uncles." },
@@ -543,103 +658,128 @@
         { id:"mdr",     x:0.52, y:0.88, emoji:"🍽️", title:"Main Dining Room", desc:"The classic dinner ritual. Everyone looks fancy for 37 minutes." }
       ]
     },
-    {
-      id: "05",
-      name: "Deck 05",
-      subtitle: "Promenade",
-      svg: "decks/deck-05-final.min.svg",
-      hotspots: []
-    }
+    { id: "05", name: "Deck 05", subtitle: "Promenade", svg: "decks/deck-05-final.min.svg", hotspots: [] }
   ];
 
-  // -------------------------
-  // Elements
-  // -------------------------
-  const frame     = document.getElementById("frame");
-  const stage     = document.getElementById("stage");
-  const deckShell = document.getElementById("deckShell");
-  const deckObj   = document.getElementById("deckObject");
-  const hotspotsEl= document.getElementById("hotspots");
+  /* ─────────────────────────────────────────────────────────────
+    DOM
+  ───────────────────────────────────────────────────────────── */
+  const frame      = document.getElementById("frame");
+  const panZoomEl  = document.getElementById("panZoom");
+  const deckShell  = document.getElementById("deckShell");
+  const deckObj    = document.getElementById("deckObject");
+  const hotspotsEl = document.getElementById("hotspots");
 
-  const hdrTitle  = document.getElementById("hdrTitle");
-  const hdrSub    = document.getElementById("hdrSub");
+  const hdrTitle   = document.getElementById("hdrTitle");
+  const hdrSub     = document.getElementById("hdrSub");
 
-  const carousel  = document.getElementById("carousel");
+  const carousel   = document.getElementById("carousel");
 
-  const zoomLabel = document.getElementById("zoomLabel");
-  const zoomInBtn = document.getElementById("zoomIn");
-  const zoomOutBtn= document.getElementById("zoomOut");
-  const resetBtn  = document.getElementById("resetZoom");
+  const zoomLabel  = document.getElementById("zoomLabel");
+  const zoomInBtn  = document.getElementById("zoomIn");
+  const zoomOutBtn = document.getElementById("zoomOut");
+  const resetBtn   = document.getElementById("resetZoom");
 
-  const sheet     = document.getElementById("sheet");
+  const sheet      = document.getElementById("sheet");
+  const backdrop   = document.getElementById("backdrop");
   const closeSheetBtn = document.getElementById("closeSheet");
-  const venueTitle= document.getElementById("venueTitle");
-  const venueDesc = document.getElementById("venueDesc");
+  const venueTitle = document.getElementById("venueTitle");
+  const venueDesc  = document.getElementById("venueDesc");
   const centerOnVenueBtn = document.getElementById("centerOnVenue");
   const glowSweepBtn = document.getElementById("glowSweep");
 
-  // -------------------------
-  // State
-  // -------------------------
-  let activeIndex = Math.max(0, DECKS.findIndex(d => d.id === "04"));
-  let scale = 1;
-  let tx = 0;
-  let ty = 0;
+  const errorOverlay = document.getElementById("errorOverlay");
+  const errorTitle   = document.getElementById("errorTitle");
+  const errorDesc    = document.getElementById("errorDesc");
+  const retryLoadBtn = document.getElementById("retryLoad");
+  const copyPathBtn  = document.getElementById("copyPath");
+  const goPrevDeckBtn= document.getElementById("goPrevDeck");
+  const goNextDeckBtn= document.getElementById("goNextDeck");
 
-  let fitScale = 1;               // computed "best fit" to viewport (height-first)
-  let naturalDeckWidth = 800;      // fallback, will be updated from SVG
-  let naturalDeckHeight = 1200;
+  /* ─────────────────────────────────────────────────────────────
+    Defensive check
+  ───────────────────────────────────────────────────────────── */
+  const REQUIRED = [
+    frame, panZoomEl, deckShell, deckObj, hotspotsEl,
+    hdrTitle, hdrSub, carousel,
+    zoomLabel, zoomInBtn, zoomOutBtn, resetBtn,
+    sheet, backdrop, closeSheetBtn, venueTitle, venueDesc, centerOnVenueBtn, glowSweepBtn,
+    errorOverlay, retryLoadBtn, copyPathBtn, goPrevDeckBtn, goNextDeckBtn
+  ];
+  if (REQUIRED.some(n => !n)) {
+    // Hard fail with readable message (prevents silent null crashes)
+    const msg = "Deck Navigator: missing required DOM elements. Check IDs in the HTML.";
+    console.error(msg);
+    alert(msg);
+    return;
+  }
 
-  let isDragging = false;
-  let pointerId = null;
-
-  let startX = 0, startY = 0;
-  let startTx = 0, startTy = 0;
-  let lastDx = 0, lastDy = 0;
-
-  // pinch support
-  let isPinching = false;
-  let pinchStartDist = 0;
-  let pinchStartScale = 1;
-  let pinchCenter = {x:0,y:0};
-
-  // swipe deck change support
-  let swipeCandidate = false;
-
-  // venue selection
-  let currentVenue = null;
+  /* ─────────────────────────────────────────────────────────────
+    State
+  ───────────────────────────────────────────────────────────── */
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const MIN_SCALE = 0.35;
   const MAX_SCALE = 5.0;
 
-  // -------------------------
-  // Utils
-  // -------------------------
-  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-
-  function iOSHaptic(kind="light"){
-    if (navigator.vibrate) {
-      const pattern = kind === "strong" ? [10, 20, 10] : [8];
-      navigator.vibrate(pattern);
-    }
+  // JS is single source of truth:
+  // - default deck = 05
+  // - optional URL: ?deck=04 or #deck=04
+  function getInitialDeckId(){
+    const url = new URL(window.location.href);
+    const q = (url.searchParams.get("deck") || "").trim();
+    const h = (url.hash || "").replace("#","").trim();
+    const fromHash = h.startsWith("deck=") ? h.slice(5) : h;
+    const candidate = (q || fromHash || "05").padStart(2, "0");
+    return candidate;
   }
 
+  let activeIndex = (() => {
+    const id = getInitialDeckId();
+    const idx = DECKS.findIndex(d => d.id === id);
+    return idx >= 0 ? idx : Math.max(0, DECKS.findIndex(d => d.id === "05"));
+  })();
+
+  let scale = 1;
+  let tx = 0;
+  let ty = 0;
+  let fitScale = 1;
+
+  // measured deck size at scale=1, tx=ty=0 (in CSS px)
+  let baseDeckW = 800;
+  let baseDeckH = 1200;
+
+  // First load intro only once
+  let didIntro = false;
+
+  // Venue selection
+  let currentVenue = null;
+  let lastFocusEl = null;
+
+  // Gesture state (PointerEvents only)
+  /** @type {Map<number, {x:number,y:number}>} */
+  const pointers = new Map();
+  let gestureMode = "none"; // "none" | "pan" | "pinch"
+  let panStart = { x:0, y:0, tx:0, ty:0 };
+  let pinchStart = { dist:0, scale:1, centerX:0, centerY:0, tx:0, ty:0 };
+
+  // Parallax smoothing (rAF)
+  let parallaxTarget = { x:0, y:0 };
+  let parallaxRAF = 0;
+
+  /* ─────────────────────────────────────────────────────────────
+    Utilities
+  ───────────────────────────────────────────────────────────── */
   function setOceanParallax(dx, dy){
-    document.body.style.setProperty("--bgx", (dx * 0.03) + "px");
-    document.body.style.setProperty("--bgy", (dy * 0.03) + "px");
-  }
-
-  function applyTransform(){
-    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    zoomLabel.textContent = `${Math.round(scale*100)}%`;
-  }
-
-  function withNoTransition(fn){
-    const prev = stage.style.transition;
-    stage.style.transition = "none";
-    fn();
-    void stage.offsetHeight; // force reflow
-    stage.style.transition = prev || "transform 240ms cubic-bezier(.2,.8,.25,1)";
+    parallaxTarget.x = dx * 0.03;
+    parallaxTarget.y = dy * 0.03;
+    if (parallaxRAF) return;
+    parallaxRAF = requestAnimationFrame(() => {
+      parallaxRAF = 0;
+      document.body.style.setProperty("--bgx", `${parallaxTarget.x}px`);
+      document.body.style.setProperty("--bgy", `${parallaxTarget.y}px`);
+    });
   }
 
   function runGlowSweep(){
@@ -648,84 +788,405 @@
     frame.classList.add("sweep");
   }
 
-  // -------------------------
-  // Natural dimensions (read from SVG on load)
-  // -------------------------
-  function updateNaturalDimensions() {
-    try {
-      const svgDoc = deckObj.contentDocument;
-      if (svgDoc) {
-        const svgRoot = svgDoc.documentElement;
-        const w = svgRoot.getAttribute("width");
-        const h = svgRoot.getAttribute("height");
-        if (w && h) {
-          naturalDeckWidth = parseFloat(w);
-          naturalDeckHeight = parseFloat(h);
-        } else {
-          // fallback to viewBox
-          const vb = svgRoot.getAttribute("viewBox");
-          if (vb) {
-            const parts = vb.split(/\s+/).map(Number);
-            if (parts.length === 4) {
-              naturalDeckWidth = parts[2];
-              naturalDeckHeight = parts[3];
-            }
-          }
-        }
-      }
-    } catch (e) {
-      // cross-origin or other issue – keep fallback
-    }
+  function setHeader(deck){
+    hdrTitle.textContent = `${deck.name} · ${deck.subtitle}`;
+    hdrSub.textContent = "Swipe to change decks · Pinch/drag to explore · Tap venues";
   }
 
-  // -------------------------
-  // Fit + clamp pan bounds
-  // -------------------------
-  function computeFitScaleHeightFirst(){
+  function setZoomLabel(){
+    // display zoom relative to fit (more intuitive)
+    const pct = Math.round((scale / fitScale) * 100);
+    zoomLabel.textContent = `${pct}%`;
+  }
+
+  function applyTransform(){
+    panZoomEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    setZoomLabel();
+  }
+
+  function withNoTransition(fn){
+    const prev = panZoomEl.style.transition;
+    panZoomEl.style.transition = "none";
+    fn();
+    void panZoomEl.offsetHeight;
+    panZoomEl.style.transition = prev || "transform 240ms cubic-bezier(.2,.8,.25,1)";
+  }
+
+  function computeFitScale(){
     const f = frame.getBoundingClientRect();
     const margin = 18;
+    const availableW = Math.max(200, f.width  - margin);
     const availableH = Math.max(200, f.height - margin);
-    const availableW = Math.max(200, f.width - margin);
-
-    const sH = availableH / naturalDeckHeight;
-    const sW = availableW / naturalDeckWidth;
-
-    let s = sH;
-    if (naturalDeckWidth * s > availableW) s = sW;
+    const sW = availableW / baseDeckW;
+    const sH = availableH / baseDeckH;
+    const s = Math.min(sW, sH);
     return clamp(s, MIN_SCALE, MAX_SCALE);
   }
 
   function clampPan(){
-    const deckW = naturalDeckWidth * scale;
-    const deckH = naturalDeckHeight * scale;
-
     const f = frame.getBoundingClientRect();
     const padding = 18;
-    const maxX = Math.max(0, (deckW - f.width) / 2) + padding;
-    const maxY = Math.max(0, (deckH - f.height) / 2) + padding;
+
+    const scaledW = baseDeckW * scale;
+    const scaledH = baseDeckH * scale;
+
+    const maxX = Math.max(0, (scaledW - f.width) / 2) + padding;
+    const maxY = Math.max(0, (scaledH - f.height) / 2) + padding;
 
     tx = clamp(tx, -maxX, maxX);
     ty = clamp(ty, -maxY, maxY);
   }
 
   function resetToFit(animated=true){
-    fitScale = computeFitScaleHeightFirst();
     const doIt = () => {
+      fitScale = computeFitScale();
       scale = fitScale;
       tx = 0;
       ty = 0;
+      clampPan();
       applyTransform();
-      clampPan();          // ensures we stay within bounds
-      applyTransform();
-      scheduleReposition();
     };
     if (!animated) withNoTransition(doIt);
     else doIt();
   }
 
-  // -------------------------
-  // Cinematic intro zoom
-  // -------------------------
+  function getFrameCenterClient(){
+    const r = frame.getBoundingClientRect();
+    return { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+  }
+
+  function zoomTo(newScale, centerClientX, centerClientY){
+    newScale = clamp(newScale, MIN_SCALE, MAX_SCALE);
+    if (newScale === scale) return;
+
+    const { cx, cy } = getFrameCenterClient();
+    const px = (centerClientX ?? cx);
+    const py = (centerClientY ?? cy);
+
+    // Keep point under cursor stable:
+    // screen = frameCenter + tx + local*scale
+    // local = (screen - frameCenter - tx)/scale
+    const localX = (px - cx - tx) / scale;
+    const localY = (py - cy - ty) / scale;
+
+    scale = newScale;
+    tx = (px - cx) - localX * scale;
+    ty = (py - cy) - localY * scale;
+
+    clampPan();
+    applyTransform();
+  }
+
+  function zoomAt(factor, centerClientX, centerClientY){
+    zoomTo(scale * factor, centerClientX, centerClientY);
+  }
+
+  function showError(message, path){
+    errorTitle.textContent = "Deck failed to load";
+    errorDesc.textContent = message || "We couldn’t load the SVG for this deck. Check the file path and try again.";
+    errorOverlay.dataset.path = path || "";
+    errorOverlay.classList.add("show");
+  }
+
+  function hideError(){
+    errorOverlay.classList.remove("show");
+    errorOverlay.dataset.path = "";
+  }
+
+  async function copyText(text){
+    try{
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch {}
+    // fallback
+    try{
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "true");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+    Carousel (A11y)
+  ───────────────────────────────────────────────────────────── */
+  function buildCarousel(){
+    carousel.innerHTML = "";
+    for (let i = 0; i < DECKS.length; i++){
+      const d = DECKS[i];
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "card";
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", i === activeIndex ? "true" : "false");
+      btn.dataset.index = String(i);
+      btn.innerHTML = `
+        <div class="thumb"><img alt="${d.name} thumbnail" src="${d.svg}"></div>
+        <div class="meta">${d.name}<small>${d.subtitle}</small></div>
+      `;
+      btn.addEventListener("click", () => switchToDeck(i, { reason: "carousel" }));
+      btn.addEventListener("keydown", (e) => {
+        // allow horizontal navigation on carousel itself
+        if (e.key === "ArrowLeft") { e.preventDefault(); switchToDeck(activeIndex - 1, { reason:"kbd" }); }
+        if (e.key === "ArrowRight"){ e.preventDefault(); switchToDeck(activeIndex + 1, { reason:"kbd" }); }
+        if (e.key === "Home"){ e.preventDefault(); switchToDeck(0, { reason:"kbd" }); }
+        if (e.key === "End"){ e.preventDefault(); switchToDeck(DECKS.length - 1, { reason:"kbd" }); }
+      });
+      carousel.appendChild(btn);
+    }
+    setActiveCard(true);
+  }
+
+  function setActiveCard(scroll){
+    const cards = carousel.querySelectorAll(".card");
+    cards.forEach((c, idx) => c.setAttribute("aria-selected", idx === activeIndex ? "true" : "false"));
+    const active = carousel.querySelector(`.card[data-index="${activeIndex}"]`);
+    if (active && scroll && active.scrollIntoView) {
+      active.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+    Hotspots (no boundingClientRect loops)
+    - We anchor at deck center.
+    - We place hotspots by (x,y) as fractions of measured deck size at scale=1.
+  ───────────────────────────────────────────────────────────── */
+  function clearHotspots(){
+    hotspotsEl.innerHTML = "";
+  }
+
+  function renderHotspots(deck){
+    clearHotspots();
+    if (!deck.hotspots || deck.hotspots.length === 0) return;
+
+    for (const hs of deck.hotspots){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "hotspot";
+      btn.setAttribute("aria-label", hs.title);
+      btn.dataset.x = String(hs.x);
+      btn.dataset.y = String(hs.y);
+      btn.dataset.emoji = hs.emoji || "📍";
+      btn.dataset.title = hs.title;
+      btn.dataset.desc = hs.desc || "";
+
+      // Convert [0..1] to centered px coordinates (scale=1 coordinate system)
+      const vx = (hs.x - 0.5) * baseDeckW;
+      const vy = (hs.y - 0.5) * baseDeckH;
+
+      btn.style.left = `${vx}px`;
+      btn.style.top  = `${vy}px`;
+
+      btn.innerHTML = `
+        <span class="dot" aria-hidden="true"></span>
+        <span class="emoji" aria-hidden="true">${hs.emoji || "📍"}</span>
+        <span class="label">${hs.title}</span>
+      `;
+
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openVenue(deck, hs, btn);
+      });
+
+      hotspotsEl.appendChild(btn);
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+    Sheet (A11y focus trap + inert background)
+  ───────────────────────────────────────────────────────────── */
+  function setSheetOpen(isOpen){
+    sheet.classList.toggle("open", isOpen);
+    sheet.setAttribute("aria-hidden", isOpen ? "false" : "true");
+
+    backdrop.classList.toggle("show", isOpen);
+    backdrop.setAttribute("aria-hidden", isOpen ? "false" : "true");
+
+    // Make the rest of UI inert-ish
+    // (Safari support varies, but harmless)
+    const toInert = [frame, carousel, zoomInBtn, zoomOutBtn, resetBtn, document.querySelector(".topbar")].filter(Boolean);
+    for (const el of toInert){
+      if (isOpen){
+        el.setAttribute("aria-hidden", "true");
+        try { el.inert = true; } catch {}
+      } else {
+        el.removeAttribute("aria-hidden");
+        try { el.inert = false; } catch {}
+      }
+    }
+  }
+
+  function openVenue(deck, venue, invokerEl){
+    currentVenue = { deck, venue };
+    lastFocusEl = invokerEl || document.activeElement;
+
+    venueTitle.textContent = `${venue.emoji || "📍"} ${venue.title}`;
+    venueDesc.textContent  = venue.desc || "";
+
+    setSheetOpen(true);
+    runGlowSweep();
+
+    // focus the close button for consistent keyboard UX
+    closeSheetBtn.focus({ preventScroll: true });
+  }
+
+  function closeVenue(){
+    currentVenue = null;
+    setSheetOpen(false);
+
+    // restore focus
+    const el = lastFocusEl;
+    lastFocusEl = null;
+    if (el && typeof el.focus === "function") el.focus({ preventScroll: true });
+  }
+
+  function centerOnVenue(){
+    if (!currentVenue) return;
+    const { venue } = currentVenue;
+
+    // Correct math in a single coordinate system:
+    // In our model, deck center is at (0,0) in panZoom local coords.
+    // Venue local coords at scale=1:
+    const vx = (venue.x - 0.5) * baseDeckW;
+    const vy = (venue.y - 0.5) * baseDeckH;
+
+    // Want venue at frame center:
+    // screen = frameCenter + tx + vx*scale
+    // set tx = -vx*scale, ty = -vy*scale
+    tx = -vx * scale;
+    ty = -vy * scale;
+
+    clampPan();
+    applyTransform();
+    runGlowSweep();
+  }
+
+  function trapFocusInSheet(e){
+    if (!sheet.classList.contains("open")) return;
+
+    if (e.key === "Escape"){
+      e.preventDefault();
+      closeVenue();
+      return;
+    }
+
+    if (e.key !== "Tab") return;
+
+    const focusables = sheet.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const list = Array.from(focusables).filter(el => !el.hasAttribute("disabled") && el.offsetParent !== null);
+    if (list.length === 0) return;
+
+    const first = list[0];
+    const last  = list[list.length - 1];
+
+    if (e.shiftKey && document.activeElement === first){
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last){
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+    Deck loading with failure UI
+    - Use fetch HEAD/GET to verify path before setting <object data=...>
+  ───────────────────────────────────────────────────────────── */
+  let pendingDeckPath = "";
+
+  async function verifySvgPath(path){
+    // GitHub Pages serves same-origin, so fetch works.
+    // Use GET (not HEAD) for broader compatibility.
+    try{
+      const res = await fetch(path, { method: "GET", cache: "no-cache" });
+      if (!res.ok) return { ok:false, status: res.status };
+      const ct = (res.headers.get("content-type") || "").toLowerCase();
+      // some servers send image/svg+xml; some send text/plain; accept both
+      if (ct && !(ct.includes("svg") || ct.includes("text"))) {
+        // still might be SVG; don't hard fail on CT
+      }
+      return { ok:true, status: res.status };
+    } catch (e){
+      return { ok:false, status: 0 };
+    }
+  }
+
+  async function loadDeckSvg(deck, opts = { intro: false }){
+    hideError();
+    pendingDeckPath = deck.svg;
+
+    // Fade during switch
+    deckShell.style.opacity = "0";
+
+    const check = await verifySvgPath(deck.svg);
+    if (!check.ok){
+      deckShell.style.opacity = "1";
+      showError(`Couldn’t load: ${deck.svg} (HTTP ${check.status || "network error"}).`, deck.svg);
+      return;
+    }
+
+    // Now set <object> data and wait for onload
+    // Use a load token to ignore old loads
+    const token = Math.random().toString(16).slice(2);
+    deckObj.dataset.loadToken = token;
+
+    // Set data a tick later so opacity transition reads cleanly
+    setTimeout(() => {
+      if (pendingDeckPath !== deck.svg) return;
+      deckObj.setAttribute("data", deck.svg);
+    }, 60);
+
+    // Wait for object to load
+    await new Promise((resolve) => {
+      const onLoad = () => {
+        if (deckObj.dataset.loadToken !== token) return;
+        deckObj.removeEventListener("load", onLoad);
+        resolve();
+      };
+      deckObj.addEventListener("load", onLoad, { once: false });
+    });
+
+    // Reveal
+    deckShell.style.opacity = "1";
+
+    // Measure deck (scale=1, tx=ty=0) so hotspots + fit are coherent
+    withNoTransition(() => {
+      scale = 1;
+      tx = 0;
+      ty = 0;
+      applyTransform();
+    });
+
+    // Measure base deck size
+    const r = deckObj.getBoundingClientRect();
+    baseDeckW = Math.max(200, r.width || baseDeckW);
+    baseDeckH = Math.max(200, r.height || baseDeckH);
+
+    // Fit
+    resetToFit(false);
+
+    // Hotspots for active deck
+    renderHotspots(deck);
+
+    // Intro only once, only on first successful load
+    if (opts.intro && !didIntro && !reduceMotion){
+      didIntro = true;
+      cinematicIntro();
+    } else {
+      runGlowSweep();
+    }
+  }
+
   function cinematicIntro(){
     const startScale = clamp(fitScale * 0.72, MIN_SCALE, MAX_SCALE);
     const midScale   = clamp(fitScale * 1.05, MIN_SCALE, MAX_SCALE);
@@ -734,16 +1195,14 @@
       scale = startScale;
       tx = 0;
       ty = 0;
-      deckShell.style.opacity = "0";
       applyTransform();
     });
 
     requestAnimationFrame(() => {
-      deckShell.style.transition = "opacity 520ms ease";
-      deckShell.style.opacity = "1";
       runGlowSweep();
 
-      stage.animate(
+      // Use Web Animations API on panZoomEl (not stage)
+      panZoomEl.animate(
         [
           { transform: `translate(0px, 0px) scale(${startScale})` },
           { transform: `translate(0px, 0px) scale(${fitScale})` }
@@ -752,7 +1211,7 @@
       );
 
       setTimeout(() => {
-        stage.animate(
+        panZoomEl.animate(
           [
             { transform: `translate(0px, 0px) scale(${fitScale})` },
             { transform: `translate(0px, 0px) scale(${midScale})` },
@@ -769,430 +1228,320 @@
         applyTransform();
         clampPan();
         applyTransform();
-        scheduleReposition();
       }, 1750);
     });
   }
 
-  // -------------------------
-  // Hotspots – render and reposition
-  // -------------------------
-  function clearHotspots(){
-    hotspotsEl.innerHTML = "";
-  }
-
-  function renderHotspots(deck){
-    clearHotspots();
-    if (!deck.hotspots?.length) return;
-
-    const rect = deckObj.getBoundingClientRect();
-    const shellRect = deckShell.getBoundingClientRect();
-    const left = rect.left - shellRect.left;
-    const top = rect.top - shellRect.top;
-    const w = rect.width || 1;
-    const h = rect.height || 1;
-
-    for (const hs of deck.hotspots) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "hotspot";
-      btn.setAttribute("aria-label", hs.title);
-
-      // Store percentages for later repositioning
-      btn.dataset.x = hs.x;
-      btn.dataset.y = hs.y;
-      btn.dataset.emoji = hs.emoji || "📍";
-      btn.dataset.title = hs.title;
-      btn.dataset.desc = hs.desc || "";
-
-      btn.style.left = `${left + hs.x * w}px`;
-      btn.style.top = `${top + hs.y * h}px`;
-
-      btn.innerHTML = `
-        <span class="dot" aria-hidden="true"></span>
-        <span class="emoji" aria-hidden="true">${hs.emoji || "📍"}</span>
-        <span class="label">${hs.title}</span>
-      `;
-
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        openVenue(deck, hs);
-      });
-
-      hotspotsEl.appendChild(btn);
-    }
-  }
-
-  function repositionHotspots() {
-    const deck = DECKS[activeIndex];
-    if (!deck.hotspots?.length) return;
-
-    const rect = deckObj.getBoundingClientRect();
-    const shellRect = deckShell.getBoundingClientRect();
-    const left = rect.left - shellRect.left;
-    const top = rect.top - shellRect.top;
-    const w = rect.width || 1;
-    const h = rect.height || 1;
-
-    const buttons = hotspotsEl.querySelectorAll(".hotspot");
-    buttons.forEach(btn => {
-      const x = parseFloat(btn.dataset.x);
-      const y = parseFloat(btn.dataset.y);
-      if (!isNaN(x) && !isNaN(y)) {
-        btn.style.left = `${left + x * w}px`;
-        btn.style.top = `${top + y * h}px`;
-      }
-    });
-  }
-
-  let repostTimer;
-  function scheduleReposition() {
-    clearTimeout(repostTimer);
-    repostTimer = setTimeout(repositionHotspots, 50);
-  }
-
-  // -------------------------
-  // Venue sheet
-  // -------------------------
-  function openVenue(deck, venue){
-    currentVenue = { deck, venue };
-    sheet.classList.add("open");
-    sheet.setAttribute("aria-hidden", "false");
-    venueTitle.textContent = `${venue.emoji || "📍"} ${venue.title}`;
-    venueDesc.textContent  = venue.desc || "";
-    runGlowSweep();
-  }
-
-  function closeVenue(){
-    currentVenue = null;
-    sheet.classList.remove("open");
-    sheet.setAttribute("aria-hidden", "true");
-  }
-
-  function centerOnVenue(){
-    if (!currentVenue) return;
-    const { venue } = currentVenue;
-
-    const rect = deckObj.getBoundingClientRect();
-    const shellRect = deckShell.getBoundingClientRect();
-    const left = rect.left - shellRect.left;
-    const top = rect.top - shellRect.top;
-    const w = rect.width || 1;
-    const h = rect.height || 1;
-
-    const vxLocal = left + venue.x * w;
-    const vyLocal = top + venue.y * h;
-
-    const shellW = shellRect.width || w;
-    const shellH = shellRect.height || h;
-
-    // Bring venue to frame center
-    tx = - (vxLocal - shellW / 2) * scale;
-    ty = - (vyLocal - shellH / 2) * scale;
-
-    clampPan();
-    applyTransform();
-    scheduleReposition();
-    runGlowSweep();
-  }
-
-  // -------------------------
-  // Deck switching + carousel
-  // -------------------------
-  function setHeader(deck){
-    hdrTitle.textContent = `${deck.name} · ${deck.subtitle}`;
-    hdrSub.textContent = `Tap venues · Swipe to change decks · Pinch/drag to explore`;
-  }
-
-  function buildCarousel(){
-    carousel.innerHTML = "";
-    for (let i=0;i<DECKS.length;i++){
-      const d = DECKS[i];
-      const card = document.createElement("div");
-      card.className = "card" + (i === activeIndex ? " active" : "");
-      card.dataset.index = String(i);
-      card.innerHTML = `
-        <div class="thumb"><img alt="${d.name} thumbnail" src="${d.svg}"></div>
-        <div class="meta">${d.name}<small>${d.subtitle}</small></div>
-      `;
-      card.addEventListener("click", () => {
-        switchToDeck(i, { cinematic:true });
-      });
-      carousel.appendChild(card);
-    }
-  }
-
-  function setActiveCard(){
-    const cards = carousel.querySelectorAll(".card");
-    cards.forEach((c, idx) => {
-      c.classList.toggle("active", idx === activeIndex);
-    });
-    const active = carousel.querySelector(`.card[data-index="${activeIndex}"]`);
-    if (active && active.scrollIntoView) {
-      active.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    }
-  }
-
-  function switchToDeck(index, opts = { cinematic:true }){
-    index = clamp(index, 0, DECKS.length - 1);
-    if (index === activeIndex) return;
+  function switchToDeck(index, opts = { reason: "unknown" }){
+    const nextIndex = clamp(index, 0, DECKS.length - 1);
+    if (nextIndex === activeIndex) return;
 
     closeVenue();
+    activeIndex = nextIndex;
 
-    const prev = DECKS[activeIndex];
-    const next = DECKS[index];
-    activeIndex = index;
+    const deck = DECKS[activeIndex];
+    setHeader(deck);
+    setActiveCard(true);
 
-    setHeader(next);
-    setActiveCard();
+    // Update URL (non-invasive)
+    try{
+      const url = new URL(window.location.href);
+      url.searchParams.set("deck", deck.id);
+      history.replaceState(null, "", url.toString());
+    } catch {}
 
-    deckShell.style.transition = "opacity 200ms ease";
-    deckShell.style.opacity = "0";
-
-    setTimeout(() => {
-      deckObj.setAttribute("data", next.svg);
-    }, 220);
-
-    runGlowSweep();
+    // Load
+    loadDeckSvg(deck, { intro: false });
   }
 
-  function nextDeck(){ switchToDeck(activeIndex + 1, { cinematic:true }); }
-  function prevDeck(){ switchToDeck(activeIndex - 1, { cinematic:true }); }
+  function nextDeck(){ switchToDeck(activeIndex + 1, { reason:"next" }); }
+  function prevDeck(){ switchToDeck(activeIndex - 1, { reason:"prev" }); }
 
-  // -------------------------
-  // Zoom math (centered zoom)
-  // -------------------------
-  function zoomAt(factor, centerX, centerY){
-    const newScale = clamp(scale * factor, MIN_SCALE, MAX_SCALE);
-    if (newScale === scale) return;
-
-    const f = frame.getBoundingClientRect();
-    const cx = (centerX ?? (f.left + f.width/2)) - (f.left + f.width/2);
-    const cy = (centerY ?? (f.top + f.height/2)) - (f.top + f.height/2);
-
-    const k = newScale / scale;
-    tx = tx + (1 - k) * (cx - tx);
-    ty = ty + (1 - k) * (cy - ty);
-
-    scale = newScale;
-    clampPan();
-    applyTransform();
-    scheduleReposition();
-  }
-
-  // -------------------------
-  // Snap back
-  // -------------------------
-  function snapBackIfWild(){
-    const wildX = Math.abs(tx) > 240;
-    const wildY = Math.abs(ty) > 320;
-    if (!(wildX || wildY)) return;
-
-    stage.style.transition = "transform 520ms cubic-bezier(.2,.8,.2,1)";
-    tx = 0; ty = 0;
-    clampPan();
-    applyTransform();
-    setTimeout(() => {
-      stage.style.transition = "transform 240ms cubic-bezier(.2,.8,.25,1)";
-    }, 540);
-    scheduleReposition();
-  }
-
-  // -------------------------
-  // Pointer + Touch handling (drag/pinch/swipe)
-  // -------------------------
-  function onPointerDown(e){
-    if (sheet.classList.contains("open")) return;
-
-    isDragging = true;
-    swipeCandidate = true;
-    pointerId = e.pointerId;
-    frame.setPointerCapture(pointerId);
-
-    startX = e.clientX;
-    startY = e.clientY;
-    startTx = tx;
-    startTy = ty;
-    lastDx = 0;
-    lastDy = 0;
-  }
-
-  function onPointerMove(e){
-    if (!isDragging || e.pointerId !== pointerId) return;
-
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
-    lastDx = dx; lastDy = dy;
-
-    // Always pan
-    tx = startTx + dx;
-    ty = startTy + dy;
-    clampPan();
-    applyTransform();
-
-    setOceanParallax(dx, dy);
-  }
-
-  function onPointerUp(e){
-    if (e.pointerId !== pointerId) return;
-
-    isDragging = false;
-    pointerId = null;
-    setOceanParallax(0, 0);
-
-    const dx = lastDx;
-    const dy = lastDy;
-    const nearFit = Math.abs(scale - fitScale) < 0.12 || scale <= (fitScale * 1.06);
-    const horizontal = Math.abs(dx) > Math.abs(dy) * 1.5;
-    const farEnough = Math.abs(dx) > 60;
-    const notPannedFar = Math.abs(tx) < 50 && Math.abs(ty) < 50;
-
-    if (nearFit && horizontal && farEnough && notPannedFar) {
-      if (dx < 0) nextDeck();
-      else prevDeck();
-      return;
-    }
-
-    snapBackIfWild();
-    scheduleReposition(); // after manual drag
-  }
-
-  // Pinch (touch events)
-  function distance(t1, t2){
-    const dx = t1.clientX - t2.clientX;
-    const dy = t1.clientY - t2.clientY;
+  /* ─────────────────────────────────────────────────────────────
+    PointerEvents gestures (unified pan + pinch)
+  ───────────────────────────────────────────────────────────── */
+  function pointerDistance(a, b){
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
     return Math.hypot(dx, dy);
   }
 
-  frame.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 2) {
-      isPinching = true;
-      pinchStartDist = distance(e.touches[0], e.touches[1]);
-      pinchStartScale = scale;
-      pinchCenter = {
-        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2
-      };
-    }
-  }, { passive:false });
+  function pointerCenter(a, b){
+    return { x: (a.x + b.x)/2, y: (a.y + b.y)/2 };
+  }
 
-  frame.addEventListener("touchmove", (e) => {
-    if (!isPinching || e.touches.length !== 2) return;
+  function beginPan(e){
+    gestureMode = "pan";
+    panStart = { x: e.clientX, y: e.clientY, tx, ty };
+  }
+
+  function beginPinch(){
+    gestureMode = "pinch";
+    const pts = Array.from(pointers.values());
+    const a = pts[0], b = pts[1];
+    const c = pointerCenter(a, b);
+    pinchStart = {
+      dist: Math.max(10, pointerDistance(a, b)),
+      scale,
+      centerX: c.x,
+      centerY: c.y,
+      tx,
+      ty
+    };
+  }
+
+  function onPointerDown(e){
+    // Avoid interactions when error overlay is up
+    if (errorOverlay.classList.contains("show")) return;
+    if (sheet.classList.contains("open")) return;
+
+    frame.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.size === 1){
+      beginPan(e);
+    } else if (pointers.size === 2){
+      beginPinch();
+    }
+
+    // Stop native behaviors
     e.preventDefault();
+  }
 
-    const d = distance(e.touches[0], e.touches[1]);
-    if (!pinchStartDist) return;
+  function onPointerMove(e){
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-    const factor = d / pinchStartDist;
-    zoomAt(factor / (scale / pinchStartScale), pinchCenter.x, pinchCenter.y); // zoomAt multiplies, so factor relative to current scale
-  }, { passive:false });
+    if (sheet.classList.contains("open")) return;
 
-  frame.addEventListener("touchend", (e) => {
-    if (e.touches.length < 2) {
-      isPinching = false;
-      pinchStartDist = 0;
+    if (pointers.size === 1 && gestureMode === "pan"){
+      const dx = e.clientX - panStart.x;
+      const dy = e.clientY - panStart.y;
+      tx = panStart.tx + dx;
+      ty = panStart.ty + dy;
+
+      clampPan();
+      applyTransform();
+      setOceanParallax(dx, dy);
+      return;
     }
-  }, { passive:true });
 
-  // Pointer events
+    if (pointers.size >= 2){
+      // pinch dominates when two pointers are active
+      if (gestureMode !== "pinch") beginPinch();
+
+      const pts = Array.from(pointers.values());
+      const a = pts[0], b = pts[1];
+      const dist = Math.max(10, pointerDistance(a, b));
+      const c = pointerCenter(a, b);
+
+      const factor = dist / pinchStart.dist;
+      const targetScale = clamp(pinchStart.scale * factor, MIN_SCALE, MAX_SCALE);
+
+      // Apply zoom around pinch center
+      // Reset to pinchStart translation baseline to avoid cumulative drift
+      // then zoomTo handles precise stabilization
+      tx = pinchStart.tx;
+      ty = pinchStart.ty;
+      scale = pinchStart.scale;
+      applyTransform();
+
+      zoomTo(targetScale, c.x, c.y);
+
+      setOceanParallax(c.x - pinchStart.centerX, c.y - pinchStart.centerY);
+      return;
+    }
+  }
+
+  function onPointerUp(e){
+    if (!pointers.has(e.pointerId)) return;
+    pointers.delete(e.pointerId);
+
+    setOceanParallax(0, 0);
+
+    if (pointers.size === 0){
+      gestureMode = "none";
+      // Swipe deck change heuristic: only when near fit and not panned far
+      // We can’t rely on dx here directly (pointerup event might be last pointer after pinch)
+      // so we use velocity-free heuristic: if user ended with pointer count 0 and deck is near fit, do nothing.
+      return;
+    }
+
+    if (pointers.size === 1){
+      // Transition back to pan with remaining pointer
+      const remaining = Array.from(pointers.entries())[0];
+      const pt = remaining[1];
+      beginPan({ clientX: pt.x, clientY: pt.y });
+    }
+
+    e.preventDefault();
+  }
+
+  /* Swipe deck change (single-finger) using pointer history */
+  let lastPanDx = 0;
+  let lastPanDy = 0;
+  function trackPanDelta(e){
+    if (pointers.size !== 1 || gestureMode !== "pan") return;
+    lastPanDx = e.clientX - panStart.x;
+    lastPanDy = e.clientY - panStart.y;
+  }
+
+  function maybeSwipeDeck(){
+    // Only when:
+    // - near fit (scale close to fitScale)
+    // - mostly horizontal
+    // - not panned far (user is “at center”)
+    const nearFit = Math.abs((scale / fitScale) - 1) < 0.10;
+    const horizontal = Math.abs(lastPanDx) > Math.abs(lastPanDy) * 1.5;
+    const farEnough = Math.abs(lastPanDx) > 60;
+    const notPannedFar = Math.abs(tx) < 50 && Math.abs(ty) < 50;
+
+    if (nearFit && horizontal && farEnough && notPannedFar){
+      if (lastPanDx < 0) nextDeck();
+      else prevDeck();
+    }
+    lastPanDx = 0;
+    lastPanDy = 0;
+  }
+
   frame.addEventListener("pointerdown", onPointerDown);
-  frame.addEventListener("pointermove", onPointerMove);
-  frame.addEventListener("pointerup", onPointerUp);
-  frame.addEventListener("pointercancel", onPointerUp);
+  frame.addEventListener("pointermove", (e) => { trackPanDelta(e); onPointerMove(e); });
+  frame.addEventListener("pointerup", (e) => { onPointerUp(e); maybeSwipeDeck(); });
+  frame.addEventListener("pointercancel", (e) => { onPointerUp(e); });
 
-  // Tap background closes sheet
+  // Clicking empty space closes sheet (when open)
+  backdrop.addEventListener("click", () => closeVenue());
+
+  // Prevent clicks on frame from doing odd things when sheet open
   frame.addEventListener("click", () => {
     if (sheet.classList.contains("open")) closeVenue();
   });
 
-  // -------------------------
-  // Controls
-  // -------------------------
+  /* ─────────────────────────────────────────────────────────────
+    Controls
+  ───────────────────────────────────────────────────────────── */
   zoomInBtn.addEventListener("click", () => {
-    iOSHaptic("light");
     zoomAt(1.18);
+    runGlowSweep();
   });
 
   zoomOutBtn.addEventListener("click", () => {
-    iOSHaptic("light");
     zoomAt(1/1.18);
+    runGlowSweep();
   });
 
   resetBtn.addEventListener("click", () => {
-    iOSHaptic("strong");
     resetToFit(true);
     runGlowSweep();
   });
 
-  glowSweepBtn.addEventListener("click", () => {
-    runGlowSweep();
-  });
+  glowSweepBtn.addEventListener("click", () => runGlowSweep());
 
   closeSheetBtn.addEventListener("click", () => closeVenue());
 
-  centerOnVenueBtn.addEventListener("click", () => {
-    iOSHaptic("light");
-    centerOnVenue();
-  });
+  centerOnVenueBtn.addEventListener("click", () => centerOnVenue());
 
-  // keyboard (desktop) – prevent page scroll
   document.addEventListener("keydown", (e) => {
+    // Focus trap for dialog
+    trapFocusInSheet(e);
+
+    if (sheet.classList.contains("open")) return;
+
+    // Global shortcuts
     if (e.key === "ArrowLeft") { e.preventDefault(); prevDeck(); }
     if (e.key === "ArrowRight") { e.preventDefault(); nextDeck(); }
     if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomInBtn.click(); }
     if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomOutBtn.click(); }
     if (e.key === "0" || e.key.toLowerCase() === "r") { e.preventDefault(); resetBtn.click(); }
     if (e.key.toLowerCase() === "g") { e.preventDefault(); runGlowSweep(); }
-    if (e.key === "Escape") closeVenue();
   });
 
-  // -------------------------
-  // On SVG load: refit, render hotspots, do cinematic intro
-  // -------------------------
-  deckObj.addEventListener("load", () => {
-    updateNaturalDimensions();
-    deckShell.style.opacity = "1";
-
-    fitScale = computeFitScaleHeightFirst();
-    resetToFit(false);
-
+  /* ─────────────────────────────────────────────────────────────
+    Error overlay actions
+  ───────────────────────────────────────────────────────────── */
+  retryLoadBtn.addEventListener("click", () => {
     const deck = DECKS[activeIndex];
-    setHeader(deck);
-
-    setTimeout(() => {
-      renderHotspots(deck);
-      fitScale = computeFitScaleHeightFirst();
-      resetToFit(false);
-      cinematicIntro();
-    }, 140);
+    loadDeckSvg(deck, { intro: false });
   });
 
-  // in case SVG loads from cache quickly
-  setTimeout(() => {
-    fitScale = computeFitScaleHeightFirst();
-    resetToFit(false);
-  }, 120);
+  copyPathBtn.addEventListener("click", async () => {
+    const p = errorOverlay.dataset.path || (DECKS[activeIndex]?.svg || "");
+    if (!p) return;
+    const ok = await copyText(p);
+    if (ok){
+      errorTitle.textContent = "Copied";
+      errorDesc.textContent = `SVG path copied: ${p}`;
+      setTimeout(() => {
+        errorTitle.textContent = "Deck failed to load";
+        errorDesc.textContent = `We couldn’t load the SVG for this deck. Check the file path and try again.`;
+      }, 1200);
+    }
+  });
 
-  // keep hotspots responsive on resize
+  goPrevDeckBtn.addEventListener("click", () => prevDeck());
+  goNextDeckBtn.addEventListener("click", () => nextDeck());
+
+  /* ─────────────────────────────────────────────────────────────
+    Resize
+  ───────────────────────────────────────────────────────────── */
   let resizeT = 0;
   window.addEventListener("resize", () => {
     clearTimeout(resizeT);
     resizeT = setTimeout(() => {
-      fitScale = computeFitScaleHeightFirst();
-      resetToFit(false);
-      renderHotspots(DECKS[activeIndex]);  // full re-render (simpler than reposition)
+      // Preserve current center in local coordinates
+      const { cx, cy } = getFrameCenterClient();
+      const localX = (cx - cx - tx) / scale; // simplifies to -tx/scale
+      const localY = (cy - cy - ty) / scale; // simplifies to -ty/scale
+
+      fitScale = computeFitScale();
+
+      // keep the same local center point but clamp and fit if scale is tiny
+      if (scale < fitScale * 0.9) scale = fitScale;
+
+      tx = -localX * scale;
+      ty = -localY * scale;
+
+      clampPan();
+      applyTransform();
+
+      // Re-render hotspots based on new base sizes (baseDeckW/H are for scale=1)
+      // Re-measure quickly by temporarily setting scale=1 at center, then restore.
+      withNoTransition(() => {
+        const prev = { scale, tx, ty };
+        scale = 1; tx = 0; ty = 0;
+        applyTransform();
+        const r = deckObj.getBoundingClientRect();
+        baseDeckW = Math.max(200, r.width || baseDeckW);
+        baseDeckH = Math.max(200, r.height || baseDeckH);
+        scale = prev.scale; tx = prev.tx; ty = prev.ty;
+        applyTransform();
+      });
+
+      renderHotspots(DECKS[activeIndex]);
     }, 120);
   });
 
-  // -------------------------
-  // Init
-  // -------------------------
-  buildCarousel();
-  setActiveCard();
-  setHeader(DECKS[activeIndex]);
-  runGlowSweep();
+  /* ─────────────────────────────────────────────────────────────
+    Init
+  ───────────────────────────────────────────────────────────── */
+  function init(){
+    buildCarousel();
+    const deck = DECKS[activeIndex];
+    setHeader(deck);
+    resetToFit(false);
+    runGlowSweep();
+
+    // First load uses intro once
+    loadDeckSvg(deck, { intro: true }).catch((e) => {
+      console.error(e);
+      showError("Unexpected error while loading this deck.", deck.svg);
+    });
+  }
+
+  init();
 
 })();
 </script>
+
 </body>
 </html>
