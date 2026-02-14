@@ -141,42 +141,48 @@ object {
   let scale = 1;
 
   function fitToViewport() {
-    const headerHeight = document.querySelector(".header").offsetHeight;
-    const controlsHeight = document.querySelector(".controls").offsetHeight;
 
-    const availableHeight = window.innerHeight - headerHeight - controlsHeight - 60;
+    const header = document.querySelector(".header");
+    const controls = document.querySelector(".controls");
 
+    const headerHeight = header ? header.offsetHeight : 0;
+    const controlsHeight = controls ? controls.offsetHeight : 0;
+
+    const availableWidth = window.innerWidth - 40;
+    const availableHeight = window.innerHeight - headerHeight - controlsHeight - 40;
+
+    const svgWidth = svgObject.offsetWidth;
     const svgHeight = svgObject.offsetHeight;
 
-    if (svgHeight > availableHeight) {
-      scale = availableHeight / svgHeight;
-      updateZoom();
-    }
+    if (!svgWidth || !svgHeight) return;
+
+    const widthRatio = availableWidth / svgWidth;
+    const heightRatio = availableHeight / svgHeight;
+
+    // Use smaller ratio so it fits both directions
+    scale = Math.min(widthRatio, heightRatio);
+
+    if (scale > 1) scale = 1;
+
+    updateZoom();
   }
 
   function updateZoom() {
-    wrapper.style.transform = "scale(" + scale + ")";
+    wrapper.style.transform = `scale(${scale})`;
     zoomValue.textContent = Math.round(scale * 100) + "%";
   }
 
   document.getElementById("zoomIn").addEventListener("click", () => {
-    if (scale < 3) {
-      scale += 0.1;
-      updateZoom();
-    }
+    scale = Math.min(scale + 0.1, 3);
+    updateZoom();
   });
 
   document.getElementById("zoomOut").addEventListener("click", () => {
-    if (scale > 0.5) {
-      scale -= 0.1;
-      updateZoom();
-    }
-  });
-
-  document.getElementById("resetZoom").addEventListener("click", () => {
-    scale = 1;
+    scale = Math.max(scale - 0.1, 0.2);
     updateZoom();
   });
+
+  document.getElementById("resetZoom").addEventListener("click", fitToViewport);
 
   svgObject.addEventListener("load", fitToViewport);
   window.addEventListener("resize", fitToViewport);
