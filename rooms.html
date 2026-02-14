@@ -1,285 +1,737 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0a2e4a" />
-<title>Staterooms · Adventure of the Seas</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+  <meta name="theme-color" content="#0a2e4a">
+  <title>Staterooms · Adventure of the Seas</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Fonts + Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-/* ==========================================
-   ROOMS — CINEMATIC SINGLE FILE
-   ========================================== */
+  <style>
+    /* =========================================================
+       RCCL CRUISE HUB — ROOMS (unified aesthetic)
+       ========================================================= */
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Inter',system-ui,sans-serif;
-  background:#071a2c;
-  color:#fff;
-  overflow-x:hidden;
-}
+    /* ---------- Reset ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body{
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #071a2c;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a{ color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid rgba(0,180,230,.45); outline-offset: 2px; border-radius: 12px; }
 
-/* Background */
-#ocean{position:fixed;inset:0;z-index:-2}
-.overlay{
-  position:fixed;inset:0;z-index:-1;
-  background:radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.15), transparent 60%),
-             linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.6));
-}
+    /* ---------- Tokens ---------- */
+    :root{
+      --navy:#0a2e4a;
+      --navy2:#083452;
+      --blue:#0f4f76;
+      --accent:#00b4e6;
+      --gold:#ffd740;
+      --gold2:#c6a15b;
 
-/* Header */
-header{
-  position:sticky;top:0;
-  backdrop-filter:blur(14px);
-  background:rgba(10,46,74,.7);
-  border-bottom:1px solid rgba(255,255,255,.1);
-  padding:0 1.2rem;
-}
-.header-inner{
-  max-width:1100px;margin:auto;
-  height:64px;display:flex;align-items:center;
-}
-.title{font-family:'Plus Jakarta Sans';font-weight:900}
-.spacer{flex:1}
-.search{
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.15);
-  padding:.4rem .8rem;
-  border-radius:999px;
-  color:white;
-}
+      --text:#0d2236;
+      --muted:#5a7a93;
 
-/* Layout */
-main{max-width:1100px;margin:auto;padding:2rem 1rem 4rem}
-.grid{
-  display:grid;
-  gap:1.2rem;
-}
-@media(min-width:700px){
-  .grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(min-width:1100px){
-  .grid{grid-template-columns:repeat(3,1fr)}
-}
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.11);
+      --glass-brd: rgba(255,255,255,.18);
 
-/* Room Card */
-.room{
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:22px;
-  padding:1.2rem;
-  backdrop-filter:blur(14px);
-  transition:.4s ease;
-  position:relative;
-}
-.room:hover{
-  transform:translateY(-6px);
-  border-color:rgba(0,180,230,.4);
-}
-.room.family{
-  box-shadow:0 0 30px rgba(255,215,64,.25);
-  border-color:#ffd740;
-}
-.room h2{
-  font-family:'Plus Jakarta Sans';
-  font-size:1.1rem;
-}
-.meta{
-  font-size:.75rem;
-  opacity:.7;
-  margin-top:.2rem;
-}
-.people{
-  margin-top:.8rem;
-  display:flex;
-  flex-wrap:wrap;
-  gap:.4rem;
-}
-.person{
-  background:rgba(255,255,255,.12);
-  border-radius:999px;
-  padding:.3rem .7rem;
-  font-size:.75rem;
-}
-.actions{
-  margin-top:.8rem;
-  display:flex;
-  gap:.5rem;
-}
-.btn{
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.1);
-  padding:.4rem .8rem;
-  font-size:.75rem;
-  cursor:pointer;
-}
-.btn:hover{background:rgba(255,255,255,.2)}
+      --shadow: 0 25px 80px rgba(0,0,0,.45);
+      --shadow2: 0 12px 40px rgba(0,0,0,.35);
 
-.note{
-  margin-top:.6rem;
-  font-size:.75rem;
-  opacity:.8;
-}
-textarea{
-  width:100%;
-  margin-top:.4rem;
-  border-radius:12px;
-  padding:.4rem;
-  background:rgba(0,0,0,.3);
-  border:1px solid rgba(255,255,255,.2);
-  color:white;
-  resize:none;
-}
+      --radius: 22px;
+      --radius-lg: 28px;
 
-/* Confetti */
-#confetti{position:fixed;inset:0;pointer-events:none;z-index:999}
+      --ease: cubic-bezier(.22,.61,.36,1);
+      --ring: 0 0 0 3px rgba(0,180,230,.18);
+    }
 
-</style>
+    /* ---------- Ocean canvas ---------- */
+    #ocean {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+    }
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(0,180,230,.12), transparent 60%),
+        radial-gradient(ellipse at 20% 90%, rgba(255,215,64,.10), transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(255,215,64,.07), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.35));
+    }
+
+    /* ---------- Header ---------- */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,46,74,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .header-inner{
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 66px;
+      padding: 0 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      color: rgba(255,255,255,.95);
+    }
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      min-width: 0;
+    }
+    .brand i{ color: var(--gold); }
+    .brand-text{ min-width: 0; line-height: 1.05; }
+    .brand-title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-sub{
+      font-size: .75rem;
+      color: rgba(255,255,255,.62);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .spacer{ flex: 1; }
+
+    .hdr-pill{
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,215,64,.12);
+      border: 1px solid rgba(255,215,64,.28);
+      color: var(--gold);
+      padding: .35rem .8rem;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: .75rem;
+      white-space: nowrap;
+    }
+    .hdr-pill i{ opacity: .95; }
+
+    .hdr-iconbtn{
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.95);
+      display: grid;
+      place-items: center;
+      transition: transform .18s var(--ease), background .18s var(--ease);
+    }
+    .hdr-iconbtn:hover{ background: rgba(255,255,255,.14); }
+    .hdr-iconbtn:active{ transform: scale(.98); }
+
+    /* ---------- Drawer nav ---------- */
+    .drawer-backdrop{
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s var(--ease);
+    }
+    .drawer-backdrop.open{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: min(92vw, 360px);
+      background: rgba(10,46,74,.86);
+      border-left: 1px solid rgba(255,255,255,.12);
+      box-shadow: -20px 0 80px rgba(0,0,0,.45);
+      transform: translateX(20px);
+      opacity: 0;
+      transition: transform .24s var(--ease), opacity .24s var(--ease);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1rem 1.15rem;
+    }
+    .drawer-backdrop.open .drawer{
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .drawer-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding-bottom: .9rem;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.95);
+    }
+    .drawer-head h3{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      font-size: 1.05rem;
+    }
+    .nav{
+      padding: .95rem 0;
+      display: grid;
+      gap: .55rem;
+      overflow: auto;
+    }
+    .nav a{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .7rem .75rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      transition: background .18s var(--ease), border-color .18s var(--ease), transform .18s var(--ease);
+    }
+    .nav a:hover{ background: rgba(255,255,255,.10); border-color: rgba(0,180,230,.24); transform: translateY(-1px); }
+    .nav a i{ color: var(--gold); width: 18px; text-align: center; }
+    .nav a.active{ background: rgba(255,215,64,.12); border-color: var(--gold); }
+
+    .drawer-foot{
+      margin-top: auto;
+      padding-top: .85rem;
+      border-top: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.70);
+      font-weight: 800;
+      font-size: .78rem;
+      display: grid;
+      gap: .6rem;
+    }
+
+    /* ---------- Main content ---------- */
+    main{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.15rem 5rem;
+    }
+
+    /* Header inside main */
+    .rooms-header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .rooms-header h1{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      color: rgba(255,255,255,.96);
+    }
+    .rooms-header .search{
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 40px;
+      padding: .6rem 1rem;
+      color: white;
+      width: 240px;
+      outline: none;
+    }
+    .rooms-header .search::placeholder{ color: rgba(255,255,255,.5); }
+
+    /* Room grid */
+    .grid{
+      display: grid;
+      gap: 1.2rem;
+    }
+    @media(min-width: 700px){ .grid{ grid-template-columns: repeat(2,1fr); } }
+    @media(min-width: 1100px){ .grid{ grid-template-columns: repeat(3,1fr); } }
+
+    /* Room card */
+    .room{
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 1.2rem;
+      transition: transform .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+      color: rgba(255,255,255,.95);
+    }
+    .room:hover{
+      transform: translateY(-4px);
+      border-color: rgba(0,180,230,.4);
+      box-shadow: var(--shadow2);
+    }
+    .room.family{
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(255,215,64,.25);
+    }
+    .room h2{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      font-size: 1.2rem;
+    }
+    .room .meta{
+      font-size: .8rem;
+      opacity: .7;
+      margin: .2rem 0 .6rem;
+    }
+    .room .people{
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: 1rem;
+    }
+    .room .person{
+      background: rgba(255,255,255,.12);
+      border-radius: 999px;
+      padding: .4rem .8rem;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .room .actions{
+      display: flex;
+      gap: .5rem;
+      margin-bottom: .8rem;
+    }
+    .room .btn{
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.1);
+      border-radius: 999px;
+      padding: .4rem .8rem;
+      font-size: .75rem;
+      font-weight: 700;
+      transition: .18s;
+    }
+    .room .btn:hover{ background: rgba(255,255,255,.2); }
+    .room .note{
+      font-size: .75rem;
+      opacity: .8;
+    }
+    .room textarea{
+      width: 100%;
+      margin-top: .3rem;
+      background: rgba(0,0,0,.3);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      padding: .4rem;
+      color: white;
+      resize: vertical;
+    }
+
+    /* Confetti canvas */
+    #confetti{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      z-index: 3000;
+      background: rgba(10,46,74,.94);
+      color: white;
+      border: 1px solid rgba(255,255,255,.14);
+      padding: .62rem .9rem;
+      border-radius: 999px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-weight: 900;
+      font-size: .82rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: .18s;
+    }
+    .toast.show{ opacity: 1; }
+
+    /* Back to top */
+    .back-to-top{
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+      background: var(--accent);
+      color: #0a2e4a;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 800;
+    }
+    .back-to-top.show{ display: flex; }
+
+    /* Bottom nav for mobile (like index) */
+    .bottom-nav{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 990;
+      display: none;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      background: rgba(241,250,255,.92);
+      border-top: 1px solid rgba(8,89,136,.18);
+      backdrop-filter: blur(10px);
+    }
+    .bottom-nav__item{
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(8,89,136,.14);
+      background: rgba(255,255,255,.64);
+      color: #1f567c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: .65rem;
+      font-weight: 700;
+    }
+    .bottom-nav__item.active{ border-color: var(--gold); background: rgba(255,190,92,.22); }
+    @media (max-width: 767px){
+      body{ padding-bottom: 80px; }
+      .bottom-nav{ display: grid; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; }
+    }
+  </style>
 </head>
 <body>
+  <canvas id="ocean" width="375" height="609"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <canvas id="confetti" width="375" height="609"></canvas>
 
-<canvas id="ocean"></canvas>
-<div class="overlay"></div>
-<canvas id="confetti"></canvas>
+  <!-- Header (exactly like index/decks) -->
+  <header>
+    <div class="header-inner">
+      <div class="brand" title="Cruise Hub">
+        <i class="fas fa-crown" aria-hidden="true"></i>
+        <div class="brand-text">
+          <div class="brand-title">Adventure of the Seas</div>
+          <div class="brand-sub">Rahe Family & Friends · Staterooms</div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <span class="hdr-pill" id="sailPill" aria-label="Sail dates">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+        Feb 14–20, 2026
+      </span>
+      <button class="hdr-iconbtn" id="menuBtn" type="button" aria-label="Open menu">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
 
-<header>
-  <div class="header-inner">
-    <div class="title">Staterooms</div>
-    <div class="spacer"></div>
-    <input type="text" id="search" class="search" placeholder="Find a person..." />
+  <!-- Main content -->
+  <main>
+    <div class="rooms-header">
+      <h1>Staterooms</h1>
+      <input type="text" id="search" class="search" placeholder="Find a person...">
+    </div>
+    <div class="grid" id="rooms"></div>
+  </main>
+
+  <!-- Back to top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
+
+  <!-- Drawer menu (same as index) -->
+  <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true">
+    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="drawer-head">
+        <h3>Navigate</h3>
+        <button class="hdr-iconbtn" id="closeDrawerBtn" type="button" aria-label="Close menu">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="itinerary.html"><i class="fas fa-route"></i> Itinerary</a>
+        <a href="rooms.html" class="active"><i class="fas fa-bed"></i> Rooms</a>
+        <a href="decks.html"><i class="fas fa-layer-group"></i> Decks</a>
+        <a href="operations.html"><i class="fas fa-list-check"></i> Checklist</a>
+        <a href="contacts.html"><i class="fas fa-phone"></i> Contacts</a>
+        <a href="dining.html"><i class="fas fa-utensils"></i> Dining</a>
+        <a href="tips.html"><i class="fas fa-lightbulb"></i> Tips</a>
+      </nav>
+    </aside>
   </div>
-</header>
 
-<main>
-  <div class="grid" id="rooms"></div>
-</main>
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <i class="fas fa-circle-check"></i>
+    <span id="toastText">Copied</span>
+  </div>
 
-<script>
-(function(){
-'use strict';
+  <!-- Bottom nav (mobile) -->
+  <div class="bottom-nav">
+    <a href="index.html" class="bottom-nav__item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="itinerary.html" class="bottom-nav__item"><i class="fas fa-route"></i><span>Plan</span></a>
+    <a href="rooms.html" class="bottom-nav__item active"><i class="fas fa-bed"></i><span>Rooms</span></a>
+    <a href="decks.html" class="bottom-nav__item"><i class="fas fa-ship"></i><span>Map</span></a>
+    <button class="bottom-nav__item" id="moreBtnMobile"><i class="fas fa-ellipsis"></i><span>More</span></button>
+  </div>
 
-const DATA = [
-  {room:'6650', deck:'6', type:'Interior', people:['Bill','Melissa','Owen','Declan'], family:true},
-  {room:'8528', deck:'8', type:'Ocean View', people:['Aimee','Reese'], family:true},
-  {room:'8370', deck:'8', type:'Balcony', people:['Lea','Calab']},
-  {room:'8612', deck:'8', type:'Balcony', people:['Bella','TJ']},
-  {room:'3622', deck:'3', type:'Interior', people:['Phoebe','Ryan']}
-];
+  <script>
+    (function() {
+      'use strict';
 
-const roomsEl=document.getElementById('rooms');
-const searchInput=document.getElementById('search');
+      // ---------- Data ----------
+      const DATA = [
+        { room: '6650', deck: '6', type: 'Interior', people: ['Bill','Melissa','Owen','Declan'], family: true },
+        { room: '8528', deck: '8', type: 'Ocean View', people: ['Aimee','Reese'], family: true },
+        { room: '8370', deck: '8', type: 'Balcony', people: ['Lea','Calab'] },
+        { room: '8612', deck: '8', type: 'Balcony', people: ['Bella','TJ'] },
+        { room: '3622', deck: '3', type: 'Interior', people: ['Phoebe','Ryan'] }
+      ];
 
-function render(filter=''){
-  roomsEl.innerHTML='';
-  DATA.filter(r=>{
-    return r.people.join(' ').toLowerCase().includes(filter.toLowerCase());
-  }).forEach(r=>{
-    const div=document.createElement('div');
-    div.className='room'+(r.family?' family':'');
-    div.innerHTML=`
-      <h2>Room ${r.room}</h2>
-      <div class="meta">Deck ${r.deck} · ${r.type}</div>
-      <div class="people">
-        ${r.people.map(p=>`<div class="person">${p}</div>`).join('')}
-      </div>
-      <div class="actions">
-        <button class="btn copy">Copy #</button>
-        <button class="btn locate">Highlight</button>
-      </div>
-      <div class="note">
-        Personal Note:
-        <textarea data-room="${r.room}" rows="2" placeholder="Add note..."></textarea>
-      </div>
-    `;
-    roomsEl.appendChild(div);
+      // ---------- DOM elements ----------
+      const roomsEl = document.getElementById('rooms');
+      const searchInput = document.getElementById('search');
+      const menuBtn = document.getElementById('menuBtn');
+      const drawerBackdrop = document.getElementById('drawerBackdrop');
+      const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+      const backToTop = document.getElementById('backToTop');
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toastText');
 
-    div.querySelector('.copy').addEventListener('click',()=>{
-      navigator.clipboard.writeText(r.room);
-      burstConfetti(window.innerWidth/2,100);
-    });
+      // ---------- Utility ----------
+      function showToast(msg, icon = 'fa-circle-check') {
+        toastText.textContent = msg;
+        const ic = toast.querySelector('i');
+        if (ic) ic.className = `fas ${icon}`;
+        toast.classList.add('show');
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+      }
 
-    div.querySelector('.locate').addEventListener('click',()=>{
-      div.style.boxShadow='0 0 40px rgba(0,180,230,.5)';
-      setTimeout(()=>div.style.boxShadow='',1500);
-    });
+      // ---------- Render ----------
+      function render(filter = '') {
+        roomsEl.innerHTML = '';
+        DATA.filter(r => r.people.join(' ').toLowerCase().includes(filter.toLowerCase()))
+          .forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'room' + (r.family ? ' family' : '');
+            card.innerHTML = `
+              <h2>Room ${r.room}</h2>
+              <div class="meta">Deck ${r.deck} · ${r.type}</div>
+              <div class="people">
+                ${r.people.map(p => `<span class="person">${p}</span>`).join('')}
+              </div>
+              <div class="actions">
+                <button class="btn copy">Copy #</button>
+                <button class="btn locate">Highlight</button>
+              </div>
+              <div class="note">
+                Personal Note:
+                <textarea data-room="${r.room}" rows="2" placeholder="Add note..."></textarea>
+              </div>
+            `;
+            roomsEl.appendChild(card);
 
-    const ta=div.querySelector('textarea');
-    ta.value=localStorage.getItem('note-'+r.room)||'';
-    ta.addEventListener('input',()=>{
-      localStorage.setItem('note-'+r.room,ta.value);
-    });
-  });
-}
+            // Copy button
+            card.querySelector('.copy').addEventListener('click', () => {
+              navigator.clipboard.writeText(r.room);
+              showToast(`Room ${r.room} copied`);
+              burstConfetti(window.innerWidth/2, 100);
+            });
 
-searchInput.addEventListener('input',e=>render(e.target.value));
-render();
+            // Locate button (highlight)
+            card.querySelector('.locate').addEventListener('click', () => {
+              card.style.transition = 'box-shadow 0.2s';
+              card.style.boxShadow = '0 0 40px rgba(0,180,230,.5)';
+              setTimeout(() => card.style.boxShadow = '', 1500);
+            });
 
-/* Confetti */
-const canvas=document.getElementById('confetti');
-const ctx=canvas.getContext('2d');
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-let pieces=[];
-function burstConfetti(x,y){
-  for(let i=0;i<80;i++){
-    pieces.push({
-      x,y,
-      vx:(Math.random()-.5)*6,
-      vy:(Math.random()-1)*6,
-      g:.15,
-      size:4+Math.random()*3,
-      life:1
-    });
-  }
-}
-function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  pieces.forEach(p=>{
-    p.vy+=p.g;
-    p.x+=p.vx;
-    p.y+=p.vy;
-    p.life*=.97;
-    ctx.globalAlpha=p.life;
-    ctx.fillStyle=['#00b4e6','#ffd740','#fff'][Math.floor(Math.random()*3)];
-    ctx.fillRect(p.x,p.y,p.size,p.size);
-  });
-  pieces=pieces.filter(p=>p.life>.05);
-  requestAnimationFrame(animate);
-}
-animate();
+            // Note persistence
+            const ta = card.querySelector('textarea');
+            ta.value = localStorage.getItem('note-' + r.room) || '';
+            ta.addEventListener('input', () => {
+              localStorage.setItem('note-' + r.room, ta.value);
+            });
+          });
+      }
 
-/* Ocean background */
-const ocean=document.getElementById('ocean');
-const octx=ocean.getContext('2d');
-ocean.width=window.innerWidth;
-ocean.height=window.innerHeight;
-let t=0;
-function draw(){
-  octx.clearRect(0,0,ocean.width,ocean.height);
-  octx.fillStyle='#071a2c';
-  octx.fillRect(0,0,ocean.width,ocean.height);
-  octx.beginPath();
-  for(let x=0;x<ocean.width;x++){
-    let y=Math.sin(x*.01+t)*20+ocean.height/2;
-    octx.lineTo(x,y);
-  }
-  octx.lineTo(ocean.width,ocean.height);
-  octx.lineTo(0,ocean.height);
-  octx.closePath();
-  octx.fillStyle='rgba(0,180,230,.12)';
-  octx.fill();
-  t+=.01;
-  requestAnimationFrame(draw);
-}
-draw();
+      // Search listener
+      searchInput.addEventListener('input', e => render(e.target.value));
+      render();
 
-})();
-</script>
+      // ---------- Drawer ----------
+      let lastFocus = null;
+      function openDrawer() {
+        lastFocus = document.activeElement;
+        drawerBackdrop.classList.add('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'false');
+        closeDrawerBtn.focus();
+        document.body.style.overflow = 'hidden';
+      }
+      function closeDrawer() {
+        drawerBackdrop.classList.remove('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      }
+      menuBtn.addEventListener('click', openDrawer);
+      closeDrawerBtn.addEventListener('click', closeDrawer);
+      drawerBackdrop.addEventListener('click', (e) => {
+        if (e.target === drawerBackdrop) closeDrawer();
+      });
 
+      // Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawerBackdrop.classList.contains('open')) closeDrawer();
+      });
+
+      // ---------- Back to top ----------
+      window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('show', window.scrollY > 400);
+      });
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+      // ---------- Mobile "More" button ----------
+      document.getElementById('moreBtnMobile').addEventListener('click', openDrawer);
+
+      // ---------- Confetti (from original) ----------
+      const canvas = document.getElementById('confetti');
+      const ctx = canvas.getContext('2d');
+      let pieces = [];
+      function burstConfetti(x, y) {
+        for (let i = 0; i < 80; i++) {
+          pieces.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 1) * 6,
+            g: 0.15,
+            size: 4 + Math.random() * 3,
+            life: 1
+          });
+        }
+      }
+      function animateConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.vy += p.g;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life *= 0.97;
+          ctx.globalAlpha = p.life;
+          ctx.fillStyle = ['#00b4e6','#ffd740','#fff'][Math.floor(Math.random() * 3)];
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+        });
+        pieces = pieces.filter(p => p.life > 0.05);
+        requestAnimationFrame(animateConfetti);
+      }
+      animateConfetti();
+
+      // ---------- Ocean background (same as index) ----------
+      const ocean = document.getElementById('ocean');
+      const octx = ocean.getContext('2d');
+      function resizeOcean() {
+        ocean.width = window.innerWidth;
+        ocean.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeOcean();
+      window.addEventListener('resize', resizeOcean);
+
+      let t = 0;
+      function drawOcean() {
+        octx.clearRect(0, 0, ocean.width, ocean.height);
+        octx.fillStyle = '#071a2c';
+        octx.fillRect(0, 0, ocean.width, ocean.height);
+
+        // depth gradient
+        const grad = octx.createLinearGradient(0, 0, 0, ocean.height);
+        grad.addColorStop(0, 'rgba(10,46,74,.08)');
+        grad.addColorStop(1, 'rgba(0,0,0,.22)');
+        octx.fillStyle = grad;
+        octx.fillRect(0, 0, ocean.width, ocean.height);
+
+        // waves
+        const waves = [
+          { amp: 22, len: 0.010, y: 0.46, alpha: 0.11 },
+          { amp: 30, len: 0.008, y: 0.54, alpha: 0.09 },
+          { amp: 38, len: 0.006, y: 0.62, alpha: 0.07 },
+        ];
+        for (let i = 0; i < waves.length; i++) {
+          const w = waves[i];
+          octx.beginPath();
+          const baseY = ocean.height * w.y;
+          octx.moveTo(0, baseY);
+          for (let x = 0; x <= ocean.width; x += 8) {
+            const y = baseY + Math.sin(x * w.len + t * (0.8 + i * 0.15)) * w.amp;
+            octx.lineTo(x, y);
+          }
+          octx.lineTo(ocean.width, ocean.height);
+          octx.lineTo(0, ocean.height);
+          octx.closePath();
+          octx.fillStyle = `rgba(0,180,230,${w.alpha})`;
+          octx.fill();
+
+          // gold shimmer
+          octx.beginPath();
+          octx.moveTo(0, baseY - 16);
+          for (let x = 0; x <= ocean.width; x += 10) {
+            const y = (baseY - 16) + Math.sin(x * (w.len * 1.2) + t * (1.2 + i * 0.2)) * (w.amp * 0.22);
+            octx.lineTo(x, y);
+          }
+          octx.strokeStyle = `rgba(255,215,64,${w.alpha * 0.38})`;
+          octx.lineWidth = 1.2;
+          octx.stroke();
+        }
+        t += 0.012;
+        requestAnimationFrame(drawOcean);
+      }
+      drawOcean();
+    })();
+  </script>
+
+  <noscript>
+    <div style="padding:1rem; text-align:center; background:#ffd740; color:#0d2236; font-weight:900;">
+      This page needs JavaScript enabled.
+    </div>
+  </noscript>
 </body>
 </html>
