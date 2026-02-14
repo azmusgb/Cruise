@@ -13,11 +13,10 @@
 
 <style>
 /* =========================================================
-   DECK NAVIGATOR V4 — CINEMATIC RCCL EDITION
+   DECK NAVIGATOR V4.2 — IMMERSIVE MAP EDITION
    ========================================================= */
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
 body{
   font-family:'Inter',system-ui,-apple-system,sans-serif;
   background:#071a2c;
@@ -26,12 +25,13 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
+/* Theme */
 :root{
   --sky1: rgba(0,180,230,.18);
   --sky2: rgba(255,215,64,.10);
   --sky3: rgba(0,0,0,.55);
 
-  --glass: rgba(255,255,255,.085);
+  --glass: rgba(10,46,74,.55);
   --glass-brd: rgba(255,255,255,.18);
 
   --gold:#ffd740;
@@ -40,7 +40,7 @@ body{
   --ease:cubic-bezier(.22,.61,.36,1);
 }
 
-/* Background */
+/* Cinematic background */
 #ocean{position:fixed;inset:0;z-index:-4}
 .sky{
   position:fixed;inset:0;z-index:-3;pointer-events:none;
@@ -48,7 +48,6 @@ body{
     radial-gradient(ellipse at 50% 18%, var(--sky1), transparent 60%),
     radial-gradient(ellipse at 18% 86%, var(--sky2), transparent 55%),
     linear-gradient(180deg, rgba(0,0,0,.18), var(--sky3));
-  transition: background 900ms var(--ease);
 }
 .vignette{
   position:fixed;inset:0;z-index:-2;pointer-events:none;
@@ -73,9 +72,8 @@ header{
   border-bottom:1px solid rgba(255,255,255,.10);
 }
 .header-inner{
-  max-width:1100px;margin:0 auto;
   height:66px;padding:0 1.15rem;
-  display:flex;align-items:center;gap:1rem;
+  display:flex;align-items:center;
 }
 .title{
   font-family:'Plus Jakarta Sans',sans-serif;
@@ -85,39 +83,31 @@ header{
 .titlewrap{display:flex;flex-direction:column;line-height:1.05}
 .spacer{flex:1}
 
-.btn{
+.primary-btn{
   border-radius:999px;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.16);
-  color:rgba(255,255,255,.92);
-  padding:.5rem .9rem;
+  padding:.6rem 1rem;
   font-weight:900;
-  font-size:.78rem;
+  background:linear-gradient(135deg,var(--accent),var(--gold));
+  color:#08263d;
+  border:none;
+  box-shadow:0 12px 40px rgba(0,0,0,.35);
   display:inline-flex;
   align-items:center;
-  gap:.55rem;
-  transition: background .18s var(--ease), border-color .18s var(--ease);
+  gap:.5rem;
 }
-.btn:hover{
-  background:rgba(255,255,255,.14);
-  border-color:rgba(0,180,230,.28);
-}
-.btn i{color:var(--gold)}
 
-/* Viewer */
+/* Viewer full bleed */
 .viewer{
-  position:absolute;inset:66px 0 0 0;
-  display:flex;align-items:center;justify-content:center;
+  position:absolute;
+  inset:66px 0 0 0;
 }
-
 .frame{
-  width:95%;height:86%;
-  border-radius:28px;
+  position:absolute;
+  inset:12px 12px 16px 12px;
+  border-radius:24px;
   background:var(--glass);
   border:1px solid var(--glass-brd);
   backdrop-filter:blur(16px);
-  box-shadow:0 25px 80px rgba(0,0,0,.45);
-  position:relative;
   overflow:hidden;
   touch-action:none;
 }
@@ -126,71 +116,99 @@ header{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
 }
-
 .panZoom{
   transform-origin:center;
-  will-change:transform;
   transition:transform 240ms var(--ease);
 }
-
 .deckObject{
   width:min(920px,90vw);
-  height:auto;
-  filter: drop-shadow(0 25px 70px rgba(0,180,230,.18));
+  filter:
+    drop-shadow(0 40px 120px rgba(0,0,0,.55))
+    drop-shadow(0 0 60px rgba(0,180,230,.22));
 }
 
-/* Controls */
-.controls{
-  position:absolute;bottom:16px;left:0;right:0;
-  pointer-events:none;
+/* Vertical Zoom */
+.zoomStack{
+  position:absolute;
+  left:16px;
+  bottom:100px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.zoomStack button{
+  width:48px;height:48px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.1);
+  color:white;
+  font-size:1.1rem;
 }
 
-.zoomCluster{
-  position:absolute;left:50%;
-  transform:translateX(-50%);
-  display:flex;gap:12px;
-  pointer-events:auto;
-}
-
+/* Segmented mode toggle */
 .modeCluster{
-  position:absolute;right:16px;
-  display:flex;gap:8px;
-  pointer-events:auto;
+  position:absolute;
+  right:16px;
+  bottom:16px;
 }
-
-.zoomPct{
-  font-weight:900;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.16);
-  padding:.45rem .75rem;
+.segmented{
+  display:flex;
   border-radius:999px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);
+}
+.segmented button{
+  padding:.5rem .9rem;
+  border:none;
+  background:transparent;
+  color:white;
+  font-weight:900;
+}
+.segmented button.active{
+  background:linear-gradient(135deg,var(--accent),var(--gold));
+  color:#08263d;
 }
 
+/* Recenter FAB */
 .recenter{
-  position:absolute;left:16px;bottom:16px;
-  pointer-events:auto;
+  position:absolute;
+  left:16px;
+  bottom:16px;
+  width:52px;height:52px;
+  border-radius:999px;
+  border:none;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  color:white;
+  display:flex;align-items:center;justify-content:center;
   opacity:0;
-  transition:opacity .25s var(--ease);
+  transform:scale(.8);
+  transition:opacity .25s var(--ease), transform .25s var(--ease);
 }
-.recenter.show{opacity:1}
+.recenter.show{
+  opacity:1;
+  transform:scale(1);
+}
 
-/* Error UI */
+/* Zoom label */
+.zoomLabel{
+  position:absolute;
+  left:16px;
+  bottom:60px;
+  font-weight:900;
+  font-size:.8rem;
+  opacity:.8;
+}
+
+/* Error */
 .errorUI{
   position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
+  display:none;align-items:center;justify-content:center;
   flex-direction:column;
-  gap:1rem;
   background:rgba(7,26,44,.85);
-  backdrop-filter:blur(10px);
-  text-align:center;
-  font-weight:800;
-  display:none;
 }
 .errorUI.show{display:flex}
-
-@media (prefers-reduced-motion: reduce){
-  *{transition:none !important}
-}
 </style>
 </head>
 
@@ -208,7 +226,9 @@ header{
       <div class="sub">Adventure of the Seas · Feb 14–20, 2026</div>
     </div>
     <div class="spacer"></div>
-    <button class="btn" id="deckJumpBtn"><i class="fas fa-layer-group"></i> Decks</button>
+    <button class="primary-btn">
+      <i class="fas fa-layer-group"></i> Decks
+    </button>
   </div>
 </header>
 
@@ -220,27 +240,27 @@ header{
       </div>
     </div>
 
-    <div class="controls">
-      <div class="zoomCluster">
-        <button class="btn" id="zoomOut">−</button>
-        <div class="zoomPct" id="zoomLabel">100%</div>
-        <button class="btn" id="zoomIn">+</button>
-      </div>
+    <div class="zoomStack">
+      <button id="zoomIn">+</button>
+      <button id="zoomOut">−</button>
+    </div>
 
-      <div class="modeCluster">
-        <button class="btn" id="modeFill">Fill</button>
-        <button class="btn" id="modeAll">All</button>
-      </div>
+    <div class="zoomLabel" id="zoomLabel">100% · fill</div>
 
-      <button class="btn recenter" id="recenterBtn">
-        <i class="fas fa-crosshairs"></i> Center
-      </button>
+    <button class="recenter" id="recenterBtn">
+      <i class="fas fa-crosshairs"></i>
+    </button>
+
+    <div class="modeCluster">
+      <div class="segmented">
+        <button id="modeFill" class="active">Fill</button>
+        <button id="modeAll">All</button>
+      </div>
     </div>
 
     <div class="errorUI" id="errorUI">
       <i class="fas fa-triangle-exclamation fa-2x"></i>
-      <div>Deck failed to load.</div>
-      <button class="btn" id="retryBtn">Retry</button>
+      <div>Deck failed to load</div>
     </div>
 
   </div>
@@ -250,43 +270,23 @@ header{
 (() => {
 "use strict";
 
-/* =============================
-   LOGGING
-============================= */
-const DEBUG = true;
-const Log = {
-  info:(m,d)=>DEBUG&&console.log("[DeckNav]",m,d||""),
-  warn:(m,d)=>DEBUG&&console.warn("[DeckNav]",m,d||""),
-  error:(m,d)=>DEBUG&&console.error("[DeckNav]",m,d||"")
-};
-
-/* =============================
-   Deck Data
-============================= */
 const DECKS=[
-  {id:"03",svg:"decks/deck-03-final.min.svg"},
-  {id:"04",svg:"decks/deck-04-final.min.svg"},
-  {id:"05",svg:"decks/deck-05-final.min.svg"}
+  {svg:"decks/deck-03-final.min.svg"},
+  {svg:"decks/deck-04-final.min.svg"},
+  {svg:"decks/deck-05-final.min.svg"}
 ];
 
 let activeIndex=1;
+let scale=1,tx=0,ty=0,fitScale=1;
+let viewMode="fill";
+let baseW=800,baseH=1200;
 
-/* =============================
-   DOM
-============================= */
 const frame=document.getElementById("frame");
 const panZoom=document.getElementById("panZoom");
 const deckObject=document.getElementById("deckObject");
 const zoomLabel=document.getElementById("zoomLabel");
-const errorUI=document.getElementById("errorUI");
 const recenterBtn=document.getElementById("recenterBtn");
-
-/* =============================
-   State
-============================= */
-let scale=1,tx=0,ty=0,fitScale=1;
-let viewMode="fill";
-let baseW=800,baseH=1200;
+const errorUI=document.getElementById("errorUI");
 
 const clamp=(v,min,max)=>Math.min(Math.max(v,min),max);
 
@@ -297,18 +297,15 @@ function updateLabel(){
 function applyTransform(){
   panZoom.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
   updateLabel();
-  recenterBtn.classList.toggle("show",Math.abs(tx)>40||Math.abs(ty)>40);
+  recenterBtn.classList.toggle("show",Math.abs(tx)>30||Math.abs(ty)>30);
 }
 
-/* =============================
-   Fit
-============================= */
 function computeFit(){
   const r=frame.getBoundingClientRect();
   const sW=r.width/baseW;
   const sH=r.height/baseH;
   fitScale=viewMode==="fill"?sW:Math.min(sW,sH);
-  if(!isFinite(fitScale)||fitScale<=0) fitScale=1;
+  fitScale*=1.08;
 }
 
 function resetView(){
@@ -318,24 +315,16 @@ function resetView(){
   applyTransform();
 }
 
-/* =============================
-   Load Deck
-============================= */
 async function loadDeck(i){
-  const d=DECKS[i];
-  if(!d){Log.error("Invalid deck index");return;}
   errorUI.classList.remove("show");
-
   try{
-    const res=await fetch(d.svg,{cache:"no-cache"});
-    if(!res.ok) throw new Error("Fetch failed");
-  }catch(e){
-    Log.error("Deck load error",e);
+    const res=await fetch(DECKS[i].svg,{cache:"no-cache"});
+    if(!res.ok) throw new Error();
+  }catch{
     errorUI.classList.add("show");
     return;
   }
-
-  deckObject.setAttribute("data",d.svg);
+  deckObject.setAttribute("data",DECKS[i].svg);
   deckObject.onload=()=>{
     requestAnimationFrame(()=>{
       const rect=deckObject.getBoundingClientRect();
@@ -345,9 +334,6 @@ async function loadDeck(i){
   };
 }
 
-/* =============================
-   Controls
-============================= */
 document.getElementById("zoomIn").onclick=()=>{
   scale=clamp(scale*1.15,.5,4);
   applyTransform();
@@ -358,59 +344,42 @@ document.getElementById("zoomOut").onclick=()=>{
 };
 document.getElementById("modeFill").onclick=()=>{
   viewMode="fill";
+  document.getElementById("modeFill").classList.add("active");
+  document.getElementById("modeAll").classList.remove("active");
   resetView();
 };
 document.getElementById("modeAll").onclick=()=>{
   viewMode="all";
+  document.getElementById("modeAll").classList.add("active");
+  document.getElementById("modeFill").classList.remove("active");
   resetView();
 };
 recenterBtn.onclick=resetView;
-document.getElementById("retryBtn").onclick=()=>loadDeck(activeIndex);
 
-/* =============================
-   Pointer Events
-============================= */
-let pointers=new Map();
+/* Pointer */
 let startPan={x:0,y:0,tx:0,ty:0};
-
 frame.addEventListener("pointerdown",e=>{
-  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   startPan={x:e.clientX,y:e.clientY,tx,ty};
   frame.setPointerCapture(e.pointerId);
 });
 frame.addEventListener("pointermove",e=>{
-  if(!pointers.has(e.pointerId))return;
-  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pointers.size===1){
-    const dx=e.clientX-startPan.x;
-    const dy=e.clientY-startPan.y;
-    tx=startPan.tx+dx;
-    ty=startPan.ty+dy;
-    applyTransform();
-  }
-});
-frame.addEventListener("pointerup",e=>{
-  pointers.delete(e.pointerId);
+  if(e.buttons!==1)return;
+  tx=startPan.tx+(e.clientX-startPan.x);
+  ty=startPan.ty+(e.clientY-startPan.y);
+  applyTransform();
 });
 
-/* =============================
-   Ocean
-============================= */
+/* Ocean */
 const ocean=document.getElementById("ocean");
 const ctx=ocean.getContext("2d",{alpha:true});
 let t=0;
-
-function resizeOcean(){
+function resize(){
   const dpr=Math.min(2,window.devicePixelRatio||1);
   ocean.width=window.innerWidth*dpr;
   ocean.height=window.innerHeight*dpr;
-  ocean.style.width=window.innerWidth+"px";
-  ocean.style.height=window.innerHeight+"px";
   ctx.setTransform(dpr,0,0,dpr,0,0);
 }
-window.addEventListener("resize",resizeOcean);
-
-function drawOcean(){
+function draw(){
   const w=window.innerWidth,h=window.innerHeight;
   ctx.clearRect(0,0,w,h);
   for(let i=0;i<3;i++){
@@ -428,18 +397,13 @@ function drawOcean(){
     ctx.fill();
   }
   t+=.012;
-  requestAnimationFrame(drawOcean);
+  requestAnimationFrame(draw);
 }
+window.addEventListener("resize",resize);
 
-/* =============================
-   Init
-============================= */
-function init(){
-  resizeOcean();
-  requestAnimationFrame(drawOcean);
-  loadDeck(activeIndex);
-}
-init();
+resize();
+draw();
+loadDeck(activeIndex);
 
 })();
 </script>
