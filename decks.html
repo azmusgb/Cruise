@@ -1136,15 +1136,27 @@
        3) optional: elements with [data-venue], [data-venue-name], or class "venue"
      ========================================================= */
   function getEmbeddedSvgRoot() {
-    try {
-      const doc = deckObject.contentDocument;
-      if (!doc) return null;
-      return doc.querySelector('svg');
-    } catch {
+  try {
+    const doc = deckObject.contentDocument;
+
+    if (!doc) {
+      Log.warn('SVG contentDocument is null');
       return null;
     }
-  }
 
+    const svg = doc.documentElement;
+
+    if (!svg || svg.tagName.toLowerCase() !== 'svg') {
+      Log.warn('SVG root not found or invalid');
+      return null;
+    }
+
+    return svg;
+  } catch (e) {
+    Log.error('Error accessing embedded SVG', e);
+    return null;
+  }
+}
   function tryHashVenue() {
     const hash = (location.hash || '').trim();
     if (!hash || hash.length < 2) return;
@@ -1153,18 +1165,24 @@
   }
 
   function centerOnVenueById(id, { animate = true } = {}) {
-    const svg = getEmbeddedSvgRoot();
-    if (!svg) {
-      Log.warn('centerOnVenueById: SVG doc not ready', { id });
-      return false;
-    }
-    const target = svg.querySelector(`#${CSS.escape(id)}`);
-    if (!target) {
-      Log.warn('centerOnVenueById: target not found', { id });
-      return false;
-    }
-    return centerOnSvgElement(target, { animate });
+  const svg = getEmbeddedSvgRoot();
+  if (!svg) return false;
+
+  let target = null;
+  try {
+    target = svg.getElementById(id) || svg.querySelector(`#${CSS.escape(id)}`);
+  } catch (e) {
+    Log.warn('Venue query failed', { id, error: e });
+    return false;
   }
+
+  if (!target) {
+    Log.warn('Venue element not found', { id });
+    return false;
+  }
+
+  return centerOnSvgElement(target, { animate });
+}
 
   function centerOnSvgElement(el, { animate = true } = {}) {
     // Compute target center in screen pixels, then adjust translation.
