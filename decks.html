@@ -1,269 +1,2195 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Deck Navigator · DIAGNOSTIC</title>
+<html lang="en" data-theme="light" data-theme-mode="light" data-cruise-mode="before" data-cruise-day="1" data-day-part="evening" data-port-theme="none"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#cfeaff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json?v=2">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+  <title>Deck Navigator · Adventure of the Seas | Royal Caribbean</title>
+
+  <!-- Premium fonts & icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="js/shared-layout.js?v=17" defer=""></script>
+  
+  <!-- Base styles (condensed, polished) -->
   <style>
-    /* Reset & minimal layout */
+    /* ———— MODERN RESET & GLOBAL ———— */
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      background: #111;
-      color: white;
-      font-family: sans-serif;
-      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(160deg, #f4fbff 0%, #e6f5ff 52%, #def1ff 100%);
+      color: #13293d;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-    header {
-      background: #222;
-      padding: 0.5rem 1rem;
+    :root {
+      --accent: #00a4d8;
+      --accent-soft: rgba(0,164,216,0.1);
+      --accent-glow: rgba(0,164,216,0.3);
+      --deep-navy: #0a1e32;
+      --warm-gold: #ffb74d;
+      --glass-bg: rgba(255,255,255,0.68);
+      --glass-border: rgba(255,255,255,0.5);
+      --card-shadow: 0 18px 36px -12px rgba(0,40,80,0.2);
+      --transition-magic: 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+      --type-title-xl: clamp(2.45rem, 4.4vw, 3.25rem);
+      --type-title-lg: clamp(1.7rem, 3vw, 2.2rem);
+      --type-title-md: clamp(1.25rem, 2.2vw, 1.55rem);
+      --space-section: 28px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 28px; width: 100%; }
+    .decks-shell {
+      position: relative;
+      isolation: isolate;
+    }
+    .decks-shell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(0,121,212,0.05), transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(0,121,212,0.04), transparent 50%);
+    }
+    .decks-shell > * { position: relative; z-index: 1; }
+    @media (max-width: 640px) { .container { padding: 0 20px; } }
+
+    /* ———— SCULPTED HERO ———— */
+    .deck-hero {
+      background: linear-gradient(180deg, #eaf6ff 0%, #cfeaff 50%, #bde5ff 100%);
+      border-radius: 0 0 48px 48px;
+      padding: 72px 24px 56px;
+      margin-bottom: 16px;
+      color: #0a2a4a;
+      box-shadow: 0 12px 24px rgba(0,40,80,0.12);
+      position: relative;
+      isolation: isolate;
+    }
+    .deck-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M10 50 Q 30 30, 50 50 T 90 50" stroke="%23008ec4" opacity="0.12" fill="none" stroke-width="1"/><path d="M0 80 L 100 20" stroke="%23008ec4" opacity="0.08" stroke-width="0.8"/></svg>');
+      pointer-events: none;
+      border-radius: inherit;
+    }
+    .deck-hero__eyebrow {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #1f6b97;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .deck-hero__title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: var(--type-title-xl);
+      font-weight: 800;
+      line-height: 1.07;
+      color: #08395f;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+    .deck-hero__subtitle {
+      margin-top: 18px;
+      font-size: clamp(1.02rem, 1.6vw, 1.16rem);
+      color: rgba(12, 74, 110, 0.92);
+      max-width: 640px;
+      margin-bottom: 28px;
+      font-weight: 450;
+    }
+    .deck-hero__accent {
+      width: 80px;
+      height: 3px;
+      margin-top: 20px;
+      background: linear-gradient(
+        to right,
+        var(--warm-gold),
+        rgba(255,183,77,0.4)
+      );
+      border-radius: 2px;
+    }
+    .deck-hero__tag {
+      background: rgba(255,255,255,0.56);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(16, 122, 170, 0.18);
+      padding: 6px 16px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin-right: 10px;
+      color: #0a4d77;
+    }
+    .page-spine {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin: 36px 0 40px;
+    }
+    .page-spine__item { border-left: 4px solid var(--accent); padding-left: 18px; }
+    .page-spine__label { display: block; font-weight: 700; color: #0d4067; font-size: 1.1rem; }
+    .page-spine__meta { color: #2d6f97; font-size: 0.88rem; }
+
+    /* ———— GLASS NAVIGATION ———— */
+    .main-navigation {
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 120px;
+      margin: -32px auto 24px;
+      padding: 12px 18px;
+      max-width: 980px;
+      box-shadow: 0 10px 22px rgba(0, 76, 120, 0.1);
+    }
+    .main-navigation__inner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .main-navigation__search {
+      flex: 1;
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 1rem;
-      border-bottom: 1px solid #444;
+      background: white;
+      border-radius: 48px;
+      padding: 8px 20px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.02), 0 2px 8px rgba(0,164,216,0.12);
     }
-    .spacer { flex: 1; }
-    .btn, .pill {
-      background: #333;
-      border: 1px solid #555;
-      color: white;
-      padding: 0.3rem 0.8rem;
-      border-radius: 999px;
+    .main-navigation__search i { color: var(--accent); font-size: 1.1rem; margin-right: 10px; }
+    #deckSearch {
+      border: none;
+      background: transparent;
+      padding: 12px 0;
+      font-size: 1rem;
+      width: 100%;
+      outline: none;
+      font-weight: 500;
+    }
+    .main-navigation__hint { color: #6b8faa; font-size: 0.75rem; background: #eef6fd; padding: 6px 10px; border-radius: 32px; letter-spacing: 0.3px; }
+    .pill-btn {
+      background: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 48px;
+      font-weight: 600;
+      color: #1f4460;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .pill-btn.is-active { background: var(--accent); color: white; box-shadow: 0 10px 18px rgba(0,121,212,0.35); border-color: white; }
+    .main-navigation__filters { display: flex; gap: 8px; }
+
+    /* ———— QUICK RAIL (LUXE SCROLL) ———— */
+    .deck-quickrail-wrap { margin-top: 20px; }
+    .deck-directory,
+    .deck-grid {
+      margin-top: var(--space-section);
+    }
+    .deck-quickrail {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 12px 12px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) #e3ecf2;
+    }
+    .deck-quickbtn,
+    .deck-pill {
+      background: white;
+      border: 1px solid rgba(0,82,165,0.1);
+      border-radius: 28px;
+      padding: 12px 22px;
+      font-weight: 700;
+      color: #0a2a4a;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,60,120,0.06);
+      border: none;
+      background: linear-gradient(145deg, #ffffff, #f5fcff);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       cursor: pointer;
     }
-    .viewer {
-      position: fixed;
-      top: 60px; left: 0; right: 0; bottom: 0;
-      background: #1a1a1a;
+    .deck-quickbtn:hover,
+    .deck-pill:hover {
+      transform: translateY(-2px);
+      background: white;
+      box-shadow: 0 12px 20px -8px rgba(0,121,212,0.24);
     }
-    .frame {
+    .deck-quickbtn.is-active,
+    .deck-pill.is-active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 18px rgba(0,121,212,0.25);
+      border: none;
+      transform: translateY(-1px);
+    }
+    .deck-quickbtn__num { font-weight: 800; font-size: 1.2rem; letter-spacing: -0.5px; }
+    .deck-quickbtn.is-active .deck-quickbtn__num,
+    .deck-quickbtn.is-active .deck-quickbtn__sub,
+    .deck-pill.is-active .deck-pill__number,
+    .deck-pill.is-active .deck-pill__text { color: white; }
+    .deck-quickbtn__sub { font-size: 0.75rem; opacity: 0.8; font-weight: 500; }
+
+    /* ———— CATEGORY PILLS ———— */
+    .deck-directory__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .deck-directory__title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0d3f64;
+      letter-spacing: -0.01em;
+    }
+    .deck-directory__toggle {
+      border: 1px solid rgba(0,121,212,0.22);
+      background: #f5fcff;
+      color: #0b4a72;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .deck-directory__toggle[aria-expanded="true"] i {
+      transform: rotate(180deg);
+    }
+    .deck-directory__toggle i {
+      transition: transform 180ms ease;
+      margin-left: 6px;
+    }
+    .deck-directory__panels[hidden] {
+      display: none;
+    }
+    .category-card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 40px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(0,30,60,0.04);
+    }
+    .category-card__heading {
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #0f446a;
+    }
+    .category-card__heading i {
+      color: #0a7fb1;
+      font-size: 1.1rem;
+    }
+    .deck-pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .deck-pill {
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .deck-pill__number { font-size: 0.82rem; opacity: 0.85; }
+    .deck-pill__text { font-size: 0.82rem; }
+
+    /* ———— DECK CARDS ———— */
+    .deck-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 32px;
+      margin-top: 32px;
+    }
+    .deck-card {
+      background: white;
+      border-radius: 36px;
+      padding: 24px;
+      display: flex;
+      gap: 20px;
+      border: 1px solid rgba(0,80,130,0.08);
+      transition: all 0.35s cubic-bezier(0.18,0.89,0.32,1.28);
+      box-shadow: 0 8px 22px -10px rgba(0,50,90,0.14);
+      backdrop-filter: blur(4px);
+    }
+    .deck-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 20px 30px -14px rgba(0,121,212,0.28);
+    }
+    .deck-visual {
+      position: relative;
+      width: 110px;
+      flex-shrink: 0;
+    }
+    .deck-number {
       position: absolute;
-      inset: 20px;
-      background: #000;  /* solid black so green stands out */
-      border: 2px solid cyan;
-      overflow: hidden;
-    }
-    .stage {
-      width: 100%;
-      height: 100%;
+      top: -8px;
+      left: -8px;
+      background: var(--deep-navy);
+      color: white;
+      font-weight: 800;
+      width: 48px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 30px;
+      font-size: 1.55rem;
+      border: 3px solid white;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+      z-index: 2;
     }
-    .panZoom {
-      transform-origin: 0 0;
-      transition: none; /* no transitions for diagnostic */
+    .deck-visual img { width: 100%; height: 110px; object-fit: cover; border-radius: 24px; background: #cfe2f0; }
+    .deck-info { flex: 1; }
+    .deck-title {
+      font-size: 1.6rem;
+      font-weight: 800;
     }
-    #svgContainer {
-      display: block;
+    .deck-subtitle {
+      color: var(--accent);
+      font-weight: 600;
     }
-    /* FORCE ALL SVG CONTENT TO BE VISIBLE */
-    #inlineSvg * {
-      fill: lime !important;
-      stroke: black !important;
-      stroke-width: 2 !important;
-      opacity: 1 !important;
-      filter: none !important;
-    }
-    /* Controls (minimal) */
-    .controls {
-      position: absolute;
-      bottom: 20px; right: 20px;
-      display: flex;
-      gap: 10px;
-      background: rgba(0,0,0,0.5);
-      padding: 10px;
-      border-radius: 40px;
-    }
-    button {
-      width: 44px; height: 44px;
-      border-radius: 22px;
-      background: #333;
-      border: 1px solid #666;
+    .deck-highlights { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .deck-highlights span { background: #e9f3fb; padding: 5px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; color: #0c4973; }
+    .deck-card__cta {
+      margin-top: 16px;
+      background: var(--accent);
       color: white;
-      font-size: 20px;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 700;
       cursor: pointer;
+      transition: all 0.25s ease;
     }
-    .dock {
-      position: absolute;
-      bottom: 20px; left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.5);
-      padding: 5px 10px;
-      border-radius: 40px;
-      color: white;
-      font-weight: bold;
+    .deck-card__cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(0,121,212,0.35);
     }
-    .modal {
-      display: none; /* simplified */
+    .deck-card--entertainment {
+      background: linear-gradient(145deg, #ffffff, #f7fbff);
     }
-    /* Overlay minimal */
-    .overlay {
-      background: rgba(0,0,0,0.8);
-      color: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
+    .deck-card--wellness {
+      background: linear-gradient(145deg, #ffffff, #f4fbf8);
     }
-    .overlay.show { display: block; }
-  </style>
-</head>
-<body>
-  <header>
-    <span>🔍 DECK DIAGNOSTIC</span>
-    <div class="spacer"></div>
-    <span class="pill" id="deckPill">Deck 4</span>
-    <button class="btn" id="openDecksBtn">Decks</button>
-  </header>
+    .deck-card--essential {
+      background: linear-gradient(145deg, #ffffff, #f9f9fc);
+    }
 
-  <div class="viewer">
-    <div class="frame" id="frame">
-      <div class="stage" id="stage">
-        <div class="panZoom" id="panZoom">
-          <div id="svgContainer"></div>
+    .deck-grid__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .deck-grid__title {
+      font-size: var(--type-title-lg);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.012em;
+      color: #0a344f;
+    }
+
+    .deck-grid__counts {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .count-chip {
+      background: white;
+      padding: 8px 18px;
+      border-radius: 60px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .count-chip--strong {
+      font-weight: 700;
+    }
+
+    .deck-empty {
+      text-align: center;
+      padding: 56px;
+      background: white;
+      border-radius: 48px;
+      margin-top: 36px;
+    }
+
+    .deck-empty__icon {
+      font-size: 4rem;
+    }
+
+    .deck-empty__title {
+      margin-top: 8px;
+    }
+
+    /* ———— MODAL ———— */
+    .deck-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 6000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .deck-modal.is-open { display: flex; }
+    .deck-modal__backdrop {
+      position: fixed; inset: 0; background: rgba(13, 63, 97, 0.42);
+      backdrop-filter: blur(8px);
+    }
+    .deck-modal__dialog {
+      position: relative;
+      background: linear-gradient(145deg, #ffffff, #f6fdff);
+      border-radius: 48px;
+      max-width: 1200px;
+      width: min(94vw, 1200px);
+      max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 20px);
+      box-shadow: 0 28px 54px rgba(6, 58, 92, 0.22);
+      border: 1px solid rgba(255,255,255,0.72);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin: calc(env(safe-area-inset-top) + 10px) 0 calc(env(safe-area-inset-bottom) + 10px);
+    }
+    .deck-vertical-indicator {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+    .deck-vertical-indicator button {
+      background: transparent;
+      border: none;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(0,0,0,0.35);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 4px 6px;
+    }
+    .deck-vertical-indicator button.active {
+      color: var(--warm-gold);
+      transform: scale(1.15);
+    }
+    .deck-vertical-indicator button:hover {
+      color: var(--accent);
+    }
+    .deck-modal__toolbar {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(24px);
+      padding: 16px 28px;
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(0,82,165,0.1);
+    }
+    .toolbar-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .toolbar-group--primary { justify-content: flex-start; }
+    .toolbar-group--secondary { justify-content: flex-end; }
+    .btn-icon, .labeled-btn {
+      background: white; border: none; padding: 12px 16px; border-radius: 40px;
+      font-weight: 600; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      transition: 0.2s;
+    }
+    .btn-icon:hover, .labeled-btn:hover { background: var(--accent); color: white; transform: translateY(-1px); }
+    .btn-icon:active, .labeled-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .close-btn { font-size: 1.8rem; background: none; border: none; width: 48px; border-radius: 40px; }
+    .zoom-level { padding: 0 10px; font-weight: 700; }
+    .deck-modal__body { padding: 28px; overflow-y: auto; }
+    .deck-modal__title {
+      font-size: var(--type-title-md);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .deck-modal__title.is-swapping {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    .deck-modal__subtitle { color: #26648b; margin-bottom: 12px; }
+    .deck-pan-hint {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1f5b87;
+      background: #e7f5ff;
+      border: 1px solid rgba(0, 121, 212, 0.2);
+      border-radius: 999px;
+      padding: 6px 12px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .deck-pan-hint.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .deck-modal__frame { margin-top: 16px; }
+    .deck-focuschips { display: flex; gap: 10px; flex-wrap: wrap; }
+    .deck-focuschip {
+      background: #eaf3ff;
+      padding: 8px 18px;
+      border-radius: 60px;
+      border: none;
+      font-weight: 600;
+      color: #0e4d80;
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+    }
+    .deck-focuschip:hover,
+    .deck-focuschip:focus-visible {
+      background: #dff0ff;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0, 121, 212, 0.18);
+      outline: none;
+    }
+    .deck-focuschip.is-active {
+      background: #cfe9ff;
+      color: #083d67;
+      box-shadow: 0 8px 18px rgba(0, 121, 212, 0.22);
+    }
+    .deck-plan-stage {
+      background: linear-gradient(165deg, #2f85b3 0%, #47a7cf 40%, #2f95bf 100%);
+      border-radius: 32px;
+      margin-top: 18px;
+      border: 1px solid rgba(234, 250, 255, 0.65);
+      box-shadow: inset 0 0 0 1px rgba(225, 246, 255, 0.38), 0 14px 26px -12px rgba(8, 62, 96, 0.38);
+      position: relative;
+      overflow: auto;
+      padding: 20px;
+    }
+    .deck-plan-media { border-radius: 24px; width: 100%; display: block; }
+    .deck-plan-hotspots { position: absolute; inset: 20px; }
+    .deck-hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 44px;
+      background: linear-gradient(145deg, #0ca8ff, #0069d0);
+      border: 3px solid white;
+      color: white;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(0,121,212,0.6);
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    .deck-hotspot:hover,
+    .deck-hotspot:focus-visible {
+      transform: translate(-50%, -50%) scale(1.08);
+      box-shadow: 0 12px 28px rgba(0,121,212,0.68);
+      outline: none;
+    }
+    .deck-hotspot[data-selected="true"] {
+      box-shadow: 0 0 0 6px rgba(138, 219, 255, 0.35), 0 14px 30px rgba(0,121,212,0.72);
+    }
+    .deck-plan-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .deck-plan-legend-item {
+      background: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 40px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+      text-align: left;
+      cursor: pointer;
+      transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+    }
+    .deck-plan-legend-item:hover,
+    .deck-plan-legend-item:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+      outline: none;
+    }
+    .deck-plan-legend-item.is-active {
+      background: #dff0ff;
+      box-shadow: 0 10px 20px rgba(0, 121, 212, 0.2);
+    }
+    .deck-plan-legend-item span {
+      display: block;
+      font-size: 0.8rem;
+    }
+    .deck-plan-skeleton {
+      min-height: 380px;
+      border-radius: 28px;
+      background:
+        linear-gradient(110deg, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.38) 32%, rgba(255,255,255,0.15) 44%) 0 0 / 220% 100%,
+        linear-gradient(160deg, #0f5379, #1273a1);
+      animation: deckLoadingSweep 900ms linear infinite;
+    }
+    @keyframes deckLoadingSweep {
+      to {
+        background-position: 220% 0, 0 0;
+      }
+    }
+    .deck-plan-canvas {
+      transition: opacity 220ms ease, transform 220ms ease;
+      transform-origin: center top;
+    }
+    .deck-plan-canvas.is-transitioning {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+
+    /* ———— BOTTOM NAV ———— */
+    .bottom-nav {
+      background: rgba(241, 250, 255, 0.92);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(8, 89, 136, 0.18);
+    }
+    .bottom-nav__item.active {
+      background: rgba(255, 190, 92, 0.22);
+      color: #0f4f76;
+      box-shadow: 0 8px 14px rgba(0, 121, 180, 0.12);
+    }
+
+    /* ———— RESPONSIVE ———— */
+    @media (max-width: 700px) {
+      .deck-cards { grid-template-columns: 1fr; }
+      .main-navigation { border-radius: 28px; }
+      .main-navigation__hint { display: none; }
+      .deck-directory { margin-top: 16px; }
+      .deck-modal__dialog {
+        width: calc(100vw - 20px);
+        border-radius: 26px;
+        max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px);
+      }
+      .deck-modal__toolbar {
+        padding: 12px 14px;
+        gap: 8px;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          "controls close"
+          "utility utility";
+      }
+      .toolbar-group {
+        gap: 6px;
+      }
+      .toolbar-group--primary {
+        grid-area: controls;
+      }
+      .toolbar-group--secondary {
+        grid-area: utility;
+        justify-content: flex-start;
+      }
+      .close-btn {
+        grid-area: close;
+        justify-self: end;
+      }
+      .btn-icon,
+      .labeled-btn {
+        padding: 10px 12px;
+        border-radius: 28px;
+      }
+      .labeled-btn .btn-label {
+        font-size: 0.78rem;
+      }
+      .deck-modal__body {
+        padding: 16px;
+      }
+      .deck-plan-stage {
+        border-radius: 20px;
+        padding: 12px;
+      }
+      .deck-plan-media {
+        border-radius: 16px;
+      }
+    }
+    .deck-hero__actions { margin-top: 16px; }
+    .deck-hero__actions .btn { background: white; color: #0c4d75; border-radius: 48px; padding: 14px 32px; font-weight: 700; margin-right: 12px; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 6px 14px rgba(0, 83, 126, 0.1); }
+    .btn--primary { background: var(--warm-gold) !important; color: #0a375a !important; box-shadow: 0 8px 20px rgba(255,180,70,0.28); }
+    .deck-hero__btn-secondary { background: rgba(255,255,255,0.72) !important; color: #0b547d !important; }
+    .bottom-nav__item {
+      color: #1f567c;
+      text-decoration: none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:4px;
+      padding:8px 4px;
+      border-radius:12px;
+      background:transparent;
+      border:none;
+    }
+  </style>
+<link id="rccl-minimal-stylesheet" rel="stylesheet" href="css/shared-layout.css?v=9"><style id="rccl-nav-v2-overrides">
+      .app-header--rccl-site .header-utility__promo {
+        font-weight: 700;
+        color: #1f5e87;
+        font-size: 0.78rem;
+      }
+
+      .app-header--rccl-site .header-utility {
+        background: linear-gradient(180deg, #ecf8ff 0%, #dff1ff 100%);
+        border-bottom: 1px solid rgba(8, 89, 136, 0.14);
+      }
+
+      .app-header--rccl-site .header-utility__crumb {
+        color: #124d75;
+      }
+
+      .app-header--rccl-site .header-utility__mode {
+        color: #0f4e76;
+        background: rgba(255, 255, 255, 0.76);
+        border-color: rgba(8, 89, 136, 0.22);
+      }
+
+      .app-header--rccl-site .header-nav {
+        gap: 2px;
+      }
+
+      .app-header--rccl-site .header-nav__link {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        min-width: 96px;
+        padding: 9px 12px 10px;
+      }
+
+      .app-header--rccl-site .header-nav__link i {
+        font-size: 0.86rem;
+      }
+
+      .app-header--rccl-site .header-nav__label {
+        font-size: 0.88rem;
+        line-height: 1.2;
+        font-weight: 700;
+      }
+
+      .app-header--rccl-site .header-nav__hint {
+        font-size: 0.68rem;
+        line-height: 1.2;
+        color: rgba(208, 229, 249, 0.82);
+      }
+
+      .app-header--rccl-site .header-nav__link.active .header-nav__hint {
+        color: #7b5c2b;
+      }
+
+      .app-header--rccl-site .header-nav__link.active {
+        color: #0f4f76;
+        background: linear-gradient(180deg, rgba(255, 213, 125, 0.3) 0%, rgba(255, 213, 125, 0.16) 100%);
+        border-color: rgba(255, 190, 92, 0.42);
+        box-shadow: 0 8px 16px rgba(0, 121, 180, 0.12);
+      }
+
+      .app-header--rccl-site .header-nav__link.active i {
+        color: #0f4f76;
+      }
+
+      .app-header--rccl-site .header-cta--help {
+        min-height: 36px;
+      }
+
+      .more-drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 12, 26, 0.56);
+        z-index: 1050;
+        opacity: 0;
+        transition: opacity 220ms ease;
+      }
+
+      .more-drawer-backdrop.is-open {
+        opacity: 1;
+      }
+
+      .more-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(360px, 92vw);
+        height: 100dvh;
+        background: linear-gradient(180deg, rgba(7, 33, 68, 0.98) 0%, rgba(6, 24, 49, 0.98) 100%);
+        color: #f4f8ff;
+        border-left: 1px solid rgba(255, 255, 255, 0.16);
+        box-shadow: -16px 0 44px rgba(2, 12, 26, 0.44);
+        z-index: 1051;
+        padding: 14px 14px 18px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        opacity: 0;
+        transform: translateX(14px);
+        transition: transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 180ms ease;
+        pointer-events: none;
+      }
+
+      .more-drawer.is-open {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .more-drawer__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .more-drawer__header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #fff;
+      }
+
+      .more-drawer__close {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+
+      .more-drawer__group {
+        margin-top: 16px;
+      }
+
+      .more-drawer__group-title {
+        margin: 0 0 8px;
+        padding: 0 4px;
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #ffe7a6;
+      }
+
+      .more-drawer__group-links {
+        display: grid;
+        gap: 6px;
+      }
+
+      .more-drawer__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 42px;
+        padding: 9px 12px;
+        border-radius: 11px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #f4f8ff;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .more-drawer__link:hover,
+      .more-drawer__link.active {
+        border-color: rgba(255, 223, 137, 0.44);
+        background: rgba(255, 223, 137, 0.14);
+      }
+
+      .bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 990;
+        display: none;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        padding: 9px 12px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(241, 250, 255, 0.92);
+        border-top: 1px solid rgba(8, 89, 136, 0.18);
+        backdrop-filter: blur(10px);
+      }
+
+      .bottom-nav__item {
+        min-height: 48px;
+        border-radius: 12px;
+        border: 1px solid rgba(8, 89, 136, 0.14);
+        background: rgba(255, 255, 255, 0.64);
+        color: #1f567c;
+        text-decoration: none;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        font-size: 0.67rem;
+        font-weight: 700;
+        transition: transform 170ms ease, background-color 170ms ease, border-color 170ms ease;
+      }
+
+      .bottom-nav__item:active {
+        transform: scale(0.97);
+      }
+
+      .bottom-nav__item i {
+        font-size: 0.8rem;
+      }
+
+      .bottom-nav__item.active {
+        border-color: rgba(255, 190, 92, 0.56);
+        color: #0f4f76;
+        background: rgba(255, 190, 92, 0.22);
+        box-shadow: 0 8px 14px rgba(0, 121, 180, 0.12);
+      }
+
+      @media (max-width: 767px) {
+        body.app-theme-rcc {
+          padding-bottom: calc(92px + env(safe-area-inset-bottom));
+        }
+
+        .bottom-nav {
+          display: grid;
+        }
+
+        .app-header--rccl-site .header-nav__hint {
+          display: none;
+        }
+
+        .app-header--rccl-site .header-actions .header-cta--help {
+          display: none;
+        }
+      }
+
+      html.more-drawer-open,
+      body.more-drawer-open {
+        overflow: hidden !important;
+        overscroll-behavior: none !important;
+      }
+
+      @media print {
+        .skip-link,
+        .app-header--rccl-site .header-utility,
+        .app-header--rccl-site .header-nav,
+        .app-header--rccl-site .header-actions,
+        .app-header--rccl-site .mobile-nav-toggle,
+        .more-drawer,
+        .more-drawer-backdrop,
+        .bottom-nav {
+          display: none !important;
+        }
+
+        .app-header--rccl-site {
+          position: static !important;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          margin: 0 0 0.25in !important;
+          padding: 0 !important;
+        }
+
+        .app-header--rccl-site .header-container {
+          display: block !important;
+          padding: 0 !important;
+          border: none !important;
+          background: transparent !important;
+          box-shadow: none !important;
+        }
+
+        .app-header--rccl-site .header-brand {
+          margin: 0 !important;
+        }
+
+        .app-header--rccl-site .header-logo {
+          color: #0b2b47 !important;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+      }
+    </style></head>
+<body class="app-theme-rcc decks-page">
+  <a href="#main" class="skip-link">Skip to main content</a>
+  
+  <div id="sharedHeader" data-page="decks">
+        <header class="app-header--minimal app-header--rccl-site" role="banner">
+          <div class="header-utility">
+            <div class="header-utility__inner">
+              <div class="header-utility__left">
+                <span class="header-utility__crumb">Adventure of the Seas</span>
+                <span class="header-utility__mode mode-before" id="navModeBadge">Before Sail</span>
+              </div>
+              <span class="header-utility__promo" id="navContextLine">Boarding soon · lock final details</span>
+            </div>
+          </div>
+
+          <div class="header-container">
+            <div class="header-brand">
+              <a href="index.html" class="header-logo">
+                <i class="fas fa-crown" aria-hidden="true"></i>
+                <div class="header-logo-text">
+                  <span class="header-logo-title">Royal Caribbean</span>
+                  <span class="header-logo-subtitle">Adventure of the Seas · Cruise Companion</span>
+                </div>
+              </a>
+            </div>
+
+            <nav class="header-nav" id="headerPrimaryNav" aria-label="Primary navigation" aria-hidden="true" style="display: none;">
+              
+        <a href="index.html" class="header-nav__link " data-nav="home">
+          <i class="fas fa-home" aria-hidden="true"></i>
+          <span class="header-nav__label">Home</span>
+          <span class="header-nav__hint">The Countdown</span>
+        </a>
+      
+        <a href="plan.html" class="header-nav__link " data-nav="plan">
+          <i class="fas fa-compass" aria-hidden="true"></i>
+          <span class="header-nav__label">Game Plan</span>
+          <span class="header-nav__hint">What To Do Next</span>
+        </a>
+      
+        <a href="itinerary.html#today" class="header-nav__link " data-nav="today">
+          <i class="fas fa-calendar-day" aria-hidden="true"></i>
+          <span class="header-nav__label">Today</span>
+          <span class="header-nav__hint">Right Now</span>
+        </a>
+      
+        <a href="decks.html" class="header-nav__link active" data-nav="map" aria-current="page">
+          <i class="fas fa-map" aria-hidden="true"></i>
+          <span class="header-nav__label">Ship Map</span>
+          <span class="header-nav__hint">Find Anything</span>
+        </a>
+      
+        <a href="dining.html" class="header-nav__link " data-nav="food">
+          <i class="fas fa-utensils" aria-hidden="true"></i>
+          <span class="header-nav__label">Food</span>
+          <span class="header-nav__hint">Tonight's Pick</span>
+        </a>
+      
+        <a href="rooms.html" class="header-nav__link " data-nav="family">
+          <i class="fas fa-users" aria-hidden="true"></i>
+          <span class="header-nav__label">Family</span>
+          <span class="header-nav__hint">Who's Where</span>
+        </a>
+      
+            </nav>
+
+            <div class="header-actions" id="headerHeaderActions" aria-hidden="true" style="display: none;">
+              <button type="button" class="header-cta header-cta--help" id="headerMoreButton" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
+                <span>More</span>
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="header-cta header-cta--install" id="pwaInstallButton" hidden="" aria-hidden="true">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                <span>Install App</span>
+              </button>
+            </div>
+
+            <button class="mobile-nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="headerPrimaryNav">
+              <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          
+          
+        </header>
+      </div>
+
+  <main id="main" class="decks-shell">
+    <!-- HERO – dramatically refined -->
+    <section class="deck-hero">
+      <div class="container">
+        <div class="deck-hero__eyebrow">Adventure of the Seas · Feb 14–20, 2026</div>
+        <h1 class="deck-hero__title">Deck Navigator</h1>
+        <p class="deck-hero__subtitle">Pools. Shows. Food. Cabins. Find anything on the ship in seconds.</p>
+        <div class="deck-hero__highlights">
+          <span class="deck-hero__tag"><i class="fas fa-route"></i> Intent-first routing</span>
+          <span class="deck-hero__tag"><i class="fas fa-layers"></i> Venue clusters</span>
+          <span class="deck-hero__tag"><i class="fas fa-bolt"></i> Instant deck switching</span>
+        </div>
+        <div class="page-spine">
+          <div class="page-spine__item"><span class="page-spine__label">Entertainment</span><span class="page-spine__meta">Shows, lounges, nightlife</span></div>
+          <div class="page-spine__item"><span class="page-spine__label">Wellness</span><span class="page-spine__meta">Pools, spa, active</span></div>
+          <div class="page-spine__item"><span class="page-spine__label">Essentials</span><span class="page-spine__meta">Service, transit, medical</span></div>
+        </div>
+        <div class="deck-hero__actions">
+          <a class="btn btn--primary" href="#deck-directory"><i class="fas fa-compass"></i> Open deck directory</a>
+          <a class="btn btn--secondary deck-hero__btn-secondary" href="rooms.html"><i class="fas fa-door-open"></i> Find my stateroom</a>
         </div>
       </div>
+    </section>
 
-      <!-- Minimal overlays -->
-      <div class="overlay" id="loadingOverlay">Loading...</div>
-      <div class="overlay" id="errorOverlay" style="background: darkred;">Error</div>
-
-      <div class="controls">
-        <button id="zoomInBtn">+</button>
-        <button id="zoomOutBtn">−</button>
-        <button id="resetBtn">⟲</button>
+    <!-- GLASS SEARCH & FILTERS -->
+    <section class="main-navigation container" aria-label="Deck navigation">
+      <div class="main-navigation__inner">
+        <div class="main-navigation__search">
+          <i class="fas fa-search"></i>
+          <input id="deckSearch" type="search" placeholder="Search decks, venues, or amenities" aria-label="Search decks" autocomplete="off">
+          <span class="main-navigation__hint">Press /</span>
+        </div>
+        <div class="main-navigation__filters">
+          <button class="pill-btn is-active" data-filter="all">All</button>
+          <button class="pill-btn" data-filter="entertainment">Entertainment</button>
+          <button class="pill-btn" data-filter="wellness">Wellness</button>
+          <button class="pill-btn" data-filter="essential">Essential</button>
+        </div>
       </div>
-      <div class="dock" id="zoomReadout">100%</div>
+    </section>
+
+    <!-- DECK QUICK RAIL (SCULPTED) -->
+    <section class="deck-quickrail-wrap container">
+      <div class="deck-quickrail" id="deckQuickRail">
+          <button class="deck-quickbtn" data-deck="15" aria-label="Open Deck 15">
+            <span class="deck-quickbtn__num">D15</span>
+            <span class="deck-quickbtn__sub">Sports &amp; Observation</span>
+          </button>
+        
+          <button class="deck-quickbtn is-active" data-deck="14" aria-label="Open Deck 14">
+            <span class="deck-quickbtn__num">D14</span>
+            <span class="deck-quickbtn__sub">Sky Deck</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="13" aria-label="Open Deck 13">
+            <span class="deck-quickbtn__num">D13</span>
+            <span class="deck-quickbtn__sub">Adventure Zone</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="12" aria-label="Open Deck 12">
+            <span class="deck-quickbtn__num">D12</span>
+            <span class="deck-quickbtn__sub">Pool Deck</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="11" aria-label="Open Deck 11">
+            <span class="deck-quickbtn__num">D11</span>
+            <span class="deck-quickbtn__sub">Fitness &amp; Spa</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="10" aria-label="Open Deck 10">
+            <span class="deck-quickbtn__num">D10</span>
+            <span class="deck-quickbtn__sub">Stateroom Corridor</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="9" aria-label="Open Deck 9">
+            <span class="deck-quickbtn__num">D9</span>
+            <span class="deck-quickbtn__sub">Midship Cabins</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="8" aria-label="Open Deck 8">
+            <span class="deck-quickbtn__num">D8</span>
+            <span class="deck-quickbtn__sub">Stateroom Access</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="7" aria-label="Open Deck 7">
+            <span class="deck-quickbtn__num">D7</span>
+            <span class="deck-quickbtn__sub">Cabin Transit</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="6" aria-label="Open Deck 6">
+            <span class="deck-quickbtn__num">D6</span>
+            <span class="deck-quickbtn__sub">Stateroom Ring</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="5" aria-label="Open Deck 5">
+            <span class="deck-quickbtn__num">D5</span>
+            <span class="deck-quickbtn__sub">Promenade Level</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="4" aria-label="Open Deck 4">
+            <span class="deck-quickbtn__num">D4</span>
+            <span class="deck-quickbtn__sub">Dining &amp; Entertainment</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="3" aria-label="Open Deck 3">
+            <span class="deck-quickbtn__num">D3</span>
+            <span class="deck-quickbtn__sub">Lobby &amp; Guest Services</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="2" aria-label="Open Deck 2">
+            <span class="deck-quickbtn__num">D2</span>
+            <span class="deck-quickbtn__sub">Medical &amp; Crew Support</span>
+          </button>
+        
+          <button class="deck-quickbtn" data-deck="0" aria-label="Open All Decks">
+            <span class="deck-quickbtn__num">ALL</span>
+            <span class="deck-quickbtn__sub">Ship Overview Blueprint</span>
+          </button>
+        </div>
+    </section>
+
+    <!-- CATEGORY PILLS (DYNAMIC) -->
+    <section id="deck-directory" class="deck-directory container">
+      <div class="deck-directory__header">
+        <h2 class="deck-directory__title">Browse by category</h2>
+        <button id="toggleCategoryBrowse" class="deck-directory__toggle" type="button" aria-expanded="false" aria-controls="deckCategoryPanels">
+          Show categories <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="deckCategoryPanels" class="deck-directory__panels" hidden="">
+        <article class="category-card" data-category="entertainment">
+          <div class="category-card__heading"><i class="fas fa-masks-theater" aria-hidden="true"></i> Entertainment Decks</div>
+          <div class="deck-pills" id="pill-entertainment">
+            <button class="deck-pill" data-deck="5">
+              <span class="deck-pill__number">5</span>
+              <span class="deck-pill__text">Promenade Level</span>
+            </button>
+          
+            <button class="deck-pill is-active" data-deck="14">
+              <span class="deck-pill__number">14</span>
+              <span class="deck-pill__text">Sky Deck</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="13">
+              <span class="deck-pill__number">13</span>
+              <span class="deck-pill__text">Adventure Zone</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="4">
+              <span class="deck-pill__number">4</span>
+              <span class="deck-pill__text">Dining &amp; Entertainment</span>
+            </button>
+          </div>
+        </article>
+        <article class="category-card" data-category="wellness">
+          <div class="category-card__heading"><i class="fas fa-spa" aria-hidden="true"></i> Wellness Decks</div>
+          <div class="deck-pills" id="pill-wellness">
+            <button class="deck-pill" data-deck="11">
+              <span class="deck-pill__number">11</span>
+              <span class="deck-pill__text">Fitness &amp; Spa</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="12">
+              <span class="deck-pill__number">12</span>
+              <span class="deck-pill__text">Pool Deck</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="15">
+              <span class="deck-pill__number">15</span>
+              <span class="deck-pill__text">Sports &amp; Observation</span>
+            </button>
+          </div>
+        </article>
+        <article class="category-card" data-category="essential">
+          <div class="category-card__heading"><i class="fas fa-compass" aria-hidden="true"></i> Essential Decks</div>
+          <div class="deck-pills" id="pill-essential">
+            <button class="deck-pill" data-deck="0">
+              <span class="deck-pill__number">ALL</span>
+              <span class="deck-pill__text">Ship Overview Blueprint</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="10">
+              <span class="deck-pill__number">10</span>
+              <span class="deck-pill__text">Stateroom Corridor</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="9">
+              <span class="deck-pill__number">9</span>
+              <span class="deck-pill__text">Midship Cabins</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="8">
+              <span class="deck-pill__number">8</span>
+              <span class="deck-pill__text">Stateroom Access</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="7">
+              <span class="deck-pill__number">7</span>
+              <span class="deck-pill__text">Cabin Transit</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="6">
+              <span class="deck-pill__number">6</span>
+              <span class="deck-pill__text">Stateroom Ring</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="3">
+              <span class="deck-pill__number">3</span>
+              <span class="deck-pill__text">Lobby &amp; Guest Services</span>
+            </button>
+          
+            <button class="deck-pill" data-deck="2">
+              <span class="deck-pill__number">2</span>
+              <span class="deck-pill__text">Medical &amp; Crew Support</span>
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- DECK GRID (ENHANCED) -->
+    <section class="deck-grid container">
+      <div class="deck-grid__header">
+        <h2 class="deck-grid__title">Deck overview</h2>
+        <div class="deck-grid__counts">
+          <span class="count-chip count-chip--strong"><span id="countVisible">15</span> showing</span>
+          <span class="count-chip"><span id="countTotal">15</span> total</span>
+        </div>
+      </div>
+      <div id="deckCards" class="deck-cards" role="list"><article class="deck-card deck-card--essential" role="listitem" data-deck="0">
+            <div class="deck-visual">
+              <span class="deck-number">ALL</span>
+              <img src="decks/deck-all.svg" alt="All Decks" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">All Decks</h3>
+              <p class="deck-subtitle">Ship Overview Blueprint</p>
+              <div class="deck-highlights">
+                <span>Full ship layout</span><span>Cross-deck context</span><span>Fast orientation</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="0">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--entertainment" role="listitem" data-deck="5">
+            <div class="deck-visual">
+              <span class="deck-number">5</span>
+              <img src="decks/deck-05.png" alt="Deck 5" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 5</h3>
+              <p class="deck-subtitle">Promenade Level</p>
+              <div class="deck-highlights">
+                <span>Entertainment</span><span>Dining</span><span>Retail</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="5">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--entertainment" role="listitem" data-deck="14">
+            <div class="deck-visual">
+              <span class="deck-number">14</span>
+              <img src="decks/deck-14.png" alt="Deck 14" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 14</h3>
+              <p class="deck-subtitle">Sky Deck</p>
+              <div class="deck-highlights">
+                <span>Panoramic views</span><span>Lounges</span><span>Sun decks</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="14">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--wellness" role="listitem" data-deck="11">
+            <div class="deck-visual">
+              <span class="deck-number">11</span>
+              <img src="decks/deck-11.png" alt="Deck 11" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 11</h3>
+              <p class="deck-subtitle">Fitness &amp; Spa</p>
+              <div class="deck-highlights">
+                <span>Spa</span><span>Fitness</span><span>Wellness</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="11">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--wellness" role="listitem" data-deck="12">
+            <div class="deck-visual">
+              <span class="deck-number">12</span>
+              <img src="decks/deck-12.png" alt="Deck 12" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 12</h3>
+              <p class="deck-subtitle">Pool Deck</p>
+              <div class="deck-highlights">
+                <span>Main pool</span><span>Solarium</span><span>Grill</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="12">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--wellness" role="listitem" data-deck="15">
+            <div class="deck-visual">
+              <span class="deck-number">15</span>
+              <img src="decks/deck-15.png" alt="Deck 15" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 15</h3>
+              <p class="deck-subtitle">Sports &amp; Observation</p>
+              <div class="deck-highlights">
+                <span>Sports court</span><span>Jog track</span><span>Views</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="15">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--entertainment" role="listitem" data-deck="13">
+            <div class="deck-visual">
+              <span class="deck-number">13</span>
+              <img src="decks/deck-13.png" alt="Deck 13" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 13</h3>
+              <p class="deck-subtitle">Adventure Zone</p>
+              <div class="deck-highlights">
+                <span>FlowRider</span><span>Sky deck access</span><span>Activities</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="13">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--essential" role="listitem" data-deck="10">
+            <div class="deck-visual">
+              <span class="deck-number">10</span>
+              <img src="decks/deck-10.png" alt="Deck 10" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 10</h3>
+              <p class="deck-subtitle">Stateroom Corridor</p>
+              <div class="deck-highlights">
+                <span>Cabins</span><span>Elevators</span><span>Quiet routes</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="10">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--essential" role="listitem" data-deck="9">
+            <div class="deck-visual">
+              <span class="deck-number">9</span>
+              <img src="decks/deck-09.png" alt="Deck 9" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 9</h3>
+              <p class="deck-subtitle">Midship Cabins</p>
+              <div class="deck-highlights">
+                <span>Cabins</span><span>Family zones</span><span>Wayfinding</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="9">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--essential" role="listitem" data-deck="8">
+            <div class="deck-visual">
+              <span class="deck-number">8</span>
+              <img src="decks/deck-08.png" alt="Deck 8" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 8</h3>
+              <p class="deck-subtitle">Stateroom Access</p>
+              <div class="deck-highlights">
+                <span>Cabins</span><span>Aft access</span><span>Guest routes</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="8">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--essential" role="listitem" data-deck="7">
+            <div class="deck-visual">
+              <span class="deck-number">7</span>
+              <img src="decks/deck-07.png" alt="Deck 7" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 7</h3>
+              <p class="deck-subtitle">Cabin Transit</p>
+              <div class="deck-highlights">
+                <span>Cabins</span><span>Quiet zones</span><span>Midship transit</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="7">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--essential" role="listitem" data-deck="6">
+            <div class="deck-visual">
+              <span class="deck-number">6</span>
+              <img src="decks/deck-06.png" alt="Deck 6" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 6</h3>
+              <p class="deck-subtitle">Stateroom Ring</p>
+              <div class="deck-highlights">
+                <span>Cabins</span><span>Family adjacency</span><span>Deck transitions</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="6">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--entertainment" role="listitem" data-deck="4">
+            <div class="deck-visual">
+              <span class="deck-number">4</span>
+              <img src="decks/deck-04.png" alt="Deck 4" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 4</h3>
+              <p class="deck-subtitle">Dining &amp; Entertainment</p>
+              <div class="deck-highlights">
+                <span>Main dining</span><span>Show venue</span><span>Casino</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="4">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--essential" role="listitem" data-deck="3">
+            <div class="deck-visual">
+              <span class="deck-number">3</span>
+              <img src="decks/deck-03.png" alt="Deck 3" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 3</h3>
+              <p class="deck-subtitle">Lobby &amp; Guest Services</p>
+              <div class="deck-highlights">
+                <span>Guest services</span><span>Dining</span><span>Retail</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="3">
+                Explore deck →
+              </button>
+            </div>
+          </article><article class="deck-card deck-card--essential" role="listitem" data-deck="2">
+            <div class="deck-visual">
+              <span class="deck-number">2</span>
+              <img src="decks/deck-02.png" alt="Deck 2" loading="lazy" decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">Deck 2</h3>
+              <p class="deck-subtitle">Medical &amp; Crew Support</p>
+              <div class="deck-highlights">
+                <span>Medical</span><span>Crew services</span><span>Logistics</span>
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="2">
+                Explore deck →
+              </button>
+            </div>
+          </article></div>
+      <div id="emptyState" class="deck-empty" hidden="">
+        <div class="deck-empty__icon">🚢</div>
+        <h3 class="deck-empty__title">No matching decks</h3>
+        <button class="btn btn--primary" id="clearFilters">Browse all decks</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL – cinematic -->
+  <div class="deck-modal is-open" id="deckModal" aria-hidden="false">
+    <div class="deck-modal__backdrop" data-action="close-modal"></div>
+    <div class="deck-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="deck-vertical-indicator" id="deckVerticalIndicator"></div>
+      <div class="deck-modal__toolbar">
+        <div class="toolbar-group toolbar-group--primary">
+          <button class="btn-icon" data-action="prev-deck" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
+          <button class="btn-icon" data-action="next-deck" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
+          <button class="btn-icon" data-action="zoom-in" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
+          <button class="btn-icon" data-action="zoom-out" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
+          <button class="btn-icon" data-action="zoom-reset" aria-label="Reset view"><i class="fas fa-rotate-left"></i></button>
+          <span class="zoom-level" id="zoomLevel">100%</span>
+        </div>
+        <div class="toolbar-group toolbar-group--secondary">
+          <button class="labeled-btn" data-action="center-me"><i class="fas fa-location-dot"></i> <span class="btn-label">My Location</span></button>
+          <a class="labeled-btn" id="downloadPlan" href="#" target="_blank" rel="noopener" aria-disabled="true"><i class="fas fa-file-pdf"></i> <span class="btn-label">PDF</span></a>
+        </div>
+        <button class="close-btn" data-action="close-modal" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="deck-modal__body">
+        <h3 id="modalTitle" class="deck-modal__title">Deck 14</h3>
+        <p id="modalDesc" class="deck-modal__subtitle"></p>
+        <p id="deckPanHint" class="deck-pan-hint" hidden=""><i class="fas fa-hand-paper"></i> Drag to pan while zoomed in</p>
+        <div id="deckFocusChips" class="deck-focuschips"></div>
+        <div id="modalFrame" class="deck-modal__frame">
+            <div class="deck-plan-stage" id="deckPlanStage">
+              <div class="deck-plan-canvas" id="deckPlanCanvas" style="transform:scale(1);">
+                <img class="deck-plan-media" src="decks/deck-14-final.min.svg" alt="Deck 14">
+                
+              </div>
+            </div>
+            
+          </div>
+      </div>
     </div>
   </div>
 
+  <!-- BOTTOM NAV (gloss) -->
+  <div id="sharedFooter" data-page="decks">
+        <footer class="app-footer--minimal app-footer--rccl-site" role="contentinfo">
+          <div class="footer-container">
+            <div class="footer-social-row" aria-label="Social links">
+              <a href="https://facebook.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+              <a href="https://instagram.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+              <a href="https://tiktok.com/@royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok" aria-hidden="true"></i></a>
+              <a href="https://youtube.com/@RoyalCaribbeanInternational" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+              <a href="https://x.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
+              <a href="https://pinterest.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><i class="fab fa-pinterest-p" aria-hidden="true"></i></a>
+            </div>
+
+            <div class="footer-country">
+              <button type="button" class="footer-country__btn" aria-label="Country: United States">
+                <span>🇺🇸</span>
+                <span>United States</span>
+              </button>
+            </div>
+
+            <p class="footer-copyright">© 2026 Royal Caribbean Cruises</p>
+
+            <nav class="footer-legal-links" aria-label="Legal links">
+              <a href="https://www.royalcaribbean.com/resources/guest-terms" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Cruise contract</a>
+              <a href="https://www.royalcaribbean.com/company/about-us" class="footer-legal__link" target="_blank" rel="noopener noreferrer">About us</a>
+              <a href="https://www.royalcaribbean.com/resources/privacy-policy" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Privacy policy</a>
+              <a href="https://www.royalcaribbean.com/resources/terms-and-conditions" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Terms of use</a>
+              <a href="https://www.royalcaribbeangroup.com/careers/" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Careers</a>
+              <a href="https://www.royalcaribbean.com/resources/travel-updates" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Travel updates</a>
+            </nav>
+
+            <div class="footer-brands" aria-label="Royal Caribbean brands">
+              <span class="footer-brand-mark">Royal Caribbean Group</span>
+              <span class="footer-brand-mark">Royal Caribbean</span>
+              <span class="footer-brand-mark">Celebrity Cruises</span>
+              <span class="footer-brand-mark">Silversea</span>
+            </div>
+          </div>
+        </footer>
+      </div>
+  <div id="sharedBottomNav" data-page="decks">
+        <nav class="bottom-nav" aria-label="Bottom navigation">
+          
+          <a href="index.html" class="bottom-nav__item " data-nav="home">
+            <i class="fas fa-home" aria-hidden="true"></i>
+            <span>Home</span>
+          </a>
+        
+          <a href="plan.html" class="bottom-nav__item " data-nav="plan">
+            <i class="fas fa-compass" aria-hidden="true"></i>
+            <span>Plan</span>
+          </a>
+        
+          <a href="itinerary.html#today" class="bottom-nav__item " data-nav="today">
+            <i class="fas fa-calendar-day" aria-hidden="true"></i>
+            <span>Today</span>
+          </a>
+        
+          <a href="decks.html" class="bottom-nav__item active" data-nav="map" aria-current="page">
+            <i class="fas fa-ship" aria-hidden="true"></i>
+            <span>Map</span>
+          </a>
+        
+            <button type="button" id="moreBtnMobile" class="bottom-nav__item bottom-nav__item--more" data-nav="more" data-bottom-action="open-more-drawer" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
+              <i class="fas fa-ellipsis" aria-hidden="true"></i>
+              <span>More</span>
+            </button>
+          
+        </nav>
+      </div>
+
+  <!-- ========== ENHANCED JAVASCRIPT – SMOOTH, PREMIUM ========== -->
   <script>
-    (() => {
-      'use strict';
-      console.clear();
+    (function() {
+      // ---- DECK DATA (same as original, enriched with more hotspots) ----
+      const deckData = [
+        { number: 0, name: 'All Decks', subtitle: 'Ship Overview Blueprint', highlights: ['Full ship layout', 'Cross-deck context', 'Fast orientation'], description: 'Complete multi-deck blueprint – ultimate orientation.', category: 'essential', image: 'decks/deck-all.min.svg', svg: 'decks/deck-all.min.svg', pdf: '' },
+        { number: 5, name: 'Deck 5', subtitle: 'Promenade Level', highlights: ['Entertainment', 'Dining', 'Retail'], description: 'Royal Promenade – cafes, shops, parades.', category: 'entertainment', image: 'decks/deck-05.png', svg: 'decks/deck-05-final.min.svg', pdf: 'decks/deck-05.pdf' },
+        { number: 14, name: 'Deck 14', subtitle: 'Sky Deck', highlights: ['Panoramic views', 'Lounges', 'Sun decks'], description: 'Viking Crown Lounge & sky bar.', category: 'entertainment', image: 'decks/deck-14.png', svg: 'decks/deck-14-final.min.svg', pdf: '' },
+        { number: 11, name: 'Deck 11', subtitle: 'Fitness & Spa', highlights: ['Spa', 'Fitness', 'Wellness'], description: 'Vitality Spa & fully equipped fitness.', category: 'wellness', image: 'decks/deck-11.png', svg: 'decks/deck-11-final.min.svg', pdf: '' },
+        { number: 12, name: 'Deck 12', subtitle: 'Pool Deck', highlights: ['Main pool', 'Solarium', 'Grill'], description: 'Main pool, adults-only solarium, Windjammer.', category: 'wellness', image: 'decks/deck-12.png', svg: 'decks/deck-12-final.min.svg', pdf: '' },
+        { number: 15, name: 'Deck 15', subtitle: 'Sports & Observation', highlights: ['Sports court', 'Jog track', 'Views'], description: 'FlowRider, mini-golf, running track.', category: 'wellness', image: 'decks/deck-15.png', svg: 'decks/deck-15-final.min.svg', pdf: '' },
+        { number: 13, name: 'Deck 13', subtitle: 'Adventure Zone', highlights: ['FlowRider', 'Sky deck access', 'Activities'], description: 'Adventure Ocean & rock climbing wall.', category: 'entertainment', image: 'decks/deck-13.png', svg: 'decks/deck-13-final.min.svg', pdf: '' },
+        { number: 10, name: 'Deck 10', subtitle: 'Stateroom Corridor', highlights: ['Cabins', 'Elevators', 'Quiet routes'], description: 'Premium staterooms, aft elevator lobby.', category: 'essential', image: 'decks/deck-10.png', svg: 'decks/deck-10-final.min.svg', pdf: '' },
+        { number: 9, name: 'Deck 9', subtitle: 'Midship Cabins', highlights: ['Cabins', 'Family zones', 'Wayfinding'], description: 'Family-friendly staterooms.', category: 'essential', image: 'decks/deck-09.png', svg: 'decks/deck-09-final.min.svg', pdf: '' },
+        { number: 8, name: 'Deck 8', subtitle: 'Stateroom Access', highlights: ['Cabins', 'Aft access', 'Guest routes'], description: 'Convenient access to upper decks.', category: 'essential', image: 'decks/deck-08.png', svg: 'decks/deck-08-final.min.svg', pdf: '' },
+        { number: 7, name: 'Deck 7', subtitle: 'Cabin Transit', highlights: ['Cabins', 'Quiet zones', 'Midship transit'], description: 'Quiet corridor, elevator stacks C/D.', category: 'essential', image: 'decks/deck-07.png', svg: 'decks/deck-07-final.min.svg', pdf: '' },
+        { number: 6, name: 'Deck 6', subtitle: 'Stateroom Ring', highlights: ['Cabins', 'Family adjacency', 'Deck transitions'], description: 'Your stateroom zone (6650) near aft.', category: 'essential', image: 'decks/deck-06.png', svg: 'decks/deck-06-final.min.svg', pdf: '' },
+        { number: 4, name: 'Deck 4', subtitle: 'Dining & Entertainment', highlights: ['Main dining', 'Show venue', 'Casino'], description: 'Main dining room, theater, casino.', category: 'entertainment', image: 'decks/deck-04.png', svg: 'decks/deck-04-final.min.svg', pdf: '' },
+        { number: 3, name: 'Deck 3', subtitle: 'Lobby & Guest Services', highlights: ['Guest services', 'Dining', 'Retail'], description: 'Grand lobby, shore excursions, champagne bar.', category: 'essential', image: 'decks/deck-03.png', svg: 'decks/deck-03-final.min.svg', pdf: '' },
+        { number: 2, name: 'Deck 2', subtitle: 'Medical & Crew Support', highlights: ['Medical', 'Crew services', 'Logistics'], description: 'Medical center, crew mess, embarkation.', category: 'essential', image: 'decks/deck-02.png', svg: 'decks/deck-02-final.min.svg', pdf: '' }
+      ];
 
-      const DECK_MANIFEST = [2,3,4,5,6,7,8,9,10,11,12,14].map(n => ({
-        num: n,
-        id: String(n).padStart(2,'0'),
-        path: `decks/deck-${String(n).padStart(2,'0')}-final.min.svg`
-      }));
+      // ---- DECK HOTSPOTS (enhanced) ----
+      const deckHotspots = {
+        6: [
+          { id: 'aft-cabins', title: 'Aft cabin cluster', note: 'Quieter corridor, wake views. Your room 6650 nearby.', x: 78, y: 58, highlight: true },
+          { id: 'midship-elevators', title: 'Midship elevators', note: 'Fastest transfer to dining & promenade.', x: 52, y: 50, highlight: false },
+          { id: 'forward-stairs', title: 'Forward stairs', note: 'Best route to theater and deck 4.', x: 26, y: 43 }
+        ],
+        12: [
+          { id: 'main-pool', title: 'Main pool', note: 'Live music, pool games, bar.', x: 40, y: 60 },
+          { id: 'solarium', title: 'Solarium', note: 'Adults-only oasis, indoor pool.', x: 70, y: 30, highlight: true },
+          { id: 'windjammer', title: 'Windjammer Cafe', note: 'Casual buffet, ocean view.', x: 20, y: 70 }
+        ],
+        11: [
+          { id: 'spa', title: 'Vitality Spa', note: 'Thermal suite, massages.', x: 48, y: 44 },
+          { id: 'fitness', title: 'Fitness Center', note: 'Panoramic treadmills.', x: 30, y: 55 }
+        ],
+        5: [
+          { id: 'cafe-promenade', title: 'Cafe Promenade', note: '24h coffee, sandwiches.', x: 55, y: 48 },
+          { id: 'guest-services', title: 'Guest Services', note: 'Desk, crown & anchor.', x: 48, y: 60 }
+        ]
+      };
 
-      const frame = document.getElementById('frame');
-      const panZoom = document.getElementById('panZoom');
-      const svgContainer = document.getElementById('svgContainer');
-      const deckPill = document.getElementById('deckPill');
-      const loading = document.getElementById('loadingOverlay');
-      const errorEl = document.getElementById('errorOverlay');
-      const zoomReadout = document.getElementById('zoomReadout');
+      // ---- FOCUS CHIPS ----
+      const deckFocusMap = {
+        12: ['Main Pool', 'Solarium', 'Windjammer'],
+        11: ['Vitality Spa', 'Fitness Center'],
+        5: ['Cafe Promenade', 'Guest Services'],
+        4: ['Main Dining', 'Royal Theater'],
+        6: ['Room 6650', 'Midship Elevators']
+      };
 
-      let currentDeckIndex = 4; // start at deck 4 (adjust as needed)
-      let scale = 1, tx = 0, ty = 0;
-      const minScale = 0.2, maxScale = 5;
+      // --- STATE ---
+      const state = {
+        filter: 'all', search: '', lastOpenedDeck: null, currentDeck: null,
+        currentZoom: 100, dragging: false, dragStartX: 0, dragStartY: 0, dragStartLeft: 0, dragStartTop: 0,
+        panHintShown: sessionStorage.getItem('deck_pan_hint_shown') === '1'
+      };
 
-      function applyTransform() {
-        panZoom.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-        zoomReadout.textContent = Math.round(scale * 100) + '%';
+      const els = {
+        search: document.getElementById('deckSearch'),
+        quickRail: document.getElementById('deckQuickRail'),
+        cards: document.getElementById('deckCards'),
+        empty: document.getElementById('emptyState'),
+        countVisible: document.getElementById('countVisible'),
+        countTotal: document.getElementById('countTotal'),
+        clearFilters: document.getElementById('clearFilters'),
+        categoryToggle: document.getElementById('toggleCategoryBrowse'),
+        categoryPanels: document.getElementById('deckCategoryPanels'),
+        modal: document.getElementById('deckModal'),
+        modalFrame: document.getElementById('modalFrame'),
+        modalTitle: document.getElementById('modalTitle'),
+        modalDesc: document.getElementById('modalDesc'),
+        modalFocusChips: document.getElementById('deckFocusChips'),
+        panHint: document.getElementById('deckPanHint'),
+        zoomLevel: document.getElementById('zoomLevel'),
+        download: document.getElementById('downloadPlan')
+      };
+
+      // ----- RENDER FUNCTIONS (polished) -----
+      function renderQuickRail() {
+        const sorted = [...deckData].sort((a,b) => b.number - a.number);
+        els.quickRail.innerHTML = sorted.map(d => `
+          <button class="deck-quickbtn" data-deck="${d.number}" aria-label="Open ${d.name}">
+            <span class="deck-quickbtn__num">${d.number === 0 ? 'ALL' : `D${d.number}`}</span>
+            <span class="deck-quickbtn__sub">${d.subtitle}</span>
+          </button>
+        `).join('');
       }
 
-      function fitSvg() {
-        const svg = document.getElementById('inlineSvg');
-        if (!svg) return;
+      function renderPills() {
+        const cats = { entertainment: [], wellness: [], essential: [] };
+        deckData.forEach(d => { if (cats[d.category]) cats[d.category].push(d); });
+        Object.entries(cats).forEach(([key, decks]) => {
+          const host = document.getElementById(`pill-${key}`);
+          if (host) host.innerHTML = decks.map(d => `
+            <button class="deck-pill" data-deck="${d.number}">
+              <span class="deck-pill__number">${d.number === 0 ? 'ALL' : d.number}</span>
+              <span class="deck-pill__text">${d.subtitle}</span>
+            </button>
+          `).join('');
+        });
+      }
 
-        const frameRect = frame.getBoundingClientRect();
-        const vb = svg.viewBox.baseVal;
-        if (!vb || vb.width === 0 || vb.height === 0) {
-          console.error('No viewBox');
+      // ---------- IMAGE PATH RESOLVER ----------
+      function getDeckImage(number) {
+        if (number === 0) return 'decks/deck-all.svg';
+        return `decks/deck-${String(number).padStart(2, '0')}.png`;
+      }
+
+      // ---------- CATEGORY CLASS ----------
+      function getCategoryClass(category) {
+        return `deck-card--${category}`;
+      }
+
+      // ---------- RENDER CARDS ----------
+      function renderDeckCards(filter = 'all', search = '') {
+        const container = document.getElementById('deckCards');
+        const visibleCountEl = document.getElementById('countVisible');
+        const totalCountEl = document.getElementById('countTotal');
+
+        container.innerHTML = '';
+
+        const filtered = deckData.filter(deck => {
+          const matchesCategory =
+            filter === 'all' || deck.category === filter;
+
+          const matchesSearch =
+            search === '' ||
+            deck.name.toLowerCase().includes(search) ||
+            deck.subtitle.toLowerCase().includes(search) ||
+            deck.highlights.join(' ').toLowerCase().includes(search);
+
+          return matchesCategory && matchesSearch;
+        });
+
+        filtered.forEach(deck => {
+          const card = document.createElement('article');
+          card.className = `deck-card ${getCategoryClass(deck.category)}`;
+          card.setAttribute('role', 'listitem');
+          card.dataset.deck = deck.number;
+
+          card.innerHTML = `
+            <div class="deck-visual">
+              <span class="deck-number">${deck.number === 0 ? 'ALL' : deck.number}</span>
+              <img src="${getDeckImage(deck.number)}"
+                   alt="${deck.name}"
+                   loading="lazy"
+                   decoding="async">
+            </div>
+
+            <div class="deck-info">
+              <h3 class="deck-title">${deck.name}</h3>
+              <p class="deck-subtitle">${deck.subtitle}</p>
+              <div class="deck-highlights">
+                ${deck.highlights.map(h => `<span>${h}</span>`).join('')}
+              </div>
+              <button class="deck-card__cta" data-action="open" data-deck="${deck.number}">
+                Explore deck →
+              </button>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+
+        visibleCountEl.textContent = filtered.length;
+        totalCountEl.textContent = deckData.length;
+
+        document.getElementById('emptyState').hidden = filtered.length !== 0;
+      }
+
+      // --- MODAL ---
+      function openModal(deck) {
+        state.currentDeck = deck;
+        state.lastOpenedDeck = deck.number;
+        setActiveDeck(deck.number);
+        renderFocusChips(deck);
+        animateModalTitle(deck.name);
+        renderModalPlan(deck);
+        if (deck.pdf) {
+          els.download.href = deck.pdf;
+          els.download.removeAttribute('aria-disabled');
+        } else {
+          els.download.href = '#';
+          els.download.setAttribute('aria-disabled', 'true');
+        }
+        els.modal.classList.add('is-open');
+        els.modal.setAttribute('aria-hidden', 'false');
+        setZoom(100);
+      }
+
+      function closeModal() {
+        els.modal.classList.remove('is-open');
+        els.modal.setAttribute('aria-hidden','true');
+        togglePanHint(false);
+      }
+
+      function animateModalTitle(nextText) {
+        els.modalTitle.classList.add('is-swapping');
+        setTimeout(() => {
+          els.modalTitle.textContent = nextText;
+          els.modalTitle.classList.remove('is-swapping');
+        }, 160);
+      }
+
+      function togglePanHint(show) {
+        if (!els.panHint) return;
+        if (show) {
+          els.panHint.hidden = false;
+          requestAnimationFrame(() => els.panHint.classList.add('is-visible'));
           return;
         }
-
-        const scaleX = frameRect.width / vb.width;
-        const scaleY = frameRect.height / vb.height;
-        scale = Math.min(scaleX, scaleY) * 0.95; // 5% margin
-        tx = (frameRect.width - vb.width * scale) / 2;
-        ty = (frameRect.height - vb.height * scale) / 2;
-        applyTransform();
-        console.log('Fit:', { scale, tx, ty, frameRect, vb });
+        els.panHint.classList.remove('is-visible');
+        setTimeout(() => {
+          if (!els.panHint.classList.contains('is-visible')) els.panHint.hidden = true;
+        }, 180);
       }
 
-      async function loadDeck(index) {
-        const deck = DECK_MANIFEST[index];
-        if (!deck) return;
-
-        loading.classList.add('show');
-        errorEl.classList.remove('show');
-
-        try {
-          const res = await fetch(deck.path);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const svgText = await res.text();
-
-          const parser = new DOMParser();
-          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-          let svg = svgDoc.documentElement;
-
-          // Ensure viewBox
-          if (!svg.hasAttribute('viewBox')) {
-            const w = parseFloat(svg.getAttribute('width'));
-            const h = parseFloat(svg.getAttribute('height'));
-            if (!isNaN(w) && !isNaN(h)) {
-              svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-            } else {
-              // Fallback to bbox
-              document.body.appendChild(svg.cloneNode(true));
-              const bbox = svg.getBBox();
-              svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
-            }
-          }
-
-          // Clear and inject
-          while (svgContainer.firstChild) svgContainer.removeChild(svgContainer.firstChild);
-          svgContainer.appendChild(svg);
-          svg.id = 'inlineSvg';
-
-          deckPill.textContent = `Deck ${deck.num}`;
-
-          // Fit after injection
-          requestAnimationFrame(() => {
-            fitSvg();
-            loading.classList.remove('show');
-          });
-
-          console.log('SVG viewBox:', svg.viewBox.baseVal);
-        } catch (err) {
-          console.error(err);
-          errorEl.classList.add('show');
-          loading.classList.remove('show');
+      function setZoom(v) {
+        state.currentZoom = Math.min(300, Math.max(50, v));
+        els.zoomLevel.textContent = `${state.currentZoom}%`;
+        const canvas = document.getElementById('deckPlanCanvas');
+        if (canvas) canvas.style.transform = `scale(${(state.currentZoom / 100).toFixed(2)})`;
+        if (state.currentZoom > 100 && !state.panHintShown) {
+          togglePanHint(true);
+          state.panHintShown = true;
+          sessionStorage.setItem('deck_pan_hint_shown', '1');
+          setTimeout(() => togglePanHint(false), 2400);
         }
       }
 
-      // Simple zoom controls
-      document.getElementById('zoomInBtn').onclick = () => {
-        scale = Math.min(scale * 1.2, maxScale);
-        applyTransform();
-      };
-      document.getElementById('zoomOutBtn').onclick = () => {
-        scale = Math.max(scale / 1.2, minScale);
-        applyTransform();
-      };
-      document.getElementById('resetBtn').onclick = () => {
-        fitSvg();
-      };
+      function renderModalPlan(deck) {
+        const existingCanvas = document.getElementById('deckPlanCanvas');
 
-      // Load deck 4 (or from URL)
-      const urlParams = new URLSearchParams(location.search);
-      const deckParam = urlParams.get('deck');
-      if (deckParam) {
-        const idx = DECK_MANIFEST.findIndex(d => d.num == deckParam);
-        if (idx >= 0) currentDeckIndex = idx;
+        if (existingCanvas) {
+          existingCanvas.classList.add('is-transitioning');
+        }
+        els.modalFrame.innerHTML = `<div class="deck-plan-skeleton" aria-hidden="true"></div>`;
+
+        setTimeout(() => {
+          const hotspots = deckHotspots[deck.number] || [];
+          const chips = deckFocusMap[deck.number] || [];
+          els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip">${l}</button>`).join('');
+          const hotspotButtons = hotspots.map((s,i) => `
+            <button class="deck-hotspot" style="left:${s.x}%; top:${s.y}%;" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
+          `).join('');
+
+          els.modalFrame.innerHTML = `
+            <div class="deck-plan-stage" id="deckPlanStage">
+              <div class="deck-plan-canvas is-transitioning" id="deckPlanCanvas" style="transform:scale(${state.currentZoom/100});">
+                <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" alt="${deck.name}">
+                ${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotButtons}</div>` : ''}
+              </div>
+            </div>
+            ${hotspots.length ? `<div class="deck-plan-legend">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}"><strong>${i+1}. ${s.title}</strong><span>${s.note}</span></button>`).join('')}</div>` : ''}
+          `;
+          attachPan();
+
+          const newCanvas = document.getElementById('deckPlanCanvas');
+          if (newCanvas) {
+            requestAnimationFrame(() => {
+              newCanvas.classList.remove('is-transitioning');
+            });
+          }
+        }, 180);
       }
-      loadDeck(currentDeckIndex);
 
-      // Re-fit on resize
-      window.addEventListener('resize', () => {
-        if (document.getElementById('inlineSvg')) fitSvg();
-      });
+      function renderFocusChips(deck) { /* already in renderModalPlan */ }
+
+      function selectHotspotById(hotspotId) {
+        const target = els.modalFrame.querySelector(`.deck-hotspot[data-hotspot-id="${hotspotId}"]`);
+        if (!target) return;
+        els.modalFrame.querySelectorAll('.deck-hotspot').forEach(btn => {
+          btn.dataset.selected = (btn.dataset.hotspotId === hotspotId) ? 'true' : 'false';
+        });
+        els.modalFrame.querySelectorAll('.deck-plan-legend-item').forEach(btn => {
+          btn.classList.toggle('is-active', btn.dataset.hotspotId === hotspotId);
+        });
+        target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        els.modalDesc.textContent = target.dataset.note || target.dataset.title || '';
+      }
+
+      function attachPan() {
+        const stage = document.getElementById('deckPlanStage');
+        if (!stage) return;
+        stage.addEventListener('pointerdown', (e) => { 
+          if (state.currentZoom <= 100) return;
+          state.dragging = true; 
+          state.dragStartX = e.clientX; state.dragStartY = e.clientY;
+          state.dragStartLeft = stage.scrollLeft; state.dragStartTop = stage.scrollTop;
+          stage.setPointerCapture(e.pointerId);
+        });
+        stage.addEventListener('pointermove', (e) => { 
+          if (!state.dragging) return;
+          stage.scrollLeft = state.dragStartLeft - (e.clientX - state.dragStartX);
+          stage.scrollTop = state.dragStartTop - (e.clientY - state.dragStartY);
+        });
+        stage.addEventListener('pointerup', () => state.dragging = false);
+        stage.addEventListener('pointercancel', () => state.dragging = false);
+      }
+
+      function setActiveDeck(num) {
+        document.querySelectorAll('.deck-quickbtn').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+        document.querySelectorAll('.deck-pill').forEach(b => b.classList.toggle('is-active', Number(b.dataset.deck) === num));
+        document.querySelectorAll('#deckVerticalIndicator button').forEach(b => b.classList.toggle('active', Number(b.dataset.deck) === num));
+      }
+
+      // --- EVENT LISTENERS (luxe) ---
+      function bindEvents() {
+        const searchInput = document.getElementById('deckSearch');
+
+        // Filter buttons
+        document.querySelectorAll('.pill-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            state.filter = btn.dataset.filter;
+
+            renderDeckCards(btn.dataset.filter, searchInput.value.toLowerCase());
+          });
+        });
+
+        searchInput.addEventListener('input', e => {
+          state.search = e.target.value;
+          renderDeckCards(
+            document.querySelector('.pill-btn.is-active').dataset.filter,
+            e.target.value.toLowerCase()
+          );
+        });
+
+        // global key
+        document.addEventListener('keydown', (e) => { 
+          if (e.key === '/' && document.activeElement !== els.search) { e.preventDefault(); els.search.focus(); }
+          if (e.key === 'Escape') closeModal();
+        });
+
+        // open card
+        els.cards.addEventListener('click', (e) => {
+          const card = e.target.closest('.deck-card');
+          if (!card) return;
+          const deck = deckData.find(d => d.number === Number(card.dataset.deck));
+          if (deck) openModal(deck);
+        });
+
+        // quick rail
+        els.quickRail.addEventListener('click', (e) => {
+          const btn = e.target.closest('.deck-quickbtn');
+          if (btn) { const deck = deckData.find(d => d.number === Number(btn.dataset.deck)); if (deck) openModal(deck); }
+        });
+
+        // category pills
+        document.addEventListener('click', (e) => {
+          const pill = e.target.closest('.deck-pill');
+          if (pill) { const deck = deckData.find(d => d.number === Number(pill.dataset.deck)); if (deck) openModal(deck); }
+        });
+
+        document.getElementById('deckVerticalIndicator').addEventListener('click', (e) => {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          const deck = deckData.find(d => d.number === Number(btn.dataset.deck));
+          if (deck) openModal(deck);
+        });
+
+        // modal actions
+        els.modal.addEventListener('click', (e) => {
+          const hotspot = e.target.closest('.deck-hotspot');
+          if (hotspot) {
+            selectHotspotById(hotspot.dataset.hotspotId);
+            return;
+          }
+          const legend = e.target.closest('.deck-plan-legend-item');
+          if (legend) {
+            selectHotspotById(legend.dataset.hotspotId);
+            return;
+          }
+          const focusChip = e.target.closest('.deck-focuschip');
+          if (focusChip) {
+            els.modalFocusChips.querySelectorAll('.deck-focuschip').forEach(btn => btn.classList.remove('is-active'));
+            focusChip.classList.add('is-active');
+            const needle = (focusChip.textContent || '').toLowerCase();
+            const match = [...els.modalFrame.querySelectorAll('.deck-hotspot')]
+              .find(btn => (btn.dataset.title || '').toLowerCase().includes(needle));
+            if (match) {
+              selectHotspotById(match.dataset.hotspotId);
+            }
+            return;
+          }
+          const trigger = e.target.closest('[data-action]');
+          const act = trigger?.dataset.action;
+          if (act === 'close-modal') closeModal();
+          if (act === 'zoom-in') setZoom(state.currentZoom + 25);
+          if (act === 'zoom-out') setZoom(state.currentZoom - 25);
+          if (act === 'zoom-reset') setZoom(100);
+          if (act === 'prev-deck') { 
+            const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
+            const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
+            if (idx > 0) openModal(sorted[idx-1]);
+          }
+          if (act === 'next-deck') {
+            const sorted = deckData.filter(d => d.number !== 0).sort((a,b) => a.number - b.number);
+            const idx = sorted.findIndex(d => d.number === state.currentDeck?.number);
+            if (idx < sorted.length-1) openModal(sorted[idx+1]);
+          }
+          if (act === 'center-me' && state.currentDeck?.number === 6) {
+            const aft = document.querySelector('[data-hotspot-id="aft-cabins"]');
+            if (aft) {
+              aft.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+          }
+        });
+
+        els.clearFilters?.addEventListener('click', ()=>{ state.search = ''; els.search.value = ''; state.filter = 'all'; document.querySelectorAll('.pill-btn').forEach(b => b.classList.toggle('is-active', b.dataset.filter === state.filter)); renderDeckCards(); });
+
+        if (els.categoryToggle && els.categoryPanels) {
+          els.categoryToggle.addEventListener('click', () => {
+            const expanded = els.categoryToggle.getAttribute('aria-expanded') === 'true';
+            const next = !expanded;
+            els.categoryToggle.setAttribute('aria-expanded', String(next));
+            els.categoryPanels.hidden = !next;
+            els.categoryToggle.innerHTML = `${next ? 'Hide categories' : 'Show categories'} <i class="fas fa-chevron-down" aria-hidden="true"></i>`;
+          });
+        }
+      }
+
+      function init() {
+        renderQuickRail();
+        renderPills();
+        renderDeckCards();
+        bindEvents();
+
+        if (window.matchMedia('(max-width: 900px)').matches) {
+          setTimeout(() => {
+            const btn = document.querySelector('.deck-quickbtn[data-deck="6"]');
+            if (btn) btn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+          }, 300);
+        }
+
+        if (!localStorage.getItem('embarkationSeen')) {
+          const hero = document.querySelector('.deck-hero');
+          if (hero) hero.style.animation = 'heroGlow 2.5s ease-out';
+          localStorage.setItem('embarkationSeen', 'true');
+        }
+      }
+      init();
     })();
   </script>
-</body>
-</html>
+
+
+
+<div class="more-drawer-backdrop" id="moreDrawerBackdrop" hidden=""></div><aside class="more-drawer" id="moreDrawer" role="dialog" aria-modal="true" aria-label="More menu" hidden="">
+            <div class="more-drawer__header">
+              <h2>More</h2>
+              <button type="button" class="more-drawer__close" id="moreDrawerClose" aria-label="Close menu">
+                <i class="fas fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+            
+          <section class="more-drawer__group" aria-label="Explore">
+            <h3 class="more-drawer__group-title">Explore</h3>
+            <div class="more-drawer__group-links">
+          <a href="ports.html" class="more-drawer__link ">
+            <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+            <span>Ports</span>
+          </a>
+        
+          <a href="tips.html" class="more-drawer__link ">
+            <i class="fas fa-lightbulb" aria-hidden="true"></i>
+            <span>Pro Moves</span>
+          </a>
+        
+          <a href="photos.html" class="more-drawer__link ">
+            <i class="fas fa-images" aria-hidden="true"></i>
+            <span>Photos</span>
+          </a>
+        </div>
+          </section>
+        
+          <section class="more-drawer__group" aria-label="Utility">
+            <h3 class="more-drawer__group-title">Utility</h3>
+            <div class="more-drawer__group-links">
+          <a href="operations.html" class="more-drawer__link ">
+            <i class="fas fa-clipboard-check" aria-hidden="true"></i>
+            <span>Checklist</span>
+          </a>
+        
+          <a href="contacts.html" class="more-drawer__link ">
+            <i class="fas fa-phone-volume" aria-hidden="true"></i>
+            <span>Contacts</span>
+          </a>
+        
+          <a href="offline.html" class="more-drawer__link ">
+            <i class="fas fa-wifi" aria-hidden="true"></i>
+            <span>Offline</span>
+          </a>
+        </div>
+          </section>
+        
+          </aside></body></html>
