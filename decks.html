@@ -3,1057 +3,1221 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0A2E4A" />
+<title>Adventure of the Seas · Deck Navigator</title>
 
-<title>Deck Navigator · Adventure of the Seas</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
-
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
   :root{
     --navy:#0A2E4A;
     --navy2:#083452;
-    --blue:#0F4F76;
-    --aqua:#00B4D8;
-    --teal:#2DD4BF;
-    --sun:#FFB703;
-    --coral:#FF6B6B;
-    --sand:#F6F1E6;
-    --glass: rgba(8, 52, 82, .55);
-    --glass2: rgba(10, 46, 74, .62);
-    --stroke: rgba(255,255,255,.14);
+    --sea:#0f4f76;
+    --aqua:#00b4e6;
+    --mint:#4de7c8;
+    --sun:#ffb703;
+    --coral:#ff6b6b;
+    --sand:#efe6d6;
+    --glass: rgba(255,255,255,.12);
+    --glass2: rgba(255,255,255,.18);
     --shadow: rgba(0,0,0,.55);
+    --panelH: 82px;
+    --carouselH: 118px;
   }
 
   body{
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    color: #fff;
-    overflow: hidden;
-    background: radial-gradient(1200px 800px at 18% 18%, rgba(0,180,216,.28), transparent 55%),
-                radial-gradient(1200px 800px at 80% 70%, rgba(255,183,3,.22), transparent 60%),
-                linear-gradient(180deg, var(--navy2), var(--navy));
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color:#fff;
+    overflow:hidden;
+    background:
+      radial-gradient(1100px 700px at 18% 20%, rgba(0,180,230,.35), transparent 60%),
+      radial-gradient(900px 600px at 80% 28%, rgba(255,183,3,.18), transparent 55%),
+      linear-gradient(180deg, var(--sea), var(--navy2));
+    position:relative;
   }
 
-  /* Subtle “ocean light” motion */
+  /* ocean shimmer */
   body::before{
     content:"";
-    position: fixed;
-    inset:-25%;
+    position:absolute;
+    inset:-20%;
     background:
-      radial-gradient(circle at 22% 32%, rgba(0,180,216,.35), transparent 58%),
-      radial-gradient(circle at 75% 75%, rgba(255,183,3,.25), transparent 62%),
-      radial-gradient(circle at 55% 15%, rgba(45,212,191,.16), transparent 60%);
-    filter: blur(2px);
-    opacity: .9;
-    animation: oceanFloat 18s ease-in-out infinite alternate;
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,.10), transparent 55%),
+      radial-gradient(circle at 65% 40%, rgba(255,255,255,.08), transparent 60%),
+      radial-gradient(circle at 40% 75%, rgba(255,255,255,.06), transparent 60%);
+    opacity:.65;
+    filter: blur(0.2px);
+    transform: translate3d(var(--bgx, 0px), var(--bgy, 0px), 0);
+    transition: transform 80ms linear;
     pointer-events:none;
-    z-index: 0;
   }
 
-  @keyframes oceanFloat{
-    0% { transform: translate3d(0,-1.2%,0) scale(1); }
-    100% { transform: translate3d(0,1.2%,0) scale(1.02); }
+  /* header */
+  .topbar{
+    position:relative;
+    padding: 22px 18px 16px;
+    background: linear-gradient(135deg, rgba(255,183,3,.95), rgba(255,107,107,.85));
+    border-bottom-left-radius: 26px;
+    border-bottom-right-radius: 26px;
+    box-shadow: 0 16px 50px rgba(0,0,0,.35);
   }
-
-  header{
-    position: relative;
-    z-index: 10;
-    padding: 18px 18px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(90deg, rgba(11,66,102,.95), rgba(10,46,74,.95));
-    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+  .topbar .kicker{
+    letter-spacing: 3px;
+    font-size: .75rem;
+    opacity:.92;
   }
-
-  .brand{
-    display:flex;
-    flex-direction: column;
-    gap: 4px;
+  .topbar .title{
+    margin-top: 6px;
+    font-weight: 900;
+    font-size: 1.75rem;
+    line-height: 1.05;
+    text-shadow: 0 8px 30px rgba(0,0,0,.25);
   }
-
-  .brand .kicker{
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    font-size: .78rem;
-    opacity: .85;
-  }
-
-  .brand .title{
-    font-size: 1.35rem;
-    font-weight: 800;
-    letter-spacing: .2px;
-  }
-
-  .brand .subtitle{
-    font-size: .95rem;
+  .topbar .subtitle{
+    margin-top: 6px;
     font-weight: 600;
-    opacity: .9;
+    opacity:.9;
   }
-
-  .back{
-    color: var(--sun);
-    text-decoration: none;
-    font-weight: 700;
-    background: rgba(255,183,3,.12);
-    border: 1px solid rgba(255,183,3,.28);
+  .topbar .back{
+    position:absolute;
+    right: 14px;
+    top: 18px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
     padding: 10px 14px;
     border-radius: 999px;
-    transition: .2s ease;
-    white-space: nowrap;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.26);
+    color:#fff;
+    text-decoration:none;
+    font-weight: 700;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.22);
   }
-  .back:active{ transform: scale(.98); }
-  .back:hover{ background: rgba(255,183,3,.18); }
+  .topbar .back:active{ transform: scale(.98); }
 
-  .main{
-    position: relative;
-    z-index: 2;
-    height: calc(100vh - 88px);
-    display: grid;
-    grid-template-rows: 1fr auto;
-    overflow: hidden;
-  }
-
-  /* Stage */
+  /* viewer */
   .viewer{
-    position: relative;
-    overflow: hidden;
+    position:absolute;
+    left:0; right:0;
+    top: 116px;
+    bottom: calc(var(--panelH) + var(--carouselH) + 18px);
+    padding: 14px 14px 0;
     display:flex;
     align-items:center;
     justify-content:center;
-    padding: 14px 14px 90px;
   }
 
   .frame{
-    position: relative;
+    width:100%;
+    height:100%;
     border-radius: 28px;
-    padding: 10px;
-    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-    border: 1px solid rgba(255,255,255,.14);
-    box-shadow: 0 30px 70px rgba(0,0,0,.55);
-    max-width: min(980px, calc(100vw - 22px));
-    width: 100%;
-    height: 100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow: hidden;
+    background: rgba(0,0,0,.14);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+    position:relative;
+    overflow:hidden;
+    touch-action: none; /* we handle pan/pinch/swipe */
   }
 
-  /* “Glow edge lighting around SVG” */
-  .frame::before{
-    content:"";
-    position:absolute;
-    inset:-10px;
-    background: radial-gradient(circle at 50% 30%, rgba(0,180,216,.40), transparent 62%),
-                radial-gradient(circle at 20% 80%, rgba(255,183,3,.22), transparent 60%);
-    opacity:.55;
-    filter: blur(12px);
-    z-index:0;
-    pointer-events:none;
-  }
-
-  /* “Glow sweep” */
+  /* glow sweep overlay */
   .frame::after{
     content:"";
     position:absolute;
     inset:-40%;
-    background: linear-gradient(110deg,
-      transparent 35%,
-      rgba(255,255,255,.18) 45%,
-      rgba(0,180,216,.14) 50%,
-      rgba(255,183,3,.10) 55%,
-      transparent 65%);
-    transform: translateX(-35%) rotate(6deg);
-    animation: sweep 5.8s ease-in-out infinite;
-    opacity: .9;
+    background:
+      radial-gradient(circle at 25% 40%, rgba(0,180,230,.18), transparent 60%),
+      radial-gradient(circle at 65% 55%, rgba(77,231,200,.14), transparent 60%),
+      linear-gradient(115deg,
+        transparent 0%,
+        rgba(255,255,255,.18) 42%,
+        rgba(255,255,255,.08) 52%,
+        transparent 70%);
+    transform: translateX(-35%) rotate(12deg);
+    opacity: 0;
     pointer-events:none;
-    z-index:1;
     mix-blend-mode: screen;
   }
-
-  @keyframes sweep{
-    0% { transform: translateX(-55%) rotate(6deg); opacity:.55; }
-    35% { opacity:.9; }
-    100% { transform: translateX(55%) rotate(6deg); opacity:.55; }
+  .frame.sweep::after{
+    opacity: .85;
+    animation: glowSweep 2.4s ease-in-out 1;
+  }
+  @keyframes glowSweep{
+    0%   { transform: translateX(-60%) rotate(12deg); opacity:0; }
+    18%  { opacity:.75; }
+    55%  { opacity:.9; }
+    100% { transform: translateX(60%) rotate(12deg); opacity:0; }
   }
 
-  /* Movable/zoomable stage */
   .stage{
-    position: relative;
-    z-index: 2;
-    touch-action: none;
-    will-change: transform;
-    transform-origin: center center;
-  }
-
-  object#deckObject{
-    display:block;
-    width: 100%;
-    height: auto;
-    background: var(--sand);
-    border-radius: 20px;
-    box-shadow:
-      0 0 0 3px rgba(255,255,255,.14),
-      0 18px 55px rgba(0,0,0,.55),
-      0 0 90px rgba(0,180,216,.20);
-  }
-
-  /* Hotspot overlay */
-  .hotspot-layer{
     position:absolute;
-    inset: 0;
-    pointer-events:none; /* buttons will enable */
-    z-index: 3;
+    left:50%;
+    top:50%;
+    transform-origin: center center;
+    will-change: transform;
+    transition: transform 240ms cubic-bezier(.2,.8,.25,1);
   }
 
+  .deckShell{
+    position:relative;
+    transform: translate(-50%, -50%);
+    filter:
+      drop-shadow(0 30px 60px rgba(0,0,0,.55));
+  }
+
+  .deckObject{
+    width:min(920px, calc(100vw - 40px));
+    height:auto;
+    display:block;
+    border-radius: 28px;
+    background: var(--sand);
+    box-shadow:
+      0 0 0 10px rgba(255,255,255,.16),
+      0 0 0 1px rgba(0,0,0,.10),
+      0 0 80px rgba(0,180,230,.20),
+      0 35px 90px rgba(0,0,0,.55);
+  }
+
+  /* edge glow "lighting" */
+  .edgeGlow{
+    position:absolute;
+    inset:-10px;
+    border-radius: 34px;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(0,180,230,.30), transparent 55%),
+      radial-gradient(circle at 70% 75%, rgba(77,231,200,.22), transparent 58%),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,.12), transparent 65%);
+    opacity:.85;
+    filter: blur(0.2px);
+    z-index:-1;
+  }
+
+  /* hotspots overlay */
+  .hotspots{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
   .hotspot{
     position:absolute;
-    pointer-events:auto;
     transform: translate(-50%, -50%);
-    border: none;
-    cursor: pointer;
-    padding: 8px 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.92);
-    color: #06243a;
-    font-weight: 800;
-    font-size: 12px;
-    letter-spacing: .02em;
-    box-shadow: 0 10px 25px rgba(0,0,0,.28);
+    pointer-events:auto;
     display:flex;
     align-items:center;
-    gap: 8px;
-    max-width: 220px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .hotspot .dot{
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: radial-gradient(circle at 30% 30%, #fff, var(--aqua));
-    box-shadow: 0 0 0 3px rgba(0,180,216,.18);
-    flex: 0 0 auto;
-  }
-
-  .hotspot:active{ transform: translate(-50%, -50%) scale(.98); }
-
-  /* Zoom panel */
-  .controls{
-    position: absolute;
-    left: 50%;
-    bottom: 16px;
-    transform: translateX(-50%);
-    z-index: 15;
-    display:flex;
-    align-items:center;
-    gap: 12px;
+    gap:10px;
     padding: 10px 12px;
     border-radius: 999px;
-    background: linear-gradient(90deg, rgba(0,180,216,.92), rgba(15,79,118,.92));
-    border: 1px solid rgba(255,255,255,.18);
-    box-shadow: 0 18px 40px rgba(0,0,0,.45);
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
-  }
-
-  .controls button{
-    width: 52px;
-    height: 52px;
-    border-radius: 999px;
-    border: none;
-    background: rgba(255,255,255,.95);
-    color: #0b2a43;
-    font-weight: 900;
-    font-size: 22px;
-    cursor: pointer;
-    box-shadow: 0 10px 22px rgba(0,0,0,.22);
-    transition: transform .15s ease, background .15s ease;
-  }
-
-  .controls button:active{ transform: scale(.94); }
-  .controls button:hover{ background: #fff; }
-
-  .controls .label{
-    min-width: 78px;
-    text-align: center;
-    font-weight: 900;
-    font-size: 16px;
-    letter-spacing: .02em;
-    color: #fff;
-    text-shadow: 0 1px 0 rgba(0,0,0,.2);
-  }
-
-  .controls .reset{
-    width: auto;
-    padding: 0 16px;
-    font-size: 14px;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-  }
-
-  /* Carousel */
-  .carousel{
-    position: relative;
-    z-index: 12;
-    padding: 10px 12px 16px;
-    background: linear-gradient(180deg, rgba(10,46,74,.0), rgba(10,46,74,.55));
-  }
-
-  .strip{
-    display:flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding: 8px 6px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .strip::-webkit-scrollbar{ display:none; }
-
-  .card{
-    flex: 0 0 auto;
-    width: 92px;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(255,255,255,.08);
-    box-shadow: 0 12px 28px rgba(0,0,0,.25);
-    overflow:hidden;
+    background: rgba(10,46,74,.72);
+    border: 1px solid rgba(255,255,255,.22);
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     cursor:pointer;
-    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    user-select:none;
   }
-  .card:hover{ background: rgba(255,255,255,.12); }
-  .card:active{ transform: scale(.98); }
+  .hotspot:active{ transform: translate(-50%, -50%) scale(.98); }
+  .hotspot .dot{
+    width: 14px; height:14px; border-radius:999px;
+    background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25));
+    box-shadow: 0 0 0 4px rgba(0,180,230,.25), 0 0 20px rgba(0,180,230,.55);
+  }
+  .hotspot .label{
+    font-weight:800;
+    font-size:.9rem;
+    letter-spacing:.2px;
+    white-space:nowrap;
+  }
+  .hotspot .emoji{
+    font-size: 1.05rem;
+    opacity:.95;
+  }
 
+  /* bottom carousel */
+  .carouselWrap{
+    position:absolute;
+    left:0; right:0;
+    bottom: var(--panelH);
+    height: var(--carouselH);
+    padding: 10px 10px 12px;
+    display:flex;
+    align-items:flex-end;
+    pointer-events:auto;
+  }
+  .carousel{
+    width:100%;
+    display:flex;
+    gap: 12px;
+    overflow:auto;
+    padding: 6px 6px 10px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .carousel::-webkit-scrollbar{ height: 0; }
+  .card{
+    flex: 0 0 110px;
+    height: 96px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 20px 40px rgba(0,0,0,.28);
+    overflow:hidden;
+    position:relative;
+    scroll-snap-align: start;
+    cursor:pointer;
+    user-select:none;
+  }
+  .card.active{
+    border-color: rgba(255,183,3,.85);
+    box-shadow:
+      0 22px 50px rgba(0,0,0,.34),
+      0 0 0 2px rgba(255,183,3,.35) inset;
+  }
   .thumb{
-    height: 74px;
-    background: rgba(246,241,230,.92);
+    position:absolute;
+    inset:0;
+    background: rgba(0,0,0,.10);
     display:flex;
     align-items:center;
     justify-content:center;
-    overflow:hidden;
   }
   .thumb img{
-    width: 120%;
-    height: 120%;
+    width: 92%;
+    height: 92%;
     object-fit: contain;
-    transform: translateY(4px);
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
   }
-
-  .meta{
-    padding: 8px 10px 9px;
-    display:flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .meta .d{
+  .card .meta{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    padding: 8px 10px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,.50));
     font-weight: 900;
-    font-size: 12px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    opacity:.95;
+    letter-spacing:.3px;
+    font-size:.9rem;
   }
-  .meta .t{
-    font-weight: 700;
-    font-size: 11px;
-    opacity:.9;
-    white-space: nowrap;
-    overflow:hidden;
-    text-overflow: ellipsis;
+  .card .meta small{
+    display:block;
+    font-weight:700;
+    opacity:.85;
+    font-size:.75rem;
+    margin-top:2px;
   }
 
-  .card.active{
-    border-color: rgba(255,183,3,.55);
-    box-shadow: 0 16px 34px rgba(0,0,0,.30), 0 0 0 2px rgba(255,183,3,.22) inset;
-  }
-
-  /* Bottom sheet for venue */
-  .sheet{
-    position: fixed;
-    left: 0; right: 0; bottom: -60%;
-    z-index: 30;
-    background: rgba(255,255,255,.96);
-    color: #0b2a43;
-    border-top-left-radius: 22px;
-    border-top-right-radius: 22px;
-    box-shadow: 0 -24px 60px rgba(0,0,0,.35);
-    transition: transform .26s cubic-bezier(.2,.9,.2,1);
-    transform: translateY(0);
-  }
-
-  .sheet.open{ transform: translateY(-60%); }
-
-  .sheet .grab{
-    width: 44px;
-    height: 5px;
+  /* controls */
+  .controls{
+    position:absolute;
+    left:50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    height: var(--panelH);
+    padding: 10px 14px;
     border-radius: 999px;
-    background: rgba(10,46,74,.18);
-    margin: 10px auto 8px;
+    background: linear-gradient(90deg, rgba(0,180,230,.92), rgba(15,79,118,.92));
+    border: 1px solid rgba(255,255,255,.20);
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    box-shadow: 0 26px 70px rgba(0,0,0,.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
-
-  .sheet .content{
-    padding: 10px 18px 18px;
-  }
-
-  .sheet h2{
-    font-size: 18px;
+  .btn{
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    border:none;
+    cursor:pointer;
+    background: rgba(255,255,255,.92);
+    color: var(--navy);
+    font-size: 24px;
     font-weight: 900;
-    margin-bottom: 6px;
+    display:grid;
+    place-items:center;
+    box-shadow: 0 16px 26px rgba(0,0,0,.25);
+    user-select:none;
+  }
+  .btn:active{ transform: scale(.94); }
+  .zoomPct{
+    width: 86px;
+    text-align:center;
+    font-weight: 900;
+    font-size: 1.15rem;
+    letter-spacing:.6px;
+    color:#fff;
+    text-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .btnReset{
+    width:auto;
+    padding: 0 18px;
+    font-size: 1rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, rgba(77,231,200,.95), rgba(255,255,255,.92));
   }
 
-  .sheet p{
-    font-size: 14px;
+  /* Venue popup (bottom sheet) */
+  .sheet{
+    position:absolute;
+    left:0; right:0; bottom:-60%;
+    padding: 14px 14px 18px;
+    transition: transform 320ms cubic-bezier(.2,.8,.25,1);
+    transform: translateY(0);
+    z-index: 30;
+    pointer-events:none;
+  }
+  .sheet.open{
+    transform: translateY(-58%);
+    pointer-events:auto;
+  }
+  .sheetInner{
+    margin: 0 auto;
+    max-width: 740px;
+    border-radius: 24px;
+    background: rgba(10,46,74,.76);
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 26px 90px rgba(0,0,0,.65);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    overflow:hidden;
+  }
+  .sheetTop{
+    padding: 12px 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background: rgba(255,255,255,.08);
+  }
+  .grab{
+    width: 44px; height: 5px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.35);
+    margin: 0 auto;
+  }
+  .sheetBody{
+    padding: 14px 16px 16px;
+  }
+  .venueTitle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight: 900;
+    font-size: 1.2rem;
+    letter-spacing:.2px;
+  }
+  .venueDesc{
+    margin-top: 8px;
+    opacity:.92;
     line-height: 1.35;
-    opacity: .92;
-    margin-bottom: 12px;
   }
-
-  .sheet .row{
+  .sheetActions{
+    margin-top: 14px;
     display:flex;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap:wrap;
   }
-
   .pill{
-    display:inline-flex;
-    align-items:center;
-    gap: 8px;
     padding: 10px 12px;
     border-radius: 999px;
-    border: 1px solid rgba(10,46,74,.14);
-    background: rgba(10,46,74,.06);
+    border: 1px solid rgba(255,255,255,.20);
+    background: rgba(255,255,255,.10);
+    color:#fff;
+    text-decoration:none;
     font-weight: 800;
     cursor:pointer;
     user-select:none;
   }
-  .pill:active{ transform: scale(.98); }
-
-  .scrim{
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.35);
-    z-index: 25;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .2s ease;
-  }
-  .scrim.open{
-    opacity: 1;
-    pointer-events: auto;
+  .pill.primary{
+    background: linear-gradient(135deg, rgba(255,183,3,.95), rgba(255,107,107,.85));
+    border-color: rgba(255,255,255,.20);
+    color:#08263d;
   }
 
-  /* Small screens tweaks */
-  @media (max-width: 520px){
-    header{ padding: 16px 14px 12px; }
-    .brand .title{ font-size: 1.2rem; }
-    .brand .subtitle{ font-size: .92rem; }
-    .back{ padding: 9px 12px; }
-    .controls button{ width: 48px; height: 48px; }
-    .controls .label{ min-width: 72px; }
+  @media (max-width: 430px){
+    .topbar .title{ font-size: 1.55rem; }
+    .card{ flex-basis: 104px; }
+    .controls{ width: calc(100% - 16px); justify-content:center; }
+  }
+
+  /* reduce motion support */
+  @media (prefers-reduced-motion: reduce){
+    .stage, .sheet, .frame.sweep::after { transition:none !important; animation:none !important; }
+    body::before{ transition:none !important; }
   }
 </style>
 </head>
 
 <body>
+  <header class="topbar" aria-label="Deck viewer header">
+    <a class="back" href="index.html" aria-label="Back to decks">← Back</a>
+    <div class="kicker">ADVENTURE OF THE SEAS</div>
+    <div class="title" id="hdrTitle">Deck 04 · Entertainment</div>
+    <div class="subtitle" id="hdrSub">Tap venues · Swipe to change decks · Pinch/drag to explore</div>
+  </header>
 
-<header>
-  <div class="brand">
-    <div class="kicker">Adventure of the Seas</div>
-    <div class="title">Deck Navigator</div>
-    <div class="subtitle" id="deckSubtitle">Deck 04 · Entertainment</div>
-  </div>
-  <a class="back" href="index.html">← Back</a>
-</header>
+  <main class="viewer" aria-label="Deck viewer">
+    <div class="frame" id="frame" aria-label="Interactive deck frame">
+      <div class="stage" id="stage">
+        <div class="deckShell" id="deckShell">
+          <div class="edgeGlow" aria-hidden="true"></div>
 
-<div class="main">
-  <div class="viewer" id="viewer">
-    <div class="frame" id="frame">
-      <div class="stage" id="stage" aria-label="Deck plan stage">
-        <object id="deckObject" type="image/svg+xml" data="decks/deck-04-final.min.svg"></object>
+          <object class="deckObject" id="deckObject"
+                  type="image/svg+xml"
+                  data="decks/deck-04-final.min.svg"
+                  aria-label="Deck plan"></object>
+
+          <div class="hotspots" id="hotspots" aria-label="Venue hotspots"></div>
+        </div>
       </div>
-      <div class="hotspot-layer" id="hotspotLayer" aria-hidden="true"></div>
+    </div>
+  </main>
 
-      <div class="controls" aria-label="Zoom controls">
-        <button id="zoomOut" aria-label="Zoom out">−</button>
-        <div class="label" id="zoomLabel">100%</div>
-        <button id="zoomIn" aria-label="Zoom in">+</button>
-        <button id="resetBtn" class="reset" aria-label="Reset zoom">Reset</button>
+  <section class="carouselWrap" aria-label="Deck carousel">
+    <div class="carousel" id="carousel"></div>
+  </section>
+
+  <nav class="controls" aria-label="Zoom controls">
+    <button class="btn" id="zoomOut" aria-label="Zoom out">−</button>
+    <div class="zoomPct" id="zoomLabel">100%</div>
+    <button class="btn" id="zoomIn" aria-label="Zoom in">+</button>
+    <button class="btn btnReset" id="resetZoom" aria-label="Reset view">Reset</button>
+  </nav>
+
+  <div class="sheet" id="sheet" aria-hidden="true">
+    <div class="sheetInner" role="dialog" aria-modal="true" aria-label="Venue details">
+      <div class="sheetTop">
+        <div class="grab" aria-hidden="true"></div>
+        <button class="pill" id="closeSheet" aria-label="Close venue popup">Close</button>
+      </div>
+      <div class="sheetBody">
+        <div class="venueTitle" id="venueTitle">🎭 Venue</div>
+        <div class="venueDesc" id="venueDesc">Details…</div>
+        <div class="sheetActions">
+          <button class="pill primary" id="centerOnVenue">Center on venue</button>
+          <button class="pill" id="glowSweep">Glow sweep</button>
+        </div>
       </div>
     </div>
   </div>
-
-  <div class="carousel">
-    <div class="strip" id="deckStrip" aria-label="Deck carousel"></div>
-  </div>
-</div>
-
-<div class="scrim" id="scrim" aria-hidden="true"></div>
-
-<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Venue details">
-  <div class="grab"></div>
-  <div class="content">
-    <h2 id="sheetTitle">Venue</h2>
-    <p id="sheetDesc">Tap a hotspot on the deck to see details. Swipe down or tap outside to close.</p>
-    <div class="row">
-      <div class="pill" id="pillZoom">🔎 Zoom here</div>
-      <div class="pill" id="pillCopy">📋 Copy name</div>
-      <div class="pill" id="pillClose">✕ Close</div>
-    </div>
-  </div>
-</div>
 
 <script>
 (() => {
-  "use strict";
-
   // -------------------------
-  // Deck catalog (edit as needed)
+  // Deck Data (extend anytime)
   // -------------------------
+  // Hotspots are % positions relative to the deck object's rendered box:
+  // x/y in [0..1]
   const DECKS = [
-    { id: "02", title: "Lower Promenade", file: "decks/deck-02-final.min.svg" },
-    { id: "03", title: "Promenade",       file: "decks/deck-03-final.min.svg" },
-    { id: "04", title: "Entertainment",   file: "decks/deck-04-final.min.svg" },
-    { id: "05", title: "Promenade",       file: "decks/deck-05-final.min.svg" },
-    { id: "06", title: "Cabins",          file: "decks/deck-06-final.min.svg" },
-    { id: "07", title: "Cabins",          file: "decks/deck-07-final.min.svg" },
-    { id: "08", title: "Cabins + Pool",   file: "decks/deck-08-final.min.svg" },
+    {
+      id: "02",
+      name: "Deck 02",
+      subtitle: "Lower Promenade",
+      svg: "decks/deck-02-final.min.svg",
+      hotspots: []
+    },
+    {
+      id: "03",
+      name: "Deck 03",
+      subtitle: "Promenade",
+      svg: "decks/deck-03-final.min.svg",
+      hotspots: [
+        { id:"duck",  x:0.70, y:0.33, emoji:"🍺", title:"The Duck & Dog Pub", desc:"Classic pub energy. Good place to regroup the crew." },
+        { id:"shops", x:0.80, y:0.45, emoji:"🛍️", title:"Shops", desc:"Souvenirs and last-minute cruise essentials." }
+      ]
+    },
+    {
+      id: "04",
+      name: "Deck 04",
+      subtitle: "Entertainment",
+      svg: "decks/deck-04-final.min.svg",
+      // These are approximate. You can fine-tune x/y later with no code changes elsewhere.
+      hotspots: [
+        { id:"lyric",   x:0.52, y:0.16, emoji:"🎭", title:"Lyric Theatre", desc:"Showtime. Big seats, big sound, big family wow." },
+        { id:"casino",  x:0.47, y:0.50, emoji:"🎰", title:"Casino Royale", desc:"Bright lights, blackjack dreams, and suspiciously confident uncles." },
+        { id:"schooner",x:0.67, y:0.40, emoji:"🍸", title:"Schooner Bar", desc:"Cocktails + live music vibes. A+ pre-dinner stop." },
+        { id:"boleros", x:0.35, y:0.69, emoji:"💃", title:"Boleros", desc:"Latin music, dancing, and the official home of 'one more song'." },
+        { id:"mdr",     x:0.52, y:0.88, emoji:"🍽️", title:"Main Dining Room", desc:"The classic dinner ritual. Everyone looks fancy for 37 minutes." }
+      ]
+    },
+    {
+      id: "05",
+      name: "Deck 05",
+      subtitle: "Promenade",
+      svg: "decks/deck-05-final.min.svg",
+      hotspots: []
+    }
   ];
 
-  const viewer = document.getElementById("viewer");
-  const frame = document.getElementById("frame");
-  const stage = document.getElementById("stage");
-  const deckObject = document.getElementById("deckObject");
-  const deckSubtitle = document.getElementById("deckSubtitle");
+  // -------------------------
+  // Elements
+  // -------------------------
+  const frame     = document.getElementById("frame");
+  const stage     = document.getElementById("stage");
+  const deckShell = document.getElementById("deckShell");
+  const deckObj   = document.getElementById("deckObject");
+  const hotspotsEl= document.getElementById("hotspots");
+
+  const hdrTitle  = document.getElementById("hdrTitle");
+  const hdrSub    = document.getElementById("hdrSub");
+
+  const carousel  = document.getElementById("carousel");
+
   const zoomLabel = document.getElementById("zoomLabel");
-  const hotspotLayer = document.getElementById("hotspotLayer");
-
   const zoomInBtn = document.getElementById("zoomIn");
-  const zoomOutBtn = document.getElementById("zoomOut");
-  const resetBtn = document.getElementById("resetBtn");
+  const zoomOutBtn= document.getElementById("zoomOut");
+  const resetBtn  = document.getElementById("resetZoom");
 
-  const strip = document.getElementById("deckStrip");
-
-  const scrim = document.getElementById("scrim");
-  const sheet = document.getElementById("sheet");
-  const sheetTitle = document.getElementById("sheetTitle");
-  const sheetDesc = document.getElementById("sheetDesc");
-  const pillZoom = document.getElementById("pillZoom");
-  const pillCopy = document.getElementById("pillCopy");
-  const pillClose = document.getElementById("pillClose");
+  const sheet     = document.getElementById("sheet");
+  const closeSheetBtn = document.getElementById("closeSheet");
+  const venueTitle= document.getElementById("venueTitle");
+  const venueDesc = document.getElementById("venueDesc");
+  const centerOnVenueBtn = document.getElementById("centerOnVenue");
+  const glowSweepBtn = document.getElementById("glowSweep");
 
   // -------------------------
-  // State: transform (pan/zoom)
+  // State
   // -------------------------
+  let activeIndex = Math.max(0, DECKS.findIndex(d => d.id === "04"));
   let scale = 1;
   let tx = 0;
   let ty = 0;
 
-  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  let fitScale = 1;     // computed "best fit" to viewport (height-first)
+  let isDragging = false;
+  let pointerId = null;
 
-  function applyTransform() {
-    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    zoomLabel.textContent = `${Math.round(scale * 100)}%`;
-  }
-
-  // Fit stage into the frame (prefer height fit -> avoids side gutters)
-  function fitToViewport({ allowOversize = true } = {}) {
-    const frameRect = frame.getBoundingClientRect();
-    const objRect = deckObject.getBoundingClientRect();
-
-    // If object not laid out yet, bail
-    if (!objRect.width || !objRect.height) return;
-
-    const pad = 18; // visual breathing room inside frame
-    const availW = frameRect.width - pad * 2;
-    const availH = frameRect.height - pad * 2;
-
-    const rW = availW / objRect.width;
-    const rH = availH / objRect.height;
-
-    // Prefer height fit for long ship decks (more wow on load)
-    let target = Math.min(rH, rW);
-
-    // Allow slightly bigger than 1 so it feels “present”
-    if (allowOversize) target = Math.min(target, 1.25);
-    else target = Math.min(target, 1.0);
-
-    scale = clamp(target, 0.18, 4);
-    tx = 0;
-    ty = 0;
-    applyTransform();
-  }
-
-  // Smooth focus on a point in stage coords (screen px)
-  function focusPoint(screenX, screenY, targetScale) {
-    targetScale = clamp(targetScale, 0.18, 4);
-
-    // We want that point to land around center of frame
-    const frameRect = frame.getBoundingClientRect();
-    const cx = frameRect.left + frameRect.width / 2;
-    const cy = frameRect.top + frameRect.height / 2;
-
-    // Convert current translate/scale -> compute new translate to place point at center
-    // stage screen pos = (point) transformed by translate + scale
-    // We treat input screenX/screenY as already in frame-space from hotspot mapping.
-    // To move point to center: newT = center - point*newScale
-    // But point is in stage-local pixels (after object layout). We'll calculate with layer coordinates.
-    const localX = screenX;
-    const localY = screenY;
-
-    // local coords are relative to hotspotLayer (frame content). Convert to frame content origin.
-    // We'll set translate in px space that stage uses.
-    tx = (cx - (frameRect.left + localX)) + tx; // apply relative nudge
-    ty = (cy - (frameRect.top + localY)) + ty;
-
-    scale = targetScale;
-    applyTransform();
-  }
-
-  // -------------------------
-  // Carousel rendering
-  // -------------------------
-  function currentDeckFromUrl() {
-    const u = new URL(window.location.href);
-    const q = u.searchParams.get("deck");
-    return (q || "04").padStart(2, "0");
-  }
-
-  let currentDeckId = currentDeckFromUrl();
-
-  function setDeckInUrl(deckId) {
-    const u = new URL(window.location.href);
-    u.searchParams.set("deck", deckId);
-    history.replaceState(null, "", u.toString());
-  }
-
-  function renderCarousel() {
-    strip.innerHTML = "";
-    for (const d of DECKS) {
-      const card = document.createElement("div");
-      card.className = "card" + (d.id === currentDeckId ? " active" : "");
-      card.setAttribute("role", "button");
-      card.setAttribute("tabindex", "0");
-      card.setAttribute("aria-label", `Deck ${d.id} · ${d.title}`);
-
-      card.innerHTML = `
-        <div class="thumb"><img alt="" loading="lazy" src="${d.file}"></div>
-        <div class="meta">
-          <div class="d">Deck ${d.id}</div>
-          <div class="t">${escapeHtml(d.title)}</div>
-        </div>
-      `;
-
-      const go = () => loadDeck(d.id);
-      card.addEventListener("click", go);
-      card.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
-      });
-
-      strip.appendChild(card);
-    }
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, (c) => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  // -------------------------
-  // Deck loading
-  // -------------------------
-  function deckMeta(deckId) {
-    return DECKS.find(d => d.id === deckId) || DECKS.find(d => d.id === "04");
-  }
-
-  async function loadDeck(deckId) {
-    const d = deckMeta(deckId);
-    if (!d) return;
-
-    // close sheet, clear hotspots
-    closeSheet();
-    hotspotLayer.innerHTML = "";
-
-    currentDeckId = d.id;
-    setDeckInUrl(currentDeckId);
-    deckSubtitle.textContent = `Deck ${d.id} · ${d.title}`;
-
-    // swap SVG
-    deckObject.setAttribute("data", d.file);
-    renderCarousel();
-
-    // When object loads: fit, then build hotspots, then do intro tour
-    deckObject.addEventListener("load", onDeckLoaded, { once: true });
-  }
-
-  // -------------------------
-  // Hotspot extraction (auto from SVG text)
-  // -------------------------
-  function buildHotspotsFromSvg() {
-    hotspotLayer.innerHTML = "";
-
-    const doc = deckObject.contentDocument;
-    if (!doc) return;
-
-    const svgEl = doc.querySelector("svg");
-    if (!svgEl) return;
-
-    const texts = Array.from(doc.querySelectorAll("text"))
-      .filter(t => {
-        const s = (t.textContent || "").trim();
-        if (!s) return false;
-        // filter noise
-        if (s.length < 3) return false;
-        if (/^(ELEV\.?|ELEVATOR|STAIRS?)$/i.test(s)) return false;
-        if (/^\d+$/.test(s)) return false;
-        // usually venue labels are uppercase
-        const letters = s.replace(/[^A-Z]/g,"").length;
-        return letters >= 4;
-      });
-
-    // Map a subset: prefer larger text first
-    const scored = texts.map(t => {
-      let bb;
-      try { bb = t.getBBox(); } catch { return null; }
-      const area = bb.width * bb.height;
-      const label = (t.textContent || "").trim().replace(/\s+/g," ");
-      return { t, bb, area, label };
-    }).filter(Boolean).sort((a,b) => b.area - a.area);
-
-    // Keep a sane number (avoid clutter)
-    const picks = [];
-    const seen = new Set();
-    for (const item of scored) {
-      if (picks.length >= 14) break;
-      const key = item.label.toUpperCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      picks.push(item);
-    }
-
-    // For coordinate conversion: use SVG CTM -> screen -> frame-relative
-    const frameRect = frame.getBoundingClientRect();
-
-    for (const item of picks) {
-      const { t, bb, label } = item;
-
-      // center of text bbox in SVG coordinates
-      const cx = bb.x + bb.width / 2;
-      const cy = bb.y + bb.height / 2;
-
-      const pt = svgEl.createSVGPoint();
-      pt.x = cx;
-      pt.y = cy;
-
-      // transform to screen using element CTM
-      const ctm = t.getScreenCTM?.();
-      if (!ctm) continue;
-      const sp = pt.matrixTransform(ctm);
-
-      // convert to frame coordinates
-      const fx = sp.x - frameRect.left;
-      const fy = sp.y - frameRect.top;
-
-      // Create button
-      const btn = document.createElement("button");
-      btn.className = "hotspot";
-      btn.type = "button";
-      btn.style.left = `${fx}px`;
-      btn.style.top = `${fy}px`;
-      btn.innerHTML = `<span class="dot"></span><span>${escapeHtml(label)}</span>`;
-
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openVenue(label, fx, fy);
-      });
-
-      hotspotLayer.appendChild(btn);
-    }
-  }
-
-  // -------------------------
-  // Bottom sheet (venue info)
-  // -------------------------
-  let activeVenue = null;
-
-  function openVenue(name, fx, fy) {
-    activeVenue = { name, fx, fy };
-
-    sheetTitle.textContent = name;
-    sheetDesc.textContent = "Tap Zoom here to center this spot. Swipe left/right to switch decks. Pinch to zoom.";
-
-    scrim.classList.add("open");
-    sheet.classList.add("open");
-  }
-
-  function closeSheet() {
-    activeVenue = null;
-    scrim.classList.remove("open");
-    sheet.classList.remove("open");
-  }
-
-  scrim.addEventListener("click", closeSheet);
-  pillClose.addEventListener("click", closeSheet);
-
-  pillCopy.addEventListener("click", async () => {
-    if (!activeVenue) return;
-    try {
-      await navigator.clipboard.writeText(activeVenue.name);
-      sheetDesc.textContent = "Copied to clipboard ✅";
-      setTimeout(() => {
-        if (activeVenue) sheetDesc.textContent = "Tap Zoom here to center this spot. Swipe left/right to switch decks. Pinch to zoom.";
-      }, 900);
-    } catch {
-      sheetDesc.textContent = "Clipboard blocked (iOS sometimes does this). Long-press the name to copy.";
-    }
-  });
-
-  pillZoom.addEventListener("click", () => {
-    if (!activeVenue) return;
-    // focus a little tighter than fit
-    const target = clamp(Math.max(scale, 1.35), 0.18, 4);
-    // Nudge center toward that hotspot
-    // Because hotspots already in frame coords, we can compute translate to bring it to mid
-    const frameRect = frame.getBoundingClientRect();
-    const centerX = frameRect.width / 2;
-    const centerY = frameRect.height / 2;
-
-    // Adjust translate so hotspot moves to center
-    tx += (centerX - activeVenue.fx);
-    ty += (centerY - activeVenue.fy);
-
-    scale = target;
-    applyTransform();
-  });
-
-  // -------------------------
-  // Gesture system: pan / pinch / swipe deck
-  // -------------------------
-  let dragging = false;
-  let panStartX = 0, panStartY = 0;
+  let startX = 0, startY = 0;
   let startTx = 0, startTy = 0;
+  let lastDx = 0, lastDy = 0;
 
-  // swipe detection
-  let swipeStartX = 0, swipeStartY = 0, swipeT0 = 0;
+  // pinch support
   let isPinching = false;
   let pinchStartDist = 0;
   let pinchStartScale = 1;
+  let pinchCenter = {x:0,y:0};
 
-  function pointerDown(e) {
-    dragging = true;
-    stage.setPointerCapture?.(e.pointerId);
-    panStartX = e.clientX;
-    panStartY = e.clientY;
+  // swipe deck change support
+  let swipeCandidate = false;
+
+  // venue selection
+  let currentVenue = null;
+
+  const MIN_SCALE = 0.35;
+  const MAX_SCALE = 5.0;
+
+  // -------------------------
+  // Utils
+  // -------------------------
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+  function iOSHaptic(kind="light"){
+    // iOS Safari: no real haptics API from web, but Vibration works on some devices/browsers.
+    // We treat this as "iOS only" best-effort. No errors if unsupported.
+    if (navigator.vibrate) {
+      const pattern = kind === "strong" ? [10, 20, 10] : [8];
+      navigator.vibrate(pattern);
+    }
+  }
+
+  function setOceanParallax(dx, dy){
+    document.body.style.setProperty("--bgx", (dx * 0.03) + "px");
+    document.body.style.setProperty("--bgy", (dy * 0.03) + "px");
+  }
+
+  function applyTransform(){
+    // Center stage via translate(-50%, -50%) in deckShell, so stage transform can be translate+scale
+    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    zoomLabel.textContent = `${Math.round(scale*100)}%`;
+  }
+
+  function withNoTransition(fn){
+    const prev = stage.style.transition;
+    stage.style.transition = "none";
+    fn();
+    // force reflow
+    void stage.offsetHeight;
+    stage.style.transition = prev || "transform 240ms cubic-bezier(.2,.8,.25,1)";
+  }
+
+  function runGlowSweep(){
+    frame.classList.remove("sweep");
+    // reflow to restart animation
+    void frame.offsetHeight;
+    frame.classList.add("sweep");
+  }
+
+  // -------------------------
+  // Fit + clamp pan bounds
+  // -------------------------
+  function measureDeckBox(){
+    // bounding rect of the object as rendered on page, inside deckShell (before stage transform)
+    const rect = deckObj.getBoundingClientRect();
+    return rect;
+  }
+
+  function computeFitScaleHeightFirst(){
+    const f = frame.getBoundingClientRect();
+    const o = deckObj.getBoundingClientRect();
+
+    // if object isn't measured yet, fallback
+    const ow = o.width || 800;
+    const oh = o.height || 1200;
+
+    // height-first: try to fill most of the frame height, keep margins
+    const margin = 18;
+    const availableH = Math.max(200, f.height - margin);
+    const availableW = Math.max(200, f.width  - margin);
+
+    const sH = availableH / oh;
+    const sW = availableW / ow;
+
+    // prefer height fit, but don't overflow width
+    let s = sH;
+    if (ow * s > availableW) s = sW;
+
+    s = clamp(s, MIN_SCALE, MAX_SCALE);
+    return s;
+  }
+
+  function clampPan(){
+    // Clamp tx/ty so deck doesn't disappear completely.
+    // We compute the deck's displayed size inside the frame under current scale.
+    const f = frame.getBoundingClientRect();
+    const o = deckObj.getBoundingClientRect();
+
+    // object rect is already affected by current transforms, so instead compute using baseline:
+    // We'll derive base size from deckShell (object size at scale=1 relative to stage).
+    // For stability: use deckObj's "natural" rendered size by temporarily reading it at scale=1 with no stage transform.
+    let baseW = 800, baseH = 1200;
+
+    // attempt stable base measurement:
+    // deckObj lives under stage transform, so bounding box includes transform.
+    // We'll approximate base by dividing by current scale (good enough in practice).
+    if (o.width && o.height && scale) {
+      baseW = o.width / scale;
+      baseH = o.height / scale;
+    }
+
+    const deckW = baseW * scale;
+    const deckH = baseH * scale;
+
+    const padding = 32;
+
+    // allowable translation range: keep at least a portion in view.
+    const maxX = Math.max(0, (deckW - f.width) / 2) + padding;
+    const maxY = Math.max(0, (deckH - f.height) / 2) + padding;
+
+    tx = clamp(tx, -maxX, maxX);
+    ty = clamp(ty, -maxY, maxY);
+  }
+
+  function resetToFit(animated=true){
+    fitScale = computeFitScaleHeightFirst();
+    const doIt = () => {
+      scale = fitScale;
+      tx = 0;
+      ty = 0;
+      applyTransform();
+      // keep bounds consistent
+      clampPan();
+      applyTransform();
+    };
+    if (!animated) withNoTransition(doIt);
+    else doIt();
+  }
+
+  // -------------------------
+  // Cinematic intro zoom
+  // -------------------------
+  function cinematicIntro(){
+    // Start slightly zoomed-out, fade in, sweep glow, then settle at fit.
+    const startScale = clamp(fitScale * 0.72, MIN_SCALE, MAX_SCALE);
+    const midScale   = clamp(fitScale * 1.05, MIN_SCALE, MAX_SCALE);
+
+    withNoTransition(() => {
+      scale = startScale;
+      tx = 0;
+      ty = 0;
+      deckShell.style.opacity = "0";
+      applyTransform();
+    });
+
+    requestAnimationFrame(() => {
+      deckShell.style.transition = "opacity 520ms ease";
+      deckShell.style.opacity = "1";
+      runGlowSweep();
+
+      // zoom to fit
+      stage.animate(
+        [
+          { transform: `translate(0px, 0px) scale(${startScale})` },
+          { transform: `translate(0px, 0px) scale(${fitScale})` }
+        ],
+        { duration: 820, easing: "cubic-bezier(.2,.8,.25,1)", fill: "forwards" }
+      );
+
+      // then tiny "wow" bump
+      setTimeout(() => {
+        stage.animate(
+          [
+            { transform: `translate(0px, 0px) scale(${fitScale})` },
+            { transform: `translate(0px, 0px) scale(${midScale})` },
+            { transform: `translate(0px, 0px) scale(${fitScale})` }
+          ],
+          { duration: 780, easing: "cubic-bezier(.2,.8,.25,1)", fill: "forwards" }
+        );
+      }, 900);
+
+      // commit state after animations
+      setTimeout(() => {
+        scale = fitScale;
+        tx = 0;
+        ty = 0;
+        applyTransform();
+        clampPan();
+        applyTransform();
+      }, 1750);
+    });
+  }
+
+  // -------------------------
+  // Hotspots
+  // -------------------------
+  function clearHotspots(){
+    hotspotsEl.innerHTML = "";
+  }
+
+  function renderHotspots(deck){
+    clearHotspots();
+
+    // If no hotspots, keep quiet.
+    if (!deck.hotspots || !deck.hotspots.length) return;
+
+    // Need deck object's rendered box relative to deckShell.
+    // We'll position relative to the object element itself, which fills deckShell.
+    // Hotspot container covers deckShell, so use object bounding box inside it:
+    // We'll compute offsets by reading deckObj client box in deckShell coordinates.
+    // Easiest: treat deckObj as full width/height of deckShell content box.
+    // In this layout, deckObj is the primary visual. We'll place hotspots by percentages of its box.
+    const rect = deckObj.getBoundingClientRect();
+    const shellRect = deckShell.getBoundingClientRect();
+
+    const left = rect.left - shellRect.left;
+    const top  = rect.top  - shellRect.top;
+    const w = rect.width || 1;
+    const h = rect.height || 1;
+
+    for (const hs of deck.hotspots) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "hotspot";
+      btn.setAttribute("aria-label", hs.title);
+
+      const x = left + (hs.x * w);
+      const y = top  + (hs.y * h);
+
+      btn.style.left = `${x}px`;
+      btn.style.top  = `${y}px`;
+
+      btn.innerHTML = `
+        <span class="dot" aria-hidden="true"></span>
+        <span class="emoji" aria-hidden="true">${hs.emoji || "📍"}</span>
+        <span class="label">${hs.title}</span>
+      `;
+
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openVenue(deck, hs);
+      });
+
+      hotspotsEl.appendChild(btn);
+    }
+  }
+
+  function openVenue(deck, venue){
+    currentVenue = { deck, venue };
+    sheet.classList.add("open");
+    sheet.setAttribute("aria-hidden", "false");
+    venueTitle.textContent = `${venue.emoji || "📍"} ${venue.title}`;
+    venueDesc.textContent  = venue.desc || "";
+    runGlowSweep();
+  }
+
+  function closeVenue(){
+    currentVenue = null;
+    sheet.classList.remove("open");
+    sheet.setAttribute("aria-hidden", "true");
+  }
+
+  function centerOnVenue(){
+    if (!currentVenue) return;
+    const { venue } = currentVenue;
+
+    // Convert venue position to a gentle target pan:
+    // We'll compute venue pixel position inside deckShell (same method as renderHotspots),
+    // then shift stage so that point lands near center of frame.
+    const rect = deckObj.getBoundingClientRect();
+    const shellRect = deckShell.getBoundingClientRect();
+    const f = frame.getBoundingClientRect();
+
+    const left = rect.left - shellRect.left;
+    const top  = rect.top  - shellRect.top;
+    const w = rect.width || 1;
+    const h = rect.height || 1;
+
+    const vxLocal = left + venue.x * w;
+    const vyLocal = top  + venue.y * h;
+
+    // deckShell is centered via translate(-50%,-50%) relative to stage origin
+    // We'll approximate by nudging tx/ty such that venue aligns to frame center.
+    // Because stage origin is the center of deckShell, compute offset from shell center:
+    const shellW = shellRect.width || w;
+    const shellH = shellRect.height || h;
+    const dxFromCenter = vxLocal - (shellW / 2);
+    const dyFromCenter = vyLocal - (shellH / 2);
+
+    // target translate opposite direction (scaled)
+    const targetTx = clamp(tx - dxFromCenter, -99999, 99999);
+    const targetTy = clamp(ty - dyFromCenter, -99999, 99999);
+
+    tx = targetTx;
+    ty = targetTy;
+    clampPan();
+    applyTransform();
+  }
+
+  // -------------------------
+  // Deck switching + carousel
+  // -------------------------
+  function setHeader(deck){
+    hdrTitle.textContent = `${deck.name} · ${deck.subtitle}`;
+    hdrSub.textContent = `Tap venues · Swipe to change decks · Pinch/drag to explore`;
+  }
+
+  function buildCarousel(){
+    carousel.innerHTML = "";
+    for (let i=0;i<DECKS.length;i++){
+      const d = DECKS[i];
+      const card = document.createElement("div");
+      card.className = "card" + (i === activeIndex ? " active" : "");
+      card.dataset.index = String(i);
+      card.innerHTML = `
+        <div class="thumb"><img alt="${d.name} thumbnail" src="${d.svg}"></div>
+        <div class="meta">${d.name}<small>${d.subtitle}</small></div>
+      `;
+      card.addEventListener("click", () => {
+        switchToDeck(i, { cinematic:true });
+      });
+      carousel.appendChild(card);
+    }
+  }
+
+  function setActiveCard(){
+    const cards = carousel.querySelectorAll(".card");
+    cards.forEach((c, idx) => {
+      c.classList.toggle("active", idx === activeIndex);
+    });
+    // try to scroll active into view
+    const active = carousel.querySelector(`.card[data-index="${activeIndex}"]`);
+    if (active && active.scrollIntoView) {
+      active.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }
+
+  function switchToDeck(index, opts = { cinematic:true }){
+    index = clamp(index, 0, DECKS.length - 1);
+    if (index === activeIndex) return;
+
+    closeVenue();
+
+    const prev = DECKS[activeIndex];
+    const next = DECKS[index];
+    activeIndex = index;
+
+    setHeader(next);
+    setActiveCard();
+
+    // swap svg with a small fade + sweep
+    deckShell.style.transition = "opacity 200ms ease";
+    deckShell.style.opacity = "0";
+
+    setTimeout(() => {
+      deckObj.setAttribute("data", next.svg);
+
+      // On load, we will refit + cinematic if requested.
+      if (!opts || opts.cinematic !== false) {
+        // wait for load event
+        // (handled by deckObj load handler)
+      } else {
+        // do a quiet reset after load
+      }
+    }, 220);
+
+    // add a touch of sweep
+    runGlowSweep();
+  }
+
+  function nextDeck(){ switchToDeck(activeIndex + 1, { cinematic:true }); }
+  function prevDeck(){ switchToDeck(activeIndex - 1, { cinematic:true }); }
+
+  // -------------------------
+  // Zoom math (centered zoom)
+  // -------------------------
+  function zoomAt(factor, centerX, centerY){
+    // factor multiplies current scale
+    const newScale = clamp(scale * factor, MIN_SCALE, MAX_SCALE);
+    if (newScale === scale) return;
+
+    // Keep the point under the cursor stable:
+    // tx,ty are stage translations in screen px.
+    // We treat stage origin as frame center.
+    const f = frame.getBoundingClientRect();
+    const cx = (centerX ?? (f.left + f.width/2)) - (f.left + f.width/2);
+    const cy = (centerY ?? (f.top + f.height/2)) - (f.top + f.height/2);
+
+    // Move translation so zoom is around the chosen center
+    // Formula: t' = t + (1 - k) * (p - t) where k = newScale/scale and p is zoom center in stage coords.
+    const k = newScale / scale;
+    tx = tx + (1 - k) * (cx - tx);
+    ty = ty + (1 - k) * (cy - ty);
+
+    scale = newScale;
+    clampPan();
+    applyTransform();
+  }
+
+  // -------------------------
+  // Snap back
+  // -------------------------
+  function snapBackIfWild(){
+    const wildX = Math.abs(tx) > 240;
+    const wildY = Math.abs(ty) > 320;
+    if (!(wildX || wildY)) return;
+
+    // Animated snap to center
+    stage.style.transition = "transform 520ms cubic-bezier(.2,.8,.2,1)";
+    tx = 0; ty = 0;
+    clampPan();
+    applyTransform();
+    setTimeout(() => {
+      stage.style.transition = "transform 240ms cubic-bezier(.2,.8,.25,1)";
+    }, 540);
+  }
+
+  // -------------------------
+  // Pointer + Touch handling (drag/pinch/swipe)
+  // -------------------------
+  function onPointerDown(e){
+    // if tapping sheet area, don't drag
+    if (sheet.classList.contains("open")) return;
+
+    isDragging = true;
+    swipeCandidate = true;
+    pointerId = e.pointerId;
+    frame.setPointerCapture(pointerId);
+
+    startX = e.clientX;
+    startY = e.clientY;
     startTx = tx;
     startTy = ty;
-
-    swipeStartX = e.clientX;
-    swipeStartY = e.clientY;
-    swipeT0 = performance.now();
+    lastDx = 0;
+    lastDy = 0;
   }
 
-  function pointerMove(e) {
-    if (!dragging || isPinching) return;
-    const dx = e.clientX - panStartX;
-    const dy = e.clientY - panStartY;
+  function onPointerMove(e){
+    if (!isDragging || e.pointerId !== pointerId) return;
 
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    lastDx = dx; lastDy = dy;
+
+    // Determine swipe intent if near fit scale and movement is horizontal.
+    const nearFit = Math.abs(scale - fitScale) < 0.12 || scale <= (fitScale * 1.06);
+    const horizontal = Math.abs(dx) > (Math.abs(dy) * 1.25) && Math.abs(dx) > 24;
+
+    if (nearFit && horizontal) {
+      // Treat as swipe candidate: don't pan much.
+      // Still allow a tiny parallax feel.
+      setOceanParallax(dx, dy);
+      return;
+    }
+
+    // Otherwise pan.
+    swipeCandidate = false;
     tx = startTx + dx;
     ty = startTy + dy;
+    clampPan();
     applyTransform();
+    setOceanParallax(dx, dy);
   }
 
-  function pointerUp(e) {
-    dragging = false;
+  function onPointerUp(e){
+    if (e.pointerId !== pointerId) return;
 
-    // If it was a horizontal swipe (and not a big vertical drag), switch decks
-    const dt = performance.now() - swipeT0;
-    const dx = e.clientX - swipeStartX;
-    const dy = e.clientY - swipeStartY;
+    isDragging = false;
+    pointerId = null;
+    setOceanParallax(0, 0);
 
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
+    // Swipe to change decks if candidate and large enough gesture.
+    const dx = lastDx;
+    const dy = lastDy;
+    const nearFit = Math.abs(scale - fitScale) < 0.12 || scale <= (fitScale * 1.06);
+    const isSwipe = nearFit && Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.3;
 
-    // avoid triggering while zoomed in and user is panning
-    const canSwipe = scale <= 1.35;
-
-    if (canSwipe && dt < 420 && absX > 70 && absX > absY * 1.3) {
+    if (isSwipe) {
       if (dx < 0) nextDeck();
       else prevDeck();
+      return;
     }
+
+    snapBackIfWild();
   }
 
-  // touch pinch
-  function touchMove(e) {
+  // Pinch (touch events)
+  function distance(t1, t2){
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.hypot(dx, dy);
+  }
+
+  frame.addEventListener("touchstart", (e) => {
     if (e.touches.length === 2) {
       isPinching = true;
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-
-      if (!pinchStartDist) {
-        pinchStartDist = dist;
-        pinchStartScale = scale;
-        return;
-      }
-
-      const factor = dist / pinchStartDist;
-      const next = clamp(pinchStartScale * factor, 0.18, 4);
-      scale = next;
-      applyTransform();
+      pinchStartDist = distance(e.touches[0], e.touches[1]);
+      pinchStartScale = scale;
+      pinchCenter = {
+        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+      };
     }
-  }
+  }, { passive:false });
 
-  function touchEnd(e) {
+  frame.addEventListener("touchmove", (e) => {
+    if (!isPinching || e.touches.length !== 2) return;
+    e.preventDefault();
+
+    const d = distance(e.touches[0], e.touches[1]);
+    if (!pinchStartDist) return;
+
+    const factor = d / pinchStartDist;
+    const targetScale = clamp(pinchStartScale * factor, MIN_SCALE, MAX_SCALE);
+    const k = targetScale / scale;
+
+    // zoom around pinch center
+    zoomAt(k, pinchCenter.x, pinchCenter.y);
+  }, { passive:false });
+
+  frame.addEventListener("touchend", (e) => {
     if (e.touches.length < 2) {
-      pinchStartDist = 0;
       isPinching = false;
+      pinchStartDist = 0;
     }
-  }
+  }, { passive:true });
 
-  stage.addEventListener("pointerdown", pointerDown);
-  stage.addEventListener("pointermove", pointerMove);
-  stage.addEventListener("pointerup", pointerUp);
-  stage.addEventListener("pointercancel", () => dragging = false);
+  // Pointer events
+  frame.addEventListener("pointerdown", onPointerDown);
+  frame.addEventListener("pointermove", onPointerMove);
+  frame.addEventListener("pointerup", onPointerUp);
+  frame.addEventListener("pointercancel", onPointerUp);
 
-  stage.addEventListener("touchmove", touchMove, { passive: true });
-  stage.addEventListener("touchend", touchEnd, { passive: true });
-  stage.addEventListener("touchcancel", touchEnd, { passive: true });
+  // Tap background closes sheet
+  frame.addEventListener("click", () => {
+    if (sheet.classList.contains("open")) closeVenue();
+  });
 
-  // buttons
+  // -------------------------
+  // Controls
+  // -------------------------
   zoomInBtn.addEventListener("click", () => {
-    scale = clamp(scale + 0.18, 0.18, 4);
-    applyTransform();
+    iOSHaptic("light");
+    zoomAt(1.18);
   });
 
   zoomOutBtn.addEventListener("click", () => {
-    scale = clamp(scale - 0.18, 0.18, 4);
-    applyTransform();
+    iOSHaptic("light");
+    zoomAt(1/1.18);
   });
 
   resetBtn.addEventListener("click", () => {
-    fitToViewport({ allowOversize: true });
+    iOSHaptic("strong");
+    resetToFit(true);
+    runGlowSweep();
+  });
+
+  glowSweepBtn.addEventListener("click", () => {
+    runGlowSweep();
+  });
+
+  closeSheetBtn.addEventListener("click", () => closeVenue());
+
+  centerOnVenueBtn.addEventListener("click", () => {
+    iOSHaptic("light");
+    centerOnVenue();
+  });
+
+  // keyboard (desktop)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") prevDeck();
+    if (e.key === "ArrowRight") nextDeck();
+    if (e.key === "+" || e.key === "=") zoomInBtn.click();
+    if (e.key === "-" || e.key === "_") zoomOutBtn.click();
+    if (e.key === "0" || e.key.toLowerCase() === "r") resetBtn.click();
+    if (e.key.toLowerCase() === "g") runGlowSweep();
+    if (e.key === "Escape") closeVenue();
   });
 
   // -------------------------
-  // Deck switching (swipe & carousel)
+  // On SVG load: refit, render hotspots, do cinematic intro, glow sweep
   // -------------------------
-  function deckIndex(id) {
-    return Math.max(0, DECKS.findIndex(d => d.id === id));
-  }
+  deckObj.addEventListener("load", () => {
+    deckShell.style.opacity = "1";
 
-  function nextDeck() {
-    const i = deckIndex(currentDeckId);
-    const n = (i + 1) % DECKS.length;
-    loadDeck(DECKS[n].id);
-  }
+    // build fit based on freshly loaded measurements
+    fitScale = computeFitScaleHeightFirst();
+    resetToFit(false);
 
-  function prevDeck() {
-    const i = deckIndex(currentDeckId);
-    const p = (i - 1 + DECKS.length) % DECKS.length;
-    loadDeck(DECKS[p].id);
-  }
+    // render hotspots for active deck after a tiny delay so layout is stable
+    const deck = DECKS[activeIndex];
+    setHeader(deck);
 
-  // -------------------------
-  // Intro tour animation (auto-scroll)
-  // -------------------------
-  function runIntroTour() {
-    // Only do the tour if user hasn't interacted recently
-    let cancelled = false;
-
-    const cancel = () => { cancelled = true; };
-    stage.addEventListener("pointerdown", cancel, { once: true });
-    stage.addEventListener("touchstart", cancel, { once: true });
-
-    // Start with fit
-    fitToViewport({ allowOversize: true });
-
-    // Simple “guided glance”:
-    // 1) slight zoom in
-    // 2) gentle pan down
-    // 3) settle back to fit
-    const frameRect = frame.getBoundingClientRect();
-
-    const steps = [
-      { t: 200,  s: Math.min(scale * 1.08, 1.35), dx: 0,  dy: -18 },
-      { t: 1100, s: Math.min(scale * 1.12, 1.45), dx: 0,  dy: 140 },
-      { t: 2100, s: scale,                      dx: 0,  dy: 0 },
-    ];
-
-    const startScale = scale;
-    const startTx0 = tx;
-    const startTy0 = ty;
-
-    const t0 = performance.now();
-
-    function lerp(a,b,p){ return a + (b-a)*p; }
-    function ease(p){ return 1 - Math.pow(1-p, 3); }
-
-    function animate(now){
-      if (cancelled) return;
-
-      const elapsed = now - t0;
-      let prev = { t: 0, s: startScale, dx: 0, dy: 0 };
-      let next = steps[0];
-
-      for (let i=0; i<steps.length; i++){
-        if (elapsed <= steps[i].t) { next = steps[i]; break; }
-        prev = steps[i];
-        next = steps[Math.min(i+1, steps.length-1)];
-      }
-
-      const seg = Math.max(1, next.t - prev.t);
-      const p = clamp((elapsed - prev.t) / seg, 0, 1);
-      const ep = ease(p);
-
-      const s = lerp(prev.s, next.s, ep);
-      const dx = lerp(prev.dx, next.dx, ep);
-      const dy = lerp(prev.dy, next.dy, ep);
-
-      scale = s;
-      tx = startTx0 + dx;
-      ty = startTy0 + dy;
-      applyTransform();
-
-      if (elapsed < steps[steps.length-1].t + 80) requestAnimationFrame(animate);
-      else {
-        // final settle: refit in case layout changed
-        fitToViewport({ allowOversize: true });
-      }
-    }
-
-    requestAnimationFrame(animate);
-  }
-
-  // -------------------------
-  // On deck load
-  // -------------------------
-  function onDeckLoaded() {
-    // Layout settle
     setTimeout(() => {
-      fitToViewport({ allowOversize: true });
-      buildHotspotsFromSvg();
-      runIntroTour();
-    }, 80);
-  }
+      renderHotspots(deck);
+      fitScale = computeFitScaleHeightFirst();
+      resetToFit(false);
+      cinematicIntro();
+    }, 140);
+  });
+
+  // in case SVG loads from cache quickly
+  setTimeout(() => {
+    fitScale = computeFitScaleHeightFirst();
+    resetToFit(false);
+  }, 120);
+
+  // keep hotspots responsive on resize
+  let resizeT = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => {
+      fitScale = computeFitScaleHeightFirst();
+      resetToFit(false);
+      renderHotspots(DECKS[activeIndex]);
+    }, 120);
+  });
 
   // -------------------------
   // Init
   // -------------------------
-  renderCarousel();
-  loadDeck(currentDeckId);
-
-  // improve initial fit if object takes time
-  window.addEventListener("resize", () => fitToViewport({ allowOversize: true }));
+  buildCarousel();
+  setActiveCard();
+  setHeader(DECKS[activeIndex]);
+  runGlowSweep();
 
 })();
 </script>
-
 </body>
 </html>
