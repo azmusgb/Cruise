@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0a2e4a" />
   <title>Deck Navigator · Adventure of the Seas</title>
 
-  <!-- Fonts (weights limited to 800 for Plus Jakarta Sans) -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
 
   <style>
     /* =========================================================
-       DECK NAVIGATOR v5.1 — INLINE SVG, ACCESSIBLE, PERFORMANT
+       DECK NAVIGATOR v5.2 — CORRECT VIEWPORT FITTING
        ========================================================= */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
@@ -122,7 +122,6 @@
     .panZoom{
       transform-origin:0 0; will-change:transform; transition:transform 220ms var(--ease);
     }
-    /* SVG container: block, no special layout */
     #svgContainer {
       display: block;
     }
@@ -133,9 +132,6 @@
       max-width: none;
       max-height: none;
       filter: drop-shadow(0 40px 120px rgba(0,0,0,.55)) drop-shadow(0 0 60px rgba(0,180,230,.20));
-      /* TEMPORARY DEBUG: remove this outline after verifying SVG appears */
-      outline: 2px solid red;
-      background: rgba(255,0,0,0.1);
     }
     .glow{
       pointer-events:none; position:absolute; inset:0; border-radius:24px;
@@ -389,7 +385,7 @@
 (() => {
   'use strict';
 
-  // ----- Logging (milestones as info, not warn) -----
+  // ----- Logging -----
   const DEBUG = true;
   const Log = {
     milestone: (msg, data) => { if (DEBUG) console.info('[DeckNav]', msg, data || ''); },
@@ -435,14 +431,14 @@
   const modeTagEl = document.getElementById('modeTag');
   const intro = document.getElementById('intro');
 
-  // ----- State (single source of truth) -----
-  const STORAGE_KEY = 'rccl.decknav.state.v2';
+  // ----- State -----
+  const STORAGE_KEY = 'rccl.decknav.state.v3';
   const INTRO_KEY = 'rccl.decknav.introShown.v1';
-  const SVG_CACHE = new Map(); // cache fetched SVG text
+  const SVG_CACHE = new Map();
 
   const State = {
     deckIndex: 0,
-    viewMode: 'fit',          // 'fit' | 'fill' | '100'
+    viewMode: 'fit',
     scale: 1,
     tx: 0,
     ty: 0,
@@ -450,13 +446,13 @@
     maxScale: 5.0,
     baseW: 1000,
     baseH: 1000,
-    svgLoaded: false,         // true when SVG is in DOM and measured
+    svgLoaded: false,
     loadTimer: null,
     animationFrame: null,
     visibilityHidden: false,
   };
 
-  // ----- Persistence helpers -----
+  // ----- Persistence -----
   function persistState() {
     try {
       const slim = {
@@ -521,28 +517,37 @@
     recenterBtn.classList.toggle('show', moved);
   }
 
-  // ----- Geometry / fit calculations -----
-  function computeFitScale(mode) {
-    const fr = frame.getBoundingClientRect();
-    const vw = Math.max(1, fr.width);
-    const vh = Math.max(1, fr.height);
-    const sW = vw / State.baseW;
-    const sH = vh / State.baseH;
-    if (mode === 'fill') return sW * 1.08;
-    if (mode === 'fit') return Math.min(sW, sH) * 1.03;
-    return 1;
-  }
-
+  // ----- Core fit logic (using viewBox) -----
   function resetToMode(mode) {
     State.viewMode = mode;
     setModeButtons(mode);
+
+    const frameRect = frame.getBoundingClientRect();
+    const vw = frameRect.width;
+    const vh = frameRect.height;
+
+    // Use base dimensions from viewBox (stored after load)
+    const sw = State.baseW;
+    const sh = State.baseH;
+
     if (mode === '100') {
       State.scale = 1;
-      State.tx = 0; State.ty = 0;
-    } else {
-      State.scale = clamp(computeFitScale(mode), State.minScale, State.maxScale);
-      State.tx = 0; State.ty = 0;
+      State.tx = (vw - sw) / 2;
+      State.ty = (vh - sh) / 2;
+    } else if (mode === 'fill') {
+      // Fill width, center vertically
+      State.scale = vw / sw * 1.08;
+      State.tx = 0;
+      State.ty = (vh - sh * State.scale) / 2;
+    } else { // fit
+      State.scale = Math.min(vw / sw, vh / sh) * 1.03;
+      State.tx = (vw - sw * State.scale) / 2;
+      State.ty = (vh - sh * State.scale) / 2;
     }
+
+    // Clamp scale
+    State.scale = clamp(State.scale, State.minScale, State.maxScale);
+
     applyTransform();
     persistState();
   }
@@ -561,25 +566,23 @@
     persistState();
   }
 
-  // ----- Inline SVG loading (replaces <object>) -----
+  // ----- Inline SVG loading -----
   async function loadActiveDeck({ reason = 'unknown' } = {}) {
     const deck = DECK_MANIFEST[State.deckIndex] || DECK_MANIFEST[0];
     if (!deck) return;
 
     Log.milestone('Load deck start', { reason, deck: deck.num, path: deck.path });
 
-    // Clear any pending load timer
     if (State.loadTimer) clearTimeout(State.loadTimer);
     State.svgLoaded = false;
 
     setOverlay('error', false);
     setOverlay('loading', true, null, deck.path);
 
-    // If cached, use it
     let svgText = SVG_CACHE.get(deck.path);
     if (!svgText) {
       try {
-        const res = await fetch(deck.path, { cache: 'force-cache' }); // allow caching
+        const res = await fetch(deck.path, { cache: 'force-cache' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         svgText = await res.text();
         SVG_CACHE.set(deck.path, svgText);
@@ -592,45 +595,48 @@
       }
     }
 
-    // Parse and inject SVG
     try {
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
       const svgElement = svgDoc.documentElement;
 
-      // Ensure viewBox for scaling
-      if (!svgElement.hasAttribute('viewBox') && svgElement.hasAttribute('width') && svgElement.hasAttribute('height')) {
+      // Ensure viewBox exists
+      if (!svgElement.hasAttribute('viewBox')) {
+        // Try to create one from width/height
         const w = parseFloat(svgElement.getAttribute('width'));
         const h = parseFloat(svgElement.getAttribute('height'));
         if (!isNaN(w) && !isNaN(h)) {
           svgElement.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        } else {
+          // Fallback to getBBox (expensive but works)
+          document.body.appendChild(svgElement.cloneNode(true)); // temporary
+          const bbox = svgElement.getBBox();
+          svgElement.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
         }
       }
 
-      // Clear previous SVG
+      // Clear and inject
       while (svgContainer.firstChild) svgContainer.removeChild(svgContainer.firstChild);
       svgContainer.appendChild(svgElement);
-
-      // Give it an id for easy querying
       svgElement.id = 'inlineSvg';
 
-      // Wait for layout to measure intrinsic size
-      requestAnimationFrame(() => {
-        const rect = svgElement.getBoundingClientRect();
-        State.baseW = rect.width > 10 ? rect.width : frame.clientWidth * 0.9;
-        State.baseH = rect.height > 10 ? rect.height : frame.clientHeight * 0.9;
-        State.svgLoaded = true;
+      // Store base dimensions from viewBox
+      const vb = svgElement.viewBox.baseVal;
+      State.baseW = vb.width;
+      State.baseH = vb.height;
+      State.svgLoaded = true;
 
-        Log.milestone('Measured inline SVG', { baseW: State.baseW, baseH: State.baseH });
+      Log.milestone('SVG viewBox', { w: State.baseW, h: State.baseH });
 
-        resetToMode(State.viewMode);
-        setDeckPill();
-        setOverlay('loading', false);
-        renderDeckGrid();
+      // Reset to current mode (which will center correctly)
+      resetToMode(State.viewMode);
 
-        // If URL hash, center on that venue
-        tryHashVenue();
-      });
+      setDeckPill();
+      setOverlay('loading', false);
+      renderDeckGrid();
+
+      // Hash venue centering
+      tryHashVenue();
 
     } catch (err) {
       Log.error('SVG injection failed', err);
@@ -649,7 +655,6 @@
   function renderDeckGrid() {
     if (!deckGrid) return;
     deckGrid.innerHTML = '';
-    const activeDeck = DECK_MANIFEST[State.deckIndex];
     const currentErrorPath = errorOverlay.classList.contains('show') ? errorPath.textContent : null;
 
     DECK_MANIFEST.forEach((d, i) => {
@@ -704,11 +709,9 @@
     deckModal.classList.add('show');
     renderDeckGrid();
 
-    // Focus first interactive element inside modal
     const focusable = deckModal.querySelector('button, [tabindex="0"]:not(.focus-trap-start):not(.focus-trap-end)');
     if (focusable) focusable.focus();
 
-    // Trap focus
     const trapStart = deckModal.querySelector('.focus-trap-start');
     const trapEnd = deckModal.querySelector('.focus-trap-end');
     trapStart.addEventListener('focus', () => {
@@ -726,7 +729,7 @@
     if (previousFocus) previousFocus.focus();
   }
 
-  // ----- Venue centering (inline SVG) -----
+  // ----- Venue centering -----
   function tryHashVenue() {
     const hash = (location.hash || '').trim();
     if (!hash || hash.length < 2) return;
@@ -767,7 +770,7 @@
     return true;
   }
 
-  // ----- Pointer gestures (unchanged but now work on inline SVG) -----
+  // ----- Pointer gestures -----
   const pointers = new Map();
   let gesture = { isPanning: false, startTx:0, startTy:0, startX:0, startY:0, startDist:0, startScale:1, startMidX:0, startMidY:0 };
 
@@ -866,8 +869,8 @@
       setScaleAroundPoint(State.scale / 1.15, fr.left + fr.width/2, fr.top + fr.height/2);
       State.viewMode = 'fit'; setModeButtons('fit'); persistState();
     });
-    resetBtn.addEventListener('click', () => resetToMode(State.viewMode === '100' ? 'fit' : State.viewMode));
-    recenterBtn.addEventListener('click', () => resetToMode(State.viewMode === '100' ? 'fit' : State.viewMode));
+    resetBtn.addEventListener('click', () => resetToMode(State.viewMode));
+    recenterBtn.addEventListener('click', () => resetToMode(State.viewMode));
 
     modeFitBtn.addEventListener('click', () => resetToMode('fit'));
     modeFillBtn.addEventListener('click', () => resetToMode('fill'));
@@ -879,7 +882,6 @@
     frame.addEventListener('pointercancel', onPointerCancel);
     frame.addEventListener('wheel', onWheel, { passive: false });
 
-    // Keyboard shortcuts
     frame.addEventListener('keydown', (e) => {
       const k = e.key;
       if (k === 'ArrowLeft') { e.preventDefault(); stepDeck(-1); }
@@ -894,7 +896,7 @@
     window.addEventListener('hashchange', tryHashVenue);
   }
 
-  // ----- Ocean background (performance: pause when hidden) -----
+  // ----- Ocean background (performance) -----
   const ocean = document.getElementById('ocean');
   const ctx = ocean?.getContext('2d');
   let oceanT = 0;
@@ -948,7 +950,6 @@
     State.animationFrame = requestAnimationFrame(drawOcean);
   }
 
-  // Visibility API
   document.addEventListener('visibilitychange', () => {
     State.visibilityHidden = document.hidden;
   });
@@ -959,7 +960,7 @@
   window.addEventListener('pointermove', (e) => {
     if (!shipSil) return;
     const now = performance.now();
-    if (now - lastShipMove < 16) return; // ~60fps
+    if (now - lastShipMove < 16) return;
     lastShipMove = now;
     const x = (e.clientX / Math.max(1, innerWidth)) - 0.5;
     shipSil.style.transform = `translateX(-50%) translateY(${x * 8}px)`;
@@ -981,7 +982,6 @@
     Log.milestone('Init start');
     restoreState();
 
-    // URL deck param
     const url = new URL(location.href);
     const deckParam = url.searchParams.get('deck')?.trim();
     if (deckParam) {
