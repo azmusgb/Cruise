@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Deck Navigator · Adventure of the Seas</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@700;800;900&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
   /* ----- RESET & VARIABLES ----- */
@@ -26,6 +25,9 @@
   a { color: inherit; text-decoration: none; }
 
   :root{
+    --parx: 0px;
+    --pary: 0px;
+
     --navy: #0a2e4a;
     --accent: #00b4e6;
     --gold: #ffd740;
@@ -697,11 +699,46 @@
     transition: .18s;
   }
   .toast.show{ opacity: 1; }
+
+  /* ----- ACCESSIBILITY UTILS ----- */
+  .sr-only{
+    position:absolute !important;
+    width:1px !important; height:1px !important;
+    padding:0 !important; margin:-1px !important;
+    overflow:hidden !important;
+    clip:rect(0,0,0,0) !important;
+    white-space:nowrap !important; border:0 !important;
+  }
+
+  /* Rail loading feedback */
+  .rail-thumb.loading{
+    color: rgba(255,255,255,.92);
+  }
+  .rail-thumb.loading::after{
+    content:'';
+    position:absolute;
+    right:6px; top:50%;
+    width:12px; height:12px;
+    margin-top:-6px;
+    border-radius:999px;
+    border:2px solid rgba(255,255,255,.28);
+    border-top-color: rgba(0,180,230,.95);
+    animation: spin .8s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg);} }
+
+  /* Subtle parallax on vignette layer */
+  .vignette{
+    transform: translate(var(--parx), var(--pary));
+    will-change: transform;
+  }
+
 </style>
 </head>
 
-<body>
-  <canvas id="ocean"></canvas>
+<body style="">
+  <canvas id="ocean" width="750" height="1218" style="width: 375px; height: 609px;"></canvas>
   <div class="vignette" aria-hidden="true"></div>
 
   <header>
@@ -725,7 +762,7 @@
   <div class="search-wrap">
     <div class="search-box">
       <i class="fas fa-search"></i>
-      <input id="deckSearch" type="search" placeholder="Search decks or venues…" autocomplete="off" />
+      <input id="deckSearch" type="search" placeholder="Search decks or venues…" autocomplete="off" aria-label="Search decks">
     </div>
   </div>
 
@@ -736,22 +773,123 @@
     <button class="f-btn" data-f="essential" aria-pressed="false">Essential</button>
   </div>
 
-  <div class="content" id="content"></div>
-  <div class="empty" id="emptyState"><i class="fas fa-search"></i>No matching decks</div>
+  <div class="content" id="content"><div class="overview-card" data-n="0">
+        <div class="overview-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="overview-text">
+          <strong>All Decks — Ship Overview</strong>
+          <span>Full blueprint · Quick orientation</span>
+        </div>
+        <i class="fas fa-chevron-right overview-arrow"></i>
+      </div><div class="sec-head">
+        <span class="sec-icon ent"><i class="fas fa-masks-theater"></i></span>
+        <div><div class="sec-title">Entertainment</div></div>
+        <span class="sec-count">5</span>
+      </div><div class="deck-grid"><div class="deck-card" data-n="5" role="button" tabindex="0" aria-label="Open Royal Promenade">
+            <div class="card-top">
+              <span class="card-num">5</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Royal Promenade</div>
+            <div class="card-tags"><span class="card-tag">Shops</span><span class="card-tag">Dining</span><span class="card-tag">Parades</span></div>
+          </div><div class="deck-card" data-n="4" role="button" tabindex="0" aria-label="Open Dining &amp; Entertainment">
+            <div class="card-top">
+              <span class="card-num">4</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Dining &amp; Entertainment</div>
+            <div class="card-tags"><span class="card-tag">Main Dining</span><span class="card-tag">Theater</span><span class="card-tag">Casino</span></div>
+          </div><div class="deck-card" data-n="3" role="button" tabindex="0" aria-label="Open Lobby &amp; Guest Services">
+            <div class="card-top">
+              <span class="card-num">3</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Lobby &amp; Guest Services</div>
+            <div class="card-tags"><span class="card-tag">Grand Lobby</span><span class="card-tag">Shore Ex</span><span class="card-tag">Retail</span></div>
+          </div><div class="deck-card" data-n="13" role="button" tabindex="0" aria-label="Open Adventure Zone">
+            <div class="card-top">
+              <span class="card-num">13</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Adventure Zone</div>
+            <div class="card-tags"><span class="card-tag">Rock Wall</span><span class="card-tag">Activities</span></div>
+          </div><div class="deck-card" data-n="14" role="button" tabindex="0" aria-label="Open Sky Deck">
+            <div class="card-top">
+              <span class="card-num">14</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Sky Deck</div>
+            <div class="card-tags"><span class="card-tag">Viking Crown</span><span class="card-tag">Views</span><span class="card-tag">Lounges</span></div>
+          </div></div><div class="sec-head">
+        <span class="sec-icon wel"><i class="fas fa-water-ladder"></i></span>
+        <div><div class="sec-title">Wellness &amp; Activities</div></div>
+        <span class="sec-count">3</span>
+      </div><div class="deck-grid"><div class="deck-card" data-n="11" role="button" tabindex="0" aria-label="Open Fitness &amp; Spa">
+            <div class="card-top">
+              <span class="card-num">11</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Fitness &amp; Spa</div>
+            <div class="card-tags"><span class="card-tag">Vitality Spa</span><span class="card-tag">Gym</span><span class="card-tag">Wellness</span></div>
+          </div><div class="deck-card" data-n="12" role="button" tabindex="0" aria-label="Open Pool Deck">
+            <div class="card-top">
+              <span class="card-num">12</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Pool Deck</div>
+            <div class="card-tags"><span class="card-tag">Main Pool</span><span class="card-tag">Solarium</span><span class="card-tag">Windjammer</span></div>
+          </div><div class="deck-card" data-n="15" role="button" tabindex="0" aria-label="Open Sports &amp; Observation">
+            <div class="card-top">
+              <span class="card-num">15</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Sports &amp; Observation</div>
+            <div class="card-tags"><span class="card-tag">FlowRider</span><span class="card-tag">Jog Track</span><span class="card-tag">Views</span></div>
+          </div></div><div class="sec-head">
+        <span class="sec-icon ess"><i class="fas fa-compass"></i></span>
+        <div><div class="sec-title">Essential</div></div>
+        <span class="sec-count">1</span>
+      </div><div class="deck-grid"><div class="deck-card" data-n="2" role="button" tabindex="0" aria-label="Open Medical &amp; Crew">
+            <div class="card-top">
+              <span class="card-num">2</span>
+              <i class="fas fa-chevron-right card-arrow"></i>
+            </div>
+            <div class="card-name">Medical &amp; Crew</div>
+            <div class="card-tags"><span class="card-tag">Medical</span><span class="card-tag">Crew</span><span class="card-tag">Embark</span></div>
+          </div></div><div class="sec-head">
+        <span class="sec-icon ess"><i class="fas fa-bed"></i></span>
+        <div><div class="sec-title">Stateroom Decks</div></div>
+        <span class="sec-count">5</span>
+      </div><div class="cabin-row"><button class="cabin-chip" data-n="6" aria-label="Open deck 6">
+            <span class="chip-num">6</span>
+            <span class="chip-label">Deck 6</span>
+          </button><button class="cabin-chip" data-n="7" aria-label="Open deck 7">
+            <span class="chip-num">7</span>
+            <span class="chip-label">Deck 7</span>
+          </button><button class="cabin-chip" data-n="8" aria-label="Open deck 8">
+            <span class="chip-num">8</span>
+            <span class="chip-label">Deck 8</span>
+          </button><button class="cabin-chip" data-n="9" aria-label="Open deck 9">
+            <span class="chip-num">9</span>
+            <span class="chip-label">Deck 9</span>
+          </button><button class="cabin-chip" data-n="10" aria-label="Open deck 10">
+            <span class="chip-num">10</span>
+            <span class="chip-label">Deck 10</span>
+          </button></div></div>
+  <div class="empty" id="emptyState" style="display: none;"><i class="fas fa-search"></i>No matching decks</div>
 
   <!-- MODAL -->
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Deck details">
     <div class="modal-backdrop" id="modalBackdrop"></div>
 
-    <div class="modal-sheet" id="modalSheet">
+    <div class="modal-sheet" id="modalSheet" style="box-shadow: rgba(0, 0, 0, 0.5) 0px -20px 80px, rgba(0, 200, 150, 0.25) 0px -20px 80px;">
       <div class="drag-handle"><span></span></div>
 
       <div class="modal-bar">
         <button class="modal-nav" id="prevBtn" aria-label="Previous deck"><i class="fas fa-chevron-left"></i></button>
         <button class="modal-nav" id="nextBtn" aria-label="Next deck"><i class="fas fa-chevron-right"></i></button>
         <div class="modal-titles">
-          <div class="modal-title" id="modalTitle"></div>
-          <div class="modal-sub" id="modalSub"></div>
+          <div class="modal-title" id="modalTitle">Deck 11 — Fitness &amp; Spa</div>
+          <div class="modal-sub" id="modalSub">Vitality Spa · Gym · Wellness</div>
           <div class="modal-mode" id="modalMode" aria-live="polite"></div>
         </div>
         <button class="modal-close-btn" id="modalClose" aria-label="Close"><i class="fas fa-times"></i></button>
@@ -759,9 +897,9 @@
 
       <div class="modal-body">
         <div class="plan-viewer" id="planViewer" aria-label="Deck plan viewer">
-          <div class="shimmer" id="shimmer"></div>
-          <img class="plan-img" id="planImg" src="" alt="" draggable="false" />
-          <div class="hotspots-layer" id="hotspotsLayer"></div>
+          <div class="shimmer hidden" id="shimmer"></div>
+          <img class="plan-img loaded" id="planImg" src="decks/deck-11-final.min.svg" alt="Deck 11" draggable="false" style="transform: translate(-373px, -1515.43381px) scale(2);">
+          <div class="hotspots-layer" id="hotspotsLayer" style="transform: translate(-373px, -1515.43381px) scale(2);"><button class="hotspot-btn" data-spot-idx="0" style="left:48%; top:44%;" aria-label="Vitality Spa: Thermal suite &amp; massages">1</button><button class="hotspot-btn" data-spot-idx="1" style="left:30%; top:55%;" aria-label="Fitness Center: Panoramic treadmills">2</button></div>
         </div>
 
         <!-- Premium Quick Jump Rail -->
@@ -771,32 +909,40 @@
               <button id="railUp" aria-label="Deck up"><i class="fas fa-chevron-up"></i></button>
             </div>
             <div class="rail-track" id="railTrack">
-              <div class="rail-thumb" id="railThumb" aria-label="Deck slider">—</div>
-            </div>
+              <div class="rail-thumb" id="railThumb" aria-label="Deck slider" style="top: 93.602163px;">11</div>
+            <div class="rail-tick" style="top: 18px;"></div><div class="rail-tick" style="top: 26.40024px;"></div><div class="rail-tick" style="top: 34.800481px;"></div><div class="rail-tick" style="top: 43.200721px;"></div><div class="rail-tick" style="top: 51.600962px;"></div><div class="rail-tick" style="top: 60.001202px;"></div><div class="rail-tick" style="top: 68.401442px;"></div><div class="rail-tick" style="top: 76.801683px;"></div><div class="rail-tick" style="top: 85.201923px;"></div><div class="rail-tick active" style="top: 93.602163px;"></div><div class="rail-tick" style="top: 102.002404px;"></div><div class="rail-tick" style="top: 110.402644px;"></div><div class="rail-tick" style="top: 118.802885px;"></div><div class="rail-tick" style="top: 127.203125px;"></div></div>
             <div class="rail-mini">
               <button id="railDown" aria-label="Deck down"><i class="fas fa-chevron-down"></i></button>
             </div>
-            <div class="rail-label" id="railActiveLabel" aria-label="Current deck">—</div>
+            <div class="rail-label" id="railActiveLabel" aria-label="Current deck">D11</div>
           </div>
         </div>
 
         <div class="zoom-row">
           <button class="zoom-btn" id="zoomOut" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
-          <input type="range" class="zoom-track" id="zoomRange" min="50" max="400" value="100" aria-label="Zoom range" />
+          <input type="range" class="zoom-track" id="zoomRange" min="50" max="400" value="100" aria-label="Zoom range">
           <button class="zoom-btn" id="zoomIn" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
-          <span class="zoom-pct" id="zoomPct">100%</span>
+          <span class="zoom-pct" id="zoomPct">200%</span>
 
           <!-- Auto-fit button -->
           <button class="zoom-btn" id="zoomFit" aria-label="Auto fit"><i class="fas fa-arrows-to-circle"></i></button>
         </div>
 
-        <div class="chips-row" id="chipsRow"></div>
-        <div class="legend" id="legend"></div>
+        <div class="chips-row" id="chipsRow"><button class="chip" aria-label="Filter Vitality Spa">Vitality Spa</button><button class="chip" aria-label="Filter Fitness">Fitness</button></div>
+        <div class="legend" id="legend">
+      <button class="legend-item" data-spot-idx="0" aria-label="Highlight Vitality Spa">
+        <span class="legend-n">1</span>
+        <div class="legend-t"><strong>Vitality Spa</strong><span>Thermal suite &amp; massages</span></div>
+      </button>
+      <button class="legend-item" data-spot-idx="1" aria-label="Highlight Fitness Center">
+        <span class="legend-n">2</span>
+        <div class="legend-t"><strong>Fitness Center</strong><span>Panoramic treadmills</span></div>
+      </button></div>
       </div>
 
       <div class="modal-footer">
         <button class="foot-btn" id="btnLoc"><i class="fas fa-location-dot"></i> My Location</button>
-        <a class="foot-btn" id="btnPDF" href="#" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF</a>
+        <a class="foot-btn" id="btnPDF" href="#" target="_blank" rel="noopener" aria-disabled="true"><i class="fas fa-file-pdf"></i> PDF</a>
         <button class="foot-btn primary" id="btnClose2"><i class="fas fa-times"></i> Close</button>
       </div>
     </div>
@@ -828,7 +974,7 @@
   <!-- TOAST -->
   <div class="toast" id="toast" role="status" aria-live="polite">
     <i class="fas fa-circle-check"></i>
-    <span id="toastText">Deck loaded</span>
+    <span id="toastText">Loaded Deck 11</span>
   </div>
 
 <script>
@@ -923,6 +1069,28 @@
   let query = '';
   let currentDeck = null;
 
+  // Prevent stale deck loads when user scrubs the rail quickly
+  let activeDeckToken = 0;
+
+  // Modal focus management
+  let lastFocusedBeforeModal = null;
+
+  // Debounced resize
+  let resizeTimer = 0;
+
+  // Double-tap disambiguation (avoid micro-pan before zoom)
+  const TAP_MAX_MOVE_PX = 8;
+  const TAP_MAX_MS = 260;
+  let tapStart = null;   // {x,y,t}
+  let tapMoved = false;
+
+  // Preload cache for adjacent decks
+  const preloadCache = new Map(); // path -> {img, ok}
+
+  function isImageReady() {
+    return !!(planImg && planImg.complete && planImg.naturalWidth > 0);
+  }
+
   /* ===========================
      DOM
      =========================== */
@@ -937,6 +1105,7 @@
   const modalTitle = $('modalTitle');
   const modalSub = $('modalSub');
   const modalMode = $('modalMode');
+  const deckAnnounce = $('deckAnnounce');
 
   const planViewer = $('planViewer');
   const planImg = $('planImg');
@@ -999,7 +1168,53 @@
   function clearSpotStates() {
     hotspotsLayer.querySelectorAll('.hotspot-btn').forEach(btn => btn.classList.remove('active','dim','smart-highlight'));
     legend.querySelectorAll('.legend-item').forEach(item => item.classList.remove('active'));
+  
+  /* ===========================
+     MODAL FOCUS TRAP (A11Y)
+     =========================== */
+  function getFocusableInModal() {
+    const selectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+    const nodes = Array.from(modalSheet.querySelectorAll(selectors));
+    return nodes.filter(el => {
+      const s = window.getComputedStyle(el);
+      return s.display !== 'none' && s.visibility !== 'hidden' && el.offsetParent !== null;
+    });
   }
+
+  function handleModalTabTrap(e) {
+    if (!modal.classList.contains('open')) return;
+    if (e.key !== 'Tab') return;
+
+    const focusables = getFocusableInModal();
+    if (!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+
+    if (e.shiftKey) {
+      if (active === first || !modalSheet.contains(active)) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  document.addEventListener('keydown', handleModalTabTrap, true);
+
+}
 
   /* ===========================
      RENDER LIST
@@ -1025,7 +1240,9 @@
     let html = '';
     let anyVisible = false;
 
-    const ovVis = (filt === 'all' || filt === 'essential') && (!q || 'all decks overview ship orientation blueprint'.includes(q));
+    const ov = byNum(0);
+    const ovHay = `${ov.name} ${ov.sub} ${(ov.tags||[]).join(' ')}`.toLowerCase();
+    const ovVis = (filt === 'all' || filt === 'essential') && (!q || ovHay.includes(q));
     if (ovVis) {
       anyVisible = true;
       html += `<div class="overview-card" data-n="0">
@@ -1249,6 +1466,12 @@
     apply() {
       planImg.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
       hotspotsLayer.style.transform = `translate(${this.x}px, ${this.y}px) scale(${this.scale})`;
+
+      // Subtle parallax on background for "depth"
+      const px = Math.max(-18, Math.min(18, this.x * 0.02));
+      const py = Math.max(-18, Math.min(18, this.y * 0.02));
+      document.documentElement.style.setProperty('--parx', `${px}px`);
+      document.documentElement.style.setProperty('--pary', `${py}px`);
     },
 
     setImageNaturalSize() {
@@ -1280,6 +1503,83 @@
       if (ih <= vh) this.y = (vh - ih) / 2;
       else this.y = Math.max(minY, Math.min(0, this.y));
     },
+
+    snapToBounds(ms = 260) {
+      // Animate from current to clamped bounds for premium "snap back"
+      const startX = this.x;
+      const startY = this.y;
+      const startS = this.scale;
+
+      // Compute targets via clamp on a copy
+      const tx = this.x, ty = this.y, ts = this.scale;
+      this.clamp();
+      const targetX = this.x;
+      const targetY = this.y;
+
+      // Restore current before animating
+      this.x = tx; this.y = ty; this.scale = ts;
+
+      this.animateTo({ x: targetX, y: targetY, scale: startS }, ms);
+    },
+
+    animateTo({ x, y, scale }, ms = 260) {
+      // Cancel momentum while animating
+      this.stopMomentum();
+
+      const fromX = this.x, fromY = this.y, fromS = this.scale;
+      const toX = Number.isFinite(x) ? x : fromX;
+      const toY = Number.isFinite(y) ? y : fromY;
+      const toS = Number.isFinite(scale) ? scale : fromS;
+
+      const t0 = performance.now();
+      const ease = (t) => 1 - Math.pow(1 - t, 3); // easeOutCubic
+
+      const tick = (now) => {
+        const p = Math.min(1, (now - t0) / Math.max(1, ms));
+        const k = ease(p);
+
+        this.x = fromX + (toX - fromX) * k;
+        this.y = fromY + (toY - fromY) * k;
+        this.scale = fromS + (toS - fromS) * k;
+
+        this.clamp();
+        this.apply();
+
+        if (p < 1) requestAnimationFrame(tick);
+      };
+
+      requestAnimationFrame(tick);
+    },
+
+    softPan(dx, dy) {
+      // Apply rubber-band resistance when user drags beyond bounds
+      const { vw, vh, iw, ih, minX, minY } = this.bounds();
+      const maxX = 0;
+      const maxY = 0;
+
+      const nextX = this.x + dx;
+      const nextY = this.y + dy;
+
+      const overscroll = (v, min, max) => {
+        if (v < min) return v - min;
+        if (v > max) return v - max;
+        return 0;
+      };
+
+      const ox = (iw <= vw) ? 0 : overscroll(nextX, minX, maxX);
+      const oy = (ih <= vh) ? 0 : overscroll(nextY, minY, maxY);
+
+      // Resistance curve (smaller movement outside bounds)
+      const resist = (o) => {
+        const s = Math.sign(o);
+        const a = Math.min(120, Math.abs(o));
+        return s * (a * 0.35);
+      };
+
+      this.x = (iw <= vw) ? (vw - iw)/2 : (nextX - resist(ox));
+      this.y = (ih <= vh) ? (vh - ih)/2 : (nextY - resist(oy));
+    }
+},
 
     setScale(nextScale, centerClientX, centerClientY) {
       const clamped = Math.max(this.minScale, Math.min(this.maxScale, nextScale));
@@ -1320,6 +1620,7 @@
     fit() {
       this.stopMomentum();
       this.setImageNaturalSize();
+      if (!isImageReady() || this.imgW <= 0 || this.imgH <= 0) return;
 
       const vw = planViewer.clientWidth;
       const vh = planViewer.clientHeight;
@@ -1371,6 +1672,8 @@
           this.raf = requestAnimationFrame(step);
         } else {
           this.raf = 0;
+          // Gentle snap-back at rest
+          if (!reducedMotion) this.snapToBounds(220);
         }
       };
 
@@ -1392,13 +1695,30 @@
   }
 
   function zoomToHotspotElement(btnEl) {
-    // Zoom to a predictable level and center on hotspot
-    const rect = btnEl.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
+    if (!btnEl) return;
+    if (!isImageReady()) return;
 
-    const target = Math.min(map.maxScale, Math.max(map.scale, 2.2));
-    map.setScale(target, cx, cy);
+    const br = btnEl.getBoundingClientRect();
+    const cxClient = br.left + br.width / 2;
+    const cyClient = br.top + br.height / 2;
+
+    const viewerRect = planViewer.getBoundingClientRect();
+    const vx = cxClient - viewerRect.left;
+    const vy = cyClient - viewerRect.top;
+
+    // Convert to image-space under current transform
+    const ix = (vx - map.x) / map.scale;
+    const iy = (vy - map.y) / map.scale;
+
+    const targetScale = Math.min(map.maxScale, Math.max(map.scale, 2.35));
+    const vw = planViewer.clientWidth;
+    const vh = planViewer.clientHeight;
+
+    // Center hotspot in viewport at target scale
+    const targetX = (vw / 2) - (ix * targetScale);
+    const targetY = (vh / 2) - (iy * targetScale);
+
+    map.animateTo({ x: targetX, y: targetY, scale: targetScale }, reducedMotion ? 0 : 280);
     updateZoomUI();
   }
 
@@ -1423,8 +1743,51 @@
     return ordered.findIndex(x => x.n === currentDeck.n);
   }
 
-  function setDeck(deck, opts = {}) {
+  
+  /* ===========================
+     PRELOAD (adjacent decks)
+     =========================== */
+  function preloadDeckPath(path) {
+    if (!path) return;
+    if (preloadCache.has(path)) return;
+    const img = new Image();
+    img.decoding = 'async';
+    img.loading = 'eager';
+    preloadCache.set(path, { img, ok: false });
+
+    img.onload = () => {
+      const ent = preloadCache.get(path);
+      if (ent) ent.ok = true;
+    };
+    img.onerror = () => {
+      // keep entry to avoid retry storms
+    };
+    img.src = path;
+  }
+
+  function preloadAdjacent(deckNum, radius = 1) {
+    const list = ordered.map(d => d.n);
+    const i = list.indexOf(deckNum);
+    if (i === -1) return;
+
+    for (let r = 1; r <= radius; r++) {
+      const a = list[i - r];
+      const b = list[i + r];
+      if (a != null) {
+        const d = byNum(a);
+        if (d && d.svg) preloadDeckPath(d.svg);
+      }
+      if (b != null) {
+        const d = byNum(b);
+        if (d && d.svg) preloadDeckPath(d.svg);
+      }
+    }
+  }
+
+function setDeck(deck, opts = {}) {
     if (!deck) return;
+
+    const token = ++activeDeckToken;
 
     currentDeck = deck;
     setModalGlowForDeck(deck);
@@ -1448,30 +1811,48 @@
 
     // Load SVG
     showShimmer();
+    railThumb.classList.add('loading');
     planImg.className = 'plan-img';
     planImg.src = deck.svg || '';
     planImg.alt = deck.name;
 
+    // Announce deck change for screen readers
+    if (deckAnnounce) deckAnnounce.textContent = `${deck.name}${deck.n ? ' ' + deck.sub : ''}`;
+
     planImg.onload = () => {
+      if (token !== activeDeckToken) return;
+      if (!currentDeck || currentDeck.n !== deck.n) return;
+
       hideShimmer();
+      railThumb.classList.remove('loading');
       planImg.classList.add('loaded');
 
       // Ensure hotspots and map size are synced
       renderHotspots(deck);
       clearSpotStates();
 
-      // Fit + center after load
+      // Fit + center after load (animated)
       map.setImageNaturalSize();
-      map.fit();
+      if (!reducedMotion) {
+        map.fit();
+        map.snapToBounds(260);
+      } else {
+        map.fit();
+      }
 
       applySmartMode(deck);
       runCinematicReveal();
+      preloadAdjacent(deck.n, 2);
+      maybeShowGestureHint();
 
       showToast(`Loaded Deck ${deck.n || ''}`.trim());
     };
 
     planImg.onerror = () => {
+      if (token !== activeDeckToken) return;
+      if (!currentDeck || currentDeck.n !== deck.n) return;
       hideShimmer();
+      railThumb.classList.remove('loading');
       renderHotspots(deck);
       clearSpotStates();
       modalMode.textContent = '';
@@ -1480,6 +1861,7 @@
   }
 
   function openModal(deck) {
+    lastFocusedBeforeModal = document.activeElement;
     setDeck(deck, { firstOpen: true });
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1491,6 +1873,11 @@
     document.body.style.overflow = '';
     clearSpotStates();
     map.stopMomentum();
+
+    if (lastFocusedBeforeModal && typeof lastFocusedBeforeModal.focus === 'function') {
+      try { lastFocusedBeforeModal.focus(); } catch (_) {}
+    }
+    lastFocusedBeforeModal = null;
   }
 
   /* ===========================
@@ -1544,7 +1931,12 @@
     if (clientY == null) return;
 
     const rect = railTrack.getBoundingClientRect();
-    const y = Math.min(rect.bottom, Math.max(rect.top, clientY)) - rect.top;
+    const yRaw = Math.min(rect.bottom, Math.max(rect.top, clientY)) - rect.top;
+
+    const yMin = 18;
+    const yMax = rect.height - 18;
+    const y = Math.min(yMax, Math.max(yMin, yRaw));
+
     railThumb.style.top = `${y}px`;
 
     if (!railRaf) {
@@ -1629,11 +2021,12 @@
 
   zoomInBtn.addEventListener('click', () => map.setZoomPercent((map.scale * 100) + 25));
   zoomOutBtn.addEventListener('click', () => map.setZoomPercent((map.scale * 100) - 25));
-  zoomFit.addEventListener('click', () => map.fit());
+  zoomFit.addEventListener('click', () => { map.fit(); map.snapToBounds(reducedMotion ? 0 : 220); });
 
   zoomRange.addEventListener('input', (e) => {
     const v = Number(e.target.value || 100);
     map.setZoomPercent(v);
+    map.snapToBounds(reducedMotion ? 0 : 180);
   });
 
   chipsRow.addEventListener('click', (e) => {
@@ -1707,12 +2100,14 @@
   });
 
   window.addEventListener('resize', () => {
-    if (modal.classList.contains('open') && currentDeck) {
+    if (!modal.classList.contains('open') || !currentDeck) return;
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+      if (!modal.classList.contains('open') || !currentDeck) return;
       updateRailToDeck(currentDeck);
       renderRailTicks(currentDeck.n);
-      // refit to new viewport size
-      map.fit();
-    }
+      if (isImageReady()) map.fit();
+    }, 120);
   });
 
   /* ===========================
@@ -1738,15 +2133,13 @@
     const dx = e.clientX - map.lastPt.x;
     const dy = e.clientY - map.lastPt.y;
 
-    map.x += dx;
-    map.y += dy;
+    map.softPan(dx, dy);
 
     map.vx = dx;
     map.vy = dy;
 
     map.lastPt = { x: e.clientX, y: e.clientY };
 
-    map.clamp();
     map.apply();
   });
 
@@ -1754,6 +2147,8 @@
     if (!map.isPanning) return;
     map.isPanning = false;
     map.startMomentum();
+    // Premium snap-back (after user lets go)
+    map.snapToBounds(reducedMotion ? 0 : 220);
   });
   planViewer.addEventListener('pointercancel', () => {
     map.isPanning = false;
@@ -1763,6 +2158,12 @@
   // iOS pinch zoom
   planViewer.addEventListener('touchstart', (e) => {
     if (!modal.classList.contains('open')) return;
+
+    if (e.touches.length === 1) {
+      const t0 = e.touches[0];
+      tapStart = { x: t0.clientX, y: t0.clientY, t: Date.now() };
+      tapMoved = false;
+    }
 
     if (e.touches.length === 2) {
       map.isPinching = true;
@@ -1775,6 +2176,13 @@
   }, { passive: false });
 
   planViewer.addEventListener('touchmove', (e) => {
+    if (tapStart && e.touches.length === 1) {
+      const t1 = e.touches[0];
+      const dx = t1.clientX - tapStart.x;
+      const dy = t1.clientY - tapStart.y;
+      if ((dx*dx + dy*dy) > (TAP_MAX_MOVE_PX*TAP_MAX_MOVE_PX)) tapMoved = true;
+    }
+
     if (!map.isPinching) return;
     if (e.touches.length !== 2) return;
 
@@ -1802,13 +2210,29 @@
     const touch = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
     if (!touch) return;
 
+    const elapsed = tapStart ? (now - tapStart.t) : 9999;
+    const isTapLike = !!tapStart && !tapMoved && elapsed <= TAP_MAX_MS;
+
+    if (!isTapLike) {
+      map.lastTapTs = 0;
+      tapStart = null;
+      tapMoved = false;
+      return;
+    }
+
     if (now - map.lastTapTs < 280) {
+      map.stopMomentum();
       const targetPct = (Math.round(map.scale * 100) <= 110) ? 200 : 100;
       map.setZoomPercent(targetPct, touch.clientX, touch.clientY);
       map.lastTapTs = 0;
+      // snap back if needed
+      map.snapToBounds(reducedMotion ? 0 : 220);
     } else {
       map.lastTapTs = now;
     }
+
+    tapStart = null;
+    tapMoved = false;
   }, { passive: true });
 
   /* ===========================
@@ -1823,6 +2247,7 @@
       { amp: 38, len: 0.006, speed: 0.016, y: 0.62, alpha: 0.07 },
     ];
     let t = 0;
+    let raf = 0;
 
     function resize() {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1835,13 +2260,11 @@
     resize();
     window.addEventListener('resize', resize);
 
-    function draw() {
-      if (document.hidden) { requestAnimationFrame(draw); return; }
-
+    function frame() {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      ctx.clearRect(0, 0, w, h);
 
+      ctx.clearRect(0, 0, w, h);
       ctx.fillStyle = '#071a2c';
       ctx.fillRect(0, 0, w, h);
 
@@ -1850,7 +2273,7 @@
         ctx.beginPath();
         ctx.moveTo(0, baseY);
         for (let x = 0; x <= w; x += 8) {
-          ctx.lineTo(x, baseY + Math.sin(x * wa.len + t * (0.8 + i*0.15)) * wa.amp);
+          ctx.lineTo(x, baseY + Math.sin(x * wa.len + t * (0.8 + i * 0.15)) * wa.amp);
         }
         ctx.lineTo(w, h);
         ctx.lineTo(0, h);
@@ -1860,9 +2283,26 @@
       });
 
       t += reducedMotion ? 0.004 : 0.012;
-      requestAnimationFrame(draw);
+      raf = requestAnimationFrame(frame);
     }
-    draw();
+
+    function startOcean() {
+      if (raf) return;
+      raf = requestAnimationFrame(frame);
+    }
+
+    function stopOcean() {
+      if (!raf) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopOcean();
+      else startOcean();
+    });
+
+    startOcean();
   }
 
   /* ===========================
@@ -1872,6 +2312,4 @@
 
 })();
 </script>
-
-</body>
-</html>
+</body></html>
