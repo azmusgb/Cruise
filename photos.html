@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light" data-theme-mode="light">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0079d4" />
     <title>Photo Library | Adventure of the Seas</title>
     <meta
@@ -21,118 +21,306 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
 
+    <!-- Your existing site CSS (kept) -->
     <link rel="stylesheet" href="css/base.css?v=3" />
     <link rel="stylesheet" href="css/utilities.css?v=3" />
     <link rel="stylesheet" href="css/components.css?v=3" />
     <link rel="stylesheet" href="css/mobile-first.css?v=3" />
-  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
+    <link rel="stylesheet" href="css/page-inline-extracted.css?v=2" />
+
+    <!-- Shared layout injection (kept) -->
     <script src="js/shared-layout.js?v=17" defer></script>
-<style>
-  /* Global restraint: Photos page scoped overrides */
-  :root {
-    --shadow-ambient: 0 4px 14px rgba(0,0,0,0.08); /* -25% intensity */
-    --shadow-ambient-soft: 0 2px 8px rgba(0,0,0,0.06);
-    --border-soft: rgba(0,0,0,0.08);
-    --hover-translate: translateY(-2px);
-    --easing-organic: cubic-bezier(0.22, 0.61, 0.36, 1);
-    --motion-duration: 220ms; /* <= 300ms */
-  }
 
-  /* Typography weights: prefer 500, reserve 600 for the single page headline */
-  .photos-page h1 { font-weight: 600; }
-  .photos-page h2, .photos-page h3, .photos-page h4, .photos-page .featured-title { font-weight: 500; }
+    <style>
+      /* =========================================================
+         Photos page: scoped "elite UX engine" refinements
+         (keeps your current aesthetic restraint)
+      ========================================================== */
+      :root {
+        --shadow-ambient: 0 4px 14px rgba(0,0,0,0.08);
+        --shadow-ambient-soft: 0 2px 8px rgba(0,0,0,0.06);
+        --border-soft: rgba(0,0,0,0.08);
+        --hover-translate: translateY(-2px);
+        --easing-organic: cubic-bezier(0.22, 0.61, 0.36, 1);
+        --motion-duration: 220ms;
+        --lb-backdrop: rgba(8, 20, 34, 0.88);
+        --lb-panel: rgba(255,255,255,0.10);
+        --lb-panel-border: rgba(255,255,255,0.18);
+        --lb-ink: rgba(255,255,255,0.96);
+        --lb-ink-dim: rgba(255,255,255,0.78);
+        --lb-focus: rgba(255,255,255,0.35);
+      }
 
-  /* Shadows: softened everywhere */
-  .photos-page .photo-card,
-  .photos-page .list-item,
-  .photos-page .featured-card,
-  .photos-page .quick-link-card {
-    box-shadow: var(--shadow-ambient);
-    border: 1px solid var(--border-soft);
-  }
+      /* Typography weights */
+      .photos-page h1 { font-weight: 600; }
+      .photos-page h2, .photos-page h3, .photos-page h4, .photos-page .featured-title { font-weight: 500; }
 
-  /* Borders: no hard borders */
-  .photos-page .hero-chip,
-  .photos-page .mini-chip,
-  .photos-page .meta-tag,
-  .photos-page .source-badge {
-    border: 1px solid var(--border-soft);
-  }
+      /* Shadows: softened everywhere */
+      .photos-page .photo-card,
+      .photos-page .list-item,
+      .photos-page .featured-card,
+      .photos-page .quick-link-card {
+        box-shadow: var(--shadow-ambient);
+        border: 1px solid var(--border-soft);
+      }
 
-  /* Gradients: flatten decorative ones; keep primary action only (none here) */
-  .photos-page .featured-card__overlay { background: rgba(0,0,0,0.10); }
+      /* Borders */
+      .photos-page .hero-chip,
+      .photos-page .mini-chip,
+      .photos-page .meta-tag,
+      .photos-page .source-badge {
+        border: 1px solid var(--border-soft);
+      }
 
-  /* Hover lift: max 2px; remove scale */
-  .photos-page .photo-card,
-  .photos-page .list-item,
-  .photos-page .featured-card,
-  .photos-page .quick-link-card {
-    transition: opacity var(--motion-duration) var(--easing-organic),
-                transform var(--motion-duration) var(--easing-organic),
-                box-shadow var(--motion-duration) var(--easing-organic);
-    transform: translateY(0);
-  }
-  .photos-page .photo-card:hover,
-  .photos-page .photo-card:focus,
-  .photos-page .list-item:hover,
-  .photos-page .list-item:focus,
-  .photos-page .featured-card:hover,
-  .photos-page .featured-card:focus,
-  .photos-page .quick-link-card:hover,
-  .photos-page .quick-link-card:focus {
-    transform: var(--hover-translate);
-    box-shadow: var(--shadow-ambient-soft);
-  }
+      /* Gradients: flatten decorative ones */
+      .photos-page .featured-card__overlay { background: rgba(0,0,0,0.10); }
 
-  /* Chips/badges: quieter */
-  .photos-page .hero-chip,
-  .photos-page .mini-chip,
-  .photos-page .meta-tag,
-  .photos-page .source-badge {
-    background: rgba(0,0,0,0.03);
-    color: var(--royal-ink, #1a2b44);
-    box-shadow: none;
-  }
-  .photos-page .source-badge { opacity: 0.75; }
+      /* Hover lift: max 2px; remove scale */
+      .photos-page .photo-card,
+      .photos-page .list-item,
+      .photos-page .featured-card,
+      .photos-page .quick-link-card {
+        transition: opacity var(--motion-duration) var(--easing-organic),
+                    transform var(--motion-duration) var(--easing-organic),
+                    box-shadow var(--motion-duration) var(--easing-organic);
+        transform: translateY(0);
+      }
+      .photos-page .photo-card:hover,
+      .photos-page .photo-card:focus-visible,
+      .photos-page .list-item:hover,
+      .photos-page .list-item:focus-visible,
+      .photos-page .featured-card:hover,
+      .photos-page .featured-card:focus-visible,
+      .photos-page .quick-link-card:hover,
+      .photos-page .quick-link-card:focus-visible {
+        transform: var(--hover-translate);
+        box-shadow: var(--shadow-ambient-soft);
+      }
 
-  /* Dividers: lighter and more spacing */
-  .photos-page .gallery-info-bar { border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; margin-bottom: 16px; }
+      /* Chips/badges: quieter */
+      .photos-page .hero-chip,
+      .photos-page .mini-chip,
+      .photos-page .meta-tag,
+      .photos-page .source-badge {
+        background: rgba(0,0,0,0.03);
+        color: var(--royal-ink, #1a2b44);
+        box-shadow: none;
+      }
+      .photos-page .source-badge { opacity: 0.78; }
 
-  /* Sticky UI: ensure nothing is sticky on this page */
-  .photos-page .gallery-controls,
-  .photos-page .featured-strip,
-  .photos-page .photo-library-page [style*="position: sticky"],
-  .photos-page [data-sticky],
-  .photos-page .sticky { position: static !important; top: auto !important; }
+      /* Dividers */
+      .photos-page .gallery-info-bar {
+        border-bottom: 1px solid var(--border-soft);
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
 
-  /* Motion limits */
-  .photos-page * { transition-property: opacity, transform, box-shadow, border-color, background-color; transition-duration: var(--motion-duration); transition-timing-function: var(--easing-organic); }
+      /* Sticky UI: ensure nothing is sticky on this page */
+      .photos-page .gallery-controls,
+      .photos-page .featured-strip,
+      .photos-page .photo-library-page [style*="position: sticky"],
+      .photos-page [data-sticky],
+      .photos-page .sticky {
+        position: static !important;
+        top: auto !important;
+      }
 
-  /* Reduce interactive energy: softer list/grid emphasis */
-  .photos-page .gallery-grid .photo-card__image,
-  .photos-page .gallery-list .list-item__image { border-radius: 10px; }
+      /* Motion limits */
+      @media (prefers-reduced-motion: reduce){
+        .photos-page * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+      }
 
-  /* Quiet view toggle and filters */
-  .photos-page .gallery-filters .filter-btn,
-  .photos-page .gallery-view-toggle .view-btn { box-shadow: none; border: 1px solid var(--border-soft); background: rgba(0,0,0,0.02); }
-  .photos-page .gallery-filters .filter-btn.active,
-  .photos-page .gallery-view-toggle .view-btn.active { background: rgba(0,0,0,0.04); }
+      /* Quiet view toggle and filters */
+      .photos-page .gallery-filters .filter-btn,
+      .photos-page .gallery-view-toggle .view-btn {
+        box-shadow: none;
+        border: 1px solid var(--border-soft);
+        background: rgba(0,0,0,0.02);
+      }
+      .photos-page .gallery-filters .filter-btn.active,
+      .photos-page .gallery-view-toggle .view-btn.active {
+        background: rgba(0,0,0,0.04);
+      }
 
-  /* Reduce hover emphasis on thumbnails; no scale */
-  .photos-page .featured-card__img,
-  .photos-page .photo-card__image,
-  .photos-page .list-item__image { transition: opacity var(--motion-duration) var(--easing-organic); }
-  .photos-page .featured-card:hover .featured-card__img,
-  .photos-page .photo-card:hover .photo-card__image,
-  .photos-page .list-item:hover .list-item__image { opacity: 0.96; }
+      /* Reduce hover emphasis on thumbnails; no scale */
+      .photos-page .featured-card__img,
+      .photos-page .photo-card__image,
+      .photos-page .list-item__image {
+        transition: opacity var(--motion-duration) var(--easing-organic);
+      }
+      .photos-page .featured-card:hover .featured-card__img,
+      .photos-page .photo-card:hover .photo-card__image,
+      .photos-page .list-item:hover .list-item__image {
+        opacity: 0.965;
+      }
 
-  /* Lived-in feel: soften hero and featured spacing/shadows */
-  .photos-page .photo-hero__inner { box-shadow: none; }
-  .photos-page .featured-strip__inner { box-shadow: none; }
+      .photos-page .photo-hero__inner { box-shadow: none; }
+      .photos-page .featured-strip__inner { box-shadow: none; }
 
-  /* Ensure no heavy frosted/glass dominance in bottom nav */
-  .photos-page #sharedBottomNav { backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: var(--shadow-ambient-soft); border-top: 1px solid var(--border-soft); opacity: 0.96; }
-</style>
+      /* Bottom nav */
+      .photos-page #sharedBottomNav {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: var(--shadow-ambient-soft);
+        border-top: 1px solid var(--border-soft);
+        opacity: 0.96;
+      }
+
+      /* =========================================================
+         Elite Lightbox UX (scoped)
+      ========================================================== */
+      .photos-page .lightbox {
+        position: fixed;
+        inset: 0;
+        background: var(--lb-backdrop);
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        z-index: 9999;
+      }
+      .photos-page .lightbox[hidden] { display: none !important; }
+
+      .photos-page .lightbox__shell{
+        width: min(1100px, 100%);
+        max-height: min(86vh, 860px);
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: 12px;
+        position: relative;
+      }
+
+      .photos-page .lightbox__frame{
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--lb-panel-border);
+        background: rgba(0,0,0,0.20);
+        box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+      }
+
+      .photos-page .lightbox__image{
+        width: 100%;
+        height: min(70vh, 680px);
+        object-fit: contain;
+        display: block;
+        background: rgba(0,0,0,0.35);
+        transform: translateZ(0);
+      }
+
+      .photos-page .lightbox__toolbar{
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--lb-panel-border);
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .photos-page .lightbox__title{
+        color: var(--lb-ink);
+        font-weight: 600;
+        line-height: 1.2;
+        margin-bottom: 2px;
+      }
+      .photos-page .lightbox__desc{
+        color: var(--lb-ink-dim);
+        font-size: 0.92rem;
+        line-height: 1.35;
+      }
+
+      .photos-page .lightbox__counter{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--lb-ink-dim);
+        font-size: 0.9rem;
+        margin-top: 6px;
+      }
+
+      .photos-page .lightbox__actions{
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .photos-page .lightbox__link,
+      .photos-page .lightbox__actions button{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--lb-panel-border);
+        color: var(--lb-ink);
+        background: rgba(255,255,255,0.07);
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform var(--motion-duration) var(--easing-organic),
+                    background-color var(--motion-duration) var(--easing-organic),
+                    border-color var(--motion-duration) var(--easing-organic);
+      }
+      .photos-page .lightbox__link:hover,
+      .photos-page .lightbox__actions button:hover{
+        transform: translateY(-1px);
+        background: rgba(255,255,255,0.10);
+        border-color: rgba(255,255,255,0.24);
+      }
+      .photos-page .lightbox__actions button{
+        font: inherit;
+      }
+
+      .photos-page .lightbox-nav{
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(255,255,255,0.10);
+        color: rgba(255,255,255,0.96);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: transform var(--motion-duration) var(--easing-organic),
+                    background-color var(--motion-duration) var(--easing-organic);
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .photos-page .lightbox-nav:hover{
+        transform: translateY(-50%) scale(1.03);
+        background: rgba(255,255,255,0.14);
+      }
+      .photos-page .lightbox-nav--prev{ left: 12px; }
+      .photos-page .lightbox-nav--next{ right: 12px; }
+
+      .photos-page .lightbox :focus-visible{
+        outline: 2px solid var(--lb-focus);
+        outline-offset: 2px;
+      }
+
+      /* Skeleton shimmer for images */
+      .photos-page .img-shimmer{
+        position: relative;
+        overflow: hidden;
+        background: rgba(0,0,0,0.04);
+      }
+      .photos-page .img-shimmer::after{
+        content:"";
+        position:absolute;
+        inset:-40% -60%;
+        background: linear-gradient(90deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35), rgba(255,255,255,0.0));
+        transform: translateX(-40%);
+        animation: shimmer 1.05s linear infinite;
+      }
+      @keyframes shimmer{
+        0%{ transform: translateX(-40%); }
+        100%{ transform: translateX(40%); }
+      }
+    </style>
   </head>
 
   <body class="app-theme-rcc gallery-grid-view photos-page">
@@ -175,24 +363,26 @@
               type="search"
               aria-label="Search images"
               placeholder="Search by name, category, deck, or tags"
+              autocomplete="off"
+              inputmode="search"
             />
           </label>
 
-          <div class="gallery-filters" aria-label="Image source filters">
-            <button class="filter-btn active" data-filter="all">All photos</button>
-            <button class="filter-btn" data-filter="official">Official RCCL</button>
-            <button class="filter-btn" data-filter="dining">Dining</button>
-            <button class="filter-btn" data-filter="decks">Decks</button>
-            <button class="filter-btn" data-filter="activities">Activities</button>
-            <button class="filter-btn" data-filter="ports">Ports</button>
-            <button class="filter-btn" data-filter="heroes">Hero angles</button>
+          <div class="gallery-filters" aria-label="Image source filters" role="group">
+            <button class="filter-btn active" data-filter="all" type="button">All photos</button>
+            <button class="filter-btn" data-filter="official" type="button">Official RCCL</button>
+            <button class="filter-btn" data-filter="dining" type="button">Dining</button>
+            <button class="filter-btn" data-filter="decks" type="button">Decks</button>
+            <button class="filter-btn" data-filter="activities" type="button">Activities</button>
+            <button class="filter-btn" data-filter="ports" type="button">Ports</button>
+            <button class="filter-btn" data-filter="heroes" type="button">Hero angles</button>
           </div>
 
-          <div class="gallery-view-toggle" aria-label="View mode">
-            <button class="view-btn active" data-view="grid" aria-label="Grid view">
+          <div class="gallery-view-toggle" aria-label="View mode" role="group">
+            <button class="view-btn active" data-view="grid" aria-label="Grid view" type="button">
               <i class="fas fa-th-large" aria-hidden="true"></i>
             </button>
-            <button class="view-btn" data-view="list" aria-label="List view">
+            <button class="view-btn" data-view="list" aria-label="List view" type="button">
               <i class="fas fa-list" aria-hidden="true"></i>
             </button>
           </div>
@@ -212,12 +402,13 @@
               <option value="name">Name (A-Z)</option>
               <option value="category">Category</option>
               <option value="deck">Deck</option>
+              <option value="source">Source</option>
             </select>
           </div>
         </div>
 
         <div class="gallery-grid" id="photoGrid" role="list" aria-label="Photo grid"></div>
-        <div class="gallery-list" id="photoList" role="list" aria-label="Photo list"></div>
+        <div class="gallery-list" id="photoList" role="list" aria-label="Photo list" hidden></div>
 
         <div class="gallery-empty" id="emptyState" hidden>
           <h3 class="empty-title">No matches</h3>
@@ -225,10 +416,10 @@
             Nothing fits that filter/search combo. Clear filters, simplify the search, or try category shortcuts.
           </p>
           <div class="empty-actions">
-            <button class="ghost-btn" id="resetFilters">
+            <button class="ghost-btn" id="resetFilters" type="button">
               <i class="fas fa-rotate-left" aria-hidden="true"></i> Reset filters
             </button>
-            <button class="ghost-btn" id="clearSearchBtn">
+            <button class="ghost-btn" id="clearSearchBtn" type="button">
               <i class="fas fa-xmark" aria-hidden="true"></i> Clear search
             </button>
           </div>
@@ -253,36 +444,39 @@
       </section>
     </main>
 
-    <!-- Lightbox -->
+    <!-- Lightbox (Elite UX) -->
     <div class="lightbox" id="lightbox" hidden tabindex="-1" aria-label="Image viewer" role="dialog" aria-modal="true">
       <div class="lightbox__shell">
-        <button class="lightbox-nav lightbox-nav--prev" id="prevPhoto" aria-label="Previous photo">
-          <i class="fas fa-chevron-left" aria-hidden="true"></i>
-        </button>
+        <div class="lightbox__frame" aria-label="Image frame">
+          <button class="lightbox-nav lightbox-nav--prev" id="prevPhoto" aria-label="Previous photo" type="button">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          </button>
 
-        <button class="lightbox-nav lightbox-nav--next" id="nextPhoto" aria-label="Next photo">
-          <i class="fas fa-chevron-right" aria-hidden="true"></i>
-        </button>
+          <button class="lightbox-nav lightbox-nav--next" id="nextPhoto" aria-label="Next photo" type="button">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </button>
 
-        <img class="lightbox__image" id="lightboxImage" src="" alt="" />
+          <img class="lightbox__image" id="lightboxImage" src="" alt="" decoding="async" />
+        </div>
 
         <div class="lightbox__toolbar">
           <div class="lightbox__left">
             <p class="lightbox__title" id="lightboxTitle">—</p>
             <p class="lightbox__desc" id="lightboxDescription">—</p>
-            <span class="lightbox__counter" id="lightboxCounterText">
-              <i class="fas fa-hashtag" aria-hidden="true"></i> <span id="lightboxCounterText">—</span>
+            <span class="lightbox__counter" aria-label="Image count">
+              <i class="fas fa-hashtag" aria-hidden="true"></i>
+              <span id="lightboxCounter">—</span>
             </span>
           </div>
 
-          <div class="lightbox__actions">
+          <div class="lightbox__actions" aria-label="Image actions">
             <a class="lightbox__link" id="openOriginal" href="#" target="_blank" rel="noopener">
               <i class="fas fa-up-right-from-square" aria-hidden="true"></i> Open
             </a>
             <a class="lightbox__link" id="downloadImage" href="#" download>
               <i class="fas fa-download" aria-hidden="true"></i> Download
             </a>
-            <button id="closeLightbox" aria-label="Close image viewer">
+            <button id="closeLightbox" aria-label="Close image viewer" type="button">
               <i class="fas fa-xmark" aria-hidden="true"></i> Close
             </button>
           </div>
@@ -294,77 +488,109 @@
     <div id="sharedBottomNav" data-page="photos"></div>
 
     <script>
-      const photoData = [
-        { id: 1, title: "Adventure Exterior at Sea", src: "images/ship/rccl-adventure-of-the-seas-exterior-at-sea.webp", category: "decks", deck: "topside", source: "official", description: "Wide exterior view of Adventure of the Seas underway.", tags: ["ship", "exterior", "hero"] },
-        { id: 2, title: "Pool Deck", src: "images/ship/rccl-adventure-of-the-seas-pool-deck.webp", category: "decks", deck: "11", source: "official", description: "Main pool deck setup with lounge seating.", tags: ["pool", "deck-11"] },
-        { id: 3, title: "Family Deck Activities", src: "images/ship/rccl-adventure-of-the-seas-family-deck-activities.jpeg", category: "activities", deck: "12", source: "official", description: "Family-friendly activity area on upper deck.", tags: ["family", "deck-12"] },
-        { id: 4, title: "Main Dining Room", src: "images/venues/rccl-adventure-of-the-seas-main-dining-room.webp", category: "dining", deck: "3", source: "official", description: "Formal dining room interior with multi-level seating.", tags: ["dining", "formal"] },
-        { id: 5, title: "Windjammer Buffet", src: "images/venues/rccl-adventure-of-the-seas-windjammer-buffet.jpeg", category: "dining", deck: "11", source: "official", description: "Windjammer buffet seating and serving stations.", tags: ["buffet", "casual"] },
-        { id: 6, title: "Windjammer Buffet (Alternate)", src: "images/venues/rccl-adventure-of-the-seas-windjammer-buffet-2.jpeg", category: "dining", deck: "11", source: "official", description: "Alternate view of Windjammer buffet seating.", tags: ["buffet", "alternate"] },
-        { id: 7, title: "Johnny Rockets", src: "images/venues/rccl-adventure-of-the-seas-johnny-rockets.jpeg", category: "dining", deck: "12", source: "official", description: "Classic diner styling and casual bites.", tags: ["deck-12", "casual"] },
-        { id: 8, title: "Specialty Dining Entree", src: "images/venues/rccl-adventure-of-the-seas-specialty-dining-entree.jpeg", category: "dining", deck: "", source: "official", description: "Specialty dining plated entree presentation.", tags: ["specialty", "entree"] },
-        { id: 9, title: "Royal Promenade Arch", src: "images/venues/rccl-adventure-of-the-seas-royal-promenade-arch.jpeg", category: "decks", deck: "5", source: "official", description: "Promenade focal-point arch and social space.", tags: ["promenade"] },
-        { id: 10, title: "Royal Promenade Classic Car", src: "images/venues/rccl-adventure-of-the-seas-royal-promenade-classic-car.webp", category: "decks", deck: "5", source: "official", description: "Classic car centerpiece on the Royal Promenade.", tags: ["promenade", "landmark"] },
-        { id: 11, title: "Ice Skating Rink", src: "images/venues/rccl-adventure-of-the-seas-ice-skating-rink.jpeg", category: "activities", deck: "3", source: "official", description: "Studio B ice rink used for shows and open skate.", tags: ["shows", "ice"] },
-        { id: 12, title: "Main Theater Stage", src: "images/venues/rccl-adventure-of-the-seas-main-theater-stage.webp", category: "activities", deck: "3", source: "official", description: "Main theater stage setup for production shows.", tags: ["theater", "shows"] },
-        { id: 13, title: "Main Theater Stage (Alternate)", src: "images/venues/rccl-adventure-of-the-seas-main-theater-stage-2.webp", category: "activities", deck: "3", source: "official", description: "Alternate angle of the main theater stage.", tags: ["theater", "alternate"] },
-        { id: 14, title: "Main Theater Seating", src: "images/venues/rccl-adventure-of-the-seas-main-theater-seating.webp", category: "activities", deck: "3", source: "official", description: "Seating layout in the ship's main theater.", tags: ["theater", "seating"] },
-        { id: 15, title: "Spa Treatment", src: "images/venues/rccl-adventure-of-the-seas-spa-treatment.webp", category: "activities", deck: "12", source: "official", description: "Spa treatment room setup and amenities.", tags: ["spa", "wellness"] },
-        { id: 16, title: "Spa Treatment (Alternate)", src: "images/venues/rccl-adventure-of-the-seas-spa-treatment-2.webp", category: "activities", deck: "12", source: "official", description: "Alternate spa treatment area view.", tags: ["spa", "alternate"] },
-        { id: 17, title: "Ben & Jerry's", src: "images/venues/rccl-adventure-of-the-seas-ben-and-jerrys.webp", category: "dining", deck: "5", source: "official", description: "Ice cream counter on the Royal Promenade.", tags: ["ice-cream", "promenade"] },
-        { id: 18, title: "Perfect Day at CocoCay Aerial Balloon", src: "images/ports/rccl-perfect-day-cococay-aerial-balloon.jpeg", category: "ports", deck: "", source: "official", description: "Aerial balloon view of Perfect Day at CocoCay.", tags: ["cococay", "aerial", "hero"] },
-        { id: 19, title: "Perfect Day Thrill Tower", src: "images/ports/rccl-perfect-day-cococay-thrill-tower.jpeg", category: "ports", deck: "", source: "official", description: "Thrill tower close-up with slide complex.", tags: ["thrill", "slides"] },
-        { id: 20, title: "Perfect Day Thrill Waterpark Aerial", src: "images/ports/rccl-perfect-day-cococay-thrill-waterpark-aerial.webp", category: "ports", deck: "", source: "official", description: "Aerial perspective of Thrill Waterpark at CocoCay.", tags: ["waterpark", "aerial"] },
-      ];
+      (() => {
+        "use strict";
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const galleryGrid = document.getElementById("photoGrid");
-        const galleryList = document.getElementById("photoList");
-        const searchInput = document.getElementById("gallerySearch");
+        // =========================================================
+        // DATA
+        // =========================================================
+        const photoData = [
+          { id: 1, title: "Adventure Exterior at Sea", src: "images/ship/rccl-adventure-of-the-seas-exterior-at-sea.webp", category: "decks", deck: "topside", source: "official", description: "Wide exterior view of Adventure of the Seas underway.", tags: ["ship", "exterior", "hero"] },
+          { id: 2, title: "Pool Deck", src: "images/ship/rccl-adventure-of-the-seas-pool-deck.webp", category: "decks", deck: "11", source: "official", description: "Main pool deck setup with lounge seating.", tags: ["pool", "deck-11"] },
+          { id: 3, title: "Family Deck Activities", src: "images/ship/rccl-adventure-of-the-seas-family-deck-activities.jpeg", category: "activities", deck: "12", source: "official", description: "Family-friendly activity area on upper deck.", tags: ["family", "deck-12"] },
+          { id: 4, title: "Main Dining Room", src: "images/venues/rccl-adventure-of-the-seas-main-dining-room.webp", category: "dining", deck: "3", source: "official", description: "Formal dining room interior with multi-level seating.", tags: ["dining", "formal"] },
+          { id: 5, title: "Windjammer Buffet", src: "images/venues/rccl-adventure-of-the-seas-windjammer-buffet.jpeg", category: "dining", deck: "11", source: "official", description: "Windjammer buffet seating and serving stations.", tags: ["buffet", "casual"] },
+          { id: 6, title: "Windjammer Buffet (Alternate)", src: "images/venues/rccl-adventure-of-the-seas-windjammer-buffet-2.jpeg", category: "dining", deck: "11", source: "official", description: "Alternate view of Windjammer buffet seating.", tags: ["buffet", "alternate"] },
+          { id: 7, title: "Johnny Rockets", src: "images/venues/rccl-adventure-of-the-seas-johnny-rockets.jpeg", category: "dining", deck: "12", source: "official", description: "Classic diner styling and casual bites.", tags: ["deck-12", "casual"] },
+          { id: 8, title: "Specialty Dining Entree", src: "images/venues/rccl-adventure-of-the-seas-specialty-dining-entree.jpeg", category: "dining", deck: "", source: "official", description: "Specialty dining plated entree presentation.", tags: ["specialty", "entree"] },
+          { id: 9, title: "Royal Promenade Arch", src: "images/venues/rccl-adventure-of-the-seas-royal-promenade-arch.jpeg", category: "decks", deck: "5", source: "official", description: "Promenade focal-point arch and social space.", tags: ["promenade"] },
+          { id: 10, title: "Royal Promenade Classic Car", src: "images/venues/rccl-adventure-of-the-seas-royal-promenade-classic-car.webp", category: "decks", deck: "5", source: "official", description: "Classic car centerpiece on the Royal Promenade.", tags: ["promenade", "landmark"] },
+          { id: 11, title: "Ice Skating Rink", src: "images/venues/rccl-adventure-of-the-seas-ice-skating-rink.jpeg", category: "activities", deck: "3", source: "official", description: "Studio B ice rink used for shows and open skate.", tags: ["shows", "ice"] },
+          { id: 12, title: "Main Theater Stage", src: "images/venues/rccl-adventure-of-the-seas-main-theater-stage.webp", category: "activities", deck: "3", source: "official", description: "Main theater stage setup for production shows.", tags: ["theater", "shows"] },
+          { id: 13, title: "Main Theater Stage (Alternate)", src: "images/venues/rccl-adventure-of-the-seas-main-theater-stage-2.webp", category: "activities", deck: "3", source: "official", description: "Alternate angle of the main theater stage.", tags: ["theater", "alternate"] },
+          { id: 14, title: "Main Theater Seating", src: "images/venues/rccl-adventure-of-the-seas-main-theater-seating.webp", category: "activities", deck: "3", source: "official", description: "Seating layout in the ship's main theater.", tags: ["theater", "seating"] },
+          { id: 15, title: "Spa Treatment", src: "images/venues/rccl-adventure-of-the-seas-spa-treatment.webp", category: "activities", deck: "12", source: "official", description: "Spa treatment room setup and amenities.", tags: ["spa", "wellness"] },
+          { id: 16, title: "Spa Treatment (Alternate)", src: "images/venues/rccl-adventure-of-the-seas-spa-treatment-2.webp", category: "activities", deck: "12", source: "official", description: "Alternate spa treatment area view.", tags: ["spa", "alternate"] },
+          { id: 17, title: "Ben & Jerry's", src: "images/venues/rccl-adventure-of-the-seas-ben-and-jerrys.webp", category: "dining", deck: "5", source: "official", description: "Ice cream counter on the Royal Promenade.", tags: ["ice-cream", "promenade"] },
+          { id: 18, title: "Perfect Day at CocoCay Aerial Balloon", src: "images/ports/rccl-perfect-day-cococay-aerial-balloon.jpeg", category: "ports", deck: "", source: "official", description: "Aerial balloon view of Perfect Day at CocoCay.", tags: ["cococay", "aerial", "hero"] },
+          { id: 19, title: "Perfect Day Thrill Tower", src: "images/ports/rccl-perfect-day-cococay-thrill-tower.jpeg", category: "ports", deck: "", source: "official", description: "Thrill tower close-up with slide complex.", tags: ["thrill", "slides"] },
+          { id: 20, title: "Perfect Day Thrill Waterpark Aerial", src: "images/ports/rccl-perfect-day-cococay-thrill-waterpark-aerial.webp", category: "ports", deck: "", source: "official", description: "Aerial perspective of Thrill Waterpark at CocoCay.", tags: ["waterpark", "aerial"] },
+        ];
+
+        // =========================================================
+        // DOM
+        // =========================================================
+        const $ = (id) => document.getElementById(id);
+        const galleryGrid = $("photoGrid");
+        const galleryList = $("photoList");
+        const searchInput = $("gallerySearch");
+        const sortSelect = $("sortSelect");
+        const photoCount = $("photoCount");
+        const emptyState = $("emptyState");
+        const resetButton = $("resetFilters");
+        const clearSearchBtn = $("clearSearchBtn");
+        const activeFilterPill = $("activeFilterPill");
+        const featuredRail = $("featuredRail");
+        const featuredStrip = featuredRail ? featuredRail.closest(".featured-strip") : null;
+
+        const heroTotal = $("heroTotal");
+        const heroCats = $("heroCats");
+        const heroOfficial = $("heroOfficial");
+
+        const lightbox = $("lightbox");
+        const lightboxImage = $("lightboxImage");
+        const lightboxTitle = $("lightboxTitle");
+        const lightboxDescription = $("lightboxDescription");
+        const lightboxCounter = $("lightboxCounter");
+        const openOriginal = $("openOriginal");
+        const downloadImage = $("downloadImage");
+        const prevButton = $("prevPhoto");
+        const nextButton = $("nextPhoto");
+        const closeButton = $("closeLightbox");
+
         const filterButtons = Array.from(document.querySelectorAll(".filter-btn[data-filter]"));
-        const viewButtons = Array.from(document.querySelectorAll(".view-btn"));
-        const sortSelect = document.getElementById("sortSelect");
-        const photoCount = document.getElementById("photoCount");
-        const emptyState = document.getElementById("emptyState");
-        const resetButton = document.getElementById("resetFilters");
-        const clearSearchBtn = document.getElementById("clearSearchBtn");
-        const activeFilterPill = document.getElementById("activeFilterPill");
-        const featuredRail = document.getElementById("featuredRail");
-        const featuredStrip = featuredRail.closest(".featured-strip");
-        const heroTotal = document.getElementById("heroTotal");
-        const heroCats = document.getElementById("heroCats");
-        const heroOfficial = document.getElementById("heroOfficial");
-        const lightbox = document.getElementById("lightbox");
-        const lightboxImage = document.getElementById("lightboxImage");
-        const lightboxTitle = document.getElementById("lightboxTitle");
-        const lightboxDescription = document.getElementById("lightboxDescription");
-        const lightboxCounterText = document.getElementById("lightboxCounterText");
-        const openOriginal = document.getElementById("openOriginal");
-        const downloadImage = document.getElementById("downloadImage");
-        const prevButton = document.getElementById("prevPhoto");
-        const nextButton = document.getElementById("nextPhoto");
-        const closeButton = document.getElementById("closeLightbox");
+        const viewButtons = Array.from(document.querySelectorAll(".view-btn[data-view]"));
 
-        const requiredElements = [
+        const required = [
           galleryGrid, galleryList, searchInput, sortSelect, photoCount, emptyState,
           resetButton, clearSearchBtn, activeFilterPill, featuredRail, featuredStrip,
           heroTotal, heroCats, heroOfficial,
-          lightbox, lightboxImage, lightboxTitle, lightboxDescription, lightboxCounterText,
+          lightbox, lightboxImage, lightboxTitle, lightboxDescription, lightboxCounter,
           openOriginal, downloadImage, prevButton, nextButton, closeButton,
         ];
-
-        if (requiredElements.some((element) => !element)) {
-          console.error("Photo library initialization aborted: missing required DOM element.");
+        if (required.some((el) => !el)) {
+          console.error("Photo Library init aborted: missing required DOM element(s).");
           return;
         }
 
+        // =========================================================
+        // STATE
+        // =========================================================
         let currentFilter = "all";
-        let currentView = "grid";
+        let currentView = document.body.classList.contains("gallery-list-view") ? "list" : "grid";
         let currentSearch = "";
         let currentSort = "name";
-        let currentIndex = 0;
-        let filteredPhotos = [];
 
+        let filteredPhotos = [];
+        let currentIndex = 0;
+
+        // Lightbox focus management
+        let lastFocusedBeforeLightbox = null;
+        let lightboxToken = 0; // image load race guard
+
+        // Swipe state (touch)
+        let swipeStartX = 0;
+        let swipeStartY = 0;
+        let swipeDx = 0;
+        let swipeDy = 0;
+        let swipeActive = false;
+
+        // Preload cache (simple)
+        const preloadCache = new Map();
+
+        // =========================================================
+        // UTILS
+        // =========================================================
         function canonicalDeck(deck) {
           const value = String(deck || "").trim();
           if (!value) return "";
@@ -386,32 +612,67 @@
         }
 
         function normalizeCategory(category) {
-          const value = String(category || "").toLowerCase();
+          const value = String(category || "").toLowerCase().trim();
           return value || "decks";
         }
 
         function normalizeSource(source) {
-          return String(source || "official").toLowerCase() === "official" ? "official" : "official";
+          const v = String(source || "").toLowerCase().trim();
+          // allow official + user (future), default official
+          return (v === "official" || v === "user") ? v : "official";
         }
 
+        function safeText(s) {
+          return String(s ?? "");
+        }
+
+        function uniq(arr) {
+          return Array.from(new Set(arr));
+        }
+
+        function prefersReducedMotion() {
+          return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }
+
+        function injectShimmer(imgEl) {
+          if (!imgEl) return;
+          const parent = imgEl.parentElement;
+          if (!parent) return;
+          parent.classList.add("img-shimmer");
+          const done = () => parent.classList.remove("img-shimmer");
+          if (imgEl.complete) done();
+          imgEl.addEventListener("load", done, { once: true });
+          imgEl.addEventListener("error", done, { once: true });
+        }
+
+        function clamp(n, a, b) {
+          return Math.min(b, Math.max(a, n));
+        }
+
+        // =========================================================
+        // NORMALIZE DATA
+        // =========================================================
         const normalizedPhotos = photoData
           .map((photo, idx) => ({
-            id: Number(photo.id) || idx + 1,
-            title: String(photo.title || "Untitled photo"),
-            src: String(photo.src || ""),
+            id: Number(photo.id) || (idx + 1),
+            title: safeText(photo.title || "Untitled photo"),
+            src: safeText(photo.src || ""),
             category: normalizeCategory(photo.category),
             deck: canonicalDeck(photo.deck),
             source: normalizeSource(photo.source),
-            description: String(photo.description || ""),
-            tags: Array.isArray(photo.tags) ? photo.tags : [],
+            description: safeText(photo.description || ""),
+            tags: Array.isArray(photo.tags) ? photo.tags.map(String) : [],
           }))
-          .filter((photo) => photo.src.startsWith("images/"));
+          .filter((p) => p.src.startsWith("images/"));
 
+        // =========================================================
+        // HERO STATS
+        // =========================================================
         function updateHeroStats() {
-          const categories = new Set(normalizedPhotos.map((photo) => photo.category));
+          const categories = uniq(normalizedPhotos.map((p) => p.category));
           heroTotal.textContent = String(normalizedPhotos.length);
-          heroCats.textContent = String(categories.size);
-          heroOfficial.textContent = String(normalizedPhotos.filter((photo) => photo.source === "official").length);
+          heroCats.textContent = String(categories.length);
+          heroOfficial.textContent = String(normalizedPhotos.filter((p) => p.source === "official").length);
         }
 
         function prettyFilterLabel(filter) {
@@ -435,6 +696,7 @@
             photo.description,
             photo.category,
             deckLabel(photo.deck),
+            photo.source,
             ...photo.tags,
           ].join(" ").toLowerCase();
           return haystack.includes(term);
@@ -448,6 +710,9 @@
             if (currentSort === "deck") {
               return deckSortKey(a.deck) - deckSortKey(b.deck) || a.title.localeCompare(b.title);
             }
+            if (currentSort === "source") {
+              return a.source.localeCompare(b.source) || a.title.localeCompare(b.title);
+            }
             return a.title.localeCompare(b.title);
           });
           return photos;
@@ -457,49 +722,48 @@
           const term = currentSearch.trim().toLowerCase();
           filteredPhotos = sortPhotos(
             normalizedPhotos
-              .filter((photo) => matchesFilter(photo))
-              .filter((photo) => matchesSearch(photo, term))
+              .filter((p) => matchesFilter(p))
+              .filter((p) => matchesSearch(p, term))
           );
         }
 
+        // =========================================================
+        // RENDER
+        // =========================================================
         function renderMeta(photo) {
           const deck = deckLabel(photo.deck)
-            ? `<span class="meta-tag"><i class="fas fa-layer-group"></i> ${deckLabel(photo.deck)}</span>`
+            ? `<span class="meta-tag"><i class="fas fa-layer-group" aria-hidden="true"></i> ${deckLabel(photo.deck)}</span>`
             : "";
+          const src = photo.source === "official" ? "Official" : "User";
           return `
-            <span class="meta-tag"><i class="fas fa-folder"></i> ${photo.category}</span>
+            <span class="meta-tag"><i class="fas fa-folder" aria-hidden="true"></i> ${photo.category}</span>
             ${deck}
-            <span class="meta-tag"><i class="fas fa-crown"></i> ${photo.source}</span>
+            <span class="meta-tag"><i class="fas fa-crown" aria-hidden="true"></i> ${src}</span>
           `;
         }
 
-        function injectShimmer(img) {
-          img.classList.add("img-shimmer");
-          const done = () => img.classList.remove("img-shimmer");
-          if (img.complete) done();
-          img.addEventListener("load", done, { once: true });
-          img.addEventListener("error", done, { once: true });
-        }
-
         function buildFeatured() {
+          if (!featuredStrip) return;
+
           if (!filteredPhotos.length) {
             featuredRail.innerHTML = "";
             featuredStrip.hidden = true;
             return;
           }
+
           featuredStrip.hidden = false;
 
           const heroish = filteredPhotos.filter(
-            (photo) => photo.tags.includes("hero") || photo.category === "ports" || photo.category === "decks"
+            (p) => p.tags.includes("hero") || p.category === "ports" || p.category === "decks"
           );
           const pool = heroish.length ? heroish : filteredPhotos;
           const picks = pool.slice(0, 6);
 
           featuredRail.innerHTML = picks.map((photo) => {
             const chips = [
-              `<span class="mini-chip"><i class="fas fa-folder"></i> ${photo.category}</span>`,
+              `<span class="mini-chip"><i class="fas fa-folder" aria-hidden="true"></i> ${photo.category}</span>`,
               deckLabel(photo.deck)
-                ? `<span class="mini-chip"><i class="fas fa-layer-group"></i> ${deckLabel(photo.deck)}</span>`
+                ? `<span class="mini-chip"><i class="fas fa-layer-group" aria-hidden="true"></i> ${deckLabel(photo.deck)}</span>`
                 : "",
             ].filter(Boolean).join("");
             return `
@@ -513,22 +777,24 @@
               </article>
             `;
           }).join("");
+
           featuredRail.querySelectorAll("img").forEach(injectShimmer);
         }
 
         function renderCards() {
-          if (!filteredPhotos.length) {
-            galleryGrid.innerHTML = "";
-            galleryList.innerHTML = "";
-            emptyState.hidden = false;
-            return;
-          }
+          const has = filteredPhotos.length > 0;
 
-          emptyState.hidden = true;
+          emptyState.hidden = has;
+          galleryGrid.innerHTML = "";
+          galleryList.innerHTML = "";
 
+          if (!has) return;
+
+          // Grid
           galleryGrid.innerHTML = filteredPhotos.map((photo, idx) => `
-            <article class="photo-card" role="listitem" tabindex="0" data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
-              <span class="source-badge"><i class="fas fa-crown"></i> ${photo.source}</span>
+            <article class="photo-card" role="listitem" tabindex="0"
+              data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
+              <span class="source-badge"><i class="fas fa-crown" aria-hidden="true"></i> ${photo.source}</span>
               <img class="photo-card__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
               <div class="photo-card__content">
                 <h3 class="photo-card__title">${photo.title}</h3>
@@ -538,9 +804,11 @@
             </article>
           `).join("");
 
+          // List
           galleryList.innerHTML = filteredPhotos.map((photo, idx) => `
-            <article class="list-item" role="listitem" tabindex="0" data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
-              <span class="source-badge"><i class="fas fa-crown"></i> ${photo.source}</span>
+            <article class="list-item" role="listitem" tabindex="0"
+              data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
+              <span class="source-badge"><i class="fas fa-crown" aria-hidden="true"></i> ${photo.source}</span>
               <img class="list-item__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
               <div class="list-item__content">
                 <h3 class="photo-card__title">${photo.title}</h3>
@@ -553,37 +821,154 @@
           document.querySelectorAll("#photoGrid img, #photoList img").forEach(injectShimmer);
         }
 
+        function setView(view) {
+          currentView = view;
+          const isGrid = view === "grid";
+          document.body.classList.toggle("gallery-grid-view", isGrid);
+          document.body.classList.toggle("gallery-list-view", !isGrid);
+
+          galleryGrid.hidden = !isGrid;
+          galleryList.hidden = isGrid;
+
+          viewButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.view === view));
+        }
+
         function render() {
           applyFilters();
           buildFeatured();
           renderCards();
+
           photoCount.textContent = String(filteredPhotos.length);
           activeFilterPill.innerHTML = `<i class="fas fa-filter" aria-hidden="true"></i> ${prettyFilterLabel(currentFilter)}`;
         }
 
-        function openLightbox(index) {
+        // =========================================================
+        // LIGHTBOX: Elite behaviors
+        // - focus trap
+        // - race-safe image loads
+        // - preload neighbors
+        // - swipe navigation
+        // =========================================================
+        function getFocusableInLightbox() {
+          const selectors = [
+            'a[href]',
+            'button:not([disabled])',
+            'img[tabindex]',
+            '[tabindex]:not([tabindex="-1"])',
+          ].join(",");
+          const nodes = Array.from(lightbox.querySelectorAll(selectors));
+          return nodes.filter((el) => {
+            const style = window.getComputedStyle(el);
+            return style.display !== "none" && style.visibility !== "hidden";
+          });
+        }
+
+        function trapFocus(e) {
+          if (lightbox.hidden) return;
+          if (e.key !== "Tab") return;
+
+          const focusables = getFocusableInLightbox();
+          if (!focusables.length) return;
+
+          const first = focusables[0];
+          const last = focusables[focusables.length - 1];
+          const active = document.activeElement;
+
+          if (e.shiftKey) {
+            if (active === first || !lightbox.contains(active)) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (active === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        }
+
+        document.addEventListener("keydown", trapFocus, true);
+
+        function preloadImage(url) {
+          if (!url || preloadCache.has(url)) return;
+          const img = new Image();
+          img.decoding = "async";
+          img.loading = "eager";
+          img.src = url;
+          preloadCache.set(url, img);
+        }
+
+        function preloadNeighbors(index) {
           if (!filteredPhotos.length) return;
-          currentIndex = index;
+          const prev = filteredPhotos[(index - 1 + filteredPhotos.length) % filteredPhotos.length];
+          const next = filteredPhotos[(index + 1) % filteredPhotos.length];
+          preloadImage(prev?.src);
+          preloadImage(next?.src);
+        }
+
+        function openLightbox(index, opts = {}) {
+          if (!filteredPhotos.length) return;
+          currentIndex = clamp(Number(index) || 0, 0, filteredPhotos.length - 1);
+
           const photo = filteredPhotos[currentIndex];
           if (!photo) return;
 
-          lightboxImage.src = photo.src;
-          lightboxImage.alt = photo.title;
+          lastFocusedBeforeLightbox = document.activeElement;
+
+          // race guard
+          const token = ++lightboxToken;
+
+          // UI text (immediate)
           lightboxTitle.textContent = photo.title;
-          lightboxDescription.textContent = photo.description;
-          lightboxCounterText.textContent = `${currentIndex + 1} of ${filteredPhotos.length}`;
+          lightboxDescription.textContent = photo.description || "";
+          lightboxCounter.textContent = `${currentIndex + 1} of ${filteredPhotos.length}`;
           openOriginal.href = photo.src;
           downloadImage.href = photo.src;
+
+          // show lightbox
           lightbox.hidden = false;
           lightbox.classList.add("active");
           document.body.style.overflow = "hidden";
-          lightbox.focus();
+
+          // load image with shimmer class on frame parent
+          const frame = lightboxImage.closest(".lightbox__frame");
+          if (frame) frame.classList.add("img-shimmer");
+          lightboxImage.alt = photo.title;
+
+          // set src
+          lightboxImage.src = photo.src;
+
+          const onLoadDone = () => {
+            if (token !== lightboxToken) return;
+            if (frame) frame.classList.remove("img-shimmer");
+          };
+          // If already cached and complete, handle quickly
+          if (lightboxImage.complete) onLoadDone();
+          lightboxImage.addEventListener("load", onLoadDone, { once: true });
+          lightboxImage.addEventListener("error", onLoadDone, { once: true });
+
+          // focus
+          // Prefer close button for reliable keyboard start
+          if (!prefersReducedMotion()) {
+            // tiny defer so display applies
+            requestAnimationFrame(() => closeButton.focus());
+          } else {
+            closeButton.focus();
+          }
+
+          preloadNeighbors(currentIndex);
         }
 
         function closeLightbox() {
           lightbox.hidden = true;
           lightbox.classList.remove("active");
           document.body.style.overflow = "";
+
+          // restore focus
+          if (lastFocusedBeforeLightbox && typeof lastFocusedBeforeLightbox.focus === "function") {
+            try { lastFocusedBeforeLightbox.focus(); } catch (_) {}
+          }
+          lastFocusedBeforeLightbox = null;
         }
 
         function moveLightbox(step) {
@@ -592,19 +977,24 @@
           openLightbox(currentIndex);
         }
 
-        function activateCard(event) {
+        // =========================================================
+        // EVENTS: click/keyboard activation
+        // =========================================================
+        function activateCardFromEvent(event) {
           const card = event.target.closest("[data-index]");
           if (!card) return;
-          openLightbox(Number(card.dataset.index));
+          const idx = Number(card.dataset.index);
+          if (!Number.isFinite(idx)) return;
+          openLightbox(idx);
         }
 
         featuredRail.addEventListener("click", (event) => {
           const card = event.target.closest("[data-photo-id]");
           if (!card) return;
           const id = Number(card.dataset.photoId);
-          const index = filteredPhotos.findIndex((photo) => photo.id === id);
-          if (index < 0) return;
-          openLightbox(index);
+          const idx = filteredPhotos.findIndex((p) => p.id === id);
+          if (idx < 0) return;
+          openLightbox(idx);
         });
 
         featuredRail.addEventListener("keydown", (event) => {
@@ -613,61 +1003,93 @@
           if (!card) return;
           event.preventDefault();
           const id = Number(card.dataset.photoId);
-          const index = filteredPhotos.findIndex((photo) => photo.id === id);
-          if (index < 0) return;
-          openLightbox(index);
+          const idx = filteredPhotos.findIndex((p) => p.id === id);
+          if (idx < 0) return;
+          openLightbox(idx);
         });
 
         [galleryGrid, galleryList].forEach((container) => {
-          container.addEventListener("click", activateCard);
+          container.addEventListener("click", activateCardFromEvent);
           container.addEventListener("keydown", (event) => {
             if (event.key !== "Enter" && event.key !== " ") return;
             event.preventDefault();
-            activateCard(event);
+            activateCardFromEvent(event);
           });
         });
 
-        let touchStartX = 0;
-        let touchStartY = 0;
-        lightbox.addEventListener("touchstart", (event) => {
-          const touch = event.touches[0];
-          if (!touch) return;
-          touchStartX = touch.clientX;
-          touchStartY = touch.clientY;
-        }, { passive: true });
+        // Lightbox controls
+        closeButton.addEventListener("click", closeLightbox);
+        prevButton.addEventListener("click", () => moveLightbox(-1));
+        nextButton.addEventListener("click", () => moveLightbox(1));
 
-        lightbox.addEventListener("touchend", (event) => {
-          if (lightbox.hidden) return;
-          const touch = event.changedTouches[0];
-          if (!touch) return;
-          const dx = touch.clientX - touchStartX;
-          const dy = touch.clientY - touchStartY;
-          if (Math.abs(dx) < 90 || Math.abs(dx) < Math.abs(dy) * 1.8) return;
-          moveLightbox(dx > 0 ? -1 : 1);
+        // click backdrop to close
+        lightbox.addEventListener("click", (event) => {
+          // only close when clicking outside the shell
+          const shell = lightbox.querySelector(".lightbox__shell");
+          if (!shell) return;
+          if (event.target === lightbox) closeLightbox();
         });
 
+        // Keyboard nav (global)
+        document.addEventListener("keydown", (event) => {
+          if (lightbox.hidden) return;
+          if (event.key === "Escape") { event.preventDefault(); closeLightbox(); }
+          if (event.key === "ArrowLeft") { event.preventDefault(); moveLightbox(-1); }
+          if (event.key === "ArrowRight") { event.preventDefault(); moveLightbox(1); }
+        });
+
+        // Touch swipe (lightbox)
+        lightbox.addEventListener("touchstart", (event) => {
+          if (lightbox.hidden) return;
+          const t = event.touches && event.touches[0];
+          if (!t) return;
+          swipeActive = true;
+          swipeStartX = t.clientX;
+          swipeStartY = t.clientY;
+          swipeDx = 0; swipeDy = 0;
+        }, { passive: true });
+
+        lightbox.addEventListener("touchmove", (event) => {
+          if (!swipeActive || lightbox.hidden) return;
+          const t = event.touches && event.touches[0];
+          if (!t) return;
+          swipeDx = t.clientX - swipeStartX;
+          swipeDy = t.clientY - swipeStartY;
+        }, { passive: true });
+
+        lightbox.addEventListener("touchend", () => {
+          if (!swipeActive || lightbox.hidden) return;
+          swipeActive = false;
+
+          // horizontal swipe threshold + angle gating
+          const absX = Math.abs(swipeDx);
+          const absY = Math.abs(swipeDy);
+          if (absX < 90) return;
+          if (absX < absY * 1.8) return;
+
+          moveLightbox(swipeDx > 0 ? -1 : 1);
+        }, { passive: true });
+
+        // =========================================================
+        // CONTROLS: search/filter/view/sort
+        // =========================================================
         searchInput.addEventListener("input", (event) => {
-          currentSearch = event.target.value;
+          currentSearch = String(event.target.value || "");
           render();
         });
 
-        filterButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            currentFilter = String(button.dataset.filter || "all");
-            filterButtons.forEach((entry) => {
-              const sameFilter = entry.dataset.filter === currentFilter;
-              entry.classList.toggle("active", sameFilter);
-            });
+        filterButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            currentFilter = String(btn.dataset.filter || "all");
+            filterButtons.forEach((b) => b.classList.toggle("active", b.dataset.filter === currentFilter));
             render();
           });
         });
 
-        viewButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            currentView = button.dataset.view;
-            document.body.classList.toggle("gallery-grid-view", currentView === "grid");
-            document.body.classList.toggle("gallery-list-view", currentView === "list");
-            viewButtons.forEach((entry) => entry.classList.toggle("active", entry === button));
+        viewButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const view = String(btn.dataset.view || "grid");
+            setView(view);
           });
         });
 
@@ -682,9 +1104,7 @@
           currentSort = "name";
           searchInput.value = "";
           sortSelect.value = "name";
-          filterButtons.forEach((button) => {
-            button.classList.toggle("active", button.dataset.filter === "all");
-          });
+          filterButtons.forEach((b) => b.classList.toggle("active", b.dataset.filter === "all"));
           render();
         });
 
@@ -694,36 +1114,14 @@
           render();
         });
 
-        closeButton.addEventListener("click", closeLightbox);
-        prevButton.addEventListener("click", () => moveLightbox(-1));
-        nextButton.addEventListener("click", () => moveLightbox(1));
-
-        lightbox.addEventListener("click", (event) => {
-          if (event.target === lightbox) closeLightbox();
-        });
-
-        document.addEventListener("keydown", (event) => {
-          if (lightbox.hidden) return;
-          if (event.key === "Escape") closeLightbox();
-          if (event.key === "ArrowLeft") moveLightbox(-1);
-          if (event.key === "ArrowRight") moveLightbox(1);
-        });
-
+        // =========================================================
+        // INIT
+        // =========================================================
         updateHeroStats();
         sortSelect.value = "name";
+        setView(currentView);
         render();
-
-        // Soften focus outlines on cards while preserving accessibility
-        document.querySelectorAll('.photo-card, .list-item, .featured-card, .quick-link-card').forEach(el => {
-          el.addEventListener('focus', () => el.style.boxShadow = 'var(--shadow-ambient-soft)');
-          el.addEventListener('blur', () => el.style.boxShadow = 'var(--shadow-ambient)');
-        });
-
-        // Ensure no scale transforms are applied inadvertently
-        const style = document.createElement('style');
-        style.textContent = '.photos-page * { transform: translateZ(0) translateY(0); }';
-        document.head.appendChild(style);
-      });
+      })();
     </script>
   </body>
 </html>
