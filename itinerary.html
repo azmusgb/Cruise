@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
-  <meta name="theme-color" content="#0a2e4a">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
+  <meta name="theme-color" content="#0a2e4a" />
   <title>Itinerary · Adventure of the Seas</title>
 
   <!-- Fonts + Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
     /* =========================================================
-       RCCL CRUISE HUB — ITINERARY (unified aesthetic)
+       RCCL CRUISE HUB — ITINERARY “MARKETING TEAM” EDITION
+       Single-file, offline-friendly (localStorage).
        ========================================================= */
 
     /* ---------- Reset ---------- */
@@ -32,10 +33,11 @@
     a{ color: inherit; text-decoration: none; }
     button, input { font: inherit; }
     button { cursor: pointer; }
-    :focus-visible { outline: 3px solid rgba(0,180,230,.45); outline-offset: 2px; border-radius: 12px; }
+    :focus-visible { outline: 3px solid rgba(0,180,230,.55); outline-offset: 2px; border-radius: 12px; }
 
-    /* ---------- Tokens ---------- */
+    /* ---------- Motion + Lighting System (global tokens) ---------- */
     :root{
+      /* Brand */
       --navy:#0a2e4a;
       --navy2:#083452;
       --blue:#0f4f76;
@@ -43,39 +45,96 @@
       --gold:#ffd740;
       --gold2:#c6a15b;
 
+      /* Text */
       --text:#0d2236;
       --muted:#5a7a93;
 
-      --glass: rgba(255,255,255,.08);
-      --glass2: rgba(255,255,255,.11);
+      /* Glass */
+      --glass: rgba(255,255,255,.085);
+      --glass2: rgba(255,255,255,.12);
       --glass-brd: rgba(255,255,255,.18);
 
-      --shadow: 0 25px 80px rgba(0,0,0,.45);
-      --shadow2: 0 12px 40px rgba(0,0,0,.35);
+      /* Radii */
+      --r12: 12px;
+      --r16: 16px;
+      --r22: 22px;
+      --r28: 28px;
 
-      --radius: 22px;
-      --radius-lg: 28px;
+      /* Easing */
+      --ease-out: cubic-bezier(.22,.61,.36,1);
+      --ease-in: cubic-bezier(.4,0,.9,.4);
+      --spring: cubic-bezier(.2,.9,.2,1.05);
 
-      --ease: cubic-bezier(.22,.61,.36,1);
+      /* Durations */
+      --t-fast: 140ms;
+      --t-med: 220ms;
+      --t-slow: 520ms;
+
+      /* Elevation */
+      --e0: 0 0 0 rgba(0,0,0,0);
+      --e1: 0 10px 34px rgba(0,0,0,.22);
+      --e2: 0 16px 50px rgba(0,0,0,.30);
+      --e3: 0 28px 92px rgba(0,0,0,.50);
+
+      /* Light */
       --ring: 0 0 0 3px rgba(0,180,230,.18);
+      --edge: 0 0 0 1px rgba(255,255,255,.12) inset;
+      --edge-strong: 0 0 0 1px rgba(255,255,255,.18) inset;
+      --glow-a: 0 0 0 0 rgba(0,180,230,0);
+      --glow-b: 0 0 46px rgba(0,180,230,.22);
+      --glow-g: 0 0 46px rgba(255,215,64,.20);
+
+      /* Active Day Theming (overridden by JS per day) */
+      --sky1: rgba(0,180,230,.20);
+      --sky2: rgba(0,255,210,.08);
+      --sky3: rgba(0,0,0,.60);
+
+      /* Safety */
+      color-scheme: light dark;
     }
 
-    /* ---------- Ocean canvas ---------- */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+
+    /* ---------- Background: Ocean canvas + atmospheric lighting ---------- */
     #ocean {
       position: fixed;
       inset: 0;
-      z-index: -2;
+      z-index: -3;
     }
-    .vignette {
+
+    .atmo {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 18%, var(--sky1), transparent 62%),
+        radial-gradient(ellipse at 18% 92%, var(--sky2), transparent 58%),
+        radial-gradient(ellipse at 82% 92%, rgba(255,215,64,.10), transparent 58%),
+        linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.40));
+      transition: background var(--t-slow) var(--ease-out);
+    }
+
+    .sparklegrid{
       position: fixed;
       inset: 0;
       z-index: -1;
       pointer-events: none;
-      background:
-        radial-gradient(ellipse at 50% 30%, rgba(0,180,230,.12), transparent 60%),
-        radial-gradient(ellipse at 20% 90%, rgba(255,215,64,.10), transparent 55%),
-        radial-gradient(ellipse at 80% 90%, rgba(255,215,64,.07), transparent 55%),
-        linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.35));
+      opacity: .13;
+      mix-blend-mode: screen;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.55), transparent 35%),
+        radial-gradient(circle at 70% 20%, rgba(255,255,255,.35), transparent 32%),
+        radial-gradient(circle at 60% 75%, rgba(255,255,255,.28), transparent 35%),
+        radial-gradient(circle at 25% 80%, rgba(255,255,255,.26), transparent 32%);
+      filter: blur(.2px);
+      animation: sparkleDrift 10s var(--ease-out) infinite alternate;
+    }
+    @keyframes sparkleDrift{
+      0%{ transform: translate3d(0,0,0) scale(1); }
+      100%{ transform: translate3d(0,-14px,0) scale(1.02); }
     }
 
     /* Parallax ship silhouette */
@@ -89,7 +148,7 @@
       pointer-events:none;
       z-index:-1;
       filter: blur(.2px);
-      transition: transform .12s linear;
+      will-change: transform;
     }
 
     /* Confetti canvas overlay */
@@ -100,21 +159,34 @@
       pointer-events:none;
     }
 
-    /* Sail-away overlay */
+    /* Live announcer (a11y) */
+    .sr-live{
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+      white-space: nowrap;
+    }
+
+    /* ---------- Sail-away overlay ---------- */
     .sailaway{
       position:fixed;
       inset:0;
       z-index:2100;
       pointer-events:none;
       opacity:0;
-      transition: opacity 220ms var(--ease);
+      transition: opacity var(--t-med) var(--ease-out);
     }
     .sailaway.on{opacity:1}
     .sailaway .layer{
       position:absolute; inset:0;
       background:
-        radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.22), transparent 60%),
-        linear-gradient(180deg, rgba(7,26,44,.0), rgba(7,26,44,.55));
+        radial-gradient(ellipse at 50% 20%, rgba(0,180,230,.24), transparent 60%),
+        linear-gradient(180deg, rgba(7,26,44,.0), rgba(7,26,44,.65));
     }
     .sailaway .horn{
       position:absolute;
@@ -124,14 +196,15 @@
       display:inline-flex;
       align-items:center;
       gap:.6rem;
-      padding:.6rem 1rem;
+      padding:.62rem 1.05rem;
       border-radius:999px;
-      background:rgba(10,46,74,.88);
+      background:rgba(10,46,74,.90);
       border:1px solid rgba(255,255,255,.14);
-      box-shadow:0 18px 60px rgba(0,0,0,.35);
+      box-shadow: var(--e3);
       font-weight:900;
-      font-size:.9rem;
+      font-size:.92rem;
       color:rgba(255,255,255,.94);
+      letter-spacing: .01em;
     }
     .sailaway .horn i{color:var(--gold)}
     .sailaway .horn .pulse{
@@ -148,16 +221,34 @@
       position:absolute;
       left:-35%;
       bottom:18%;
-      font-size:min(160px, 34vw);
+      font-size:min(170px, 36vw);
       opacity:.16;
       color:#fff;
       filter: drop-shadow(0 30px 70px rgba(0,0,0,.45));
-      animation: sail 2.6s var(--ease) forwards;
+      animation: sail 2.7s var(--ease-out) forwards;
     }
     @keyframes sail{
-      0%{transform: translateX(0) translateY(6px)}
-      100%{transform: translateX(160vw) translateY(-6px)}
+      0%{transform: translate3d(0,6px,0)}
+      100%{transform: translate3d(160vw,-6px,0)}
     }
+
+    /* ---------- Skip link ---------- */
+    .skip{
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      z-index: 9999;
+      transform: translateY(-160%);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(8,89,136,.22);
+      color: #0d2236;
+      padding: .6rem .85rem;
+      border-radius: 999px;
+      box-shadow: var(--e2);
+      transition: transform var(--t-med) var(--ease-out);
+      font-weight: 900;
+    }
+    .skip:focus{ transform: translateY(0); }
 
     /* ---------- Header ---------- */
     header{
@@ -216,8 +307,13 @@
       font-weight: 900;
       font-size: .75rem;
       white-space: nowrap;
+      box-shadow: 0 0 0 0 rgba(255,215,64,0);
+      transition: box-shadow var(--t-med) var(--ease-out), transform var(--t-med) var(--ease-out);
     }
-    .hdr-pill i{ opacity: .95; }
+    .hdr-pill.is-live{
+      box-shadow: 0 0 0 3px rgba(255,215,64,.14), 0 0 34px rgba(255,215,64,.16);
+      transform: translateY(-1px);
+    }
 
     .hdr-iconbtn{
       width: 40px;
@@ -228,12 +324,12 @@
       color: rgba(255,255,255,.95);
       display: grid;
       place-items: center;
-      transition: transform .18s var(--ease), background .18s var(--ease);
+      transition: transform var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
     }
-    .hdr-iconbtn:hover{ background: rgba(255,255,255,.14); }
+    .hdr-iconbtn:hover{ background: rgba(255,255,255,.14); border-color: rgba(0,180,230,.24); }
     .hdr-iconbtn:active{ transform: scale(.98); }
 
-    /* ---------- Drawer nav ---------- */
+    /* ---------- Drawer nav (focus-trapped modal) ---------- */
     .drawer-backdrop{
       position: fixed;
       inset: 0;
@@ -243,7 +339,7 @@
       -webkit-backdrop-filter: blur(14px);
       opacity: 0;
       pointer-events: none;
-      transition: opacity .2s var(--ease);
+      transition: opacity var(--t-med) var(--ease-out);
     }
     .drawer-backdrop.open{
       opacity: 1;
@@ -260,7 +356,7 @@
       box-shadow: -20px 0 80px rgba(0,0,0,.45);
       transform: translateX(20px);
       opacity: 0;
-      transition: transform .24s var(--ease), opacity .24s var(--ease);
+      transition: transform var(--t-med) var(--spring), opacity var(--t-med) var(--ease-out);
       display: flex;
       flex-direction: column;
       padding: 1rem 1rem 1.15rem;
@@ -300,7 +396,7 @@
       background: rgba(255,255,255,.06);
       color: rgba(255,255,255,.92);
       font-weight: 900;
-      transition: background .18s var(--ease), border-color .18s var(--ease), transform .18s var(--ease);
+      transition: background var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
     }
     .nav a:hover{ background: rgba(255,255,255,.10); border-color: rgba(0,180,230,.24); transform: translateY(-1px); }
     .nav a i{ color: var(--gold); width: 18px; text-align: center; }
@@ -316,22 +412,40 @@
       display: grid;
       gap: .6rem;
     }
+    .drawer-foot .minirow{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .6rem;
+    }
+    .drawer-foot .minirow strong{ color: rgba(255,255,255,.92); font-weight: 950; }
+    .drawer-foot button{
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.92);
+      padding: .5rem .75rem;
+      font-weight: 950;
+      transition: background var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
+    }
+    .drawer-foot button:hover{ background: rgba(255,255,255,.12); border-color: rgba(0,180,230,.22); }
+    .drawer-foot button:active{ transform: translateY(1px); }
 
     /* ---------- Hero ---------- */
     .hero{
       text-align: center;
-      padding: 2.5rem 1.1rem 1.2rem;
+      padding: 2.6rem 1.1rem 1.2rem;
       color: rgba(255,255,255,.96);
     }
     .hero h1{
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 950;
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(2rem, 5vw, 3.15rem);
       letter-spacing: -.02em;
       text-shadow: 0 18px 70px rgba(0,0,0,.45);
     }
     .hero p{
-      max-width: 780px;
+      max-width: 820px;
       margin: .85rem auto 0;
       opacity: .74;
       line-height: 1.6;
@@ -343,7 +457,7 @@
       justify-content: center;
       flex-wrap: wrap;
       gap: .6rem;
-      color: rgba(255,255,255,.70);
+      color: rgba(255,255,255,.72);
       font-weight: 850;
       font-size: .78rem;
     }
@@ -351,28 +465,61 @@
       display: inline-flex;
       align-items: center;
       gap: .45rem;
-      padding: .38rem .7rem;
+      padding: .42rem .76rem;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.12);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--edge);
     }
     .hint i{ color: var(--gold); }
+
+    /* Nav controls (A11y alternative to swipe) */
+    .day-controls{
+      margin-top: 1.1rem;
+      display: flex;
+      justify-content: center;
+      gap: .65rem;
+      flex-wrap: wrap;
+    }
+    .ctlbtn{
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.95);
+      padding: .55rem .9rem;
+      font-weight: 950;
+      font-size: .8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      transition: background var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out), filter var(--t-fast) var(--ease-out);
+      user-select: none;
+    }
+    .ctlbtn:hover{ background: rgba(255,255,255,.14); border-color: rgba(0,180,230,.26); }
+    .ctlbtn:active{ transform: translateY(1px); }
+    .ctlbtn.primary{
+      background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
+      color: rgba(8,28,46,.96);
+      border-color: rgba(255,255,255,.18);
+    }
+    .ctlbtn.primary:hover{ filter: brightness(1.03); }
 
     /* ---------- Layout ---------- */
     main{
       max-width: 980px;
       margin: 0 auto;
-      padding: 1.2rem 1.1rem 5.5rem;
+      padding: 1.2rem 1.1rem 6.4rem;
     }
 
-    /* ---------- Timeline spine ---------- */
+    /* ---------- Timeline spine (gesture surface) ---------- */
     .timeline{
       position: relative;
       display: grid;
       gap: 1.15rem;
       padding-left: 18px;
+      touch-action: pan-y; /* reduces horizontal swipe/scroll fights */
     }
     .timeline::before{
       content: '';
@@ -390,16 +537,17 @@
     /* ---------- Cards ---------- */
     .card{
       position: relative;
-      border-radius: var(--radius-lg);
+      border-radius: var(--r28);
       background: var(--glass);
       border: 1px solid var(--glass-brd);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      box-shadow: var(--shadow2);
-      padding: 1.2rem 1.2rem 1.1rem 1.2rem;
+      box-shadow: var(--e2);
+      padding: 1.15rem 1.2rem 1.05rem 1.2rem;
       transform: translateY(18px);
       opacity: 0;
-      transition: transform .7s var(--ease), opacity .7s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease);
+      transition: transform .7s var(--ease-out), opacity .7s var(--ease-out), border-color var(--t-med) var(--ease-out), box-shadow var(--t-med) var(--ease-out), background var(--t-med) var(--ease-out);
+      will-change: transform, opacity;
     }
     .card.visible{
       transform: translateY(0);
@@ -407,7 +555,7 @@
     }
     .card:hover{
       border-color: rgba(0,180,230,.28);
-      box-shadow: 0 28px 92px rgba(0,0,0,.50);
+      box-shadow: var(--e3);
     }
     .card::before{
       content: '';
@@ -418,15 +566,36 @@
       height: 18px;
       border-radius: 999px;
       background: rgba(0,180,230,.95);
-      box-shadow: 0 0 0 5px rgba(0,180,230,.20);
+      box-shadow: 0 0 0 5px rgba(0,180,230,.20), 0 0 36px rgba(0,180,230,.12);
     }
-    .card.today{
+
+    /* Active Day lighting */
+    .card.is-active{
       border-color: rgba(255,215,64,.55);
-      box-shadow: 0 28px 92px rgba(0,0,0,.52), 0 0 0 1px rgba(255,215,64,.22) inset;
+      box-shadow: var(--e3), 0 0 0 1px rgba(255,215,64,.20) inset, 0 0 40px rgba(255,215,64,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.07));
     }
-    .card.today::before{
+    .card.is-active::before{
       background: rgba(255,215,64,.96);
-      box-shadow: 0 0 0 5px rgba(255,215,64,.18);
+      box-shadow: 0 0 0 5px rgba(255,215,64,.18), 0 0 38px rgba(255,215,64,.12);
+    }
+
+    /* Today indicator */
+    .card.is-today::after{
+      content: 'TODAY';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: .68rem;
+      letter-spacing: .08em;
+      padding: .24rem .55rem;
+      border-radius: 999px;
+      background: rgba(255,215,64,.16);
+      border: 1px solid rgba(255,215,64,.40);
+      color: rgba(255,215,64,.95);
+      box-shadow: 0 0 26px rgba(255,215,64,.10);
     }
 
     .card-head{
@@ -442,12 +611,12 @@
       min-width: 0;
     }
     .icon{
-      width: 42px; height: 42px;
+      width: 44px; height: 44px;
       display: grid; place-items: center;
       border-radius: 16px;
       background: rgba(255,255,255,.10);
       border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 16px 46px rgba(0,0,0,.22);
+      box-shadow: var(--e1);
       flex: 0 0 auto;
     }
     .icon i{ color: var(--gold); }
@@ -456,7 +625,7 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 950;
       letter-spacing: .01em;
-      font-size: 1.05rem;
+      font-size: 1.07rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -488,6 +657,7 @@
       font-size: .74rem;
       opacity: .92;
       white-space: nowrap;
+      box-shadow: var(--edge);
     }
     .tag i{ color: rgba(255,215,64,.95); }
     .chev{
@@ -496,28 +666,31 @@
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.09);
       display: grid; place-items: center;
-      transition: transform .22s var(--ease), background .18s var(--ease);
+      transition: transform var(--t-med) var(--ease-out), background var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
+      box-shadow: var(--edge);
     }
     .card[aria-expanded="true"] .chev{ transform: rotate(180deg); }
     .chev i{ opacity: .92; }
 
+    /* Details */
     .details{
       margin-top: .95rem;
       overflow: hidden;
       max-height: 0;
       opacity: 0;
-      transition: max-height .55s var(--ease), opacity .35s var(--ease);
+      transition: max-height var(--t-slow) var(--ease-out), opacity var(--t-med) var(--ease-out);
     }
     .card[aria-expanded="true"] .details{
-      max-height: 520px;
+      max-height: 680px;
       opacity: 1;
     }
     .details p{
-      opacity: .84;
+      opacity: .86;
       font-weight: 650;
       line-height: 1.6;
       font-size: .92rem;
     }
+
     .meta-grid{
       margin-top: .85rem;
       display: grid;
@@ -534,10 +707,31 @@
       display: flex;
       align-items: flex-start;
       gap: .6rem;
+      box-shadow: var(--edge);
     }
     .meta i{ color: rgba(0,180,230,.95); margin-top: .12rem; }
     .meta strong{ display: block; font-weight: 950; font-size: .82rem; }
-    .meta span{ display: block; margin-top: .10rem; opacity: .72; font-weight: 800; font-size: .76rem; line-height: 1.35; }
+    .meta span{ display: block; margin-top: .10rem; opacity: .74; font-weight: 800; font-size: .76rem; line-height: 1.35; }
+
+    /* Tiny sunrise/sunset icon row */
+    .sunrow{
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .sunbadge{
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .18rem .45rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      font-weight: 950;
+      font-size: .70rem;
+      color: rgba(255,255,255,.92);
+    }
+    .sunbadge i{ color: rgba(255,215,64,.95); }
 
     .actions{
       margin-top: .85rem;
@@ -556,8 +750,9 @@
       display: inline-flex;
       align-items: center;
       gap: .5rem;
-      transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease), filter .18s var(--ease);
+      transition: background var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out), filter var(--t-fast) var(--ease-out);
       user-select: none;
+      box-shadow: var(--edge);
     }
     .pillbtn:hover{ background: rgba(255,255,255,.14); border-color: rgba(0,180,230,.28); }
     .pillbtn:active{ transform: translateY(1px); }
@@ -565,21 +760,17 @@
       background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
       color: rgba(8,28,46,.96);
       border-color: rgba(255,255,255,.18);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset, 0 18px 50px rgba(0,0,0,.18);
     }
     .pillbtn.primary:hover{ filter: brightness(1.03); }
-    .pillbtn i{ font-size: .95em; }
     .pillbtn.on{
       background: rgba(0,180,230,.95);
       color: rgba(7,26,44,.98);
       border-color: rgba(0,180,230,.18);
     }
-
-    .footer-hint{
-      margin-top: 1.2rem;
-      text-align: center;
-      opacity: .65;
-      font-weight: 850;
-      font-size: .78rem;
+    .pillbtn.danger{
+      background: rgba(255,80,80,.14);
+      border-color: rgba(255,80,80,.22);
     }
 
     /* Toast */
@@ -594,7 +785,7 @@
       border: 1px solid rgba(255,255,255,.14);
       padding: .62rem .9rem;
       border-radius: 999px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      box-shadow: var(--e2);
       display: flex;
       align-items: center;
       gap: .55rem;
@@ -602,14 +793,14 @@
       font-size: .82rem;
       opacity: 0;
       pointer-events: none;
-      transition: .18s;
+      transition: opacity var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
     }
-    .toast.show{ opacity: 1; }
+    .toast.show{ opacity: 1; transform: translateX(-50%) translateY(-2px); }
 
     /* Back to top */
     .back-to-top{
       position: fixed;
-      bottom: 100px;
+      bottom: 102px;
       right: 20px;
       width: 48px;
       height: 48px;
@@ -617,13 +808,16 @@
       background: var(--accent);
       color: #0a2e4a;
       border: none;
-      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      box-shadow: var(--e2);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 800;
+      transition: transform var(--t-fast) var(--ease-out), filter var(--t-fast) var(--ease-out);
     }
     .back-to-top.show{ display: flex; }
+    .back-to-top:active{ transform: translateY(1px); }
+    .back-to-top:hover{ filter: brightness(1.03); }
 
     /* Bottom nav for mobile */
     .bottom-nav{
@@ -649,40 +843,48 @@
       align-items: center;
       justify-content: center;
       font-size: .65rem;
-      font-weight: 700;
+      font-weight: 800;
+      transition: background var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
     }
+    .bottom-nav__item i{ font-size: .95rem; margin-bottom: 2px; }
+    .bottom-nav__item:active{ transform: translateY(1px); }
     .bottom-nav__item.active{ border-color: var(--gold); background: rgba(255,190,92,.22); }
     @media (max-width: 767px){
-      body{ padding-bottom: 80px; }
+      body{ padding-bottom: 86px; }
       .bottom-nav{ display: grid; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      *{ animation: none !important; transition: none !important; }
     }
   </style>
 </head>
+
 <body>
-  <canvas id="ocean" width="375" height="609"></canvas>
-  <div class="vignette" aria-hidden="true"></div>
+  <a class="skip" href="#main">Skip to itinerary</a>
+  <div class="sr-live" id="live" aria-live="polite" aria-atomic="true"></div>
+
+  <canvas id="ocean" aria-hidden="true"></canvas>
+  <div class="atmo" aria-hidden="true"></div>
+  <div class="sparklegrid" aria-hidden="true"></div>
   <i class="fas fa-ship ship-sil" aria-hidden="true"></i>
-  <canvas id="confetti" aria-hidden="true" width="375" height="609"></canvas>
+  <canvas id="confetti" aria-hidden="true"></canvas>
 
   <!-- Sail-away overlay -->
   <div class="sailaway" id="sailaway" aria-hidden="true">
     <div class="layer"></div>
-    <div class="horn"><span class="pulse" aria-hidden="true"></span><i class="fas fa-bullhorn" aria-hidden="true"></i><span>Sail-Away Moment</span></div>
+    <div class="horn">
+      <span class="pulse" aria-hidden="true"></span>
+      <i class="fas fa-bullhorn" aria-hidden="true"></i>
+      <span>Sail-Away Moment</span>
+    </div>
     <i class="fas fa-ship ship-run" aria-hidden="true"></i>
   </div>
 
-  <!-- Header (same as index) -->
+  <!-- Header -->
   <header>
     <div class="header-inner">
       <div class="brand" title="Cruise Hub">
         <i class="fas fa-crown" aria-hidden="true"></i>
         <div class="brand-text">
           <div class="brand-title">Adventure of the Seas</div>
-          <div class="brand-sub">Rahe Family & Friends · Itinerary</div>
+          <div class="brand-sub">Rahe Family &amp; Friends · Itinerary</div>
         </div>
       </div>
       <div class="spacer"></div>
@@ -690,80 +892,96 @@
         <i class="fas fa-calendar-alt" aria-hidden="true"></i>
         Feb 14–20, 2026
       </span>
-      <button class="hdr-iconbtn" id="menuBtn" type="button" aria-label="Open menu">
+      <button class="hdr-iconbtn" id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-controls="drawerBackdrop">
         <i class="fas fa-bars" aria-hidden="true"></i>
       </button>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="hero">
-    <h1>Western Caribbean &amp; Perfect Day</h1>
-    <p>
-      Tap a day to expand. Swipe left/right to jump between days.
-      Mark excursions and they stick (local storage).
-    </p>
-    <div class="hint">
-      <span><i class="fas fa-hand-pointer" aria-hidden="true"></i> Tap to expand</span>
-      <span><i class="fas fa-arrows-left-right" aria-hidden="true"></i> Swipe to navigate</span>
-      <span><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Confetti on “planned”</span>
-    </div>
-  </section>
-
-  <main>
-    <section class="timeline" id="timeline" aria-label="Cruise itinerary timeline"></section>
-    <div class="footer-hint">Tip: Open Day 1 for a sail-away surprise.</div>
-  </main>
-
-  <!-- Back to top -->
-  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
-
-  <!-- Drawer menu -->
-  <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true">
-    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Menu">
+  <!-- Drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop" role="dialog" aria-modal="true" aria-label="Menu">
+    <aside class="drawer" id="drawer" tabindex="-1">
       <div class="drawer-head">
-        <h3>Navigate</h3>
+        <h3><i class="fas fa-compass" aria-hidden="true" style="color:var(--gold); margin-right:.45rem;"></i> Cruise Hub</h3>
         <button class="hdr-iconbtn" id="closeDrawerBtn" type="button" aria-label="Close menu">
-          <i class="fas fa-times"></i>
+          <i class="fas fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
-        <a href="itinerary.html" class="active"><i class="fas fa-route"></i> Itinerary</a>
-        <a href="rooms.html"><i class="fas fa-bed"></i> Rooms</a>
-        <a href="decks.html"><i class="fas fa-layer-group"></i> Decks</a>
-        <a href="contacts.html"><i class="fas fa-phone"></i> Contacts</a>
-        <a href="dining.html"><i class="fas fa-utensils"></i> Dining</a>
-        <a href="operations.html"><i class="fas fa-list-check"></i> Checklist</a>
-        <a href="tips.html"><i class="fas fa-lightbulb"></i> Tips</a>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html"><i class="fas fa-house" aria-hidden="true"></i> Home</a>
+        <a href="decks.html"><i class="fas fa-layer-group" aria-hidden="true"></i> Decks</a>
+        <a href="itinerary.html" class="active"><i class="fas fa-route" aria-hidden="true"></i> Itinerary</a>
+        <a href="dining.html"><i class="fas fa-utensils" aria-hidden="true"></i> Dining</a>
+        <a href="tips.html"><i class="fas fa-life-ring" aria-hidden="true"></i> Tips</a>
+        <a href="contacts.html"><i class="fas fa-phone" aria-hidden="true"></i> Contacts</a>
+        <a href="operations.html"><i class="fas fa-clipboard-check" aria-hidden="true"></i> Operations</a>
       </nav>
+
+      <div class="drawer-foot" aria-label="Quick actions">
+        <div class="minirow">
+          <strong>Itinerary tools</strong>
+          <span style="opacity:.72;">local</span>
+        </div>
+        <button type="button" id="resetBtn"><i class="fas fa-rotate-left" aria-hidden="true"></i> Reset plans</button>
+      </div>
     </aside>
   </div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast" role="status" aria-live="polite">
-    <i class="fas fa-circle-check"></i>
-    <span id="toastText">Copied</span>
-  </div>
+  <!-- Hero -->
+  <section class="hero" aria-label="Itinerary hero">
+    <h1>Western Caribbean &amp; Perfect Day</h1>
+    <p>
+      Tap a day to expand. Swipe left/right <em>on the timeline</em> to jump days.
+      Mark excursions as planned — they persist on this device.
+    </p>
+    <div class="hint" aria-hidden="true">
+      <span><i class="fas fa-hand-pointer" aria-hidden="true"></i> Tap to expand</span>
+      <span><i class="fas fa-arrows-left-right" aria-hidden="true"></i> Swipe timeline</span>
+      <span><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Confetti on “planned”</span>
+    </div>
+    <div class="day-controls" role="group" aria-label="Day navigation">
+      <button class="ctlbtn" id="prevDayBtn" type="button"><i class="fas fa-arrow-left" aria-hidden="true"></i> Previous</button>
+      <button class="ctlbtn primary" id="todayBtn" type="button"><i class="fas fa-bullseye" aria-hidden="true"></i> Jump to Today</button>
+      <button class="ctlbtn" id="nextDayBtn" type="button">Next <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+    </div>
+  </section>
+
+  <main id="main">
+    <section class="timeline" id="timeline" aria-label="Cruise itinerary timeline"></section>
+    <div style="margin-top:1.25rem; text-align:center; opacity:.68; font-weight:850; font-size:.78rem; color:rgba(255,255,255,.78);">
+      Tip: long-press the “Copy day summary” button to share in group chat.
+    </div>
+  </main>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top" type="button">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+  </button>
 
   <!-- Bottom nav (mobile) -->
-  <div class="bottom-nav">
-    <a href="index.html" class="bottom-nav__item"><i class="fas fa-home"></i><span>Home</span></a>
-    <a href="itinerary.html" class="bottom-nav__item active"><i class="fas fa-route"></i><span>Plan</span></a>
-    <a href="rooms.html" class="bottom-nav__item"><i class="fas fa-bed"></i><span>Rooms</span></a>
-    <a href="decks.html" class="bottom-nav__item"><i class="fas fa-ship"></i><span>Map</span></a>
-    <button class="bottom-nav__item" id="moreBtnMobile"><i class="fas fa-ellipsis"></i><span>More</span></button>
-  </div>
+  <nav class="bottom-nav" aria-label="Bottom navigation">
+    <a class="bottom-nav__item" href="index.html"><i class="fas fa-house" aria-hidden="true"></i><span>Home</span></a>
+    <a class="bottom-nav__item" href="decks.html"><i class="fas fa-layer-group" aria-hidden="true"></i><span>Decks</span></a>
+    <a class="bottom-nav__item active" href="itinerary.html"><i class="fas fa-route" aria-hidden="true"></i><span>Route</span></a>
+    <a class="bottom-nav__item" href="dining.html"><i class="fas fa-utensils" aria-hidden="true"></i><span>Dining</span></a>
+    <button class="bottom-nav__item" id="moreBtn" type="button" aria-label="More"><i class="fas fa-ellipsis" aria-hidden="true"></i><span>More</span></button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script>
-    (function() {
+    (function () {
       'use strict';
 
-      // ---------- Config (from original) ----------
-      const SAIL_START = new Date('2026-02-14T16:00:00');
-      const STORAGE_EXCURSIONS = 'rccl.itin.excursions.v1';
-      const STORAGE_OPEN_DAY = 'rccl.itin.openDay.v1';
+      // =========================================================
+      // Config (edit these two and everything updates)
+      // =========================================================
+      const SAIL_START = new Date('2026-02-14T16:00:00'); // local device time
+      const STORAGE_EXCURSIONS = 'rccl.itin.excursions.v2';
+      const STORAGE_OPEN_DAY = 'rccl.itin.openDay.v2';
+      const STORAGE_ACTIVE_DAY = 'rccl.itin.activeDay.v2';
 
+      // Day 6/7 times are reasonable defaults; tweak if RC updates your schedule.
       const ITIN = [
         {
           label: 'Port Canaveral',
@@ -772,8 +990,7 @@
           desc: 'Embarkation day. Check in, board, muster drill, and then the ship slides into vacation mode.',
           lat: 28.4158, lon: -80.6077,
           theme: { sky1:'rgba(0,180,230,.18)', sky2:'rgba(255,215,64,.10)', sky3:'rgba(0,0,0,.55)' },
-          arrival: null,
-          depart: '16:00'
+          arrival: null, depart: '16:00'
         },
         {
           label: 'Sea Day',
@@ -782,8 +999,7 @@
           desc: 'Prime time for shows, pools, specialty dining, and wandering every deck like a curious raccoon.',
           lat: 26.0, lon: -79.0,
           theme: { sky1:'rgba(0,180,230,.20)', sky2:'rgba(0,255,210,.08)', sky3:'rgba(0,0,0,.60)' },
-          arrival: null,
-          depart: null
+          arrival: null, depart: null
         },
         {
           label: 'Grand Cayman',
@@ -792,8 +1008,7 @@
           desc: 'Clear water. Big beach energy. Tender timing matters—get off early if you want maximum calm.',
           lat: 19.3133, lon: -81.2546,
           theme: { sky1:'rgba(90,230,255,.18)', sky2:'rgba(255,215,64,.12)', sky3:'rgba(0,0,0,.58)' },
-          arrival: '08:00',
-          depart: '16:00'
+          arrival: '08:00', depart: '16:00'
         },
         {
           label: 'Falmouth, Jamaica',
@@ -802,8 +1017,7 @@
           desc: 'History, music, and excursions inland. This is the “do stuff” day, if you want one.',
           lat: 18.4939, lon: -77.6560,
           theme: { sky1:'rgba(0,180,230,.15)', sky2:'rgba(255,140,60,.10)', sky3:'rgba(0,0,0,.62)' },
-          arrival: '09:30',
-          depart: '17:00'
+          arrival: '09:30', depart: '17:00'
         },
         {
           label: 'Sea Day',
@@ -812,179 +1026,111 @@
           desc: 'The quiet power of a sea day: nap, snack, repeat. Also: final shopping and show planning.',
           lat: 24.5, lon: -77.0,
           theme: { sky1:'rgba(0,180,230,.16)', sky2:'rgba(140,120,255,.09)', sky3:'rgba(0,0,0,.62)' },
-          arrival: null,
-          depart: null
+          arrival: null, depart: null
         },
         {
           label: 'Perfect Day at CocoCay',
           icon: 'fa-sun',
           sub: 'Private island',
           desc: 'Water, sun, and the strange joy of a private island that runs like a theme park with waves.',
-          lat: 25.8242, lon: -77.9374,
-          theme: { sky1:'rgba(0,255,210,.14)', sky2:'rgba(255,215,64,.14)', sky3:'rgba(0,0,0,.58)' },
-          arrival: '07:00',
-          depart: '17:00'
+          lat: 25.8156, lon: -77.9341,
+          theme: { sky1:'rgba(0,180,230,.18)', sky2:'rgba(255,215,64,.14)', sky3:'rgba(0,0,0,.56)' },
+          arrival: '07:00', depart: '17:00'
         },
         {
-          label: 'Return to Port Canaveral',
+          label: 'Port Canaveral',
           icon: 'fa-anchor',
-          sub: 'Disembarkation',
-          desc: 'Last morning. Bags out the night before. Breakfast early. Everyone suddenly becomes punctual.',
+          sub: 'Return · Disembark',
+          desc: 'Final morning. Coffee, photos, double-check the room, and glide off like a professional.',
           lat: 28.4158, lon: -80.6077,
-          theme: { sky1:'rgba(0,180,230,.14)', sky2:'rgba(255,215,64,.09)', sky3:'rgba(0,0,0,.62)' },
-          arrival: '07:00',
-          depart: null
+          theme: { sky1:'rgba(0,180,230,.12)', sky2:'rgba(255,215,64,.10)', sky3:'rgba(0,0,0,.66)' },
+          arrival: '07:00', depart: null
         }
       ];
 
-      // ---------- DOM elements ----------
-      const menuBtn = document.getElementById('menuBtn');
-      const drawerBackdrop = document.getElementById('drawerBackdrop');
-      const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-      const backToTop = document.getElementById('backToTop');
-      const toast = document.getElementById('toast');
-      const toastText = document.getElementById('toastText');
-      const moreBtnMobile = document.getElementById('moreBtnMobile');
-      const timelineEl = document.getElementById('timeline');
-      const sailawayEl = document.getElementById('sailaway');
-      const shipSil = document.querySelector('.ship-sil');
-      const skyLayer = document.querySelector('.sky'); // not used in this version, but kept for consistency
+      // =========================================================
+      // DOM
+      // =========================================================
+      const $ = (sel, root=document) => root.querySelector(sel);
+      const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-      if (!timelineEl || !sailawayEl || !shipSil) {
-        console.error('[itinerary] Missing required DOM nodes.');
+      const timeline = $('#timeline');
+      const shipSil = $('.ship-sil');
+      const toastEl = $('#toast');
+      const liveEl = $('#live');
+
+      const sailawayEl = $('#sailaway');
+      const sailPill = $('#sailPill');
+
+      const menuBtn = $('#menuBtn');
+      const moreBtn = $('#moreBtn');
+      const drawerBackdrop = $('#drawerBackdrop');
+      const drawer = $('#drawer');
+      const closeDrawerBtn = $('#closeDrawerBtn');
+      const resetBtn = $('#resetBtn');
+
+      const prevDayBtn = $('#prevDayBtn');
+      const nextDayBtn = $('#nextDayBtn');
+      const todayBtn = $('#todayBtn');
+
+      const backToTopBtn = $('#backToTop');
+
+      if (!timeline || !shipSil || !toastEl || !liveEl) {
+        // Defensive: fail soft if embedded incorrectly.
+        console.error('Missing required DOM nodes for itinerary.');
         return;
       }
 
-      // ---------- Drawer ----------
-      let lastFocus = null;
-      function openDrawer() {
-        lastFocus = document.activeElement;
-        drawerBackdrop.classList.add('open');
-        drawerBackdrop.setAttribute('aria-hidden', 'false');
-        closeDrawerBtn.focus();
-        document.body.style.overflow = 'hidden';
-      }
-      function closeDrawer() {
-        drawerBackdrop.classList.remove('open');
-        drawerBackdrop.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
-      }
-      menuBtn.addEventListener('click', openDrawer);
-      closeDrawerBtn.addEventListener('click', closeDrawer);
-      drawerBackdrop.addEventListener('click', (e) => {
-        if (e.target === drawerBackdrop) closeDrawer();
-      });
-
-      // Escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && drawerBackdrop.classList.contains('open')) closeDrawer();
-      });
-
-      // ---------- Back to top ----------
-      window.addEventListener('scroll', () => {
-        backToTop.classList.toggle('show', window.scrollY > 400);
-      });
-      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-      // ---------- Mobile "More" button ----------
-      moreBtnMobile.addEventListener('click', openDrawer);
-
-      // ---------- Toast helper ----------
-      function showToast(msg, icon = 'fa-circle-check') {
-        toastText.textContent = msg;
-        const ic = toast.querySelector('i');
-        if (ic) ic.className = `fas ${icon}`;
-        toast.classList.add('show');
-        clearTimeout(window.toastTimer);
-        window.toastTimer = setTimeout(() => toast.classList.remove('show'), 1500);
-      }
-
-      // ---------- Confetti (from original) ----------
-      const confCanvas = document.getElementById('confetti');
-      const confCtx = confCanvas ? confCanvas.getContext('2d') : null;
-      let confetti = [];
-      let confRAF = 0;
-
-      function resizeConfetti() {
-        if (!confCanvas || !confCtx) return;
-        const dpr = Math.min(2, window.devicePixelRatio || 1);
-        confCanvas.width = Math.floor(window.innerWidth * dpr);
-        confCanvas.height = Math.floor(window.innerHeight * dpr);
-        confCanvas.style.width = window.innerWidth + 'px';
-        confCanvas.style.height = window.innerHeight + 'px';
-        confCtx.setTransform(dpr,0,0,dpr,0,0);
-      }
-      window.addEventListener('resize', resizeConfetti);
-
-      function burstConfetti(x, y, intensity = 120) {
-        if (!confCanvas || !confCtx) return;
-        resizeConfetti();
-        const colors = ['#00b4e6', '#ffd740', '#ffffff', '#7de3ff', '#ffe58b'];
-        for (let i = 0; i < intensity; i++) {
-          confetti.push({
-            x, y,
-            vx: (Math.random() - 0.5) * 8,
-            vy: (Math.random() - 1.2) * 10,
-            g: 0.22 + Math.random() * 0.12,
-            r: 2 + Math.random() * 3,
-            a: 1,
-            rot: Math.random() * Math.PI * 2,
-            vr: (Math.random() - 0.5) * 0.25,
-            c: colors[Math.floor(Math.random() * colors.length)]
-          });
-        }
-        if (!confRAF) confRAF = requestAnimationFrame(tickConfetti);
-      }
-
-      function tickConfetti() {
-        if (!confCanvas || !confCtx) { confRAF = 0; return; }
-        const w = window.innerWidth, h = window.innerHeight;
-        confCtx.clearRect(0,0,w,h);
-
-        confetti = confetti.filter(p => p.a > 0.02 && p.y < h + 60);
-        for (const p of confetti) {
-          p.vy += p.g;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.rot += p.vr;
-          p.a *= 0.985;
-
-          confCtx.save();
-          confCtx.globalAlpha = p.a;
-          confCtx.translate(p.x, p.y);
-          confCtx.rotate(p.rot);
-          confCtx.fillStyle = p.c;
-          confCtx.fillRect(-p.r, -p.r/2, p.r*2.4, p.r);
-          confCtx.restore();
-        }
-
-        if (confetti.length) confRAF = requestAnimationFrame(tickConfetti);
-        else { confCtx.clearRect(0,0,w,h); confRAF = 0; }
-      }
-
-      // ---------- Sail-away ----------
-      let sailLock = false;
-      function sailAwayMoment() {
-        if (sailLock) return;
-        sailLock = true;
-        sailawayEl.classList.add('on');
-        window.setTimeout(() => { sailawayEl.classList.remove('on'); }, 2800);
-        window.setTimeout(() => { sailLock = false; }, 3100);
-      }
-
-      // ---------- Helpers (from original) ----------
+      // =========================================================
+      // Storage helpers
+      // =========================================================
       const safeJSON = (s, fallback) => { try { return s ? JSON.parse(s) : fallback; } catch { return fallback; } };
-      const getExcursions = () => safeJSON(localStorage.getItem(STORAGE_EXCURSIONS), {});
-      const setExcursions = (obj) => { try { localStorage.setItem(STORAGE_EXCURSIONS, JSON.stringify(obj || {})); } catch {} };
 
-      const pad2 = (n) => String(n).padStart(2, '0');
-
-      function addDays(base, days) {
-        const d = new Date(base);
-        d.setDate(d.getDate() + days);
-        return d;
+      function getExcursions(){
+        return safeJSON(localStorage.getItem(STORAGE_EXCURSIONS), {});
       }
+      function setExcursions(obj){
+        try { localStorage.setItem(STORAGE_EXCURSIONS, JSON.stringify(obj || {})); } catch {}
+      }
+
+      function readOpenDay(){
+        const n = parseInt(localStorage.getItem(STORAGE_OPEN_DAY) || '0', 10);
+        return Number.isFinite(n) ? Math.max(0, Math.min(ITIN.length-1, n)) : 0;
+      }
+      function writeOpenDay(n){
+        try { localStorage.setItem(STORAGE_OPEN_DAY, String(n)); } catch {}
+      }
+
+      function readActiveDay(){
+        const n = parseInt(localStorage.getItem(STORAGE_ACTIVE_DAY) || '', 10);
+        if (!Number.isFinite(n)) return null;
+        return Math.max(0, Math.min(ITIN.length-1, n));
+      }
+      function writeActiveDay(n){
+        try { localStorage.setItem(STORAGE_ACTIVE_DAY, String(n)); } catch {}
+      }
+
+      // Sync across tabs
+      window.addEventListener('storage', (e) => {
+        if (!e) return;
+        if (e.key === STORAGE_EXCURSIONS) {
+          renderExcursionButtons();
+          toast('Synced plans from another tab.');
+        }
+        if (e.key === STORAGE_OPEN_DAY) {
+          const idx = readOpenDay();
+          openDay(idx, false, {announce:false, fromSync:true});
+        }
+        if (e.key === STORAGE_ACTIVE_DAY) {
+          const idx = readActiveDay();
+          if (idx != null) setActiveTheme(idx, {announce:false});
+        }
+      });
+
+      // =========================================================
+      // Date/time helpers
+      // =========================================================
+      const pad2 = (n) => String(n).padStart(2, '0');
 
       function formatDateShort(d) {
         try {
@@ -996,7 +1142,7 @@
 
       function setTimeOnDate(d, hhmm) {
         if (!hhmm) return null;
-        const [hh, mm] = hhmm.split(':').map(x => parseInt(x, 10));
+        const [hh, mm] = String(hhmm).split(':').map(x => parseInt(x, 10));
         const t = new Date(d);
         if (Number.isFinite(hh)) t.setHours(hh);
         if (Number.isFinite(mm)) t.setMinutes(mm);
@@ -1018,8 +1164,16 @@
         return `${m}m`;
       }
 
+      function isSameLocalDay(a, b){
+        return a.getFullYear() === b.getFullYear()
+          && a.getMonth() === b.getMonth()
+          && a.getDate() === b.getDate();
+      }
+
+      // =========================================================
+      // Sunrise / Sunset (simplified NOAA)
+      // =========================================================
       function sunTimes(date, lat, lon) {
-        // Simplified NOAA approximation (same as original)
         const clampedLat = Math.max(-89.8, Math.min(89.8, Number(lat) || 0));
         const lng = Number(lon) || 0;
         const start = new Date(date.getFullYear(), 0, 0);
@@ -1037,282 +1191,696 @@
         const H = Math.acos(cosH);
         const Hdeg = H * (180/Math.PI);
         const tzOffsetMin = -date.getTimezoneOffset();
-        const solarNoon = 720 - (4 * lng) - eqtime + tzOffsetMin;
-        const sunriseMin = solarNoon - (4 * Hdeg);
-        const sunsetMin  = solarNoon + (4 * Hdeg);
-        const toClock = (mins) => {
-          const m = ((mins % 1440) + 1440) % 1440;
-          const hh = Math.floor(m / 60);
-          const mm = Math.floor(m % 60);
+        const solarNoon = (720 - 4*lng - eqtime + tzOffsetMin);
+        const sunriseMin = solarNoon - (Hdeg*4);
+        const sunsetMin = solarNoon + (Hdeg*4);
+
+        const toHM = (mins) => {
+          let m = Math.round(mins);
+          m = (m % (24*60) + (24*60)) % (24*60);
+          const hh = Math.floor(m/60);
+          const mm = m % 60;
+          const hr12 = ((hh + 11) % 12) + 1;
           const ampm = hh >= 12 ? 'PM' : 'AM';
-          const h12 = ((hh + 11) % 12) + 1;
-          return `${h12}:${pad2(mm)} ${ampm}`;
+          return `${hr12}:${pad2(mm)} ${ampm}`;
         };
-        return { sunrise: toClock(sunriseMin), sunset: toClock(sunsetMin) };
+        return { sunrise: toHM(sunriseMin), sunset: toHM(sunsetMin) };
       }
 
-      function escapeHtml(s){
-        return String(s).replace(/[&<>"']/g, c => ({
-          '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-        }[c]));
+      // =========================================================
+      // Toast + announcer
+      // =========================================================
+      let toastTimer = 0;
+      function toast(msg, icon='fa-circle-check') {
+        if (!toastEl) return;
+        if (toastTimer) window.clearTimeout(toastTimer);
+        toastEl.innerHTML = `<i class="fas ${icon}" aria-hidden="true"></i><span>${escapeHTML(String(msg || ''))}</span>`;
+        toastEl.classList.add('show');
+        toastTimer = window.setTimeout(() => toastEl.classList.remove('show'), 1800);
+      }
+      function announce(msg){
+        if (!liveEl) return;
+        liveEl.textContent = String(msg || '');
+      }
+      function escapeHTML(s){
+        return s.replace(/[&<>"']/g, (ch) => ({
+          '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+        }[ch]));
       }
 
-      function buildDaySummary(i, dayDate, data, arrivalDt, departDt, sun){
-        const lines = [];
-        lines.push(`Day ${i+1} · ${data.label} (${formatDateShort(dayDate)})`);
-        lines.push(`${data.sub}`);
-        lines.push(data.desc);
-        if (arrivalDt) lines.push(`Arrive: ${data.arrival} (in ${countdownTo(arrivalDt)})`);
-        if (departDt)  lines.push(`Depart: ${data.depart} (in ${countdownTo(departDt)})`);
-        lines.push(`Sunrise ~ ${sun.sunrise} · Sunset ~ ${sun.sunset}`);
-        return lines.join('\n');
+      // =========================================================
+      // Confetti (capped, debounced resize)
+      // =========================================================
+      const confCanvas = $('#confetti');
+      const confCtx = confCanvas ? confCanvas.getContext('2d', { alpha:true }) : null;
+      let confetti = [];
+      let confRAF = 0;
+
+      function debounce(fn, ms){
+        let t = 0;
+        return function(...args){
+          if (t) window.clearTimeout(t);
+          t = window.setTimeout(() => fn.apply(this, args), ms);
+        };
       }
 
-      async function copyText(text){
-        const value = String(text || '').trim();
-        if (!value) return false;
-        try{
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(value);
-          } else {
-            const ta = document.createElement('textarea');
-            ta.value = value;
-            ta.style.position='fixed';
-            ta.style.left='-9999px';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            ta.remove();
+      function resizeConfetti() {
+        if (!confCanvas || !confCtx) return;
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        confCanvas.width = Math.floor(window.innerWidth * dpr);
+        confCanvas.height = Math.floor(window.innerHeight * dpr);
+        confCanvas.style.width = window.innerWidth + 'px';
+        confCanvas.style.height = window.innerHeight + 'px';
+        confCtx.setTransform(dpr,0,0,dpr,0,0);
+      }
+      const onResize = debounce(() => { resizeConfetti(); resizeOcean(); }, 120);
+      window.addEventListener('resize', onResize, { passive:true });
+
+      function burstConfetti(x, y, intensity = 120) {
+        if (!confCanvas || !confCtx) return;
+        const MAX_PARTICLES = 700;
+        const colors = ['#00b4e6', '#ffd740', '#ffffff', '#7de3ff', '#ffe58b'];
+        const add = Math.min(intensity, Math.max(0, MAX_PARTICLES - confetti.length));
+        if (add <= 0) return;
+
+        for (let i = 0; i < add; i++) {
+          confetti.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 1.2) * 10,
+            g: 0.22 + Math.random() * 0.12,
+            r: 2 + Math.random() * 3,
+            a: 1,
+            rot: Math.random() * Math.PI * 2,
+            vr: (Math.random() - 0.5) * 0.25,
+            c: colors[(Math.random()*colors.length) | 0]
+          });
+        }
+        if (!confRAF) confRAF = requestAnimationFrame(tickConfetti);
+      }
+
+      function tickConfetti() {
+        if (!confCanvas || !confCtx) { confRAF = 0; return; }
+        const w = window.innerWidth, h = window.innerHeight;
+        confCtx.clearRect(0,0,w,h);
+
+        confetti = confetti.filter(p => p.a > 0.02 && p.y < h + 60 && p.x > -80 && p.x < w + 80);
+        for (const p of confetti) {
+          p.vy += p.g;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vr;
+          p.a *= 0.985;
+
+          confCtx.save();
+          confCtx.globalAlpha = p.a;
+          confCtx.translate(p.x, p.y);
+          confCtx.rotate(p.rot);
+          confCtx.fillStyle = p.c;
+          confCtx.fillRect(-p.r, -p.r/2, p.r*2.4, p.r);
+          confCtx.restore();
+        }
+
+        if (confetti.length) confRAF = requestAnimationFrame(tickConfetti);
+        else { confCtx.clearRect(0,0,w,h); confRAF = 0; }
+      }
+
+      // =========================================================
+      // Sail-away (cooldown replay + time-aware trigger)
+      // =========================================================
+      let sailLock = false;
+      let lastSailAt = 0;
+
+      function sailAwayMoment(force=false) {
+        if (!sailawayEl) return;
+        const now = Date.now();
+        const COOLDOWN_MS = 60_000; // 1 minute
+        if (!force) {
+          if (sailLock) return;
+          if (now - lastSailAt < COOLDOWN_MS) return;
+        }
+        sailLock = true;
+        lastSailAt = now;
+        sailawayEl.classList.add('on');
+        window.setTimeout(() => { sailawayEl.classList.remove('on'); }, 2800);
+        window.setTimeout(() => { sailLock = false; }, 3100);
+      }
+
+      // =========================================================
+      // Theme application (lighting system hook)
+      // =========================================================
+      function setActiveTheme(idx, opts={announce:true}) {
+        const item = ITIN[idx];
+        if (!item || !item.theme) return;
+
+        const root = document.documentElement;
+        root.style.setProperty('--sky1', item.theme.sky1 || 'rgba(0,180,230,.20)');
+        root.style.setProperty('--sky2', item.theme.sky2 || 'rgba(0,255,210,.08)');
+        root.style.setProperty('--sky3', item.theme.sky3 || 'rgba(0,0,0,.60)');
+
+        // Update active card lighting
+        $$('.card').forEach(c => c.classList.toggle('is-active', String(c.dataset.day) === String(idx)));
+
+        writeActiveDay(idx);
+        if (opts.announce) announce(`Active day set to Day ${idx+1}: ${item.label}.`);
+      }
+
+      // =========================================================
+      // Rendering
+      // =========================================================
+      function buildCards() {
+        const base = new Date(SAIL_START);
+        base.setHours(0,0,0,0);
+
+        const excursions = getExcursions();
+
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < ITIN.length; i++) {
+          const d = new Date(base);
+          d.setDate(base.getDate() + i);
+
+          const item = ITIN[i];
+          const portTag = (item.arrival || item.depart) ? 'PORT DAY' : 'SEA DAY';
+
+          const times = sunTimes(d, item.lat, item.lon);
+          const arriveDT = setTimeOnDate(d, item.arrival);
+          const departDT = setTimeOnDate(d, item.depart);
+
+          const isPlanned = !!excursions[String(i)];
+          const today = new Date();
+          const isToday = isSameLocalDay(today, d);
+
+          const article = document.createElement('article');
+          article.className = 'card';
+          if (isToday) article.classList.add('is-today');
+          article.setAttribute('role', 'button');
+          article.setAttribute('tabindex', '0');
+          article.setAttribute('aria-expanded', 'false');
+          article.dataset.day = String(i);
+
+          article.innerHTML = `
+            <div class="card-head">
+              <div class="left">
+                <div class="icon" aria-hidden="true"><i class="fas ${escapeHTML(item.icon)}"></i></div>
+                <div class="titles">
+                  <h2>Day ${i+1} · ${escapeHTML(item.label)}</h2>
+                  <div class="subline">${escapeHTML(formatDateShort(d))} · ${escapeHTML(item.sub || '')}</div>
+                </div>
+              </div>
+              <div class="right">
+                <span class="tag"><i class="fas fa-sparkles" aria-hidden="true"></i> ${escapeHTML(portTag)}</span>
+                <span class="chev" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+              </div>
+            </div>
+
+            <div class="details" aria-label="Day details">
+              <p>${escapeHTML(item.desc || '')}</p>
+
+              <div class="meta-grid">
+                <div class="meta">
+                  <i class="fas fa-clock" aria-hidden="true"></i>
+                  <div>
+                    <strong>Timing</strong>
+                    <span>${item.arrival ? `Arrive ${escapeHTML(item.arrival)} · <span data-countdown="arrive" data-day="${i}"></span>` : 'No port arrival'}</span>
+                    <span>${item.depart ? `Depart ${escapeHTML(item.depart)} · <span data-countdown="depart" data-day="${i}"></span>` : 'No scheduled departure'}</span>
+                  </div>
+                </div>
+
+                <div class="meta">
+                  <i class="fas fa-sun" aria-hidden="true"></i>
+                  <div>
+                    <strong>Sun</strong>
+                    <span class="sunrow">
+                      <span class="sunbadge"><i class="fas fa-sunrise" aria-hidden="true"></i> ${escapeHTML(times.sunrise)}</span>
+                      <span class="sunbadge"><i class="fas fa-sunset" aria-hidden="true"></i> ${escapeHTML(times.sunset)}</span>
+                    </span>
+                    <span style="opacity:.62;">Approximate for location</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="pillbtn primary" type="button" data-action="jump" aria-label="Set this day as active theme">
+                  <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Set as active day
+                </button>
+
+                <button class="pillbtn ${isPlanned ? 'on' : ''}" type="button" data-action="excursion" aria-pressed="${isPlanned ? 'true' : 'false'}">
+                  <i class="fas fa-flag-checkered" aria-hidden="true"></i> ${isPlanned ? 'Excursion planned' : 'Plan excursion'}
+                </button>
+
+                <button class="pillbtn" type="button" data-action="copy">
+                  <i class="fas fa-copy" aria-hidden="true"></i> Copy day summary
+                </button>
+              </div>
+            </div>
+          `;
+
+          // Cache event data for countdown updates
+          article._arriveDT = arriveDT;
+          article._departDT = departDT;
+
+          frag.appendChild(article);
+        }
+
+        timeline.innerHTML = '';
+        timeline.appendChild(frag);
+      }
+
+      function renderExcursionButtons(){
+        const excursions = getExcursions();
+        $$('.card').forEach(card => {
+          const day = String(card.dataset.day || '');
+          const planned = !!excursions[day];
+          const btn = $('[data-action="excursion"]', card);
+          if (!btn) return;
+          btn.classList.toggle('on', planned);
+          btn.setAttribute('aria-pressed', planned ? 'true' : 'false');
+          btn.innerHTML = `<i class="fas fa-flag-checkered" aria-hidden="true"></i> ${planned ? 'Excursion planned' : 'Plan excursion'}`;
+        });
+      }
+
+      // =========================================================
+      // Card open/close + keyboard
+      // =========================================================
+      function openDay(idx, scrollIntoView=true, opts={announce:true, fromSync:false}) {
+        idx = Math.max(0, Math.min(ITIN.length-1, idx));
+
+        const cards = $$('.card');
+        const target = cards[idx];
+        if (!target) return;
+
+        // Close others
+        cards.forEach((card, i) => {
+          const isTarget = i === idx;
+          card.setAttribute('aria-expanded', isTarget ? 'true' : 'false');
+        });
+
+        // Persist
+        writeOpenDay(idx);
+
+        // Apply “active day” theme immediately if none is set
+        if (readActiveDay() == null) setActiveTheme(idx, {announce:false});
+
+        // Sail-away: only when Day 1 is opened and it is near/after sail time
+        if (idx === 0) {
+          const now = new Date();
+          const withinWindow = Math.abs(now - SAIL_START) < 1000 * 60 * 60 * 12; // 12h window
+          const alreadySailed = now >= SAIL_START;
+          if (alreadySailed || withinWindow) sailAwayMoment(false);
+        }
+
+        if (scrollIntoView) {
+          target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+        }
+
+        // Announce
+        if (opts.announce) announce(`Opened Day ${idx+1}: ${ITIN[idx].label}.`);
+
+        // Update countdowns right away
+        updateCountdowns();
+
+        // Ensure focus is stable (keyboard users)
+        if (!opts.fromSync) {
+          target.focus({ preventScroll: true });
+        }
+      }
+
+      function toggleCard(card){
+        if (!card) return;
+        const expanded = card.getAttribute('aria-expanded') === 'true';
+        const idx = parseInt(card.dataset.day || '0', 10);
+
+        if (expanded) {
+          card.setAttribute('aria-expanded', 'false');
+          // When closing, clear stored open day so reload doesn't surprise.
+          try { localStorage.removeItem(STORAGE_OPEN_DAY); } catch {}
+          announce(`Closed Day ${idx+1}: ${ITIN[idx].label}.`);
+        } else {
+          openDay(idx, true);
+        }
+      }
+
+      function currentOpenIndex(){
+        const expanded = $('.card[aria-expanded="true"]');
+        if (expanded && expanded.dataset && expanded.dataset.day != null) {
+          const n = parseInt(expanded.dataset.day, 10);
+          if (Number.isFinite(n)) return n;
+        }
+        return readOpenDay();
+      }
+
+      // Global keyboard day navigation (arrow keys)
+      window.addEventListener('keydown', (e) => {
+        if (!e) return;
+
+        // If drawer open, let focus trap handle it.
+        if (drawerBackdrop && drawerBackdrop.classList.contains('open')) return;
+
+        const key = e.key || '';
+        if (key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
+
+        const idx = currentOpenIndex();
+        if (key === 'ArrowRight') openDay(Math.min(ITIN.length-1, idx + 1), true);
+        else openDay(Math.max(0, idx - 1), true);
+      }, { passive:false });
+
+      // =========================================================
+      // Card click / action delegation
+      // =========================================================
+      function onTimelineClick(e){
+        const t = e.target;
+        const card = t && t.closest ? t.closest('.card') : null;
+        if (!card) return;
+
+        const actionBtn = t.closest && t.closest('button[data-action]');
+        if (actionBtn) {
+          e.stopPropagation();
+          const action = actionBtn.getAttribute('data-action');
+          const idx = parseInt(card.dataset.day || '0', 10);
+
+          if (action === 'jump') {
+            setActiveTheme(idx, {announce:true});
+            burstConfetti(window.innerWidth/2, window.innerHeight*0.35, 70);
+            toast(`Active day: Day ${idx+1}`, 'fa-wand-magic-sparkles');
+            return;
           }
-          burstConfetti(window.innerWidth*0.5, window.innerHeight*0.18, 55);
-          showToast('Copied');
-          return true;
+
+          if (action === 'excursion') {
+            const ex = getExcursions();
+            const key = String(idx);
+            ex[key] = !ex[key];
+            setExcursions(ex);
+            renderExcursionButtons();
+
+            const rect = actionBtn.getBoundingClientRect();
+            burstConfetti(rect.left + rect.width/2, rect.top + rect.height/2, ex[key] ? 160 : 60);
+            toast(ex[key] ? 'Planned!' : 'Unplanned', ex[key] ? 'fa-party-horn' : 'fa-circle-minus');
+            announce(ex[key] ? `Excursion planned for Day ${idx+1}.` : `Excursion unplanned for Day ${idx+1}.`);
+            return;
+          }
+
+          if (action === 'copy') {
+            copyDaySummary(idx);
+            return;
+          }
+          return;
+        }
+
+        // Card body click toggles expansion
+        toggleCard(card);
+      }
+      timeline.addEventListener('click', onTimelineClick);
+
+      // Keyboard activate on card
+      timeline.addEventListener('keydown', (e) => {
+        const card = e.target && e.target.closest ? e.target.closest('.card') : null;
+        if (!card) return;
+        const key = e.key || '';
+        if (key === 'Enter' || key === ' ') {
+          e.preventDefault();
+          toggleCard(card);
+        }
+      });
+
+      // =========================================================
+      // Copy to clipboard
+      // =========================================================
+      async function copyText(text){
+        const s = String(text || '');
+        if (!s) return false;
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(s);
+            return true;
+          }
+        } catch {}
+
+        // Fallback (best-effort)
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = s;
+          ta.setAttribute('readonly', 'true');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          return !!ok;
         } catch {
-          showToast('Copy failed', 'fa-triangle-exclamation');
           return false;
         }
       }
 
-      // ---------- Build cards ----------
-      const excursions = getExcursions();
-      const now = new Date();
+      function daySummary(idx){
+        const base = new Date(SAIL_START);
+        base.setHours(0,0,0,0);
+        const d = new Date(base);
+        d.setDate(base.getDate() + idx);
 
-      function isToday(dateObj) {
-        return now.toDateString() === dateObj.toDateString();
+        const item = ITIN[idx];
+        const planned = !!getExcursions()[String(idx)];
+
+        const arrive = item.arrival ? `Arrive ${item.arrival}` : 'No port arrival';
+        const depart = item.depart ? `Depart ${item.depart}` : 'No scheduled departure';
+
+        return [
+          `Day ${idx+1} · ${item.label} (${formatDateShort(d)})`,
+          item.sub ? `${item.sub}` : '',
+          `${arrive} · ${depart}`,
+          `Planned excursion: ${planned ? 'Yes' : 'No'}`,
+          '',
+          item.desc || ''
+        ].filter(Boolean).join('\n');
       }
 
-      function buildCard(dayIndex) {
-        const data = ITIN[dayIndex];
-        const dayDate = addDays(SAIL_START, dayIndex);
-        const arrivalDt = data.arrival ? setTimeOnDate(dayDate, data.arrival) : null;
-        const departDt  = data.depart  ? setTimeOnDate(dayDate, data.depart)  : null;
-        const sun = sunTimes(dayDate, data.lat, data.lon);
-        const planned = excursions[String(dayIndex)] === true;
-
-        const card = document.createElement('article');
-        card.className = 'card';
-        if (isToday(dayDate)) card.classList.add('today');
-        card.setAttribute('role', 'button');
-        card.setAttribute('tabindex', '0');
-        card.setAttribute('aria-expanded', 'false');
-        card.dataset.day = String(dayIndex);
-
-        const tagText = data.icon === 'fa-water' ? 'SEA DAY' : 'PORT DAY';
-
-        card.innerHTML = `
-          <div class="card-head">
-            <div class="left">
-              <div class="icon" aria-hidden="true"><i class="fas ${escapeHtml(data.icon)}"></i></div>
-              <div class="titles">
-                <h2>Day ${dayIndex + 1} · ${escapeHtml(data.label)}</h2>
-                <div class="subline">${escapeHtml(formatDateShort(dayDate))} · ${escapeHtml(data.sub)}</div>
-              </div>
-            </div>
-            <div class="right">
-              <span class="tag"><i class="fas fa-sparkles" aria-hidden="true"></i> ${escapeHtml(tagText)}</span>
-              <span class="chev" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
-            </div>
-          </div>
-
-          <div class="details" aria-label="Day details">
-            <p>${escapeHtml(data.desc)}</p>
-
-            <div class="meta-grid">
-              <div class="meta">
-                <i class="fas fa-clock" aria-hidden="true"></i>
-                <div>
-                  <strong>Timing</strong>
-                  <span>${arrivalDt ? `Arrive ${escapeHtml(data.arrival)} · ${escapeHtml(countdownTo(arrivalDt))}` : 'No port arrival'}</span>
-                  <span>${departDt ? `Depart ${escapeHtml(data.depart)} · ${escapeHtml(countdownTo(departDt))}` : 'No scheduled departure'}</span>
-                </div>
-              </div>
-
-              <div class="meta">
-                <i class="fas fa-sun" aria-hidden="true"></i>
-                <div>
-                  <strong>Sun</strong>
-                  <span>Sunrise ~ ${escapeHtml(sun.sunrise)}</span>
-                  <span>Sunset ~ ${escapeHtml(sun.sunset)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="actions">
-              <button class="pillbtn primary" type="button" data-action="jump" aria-label="Set this day as active theme">
-                <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Set as active day
-              </button>
-
-              <button class="pillbtn ${planned ? 'on' : ''}" type="button" data-action="excursion" aria-pressed="${planned ? 'true' : 'false'}">
-                <i class="fas fa-flag-checkered" aria-hidden="true"></i> ${planned ? 'Excursion planned' : 'Plan excursion'}
-              </button>
-
-              <button class="pillbtn" type="button" data-action="copy">
-                <i class="fas fa-copy" aria-hidden="true"></i> Copy day summary
-              </button>
-            </div>
-          </div>
-        `;
-
-        // Toggle
-        const toggle = () => toggleCard(dayIndex, true);
-        card.addEventListener('click', (e) => {
-          if (e.target.closest('button')) return;
-          toggle();
-        });
-        card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-          if (e.key === 'ArrowRight') { e.preventDefault(); openDay(Math.min(ITIN.length-1, dayIndex+1), true); }
-          if (e.key === 'ArrowLeft')  { e.preventDefault(); openDay(Math.max(0, dayIndex-1), true); }
-        });
-
-        // Buttons
-        card.querySelectorAll('button[data-action]').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const action = btn.getAttribute('data-action');
-            if (action === 'jump') {
-              // theme application (sky colors) – we could update CSS variables, but keep for consistency
-              document.documentElement.style.setProperty('--sky1', data.theme.sky1);
-              document.documentElement.style.setProperty('--sky2', data.theme.sky2);
-              document.documentElement.style.setProperty('--sky3', data.theme.sky3);
-              persistOpenDay(dayIndex);
-              burstConfetti(window.innerWidth * 0.5, window.innerHeight * 0.25, 60);
-            }
-            if (action === 'excursion') {
-              const next = !(excursions[String(dayIndex)] === true);
-              excursions[String(dayIndex)] = next;
-              setExcursions(excursions);
-
-              btn.classList.toggle('on', next);
-              btn.setAttribute('aria-pressed', next ? 'true' : 'false');
-              btn.innerHTML = `<i class="fas fa-flag-checkered" aria-hidden="true"></i> ${next ? 'Excursion planned' : 'Plan excursion'}`;
-
-              const r = btn.getBoundingClientRect();
-              burstConfetti(r.left + r.width/2, r.top + r.height/2, next ? 160 : 70);
-            }
-            if (action === 'copy') {
-              const text = buildDaySummary(dayIndex, dayDate, data, arrivalDt, departDt, sun);
-              await copyText(text);
-            }
-          });
-        });
-
-        return card;
+      async function copyDaySummary(idx){
+        const ok = await copyText(daySummary(idx));
+        if (ok) toast('Copied day summary', 'fa-copy');
+        else toast('Copy failed (browser restrictions)', 'fa-triangle-exclamation');
       }
 
-      // ---------- Render + observer ----------
-      const cards = [];
-      for (let i = 0; i < ITIN.length; i++) {
-        const card = buildCard(i);
-        timelineEl.appendChild(card);
-        cards.push(card);
-      }
+      // =========================================================
+      // Countdown: refresh every minute + immediately on open
+      // =========================================================
+      function updateCountdowns(){
+        const cards = $$('.card');
+        for (const card of cards) {
+          const idx = parseInt(card.dataset.day || '0', 10);
+          const arriveEl = $(`[data-countdown="arrive"][data-day="${idx}"]`, card);
+          const departEl = $(`[data-countdown="depart"][data-day="${idx}"]`, card);
 
-      const observer = new IntersectionObserver((entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) e.target.classList.add('visible');
-        }
-      }, { threshold: 0.14 });
-
-      cards.forEach(c => observer.observe(c));
-
-      // ---------- Open/close ----------
-      function persistOpenDay(i){
-        try { localStorage.setItem(STORAGE_OPEN_DAY, String(i)); } catch {}
-      }
-      function readOpenDay(){
-        const n = parseInt(localStorage.getItem(STORAGE_OPEN_DAY) || '0', 10);
-        if (!Number.isFinite(n)) return 0;
-        return Math.max(0, Math.min(ITIN.length-1, n));
-      }
-
-      function closeAll() {
-        for (const c of cards) c.setAttribute('aria-expanded', 'false');
-      }
-
-      function openDay(i, scrollIntoView) {
-        const card = cards[i];
-        if (!card) return;
-        closeAll();
-        card.setAttribute('aria-expanded', 'true');
-        // Apply theme
-        document.documentElement.style.setProperty('--sky1', ITIN[i].theme.sky1);
-        document.documentElement.style.setProperty('--sky2', ITIN[i].theme.sky2);
-        document.documentElement.style.setProperty('--sky3', ITIN[i].theme.sky3);
-        persistOpenDay(i);
-        if (i === 0) sailAwayMoment();
-        if (scrollIntoView) {
-          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (arriveEl && card._arriveDT) arriveEl.textContent = countdownTo(card._arriveDT);
+          if (departEl && card._departDT) departEl.textContent = countdownTo(card._departDT);
         }
       }
-
-      function toggleCard(i, scrollIntoView) {
-        const card = cards[i];
-        if (!card) return;
-        const isOpen = card.getAttribute('aria-expanded') === 'true';
-        if (isOpen) {
-          card.setAttribute('aria-expanded', 'false');
-        } else {
-          openDay(i, scrollIntoView);
-        }
+      function startCountdownTicker(){
+        updateCountdowns();
+        // align to minute boundary for nicer updates
+        const now = new Date();
+        const msToNextMinute = (60 - now.getSeconds()) * 1000 + (1000 - now.getMilliseconds());
+        window.setTimeout(() => {
+          updateCountdowns();
+          window.setInterval(updateCountdowns, 60_000);
+        }, Math.max(250, Math.min(msToNextMinute, 60_000)));
       }
 
-      // ---------- Swipe ----------
-      let touch = { x:0, y:0, t:0, active:false };
-      function currentOpenIndex() {
-        const idx = cards.findIndex(c => c.getAttribute('aria-expanded') === 'true');
-        return idx >= 0 ? idx : readOpenDay();
+      // =========================================================
+      // Swipe gesture (timeline-only, diagonals ignored)
+      // =========================================================
+      let touchStartX = 0, touchStartY = 0, touchStartT = 0;
+
+      function onTouchStart(e){
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        touchStartX = t.clientX;
+        touchStartY = t.clientY;
+        touchStartT = performance.now();
       }
-      document.addEventListener('touchstart', (e) => {
-        if (!e.touches || e.touches.length !== 1) return;
-        const t = e.touches[0];
-        touch = { x: t.clientX, y: t.clientY, t: Date.now(), active:true };
-      }, { passive:true });
-      document.addEventListener('touchend', (e) => {
-        if (!touch.active) return;
-        touch.active = false;
-        const changed = e.changedTouches && e.changedTouches[0];
-        if (!changed) return;
-        const dx = changed.clientX - touch.x;
-        const dy = changed.clientY - touch.y;
-        const dt = Date.now() - touch.t;
-        if (dt > 700) return;
-        if (Math.abs(dx) < 60) return;
-        if (Math.abs(dy) > 70) return;
+
+      function onTouchEnd(e){
+        const t = e.changedTouches && e.changedTouches[0];
+        if (!t) return;
+
+        const dx = t.clientX - touchStartX;
+        const dy = t.clientY - touchStartY;
+        const dt = performance.now() - touchStartT;
+
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+
+        // Cancel vertical/diagonal scroll attempts
+        if (absY > 50 && absY > absX) return;
+
+        // Require a minimum horizontal distance & reasonable speed
+        const MIN = Math.max(70, Math.floor(window.innerWidth * 0.12));
+        if (absX < MIN) return;
+        if (dt > 900) return;
+
         const idx = currentOpenIndex();
         if (dx < 0) openDay(Math.min(ITIN.length-1, idx + 1), true);
         else openDay(Math.max(0, idx - 1), true);
-      }, { passive:true });
+      }
 
-      // ---------- Parallax ship ----------
+      timeline.addEventListener('touchstart', onTouchStart, { passive:true });
+      timeline.addEventListener('touchend', onTouchEnd, { passive:true });
+
+      // =========================================================
+      // Drawer: open/close + focus trap
+      // =========================================================
+      const focusableSel = [
+        'a[href]',
+        'button:not([disabled])',
+        'input:not([disabled])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])'
+      ].join(',');
+
+      let lastFocus = null;
+
+      function openDrawer(){
+        if (!drawerBackdrop || !drawer) return;
+        if (drawerBackdrop.classList.contains('open')) return;
+        lastFocus = document.activeElement;
+        drawerBackdrop.classList.add('open');
+        // focus first item
+        const f = $(focusableSel, drawer) || drawer;
+        window.setTimeout(() => f.focus({ preventScroll: true }), 20);
+      }
+
+      function closeDrawer(){
+        if (!drawerBackdrop || !drawer) return;
+        if (!drawerBackdrop.classList.contains('open')) return;
+        drawerBackdrop.classList.remove('open');
+        // restore focus safely
+        const target = (menuBtn && document.contains(menuBtn)) ? menuBtn : lastFocus;
+        window.setTimeout(() => {
+          if (target && target.focus) target.focus({ preventScroll: true });
+        }, 20);
+      }
+
+      function trapFocus(e){
+        if (!drawerBackdrop || !drawerBackdrop.classList.contains('open')) return;
+        if (!e || e.key !== 'Tab') return;
+
+        const focusables = $$(focusableSel, drawer);
+        if (!focusables.length) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+
+      function onBackdropClick(e){
+        if (!drawerBackdrop) return;
+        if (e.target === drawerBackdrop) closeDrawer();
+      }
+
+      if (menuBtn) menuBtn.addEventListener('click', openDrawer);
+      if (moreBtn) moreBtn.addEventListener('click', openDrawer);
+      if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+      if (drawerBackdrop) drawerBackdrop.addEventListener('click', onBackdropClick);
+      window.addEventListener('keydown', (e) => {
+        if (!drawerBackdrop || !drawerBackdrop.classList.contains('open')) return;
+        if (e.key === 'Escape') closeDrawer();
+      });
+      window.addEventListener('keydown', trapFocus, { passive:false });
+
+      // =========================================================
+      // Reset tool
+      // =========================================================
+      function resetPlans(){
+        try { localStorage.removeItem(STORAGE_EXCURSIONS); } catch {}
+        try { localStorage.removeItem(STORAGE_OPEN_DAY); } catch {}
+        try { localStorage.removeItem(STORAGE_ACTIVE_DAY); } catch {}
+        renderExcursionButtons();
+        setActiveTheme(0, {announce:false});
+        openDay(0, true);
+        toast('Reset complete', 'fa-rotate-left');
+      }
+      if (resetBtn) resetBtn.addEventListener('click', () => {
+        resetPlans();
+        closeDrawer();
+      });
+
+      // =========================================================
+      // Hero controls
+      // =========================================================
+      prevDayBtn.addEventListener('click', () => openDay(Math.max(0, currentOpenIndex() - 1), true));
+      nextDayBtn.addEventListener('click', () => openDay(Math.min(ITIN.length-1, currentOpenIndex() + 1), true));
+      todayBtn.addEventListener('click', () => {
+        const idx = computeTodayIndex();
+        openDay(idx, true);
+        toast(`Jumped to ${idx === 0 ? 'Day 1' : `Day ${idx+1}`}`, 'fa-bullseye');
+      });
+
+      // =========================================================
+      // Intersection reveal (lazy entrance)
+      // =========================================================
+      function setupReveal(){
+        const cards = $$('.card');
+        if (!('IntersectionObserver' in window)) {
+          cards.forEach(c => c.classList.add('visible'));
+          return;
+        }
+        const io = new IntersectionObserver((entries) => {
+          for (const ent of entries) {
+            if (ent.isIntersecting) {
+              ent.target.classList.add('visible');
+              io.unobserve(ent.target);
+            }
+          }
+        }, { root: null, threshold: 0.12 });
+        cards.forEach(c => io.observe(c));
+      }
+
+      // =========================================================
+      // Back to top
+      // =========================================================
       window.addEventListener('scroll', () => {
-        const y = window.scrollY || 0;
-        shipSil.style.transform = `translateX(-50%) translateY(${y * 0.06}px)`;
+        backToTopBtn.classList.toggle('show', (window.scrollY || 0) > 700);
       }, { passive:true });
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+      });
 
-      // ---------- Ocean animation (lightweight) ----------
-      const ocean = document.getElementById('ocean');
+      // =========================================================
+      // Parallax ship (throttled via rAF)
+      // =========================================================
+      let parallaxRAF = 0;
+      function onScrollParallax(){
+        if (parallaxRAF) return;
+        parallaxRAF = requestAnimationFrame(() => {
+          parallaxRAF = 0;
+          const y = window.scrollY || 0;
+          shipSil.style.transform = `translateX(-50%) translateY(${y * 0.06}px)`;
+        });
+      }
+      window.addEventListener('scroll', onScrollParallax, { passive:true });
+
+      // =========================================================
+      // Ocean animation (paused on hidden)
+      // =========================================================
+      const ocean = $('#ocean');
       const ctx = ocean ? ocean.getContext('2d', { alpha:true }) : null;
+      let oceanT = 0;
+      let oceanRAF = 0;
+      let oceanRunning = false;
+
+      function prefersReducedMotion(){
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      }
 
       function resizeOcean(){
         if (!ocean || !ctx) return;
@@ -1322,11 +1890,6 @@
         ocean.style.width = window.innerWidth + 'px';
         ocean.style.height = window.innerHeight + 'px';
         ctx.setTransform(dpr,0,0,dpr,0,0);
-      }
-      window.addEventListener('resize', () => { resizeOcean(); resizeConfetti(); });
-
-      function prefersReducedMotion(){
-        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
       }
 
       function drawOcean(){
@@ -1358,25 +1921,117 @@
           ctx.fillStyle = `rgba(0,180,230,${0.12 - i*0.03})`;
           ctx.fill();
         }
+
         oceanT += prefersReducedMotion() ? 0.004 : 0.012;
-        requestAnimationFrame(drawOcean);
       }
-      let oceanT = 0;
 
-      // ---------- Init ----------
-      function init() {
-        resizeOcean();
+      function oceanTick(){
+        if (!oceanRunning) return;
+        drawOcean();
+        oceanRAF = requestAnimationFrame(oceanTick);
+      }
+
+      function startOcean(){
+        if (oceanRunning) return;
+        oceanRunning = true;
+        oceanRAF = requestAnimationFrame(oceanTick);
+      }
+
+      function stopOcean(){
+        oceanRunning = false;
+        if (oceanRAF) cancelAnimationFrame(oceanRAF);
+        oceanRAF = 0;
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopOcean();
+        else startOcean();
+      });
+
+      // =========================================================
+      // Today index (based on local date)
+      // =========================================================
+      function computeTodayIndex(){
+        const start = new Date(SAIL_START);
+        start.setHours(0,0,0,0);
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        const diffDays = Math.floor((now - start) / (24*60*60*1000));
+        return Math.max(0, Math.min(ITIN.length-1, diffDays));
+      }
+
+      // =========================================================
+      // Header pill "live" state if currently sailing week
+      // =========================================================
+      function updateSailPill(){
+        if (!sailPill) return;
+        const start = new Date(SAIL_START);
+        const end = new Date(SAIL_START);
+        end.setDate(end.getDate() + (ITIN.length - 1));
+        const now = new Date();
+        const live = now >= start && now <= end;
+        sailPill.classList.toggle('is-live', live);
+      }
+
+      // =========================================================
+      // Init
+      // =========================================================
+      function init(){
+        buildCards();
+        setupReveal();
+
         resizeConfetti();
+        resizeOcean();
+        startOcean();
 
-        const open = readOpenDay();
-        openDay(open, false);
+        // Restore theme + open day
+        const active = readActiveDay();
+        if (active != null) setActiveTheme(active, {announce:false});
 
-        if (prefersReducedMotion()) {
-          drawOcean(); // static
-        } else {
-          requestAnimationFrame(drawOcean);
+        const idx = readOpenDay();
+        openDay(idx, false, {announce:false});
+
+        updateSailPill();
+        startCountdownTicker();
+
+        // Auto-highlight today's card and gently scroll to it once (first load only)
+        const todayIdx = computeTodayIndex();
+        const todayCard = $(`.card[data-day="${todayIdx}"]`);
+        if (todayCard) {
+          // ensure “today” tag stays accurate even after midnight
+          // and set an initial visible nudge
+          if (!prefersReducedMotion()) {
+            window.setTimeout(() => {
+              todayCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 250);
+          }
         }
+
+        // Long-press on copy: share sheet (best-effort)
+        timeline.addEventListener('pointerdown', (e) => {
+          const btn = e.target && e.target.closest ? e.target.closest('button[data-action="copy"]') : null;
+          if (!btn) return;
+          const card = btn.closest('.card');
+          if (!card) return;
+          const idx = parseInt(card.dataset.day || '0', 10);
+
+          let fired = false;
+          const timer = window.setTimeout(async () => {
+            fired = true;
+            const text = daySummary(idx);
+            if (navigator.share) {
+              try { await navigator.share({ text }); toast('Shared', 'fa-share-nodes'); }
+              catch { /* ignore */ }
+            }
+          }, 520);
+
+          const clear = () => window.clearTimeout(timer);
+          btn.addEventListener('pointerup', clear, { once:true });
+          btn.addEventListener('pointercancel', clear, { once:true });
+          btn.addEventListener('pointerleave', clear, { once:true });
+        }, { passive:true });
       }
+
       init();
     })();
   </script>
