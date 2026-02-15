@@ -132,7 +132,11 @@
       filter: blur(.2px);
       animation: sparkleDrift 10s var(--ease-out) infinite alternate;
     }
-    @keyframes sparkleDrift{
+    .no-anim .sparklegrid{ animation: none !important; opacity:.06; }
+    .no-anim .ship-sil{ opacity:.055; }
+    .no-anim .atmo{ filter: saturate(.95); }
+
+@keyframes sparkleDrift{
       0%{ transform: translate3d(0,0,0) scale(1); }
       100%{ transform: translate3d(0,-14px,0) scale(1.02); }
     }
@@ -670,6 +674,7 @@
       box-shadow: var(--edge);
     }
     .card[aria-expanded="true"] .chev{ transform: rotate(180deg); }
+    .chev:focus-visible{ outline: 3px solid rgba(0,180,230,.55); outline-offset: 2px; }
     .chev i{ opacity: .92; }
 
     /* Details */
@@ -923,6 +928,13 @@
           <strong>Itinerary tools</strong>
           <span style="opacity:.72;">local</span>
         </div>
+        <div class="minirow" style="gap:.75rem;">
+          <span style="opacity:.82; font-weight:900;">Ambient animations</span>
+          <label style="display:inline-flex; align-items:center; gap:.5rem; user-select:none;">
+            <input id="animToggle" type="checkbox" style="width:18px; height:18px; accent-color: var(--accent);" />
+            <span style="opacity:.86; font-weight:900; font-size:.8rem;">On</span>
+          </label>
+        </div>
         <button type="button" id="resetBtn"><i class="fas fa-rotate-left" aria-hidden="true"></i> Reset plans</button>
       </div>
     </aside>
@@ -980,6 +992,7 @@
       const STORAGE_EXCURSIONS = 'rccl.itin.excursions.v2';
       const STORAGE_OPEN_DAY = 'rccl.itin.openDay.v2';
       const STORAGE_ACTIVE_DAY = 'rccl.itin.activeDay.v2';
+      const STORAGE_ANIM = 'rccl.itin.anim.v1';
 
       // Day 6/7 times are reasonable defaults; tweak if RC updates your schedule.
       const ITIN = [
@@ -1068,6 +1081,7 @@
       const drawer = $('#drawer');
       const closeDrawerBtn = $('#closeDrawerBtn');
       const resetBtn = $('#resetBtn');
+      const animToggle = $('#animToggle');
 
       const prevDayBtn = $('#prevDayBtn');
       const nextDayBtn = $('#nextDayBtn');
@@ -1079,6 +1093,24 @@
         // Defensive: fail soft if embedded incorrectly.
         console.error('Missing required DOM nodes for itinerary.');
         return;
+      }
+
+      // =========================================================
+      // Preferences
+      // =========================================================
+      function readAnimEnabled(){
+        const v = localStorage.getItem(STORAGE_ANIM);
+        if (v === null) return true;
+        return v === '1';
+      }
+      function writeAnimEnabled(on){
+        try { localStorage.setItem(STORAGE_ANIM, on ? '1' : '0'); } catch {}
+      }
+      function applyAnimMode(){
+        const on = readAnimEnabled();
+        document.body.classList.toggle('no-anim', !on);
+        if (animToggle) animToggle.checked = on;
+        if (on) startOcean(); else stopOcean();
       }
 
       // =========================================================
@@ -1258,6 +1290,7 @@
 
       function burstConfetti(x, y, intensity = 120) {
         if (!confCanvas || !confCtx) return;
+        if (prefersReducedMotion() || !readAnimEnabled()) return;
         const MAX_PARTICLES = 700;
         const colors = ['#00b4e6', '#ffd740', '#ffffff', '#7de3ff', '#ffe58b'];
         const add = Math.min(intensity, Math.max(0, MAX_PARTICLES - confetti.length));
@@ -1373,8 +1406,8 @@
           const article = document.createElement('article');
           article.className = 'card';
           if (isToday) article.classList.add('is-today');
-          article.setAttribute('role', 'button');
-          article.setAttribute('tabindex', '0');
+          // NOTE (a11y): Card is not a button because it contains interactive descendants.
+          // Expansion is controlled by a dedicated header button.
           article.setAttribute('aria-expanded', 'false');
           article.dataset.day = String(i);
 
@@ -1383,17 +1416,19 @@
               <div class="left">
                 <div class="icon" aria-hidden="true"><i class="fas ${escapeHTML(item.icon)}"></i></div>
                 <div class="titles">
-                  <h2>Day ${i+1} · ${escapeHTML(item.label)}</h2>
-                  <div class="subline">${escapeHTML(formatDateShort(d))} · ${escapeHTML(item.sub || '')}</div>
+                  <h2 id="day-title-${i}">Day ${i+1} · ${escapeHTML(item.label)}</h2>
+                  <div class="subline" id="day-sub-${i}">${escapeHTML(formatDateShort(d))} · ${escapeHTML(item.sub || '')}</div>
                 </div>
               </div>
               <div class="right">
                 <span class="tag"><i class="fas fa-sparkles" aria-hidden="true"></i> ${escapeHTML(portTag)}</span>
-                <span class="chev" aria-hidden="true"><i class="fas fa-chevron-down"></i></span>
+                <button class="chev" type="button" data-action="toggle" aria-expanded="false" aria-controls="details-${i}" aria-describedby="day-sub-${i}" aria-label="Toggle details for Day ${i+1}">
+                  <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                </button>
               </div>
             </div>
 
-            <div class="details" aria-label="Day details">
+            <div class="details" id="details-${i}" role="region" aria-labelledby="day-title-${i}">
               <p>${escapeHTML(item.desc || '')}</p>
 
               <div class="meta-grid">
@@ -1473,6 +1508,8 @@
         cards.forEach((card, i) => {
           const isTarget = i === idx;
           card.setAttribute('aria-expanded', isTarget ? 'true' : 'false');
+          const tbtn = card.querySelector('button[data-action="toggle"]');
+          if (tbtn) tbtn.setAttribute('aria-expanded', isTarget ? 'true' : 'false');
         });
 
         // Persist
@@ -1494,14 +1531,15 @@
         }
 
         // Announce
-        if (opts.announce) announce(`Opened Day ${idx+1}: ${ITIN[idx].label}.`);
+        if (opts.announce) announce(`Expanded details for Day ${idx+1}: ${ITIN[idx].label}.`);
 
         // Update countdowns right away
         updateCountdowns();
 
         // Ensure focus is stable (keyboard users)
         if (!opts.fromSync) {
-          target.focus({ preventScroll: true });
+          const tbtn = target.querySelector('button[data-action="toggle"]');
+          if (tbtn) tbtn.focus({ preventScroll: true });
         }
       }
 
@@ -1510,11 +1548,13 @@
         const expanded = card.getAttribute('aria-expanded') === 'true';
         const idx = parseInt(card.dataset.day || '0', 10);
 
+        const tbtn = card.querySelector('button[data-action="toggle"]');
         if (expanded) {
           card.setAttribute('aria-expanded', 'false');
+          if (tbtn) tbtn.setAttribute('aria-expanded', 'false');
           // When closing, clear stored open day so reload doesn't surprise.
           try { localStorage.removeItem(STORAGE_OPEN_DAY); } catch {}
-          announce(`Closed Day ${idx+1}: ${ITIN[idx].label}.`);
+          announce(`Collapsed details for Day ${idx+1}: ${ITIN[idx].label}.`);
         } else {
           openDay(idx, true);
         }
@@ -1559,6 +1599,11 @@
           const action = actionBtn.getAttribute('data-action');
           const idx = parseInt(card.dataset.day || '0', 10);
 
+          if (action === 'toggle') {
+            toggleCard(card);
+            return;
+          }
+
           if (action === 'jump') {
             setActiveTheme(idx, {announce:true});
             burstConfetti(window.innerWidth/2, window.innerHeight*0.35, 70);
@@ -1594,7 +1639,11 @@
 
       // Keyboard activate on card
       timeline.addEventListener('keydown', (e) => {
-        const card = e.target && e.target.closest ? e.target.closest('.card') : null;
+        const target = e.target;
+        // Don't hijack keyboard events on real interactive controls
+        if (target && (target.matches('button, a, input, select, textarea') || target.closest('button, a, input, select, textarea'))) return;
+
+        const card = target && target.closest ? target.closest('.card') : null;
         if (!card) return;
         const key = e.key || '';
         if (key === 'Enter' || key === ' ') {
@@ -1804,6 +1853,7 @@
         try { localStorage.removeItem(STORAGE_EXCURSIONS); } catch {}
         try { localStorage.removeItem(STORAGE_OPEN_DAY); } catch {}
         try { localStorage.removeItem(STORAGE_ACTIVE_DAY); } catch {}
+        try { localStorage.removeItem(STORAGE_ANIM); } catch {}
         renderExcursionButtons();
         setActiveTheme(0, {announce:false});
         openDay(0, true);
@@ -1812,6 +1862,11 @@
       if (resetBtn) resetBtn.addEventListener('click', () => {
         resetPlans();
         closeDrawer();
+      });
+      if (animToggle) animToggle.addEventListener('change', () => {
+        writeAnimEnabled(!!animToggle.checked);
+        applyAnimMode();
+        toast(readAnimEnabled() ? 'Animations on' : 'Animations off', 'fa-wand-magic-sparkles');
       });
 
       // =========================================================
@@ -1944,6 +1999,7 @@
       }
 
       document.addEventListener('visibilitychange', () => {
+        if (!readAnimEnabled()) return;
         if (document.hidden) stopOcean();
         else startOcean();
       });
@@ -1982,7 +2038,7 @@
 
         resizeConfetti();
         resizeOcean();
-        startOcean();
+        applyAnimMode();
 
         // Restore theme + open day
         const active = readActiveDay();
