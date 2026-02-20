@@ -2717,7 +2717,32 @@
   // ---------------------------
   // Scroll Behavior
   // ---------------------------
-  function initScrollBehavior() {}
+  function initScrollBehavior() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion) {
+      document.body.classList.add('motion-enabled');
+    }
+
+    utils.qsa('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener('click', (event) => {
+        const href = anchor.getAttribute('href');
+        if (!href || href === '#') return;
+        const target = document.querySelector(href);
+        if (!target) return;
+
+        event.preventDefault();
+
+        const offset = 80;
+        const topPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+
+        window.scrollTo({
+          top: topPosition,
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
+      });
+    });
+  }
 
   function initImageOptimization() {
     utils.qsa('img').forEach((img, index) => {
