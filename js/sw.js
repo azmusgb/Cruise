@@ -127,7 +127,7 @@ async function handleNavigationRequest(event) {
     if (offlineResponse) return offlineResponse;
 
     return new Response(
-      '<!DOCTYPE html><html lang="en"><meta charset="utf-8"><title>Offline</title><body><h1>Offline</h1><p>This page is unavailable without a connection.</p></body></html>',
+      '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Offline</title><link rel="stylesheet" href="/css/mobile-first.css"></head><body><h1>Offline</h1><p>This page is unavailable without a connection.</p></body></html>',
       { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
     );
   }

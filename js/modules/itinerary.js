@@ -465,7 +465,7 @@
                       <span class="sunbadge"><i class="fas fa-sunrise" aria-hidden="true"></i> ${escapeHTML(times.sunrise)}</span>
                       <span class="sunbadge"><i class="fas fa-sunset" aria-hidden="true"></i> ${escapeHTML(times.sunset)}</span>
                     </span>
-                    <span style="opacity:.62;">Approximate for location</span>
+                    <span class="meta-note">Approximate for location</span>
                   </div>
                 </div>
               </div>
