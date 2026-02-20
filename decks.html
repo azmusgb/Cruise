@@ -942,7 +942,7 @@
 
       <div class="modal-footer">
         <button class="foot-btn" id="btnLoc"><i class="fas fa-location-dot"></i> My Location</button>
-        <a class="foot-btn" id="btnPDF" href="#" target="_blank" rel="noopener" aria-disabled="true"><i class="fas fa-file-pdf"></i> PDF</a>
+        <button class="foot-btn" id="btnPDF" type="button" disabled aria-disabled="true"><i class="fas fa-file-pdf"></i> PDF</button>
         <button class="foot-btn primary" id="btnClose2"><i class="fas fa-times"></i> Close</button>
       </div>
     </div>
@@ -1128,6 +1128,12 @@
   const btnLoc = $('btnLoc');
 
   const drawerBackdrop = $('drawerBackdrop');
+
+  btnPDF.addEventListener('click', () => {
+    const pdf = btnPDF.dataset.pdf;
+    if (!pdf) return;
+    window.open(pdf, '_blank', 'noopener');
+  });
   const menuBtn = $('menuBtn');
   const closeDrawerBtn = $('closeDrawerBtn');
 
@@ -1800,8 +1806,15 @@ function setDeck(deck, opts = {}) {
     prevBtn.disabled = idx <= 0;
     nextBtn.disabled = idx >= ordered.length - 1;
 
-    if (deck.pdf) { btnPDF.href = deck.pdf; btnPDF.removeAttribute('aria-disabled'); }
-    else { btnPDF.href = '#'; btnPDF.setAttribute('aria-disabled','true'); }
+    if (deck.pdf) {
+      btnPDF.dataset.pdf = deck.pdf;
+      btnPDF.disabled = false;
+      btnPDF.removeAttribute('aria-disabled');
+    } else {
+      delete btnPDF.dataset.pdf;
+      btnPDF.disabled = true;
+      btnPDF.setAttribute('aria-disabled','true');
+    }
 
     chipsRow.innerHTML = (deck.chips || []).map(c => `<button class="chip" aria-label="Filter ${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('');
     renderLegend(deck);
