@@ -7,7 +7,7 @@
     container.dataset.loaded = 'true';
 
     container.innerHTML = `
-      <header class="app-header">
+      <header class="app-header--minimal">
         <div class="container header-container">
           <a href="index.html" class="header-logo">
             <span>Adventure of the Seas</span>
