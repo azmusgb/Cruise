@@ -452,7 +452,7 @@
           <span>Dial 0 from cabin phone</span>
         </div>
         <div class="actions">
-          <button class="btn" onclick="copyText('Dial 0 from cabin phone')"><i class="fa fa-copy"></i>Copy</button>
+          <button class="btn" type="button" data-action="copy" data-copy="Dial 0 from cabin phone"><i class="fa fa-copy"></i>Copy</button>
         </div>
       </div>
 
@@ -462,7 +462,7 @@
           <span>Deck 2 · Midship</span>
         </div>
         <div class="actions">
-          <button class="btn" onclick="copyText('Deck 2 Midship Medical Center')"><i class="fa fa-copy"></i>Copy</button>
+          <button class="btn" type="button" data-action="copy" data-copy="Deck 2 Midship Medical Center"><i class="fa fa-copy"></i>Copy</button>
         </div>
       </div>
 
@@ -472,7 +472,7 @@
           <span>Emergency onboard only</span>
         </div>
         <div class="actions">
-          <button class="btn call" onclick="alert('Use onboard phone to contact security.')"><i class="fa fa-phone"></i>Call</button>
+          <button class="btn call" type="button" data-action="security-call"><i class="fa fa-phone"></i>Call</button>
         </div>
       </div>
     </div>
@@ -486,7 +486,7 @@
         </div>
         <div class="actions">
           <a class="btn call" href="tel:+18665627625"><i class="fa fa-phone"></i>Call</a>
-          <button class="btn" onclick="copyText('866-562-7625')"><i class="fa fa-copy"></i>Copy</button>
+          <button class="btn" type="button" data-action="copy" data-copy="866-562-7625"><i class="fa fa-copy"></i>Copy</button>
         </div>
       </div>
 
@@ -496,7 +496,7 @@
           <span>Check policy card</span>
         </div>
         <div class="actions">
-          <button class="btn" onclick="copyText('Check insurance policy card for number')"><i class="fa fa-copy"></i>Copy</button>
+          <button class="btn" type="button" data-action="copy" data-copy="Check insurance policy card for number"><i class="fa fa-copy"></i>Copy</button>
         </div>
       </div>
     </div>
@@ -571,8 +571,8 @@
       const toastText = document.getElementById('toastText');
       const moreBtnMobile = document.getElementById('moreBtnMobile');
 
-      // ---------- Copy function (global for onclick) ----------
-      window.copyText = function(text) {
+      // ---------- Copy function ----------
+      const copyText = function(text) {
         if (!text) return;
         navigator.clipboard.writeText(text).then(() => {
           showToast('Copied');
@@ -580,6 +580,20 @@
           showToast('Unable to copy');
         });
       };
+
+      document.addEventListener('click', (event) => {
+        const actionButton = event.target.closest('[data-action]');
+        if (!actionButton) return;
+
+        const action = actionButton.dataset.action;
+        if (action === 'copy') {
+          copyText(actionButton.dataset.copy || "");
+        }
+
+        if (action === 'security-call') {
+          window.alert('Use onboard phone to contact security.');
+        }
+      });
 
       function showToast(msg) {
         toastText.textContent = msg;
