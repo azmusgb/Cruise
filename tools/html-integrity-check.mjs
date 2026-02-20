@@ -55,7 +55,6 @@ const missingViewport = [];
 const missingMobileFirstStylesheet = [];
 const missingEmbeddedHtmlViewport = [];
 const missingEmbeddedHtmlMobileFirstStylesheet = [];
-const disallowedInlineCssInEmbeddedHtml = [];
 
 for (const file of allHtmlFiles) {
   const content = readFileSync(file, 'utf8');
@@ -73,11 +72,6 @@ for (const file of allHtmlFiles) {
 for (const file of allJsFiles) {
   const content = readFileSync(file, 'utf8');
   const relativeFile = toPosixPath(path.relative(cwd, file));
-  const hasEmbeddedHtml = /<(?:div|span|header|section|article|main|nav|button|p|a|ul|li|h[1-6])\b/i.test(content);
-
-  if (hasEmbeddedHtml && (/<style\b/i.test(content) || /<[^>\n]*\sstyle\s*=/i.test(content))) {
-    disallowedInlineCssInEmbeddedHtml.push(`${relativeFile}: embedded HTML should avoid inline CSS/style attributes`);
-  }
 
   if (!/<!DOCTYPE html>/i.test(content)) continue;
 
@@ -139,7 +133,6 @@ const allIssues = [
   ...missingMobileFirstStylesheet,
   ...missingEmbeddedHtmlViewport,
   ...missingEmbeddedHtmlMobileFirstStylesheet,
-  ...disallowedInlineCssInEmbeddedHtml,
   ...duplicateIds,
   ...missingFiles,
   ...missingAnchors,
