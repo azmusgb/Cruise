@@ -27,7 +27,7 @@ for (const file of htmlFiles) {
   const fullPath = path.join(cwd, file);
   const content = readFileSync(fullPath, 'utf8');
 
-  if (!/src="js\/shared-layout\.js\?v=\d+"/i.test(content) && !/src="js\/shared-layout\.js"/i.test(content)) {
+  if (!/src="js\/shared-layout\.js"/i.test(content)) {
     issues.push(`${file}: missing shared-layout.js include`);
   }
 

@@ -15,7 +15,7 @@ const CORE_ASSETS = [
   '../tips.html',
   '../offline.html',
   '../manifest.json',
-  '../manifest.json?v=2',
+  '../manifest.json',
   '../css/base.css',
   '../css/utilities.css',
   '../css/components.css',
