@@ -85,11 +85,11 @@
   ];
 
   const RCCL_COLORS = {
-    primary: '#0052a5',
+    primary: '#2d8fcf',
     primaryRgb: '0, 82, 165',
-    accent: '#00a4d8',
+    accent: '#38c2c4',
     accentRgb: '0, 164, 216',
-    light: '#f8f9fa',
+    light: '#f6fcff',
     lightRgb: '248, 249, 250',
   };
 
