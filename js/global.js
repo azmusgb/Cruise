@@ -1,35 +1,51 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+(() => {
+  'use strict';
 
-  if (!prefersReducedMotion) {
-    document.body.classList.add('motion-enabled');
+  if (window.__CRUISE_INIT__) return;
+  window.__CRUISE_INIT__ = true;
+
+  const APP = { version: '3.0.0' };
+  window.__CRUISE_APP__ = APP;
+
+  function safeQuery(selector, root = document) {
+    if (!root || typeof root.querySelector !== 'function') return null;
+    return root.querySelector(selector);
   }
 
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener('click', function onAnchorClick(event) {
-      const targetSelector = this.getAttribute('href');
-      if (!targetSelector || targetSelector === '#') return;
+  function initAnchorScroll() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      const target = document.querySelector(targetSelector);
-      if (!target) return;
+    if (!prefersReducedMotion) {
+      document.body.classList.add('motion-enabled');
+    }
 
-      event.preventDefault();
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener('click', (event) => {
+        const targetSelector = anchor.getAttribute('href');
+        if (!targetSelector || targetSelector === '#') return;
 
-      const offset = 80;
-      const topPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+        const target = safeQuery(targetSelector);
+        if (!target) return;
 
-      window.scrollTo({
-        top: topPosition,
-        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        event.preventDefault();
+        const offset = 80;
+        const topPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+
+        window.scrollTo({
+          top: topPosition,
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        });
       });
     });
-  });
-});
+  }
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .catch((err) => console.error('Service Worker registration failed:', err));
+  function registerSW() {
+    if (!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.register('/sw.js').catch((e) => console.error('[SW]', e));
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initAnchorScroll();
+    registerSW();
   });
-}
+})();

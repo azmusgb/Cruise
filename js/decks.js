@@ -244,6 +244,8 @@ const BASE_PATH = './decks/';
 
   function init() {
     if (!grid) return;
+    if (grid.dataset.initialized === 'true') return;
+    grid.dataset.initialized = 'true';
 
     decks = buildDeckList();
     renderGrid(decks);
@@ -271,6 +273,17 @@ const BASE_PATH = './decks/';
     zoomOutBtn?.addEventListener('click', zoomOut);
     zoomResetBtn?.addEventListener('click', resetZoom);
     fitBtn?.addEventListener('click', fitToScreen);
+
+
+    const deckViewer = document.querySelector('.deck-viewer');
+    if (deckViewer && deckViewer.dataset.initialized !== 'true') {
+      deckViewer.dataset.initialized = 'true';
+      deckViewer.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-room]');
+        if (!target) return;
+        target.classList.toggle('room-selected');
+      });
+    }
 
     modal?.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
