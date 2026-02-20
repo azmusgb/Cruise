@@ -1,51 +1,23 @@
 (() => {
   'use strict';
 
-  if (window.__CRUISE_INIT__) return;
-  window.__CRUISE_INIT__ = true;
+  if (window.__CRUISE_APP__) return;
+  window.__CRUISE_APP__ = true;
 
-  const APP = { version: '3.0.0' };
-  window.__CRUISE_APP__ = APP;
+  const VERSION = '4.0.0';
 
-  function safeQuery(selector, root = document) {
-    if (!root || typeof root.querySelector !== 'function') return null;
-    return root.querySelector(selector);
+  function safeQuery(sel, root = document) {
+    return root ? root.querySelector(sel) : null;
   }
 
-  function initAnchorScroll() {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (!prefersReducedMotion) {
-      document.body.classList.add('motion-enabled');
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener('click', (event) => {
-        const targetSelector = anchor.getAttribute('href');
-        if (!targetSelector || targetSelector === '#') return;
-
-        const target = safeQuery(targetSelector);
-        if (!target) return;
-
-        event.preventDefault();
-        const offset = 80;
-        const topPosition = target.getBoundingClientRect().top + window.scrollY - offset;
-
-        window.scrollTo({
-          top: topPosition,
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
-        });
-      });
-    });
-  }
+  window.__CRUISE_VERSION__ = VERSION;
+  window.__CRUISE_SAFE_QUERY__ = safeQuery;
 
   function registerSW() {
     if (!('serviceWorker' in navigator)) return;
-    navigator.serviceWorker.register('/sw.js').catch((e) => console.error('[SW]', e));
+    navigator.serviceWorker.register('/sw.js')
+      .catch(err => console.error('[SW]', err));
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    initAnchorScroll();
-    registerSW();
-  });
+  document.addEventListener('DOMContentLoaded', registerSW);
 })();

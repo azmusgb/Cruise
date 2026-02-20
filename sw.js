@@ -1,11 +1,11 @@
-const VERSION = 'v3.0.0';
-const STATIC_CACHE = `static-${VERSION}`;
-const RUNTIME_CACHE = `runtime-${VERSION}`;
+const VERSION = 'v4.0.0';
+const STATIC = `static-${VERSION}`;
+const RUNTIME = `runtime-${VERSION}`;
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', e => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) =>
+  e.waitUntil(
+    caches.open(STATIC).then(cache =>
       cache.addAll([
         '/',
         '/index.html',
@@ -18,37 +18,41 @@ self.addEventListener('install', (event) => {
         '/css/features.css',
         '/css/mobile-first.css',
         '/js/global.js',
-        '/js/shared-layout.js',
-        '/js/decks.js',
+        '/js/shared-layout.js'
       ])
     )
   );
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => !key.includes(VERSION)).map((key) => caches.delete(key)))
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(k => !k.includes(VERSION))
+            .map(k => caches.delete(k))
+      )
     )
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request).catch(() => caches.match('/offline.html')));
+self.addEventListener('fetch', e => {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match('/offline.html'))
+    );
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
+  e.respondWith(
+    caches.match(e.request).then(cached => {
       if (cached) return cached;
-      return fetch(event.request).then((response) =>
-        caches.open(RUNTIME_CACHE).then((cache) => {
-          cache.put(event.request, response.clone());
-          return response;
-        })
-      );
+      return fetch(e.request).then(resp => {
+        return caches.open(RUNTIME).then(cache => {
+          cache.put(e.request, resp.clone());
+          return resp;
+        });
+      });
     })
   );
 });
