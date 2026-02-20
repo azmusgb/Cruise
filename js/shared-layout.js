@@ -5,6 +5,9 @@
 (function renderMinimalLayout() {
   'use strict';
 
+  if (window.__CRUISE_LAYOUT_INIT__) return;
+  window.__CRUISE_LAYOUT_INIT__ = true;
+
   // ---------------------------
   // Safe Operations
   // ---------------------------
@@ -2165,7 +2168,9 @@
   // Header Component
   // ---------------------------
   function renderHeader() {
-    return safeMount('#sharedHeader', () => {
+    const container = document.getElementById('sharedHeader');
+    if (!container || container.dataset.injected === 'true') return;
+    const rendered = safeMount('#sharedHeader', () => {
       const currentPage = utils.getCurrentPage();
       const cruiseStatus = utils.getCruiseStatus();
       const navLinks = NAV_ITEMS.map(item => `
@@ -2250,6 +2255,10 @@
         </header>
       `;
     });
+    if (rendered !== null) {
+      container.dataset.injected = 'true';
+    }
+    return rendered;
   }
 
   // ---------------------------
