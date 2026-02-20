@@ -3,13 +3,37 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 const cwd = process.cwd();
-const htmlFiles = readdirSync(cwd)
-  .filter((name) => name.endsWith('.html'))
-  .sort();
+const skippedDirs = new Set(['.git', 'node_modules']);
 
-function listHtmlFiles(dir) {
-  return htmlFiles.map((file) => path.join(dir, file));
+function toPosixPath(filePath) {
+  return filePath.split(path.sep).join('/');
 }
+
+function listFilesRecursive(dir, extension) {
+  const files = [];
+  const entries = readdirSync(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      if (skippedDirs.has(entry.name)) continue;
+      files.push(...listFilesRecursive(path.join(dir, entry.name), extension));
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.endsWith(extension)) {
+      files.push(path.join(dir, entry.name));
+    }
+  }
+
+  return files;
+}
+
+const allHtmlFiles = listFilesRecursive(cwd, '.html').sort((a, b) => a.localeCompare(b));
+const allJsFiles = listFilesRecursive(cwd, '.js').sort((a, b) => a.localeCompare(b));
+const rootHtmlFiles = readdirSync(cwd)
+  .filter((name) => name.endsWith('.html'))
+  .map((name) => path.join(cwd, name))
+  .sort((a, b) => a.localeCompare(b));
 
 function extractIds(content) {
   return [...content.matchAll(/\sid\s*=\s*"([^"]+)"/g)].map((match) => match[1]);
@@ -27,45 +51,95 @@ const idMap = new Map();
 const duplicateIds = [];
 const missingFiles = [];
 const missingAnchors = [];
+const missingViewport = [];
+const missingMobileFirstStylesheet = [];
+const missingEmbeddedHtmlViewport = [];
+const missingEmbeddedHtmlMobileFirstStylesheet = [];
 
-for (const file of listHtmlFiles(cwd)) {
+for (const file of allHtmlFiles) {
   const content = readFileSync(file, 'utf8');
-  const ids = extractIds(content);
-  const seen = new Set();
-  for (const id of ids) {
-    if (seen.has(id)) duplicateIds.push(`${path.basename(file)}: duplicate id "${id}"`);
-    seen.add(id);
+  const relativeFile = toPosixPath(path.relative(cwd, file));
+
+  if (!/<meta[^>]+name=["']viewport["']/i.test(content)) {
+    missingViewport.push(`${relativeFile}: missing viewport meta tag`);
   }
-  idMap.set(path.basename(file), new Set(ids));
+
+  if (!/href=["'][^"']*css\/mobile-first\.css["']/i.test(content)) {
+    missingMobileFirstStylesheet.push(`${relativeFile}: missing mobile-first stylesheet include`);
+  }
 }
 
-for (const file of listHtmlFiles(cwd)) {
+for (const file of allJsFiles) {
+  const content = readFileSync(file, 'utf8');
+  const relativeFile = toPosixPath(path.relative(cwd, file));
+
+  if (!/<!DOCTYPE html>/i.test(content)) continue;
+
+  if (!/<meta[^>]+name=["']viewport["']/i.test(content)) {
+    missingEmbeddedHtmlViewport.push(`${relativeFile}: embedded HTML missing viewport meta tag`);
+  }
+
+  if (!/mobile-first\.css/i.test(content)) {
+    missingEmbeddedHtmlMobileFirstStylesheet.push(
+      `${relativeFile}: embedded HTML missing mobile-first stylesheet include`
+    );
+  }
+}
+
+for (const file of rootHtmlFiles) {
+  const content = readFileSync(file, 'utf8');
+  const relativeFile = toPosixPath(path.relative(cwd, file));
+  const ids = extractIds(content);
+  const seen = new Set();
+
+  for (const id of ids) {
+    if (seen.has(id)) {
+      duplicateIds.push(`${relativeFile}: duplicate id "${id}"`);
+    }
+    seen.add(id);
+  }
+
+  idMap.set(relativeFile, new Set(ids));
+}
+
+for (const file of rootHtmlFiles) {
   const content = readFileSync(file, 'utf8');
   const hrefs = extractHrefs(content);
+  const relativeFile = toPosixPath(path.relative(cwd, file));
+
   for (const href of hrefs) {
     if (!href || href.startsWith('#') || isExternal(href)) continue;
 
     const [targetRaw, anchor] = href.split('#');
     const target = (targetRaw || '').split('?')[0];
-    if (!target) continue;
+    if (!target || !target.endsWith('.html')) continue;
 
-    if (target.endsWith('.html')) {
-      const fullTarget = path.join(cwd, target);
-      if (!idMap.has(target) || !statSync(fullTarget).isFile()) {
-        missingFiles.push(`${path.basename(file)}: target file missing "${target}" (from "${href}")`);
-        continue;
-      }
-      if (anchor && !idMap.get(target)?.has(anchor)) {
-        missingAnchors.push(`${path.basename(file)}: missing id "#${anchor}" in "${target}" (from "${href}")`);
-      }
+    const fullTarget = path.resolve(cwd, target);
+    const relativeTarget = toPosixPath(path.relative(cwd, fullTarget));
+
+    if (!idMap.has(relativeTarget) || !statSync(fullTarget).isFile()) {
+      missingFiles.push(`${relativeFile}: target file missing "${relativeTarget}" (from "${href}")`);
+      continue;
+    }
+
+    if (anchor && !idMap.get(relativeTarget)?.has(anchor)) {
+      missingAnchors.push(`${relativeFile}: missing id "#${anchor}" in "${relativeTarget}" (from "${href}")`);
     }
   }
 }
 
-const allIssues = [...duplicateIds, ...missingFiles, ...missingAnchors];
+const allIssues = [
+  ...missingViewport,
+  ...missingMobileFirstStylesheet,
+  ...missingEmbeddedHtmlViewport,
+  ...missingEmbeddedHtmlMobileFirstStylesheet,
+  ...duplicateIds,
+  ...missingFiles,
+  ...missingAnchors,
+];
 
 if (allIssues.length === 0) {
-  console.log(`OK: ${htmlFiles.length} HTML files passed integrity checks.`);
+  console.log(`OK: ${allHtmlFiles.length} HTML files and ${allJsFiles.length} JS files passed integrity checks.`);
   process.exit(0);
 }
 
