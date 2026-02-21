@@ -20,16 +20,6 @@ const htmlFiles = files.filter((f) => f.endsWith('.html'));
 const cssFiles = files.filter((f) => f.endsWith('.css'));
 const jsFiles = files.filter((f) => f.endsWith('.js'));
 
-const configPath = path.join(root, 'tools', 'ui-wiring-audit.config.json');
-const config = fs.existsSync(configPath)
-  ? JSON.parse(fs.readFileSync(configPath, 'utf8'))
-  : { defaults: {}, pages: {} };
-
-const defaultIgnoreIds = new Set(config.defaults?.ignoreIds || []);
-const defaultIgnoreClasses = new Set(config.defaults?.ignoreClasses || []);
-const pageConfigs = config.pages || {};
-const strictFail = process.argv.includes('--strict');
-
 function rel(file) {
   return path.relative(root, file);
 }
@@ -162,10 +152,6 @@ const pageResults = [];
 for (const file of htmlFiles) {
   const html = stripHtmlComments(fs.readFileSync(file, 'utf8'));
   const page = rel(file);
-  const pageConfig = pageConfigs[page] || {};
-  const ignoreIds = new Set([...(pageConfig.ignoreIds || []), ...defaultIgnoreIds]);
-  const ignoreClasses = new Set([...(pageConfig.ignoreClasses || []), ...defaultIgnoreClasses]);
-
   const pageIds = htmlSelectorSet(html, 'id');
   const pageClasses = htmlSelectorSet(html, 'class');
 
@@ -193,21 +179,12 @@ for (const file of htmlFiles) {
   const missingIds = sorted([...pageJsIds.keys()].filter((k) => !pageIds.has(k)));
   const missingClasses = sorted([...pageJsClasses.keys()].filter((k) => !pageClasses.has(k)));
 
-  const suppressedIds = missingIds.filter((k) => ignoreIds.has(k));
-  const suppressedClasses = missingClasses.filter((k) => ignoreClasses.has(k));
-  const unsuppressedMissingIds = missingIds.filter((k) => !ignoreIds.has(k));
-  const unsuppressedMissingClasses = missingClasses.filter((k) => !ignoreClasses.has(k));
-
   pageResults.push({
     page,
     entrypoints,
     inlineScriptCount: [...html.matchAll(/<script\b(?![^>]*\bsrc\b)[^>]*>/gim)].length,
     missingIds,
     missingClasses,
-    suppressedIds,
-    suppressedClasses,
-    unsuppressedMissingIds,
-    unsuppressedMissingClasses,
     pageIdsCount: pageIds.size,
     pageClassesCount: pageClasses.size,
     jsIdsCount: pageJsIds.size,
@@ -270,29 +247,16 @@ for (const page of pageResults.sort((a, b) => a.page.localeCompare(b.page))) {
   lines.push(`### ${page.page}`);
   lines.push(`- DOM: ${page.pageIdsCount} ids, ${page.pageClassesCount} classes`);
   lines.push(`- JS refs (entrypoints + inline): ${page.jsIdsCount} ids, ${page.jsClassesCount} classes`);
-  lines.push(`- Missing IDs (raw): ${page.missingIds.length}`);
-  lines.push(`- Missing classes (raw): ${page.missingClasses.length}`);
-  lines.push(`- Unsuppressed missing IDs: ${page.unsuppressedMissingIds.length}`);
-  lines.push(`- Unsuppressed missing classes: ${page.unsuppressedMissingClasses.length}`);
-  if (page.unsuppressedMissingIds.length) {
-    lines.push(`- Unsuppressed ID examples: ${page.unsuppressedMissingIds.slice(0, 8).map((id) => `\`${id}\``).join(', ')}`);
+  lines.push(`- Missing IDs: ${page.missingIds.length}`);
+  lines.push(`- Missing classes: ${page.missingClasses.length}`);
+  if (page.missingIds.length) {
+    lines.push(`- Missing ID examples: ${page.missingIds.slice(0, 8).map((id) => `\`${id}\``).join(', ')}`);
   }
-  if (page.unsuppressedMissingClasses.length) {
-    lines.push(`- Unsuppressed class examples: ${page.unsuppressedMissingClasses.slice(0, 8).map((c) => `\`${c}\``).join(', ')}`);
-  }
-  if (page.suppressedIds.length) {
-    lines.push(`- Suppressed IDs: ${page.suppressedIds.slice(0, 8).map((id) => `\`${id}\``).join(', ')}${page.suppressedIds.length > 8 ? ', ...' : ''}`);
-  }
-  if (page.suppressedClasses.length) {
-    lines.push(`- Suppressed classes: ${page.suppressedClasses.slice(0, 8).map((c) => `\`${c}\``).join(', ')}${page.suppressedClasses.length > 8 ? ', ...' : ''}`);
+  if (page.missingClasses.length) {
+    lines.push(`- Missing class examples: ${page.missingClasses.slice(0, 8).map((c) => `\`${c}\``).join(', ')}`);
   }
   lines.push('');
 }
-
-
-const unsuppressedIssues = pageResults.reduce((sum, page) => {
-  return sum + page.unsuppressedMissingIds.length + page.unsuppressedMissingClasses.length;
-}, 0);
 
 fs.mkdirSync(path.join(root, 'reports'), { recursive: true });
 fs.writeFileSync(path.join(root, 'reports', 'ui-wiring-audit.md'), lines.join('\n'));
