@@ -2,32 +2,681 @@
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#49b5db">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+  <meta name="theme-color" content="#0a2e4a">
   <title>Cruise Hub · Adventure of the Seas</title>
 
   <!-- Fonts + Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/utilities.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/features.css">
-  <link rel="stylesheet" href="css/shared-layout.css">
-  <link rel="stylesheet" href="css/mobile-first.css">
+  <style>
+    /* =========================================================
+       RCCL CRUISE HUB — INDEX (CLEAN & POLISHED)
+       ========================================================= */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body{
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #071a2c;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    a{ color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid rgba(0,180,230,.45); outline-offset: 2px; border-radius: 12px; }
+
+    :root{
+      --navy:#0a2e4a;
+      --navy2:#083452;
+      --blue:#0f4f76;
+      --accent:#00b4e6;
+      --gold:#ffd740;
+      --gold2:#c6a15b;
+      --text:#0d2236;
+      --muted:#5a7a93;
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.11);
+      --glass-brd: rgba(255,255,255,.18);
+      --shadow: 0 25px 80px rgba(0,0,0,.45);
+      --shadow2: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 22px;
+      --radius-lg: 28px;
+      --ease: cubic-bezier(.22,.61,.36,1);
+      --ring: 0 0 0 3px rgba(0,180,230,.18);
+    }
+
+    /* Ocean canvas */
+    #ocean {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+    }
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(0,180,230,.12), transparent 60%),
+        radial-gradient(ellipse at 20% 90%, rgba(255,215,64,.10), transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(255,215,64,.07), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.35));
+    }
+
+    /* Ship silhouette (parallax) */
+    .ship-sil{
+      position: fixed;
+      left: 50%;
+      bottom: 6%;
+      transform: translateX(-50%);
+      opacity: .075;
+      font-size: min(320px, 60vw);
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(.2px);
+      transition: transform .12s linear;
+    }
+
+    /* Header */
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,46,74,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .header-inner{
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 66px;
+      padding: 0 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      color: rgba(255,255,255,.95);
+    }
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      min-width: 0;
+    }
+    .brand i{ color: var(--gold); }
+    .brand-text{ min-width: 0; line-height: 1.05; }
+    .brand-title{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand-sub{
+      font-size: .75rem;
+      color: rgba(255,255,255,.62);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .spacer{ flex: 1; }
+
+    .hdr-pill{
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,215,64,.12);
+      border: 1px solid rgba(255,215,64,.28);
+      color: var(--gold);
+      padding: .35rem .8rem;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: .75rem;
+      white-space: nowrap;
+    }
+    .hdr-pill i{ opacity: .95; }
+
+    .hdr-iconbtn{
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.95);
+      display: grid;
+      place-items: center;
+      transition: transform .18s var(--ease), background .18s var(--ease);
+    }
+    .hdr-iconbtn:hover{ background: rgba(255,255,255,.14); }
+    .hdr-iconbtn:active{ transform: scale(.98); }
+
+    /* Hero */
+    .hero{
+      padding: 4.6rem 1.15rem 2.6rem;
+      text-align: center;
+      color: rgba(255,255,255,.96);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-inner{
+      max-width: 980px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hero-badge{
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .5rem 1.05rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-weight: 850;
+      font-size: .8rem;
+      color: rgba(255,255,255,.90);
+      margin-bottom: 1rem;
+    }
+    .hero-badge i{ color: var(--gold); }
+    .hero h1{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: clamp(2.1rem, 5vw, 3.5rem);
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      margin-bottom: .75rem;
+      text-shadow: 0 16px 60px rgba(0,0,0,.45);
+    }
+    .hero h1 .accent{ color: var(--accent); }
+    .hero-sub{
+      max-width: 720px;
+      margin: 0 auto 1.6rem;
+      color: rgba(255,255,255,.72);
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    /* Countdown */
+    .countdown{
+      display: flex;
+      justify-content: center;
+      gap: .85rem;
+      flex-wrap: wrap;
+      margin: 0 auto 1.5rem;
+    }
+    .time-box{
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      border-radius: 18px;
+      padding: .95rem 1.15rem;
+      min-width: 92px;
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .time-box strong{
+      display: block;
+      font-size: 1.55rem;
+      font-weight: 950;
+      letter-spacing: .01em;
+    }
+    .time-box span{
+      display: block;
+      margin-top: .15rem;
+      font-size: .72rem;
+      font-weight: 850;
+      opacity: .7;
+      letter-spacing: .06em;
+    }
+
+    /* Quick actions */
+    .quick-actions{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .75rem;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .action-row{
+      display: flex;
+      flex-wrap: wrap;
+      gap: .65rem;
+      justify-content: center;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.94);
+      padding: .65rem .95rem;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: .82rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      transition: transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      user-select: none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.14); border-color: rgba(0,180,230,.28); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(0,180,230,.95), rgba(255,215,64,.92));
+      border-color: rgba(255,255,255,.18);
+      color: rgba(8,28,46,.96);
+      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+    }
+    .btn.primary:hover{ filter: brightness(1.04); }
+    .btn i{ font-size: .95em; }
+
+    /* Status line */
+    .status-line{
+      display: flex;
+      gap: .65rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: .85rem;
+      color: rgba(255,255,255,.70);
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .status-pill{
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .38rem .7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .dot{
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #8bd6ff;
+      box-shadow: 0 0 0 3px rgba(0,180,230,.16);
+    }
+    .dot.offline{
+      background: #ff8a8a;
+      box-shadow: 0 0 0 3px rgba(210,60,60,.16);
+    }
+
+    /* Main */
+    main{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.25rem 1.15rem 5.5rem;
+    }
+
+    .section-head{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      color: rgba(255,255,255,.92);
+    }
+    .section-head h2{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      font-size: 1.1rem;
+    }
+    .section-head .meta{
+      color: rgba(255,255,255,.62);
+      font-weight: 800;
+      font-size: .82rem;
+    }
+
+    /* Dashboard cards */
+    .grid{
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.1rem;
+    }
+    .card{
+      grid-column: span 12;
+      border-radius: var(--radius-lg);
+      background: var(--glass);
+      border: 1px solid var(--glass-brd);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      color: rgba(255,255,255,.95);
+      padding: 1.35rem 1.35rem 1.25rem;
+      transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease);
+      transform: translateY(22px);
+      opacity: 0;
+    }
+    .card.visible{
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .card:hover{
+      transform: translateY(-4px);
+      border-color: rgba(0,180,230,.25);
+      box-shadow: 0 35px 110px rgba(0,0,0,.50);
+    }
+
+    .card-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .9rem;
+      margin-bottom: .8rem;
+    }
+    .card-title{
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      min-width: 0;
+    }
+    .card-title i{ color: var(--gold); }
+    .card-title h3{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      font-size: 1.02rem;
+      letter-spacing: .01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-kicker{
+      color: rgba(255,255,255,.62);
+      font-weight: 800;
+      font-size: .78rem;
+    }
+
+    .big{
+      display: flex;
+      align-items: baseline;
+      gap: .55rem;
+      margin: .35rem 0 .25rem;
+    }
+    .big .num{
+      font-weight: 950;
+      letter-spacing: -.01em;
+      font-size: 2.05rem;
+      color: var(--accent);
+      text-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    .big .unit{
+      font-weight: 900;
+      font-size: .85rem;
+      opacity: .72;
+      letter-spacing: .06em;
+    }
+    .card p{
+      color: rgba(255,255,255,.70);
+      font-weight: 650;
+      line-height: 1.55;
+      font-size: .9rem;
+    }
+
+    .list{
+      margin-top: .85rem;
+      display: grid;
+      gap: .5rem;
+    }
+    .row{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .85rem;
+      padding: .55rem .65rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+    }
+    .row .left{
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      min-width: 0;
+    }
+    .row .left i{ color: rgba(0,180,230,.95); }
+    .row .left .txt{
+      min-width: 0;
+    }
+    .row .left .txt strong{
+      display: block;
+      font-weight: 950;
+      font-size: .86rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .row .left .txt span{
+      display: block;
+      margin-top: .08rem;
+      color: rgba(255,255,255,.62);
+      font-weight: 800;
+      font-size: .74rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .row .right{
+      text-align: right;
+      white-space: nowrap;
+      color: rgba(255,255,255,.76);
+      font-weight: 900;
+      font-size: .78rem;
+    }
+
+    .card-actions{
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .55rem;
+      justify-content: flex-end;
+    }
+    .mini{
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.92);
+      padding: .52rem .8rem;
+      font-weight: 900;
+      font-size: .78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      transition: background .18s var(--ease), transform .18s var(--ease);
+    }
+    .mini:hover{ background: rgba(255,255,255,.16); }
+    .mini:active{ transform: translateY(1px); }
+
+    /* Drawer nav */
+    .drawer-backdrop{
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s var(--ease);
+    }
+    .drawer-backdrop.open{
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: min(92vw, 360px);
+      background: rgba(10,46,74,.86);
+      border-left: 1px solid rgba(255,255,255,.12);
+      box-shadow: -20px 0 80px rgba(0,0,0,.45);
+      transform: translateX(20px);
+      opacity: 0;
+      transition: transform .24s var(--ease), opacity .24s var(--ease);
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 1rem 1.15rem;
+    }
+    .drawer-backdrop.open .drawer{
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .drawer-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding-bottom: .9rem;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.95);
+    }
+    .drawer-head h3{
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 950;
+      letter-spacing: .01em;
+      font-size: 1.05rem;
+    }
+    .nav{
+      padding: .95rem 0;
+      display: grid;
+      gap: .55rem;
+      overflow: auto;
+    }
+    .nav a{
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      padding: .7rem .75rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      font-weight: 900;
+      transition: background .18s var(--ease), border-color .18s var(--ease), transform .18s var(--ease);
+    }
+    .nav a:hover{ background: rgba(255,255,255,.10); border-color: rgba(0,180,230,.24); transform: translateY(-1px); }
+    .nav a i{ color: var(--gold); width: 18px; text-align: center; }
+    .nav a.active{
+      background: rgba(255,215,64,.12);
+      border-color: var(--gold);
+    }
+
+    .drawer-foot{
+      margin-top: auto;
+      padding-top: .85rem;
+      border-top: 1px solid rgba(255,255,255,.10);
+      color: rgba(255,255,255,.70);
+      font-weight: 800;
+      font-size: .78rem;
+      display: grid;
+      gap: .6rem;
+    }
+    .tinybtn{
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.92);
+      padding: .55rem .75rem;
+      font-weight: 900;
+      font-size: .78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      justify-content: center;
+    }
+    .tinybtn:hover{ background: rgba(255,255,255,.14); }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      z-index: 3000;
+      background: rgba(10,46,74,.94);
+      color: rgba(255,255,255,.95);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: .62rem .9rem;
+      border-radius: 999px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-weight: 900;
+      font-size: .82rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s var(--ease), transform .18s var(--ease);
+    }
+    .toast.show{
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(-2px);
+    }
+    .toast i{ color: rgba(255,215,64,.95); }
+
+    /* Back to top button */
+    .back-to-top{
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+      background: var(--accent);
+      color: #0a2e4a;
+      border: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 800;
+    }
+    .back-to-top.show{ display: flex; }
+
+    /* Responsive */
+    @media (min-width: 760px){
+      .grid{ gap: 1.2rem; }
+      .card{ grid-column: span 6; }
+    }
+    @media (min-width: 1100px){
+      .card{ grid-column: span 4; }
+    }
+    @media (max-width: 560px){
+      .hero{ padding: 4.1rem 1rem 2.2rem; }
+      .header-inner{ padding: 0 1rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
 </head>
 
-<body class="app-theme-rcc page-index">
+<body>
+  <canvas id="ocean" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <i class="fas fa-ship ship-sil" aria-hidden="true"></i>
 
-  <!-- Header -->
-  <header class="app-header--minimal">
+  <header>
     <div class="header-inner">
-      <div class="brand">
+      <div class="brand" title="Cruise Hub">
         <i class="fas fa-crown" aria-hidden="true"></i>
         <div class="brand-text">
           <div class="brand-title">Adventure of the Seas</div>
@@ -37,177 +686,677 @@
 
       <div class="spacer"></div>
 
-      <span class="hdr-pill" id="sailPill">
-        <i class="fas fa-calendar-alt"></i>
+      <span class="hdr-pill" id="sailPill" aria-label="Sail dates">
+        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
         Feb 14–20, 2026
       </span>
 
       <button class="hdr-iconbtn" id="menuBtn" type="button" aria-label="Open menu">
-        <i class="fas fa-bars"></i>
+        <i class="fas fa-bars" aria-hidden="true"></i>
       </button>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="hero hero--clean">
+  <section class="hero">
     <div class="hero-inner">
-      <h1>Cruise Dashboard</h1>
+      <div class="hero-badge" id="heroBadge">
+        <i class="fas fa-ship" aria-hidden="true"></i>
+        Western Caribbean & Perfect Day at CocoCay · Departs Port Canaveral
+      </div>
+
+      <h1>Your cruise is <span class="accent">locked in</span>.</h1>
       <p class="hero-sub">
-        Everything the group needs. No clutter. No scrolling hunt.
+        Live countdown, quick actions, and the stuff you actually need when everyone starts asking the same questions at the same time.
       </p>
 
-      <div class="quick-grid">
-        <a class="quick-card" href="itinerary.html">
-          <i class="fas fa-route"></i>
-          <span>Itinerary</span>
-        </a>
+      <div class="countdown" id="countdown" aria-label="Countdown"></div>
 
-        <a class="quick-card" href="rooms.html">
-          <i class="fas fa-bed"></i>
-          <span>Rooms</span>
-        </a>
+      <div class="quick-actions" aria-label="Quick actions">
+        <div class="action-row">
+          <a class="btn primary" href="itinerary.html" aria-label="Open itinerary">
+            <i class="fas fa-route" aria-hidden="true"></i> Itinerary
+          </a>
+          <a class="btn" href="rooms.html" aria-label="Open rooms">
+            <i class="fas fa-bed" aria-hidden="true"></i> Rooms
+          </a>
+          <a class="btn" href="decks.html" aria-label="Open decks">
+            <i class="fas fa-layer-group" aria-hidden="true"></i> Decks
+          </a>
+          <a class="btn" href="operations.html" aria-label="Open checklist">
+            <i class="fas fa-list-check" aria-hidden="true"></i> Checklist
+          </a>
+          <a class="btn" href="contacts.html" aria-label="Open contacts">
+            <i class="fas fa-phone" aria-hidden="true"></i> Contacts
+          </a>
+        </div>
 
-        <a class="quick-card" href="decks.html">
-          <i class="fas fa-layer-group"></i>
-          <span>Decks</span>
-        </a>
-
-        <a class="quick-card" href="dining.html">
-          <i class="fas fa-utensils"></i>
-          <span>Dining</span>
-        </a>
-
-        <a class="quick-card" href="contacts.html">
-          <i class="fas fa-phone"></i>
-          <span>Contacts</span>
-        </a>
-
-        <a class="quick-card" href="operations.html">
-          <i class="fas fa-list-check"></i>
-          <span>Checklist</span>
-        </a>
+        <div class="status-line" aria-label="Status indicators">
+          <span class="status-pill" id="netPill">
+            <span class="dot" id="netDot" aria-hidden="true"></span>
+            <span id="netText">Online</span>
+          </span>
+          <span class="status-pill" id="cachePill">
+            <i class="fas fa-database" aria-hidden="true"></i>
+            <span id="cacheText">Storage OK</span>
+          </span>
+          <span class="status-pill" id="lastUpdatedPill">
+            <i class="fas fa-clock" aria-hidden="true"></i>
+            <span id="lastUpdatedText">Updated just now</span>
+          </span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Main -->
-  <main class="dashboard-container">
+  <main>
+    <div class="section-head">
+      <h2>Today’s Snapshot</h2>
+      <div class="meta" id="snapMeta"></div>
+    </div>
 
-    <section class="dashboard-section">
-      <h2 class="section-title">Sailing Overview</h2>
-
-      <div class="card-grid">
-
-        <!-- Countdown -->
-        <article class="card card--clean" id="cardCountdown">
-          <div class="card-header">
+    <section class="grid" aria-label="Dashboard cards">
+      <!-- Card: Countdown summary -->
+      <article class="card reveal" id="cardCountdown">
+        <div class="card-head">
+          <div class="card-title">
+            <i class="fas fa-hourglass-half" aria-hidden="true"></i>
             <h3>Countdown</h3>
-            <span class="card-meta">Port Canaveral · 4:00 PM</span>
           </div>
+          <div class="card-kicker" id="countKicker"></div>
+        </div>
+        <div class="big">
+          <div class="num" id="daysNum">0</div>
+          <div class="unit">DAYS</div>
+        </div>
+        <p id="countDesc">Until departure from Port Canaveral (Orlando, FL).</p>
+        <div class="card-actions">
+          <button class="mini" id="copySailInfoBtn" type="button">
+            <i class="fas fa-copy" aria-hidden="true"></i> Copy sail info
+          </button>
+          <a class="mini" href="itinerary.html">
+            <i class="fas fa-route" aria-hidden="true"></i> View itinerary
+          </a>
+        </div>
+      </article>
 
-          <div class="card-metric">
-            <div class="metric-value" id="daysNum">0</div>
-            <div class="metric-label">Days</div>
-          </div>
-
-          <div class="card-actions">
-            <button class="mini" id="copySailInfoBtn" type="button">
-              Copy sail info
-            </button>
-          </div>
-        </article>
-
-        <!-- Rooms -->
-        <article class="card card--clean" id="cardRooms">
-          <div class="card-header">
+      <!-- Card: Rooms -->
+      <article class="card reveal" id="cardRooms">
+        <div class="card-head">
+          <div class="card-title">
+            <i class="fas fa-bed" aria-hidden="true"></i>
             <h3>Rooms</h3>
-            <span class="card-meta">Assignments</span>
           </div>
+          <div class="card-kicker" id="roomsKicker">Assignments</div>
+        </div>
+        <div class="big">
+          <div class="num" id="roomsNum">5</div>
+          <div class="unit">ROOMS</div>
+        </div>
+        <p id="roomsDesc">Quick list of staterooms and who’s where.</p>
+        <div class="list" id="roomsList" aria-label="Room assignments"></div>
+        <div class="card-actions">
+          <a class="mini" href="rooms.html">
+            <i class="fas fa-arrow-right" aria-hidden="true"></i> Open rooms
+          </a>
+        </div>
+      </article>
 
-          <div class="list compact" id="roomsList">
-            <!-- JS populated -->
-          </div>
-
-          <div class="card-actions">
-            <a class="mini" href="rooms.html">Open rooms</a>
-          </div>
-        </article>
-
-        <!-- Itinerary -->
-        <article class="card card--clean" id="cardItinerary">
-          <div class="card-header">
+      <!-- Card: Itinerary preview -->
+      <article class="card reveal" id="cardItinerary">
+        <div class="card-head">
+          <div class="card-title">
+            <i class="fas fa-route" aria-hidden="true"></i>
             <h3>Itinerary</h3>
-            <span class="card-meta">6 Nights</span>
           </div>
+          <div class="card-kicker" id="itKicker">Ports</div>
+        </div>
+        <div class="big">
+          <div class="num" id="portsNum">5</div>
+          <div class="unit">STOPS</div>
+        </div>
+        <p>Fast preview of the trip flow.</p>
+        <div class="list" id="itList" aria-label="Itinerary preview"></div>
+        <div class="card-actions">
+          <a class="mini" href="itinerary.html">
+            <i class="fas fa-arrow-right" aria-hidden="true"></i> Open itinerary
+          </a>
+        </div>
+      </article>
 
-          <div class="list compact" id="itList">
-            <!-- JS populated -->
+      <!-- Card: Ship & Sailing -->
+      <article class="card reveal" id="cardShip">
+        <div class="card-head">
+          <div class="card-title">
+            <i class="fas fa-anchor" aria-hidden="true"></i>
+            <h3>Ship & Sailing</h3>
           </div>
-
-          <div class="card-actions">
-            <a class="mini" href="itinerary.html">View full plan</a>
+          <div class="card-kicker">Key facts</div>
+        </div>
+        <div class="list" id="shipFacts" aria-label="Ship facts">
+          <div class="row">
+            <div class="left">
+              <i class="fas fa-ship" aria-hidden="true"></i>
+              <div class="txt">
+                <strong>Adventure of the Seas</strong>
+                <span>Royal Caribbean</span>
+              </div>
+            </div>
+            <div class="right">6 nights</div>
           </div>
-        </article>
-
-        <!-- Ship -->
-        <article class="card card--clean" id="cardShip">
-          <div class="card-header">
-            <h3>Ship Details</h3>
-            <span class="card-meta">Adventure of the Seas</span>
+          <div class="row">
+            <div class="left">
+              <i class="fas fa-location-dot" aria-hidden="true"></i>
+              <div class="txt">
+                <strong>Departure</strong>
+                <span>Port Canaveral (Orlando, FL)</span>
+              </div>
+            </div>
+            <div class="right" id="departTime">4:00 PM</div>
           </div>
-
-          <div class="list compact" id="shipFacts">
-            <!-- JS populated -->
+          <div class="row">
+            <div class="left">
+              <i class="fas fa-key" aria-hidden="true"></i>
+              <div class="txt">
+                <strong>Primary stateroom</strong>
+                <span>Stateroom 6650 (Deck 6, aft)</span>
+              </div>
+            </div>
+            <div class="right" id="primaryRoom">6650</div>
           </div>
-
-          <div class="card-actions">
-            <button class="mini" id="copyResBtn" type="button">
-              Copy reservation
-            </button>
-          </div>
-        </article>
-
-      </div>
+        </div>
+        <div class="card-actions">
+          <button class="mini" id="copyResBtn" type="button">
+            <i class="fas fa-copy" aria-hidden="true"></i> Copy reservation
+          </button>
+        </div>
+      </article>
     </section>
-
   </main>
 
-  <!-- Back to top -->
-  <button class="back-to-top" id="backToTop" aria-label="Back to top">
-    <i class="fas fa-arrow-up"></i>
-  </button>
+  <!-- Back to top button -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
 
   <!-- Drawer -->
   <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true">
-    <aside class="drawer" role="dialog" aria-modal="true">
+    <aside class="drawer" role="dialog" aria-modal="true" aria-label="Menu">
       <div class="drawer-head">
         <h3>Navigate</h3>
-        <button class="hdr-iconbtn" id="closeDrawerBtn" type="button">
-          <i class="fas fa-times"></i>
+        <button class="hdr-iconbtn" id="closeDrawerBtn" type="button" aria-label="Close menu">
+          <i class="fas fa-times" aria-hidden="true"></i>
         </button>
       </div>
 
-      <nav class="nav">
-        <a href="index.html" class="active">Dashboard</a>
-        <a href="itinerary.html">Itinerary</a>
-        <a href="rooms.html">Rooms</a>
-        <a href="decks.html">Decks</a>
-        <a href="dining.html">Dining</a>
-        <a href="contacts.html">Contacts</a>
-        <a href="operations.html">Checklist</a>
-        <a href="tips.html">Tips</a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="index.html" class="active"><i class="fas fa-home" aria-hidden="true"></i> Dashboard</a>
+        <a href="itinerary.html"><i class="fas fa-route" aria-hidden="true"></i> Itinerary</a>
+        <a href="rooms.html"><i class="fas fa-bed" aria-hidden="true"></i> Rooms</a>
+        <a href="decks.html"><i class="fas fa-layer-group" aria-hidden="true"></i> Decks</a>
+        <a href="operations.html"><i class="fas fa-list-check" aria-hidden="true"></i> Checklist</a>
+        <a href="contacts.html"><i class="fas fa-phone" aria-hidden="true"></i> Contacts</a>
+        <a href="dining.html"><i class="fas fa-utensils" aria-hidden="true"></i> Dining</a>
+        <a href="tips.html"><i class="fas fa-lightbulb" aria-hidden="true"></i> Tips</a>
       </nav>
+
+      <div class="drawer-foot">
+        <div id="drawerStatus">Status: Online</div>
+        <button class="tinybtn" id="copySnapshotBtn2" type="button">
+          <i class="fas fa-copy" aria-hidden="true"></i> Copy dashboard snapshot
+        </button>
+        <button class="tinybtn" id="resetLocalBtn" type="button" title="Clears only local notes/state for this app">
+          <i class="fas fa-trash" aria-hidden="true"></i> Reset local data
+        </button>
+      </div>
     </aside>
   </div>
 
   <!-- Toast -->
-  <div class="toast" id="toast">
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <i class="fas fa-circle-check" aria-hidden="true"></i>
     <span id="toastText">Copied</span>
   </div>
 
-  <script src="js/global.js" defer></script>
-  <script src="js/shared-layout.js" defer></script>
-  <script src="js/modules/index.js" defer></script>
+  <script>
+    (() => {
+      'use strict';
 
+      // ----- CONFIG -----
+      const SAILING = {
+        ship: 'Adventure of the Seas',
+        line: 'Royal Caribbean',
+        title: 'Rahe Family & Friends · Cruise Hub',
+        sailStartLocal: '2026-02-14T16:00:00',
+        sailEndLocal:   '2026-02-20T07:00:00',
+        sailDatesText: 'Feb 14–20, 2026',
+        departure: 'Port Canaveral (Orlando, FL)',
+        departTimeText: '4:00 PM',
+        reservationNumber: '4519230',
+        primaryStateroom: '6650'
+      };
+
+      const DEFAULT_ROOMS = [
+        { room: '6650', deck: '6', category: 'Interior', code: 'N/A', guests: ['Bill','Melissa','Owen','Declan'] },
+        { room: '8528', deck: '8', category: 'Balcony',  code: '4B',  guests: ['Aimee','Reese'] },
+        { room: '8370', deck: '8', category: 'Interior', code: 'N/A', guests: ['Lea','Calab'] },
+        { room: '8612', deck: '8', category: 'Interior', code: '2D',  guests: ['Bella','TJ'] },
+        { room: '3622', deck: '3', category: 'Interior', code: 'N/A', guests: ['Phoebe','Ryan'] }
+      ];
+
+      const ITINERARY = [
+        { day: 'Day 1', label: 'Port Canaveral', sub: 'Departure', icon: 'fa-ship' },
+        { day: 'Day 2', label: 'Sea Day', sub: 'Explore ship', icon: 'fa-water' },
+        { day: 'Day 3', label: 'Grand Cayman', sub: 'Tender port', icon: 'fa-umbrella-beach' },
+        { day: 'Day 4', label: 'Falmouth', sub: 'Jamaica', icon: 'fa-mountain' },
+        { day: 'Day 5', label: 'Sea Day', sub: 'Reset & roam', icon: 'fa-water' },
+        { day: 'Day 6', label: 'Perfect Day at CocoCay', sub: 'Private island', icon: 'fa-sun' },
+        { day: 'Day 7', label: 'Port Canaveral', sub: 'Arrival', icon: 'fa-anchor' },
+      ];
+
+      const ROOMS_NOTES_KEY = 'rccl.rooms.notes.v1';
+      const ROOMS_DATA_KEY = 'rccl.rooms.data.v1';
+
+      // ----- DOM -----
+      const $ = (id) => document.getElementById(id);
+
+      const countdownEl = $('countdown');
+      const daysNum = $('daysNum');
+      const portsNum = $('portsNum');
+      const roomsNum = $('roomsNum');
+      const roomsList = $('roomsList');
+      const itList = $('itList');
+      const snapMeta = $('snapMeta');
+      const countKicker = $('countKicker');
+      const netDot = $('netDot');
+      const netText = $('netText');
+      const cacheText = $('cacheText');
+      const lastUpdatedText = $('lastUpdatedText');
+      const copySailInfoBtn = $('copySailInfoBtn');
+      const copyResBtn = $('copyResBtn');
+      const departTime = $('departTime');
+      const primaryRoom = $('primaryRoom');
+      const menuBtn = $('menuBtn');
+      const drawerBackdrop = $('drawerBackdrop');
+      const closeDrawerBtn = $('closeDrawerBtn');
+      const drawerStatus = $('drawerStatus');
+      const copySnapshotBtn2 = $('copySnapshotBtn2');
+      const resetLocalBtn = $('resetLocalBtn');
+      const toast = $('toast');
+      const toastText = $('toastText');
+      const backToTop = $('backToTop');
+      const shipSil = document.querySelector('.ship-sil');
+
+      // ----- Utilities -----
+      function safeParse(json, fallback) {
+        try { return json ? JSON.parse(json) : fallback; } catch { return fallback; }
+      }
+
+      function formatLocal(dt) {
+        try {
+          return new Intl.DateTimeFormat(undefined, {
+            weekday: 'short', month: 'short', day: '2-digit', year: 'numeric',
+            hour: 'numeric', minute: '2-digit'
+          }).format(dt);
+        } catch {
+          return dt.toString();
+        }
+      }
+
+      async function copyText(text) {
+        const value = String(text || '').trim();
+        if (!value) return false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(value);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = value;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            ta.remove();
+          }
+          showToast('Copied');
+          return true;
+        } catch {
+          showToast('Copy blocked', 'fa-triangle-exclamation');
+          return false;
+        }
+      }
+
+      function showToast(msg, icon = 'fa-circle-check') {
+        toastText.textContent = msg;
+        const ic = toast.querySelector('i');
+        if (ic) ic.className = `fas ${icon}`;
+        toast.classList.add('show');
+        window.clearTimeout(showToast._t);
+        showToast._t = window.setTimeout(() => toast.classList.remove('show'), 1400);
+      }
+
+      function getRoomsData() {
+        const stored = safeParse(localStorage.getItem(ROOMS_DATA_KEY), null);
+        if (Array.isArray(stored) && stored.length) return stored;
+        return DEFAULT_ROOMS;
+      }
+
+      function setOnlineUI(isOnline) {
+        netDot.classList.toggle('offline', !isOnline);
+        netText.textContent = isOnline ? 'Online' : 'Offline';
+        drawerStatus.textContent = `Status: ${isOnline ? 'Online' : 'Offline'}`;
+      }
+
+      function storageHealth() {
+        try {
+          const k = '__rccl_test__';
+          localStorage.setItem(k, '1');
+          localStorage.removeItem(k);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+
+      // ----- Countdown -----
+      const sailStart = new Date(SAILING.sailStartLocal);
+      const sailEnd = new Date(SAILING.sailEndLocal);
+
+      function updateCountdown() {
+        const now = new Date();
+        const diff = sailStart - now;
+
+        const portsCount = ITINERARY.filter(x => x.icon !== 'fa-water').length;
+        portsNum.textContent = String(portsCount);
+        countKicker.textContent = `${SAILING.sailDatesText} · Departs ${SAILING.departure}`;
+
+        if (diff <= 0) {
+          daysNum.textContent = '0';
+          countdownEl.innerHTML = `
+            <div class="time-box"><strong>🚢</strong><span>WE SAIL</span></div>
+            <div class="time-box"><strong>${formatLocal(sailStart)}</strong><span>DEPARTED</span></div>
+          `;
+          snapMeta.textContent = `Sailing in progress · Ends ${formatLocal(sailEnd)}`;
+          return;
+        }
+
+        const days = Math.floor(diff / (1000*60*60*24));
+        const hours = Math.floor((diff / (1000*60*60)) % 24);
+        const mins = Math.floor((diff / (1000*60)) % 60);
+
+        daysNum.textContent = String(days);
+        countdownEl.innerHTML = `
+          <div class="time-box"><strong>${days}</strong><span>DAYS</span></div>
+          <div class="time-box"><strong>${hours}</strong><span>HOURS</span></div>
+          <div class="time-box"><strong>${mins}</strong><span>MINUTES</span></div>
+        `;
+        snapMeta.textContent = `Departure: ${formatLocal(sailStart)} · ${SAILING.departTimeText}`;
+      }
+
+      // ----- Rooms + Itinerary render -----
+      function renderRooms() {
+        const rooms = getRoomsData();
+        roomsNum.textContent = String(rooms.length);
+        const sorted = [...rooms].sort((a,b) => (String(a.room) === SAILING.primaryStateroom ? -1 : 0) - (String(b.room) === SAILING.primaryStateroom ? -1 : 0)
+          || (Number(b.deck||0) - Number(a.deck||0))
+          || (Number(a.room||0) - Number(b.room||0)));
+
+        roomsList.innerHTML = '';
+        const top = sorted.slice(0, 4);
+        for (const r of top) {
+          const guests = Array.isArray(r.guests) ? r.guests : [];
+          const gShort = guests.length ? guests.slice(0,3).join(', ') + (guests.length > 3 ? '…' : '') : '—';
+          const code = (r.code && r.code !== 'N/A') ? ` · ${r.code}` : '';
+          const loc = r.category ? `${r.category}${code}` : 'Stateroom';
+          roomsList.insertAdjacentHTML('beforeend', `
+            <div class="row">
+              <div class="left">
+                <i class="fas fa-door-open" aria-hidden="true"></i>
+                <div class="txt">
+                  <strong>Room ${escapeHtml(String(r.room||'—'))} · Deck ${escapeHtml(String(r.deck||'—'))}</strong>
+                  <span>${escapeHtml(loc)} · ${escapeHtml(gShort)}</span>
+                </div>
+              </div>
+              <div class="right">${escapeHtml(String(r.room||''))}</div>
+            </div>
+          `);
+        }
+      }
+
+      function renderItinerary() {
+        itList.innerHTML = '';
+        const preview = ITINERARY.slice(0, 5);
+        for (const item of preview) {
+          itList.insertAdjacentHTML('beforeend', `
+            <div class="row">
+              <div class="left">
+                <i class="fas ${escapeHtml(item.icon)}" aria-hidden="true"></i>
+                <div class="txt">
+                  <strong>${escapeHtml(item.day)} · ${escapeHtml(item.label)}</strong>
+                  <span>${escapeHtml(item.sub)}</span>
+                </div>
+              </div>
+              <div class="right">${escapeHtml(item.day.replace('Day ', 'D'))}</div>
+            </div>
+          `);
+        }
+      }
+
+      function escapeHtml(s){
+        return String(s).replace(/[&<>"']/g, c => ({
+          '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+        }[c]));
+      }
+
+      // ----- Drawer -----
+      let lastFocus = null;
+
+      function openDrawer() {
+        lastFocus = document.activeElement;
+        drawerBackdrop.classList.add('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'false');
+        closeDrawerBtn.focus();
+        document.body.style.overflow = 'hidden';
+      }
+      function closeDrawer() {
+        drawerBackdrop.classList.remove('open');
+        drawerBackdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+      }
+
+      menuBtn.addEventListener('click', openDrawer);
+      closeDrawerBtn.addEventListener('click', closeDrawer);
+      drawerBackdrop.addEventListener('click', (e) => { if (e.target === drawerBackdrop) closeDrawer(); });
+
+      document.addEventListener('keydown', (e) => {
+        if (!drawerBackdrop.classList.contains('open')) return;
+        if (e.key === 'Escape') closeDrawer();
+        if (e.key === 'Tab') {
+          const focusables = drawerBackdrop.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+          const list = Array.from(focusables).filter(el => !el.hasAttribute('disabled'));
+          if (!list.length) return;
+          const first = list[0], last = list[list.length - 1];
+          const active = document.activeElement;
+          if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+        }
+      });
+
+      // ----- Copy actions -----
+      function buildSailInfoText() {
+        return [
+          `${SAILING.ship} · ${SAILING.sailDatesText}`,
+          `Departure: ${SAILING.departure} · ${SAILING.departTimeText}`,
+          `Reservation: ${SAILING.reservationNumber}`,
+          `Primary room: ${SAILING.primaryStateroom}`
+        ].join('\n');
+      }
+
+      function buildSnapshotText() {
+        const rooms = getRoomsData();
+        const now = new Date();
+        return [
+          `${SAILING.title}`,
+          `${SAILING.ship} · ${SAILING.sailDatesText}`,
+          `Departure: ${SAILING.departure} · ${SAILING.departTimeText}`,
+          `Rooms: ${rooms.length}`,
+          `Status: ${navigator.onLine ? 'Online' : 'Offline'}`,
+          `Generated: ${formatLocal(now)}`
+        ].join('\n');
+      }
+
+      copySailInfoBtn.addEventListener('click', () => copyText(buildSailInfoText()));
+      copySnapshotBtn2.addEventListener('click', () => copyText(buildSnapshotText()));
+      copyResBtn.addEventListener('click', () => copyText(`Reservation ${SAILING.reservationNumber}`));
+
+      resetLocalBtn.addEventListener('click', async () => {
+        const keys = [ROOMS_NOTES_KEY, ROOMS_DATA_KEY];
+        for (const k of keys) {
+          try { localStorage.removeItem(k); } catch {}
+        }
+        renderRooms();
+        showToast('Local data reset');
+      });
+
+      // ----- Online/offline -----
+      function updateStatusLine() {
+        setOnlineUI(navigator.onLine);
+        const ok = storageHealth();
+        cacheText.textContent = ok ? 'Storage OK' : 'Storage blocked';
+        const now = new Date();
+        lastUpdatedText.textContent = `Updated ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+      }
+
+      window.addEventListener('online', updateStatusLine);
+      window.addEventListener('offline', updateStatusLine);
+
+      // ----- Cards reveal -----
+      const revealObserver = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) e.target.classList.add('visible');
+        }
+      }, { threshold: 0.18 });
+      document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+      // ----- Back to top -----
+      window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('show', window.scrollY > 400);
+      });
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+      // ----- Parallax ship -----
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY || 0;
+        if (shipSil) shipSil.style.transform = `translateX(-50%) translateY(${y * 0.06}px)`;
+      }, { passive:true });
+
+      // ----- Ocean animation -----
+      function startOcean() {
+        const canvas = document.getElementById('ocean');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d', { alpha: true });
+        if (!ctx) return;
+
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function resize() {
+          const dpr = Math.min(2, window.devicePixelRatio || 1);
+          canvas.width = Math.floor(window.innerWidth * dpr);
+          canvas.height = Math.floor(window.innerHeight * dpr);
+          canvas.style.width = window.innerWidth + 'px';
+          canvas.style.height = window.innerHeight + 'px';
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const waves = [
+          { amp: 22, len: 0.010, speed: 0.010, y: 0.46, alpha: 0.11 },
+          { amp: 30, len: 0.008, speed: 0.013, y: 0.54, alpha: 0.09 },
+          { amp: 38, len: 0.006, speed: 0.016, y: 0.62, alpha: 0.07 },
+        ];
+        let t = 0;
+
+        function draw() {
+          const w = window.innerWidth;
+          const h = window.innerHeight;
+
+          ctx.clearRect(0, 0, w, h);
+          ctx.fillStyle = '#071a2c';
+          ctx.fillRect(0, 0, w, h);
+
+          const g = ctx.createLinearGradient(0, 0, 0, h);
+          g.addColorStop(0, 'rgba(10,46,74,.08)');
+          g.addColorStop(1, 'rgba(0,0,0,.22)');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, w, h);
+
+          for (let i = 0; i < waves.length; i++) {
+            const wa = waves[i];
+            ctx.beginPath();
+            const baseY = h * wa.y;
+            ctx.moveTo(0, baseY);
+
+            for (let x = 0; x <= w; x += 8) {
+              const y = baseY + Math.sin(x * wa.len + t * (0.8 + i * 0.15)) * wa.amp;
+              ctx.lineTo(x, y);
+            }
+            ctx.lineTo(w, h);
+            ctx.lineTo(0, h);
+            ctx.closePath();
+
+            ctx.fillStyle = `rgba(0,180,230,${wa.alpha})`;
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(0, baseY - 16);
+            for (let x = 0; x <= w; x += 10) {
+              const y = (baseY - 16) + Math.sin(x * (wa.len * 1.2) + t * (1.2 + i * 0.2)) * (wa.amp * 0.22);
+              ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = `rgba(255,215,64,${wa.alpha * 0.38})`;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          }
+
+          t += prefersReduced ? 0.004 : 0.012;
+          requestAnimationFrame(draw);
+        }
+
+        if (!prefersReduced) requestAnimationFrame(draw);
+        else draw();
+      }
+
+      // ----- Init -----
+      function init() {
+        departTime.textContent = SAILING.departTimeText;
+        primaryRoom.textContent = SAILING.primaryStateroom;
+
+        updateStatusLine();
+
+        renderRooms();
+        renderItinerary();
+
+        updateCountdown();
+        setInterval(updateCountdown, 60_000);
+
+        startOcean();
+
+        setInterval(() => {
+          try {
+            const now = new Date();
+            lastUpdatedText.textContent = `Updated ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+          } catch {}
+        }, 30_000);
+      }
+
+      init();
+    })();
+  </script>
+
+  <noscript>
+    <div style="padding:1rem; text-align:center; background:#ffd740; color:#0d2236; font-weight:900;">
+      This dashboard needs JavaScript enabled.
+    </div>
+  </noscript>
 </body>
 </html>
