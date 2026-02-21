@@ -4,6 +4,8 @@ Scanned 15 HTML, 27 CSS, 18 JS files.
 
 ## Summary
 Overall status: **ISSUES FOUND**
+Strict fail mode: **ON**
+Config file: `tools/ui-wiring-audit.config.json`
 
 ## IDs in HTML but unused by CSS/JS (93)
 - `animToggle` (e.g. itinerary.html, photos.html)

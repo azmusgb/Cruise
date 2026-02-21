@@ -208,6 +208,8 @@ const status =
     ? 'PASS'
     : 'ISSUES FOUND';
 lines.push(`Overall status: **${status}**`);
+lines.push(`Strict fail mode: **${strictFail ? 'ON' : 'OFF'}**`);
+lines.push(`Config file: \`${path.relative(root, configPath)}\`${fs.existsSync(configPath) ? '' : ' (not found; using defaults)'}`);
 lines.push('');
 
 function section(title, list, map) {
@@ -259,3 +261,8 @@ for (const page of pageResults.sort((a, b) => a.page.localeCompare(b.page))) {
 fs.mkdirSync(path.join(root, 'reports'), { recursive: true });
 fs.writeFileSync(path.join(root, 'reports', 'ui-wiring-audit.md'), lines.join('\n'));
 console.log('Wrote reports/ui-wiring-audit.md');
+
+if (strictFail && unsuppressedIssues > 0) {
+  console.error(`Unsuppressed page-scoped wiring issues found: ${unsuppressedIssues}`);
+  process.exitCode = 1;
+}
