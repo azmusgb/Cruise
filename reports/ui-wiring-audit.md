@@ -4,10 +4,11 @@ Scanned 15 HTML, 27 CSS, 18 JS files.
 
 ## Summary
 Overall status: **ISSUES FOUND**
-Strict fail mode: **OFF**
+Strict fail mode: **ON**
 Config file: `tools/ui-wiring-audit.config.json`
 
-## IDs in HTML but unused by CSS/JS (81)
+## IDs in HTML but unused by CSS/JS (93)
+- `animToggle` (e.g. itinerary.html, photos.html)
 - `backup` (e.g. contacts.html)
 - `btnClose2` (e.g. decks.html)
 - `btnLoc` (e.g. decks.html)
@@ -24,10 +25,12 @@ Config file: `tools/ui-wiring-audit.config.json`
 - `check-task-payment-insurance` (e.g. operations.html)
 - `checklist` (e.g. offline.html)
 - `chipsRow` (e.g. decks.html)
+- `confetti` (e.g. itinerary.html, photos.html)
 - `contacts` (e.g. offline.html)
 - `content` (e.g. decks.html)
 - `countDesc` (e.g. index.html)
 - `daySelector` (e.g. itinerary.html)
+- `drawer` (e.g. itinerary.html, photos.html)
 - `emptyState` (e.g. decks.html)
 - `filters` (e.g. decks.html)
 - `heroBadge` (e.g. index.html)
@@ -37,14 +40,17 @@ Config file: `tools/ui-wiring-audit.config.json`
 - `itKicker` (e.g. index.html)
 - `lastUpdatedPill` (e.g. index.html)
 - `legend` (e.g. decks.html)
+- `live` (e.g. itinerary.html, photos.html)
 - `main` (e.g. itinerary.html, offline.html, photos.html, ports.html, tips.html)
 - `modal` (e.g. decks.html)
 - `modalBackdrop` (e.g. decks.html)
 - `modalMode` (e.g. decks.html)
 - `modalSheet` (e.g. decks.html)
 - `modalSub` (e.g. decks.html)
+- `moreBtn` (e.g. itinerary.html, photos.html)
 - `netPill` (e.g. index.html)
 - `nextBtn` (e.g. decks.html)
+- `nextDayBtn` (e.g. itinerary.html, photos.html)
 - `packing-checks` (e.g. tips.html)
 - `planImg` (e.g. decks.html)
 - `planViewer` (e.g. decks.html)
@@ -52,6 +58,7 @@ Config file: `tools/ui-wiring-audit.config.json`
 - `portday` (e.g. tips.html)
 - `ports` (e.g. contacts.html)
 - `prevBtn` (e.g. decks.html)
+- `prevDayBtn` (e.g. itinerary.html, photos.html)
 - `pro-moves-carryon-ids` (e.g. tips.html)
 - `pro-moves-habit-arrive-early` (e.g. tips.html)
 - `pro-moves-habit-muster` (e.g. tips.html)
@@ -66,8 +73,11 @@ Config file: `tools/ui-wiring-audit.config.json`
 - `railTrack` (e.g. decks.html)
 - `railUp` (e.g. decks.html)
 - `railWrap` (e.g. decks.html)
+- `resetBtn` (e.g. itinerary.html, photos.html)
 - `roomsDesc` (e.g. index.html)
 - `roomsKicker` (e.g. index.html)
+- `sailaway` (e.g. itinerary.html, photos.html)
+- `sailPill` (e.g. contacts.html, index.html, itinerary.html, operations.html, photos.html)
 - `sharedFooter` (e.g. offline.html, ports.html, tips.html)
 - `shimmer` (e.g. decks.html)
 - `shipFacts` (e.g. index.html)
@@ -78,7 +88,9 @@ Config file: `tools/ui-wiring-audit.config.json`
 - `task-online-checkin` (e.g. operations.html)
 - `task-passports-photos` (e.g. operations.html)
 - `task-payment-insurance` (e.g. operations.html)
+- `timeline` (e.g. itinerary.html, photos.html)
 - `today` (e.g. itinerary.html)
+- `todayBtn` (e.g. itinerary.html, photos.html)
 - `urgent` (e.g. contacts.html)
 - `venue-cafe` (e.g. dining.html)
 - `venue-chops` (e.g. dining.html)
@@ -90,7 +102,27 @@ Config file: `tools/ui-wiring-audit.config.json`
 - `zoomPct` (e.g. decks.html)
 - `zoomRange` (e.g. decks.html)
 
-## IDs referenced in JS but not found in HTML (26)
+## IDs referenced in JS but not found in HTML (46)
+- `.card` (e.g. js/modules/itinerary.js)
+- `.ship-sil` (e.g. js/modules/itinerary.js)
+- `#animToggle` (e.g. js/modules/itinerary.js)
+- `#backToTop` (e.g. js/modules/itinerary.js)
+- `#closeDrawerBtn` (e.g. js/modules/itinerary.js)
+- `#confetti` (e.g. js/modules/itinerary.js)
+- `#drawer` (e.g. js/modules/itinerary.js)
+- `#drawerBackdrop` (e.g. js/modules/itinerary.js)
+- `#live` (e.g. js/modules/itinerary.js)
+- `#menuBtn` (e.g. js/modules/itinerary.js)
+- `#moreBtn` (e.g. js/modules/itinerary.js)
+- `#nextDayBtn` (e.g. js/modules/itinerary.js)
+- `#ocean` (e.g. js/modules/itinerary.js)
+- `#prevDayBtn` (e.g. js/modules/itinerary.js)
+- `#resetBtn` (e.g. js/modules/itinerary.js)
+- `#sailaway` (e.g. js/modules/itinerary.js)
+- `#sailPill` (e.g. js/modules/itinerary.js)
+- `#timeline` (e.g. js/modules/itinerary.js)
+- `#toast` (e.g. js/modules/itinerary.js)
+- `#todayBtn` (e.g. js/modules/itinerary.js)
 - `deckCount` (e.g. js/modules/decks.js)
 - `deckGrid` (e.g. js/modules/decks.js)
 - `deckModal` (e.g. js/modules/decks.js)
@@ -579,137 +611,104 @@ Config file: `tools/ui-wiring-audit.config.json`
 ### contacts.html
 - DOM: 11 ids, 50 classes
 - JS refs (entrypoints + inline): 9 ids, 2 classes
-- Missing IDs (raw): 2
-- Missing classes (raw): 2
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
-- Suppressed IDs: `ocean`, `sharedHeader`
-- Suppressed classes: `open`, `show`
+- Missing IDs: 2
+- Missing classes: 2
+- Missing ID examples: `ocean`, `sharedHeader`
+- Missing class examples: `open`, `show`
 
 ### deck-debug.html
 - DOM: 0 ids, 0 classes
 - JS refs (entrypoints + inline): 0 ids, 0 classes
-- Missing IDs (raw): 0
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
+- Missing IDs: 0
+- Missing classes: 0
 
 ### decks.html
 - DOM: 39 ids, 113 classes
 - JS refs (entrypoints + inline): 19 ids, 2 classes
-- Missing IDs (raw): 17
-- Missing classes (raw): 2
-- Unsuppressed missing IDs: 17
-- Unsuppressed missing classes: 2
-- Unsuppressed ID examples: `deckCount`, `deckGrid`, `deckModal`, `deckNext`, `deckPrev`, `deckSearchClear`, `deckStage`, `deckStatus`
-- Unsuppressed class examples: `deck-viewer`, `room-selected`
+- Missing IDs: 17
+- Missing classes: 2
+- Missing ID examples: `deckCount`, `deckGrid`, `deckModal`, `deckNext`, `deckPrev`, `deckSearchClear`, `deckStage`, `deckStatus`
+- Missing class examples: `deck-viewer`, `room-selected`
 
 ### dining.html
 - DOM: 13 ids, 36 classes
 - JS refs (entrypoints + inline): 20 ids, 7 classes
-- Missing IDs (raw): 16
-- Missing classes (raw): 4
-- Unsuppressed missing IDs: 16
-- Unsuppressed missing classes: 0
-- Unsuppressed ID examples: `closeDrawerBtn`, `diningContextAction`, `diningContextActionText`, `diningContextBody`, `diningContextTitle`, `diningSearchEmpty`, `diningSpotlightAction`, `diningSpotlightActionText`
-- Suppressed classes: `deck-card--context-pick`, `is-loading`, `open`, `show`
+- Missing IDs: 16
+- Missing classes: 4
+- Missing ID examples: `closeDrawerBtn`, `diningContextAction`, `diningContextActionText`, `diningContextBody`, `diningContextTitle`, `diningSearchEmpty`, `diningSpotlightAction`, `diningSpotlightActionText`
+- Missing class examples: `deck-card--context-pick`, `is-loading`, `open`, `show`
 
 ### index.html
 - DOM: 40 ids, 78 classes
 - JS refs (entrypoints + inline): 26 ids, 6 classes
-- Missing IDs (raw): 0
-- Missing classes (raw): 4
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
-- Suppressed classes: `offline`, `open`, `show`, `visible`
+- Missing IDs: 0
+- Missing classes: 4
+- Missing class examples: `offline`, `open`, `show`, `visible`
 
 ### itinerary.html
 - DOM: 20 ids, 73 classes
-- JS refs (entrypoints + inline): 19 ids, 10 classes
-- Missing IDs (raw): 2
-- Missing classes (raw): 9
-- Unsuppressed missing IDs: 1
-- Unsuppressed missing classes: 1
-- Unsuppressed ID examples: `ocean`
-- Unsuppressed class examples: `card`
-- Suppressed IDs: `sharedHeader`
-- Suppressed classes: `is-active`, `is-live`, `is-today`, `no-anim`, `on`, `open`, `show`, `visible`
+- JS refs (entrypoints + inline): 21 ids, 8 classes
+- Missing IDs: 21
+- Missing classes: 8
+- Missing ID examples: `.card`, `.ship-sil`, `#animToggle`, `#backToTop`, `#closeDrawerBtn`, `#confetti`, `#drawer`, `#drawerBackdrop`
+- Missing class examples: `is-active`, `is-live`, `is-today`, `no-anim`, `on`, `open`, `show`, `visible`
 
 ### offline.html
 - DOM: 13 ids, 54 classes
 - JS refs (entrypoints + inline): 7 ids, 1 classes
-- Missing IDs (raw): 0
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
+- Missing IDs: 0
+- Missing classes: 0
 
 ### operations.html
 - DOM: 26 ids, 73 classes
 - JS refs (entrypoints + inline): 16 ids, 6 classes
-- Missing IDs (raw): 2
-- Missing classes (raw): 3
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
-- Suppressed IDs: `ocean`, `sharedHeader`
-- Suppressed classes: `is-complete`, `open`, `show`
+- Missing IDs: 2
+- Missing classes: 3
+- Missing ID examples: `ocean`, `sharedHeader`
+- Missing class examples: `is-complete`, `open`, `show`
 
 ### photos.html
 - DOM: 18 ids, 64 classes
 - JS refs (entrypoints + inline): 1 ids, 0 classes
-- Missing IDs (raw): 1
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
-- Suppressed IDs: `sharedHeader`
+- Missing IDs: 1
+- Missing classes: 0
+- Missing ID examples: `sharedHeader`
 
 ### plan.html
 - DOM: 2 ids, 6 classes
 - JS refs (entrypoints + inline): 5 ids, 0 classes
-- Missing IDs (raw): 3
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 1
-- Unsuppressed missing classes: 0
-- Unsuppressed ID examples: `note`
-- Suppressed IDs: `ocean`, `sharedHeader`
+- Missing IDs: 3
+- Missing classes: 0
+- Missing ID examples: `note`, `ocean`, `sharedHeader`
 
 ### ports.html
 - DOM: 4 ids, 34 classes
 - JS refs (entrypoints + inline): 1 ids, 0 classes
-- Missing IDs (raw): 0
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
+- Missing IDs: 0
+- Missing classes: 0
 
 ### rooms.html
 - DOM: 3 ids, 9 classes
 - JS refs (entrypoints + inline): 4 ids, 1 classes
-- Missing IDs (raw): 1
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
-- Suppressed IDs: `sharedHeader`
+- Missing IDs: 1
+- Missing classes: 0
+- Missing ID examples: `sharedHeader`
 
 ### tips.html
 - DOM: 21 ids, 40 classes
 - JS refs (entrypoints + inline): 6 ids, 3 classes
-- Missing IDs (raw): 0
-- Missing classes (raw): 2
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
-- Suppressed classes: `is-complete`, `search-status-loading`
+- Missing IDs: 0
+- Missing classes: 2
+- Missing class examples: `is-complete`, `search-status-loading`
 
 ### tools/_archive/pages/dashboard.html
 - DOM: 0 ids, 0 classes
 - JS refs (entrypoints + inline): 0 ids, 0 classes
-- Missing IDs (raw): 0
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
+- Missing IDs: 0
+- Missing classes: 0
 
 ### tools/_archive/pages/svg-crop.html
 - DOM: 0 ids, 0 classes
 - JS refs (entrypoints + inline): 0 ids, 0 classes
-- Missing IDs (raw): 0
-- Missing classes (raw): 0
-- Unsuppressed missing IDs: 0
-- Unsuppressed missing classes: 0
+- Missing IDs: 0
+- Missing classes: 0
