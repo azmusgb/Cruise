@@ -5,77 +5,99 @@ import path from 'node:path';
 const cwd = process.cwd();
 const htmlFiles = readdirSync(cwd).filter((name) => name.endsWith('.html')).sort();
 const sharedLayoutPath = path.join(cwd, 'js', 'shared-layout.js');
+const itineraryModulePath = path.join(cwd, 'js', 'modules', 'itinerary.js');
 
 const issues = [];
 
-const allowedDataPages = new Set([
-  'index',
-  'plan',
-  'itinerary',
-  'decks',
-  'dining',
-  'rooms',
-  'operations',
-  'tips',
-  'photos',
-  'contacts',
-  'offline',
-  'ports',
+const expectedSharedLayoutPages = new Set([
+  'contacts.html',
+  'decks.html',
+  'dining.html',
+  'itinerary.html',
+  'offline.html',
+  'operations.html',
+  'photos.html',
+  'plan.html',
+  'ports.html',
+  'rooms.html',
+  'tips.html',
+]);
+
+const expectedSharedHeaderPages = new Map([
+  ['offline.html', 'offline'],
+  ['ports.html', 'ports'],
+  ['tips.html', 'tips'],
 ]);
 
 for (const file of htmlFiles) {
-  const fullPath = path.join(cwd, file);
-  const content = readFileSync(fullPath, 'utf8');
+  const content = readFileSync(path.join(cwd, file), 'utf8');
+  const hasSharedLayout = /src="js\/shared-layout\.js"/i.test(content);
+  const shouldIncludeSharedLayout = expectedSharedLayoutPages.has(file);
 
-  if (!/src="js\/shared-layout\.js"/i.test(content)) {
+  if (shouldIncludeSharedLayout && !hasSharedLayout) {
     issues.push(`${file}: missing shared-layout.js include`);
   }
 
+  if (!shouldIncludeSharedLayout && hasSharedLayout) {
+    issues.push(`${file}: unexpected shared-layout.js include`);
+  }
+
   const headerMatch = content.match(/<div\s+id="sharedHeader"([^>]*)>/i);
-  if (!headerMatch) {
+  const expectedDataPage = expectedSharedHeaderPages.get(file);
+
+  if (expectedDataPage && !headerMatch) {
     issues.push(`${file}: missing #sharedHeader mount`);
-  } else {
-    const attrs = headerMatch[1] || '';
-    const pageMatch = attrs.match(/data-page="([^"]+)"/i);
-    if (!pageMatch) {
-      issues.push(`${file}: #sharedHeader missing data-page`);
-    } else if (!allowedDataPages.has(pageMatch[1])) {
-      issues.push(`${file}: #sharedHeader data-page "${pageMatch[1]}" is not in allowed set`);
-    }
+    continue;
+  }
+
+  if (!expectedDataPage && headerMatch) {
+    issues.push(`${file}: unexpected #sharedHeader mount`);
+    continue;
+  }
+
+  if (!expectedDataPage || !headerMatch) {
+    continue;
+  }
+
+  const attrs = headerMatch[1] || '';
+  const pageMatch = attrs.match(/data-page="([^"]+)"/i);
+  if (!pageMatch) {
+    issues.push(`${file}: #sharedHeader missing data-page`);
+    continue;
+  }
+
+  if (pageMatch[1] !== expectedDataPage) {
+    issues.push(
+      `${file}: #sharedHeader data-page "${pageMatch[1]}" does not match expected "${expectedDataPage}"`
+    );
   }
 }
 
 const sharedLayout = readFileSync(sharedLayoutPath, 'utf8');
-
-const requiredSharedLayoutTokens = [
-  '#moreDrawer',
-  '#moreDrawerBackdrop',
-  '#moreDrawerClose',
-  '#headerMoreButton',
-  'id="moreBtnMobile"',
-  'data-bottom-action="open-more-drawer"',
-  'data-nav="',
-  "navKey: 'home'",
-  "navKey: 'plan'",
-  "navKey: 'today'",
-  "navKey: 'map'",
-  "navKey: 'food'",
-  "navKey: 'family'",
-];
-
-for (const token of requiredSharedLayoutTokens) {
+for (const token of [
+  'function injectHeader()',
+  "document.getElementById('sharedHeader')",
+  "container.dataset.loaded = 'true'",
+  'container.innerHTML = `',
+  "document.addEventListener('DOMContentLoaded', injectHeader)",
+]) {
   if (!sharedLayout.includes(token)) {
-    issues.push(`js/shared-layout.js: missing required nav token: ${token}`);
+    issues.push(`js/shared-layout.js: missing required token: ${token}`);
   }
 }
 
-const itineraryPath = path.join(cwd, 'itinerary.html');
-const itinerary = readFileSync(itineraryPath, 'utf8');
-if (!itinerary.includes("window.location.hash === '#today'")) {
-  issues.push('itinerary.html: missing #today deep-link handling logic');
+const itineraryHtml = readFileSync(path.join(cwd, 'itinerary.html'), 'utf8');
+for (const token of ['id="today"', 'id="todayBtn"', 'id="timeline"', 'src="js/modules/itinerary.js"']) {
+  if (!itineraryHtml.includes(token)) {
+    issues.push(`itinerary.html: missing required token ${token}`);
+  }
 }
-if (!/class="[^"]*day-btn[^"]*"[^>]*data-day="1"/i.test(itinerary)) {
-  issues.push('itinerary.html: day selector buttons not detected');
+
+const itineraryModule = readFileSync(itineraryModulePath, 'utf8');
+for (const token of ["const timeline = $('#timeline');", "const todayBtn = $('#todayBtn');", "todayBtn.addEventListener('click'"]) {
+  if (!itineraryModule.includes(token)) {
+    issues.push(`js/modules/itinerary.js: missing itinerary wiring token: ${token}`);
+  }
 }
 
 if (!issues.length) {
