@@ -888,13 +888,19 @@
       // =========================================================
       // Hero controls
       // =========================================================
-      prevDayBtn.addEventListener('click', () => openDay(Math.max(0, currentOpenIndex() - 1), true));
-      nextDayBtn.addEventListener('click', () => openDay(Math.min(ITIN.length-1, currentOpenIndex() + 1), true));
-      todayBtn.addEventListener('click', () => {
-        const idx = computeTodayIndex();
-        openDay(idx, true);
-        toast(`Jumped to ${idx === 0 ? 'Day 1' : `Day ${idx+1}`}`, 'fa-bullseye');
-      });
+      if (prevDayBtn) {
+        prevDayBtn.addEventListener('click', () => openDay(Math.max(0, currentOpenIndex() - 1), true));
+      }
+      if (nextDayBtn) {
+        nextDayBtn.addEventListener('click', () => openDay(Math.min(ITIN.length-1, currentOpenIndex() + 1), true));
+      }
+      if (todayBtn) {
+        todayBtn.addEventListener('click', () => {
+          const idx = computeTodayIndex();
+          openDay(idx, true);
+          toast(`Jumped to ${idx === 0 ? 'Day 1' : `Day ${idx+1}`}`, 'fa-bullseye');
+        });
+      }
 
       // =========================================================
       // Intersection reveal (lazy entrance)
@@ -920,11 +926,14 @@
       // Back to top
       // =========================================================
       window.addEventListener('scroll', () => {
+        if (!backToTopBtn) return;
         backToTopBtn.classList.toggle('show', (window.scrollY || 0) > 700);
       }, { passive:true });
-      backToTopBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
-      });
+      if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+        });
+      }
 
       // =========================================================
       // Parallax ship (throttled via rAF)
