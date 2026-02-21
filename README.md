@@ -93,3 +93,23 @@ For viewport `< 768px`, heroes are condensed to context + title:
 ### Naming direction
 
 Use `card-*` and `pill-*` as canonical patterns for new work. Existing legacy names (`deck-card`, `tag`, `badge`, `priority-badge`, etc.) are currently mapped to these primitives for compatibility.
+
+## Deck entrypoint + UI contracts
+
+- Canonical deck runtime: `js/modules/decks.js`.
+- Legacy compatibility shim: `js/decks.js` (loads canonical module only).
+- UI data-attribute contracts are documented in `docs/architecture/ui-data-attribute-contracts.md`.
+
+## CSS modularization
+
+Large stylesheets are now composition entry files:
+
+- `css/features.css` imports feature-scoped chunks from `css/features/`
+- `css/shared-layout.css` imports scoped chunks from `css/shared-layout/`
+
+## Regression matrix
+
+A targeted matrix for shared components on high-impact pages is available at:
+
+- `docs/qa/core-regression-matrix.md`
+- `npm run qa:core-matrix`

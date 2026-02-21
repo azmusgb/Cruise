@@ -36,6 +36,7 @@ const DAYS = [
 
 const nav=document.getElementById('dayNav');
 const content=document.getElementById('dayContent');
+const ocean=document.getElementById('ocean');
 
 let activeDay=0;
 
@@ -55,6 +56,7 @@ function renderNav(){
 }
 
 function renderDay(){
+  content.setAttribute('aria-busy','true');
   const day=DAYS[activeDay];
   content.innerHTML=`
     <div class="card">
@@ -73,34 +75,36 @@ function renderDay(){
   const key="plan-note-"+activeDay;
   note.value=localStorage.getItem(key)||'';
   note.oninput=()=>localStorage.setItem(key,note.value);
+  content.setAttribute('aria-busy','false');
 }
 
 renderNav();
 renderDay();
 
 /* Ocean background */
-const ocean=document.getElementById('ocean');
-const ctx=ocean.getContext('2d');
-ocean.width=window.innerWidth;
-ocean.height=window.innerHeight;
-let t=0;
-function draw(){
-  ctx.clearRect(0,0,ocean.width,ocean.height);
-  ctx.fillStyle='#071a2c';
-  ctx.fillRect(0,0,ocean.width,ocean.height);
-  ctx.beginPath();
-  for(let x=0;x<ocean.width;x++){
-    let y=Math.sin(x*.01+t)*20+ocean.height/2;
-    ctx.lineTo(x,y);
+if (ocean) {
+  const ctx=ocean.getContext('2d');
+  ocean.width=window.innerWidth;
+  ocean.height=window.innerHeight;
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,ocean.width,ocean.height);
+    ctx.fillStyle='#071a2c';
+    ctx.fillRect(0,0,ocean.width,ocean.height);
+    ctx.beginPath();
+    for(let x=0;x<ocean.width;x++){
+      let y=Math.sin(x*.01+t)*20+ocean.height/2;
+      ctx.lineTo(x,y);
+    }
+    ctx.lineTo(ocean.width,ocean.height);
+    ctx.lineTo(0,ocean.height);
+    ctx.closePath();
+    ctx.fillStyle='rgba(0,180,230,.12)';
+    ctx.fill();
+    t+=.01;
+    requestAnimationFrame(draw);
   }
-  ctx.lineTo(ocean.width,ocean.height);
-  ctx.lineTo(0,ocean.height);
-  ctx.closePath();
-  ctx.fillStyle='rgba(0,180,230,.12)';
-  ctx.fill();
-  t+=.01;
-  requestAnimationFrame(draw);
+  draw();
 }
-draw();
 
 })();
