@@ -12,6 +12,16 @@ const issues = [];
 const pagesWithoutSharedLayout = new Set(['deck-debug.html', 'index.html']);
 const allowedDataPages = new Set(['offline', 'ports', 'tips']);
 
+const expectedSharedHeaderPages = new Map([
+  ['offline.html', 'offline'],
+  ['ports.html', 'ports'],
+  ['tips.html', 'tips'],
+]);
+
+const sharedLayoutScriptPattern = /<script[^>]+src=["']js\/shared-layout\.js["'][^>]*>/i;
+const sharedHeaderMountPattern = /<[^>]+id=["']sharedHeader["']([^>]*)>/i;
+const dataPagePattern = /\sdata-page=["']([^"']+)["']/i;
+
 for (const file of htmlFiles) {
   const content = readFileSync(path.join(cwd, file), 'utf8');
   const hasSharedLayout = /src="js\/shared-layout\.js"/i.test(content);
