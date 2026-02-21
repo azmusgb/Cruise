@@ -513,7 +513,7 @@
       // =========================================================
       // Card open/close + keyboard
       // =========================================================
-      function openDay(idx, scrollIntoView=true, opts={announce:true, fromSync:false}) {
+      function openDay(idx, scrollIntoView=true, opts={announce:true, fromSync:false, allowSailaway:true}) {
         idx = Math.max(0, Math.min(ITIN.length-1, idx));
 
         const cards = $$('.card');
@@ -535,7 +535,7 @@
         if (readActiveDay() == null) setActiveTheme(idx, {announce:false});
 
         // Sail-away: only when Day 1 is opened and it is near/after sail time
-        if (idx === 0) {
+        if (idx === 0 && opts.allowSailaway !== false) {
           const now = new Date();
           const withinWindow = Math.abs(now - SAIL_START) < 1000 * 60 * 60 * 12; // 12h window
           const alreadySailed = now >= SAIL_START;
@@ -1061,18 +1061,21 @@
         if (active != null) setActiveTheme(active, {announce:false});
 
         const idx = readOpenDay();
-        openDay(idx, false, {announce:false});
+        openDay(idx, false, {announce:false, allowSailaway:false});
 
         updateSailPill();
         startCountdownTicker();
 
-        // Auto-highlight today's card and gently scroll to it once (first load only)
-        const todayIdx = computeTodayIndex();
-        const todayCard = $(`.card[data-day="${todayIdx}"]`);
-        if (todayCard) {
-          // ensure “today” tag stays accurate even after midnight
-          // and set an initial visible nudge
-          if (!prefersReducedMotion()) {
+        // Auto-highlight today's card and gently scroll to it only during the sailing window.
+        const now = new Date();
+        const start = new Date(SAIL_START);
+        const end = new Date(SAIL_START);
+        end.setDate(end.getDate() + (ITIN.length - 1));
+
+        if (now >= start && now <= end) {
+          const todayIdx = computeTodayIndex();
+          const todayCard = $(`.card[data-day="${todayIdx}"]`);
+          if (todayCard && !prefersReducedMotion()) {
             window.setTimeout(() => {
               todayCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 250);
