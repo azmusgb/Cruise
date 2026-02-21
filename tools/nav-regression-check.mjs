@@ -5,6 +5,7 @@ import path from 'node:path';
 const cwd = process.cwd();
 const htmlFiles = readdirSync(cwd).filter((name) => name.endsWith('.html')).sort();
 const sharedLayoutPath = path.join(cwd, 'js', 'shared-layout.js');
+const itineraryModulePath = path.join(cwd, 'js', 'modules', 'itinerary.js');
 
 const issues = [];
 
@@ -12,12 +13,17 @@ const pagesWithoutSharedLayout = new Set(['deck-debug.html', 'index.html']);
 const allowedDataPages = new Set(['offline', 'ports', 'tips']);
 
 for (const file of htmlFiles) {
-  const fullPath = path.join(cwd, file);
-  const content = readFileSync(fullPath, 'utf8');
+  const content = readFileSync(path.join(cwd, file), 'utf8');
+  const hasSharedLayout = /src="js\/shared-layout\.js"/i.test(content);
+  const shouldIncludeSharedLayout = expectedSharedLayoutPages.has(file);
 
   const hasSharedLayout = /src="js\/shared-layout\.js"/i.test(content);
   if (!hasSharedLayout && !pagesWithoutSharedLayout.has(file)) {
     issues.push(`${file}: missing shared-layout.js include`);
+  }
+
+  if (!shouldIncludeSharedLayout && hasSharedLayout) {
+    issues.push(`${file}: unexpected shared-layout.js include`);
   }
 
   const headerMatch = content.match(/<div\s+id="sharedHeader"([^>]*)>/i);
