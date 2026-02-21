@@ -23,9 +23,11 @@ if(!container || !roomBtn || !guestBtn){
 let currentView = "room";
 
 function renderRoomView(){
+  container.setAttribute("aria-busy", "true");
   container.innerHTML = "";
   if(!DATA.length){
     container.innerHTML = '<div class="empty">No manifest data found.</div>';
+    container.setAttribute("aria-busy", "false");
     return;
   }
 
@@ -39,9 +41,11 @@ function renderRoomView(){
     `;
     container.appendChild(card);
   });
+  container.setAttribute("aria-busy", "false");
 }
 
 function renderGuestView(){
+  container.setAttribute("aria-busy", "true");
   container.innerHTML = "";
   const allGuests = [];
 
@@ -58,6 +62,7 @@ function renderGuestView(){
 
   if(!allGuests.length){
     container.innerHTML = '<div class="empty">No guests found.</div>';
+    container.setAttribute("aria-busy", "false");
     return;
   }
 
@@ -72,6 +77,7 @@ function renderGuestView(){
     `;
     container.appendChild(card);
   });
+  container.setAttribute("aria-busy", "false");
 }
 
 roomBtn.addEventListener("click", ()=>{
