@@ -1,58 +1,84 @@
-# Index + JS Wiring Audit (MODE: WIRING)
+# CSS_JS_WIRING_AUDIT — Homepage (MODE: WIRING, STRICTNESS: high)
 
-## Scope
-- HTML: `index.html`
-- JavaScript: `16` files under `js/`
-- Method: static selector/event wiring audit aligned to `CSS_JS_WIRING_AUDIT` mode.
+## 1) Wiring Map (selector/event/state linkage)
 
-## 1) Wiring Map
-- `index.html` defines **40 IDs** and **78 classes**.
-- JS files reference **62 unique IDs**, **22 unique classes**, and **22 event types**.
-- Common event types: DOMContentLoaded, activate, change, click, fetch, input, install, keydown, keypress, message
+### Runtime entrypoints for homepage
+- `index.html` runs a single inline script block; it does not load any `js/**/*.js` file via `<script src="...">`.
+- The inline script wires homepage UI controls by ID (menu drawer, copy buttons, status pills, countdown, toast, back-to-top, ocean canvas).
+
+### Selector linkage
+- `index.html` declares 40 IDs and 78 classes in markup.
+- `js/**/*.js` contains references to 62 IDs and 22 classes overall.
+- Of those JS references, only a small subset map to homepage DOM; most selectors target other pages (`plan`, `decks`, `dining`, etc.).
+
+### Event linkage
+- Across `js/**/*.js`, observed event types: `DOMContentLoaded`, `activate`, `change`, `click`, `fetch`, `input`, `install`, `keydown`, `keypress`, `message`, `offline`, `online`, `pointercancel`, `pointerdown`, `pointerleave`, `pointerup`, `resize`, `scroll`, `storage`, `touchend`, `touchstart`, `visibilitychange`.
+- Homepage inline script specifically wires: `click`, `keydown`, `online`, `offline`, `scroll`, and `resize`.
+
+### State linkage
+- Homepage state sources in inline script:
+  - Static config state (`SAILING`, `DEFAULT_ROOMS`, `ITINERARY`)
+  - Browser online status (`navigator.onLine`)
+  - Local persistence (`localStorage` keys `rccl.rooms.notes.v1`, `rccl.rooms.data.v1`)
+  - Render state via class toggles (`open`, `show`, `offline`, `visible`) and text updates.
 
 ## 2) Broken or Risky Links
-- IDs referenced in JS but missing from `index.html`: **54**
-  - `dayContent` → js/modules/plan.js
-  - `dayNav` → js/modules/plan.js
-  - `deckCount` → js/modules/decks.js
-  - `deckGrid` → js/modules/decks.js
-  - `deckModal` → js/modules/decks.js
-  - `deckNext` → js/modules/decks.js
-  - `deckPrev` → js/modules/decks.js
-  - `deckSearch` → js/modules/decks.js
-  - `deckSearchClear` → js/modules/decks.js
-  - `deckStage` → js/modules/decks.js
-  - `deckStatus` → js/modules/decks.js
-  - `diningContextAction` → js/modules/dining.js
-  - `diningContextActionText` → js/modules/dining.js
-  - `diningContextBody` → js/modules/dining.js
-  - `diningContextTitle` → js/modules/dining.js
-  - … 39 more
-- Classes referenced in JS but missing from `index.html`: **19**
-  - `deck-card` → js/modules/dining.js, js/modules/offline.js, js/modules/operations.js
-  - `deck-card--context-pick` → js/modules/dining.js
-  - `deck-viewer` → js/modules/decks.js
-  - `dining-nav__filters` → js/modules/dining.js
-  - `is-active` → js/modules/dining.js, js/modules/itinerary.js
-  - `is-complete` → js/modules/operations.js, js/modules/tips.js
-  - `is-live` → js/modules/itinerary.js
-  - `is-loading` → js/modules/dining.js
-  - `is-today` → js/modules/itinerary.js
-  - `no-anim` → js/modules/itinerary.js
-  - `offline` → js/index-dashboard.js, js/modules/index.js
-  - `on` → js/modules/itinerary.js
-  - … 7 more
+
+### Confirmed selector mismatches in scope (`index.html` + `js/**/*.js`)
+- IDs referenced by JS but not present in homepage HTML: **54**.
+  - Examples: `dayNav`, `dayContent` (`js/modules/plan.js`), `deckGrid`, `deckModal`, `deckSearch` (`js/modules/decks.js`), `diningContextTitle` (`js/modules/dining.js`).
+- Classes referenced by JS but not present in homepage HTML: **19**.
+  - Examples: `deck-card`, `deck-viewer`, `dining-nav__filters`, `is-loading`, `room-selected`.
+
+### Risk classification
+- **Low runtime risk on homepage today** for those 54/19 mismatches, because homepage currently does not import `js/**/*.js`.
+- **Medium maintenance risk**: selectors can silently drift between the inline homepage script and `js/modules/index.js` (duplicated logic), causing future regressions when/if module wiring is switched.
 
 ## 3) Load/Initialization Risks
-- `index.html` uses an inline script and does **not** import files from `js/`; therefore wiring between `js/` selectors and `index.html` is currently indirect/non-runtime for this page.
-- Cross-page JS modules increase false-positive selector mismatches when audited against a single page.
+
+1. **Entrypoint split risk (confirmed)**
+   - Homepage uses inline script only, while a near-duplicate homepage implementation exists in `js/modules/index.js`.
+   - This creates dual sources of truth and drift risk for selector/event/state wiring.
+
+2. **Future import-order risk (high if refactor occurs)**
+   - Several page modules assume page-specific DOM exists and register listeners without universal null-guards.
+   - If these modules are accidentally included on homepage, null dereference failures are likely at initialization.
+
+3. **Global bootstrap coupling risk (medium)**
+   - `js/global.js` uses a global singleton guard (`window.__CRUISE_APP__`) and attaches `DOMContentLoaded` listener for SW registration.
+   - If homepage later adds this script plus additional inline bootstraps, initialization ordering should be explicitly documented to avoid duplicate/conflicting startup behavior.
 
 ## 4) Fix Recommendations
-1. Add a per-page manifest (page -> JS entrypoints) and run wiring audits only against those entrypoints.
-2. Guard selector lookups in shared modules (`if (!el) return;`) to prevent null access when scripts are reused cross-page.
-3. If any `js/` file is intended for `index.html`, explicitly load it with `<script type="module" src="...">` and retest.
+
+1. **Choose one homepage JS source of truth**
+   - Either keep inline script and remove `js/modules/index.js`, or migrate homepage to `js/modules/index.js` and remove inline duplicate.
+
+2. **Add page-to-entrypoint wiring manifest for audits**
+   - Audit `index.html` only against scripts actually loaded by index.
+   - Keep cross-page selector mismatch report as a separate global signal.
+
+3. **Harden module startup guards**
+   - For modules that may be shared/reused, bail early when required root elements are absent before attaching listeners.
+
+4. **Add lightweight wiring check in CI**
+   - Verify every selector referenced by a page entrypoint exists in that page HTML.
+   - Fail build only for page-scoped mismatches, not whole-repo cross-page references.
 
 ## 5) Post-fix Verification Steps
-1. Re-run `node tools/ui-wiring-audit.mjs` for global regressions.
-2. Re-run this scoped audit for `index.html` + assigned JS entrypoints.
-3. Manual browser smoke: open index, menu toggle, copy actions, toast visibility, and offline badge behavior.
+
+1. Verify homepage entrypoint choice:
+   - If modularized: ensure `index.html` includes `<script src="js/modules/index.js" defer></script>` (or module equivalent) and remove inline duplicate.
+   - If inline-only: remove unused module copy.
+
+2. Re-run global mismatch scan:
+   - `node tools/ui-wiring-audit.mjs`
+
+3. Re-run homepage-scoped wiring scan:
+   - Check selector parity between homepage DOM and the selected homepage entrypoint.
+
+4. Browser smoke on homepage:
+   - Menu open/close + focus trap
+   - Copy buttons + toast
+   - Online/offline badge transitions
+   - Countdown and room/itinerary renders
+   - Back-to-top behavior
