@@ -37,6 +37,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+
+  const requestURL = new URL(e.request.url);
+  if (requestURL.protocol !== 'http:' && requestURL.protocol !== 'https:') return;
+
   if (e.request.mode === 'navigate') {
     e.respondWith(
       fetch(e.request).catch(() => caches.match('/offline.html'))
@@ -44,15 +49,19 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(resp => {
-        return caches.open(RUNTIME).then(cache => {
-          cache.put(e.request, resp.clone());
-          return resp;
-        });
-      });
-    })
-  );
+  e.respondWith((async () => {
+    const cached = await caches.match(e.request);
+    if (cached) return cached;
+
+    const resp = await fetch(e.request);
+    if (resp && resp.ok) {
+      try {
+        const cache = await caches.open(RUNTIME);
+        await cache.put(e.request, resp.clone());
+      } catch (_err) {
+        // Ignore cache write failures (opaque responses, unsupported schemes, etc.).
+      }
+    }
+    return resp;
+  })());
 });
