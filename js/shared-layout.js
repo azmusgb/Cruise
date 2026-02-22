@@ -2507,16 +2507,6 @@
       drawerScrollY = window.scrollY || window.pageYOffset || 0;
       document.documentElement.classList.add('more-drawer-open');
       document.body.classList.add('more-drawer-open');
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.height = '100%';
-      document.documentElement.style.overscrollBehavior = 'none';
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${drawerScrollY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.width = '100%';
-      document.body.style.overscrollBehavior = 'none';
       if (!touchMoveBlocked) {
         document.addEventListener('touchmove', blockTouchMoveOutsideDrawer, { passive: false });
         touchMoveBlocked = true;
@@ -2528,16 +2518,6 @@
       if (!drawerScrollLocked) return;
       document.documentElement.classList.remove('more-drawer-open');
       document.body.classList.remove('more-drawer-open');
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.height = '';
-      document.documentElement.style.overscrollBehavior = '';
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.width = '';
-      document.body.style.overscrollBehavior = '';
       if (touchMoveBlocked) {
         document.removeEventListener('touchmove', blockTouchMoveOutsideDrawer);
         touchMoveBlocked = false;
@@ -2649,13 +2629,11 @@
         mobileToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
 
         if (window.innerWidth <= 767) {
-          headerNav.style.display = isOpen ? 'grid' : 'none';
-          headerActions.style.display = 'none';
+          headerNav.classList.toggle('is-mobile-open', isOpen);
           headerNav.setAttribute('aria-hidden', String(!isOpen));
           headerActions.setAttribute('aria-hidden', 'true');
         } else {
-          headerNav.style.display = 'flex';
-          headerActions.style.display = 'flex';
+          headerNav.classList.remove('is-mobile-open');
           headerNav.setAttribute('aria-hidden', 'false');
           headerActions.setAttribute('aria-hidden', 'false');
         }

@@ -42,6 +42,11 @@
   .decks-page .deck-pill:hover { transform: translateY(-2px); }
   /* Subtle environment deepening with scroll */
   .decks-page { background-image: radial-gradient(120% 80% at 50% -10%, rgba(0,0,0,var(--env-depth, 0)), rgba(0,0,0,0)); background-attachment: fixed; }
+  .decks-page.env-depth-0 { --env-depth: 0; }
+  .decks-page.env-depth-1 { --env-depth: 0.02; }
+  .decks-page.env-depth-2 { --env-depth: 0.04; }
+  .decks-page.env-depth-3 { --env-depth: 0.06; }
+  .decks-page.env-depth-4 { --env-depth: 0.08; }
   /* Modal settle & softer radius */
   .decks-page .deck-modal__dialog { border-radius: 32px !important; transition: transform 240ms var(--ease-organic, cubic-bezier(0.2,0.6,0.2,1)), opacity 240ms var(--ease-organic, cubic-bezier(0.2,0.6,0.2,1)); }
   .decks-page .deck-modal:not(.is-open) .deck-modal__dialog { opacity: 0; transform: translateY(8px); }
@@ -642,7 +647,9 @@
         const updateDepth = () => {
           const y = window.scrollY || document.documentElement.scrollTop || 0;
           const d = Math.min(0.08, (y / 2000) * 0.08);
-          document.documentElement.style.setProperty('--env-depth', d.toFixed(3));
+          const depthIndex = Math.min(4, Math.max(0, Math.round((d / 0.08) * 4)));
+          document.body.classList.remove('env-depth-0', 'env-depth-1', 'env-depth-2', 'env-depth-3', 'env-depth-4');
+          document.body.classList.add(`env-depth-${depthIndex}`);
         };
         updateDepth();
         window.addEventListener('scroll', updateDepth, { passive: true });
