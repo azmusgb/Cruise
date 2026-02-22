@@ -112,26 +112,26 @@
                 <div class="day-navigation__header">
                     <h2 class="day-navigation__title">The Week</h2>
                 </div>
-                <div class="day-selector" id="daySelector">
-                    <button class="day-btn day-btn--active" data-day="1">
+                <div class="day-selector" id="daySelector" role="toolbar" aria-label="Select itinerary day">
+                    <button type="button" class="day-btn day-btn--active" data-day="1" aria-pressed="true">
                         <i class="fas fa-ship"></i> Day 1
                     </button>
-                    <button class="day-btn" data-day="2">
+                    <button type="button" class="day-btn" data-day="2" aria-pressed="false">
                         <i class="fas fa-water"></i> Day 2
                     </button>
-                    <button class="day-btn" data-day="3">
+                    <button type="button" class="day-btn" data-day="3" aria-pressed="false">
                         <i class="fas fa-umbrella-beach"></i> Day 3
                     </button>
-                    <button class="day-btn" data-day="4">
+                    <button type="button" class="day-btn" data-day="4" aria-pressed="false">
                         <i class="fas fa-mountain"></i> Day 4
                     </button>
-                    <button class="day-btn" data-day="5">
+                    <button type="button" class="day-btn" data-day="5" aria-pressed="false">
                         <i class="fas fa-utensils"></i> Day 5
                     </button>
-                    <button class="day-btn" data-day="6">
+                    <button type="button" class="day-btn" data-day="6" aria-pressed="false">
                         <i class="fas fa-swimming-pool"></i> Day 6
                     </button>
-                    <button class="day-btn" data-day="7">
+                    <button type="button" class="day-btn" data-day="7" aria-pressed="false">
                         <i class="fas fa-suitcase-rolling"></i> Day 7
                     </button>
                 </div>
@@ -610,8 +610,16 @@
                     section.classList.toggle('is-sea', badgesText.includes('sea day'));
                 });
 
-                dayButtons.forEach(btn => btn.classList.remove('day-btn--active'));
-                document.querySelector(`.day-btn[data-day="${normalizedDay}"]`)?.classList.add('day-btn--active');
+                dayButtons.forEach(btn => {
+                    const isActive = btn.dataset.day === normalizedDay;
+                    btn.classList.toggle('day-btn--active', isActive);
+                    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                    if (isActive) {
+                        btn.setAttribute('aria-current', 'true');
+                    } else {
+                        btn.removeAttribute('aria-current');
+                    }
+                });
                 currentDay = Number(day);
             }
 

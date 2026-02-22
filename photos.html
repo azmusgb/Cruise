@@ -117,20 +117,20 @@
           </label>
 
           <div class="gallery-filters" aria-label="Image source filters">
-            <button class="filter-btn active" data-filter="all">All photos</button>
-            <button class="filter-btn" data-filter="official">Official RCCL</button>
-            <button class="filter-btn" data-filter="dining">Dining</button>
-            <button class="filter-btn" data-filter="decks">Decks</button>
-            <button class="filter-btn" data-filter="activities">Activities</button>
-            <button class="filter-btn" data-filter="ports">Ports</button>
-            <button class="filter-btn" data-filter="heroes">Hero angles</button>
+            <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">All photos</button>
+            <button type="button" class="filter-btn" data-filter="official" aria-pressed="false">Official RCCL</button>
+            <button type="button" class="filter-btn" data-filter="dining" aria-pressed="false">Dining</button>
+            <button type="button" class="filter-btn" data-filter="decks" aria-pressed="false">Decks</button>
+            <button type="button" class="filter-btn" data-filter="activities" aria-pressed="false">Activities</button>
+            <button type="button" class="filter-btn" data-filter="ports" aria-pressed="false">Ports</button>
+            <button type="button" class="filter-btn" data-filter="heroes" aria-pressed="false">Hero angles</button>
           </div>
 
           <div class="gallery-view-toggle" aria-label="View mode">
-            <button class="view-btn active" data-view="grid" aria-label="Grid view">
+            <button type="button" class="view-btn active" data-view="grid" aria-label="Grid view" aria-pressed="true">
               <i class="fas fa-th-large" aria-hidden="true"></i>
             </button>
-            <button class="view-btn" data-view="list" aria-label="List view">
+            <button type="button" class="view-btn" data-view="list" aria-label="List view" aria-pressed="false">
               <i class="fas fa-list" aria-hidden="true"></i>
             </button>
           </div>
@@ -163,10 +163,10 @@
             Nothing fits that filter/search combo. Clear filters, simplify the search, or try category shortcuts.
           </p>
           <div class="empty-actions">
-            <button class="ghost-btn" id="resetFilters">
+            <button type="button" class="ghost-btn" id="resetFilters">
               <i class="fas fa-rotate-left" aria-hidden="true"></i> Reset filters
             </button>
-            <button class="ghost-btn" id="clearSearchBtn">
+            <button type="button" class="ghost-btn" id="clearSearchBtn">
               <i class="fas fa-xmark" aria-hidden="true"></i> Clear search
             </button>
           </div>
@@ -194,11 +194,11 @@
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox" hidden tabindex="-1" aria-label="Image viewer" role="dialog" aria-modal="true">
       <div class="lightbox__shell">
-        <button class="lightbox-nav lightbox-nav--prev" id="prevPhoto" aria-label="Previous photo">
+        <button type="button" class="lightbox-nav lightbox-nav--prev" id="prevPhoto" aria-label="Previous photo">
           <i class="fas fa-chevron-left" aria-hidden="true"></i>
         </button>
 
-        <button class="lightbox-nav lightbox-nav--next" id="nextPhoto" aria-label="Next photo">
+        <button type="button" class="lightbox-nav lightbox-nav--next" id="nextPhoto" aria-label="Next photo">
           <i class="fas fa-chevron-right" aria-hidden="true"></i>
         </button>
 
@@ -208,7 +208,7 @@
           <div class="lightbox__left">
             <p class="lightbox__title" id="lightboxTitle">—</p>
             <p class="lightbox__desc" id="lightboxDescription">—</p>
-            <span class="lightbox__counter" id="lightboxCounterText">
+            <span class="lightbox__counter" id="lightboxCounter">
               <i class="fas fa-hashtag" aria-hidden="true"></i> <span id="lightboxCounterText">—</span>
             </span>
           </div>
@@ -220,7 +220,7 @@
             <a class="lightbox__link" id="downloadImage" href="#" download>
               <i class="fas fa-download" aria-hidden="true"></i> Download
             </a>
-            <button id="closeLightbox" aria-label="Close image viewer">
+            <button type="button" id="closeLightbox" aria-label="Close image viewer">
               <i class="fas fa-xmark" aria-hidden="true"></i> Close
             </button>
           </div>
@@ -276,6 +276,7 @@
         const lightboxImage = document.getElementById("lightboxImage");
         const lightboxTitle = document.getElementById("lightboxTitle");
         const lightboxDescription = document.getElementById("lightboxDescription");
+        const lightboxCounter = document.getElementById("lightboxCounter");
         const lightboxCounterText = document.getElementById("lightboxCounterText");
         const openOriginal = document.getElementById("openOriginal");
         const downloadImage = document.getElementById("downloadImage");
@@ -287,7 +288,7 @@
           galleryGrid, galleryList, searchInput, sortSelect, photoCount, emptyState,
           resetButton, clearSearchBtn, activeFilterPill, featuredRail, featuredStrip,
           heroTotal, heroCats, heroOfficial,
-          lightbox, lightboxImage, lightboxTitle, lightboxDescription, lightboxCounterText,
+          lightbox, lightboxImage, lightboxTitle, lightboxDescription, lightboxCounter, lightboxCounterText,
           openOriginal, downloadImage, prevButton, nextButton, closeButton,
         ];
 
@@ -499,6 +500,19 @@
           activeFilterPill.innerHTML = `<i class="fas fa-filter" aria-hidden="true"></i> ${prettyFilterLabel(currentFilter)}`;
         }
 
+        function syncToggleStates() {
+          filterButtons.forEach((button) => {
+            const isActive = button.dataset.filter === currentFilter;
+            button.classList.toggle("active", isActive);
+            button.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+          viewButtons.forEach((button) => {
+            const isActive = button.dataset.view === currentView;
+            button.classList.toggle("active", isActive);
+            button.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
+        }
+
         function openLightbox(index) {
           if (!filteredPhotos.length) return;
           currentIndex = index;
@@ -595,6 +609,7 @@
             filterButtons.forEach((entry) => {
               const sameFilter = entry.dataset.filter === currentFilter;
               entry.classList.toggle("active", sameFilter);
+              entry.setAttribute("aria-pressed", sameFilter ? "true" : "false");
             });
             render();
           });
@@ -605,7 +620,11 @@
             currentView = button.dataset.view;
             document.body.classList.toggle("gallery-grid-view", currentView === "grid");
             document.body.classList.toggle("gallery-list-view", currentView === "list");
-            viewButtons.forEach((entry) => entry.classList.toggle("active", entry === button));
+            viewButtons.forEach((entry) => {
+              const isActive = entry === button;
+              entry.classList.toggle("active", isActive);
+              entry.setAttribute("aria-pressed", isActive ? "true" : "false");
+            });
           });
         });
 
@@ -621,7 +640,9 @@
           searchInput.value = "";
           sortSelect.value = "name";
           filterButtons.forEach((button) => {
-            button.classList.toggle("active", button.dataset.filter === "all");
+            const isActive = button.dataset.filter === "all";
+            button.classList.toggle("active", isActive);
+            button.setAttribute("aria-pressed", isActive ? "true" : "false");
           });
           render();
         });
@@ -649,6 +670,7 @@
 
         updateHeroStats();
         sortSelect.value = "name";
+        syncToggleStates();
         render();
       });
     </script>
