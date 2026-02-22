@@ -327,6 +327,7 @@
 
       function getHomeportStatus(now) {
         const dayMs = 1000 * 60 * 60 * 24;
+        const cruiseEnd = new Date('2026-02-20T23:59:59-05:00');
         if (now < sailDate) {
           const daysToSail = Math.max(0, Math.ceil((sailDate - now) / dayMs));
           return `Departing in ${daysToSail} Day${daysToSail === 1 ? '' : 's'}`;
@@ -339,8 +340,12 @@
           return 'Boarding Day. Let\'s Go.';
         }
 
+        if (now > cruiseEnd) {
+          return 'Cruise complete. See trip memories.';
+        }
+
         const locations = ['At Sea', 'Grand Cayman', 'Falmouth', 'At Sea', 'Perfect Day at CocoCay', 'Return to Port'];
-        const dayIndex = Math.max(1, Math.floor((now - sailDate) / dayMs) + 1);
+        const dayIndex = Math.max(1, Math.min(7, Math.floor((now - sailDate) / dayMs) + 1));
         const location = locations[Math.min(locations.length - 1, Math.max(0, dayIndex - 1))];
         return `Day ${dayIndex} – ${location}`;
       }
@@ -509,6 +514,14 @@
 
           function syncToggleState() {
             const collapsed = section.classList.contains('is-collapsed');
+            const region = section.querySelector('.deck-cards');
+            if (region) {
+              if (!region.id) {
+                region.id = `mobile-collapsible-${Math.random().toString(36).slice(2, 10)}`;
+              }
+              toggle.setAttribute('aria-controls', region.id);
+            }
+            toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
             toggle.innerHTML = collapsed
               ? '<i class="fas fa-chevron-right" aria-hidden="true"></i> Expand'
               : '<i class="fas fa-chevron-down" aria-hidden="true"></i> Collapse';
