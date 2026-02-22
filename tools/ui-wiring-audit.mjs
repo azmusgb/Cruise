@@ -4,6 +4,28 @@ import path from 'path';
 const root = process.cwd();
 const includeExt = new Set(['.html', '.css', '.js']);
 const ignoreDirs = new Set(['node_modules', '.git']);
+const configPath = path.join(root, 'tools', 'ui-wiring-audit.config.json');
+const strictFail = process.env.UI_WIRING_STRICT === '1' || process.argv.includes('--strict');
+const pageScopedJsExcludes = new Set(['js/shared-layout.js', 'js/sw.js', 'sw.js']);
+
+function loadConfig() {
+  if (!fs.existsSync(configPath)) {
+    return { defaults: {}, pages: {} };
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    return {
+      defaults: parsed.defaults || {},
+      pages: parsed.pages || {},
+    };
+  } catch (error) {
+    console.error(`Failed to parse ${path.relative(root, configPath)}: ${error.message}`);
+    return { defaults: {}, pages: {} };
+  }
+}
+
+const config = loadConfig();
 
 function walk(dir, out = []) {
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -50,7 +72,9 @@ function extractRefsFromCode(code, idsMap, classesMap, file) {
   }
 
   for (const m of code.matchAll(/classList\.(?:add|remove|toggle|contains)\(([^)]*)\)/g)) {
-    for (const arg of m[1].matchAll(/["']([^"']+)["']/g)) {
+    const rawArgs = m[1] || '';
+    const classArgOnly = rawArgs.split(',')[0] || '';
+    for (const arg of classArgOnly.matchAll(/["']([^"']+)["']/g)) {
       arg[1]
         .split(/\s+/)
         .filter(Boolean)
@@ -61,6 +85,24 @@ function extractRefsFromCode(code, idsMap, classesMap, file) {
 
 function sorted(arr) {
   return [...arr].sort((a, b) => a.localeCompare(b));
+}
+
+function applyIgnoreList(items, ignore = []) {
+  const exact = new Set();
+  const prefixes = [];
+  for (const rule of ignore) {
+    if (typeof rule !== 'string') continue;
+    if (rule.endsWith('*')) {
+      prefixes.push(rule.slice(0, -1));
+    } else {
+      exact.add(rule);
+    }
+  }
+  return items.filter((item) => !exact.has(item) && !prefixes.some((prefix) => item.startsWith(prefix)));
+}
+
+function shouldIncludeInPageScopedJs(normalizedScriptPath) {
+  return !pageScopedJsExcludes.has(normalizedScriptPath.replace(/\\/g, '/'));
 }
 
 // Repo-wide HTML/CSS/JS selector inventory
@@ -169,6 +211,8 @@ for (const file of htmlFiles) {
   const pageJsIds = new Map();
   const pageJsClasses = new Map();
   for (const abs of loadedJs) {
+    const normalized = rel(abs).replace(/\\/g, '/');
+    if (!shouldIncludeInPageScopedJs(normalized)) continue;
     extractRefsFromCode(fs.readFileSync(abs, 'utf8'), pageJsIds, pageJsClasses, abs);
   }
 
@@ -177,7 +221,13 @@ for (const file of htmlFiles) {
   for (const cls of inlineRefs.classRefs) addRef(pageJsClasses, cls, file);
 
   const missingIds = sorted([...pageJsIds.keys()].filter((k) => !pageIds.has(k)));
-  const missingClasses = sorted([...pageJsClasses.keys()].filter((k) => !pageClasses.has(k)));
+  const missingClasses = sorted([...pageJsClasses.keys()].filter((k) => !pageClasses.has(k) && !cssClassSelectors.has(k)));
+
+  const pageConfig = config.pages?.[page] || {};
+  const ignoreIds = [...(config.defaults?.ignoreIds || []), ...(pageConfig.ignoreIds || [])];
+  const ignoreClasses = [...(config.defaults?.ignoreClasses || []), ...(pageConfig.ignoreClasses || [])];
+  const unsuppressedMissingIds = applyIgnoreList(missingIds, ignoreIds);
+  const unsuppressedMissingClasses = applyIgnoreList(missingClasses, ignoreClasses);
 
   pageResults.push({
     page,
@@ -185,12 +235,19 @@ for (const file of htmlFiles) {
     inlineScriptCount: [...html.matchAll(/<script\b(?![^>]*\bsrc\b)[^>]*>/gim)].length,
     missingIds,
     missingClasses,
+    unsuppressedMissingIds,
+    unsuppressedMissingClasses,
     pageIdsCount: pageIds.size,
     pageClassesCount: pageClasses.size,
     jsIdsCount: pageJsIds.size,
     jsClassesCount: pageJsClasses.size,
   });
 }
+
+const unsuppressedIssues = pageResults.reduce(
+  (sum, page) => sum + page.unsuppressedMissingIds.length + page.unsuppressedMissingClasses.length,
+  0
+);
 
 const lines = [];
 lines.push('# UI Wiring Audit Report');
@@ -210,6 +267,7 @@ const status =
 lines.push(`Overall status: **${status}**`);
 lines.push(`Strict fail mode: **${strictFail ? 'ON' : 'OFF'}**`);
 lines.push(`Config file: \`${path.relative(root, configPath)}\`${fs.existsSync(configPath) ? '' : ' (not found; using defaults)'}`);
+lines.push(`Unsuppressed page-scoped issues: **${unsuppressedIssues}**`);
 lines.push('');
 
 function section(title, list, map) {
@@ -249,11 +307,29 @@ for (const page of pageResults.sort((a, b) => a.page.localeCompare(b.page))) {
   lines.push(`- JS refs (entrypoints + inline): ${page.jsIdsCount} ids, ${page.jsClassesCount} classes`);
   lines.push(`- Missing IDs: ${page.missingIds.length}`);
   lines.push(`- Missing classes: ${page.missingClasses.length}`);
+  lines.push(`- Unsuppressed missing IDs: ${page.unsuppressedMissingIds.length}`);
+  lines.push(`- Unsuppressed missing classes: ${page.unsuppressedMissingClasses.length}`);
   if (page.missingIds.length) {
     lines.push(`- Missing ID examples: ${page.missingIds.slice(0, 8).map((id) => `\`${id}\``).join(', ')}`);
   }
   if (page.missingClasses.length) {
     lines.push(`- Missing class examples: ${page.missingClasses.slice(0, 8).map((c) => `\`${c}\``).join(', ')}`);
+  }
+  if (page.unsuppressedMissingIds.length) {
+    lines.push(
+      `- Unsuppressed ID examples: ${page.unsuppressedMissingIds
+        .slice(0, 8)
+        .map((id) => `\`${id}\``)
+        .join(', ')}`
+    );
+  }
+  if (page.unsuppressedMissingClasses.length) {
+    lines.push(
+      `- Unsuppressed class examples: ${page.unsuppressedMissingClasses
+        .slice(0, 8)
+        .map((c) => `\`${c}\``)
+        .join(', ')}`
+    );
   }
   lines.push('');
 }

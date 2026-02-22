@@ -1,12 +1,16 @@
 # UI Wiring Audit Report
 
-Scanned 14 HTML, 7 CSS, 4 JS files.
+Scanned 15 HTML, 38 CSS, 18 JS files.
 
 ## Summary
 Overall status: **ISSUES FOUND**
+Strict fail mode: **ON**
+Config file: `tools/ui-wiring-audit.config.json`
+Unsuppressed page-scoped issues: **0**
 
-## IDs in HTML but unused by CSS/JS (165)
+## IDs in HTML but unused by CSS/JS (141)
 - `activeFilterPill` (e.g. photos.html)
+- `addToCalendarBtn` (e.g. itinerary.html)
 - `allSetGrid` (e.g. rooms.html)
 - `allSetSection` (e.g. rooms.html)
 - `allSetTitle` (e.g. rooms.html)
@@ -39,7 +43,6 @@ Overall status: **ISSUES FOUND**
 - `deckCards` (e.g. decks.html)
 - `deckCategoryPanels` (e.g. decks.html)
 - `deckFocusChips` (e.g. decks.html)
-- `deckModal` (e.g. decks.html)
 - `deckPanHint` (e.g. decks.html)
 - `deckPlanCanvas` (e.g. decks.html)
 - `deckPlanStage` (e.g. decks.html)
@@ -47,20 +50,10 @@ Overall status: **ISSUES FOUND**
 - `deckVerticalIndicator` (e.g. decks.html)
 - `dining-grid` (e.g. dining.html)
 - `diningContext` (e.g. dining.html)
-- `diningContextAction` (e.g. dining.html)
-- `diningContextActionText` (e.g. dining.html)
-- `diningContextBody` (e.g. dining.html)
-- `diningContextTitle` (e.g. dining.html)
-- `diningSearchEmpty` (e.g. dining.html)
-- `diningSearchInput` (e.g. dining.html)
-- `diningSearchStatus` (e.g. dining.html)
-- `diningSpotlightAction` (e.g. dining.html)
-- `diningSpotlightActionText` (e.g. dining.html)
-- `diningSpotlightBody` (e.g. dining.html)
-- `diningSpotlightTitle` (e.g. dining.html)
 - `dismissDashboardTour` (e.g. index.html)
 - `downloadImage` (e.g. photos.html)
 - `downloadPlan` (e.g. decks.html)
+- `emailItineraryBtn` (e.g. itinerary.html)
 - `embark-sequence` (e.g. plan.html)
 - `emptyState` (e.g. decks.html, photos.html)
 - `featuredRail` (e.g. photos.html)
@@ -81,11 +74,11 @@ Overall status: **ISSUES FOUND**
 - `included-group` (e.g. dining.html)
 - `itinerary` (e.g. offline.html)
 - `itineraryLegendModal` (e.g. itinerary.html)
+- `itineraryStatus` (e.g. itinerary.html)
 - `keyboardHint` (e.g. rooms.html)
-- `lastSyncLabel` (e.g. offline.html)
-- `legendBody` (e.g. itinerary.html)
 - `legendTitle` (e.g. itinerary.html)
 - `lightbox` (e.g. photos.html)
+- `lightboxCounter` (e.g. photos.html)
 - `lightboxCounterText` (e.g. photos.html)
 - `lightboxDescription` (e.g. photos.html)
 - `lightboxImage` (e.g. photos.html)
@@ -99,16 +92,9 @@ Overall status: **ISSUES FOUND**
 - `modalFrame` (e.g. decks.html)
 - `nextPhoto` (e.g. photos.html)
 - `noSearchResults` (e.g. rooms.html)
-- `offline-grid` (e.g. offline.html)
-- `offlineSearchEmpty` (e.g. offline.html)
-- `offlineSearchInput` (e.g. offline.html)
-- `offlineSearchStatus` (e.g. offline.html)
 - `onboard` (e.g. contacts.html)
 - `onboard-title` (e.g. contacts.html)
 - `openOriginal` (e.g. photos.html)
-- `operationsSearchEmpty` (e.g. operations.html)
-- `operationsSearchInput` (e.g. operations.html)
-- `operationsSearchStatus` (e.g. operations.html)
 - `orderingActionsTitle` (e.g. rooms.html)
 - `overviewTitle` (e.g. rooms.html)
 - `packing-checks` (e.g. tips.html)
@@ -124,6 +110,7 @@ Overall status: **ISSUES FOUND**
 - `ports` (e.g. contacts.html)
 - `ports-title` (e.g. contacts.html)
 - `prevPhoto` (e.g. photos.html)
+- `printItineraryBtn` (e.g. itinerary.html)
 - `pro-moves-carryon-ids` (e.g. tips.html)
 - `pro-moves-habit-arrive-early` (e.g. tips.html)
 - `pro-moves-habit-muster` (e.g. tips.html)
@@ -132,21 +119,14 @@ Overall status: **ISSUES FOUND**
 - `pro-moves-money-docs` (e.g. tips.html)
 - `pro-moves-outfit-matrix` (e.g. tips.html)
 - `pro-moves-tech-setup` (e.g. tips.html)
-- `proMovesRemainingCount` (e.g. tips.html)
-- `proMovesSearchEmpty` (e.g. tips.html)
-- `proMovesSearchInput` (e.g. tips.html)
-- `proMovesSearchStatus` (e.g. tips.html)
-- `proMovesTotalCount` (e.g. tips.html)
 - `quick-actions` (e.g. rooms.html)
-- `refreshOfflineStatus` (e.g. offline.html)
 - `resetFilters` (e.g. photos.html)
 - `roomComparisonRail` (e.g. rooms.html)
-- `roomModal` (e.g. rooms.html)
 - `rooms-content` (e.g. rooms.html)
-- `rooms-section` (e.g. rooms.html)
 - `roomSearchInput` (e.g. rooms.html)
 - `roomsGridSource` (e.g. rooms.html)
-- `searchSummary` (e.g. rooms.html)
+- `savePDFBtn` (e.g. itinerary.html)
+- `shareItineraryBtn` (e.g. itinerary.html)
 - `shore-support` (e.g. contacts.html)
 - `shore-title` (e.g. contacts.html)
 - `smart-habits` (e.g. tips.html)
@@ -158,7 +138,6 @@ Overall status: **ISSUES FOUND**
 - `task-online-checkin` (e.g. operations.html)
 - `task-passports-photos` (e.g. operations.html)
 - `task-payment-insurance` (e.g. operations.html)
-- `tasks` (e.g. operations.html)
 - `todayFocusSection` (e.g. rooms.html)
 - `todayFocusTitle` (e.g. rooms.html)
 - `toggleCategoryBrowse` (e.g. decks.html)
@@ -172,24 +151,96 @@ Overall status: **ISSUES FOUND**
 - `venue-windjammer` (e.g. dining.html)
 - `zoomLevel` (e.g. decks.html)
 
-## IDs referenced in JS but not found in HTML (3)
+## IDs referenced in JS but not found in HTML (71)
+- `.card` (e.g. js/modules/itinerary.js)
+- `.ship-sil` (e.g. js/modules/itinerary.js)
+- `#animToggle` (e.g. js/modules/itinerary.js)
+- `#backToTop` (e.g. js/modules/itinerary.js)
+- `#closeDrawerBtn` (e.g. js/modules/itinerary.js)
+- `#confetti` (e.g. js/modules/itinerary.js)
+- `#drawer` (e.g. js/modules/itinerary.js)
+- `#drawerBackdrop` (e.g. js/modules/itinerary.js)
+- `#live` (e.g. js/modules/itinerary.js)
+- `#menuBtn` (e.g. js/modules/itinerary.js)
+- `#moreBtn` (e.g. js/modules/itinerary.js)
+- `#nextDayBtn` (e.g. js/modules/itinerary.js)
+- `#ocean` (e.g. js/modules/itinerary.js)
+- `#prevDayBtn` (e.g. js/modules/itinerary.js)
+- `#resetBtn` (e.g. js/modules/itinerary.js)
+- `#sailaway` (e.g. js/modules/itinerary.js)
+- `#sailPill` (e.g. js/modules/itinerary.js)
+- `#timeline` (e.g. js/modules/itinerary.js)
+- `#toast` (e.g. js/modules/itinerary.js)
+- `#todayBtn` (e.g. js/modules/itinerary.js)
+- `backToTop` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
+- `cacheText` (e.g. js/index-dashboard.js)
+- `closeDrawerBtn` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
+- `copyResBtn` (e.g. js/index-dashboard.js)
+- `copySailInfoBtn` (e.g. js/index-dashboard.js)
+- `copySnapshotBtn2` (e.g. js/index-dashboard.js)
+- `countKicker` (e.g. js/index-dashboard.js)
+- `dayContent` (e.g. js/modules/plan.js)
+- `dayNav` (e.g. js/modules/plan.js)
+- `daysNum` (e.g. js/index-dashboard.js)
+- `deckCount` (e.g. js/modules/decks.js)
+- `deckGrid` (e.g. js/modules/decks.js)
+- `deckNext` (e.g. js/modules/decks.js)
+- `deckPrev` (e.g. js/modules/decks.js)
+- `deckSearchClear` (e.g. js/modules/decks.js)
+- `deckStage` (e.g. js/modules/decks.js)
+- `deckStatus` (e.g. js/modules/decks.js)
+- `departTime` (e.g. js/index-dashboard.js)
+- `drawerBackdrop` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
+- `drawerStatus` (e.g. js/index-dashboard.js)
+- `fitBtn` (e.g. js/modules/decks.js)
+- `guestViewBtn` (e.g. js/modules/rooms.js)
+- `itList` (e.g. js/index-dashboard.js)
+- `lastUpdatedText` (e.g. js/index-dashboard.js)
+- `manifestContainer` (e.g. js/modules/rooms.js)
+- `menuBtn` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
+- `modalClose` (e.g. js/modules/decks.js)
+- `modalDeckNumber` (e.g. js/modules/decks.js)
+- `modalDeckSub` (e.g. js/modules/decks.js)
+- `modalDeckTitle` (e.g. js/modules/decks.js)
+- `moreBtnMobile` (e.g. js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
 - `moreDrawer` (e.g. js/shared-layout.js)
 - `moreDrawerBackdrop` (e.g. js/shared-layout.js)
+- `netDot` (e.g. js/index-dashboard.js)
+- `netText` (e.g. js/index-dashboard.js)
+- `note` (e.g. js/modules/plan.js)
+- `ocean` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js, js/modules/plan.js)
+- `portsNum` (e.g. js/index-dashboard.js)
+- `primaryRoom` (e.g. js/index-dashboard.js)
+- `resetLocalBtn` (e.g. js/index-dashboard.js, js/modules/operations.js)
+- `roomsList` (e.g. js/index-dashboard.js)
+- `roomsNum` (e.g. js/index-dashboard.js)
+- `roomViewBtn` (e.g. js/modules/rooms.js)
+- `snapMeta` (e.g. js/index-dashboard.js)
+- `toast` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
+- `toastText` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
 - `today-card` (e.g. js/shared-layout.js)
+- `zoomDisplay` (e.g. js/modules/decks.js)
+- `zoomInBtn` (e.g. js/modules/decks.js)
+- `zoomOutBtn` (e.g. js/modules/decks.js)
+- `zoomResetBtn` (e.g. js/modules/decks.js)
 
-## IDs referenced in CSS but not found in HTML (1)
-- `today-card` (e.g. css/shared-layout.css)
+## IDs referenced in CSS but not found in HTML (4)
+- `ocean` (e.g. css/index-dashboard.css)
+- `today-card` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `zoomIn` (e.g. css/features/_shared.css)
+- `zoomOut` (e.g. css/features/_shared.css)
 
-## Classes in HTML but unused by CSS/JS (84)
-- `card--preview-1` (e.g. index.html)
-- `card--preview-2` (e.g. index.html)
-- `card--today` (e.g. index.html)
+## Classes in HTML but unused by CSS/JS (101)
+- `contact-context__title` (e.g. contacts.html)
+- `contact-section--emergency` (e.g. contacts.html)
+- `dining-context__title` (e.g. dining.html)
 - `fa-address-card` (e.g. plan.html)
 - `fa-arrow-left` (e.g. rooms.html)
 - `fa-arrow-right` (e.g. contacts.html, dining.html, index.html)
 - `fa-bed` (e.g. index.html, photos.html, rooms.html)
 - `fa-bolt` (e.g. plan.html, ports.html, rooms.html)
 - `fa-calendar-day` (e.g. plan.html, ports.html)
+- `fa-calendar-plus` (e.g. itinerary.html)
 - `fa-chart-column` (e.g. rooms.html)
 - `fa-check` (e.g. contacts.html)
 - `fa-check-circle` (e.g. rooms.html)
@@ -209,10 +260,10 @@ Overall status: **ISSUES FOUND**
 - `fa-door-open` (e.g. decks.html)
 - `fa-download` (e.g. photos.html)
 - `fa-elevator` (e.g. rooms.html)
-- `fa-envelope` (e.g. contacts.html)
+- `fa-envelope` (e.g. contacts.html, itinerary.html)
 - `fa-exclamation-circle` (e.g. itinerary.html)
 - `fa-expand` (e.g. rooms.html)
-- `fa-file-pdf` (e.g. decks.html)
+- `fa-file-pdf` (e.g. decks.html, itinerary.html)
 - `fa-filter` (e.g. photos.html, rooms.html)
 - `fa-folder` (e.g. photos.html)
 - `fa-hand-paper` (e.g. decks.html)
@@ -234,10 +285,12 @@ Overall status: **ISSUES FOUND**
 - `fa-mountain` (e.g. itinerary.html)
 - `fa-phone` (e.g. contacts.html, ports.html)
 - `fa-plus` (e.g. decks.html)
+- `fa-print` (e.g. itinerary.html)
 - `fa-rotate` (e.g. offline.html)
 - `fa-rotate-left` (e.g. decks.html, photos.html)
 - `fa-route` (e.g. index.html, itinerary.html, plan.html, ports.html)
 - `fa-search` (e.g. decks.html, dining.html, offline.html, operations.html, photos.html, rooms.html, tips.html)
+- `fa-share-alt` (e.g. itinerary.html)
 - `fa-spa` (e.g. decks.html)
 - `fa-star` (e.g. dining.html, ports.html)
 - `fa-suitcase-rolling` (e.g. itinerary.html, tips.html)
@@ -260,58 +313,74 @@ Overall status: **ISSUES FOUND**
 - `far` (e.g. itinerary.html)
 - `fas` (e.g. contacts.html, decks.html, dining.html, index.html, itinerary.html, offline.html, operations.html, photos.html, plan.html, ports.html, rooms.html, tips.html)
 - `focus-grid` (e.g. rooms.html)
+- `itinerary-actions` (e.g. itinerary.html)
 - `link-button` (e.g. offline.html)
 - `modal-continue-room` (e.g. rooms.html)
 - `modal-next-room` (e.g. rooms.html)
 - `modal-prev-room` (e.g. rooms.html)
-- `today-stack` (e.g. index.html)
+- `plan-band__content` (e.g. plan.html)
+- `port-band` (e.g. ports.html)
+- `port-band__content` (e.g. ports.html)
+- `port-band__header` (e.g. ports.html)
+- `pro-moves-grid` (e.g. tips.html)
+- `rccl-filter-option` (e.g. rooms.html)
+- `rccl-filter-panel` (e.g. rooms.html)
+- `rccl-modal` (e.g. itinerary.html, rooms.html)
+- `rccl-modal__header` (e.g. itinerary.html, rooms.html)
+- `rccl-tooltip-target` (e.g. rooms.html)
+- `tip-card__controls` (e.g. tips.html)
+- `tip-card__meta` (e.g. tips.html)
+- `tip-checkbox-wrap` (e.g. tips.html)
+- `tip-policy` (e.g. tips.html)
 
-## Classes referenced in JS but not found in HTML (5)
+## Classes referenced in JS but not found in HTML (22)
+- `deck-card--context-pick` (e.g. js/modules/dining.js)
+- `deck-viewer` (e.g. js/modules/decks.js)
+- `dining-nav__filters` (e.g. js/modules/dining.js)
+- `is-complete` (e.g. js/modules/operations.js, js/modules/tips.js)
+- `is-live` (e.g. js/modules/itinerary.js)
+- `is-loading` (e.g. js/modules/dining.js)
+- `is-mobile-open` (e.g. js/shared-layout.js)
 - `is-open` (e.g. js/shared-layout.js)
 - `is-revealed` (e.g. js/shared-layout.js)
+- `is-today` (e.g. js/modules/itinerary.js)
 - `more-drawer-open` (e.g. js/shared-layout.js)
+- `no-anim` (e.g. js/modules/itinerary.js)
+- `offline` (e.g. js/index-dashboard.js)
+- `on` (e.g. js/modules/itinerary.js)
+- `open` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/itinerary.js, js/modules/operations.js)
 - `rccl-modal--open` (e.g. js/shared-layout.js)
-- `room-modal--open` (e.g. js/shared-layout.js)
+- `reveal` (e.g. js/index-dashboard.js)
+- `room-selected` (e.g. js/modules/decks.js)
+- `search-status-loading` (e.g. js/modules/tips.js)
+- `ship-sil` (e.g. js/index-dashboard.js, js/modules/operations.js)
+- `show` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/itinerary.js, js/modules/operations.js)
+- `visible` (e.g. js/index-dashboard.js, js/modules/itinerary.js)
 
-## Classes referenced in CSS but not found in HTML (582)
+## Classes referenced in CSS but not found in HTML (519)
 - `absolute` (e.g. css/utilities.css)
+- `accent` (e.g. css/index-dashboard.css)
 - `action-buttons` (e.g. css/mobile-first.css)
-- `admin-btn` (e.g. css/page-inline-extracted.css)
-- `admin-card` (e.g. css/page-inline-extracted.css)
-- `admin-card__title` (e.g. css/page-inline-extracted.css)
-- `admin-field` (e.g. css/page-inline-extracted.css)
-- `admin-stat` (e.g. css/page-inline-extracted.css)
-- `admin-stat__label` (e.g. css/page-inline-extracted.css)
-- `admin-stat__value` (e.g. css/page-inline-extracted.css)
-- `admin-tool-row` (e.g. css/page-inline-extracted.css)
-- `alert--critical` (e.g. css/page-inline-extracted.css)
-- `alert--warning` (e.g. css/page-inline-extracted.css)
-- `animate-bounce` (e.g. css/components.css)
-- `animate-fadeIn` (e.g. css/components.css)
-- `animate-float` (e.g. css/components.css)
-- `animate-pulse` (e.g. css/components.css)
-- `animate-scaleIn` (e.g. css/components.css)
-- `animate-shimmer` (e.g. css/components.css)
-- `animate-slideInDown` (e.g. css/components.css)
-- `animate-slideInLeft` (e.g. css/components.css)
-- `animate-slideInRight` (e.g. css/components.css)
-- `animate-slideInUp` (e.g. css/components.css)
-- `animate-spin` (e.g. css/components.css)
-- `animate-wave-flow` (e.g. css/components.css)
-- `app-footer--minimal` (e.g. css/shared-layout.css)
-- `app-footer--rccl` (e.g. css/components.css)
-- `app-footer--rccl-site` (e.g. css/shared-layout.css)
-- `app-header--minimal` (e.g. css/shared-layout.css)
-- `app-header--rccl` (e.g. css/components.css)
-- `app-header--rccl-site` (e.g. css/mobile-first.css, css/shared-layout.css)
-- `back-to-top__text` (e.g. css/components.css)
-- `back-to-top--rccl` (e.g. css/components.css)
-- `badge--countdown` (e.g. css/components.css)
-- `badge--critical` (e.g. css/components.css)
-- `badge--deal` (e.g. css/components.css)
-- `badge--info` (e.g. css/components.css, css/page-inline-extracted.css)
-- `badge--success` (e.g. css/components.css)
-- `badge--warning` (e.g. css/components.css, css/page-inline-extracted.css)
+- `action-row` (e.g. css/index-dashboard.css)
+- `admin-btn` (e.g. css/features/photos.css, css/pages/photos.css)
+- `admin-card` (e.g. css/features/photos.css, css/pages/photos.css)
+- `admin-card__title` (e.g. css/features/photos.css, css/pages/photos.css)
+- `admin-field` (e.g. css/features/photos.css, css/pages/photos.css)
+- `admin-stat` (e.g. css/features/photos.css, css/pages/photos.css)
+- `admin-stat__label` (e.g. css/features/photos.css, css/pages/photos.css)
+- `admin-stat__value` (e.g. css/features/photos.css, css/pages/photos.css)
+- `admin-tool-row` (e.g. css/features/photos.css, css/pages/photos.css)
+- `alert--critical` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `alert--warning` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `app-footer--minimal` (e.g. css/shared-layout.css, css/shared-layout/core.css)
+- `app-footer--rccl-site` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `app-header` (e.g. css/layout.css)
+- `app-header--minimal` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `app-header--rccl-site` (e.g. css/mobile-first.css, css/shared-layout.css, css/shared-layout/theming.css)
+- `avatar` (e.g. css/features/_shared.css)
+- `back-to-top` (e.g. css/index-dashboard.css)
+- `badge--info` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `badge--warning` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
 - `bg-accent` (e.g. css/utilities.css)
 - `bg-danger` (e.g. css/utilities.css)
 - `bg-dark` (e.g. css/utilities.css)
@@ -329,6 +398,7 @@ Overall status: **ISSUES FOUND**
 - `bg-transparent` (e.g. css/utilities.css)
 - `bg-warning` (e.g. css/utilities.css)
 - `bg-white` (e.g. css/utilities.css)
+- `big` (e.g. css/index-dashboard.css)
 - `block` (e.g. css/utilities.css)
 - `border` (e.g. css/utilities.css)
 - `border-accent` (e.g. css/utilities.css)
@@ -343,74 +413,84 @@ Overall status: **ISSUES FOUND**
 - `border-t` (e.g. css/utilities.css)
 - `border-warning` (e.g. css/utilities.css)
 - `bottom-0` (e.g. css/utilities.css)
-- `bottom-item` (e.g. css/shared-layout.css)
-- `bottom-nav` (e.g. css/components.css, css/page-inline-extracted.css, css/shared-layout.css)
-- `bottom-nav__item` (e.g. css/components.css, css/page-inline-extracted.css, css/shared-layout.css)
-- `bottom-nav-shell` (e.g. css/shared-layout.css)
-- `brand-chip` (e.g. css/components.css)
-- `brand-meta` (e.g. css/components.css)
-- `btn--accent` (e.g. css/page-inline-extracted.css)
-- `btn--block` (e.g. css/components.css)
-- `btn--danger` (e.g. css/components.css)
-- `btn--ghost` (e.g. css/components.css)
-- `btn--icon` (e.g. css/components.css, css/page-inline-extracted.css)
-- `btn--lg` (e.g. css/components.css)
-- `btn--nautical` (e.g. css/shared-layout.css)
-- `btn--outline` (e.g. css/components.css)
-- `btn--sm` (e.g. css/components.css)
-- `btn--success` (e.g. css/components.css)
-- `btn--warning` (e.g. css/components.css)
+- `bottom-item` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `bottom-nav` (e.g. css/features/decks.css, css/pages/decks.css, css/shared-layout.css, css/shared-layout/theming.css)
+- `bottom-nav__item` (e.g. css/features/decks.css, css/pages/decks.css, css/shared-layout.css, css/shared-layout/theming.css)
+- `bottom-nav-shell` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `brand` (e.g. css/index-dashboard.css)
+- `brand-sub` (e.g. css/index-dashboard.css)
+- `brand-text` (e.g. css/index-dashboard.css)
+- `brand-title` (e.g. css/index-dashboard.css)
+- `btn--accent` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `btn--icon` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `btn--nautical` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
 - `btn-group` (e.g. css/mobile-first.css)
-- `card` (e.g. css/components.css, css/shared-layout.css)
-- `checklist-card` (e.g. css/components.css, css/shared-layout.css)
-- `chip` (e.g. css/components.css, css/mobile-first.css, css/shared-layout.css)
-- `collection-admin` (e.g. css/page-inline-extracted.css)
-- `collection-admin__stats` (e.g. css/page-inline-extracted.css)
-- `collection-admin__tools` (e.g. css/page-inline-extracted.css)
-- `com` (e.g. css/base.css)
-- `compare-toggle-btn` (e.g. css/page-inline-extracted.css)
-- `contact-context--port` (e.g. css/page-inline-extracted.css)
-- `contact-section--priority` (e.g. css/page-inline-extracted.css)
+- `btn-primary` (e.g. css/components.css)
+- `cabin-selected` (e.g. css/decks.css)
+- `card` (e.g. css/components.css, css/index-dashboard.css, css/shared-layout.css, css/shared-layout/core.css)
+- `card-actions` (e.g. css/index-dashboard.css)
+- `card-head` (e.g. css/index-dashboard.css)
+- `card-kicker` (e.g. css/index-dashboard.css)
+- `card-title` (e.g. css/index-dashboard.css)
+- `checklist-card` (e.g. css/shared-layout.css, css/shared-layout/core.css)
+- `chip` (e.g. css/mobile-first.css, css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `collection-admin` (e.g. css/features/photos.css, css/pages/photos.css)
+- `collection-admin__stats` (e.g. css/features/photos.css, css/pages/photos.css)
+- `collection-admin__tools` (e.g. css/features/photos.css, css/pages/photos.css)
+- `comment` (e.g. css/features/_shared.css)
+- `comment-avatar` (e.g. css/features/_shared.css)
+- `comment-card` (e.g. css/components.css, css/features/_shared.css)
+- `comment-item` (e.g. css/features/_shared.css)
+- `compare-toggle-btn` (e.g. css/features/rooms.css, css/pages/rooms.css)
+- `contact-context--port` (e.g. css/features/contacts.css, css/pages/contacts.css)
+- `contact-section--priority` (e.g. css/features/contacts.css, css/pages/contacts.css)
 - `container-fluid` (e.g. css/utilities.css)
 - `container-lg` (e.g. css/utilities.css)
 - `container-md` (e.g. css/utilities.css)
 - `container-sm` (e.g. css/utilities.css)
-- `copy-success` (e.g. css/page-inline-extracted.css)
-- `count-chip--strong` (e.g. css/page-inline-extracted.css)
-- `countdown-unit` (e.g. css/page-inline-extracted.css)
+- `copy-success` (e.g. css/features/contacts.css, css/pages/contacts.css)
+- `count-chip--strong` (e.g. css/features/decks.css, css/pages/decks.css)
+- `countdown` (e.g. css/index-dashboard.css)
+- `countdown-unit` (e.g. css/features/index.css, css/pages/index.css)
+- `css` (e.g. css/base.css, css/features.css, css/features/_shared.css, css/mobile-first.css)
 - `cursor-default` (e.g. css/utilities.css)
 - `cursor-not-allowed` (e.g. css/utilities.css)
 - `cursor-pointer` (e.g. css/utilities.css)
 - `cursor-wait` (e.g. css/utilities.css)
-- `day-btn--today` (e.g. css/page-inline-extracted.css)
-- `day-card` (e.g. css/shared-layout.css)
-- `day-navigation__description` (e.g. css/page-inline-extracted.css)
-- `day-navigation__tools` (e.g. css/page-inline-extracted.css)
-- `deck-card--context-pick` (e.g. css/page-inline-extracted.css)
-- `deck-card--entertainment` (e.g. css/page-inline-extracted.css)
-- `deck-card--essential` (e.g. css/page-inline-extracted.css)
-- `deck-card--urgent` (e.g. css/shared-layout.css)
-- `deck-card--wellness` (e.g. css/page-inline-extracted.css)
-- `deck-hero__accent` (e.g. css/page-inline-extracted.css)
-- `deck-link-pill` (e.g. css/shared-layout.css)
-- `deck-modal__placeholder` (e.g. css/components.css)
-- `description` (e.g. css/components.css, css/mobile-first.css)
-- `dining-hero` (e.g. css/shared-layout.css)
-- `dining-spine__item` (e.g. css/page-inline-extracted.css)
-- `drop-zone` (e.g. css/page-inline-extracted.css)
-- `drop-zone__input` (e.g. css/page-inline-extracted.css)
-- `drop-zone__meta` (e.g. css/page-inline-extracted.css)
-- `drop-zone__title` (e.g. css/page-inline-extracted.css)
-- `dropdown-divider` (e.g. css/components.css)
-- `dropdown-item` (e.g. css/components.css)
-- `dropdown-item--signout` (e.g. css/components.css)
-- `empty-state` (e.g. css/components.css)
-- `empty-state__description` (e.g. css/components.css)
-- `empty-state__icon` (e.g. css/components.css)
-- `empty-state__title` (e.g. css/components.css)
-- `enabled` (e.g. css/components.css)
-- `enhanced` (e.g. css/components.css)
-- `filter-btn--active` (e.g. css/page-inline-extracted.css)
+- `day-btn--today` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `day-card` (e.g. css/features/_shared.css, css/shared-layout.css, css/shared-layout/theming.css)
+- `day-navigation__description` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `day-navigation__tools` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `deck-card--context-pick` (e.g. css/features/dining.css, css/pages/dining.css)
+- `deck-card--entertainment` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-card--essential` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-card--urgent` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `deck-card--wellness` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-container` (e.g. css/decks.css)
+- `deck-hero__accent` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-link-pill` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `deck-page` (e.g. css/decks.css)
+- `deck-tooltip` (e.g. css/decks.css)
+- `deck-viewer` (e.g. css/decks.css)
+- `description` (e.g. css/mobile-first.css)
+- `dining-hero` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `dining-spine__item` (e.g. css/features/dining.css, css/pages/dining.css)
+- `divider` (e.g. css/pages/rooms.css)
+- `dot` (e.g. css/index-dashboard.css)
+- `drawer` (e.g. css/index-dashboard.css)
+- `drawer-backdrop` (e.g. css/index-dashboard.css)
+- `drawer-foot` (e.g. css/index-dashboard.css)
+- `drawer-head` (e.g. css/index-dashboard.css)
+- `drop-zone` (e.g. css/features/photos.css, css/pages/photos.css)
+- `drop-zone__input` (e.g. css/features/photos.css, css/pages/photos.css)
+- `drop-zone__meta` (e.g. css/features/photos.css, css/pages/photos.css)
+- `drop-zone__title` (e.g. css/features/photos.css, css/pages/photos.css)
+- `env-depth-0` (e.g. css/pages/decks.css)
+- `env-depth-1` (e.g. css/pages/decks.css)
+- `env-depth-2` (e.g. css/pages/decks.css)
+- `env-depth-3` (e.g. css/pages/decks.css)
+- `env-depth-4` (e.g. css/pages/decks.css)
+- `filter-btn--active` (e.g. css/features/rooms.css, css/pages/rooms.css)
 - `fixed` (e.g. css/utilities.css)
 - `flex` (e.g. css/utilities.css)
 - `flex-1` (e.g. css/utilities.css)
@@ -423,55 +503,230 @@ Overall status: **ISSUES FOUND**
 - `font-medium` (e.g. css/utilities.css)
 - `font-normal` (e.g. css/utilities.css)
 - `font-semibold` (e.g. css/utilities.css)
-- `footer-action-badge` (e.g. css/components.css)
-- `footer-action-card__body` (e.g. css/components.css)
-- `footer-action-card__content` (e.g. css/components.css)
-- `footer-action-card__footer` (e.g. css/components.css)
-- `footer-action-card__header` (e.g. css/components.css)
-- `footer-action-card__wave` (e.g. css/components.css)
-- `footer-action-card--rccl` (e.g. css/components.css)
-- `footer-action-cta` (e.g. css/components.css)
-- `footer-action-icon` (e.g. css/components.css)
-- `footer-actions` (e.g. css/shared-layout.css)
-- `footer-bottom__content` (e.g. css/components.css)
-- `footer-bottom--rccl` (e.g. css/components.css)
-- `footer-brand` (e.g. css/shared-layout.css)
-- `footer-brand-lines` (e.g. css/components.css)
-- `footer-brand-mark` (e.g. css/shared-layout.css)
-- `footer-brands` (e.g. css/shared-layout.css)
-- `footer-columns` (e.g. css/shared-layout.css)
-- `footer-container` (e.g. css/shared-layout.css)
-- `footer-copyright` (e.g. css/components.css, css/shared-layout.css)
-- `footer-country` (e.g. css/shared-layout.css)
-- `footer-country__btn` (e.g. css/shared-layout.css)
-- `footer-cta` (e.g. css/shared-layout.css)
-- `footer-cta--secondary` (e.g. css/shared-layout.css)
-- `footer-essentials` (e.g. css/shared-layout.css)
-- `footer-grid` (e.g. css/components.css)
-- `footer-heading` (e.g. css/shared-layout.css)
-- `footer-hero` (e.g. css/components.css)
-- `footer-hero__actions` (e.g. css/components.css)
-- `footer-hero__badge` (e.g. css/components.css)
-- `footer-hero__cards` (e.g. css/components.css)
-- `footer-hero__intro` (e.g. css/components.css)
-- `footer-legal` (e.g. css/components.css, css/shared-layout.css)
-- `footer-legal__link` (e.g. css/shared-layout.css)
-- `footer-legal__text` (e.g. css/shared-layout.css)
-- `footer-legal-links` (e.g. css/shared-layout.css)
-- `footer-link` (e.g. css/components.css)
-- `footer-link__chevron` (e.g. css/components.css)
-- `footer-link__icon` (e.g. css/components.css)
-- `footer-links` (e.g. css/components.css)
-- `footer-logo` (e.g. css/shared-layout.css)
-- `footer-meta` (e.g. css/mobile-first.css, css/shared-layout.css)
-- `footer-nav` (e.g. css/shared-layout.css)
-- `footer-nav__link` (e.g. css/shared-layout.css)
-- `footer-newsletter` (e.g. css/components.css)
-- `footer-newsletter__header` (e.g. css/components.css)
-- `footer-newsletter__icon` (e.g. css/components.css)
-- `footer-panel` (e.g. css/shared-layout.css)
-- `footer-panel__meta` (e.g. css/shared-layout.css)
-- `footer-panel__title` (e.g. css/shared-layout.css)
-- `footer-primary` (e.g. css/mobile-first.css, css/shared-layout.css)
-- `footer-section` (e.g. css/components.css)
-- ... 382 more
+- `footer-actions` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-brand` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-brand-mark` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `footer-brands` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `footer-columns` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-container` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css, css/shared-layout/theming.css)
+- `footer-copyright` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `footer-country` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `footer-country__btn` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `footer-cta` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-cta--secondary` (e.g. css/shared-layout.css, css/shared-layout/core.css)
+- `footer-essentials` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-heading` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-legal` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-legal__link` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/theming.css)
+- `footer-legal__text` (e.g. css/shared-layout.css, css/shared-layout/core.css)
+- `footer-legal-links` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `footer-logo` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-meta` (e.g. css/mobile-first.css, css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-nav` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-nav__link` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-panel` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-panel__meta` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-panel__title` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-primary` (e.g. css/mobile-first.css, css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-separator` (e.g. css/shared-layout.css, css/shared-layout/core.css)
+- `footer-social` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-social__link` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css, css/shared-layout/theming.css)
+- `footer-social-row` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
+- `footer-subheading` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
+- `footer-tagline` (e.g. css/shared-layout.css, css/shared-layout/core.css)
+- `gallery-item` (e.g. css/features/_shared.css)
+- `gallery-list-view` (e.g. css/features/photos.css, css/pages/photos.css)
+- `gap-lg` (e.g. css/utilities.css)
+- `gap-md` (e.g. css/utilities.css)
+- `gap-sm` (e.g. css/utilities.css)
+- `gap-xl` (e.g. css/utilities.css)
+- `gap-xs` (e.g. css/utilities.css)
+- `grid` (e.g. css/index-dashboard.css, css/utilities.css)
+- `grid-cols-1` (e.g. css/utilities.css)
+- `grid-cols-2` (e.g. css/utilities.css)
+- `grid-cols-3` (e.g. css/utilities.css)
+- `grid-cols-4` (e.g. css/utilities.css)
+- `h-auto` (e.g. css/utilities.css)
+- `h-full` (e.g. css/utilities.css)
+- `h-lg` (e.g. css/utilities.css)
+- `h-md` (e.g. css/utilities.css)
+- `h-screen` (e.g. css/utilities.css)
+- `h-sm` (e.g. css/utilities.css)
+- `h-xl` (e.g. css/utilities.css)
+- `h-xs` (e.g. css/utilities.css)
+- `hdr-iconbtn` (e.g. css/index-dashboard.css)
+- `hdr-pill` (e.g. css/index-dashboard.css)
+- `header` (e.g. css/shared-layout/theming.css)
+- `header-actions` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css, css/shared-layout/theming.css)
+- ... 319 more
+
+## Page Entrypoint Mapping (HTML -> JS)
+- contacts.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- deck-debug.html
+  - JS entrypoints: js/global.js
+  - Inline script blocks: 0
+- decks.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- dining.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- index.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- itinerary.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- offline.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- operations.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- photos.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- plan.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 0
+- ports.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 0
+- rooms.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- tips.html
+  - JS entrypoints: js/shared-layout.js
+  - Inline script blocks: 1
+- tools/_archive/pages/dashboard.html
+  - JS entrypoints: (none)
+  - Inline script blocks: 1
+- tools/_archive/pages/svg-crop.html
+  - JS entrypoints: (none)
+  - Inline script blocks: 1
+
+## Page-Scoped JS Selector Mismatches
+### contacts.html
+- DOM: 21 ids, 54 classes
+- JS refs (entrypoints + inline): 6 ids, 7 classes
+- Missing IDs: 0
+- Missing classes: 1
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+- Missing class examples: `port`
+
+### deck-debug.html
+- DOM: 0 ids, 0 classes
+- JS refs (entrypoints + inline): 0 ids, 0 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### decks.html
+- DOM: 26 ids, 96 classes
+- JS refs (entrypoints + inline): 18 ids, 15 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### dining.html
+- DOM: 26 ids, 66 classes
+- JS refs (entrypoints + inline): 12 ids, 6 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### index.html
+- DOM: 12 ids, 57 classes
+- JS refs (entrypoints + inline): 4 ids, 10 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### itinerary.html
+- DOM: 15 ids, 76 classes
+- JS refs (entrypoints + inline): 8 ids, 13 classes
+- Missing IDs: 1
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+- Missing ID examples: `today-card`
+
+### offline.html
+- DOM: 13 ids, 56 classes
+- JS refs (entrypoints + inline): 6 ids, 1 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### operations.html
+- DOM: 20 ids, 39 classes
+- JS refs (entrypoints + inline): 6 ids, 4 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### photos.html
+- DOM: 26 ids, 89 classes
+- JS refs (entrypoints + inline): 24 ids, 7 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### plan.html
+- DOM: 5 ids, 43 classes
+- JS refs (entrypoints + inline): 0 ids, 0 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### ports.html
+- DOM: 4 ids, 36 classes
+- JS refs (entrypoints + inline): 0 ids, 0 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### rooms.html
+- DOM: 39 ids, 164 classes
+- JS refs (entrypoints + inline): 28 ids, 31 classes
+- Missing IDs: 0
+- Missing classes: 1
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+- Missing class examples: `fa-chevron-up`
+
+### tips.html
+- DOM: 21 ids, 41 classes
+- JS refs (entrypoints + inline): 5 ids, 3 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### tools/_archive/pages/dashboard.html
+- DOM: 0 ids, 0 classes
+- JS refs (entrypoints + inline): 0 ids, 0 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0
+
+### tools/_archive/pages/svg-crop.html
+- DOM: 0 ids, 0 classes
+- JS refs (entrypoints + inline): 0 ids, 0 classes
+- Missing IDs: 0
+- Missing classes: 0
+- Unsuppressed missing IDs: 0
+- Unsuppressed missing classes: 0

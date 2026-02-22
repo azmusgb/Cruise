@@ -3,11 +3,11 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const pages = {
-  'index.html': ['id="menuBtn"', 'id="countdown"', 'id="cardCountdown"'],
-  'decks.html': ['id="deckSearch"', 'id="content"', 'id="modal"'],
+  'index.html': ['id="countdown"', 'id="dashboardPrioritiesSection"', 'id="sharedBottomNav"'],
+  'decks.html': ['id="deckSearch"', 'id="deckCards"', 'id="deckModal"'],
   'operations.html': ['id="operationsSearchInput"', 'id="tasks"', 'data-task-id="task-online-checkin"'],
   'tips.html': ['id="proMovesSearchInput"', 'id="packing-checks"', 'data-check-id="pro-moves-carryon-ids"'],
-  'itinerary.html': ['id="today"', 'id="timeline"', 'id="todayBtn"'],
+  'itinerary.html': ['id="today"', 'id="daySelector"', 'id="itineraryLegendModal"'],
   'offline.html': ['id="offlineSearchInput"', 'id="offline-grid"', 'id="refreshOfflineStatus"'],
 };
 

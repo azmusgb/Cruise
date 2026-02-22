@@ -1,82 +1,79 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const cwd = process.cwd();
-const htmlFiles = readdirSync(cwd).filter((name) => name.endsWith('.html')).sort();
-const sharedLayoutPath = path.join(cwd, 'js', 'shared-layout.js');
-const itineraryModulePath = path.join(cwd, 'js', 'modules', 'itinerary.js');
+const htmlFiles = readdirSync(cwd)
+  .filter((name) => name.endsWith('.html'))
+  .sort((a, b) => a.localeCompare(b));
 
+const sharedLayoutPath = path.join(cwd, 'js', 'shared-layout.js');
+const excludedPages = new Set(['deck-debug.html']);
 const issues = [];
 
-const pagesWithoutSharedLayout = new Set(['deck-debug.html', 'index.html']);
-const allowedDataPages = new Set(['offline', 'ports', 'tips']);
+const sharedLayoutScriptPattern = /<script[^>]+src=["']js\/shared-layout\.js(?:\?[^"']*)?["'][^>]*>/i;
 
-const expectedSharedHeaderPages = new Map([
-  ['offline.html', 'offline'],
-  ['ports.html', 'ports'],
-  ['tips.html', 'tips'],
-]);
+function getMountAttrs(content, id) {
+  const match = content.match(new RegExp(`<[^>]+id=["']${id}["']([^>]*)>`, 'i'));
+  return match ? match[1] || '' : null;
+}
 
-const sharedLayoutScriptPattern = /<script[^>]+src=["']js\/shared-layout\.js["'][^>]*>/i;
-const sharedHeaderMountPattern = /<[^>]+id=["']sharedHeader["']([^>]*)>/i;
-const dataPagePattern = /\sdata-page=["']([^"']+)["']/i;
+function getDataPage(attrs) {
+  if (!attrs) return null;
+  const match = attrs.match(/\sdata-page=["']([^"']+)["']/i);
+  return match ? match[1] : null;
+}
 
 for (const file of htmlFiles) {
+  const pageName = file.replace(/\.html$/i, '');
   const content = readFileSync(path.join(cwd, file), 'utf8');
-  const hasSharedLayout = /src="js\/shared-layout\.js"/i.test(content);
-  const shouldIncludeSharedLayout = expectedSharedLayoutPages.has(file);
 
-  const hasSharedLayout = /src="js\/shared-layout\.js"/i.test(content);
-  if (!hasSharedLayout && !pagesWithoutSharedLayout.has(file)) {
-    issues.push(`${file}: missing shared-layout.js include`);
-  }
-
-  if (!shouldIncludeSharedLayout && hasSharedLayout) {
-    issues.push(`${file}: unexpected shared-layout.js include`);
-  }
-
-  const headerMatch = content.match(/<div\s+id="sharedHeader"([^>]*)>/i);
-  if (!headerMatch) continue;
-
-  const attrs = headerMatch[1] || '';
-  const pageMatch = attrs.match(/data-page="([^"]+)"/i);
-  if (!pageMatch) {
-    issues.push(`${file}: #sharedHeader missing data-page`);
+  if (excludedPages.has(file)) {
     continue;
   }
 
-  if (!allowedDataPages.has(pageMatch[1])) {
-    issues.push(`${file}: #sharedHeader data-page "${pageMatch[1]}" is not in allowed set`);
+  if (!sharedLayoutScriptPattern.test(content)) {
+    issues.push(`${file}: missing shared-layout.js include`);
+  }
+
+  const headerAttrs = getMountAttrs(content, 'sharedHeader');
+  if (headerAttrs == null) {
+    issues.push(`${file}: missing #sharedHeader mount`);
+  } else {
+    const dataPage = getDataPage(headerAttrs);
+    if (!dataPage) {
+      issues.push(`${file}: #sharedHeader missing data-page`);
+    } else if (dataPage !== pageName) {
+      issues.push(`${file}: #sharedHeader data-page "${dataPage}" does not match page "${pageName}"`);
+    }
+  }
+
+  for (const mountId of ['sharedFooter', 'sharedBottomNav']) {
+    const attrs = getMountAttrs(content, mountId);
+    if (attrs == null) continue;
+    const dataPage = getDataPage(attrs);
+    if (dataPage && dataPage !== pageName) {
+      issues.push(`${file}: #${mountId} data-page "${dataPage}" does not match page "${pageName}"`);
+    }
   }
 }
 
-const sharedLayout = readFileSync(sharedLayoutPath, 'utf8');
-const requiredSharedLayoutTokens = [
-  "document.getElementById('sharedHeader')",
-  "container.dataset.loaded = 'true'",
-  'document.addEventListener(\'DOMContentLoaded\', injectHeader)',
-  'class="app-header--minimal"',
-];
+if (!existsSync(sharedLayoutPath)) {
+  issues.push('js/shared-layout.js: file missing');
+} else {
+  const sharedLayout = readFileSync(sharedLayoutPath, 'utf8');
+  const requiredSharedLayoutTokens = [
+    "safeMount('#sharedHeader'",
+    "safeMount('#sharedFooter'",
+    "safeMount('#sharedBottomNav'",
+    'const NAV_ITEMS = [',
+    'const BOTTOM_NAV_ITEMS = [',
+  ];
 
-for (const token of requiredSharedLayoutTokens) {
-  if (!sharedLayout.includes(token)) {
-    issues.push(`js/shared-layout.js: missing required token: ${token}`);
-  }
-}
-
-const itineraryPath = path.join(cwd, 'itinerary.html');
-const itinerary = readFileSync(itineraryPath, 'utf8');
-const itineraryTokens = [
-  'id="todayBtn"',
-  'id="timeline"',
-  'src="js/modules/itinerary.js"',
-  'class="bottom-nav"',
-];
-
-for (const token of itineraryTokens) {
-  if (!itinerary.includes(token)) {
-    issues.push(`itinerary.html: missing required token ${token}`);
+  for (const token of requiredSharedLayoutTokens) {
+    if (!sharedLayout.includes(token)) {
+      issues.push(`js/shared-layout.js: missing required token ${token}`);
+    }
   }
 }
 
