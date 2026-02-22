@@ -20,8 +20,8 @@
   <link rel="stylesheet" href="css/components.css?v=3">
   <link rel="stylesheet" href="css/feature-modules.css?v=3">
   <link rel="stylesheet" href="css/mobile-first.css?v=3">
-  <link rel="stylesheet" href="css/page-inline-extracted.css?v=2">
   <style>
+    @import url("css/pages/decks.css?v=1");
   /* Decks page — ruthless pass */
   .decks-page .deck-hero__subtitle { font-weight: 500; }
   /* Section rhythm for spatial descent */
@@ -46,6 +46,12 @@
   .decks-page .deck-modal__dialog { border-radius: 32px !important; transition: transform 240ms var(--ease-organic, cubic-bezier(0.2,0.6,0.2,1)), opacity 240ms var(--ease-organic, cubic-bezier(0.2,0.6,0.2,1)); }
   .decks-page .deck-modal:not(.is-open) .deck-modal__dialog { opacity: 0; transform: translateY(8px); }
   .decks-page .deck-modal.is-open .deck-modal__dialog { opacity: 1; transform: translateY(4px); }
+  .decks-page .deck-hero.is-embark-glow { animation: deckHeroGlow 2.5s ease-out; }
+  @keyframes deckHeroGlow {
+    0% { box-shadow: 0 0 0 rgba(0, 164, 216, 0); }
+    50% { box-shadow: 0 0 44px rgba(0, 164, 216, 0.25); }
+    100% { box-shadow: 0 0 0 rgba(0, 164, 216, 0); }
+  }
 </style>
   <script src="js/shared-layout.js?v=17" defer></script>
 
@@ -382,14 +388,35 @@
       function setZoom(v) {
         state.currentZoom = Math.min(300, Math.max(50, v));
         els.zoomLevel.textContent = `${state.currentZoom}%`;
-        const canvas = document.getElementById('deckPlanCanvas');
-        if (canvas) canvas.style.transform = `scale(${(state.currentZoom / 100).toFixed(2)})`;
+        updateZoomRule();
         if (state.currentZoom > 100 && !state.panHintShown) {
           togglePanHint(true);
           state.panHintShown = true;
           sessionStorage.setItem('deck_pan_hint_shown', '1');
           setTimeout(() => togglePanHint(false), 2400);
         }
+      }
+
+      function upsertStyleRule(id, cssText) {
+        let styleEl = document.getElementById(id);
+        if (!styleEl) {
+          styleEl = document.createElement('style');
+          styleEl.id = id;
+          document.head.appendChild(styleEl);
+        }
+        styleEl.textContent = cssText;
+      }
+
+      function updateZoomRule() {
+        const zoom = (state.currentZoom / 100).toFixed(2);
+        upsertStyleRule('deck-zoom-rule', `.decks-page #deckPlanCanvas { transform: scale(${zoom}); }`);
+      }
+
+      function updateHotspotRules(hotspots) {
+        const hotspotCss = hotspots.map((spot) => {
+          return `.decks-page .deck-hotspot[data-hotspot-id="${spot.id}"] { left: ${spot.x}%; top: ${spot.y}%; }`;
+        }).join('\n');
+        upsertStyleRule('deck-hotspot-rule', hotspotCss);
       }
 
       function renderModalPlan(deck) {
@@ -405,18 +432,20 @@
           const chips = deckFocusMap[deck.number] || [];
           els.modalFocusChips.innerHTML = chips.map(l => `<button class="deck-focuschip">${l}</button>`).join('');
           const hotspotButtons = hotspots.map((s,i) => `
-            <button class="deck-hotspot" style="left:${s.x}%; top:${s.y}%;" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
+            <button class="deck-hotspot" data-hotspot-id="${s.id}" data-title="${s.title}" data-note="${s.note}" data-highlight="${s.highlight ? 'true' : 'false'}">${i+1}</button>
           `).join('');
 
           els.modalFrame.innerHTML = `
             <div class="deck-plan-stage" id="deckPlanStage">
-              <div class="deck-plan-canvas is-transitioning" id="deckPlanCanvas" style="transform:scale(${state.currentZoom/100});">
+              <div class="deck-plan-canvas is-transitioning" id="deckPlanCanvas">
                 <img class="deck-plan-media" src="${deck.svg || 'deck-plans/deck-12.png'}" alt="${deck.name}">
                 ${hotspots.length ? `<div class="deck-plan-hotspots">${hotspotButtons}</div>` : ''}
               </div>
             </div>
             ${hotspots.length ? `<div class="deck-plan-legend">${hotspots.map((s,i)=> `<button class="deck-plan-legend-item" data-hotspot-id="${s.id}"><strong>${i+1}. ${s.title}</strong><span>${s.note}</span></button>`).join('')}</div>` : ''}
           `;
+          updateHotspotRules(hotspots);
+          updateZoomRule();
           attachPan();
 
           const newCanvas = document.getElementById('deckPlanCanvas');
@@ -605,7 +634,7 @@
 
         if (!localStorage.getItem('embarkationSeen')) {
           const hero = document.querySelector('.deck-hero');
-          if (hero) hero.style.animation = 'heroGlow 2.5s ease-out';
+          if (hero) hero.classList.add('is-embark-glow');
           localStorage.setItem('embarkationSeen', 'true');
         }
 
