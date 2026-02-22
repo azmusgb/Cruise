@@ -19,7 +19,6 @@ You can run this as static files from the repo root, for example:
 python3 -m http.server 8080
 ```
 
-
 ## GitHub Pages (mobile-friendly deploy)
 
 This app is configured to work from a project subpath (for example `https://<user>.github.io/Cruise/`) using relative PWA paths.
@@ -27,8 +26,6 @@ This app is configured to work from a project subpath (for example `https://<use
 - Enable Pages in repository settings (deploy from branch root).
 - Open `https://<user>.github.io/<repo>/index.html` once online to prime the cache.
 - Then install from mobile browser (`Add to Home Screen`).
-
-
 
 ## Shared deck plans on GitHub Pages
 
@@ -96,8 +93,8 @@ Use `card-*` and `pill-*` as canonical patterns for new work. Existing legacy na
 
 ## Deck entrypoint + UI contracts
 
-- Canonical deck runtime: `js/modules/decks.js`.
-- Legacy compatibility shim: `js/decks.js` (loads canonical module only).
+- Canonical deck runtime: `js/pages/decks.js`.
+- Page runtimes now live in `js/pages/*.js` and are loaded directly by each HTML file.
 - UI data-attribute contracts are documented in `docs/architecture/ui-data-attribute-contracts.md`.
 
 ## CSS modularization

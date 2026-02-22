@@ -1,20 +1,23 @@
 # CSS_JS_WIRING_AUDIT (WIRING)
 
 ## Scope
+
 - `itinerary.html`
 - `js/global.js`
 - `js/shared-layout.js`
-- `js/modules/itinerary.js`
+- `js/pages/itinerary.js`
 
 ## 1) Wiring Map (selector/event/state linkage)
 
 ### Script load and initialization chain
-- `itinerary.html` loads three deferred scripts in this order: `js/global.js`, `js/shared-layout.js`, then `js/modules/itinerary.js`.
+
+- `itinerary.html` loads `js/shared-layout.js` and the page runtime `js/pages/itinerary.js`.
 - `js/global.js` registers the service worker on `DOMContentLoaded`.
 - `js/shared-layout.js` attempts to inject a shared header into `#sharedHeader` on `DOMContentLoaded`.
-- `js/modules/itinerary.js` immediately queries itinerary DOM nodes, builds timeline cards, wires event handlers, restores local state, and runs `init()`.
+- `js/pages/itinerary.js` wires day navigation/actions, restores day state from date context, and updates status messaging.
 
 ### Primary DOM-to-JS bindings
+
 - Timeline render target: `#timeline`.
 - Feedback/status nodes: `#toast`, `#live`, `#sailaway`, `#sailPill`, `#confetti`.
 - Drawer controls: `#menuBtn`, `#moreBtn`, `#drawerBackdrop`, `#drawer`, `#closeDrawerBtn`.
@@ -23,6 +26,7 @@
 - Scroll utility: `#backToTop`.
 
 ### Event wiring map
+
 - Timeline interactions
   - `click` on `#timeline` delegates via `button[data-action]` (`toggle`, `jump`, `excursion`, `copy`).
   - `keydown` on `#timeline` toggles a card on `Enter`/`Space` when focus is on non-interactive card surface.
@@ -40,6 +44,7 @@
   - `scroll` updates back-to-top visibility; `click` scrolls to top.
 
 ### State sources and sinks
+
 - `localStorage`
   - `rccl.itin.excursions.v2`
   - `rccl.itin.openDay.v2`
@@ -54,12 +59,14 @@
 ## 2) Broken or Risky Links
 
 ### Confirmed
+
 1. **Unwired shared-header injection on this page**
    - `itinerary.html` does not include a `#sharedHeader` container, but still loads `js/shared-layout.js`.
    - Result: `injectHeader()` exits early every load on this route (dead script work for itinerary page).
    - Impact: low functional risk, but unnecessary script execution and maintenance ambiguity.
 
 ### Potential / hardening opportunities
+
 1. **Mandatory-node assumptions for controls without null guards**
    - `prevDayBtn`, `nextDayBtn`, `todayBtn`, and `backToTopBtn` are used without conditional checks.
    - It works with current markup, but refactors/partial embeds would throw before init completes.
@@ -68,11 +75,13 @@
    - Risk is drift in selector contracts across routes over time.
 
 ## 3) Load/Initialization Risks
+
 - All scripts are `defer`, so DOM order is stable and current initialization timing is sound.
 - `itinerary.js` does not wait for `DOMContentLoaded`, relying on defer semantics; this is correct for current page load strategy.
 - Service worker registration uses absolute `/sw.js`, which is correct for root-served app but can fail in subpath hosting scenarios.
 
 ## 4) Fix Recommendations
+
 1. **Route-gate or remove `js/shared-layout.js` from `itinerary.html`**
    - Preferred: remove script include from pages that do not render `#sharedHeader`.
    - Alternative: keep include but add a fast route guard in `shared-layout.js` to skip non-shared-header pages with explicit logging only in debug.
@@ -82,6 +91,7 @@
    - Either shared injected header everywhere or static header everywhere; avoid mixed mode to reduce selector drift.
 
 ## 5) Post-fix Verification Steps
+
 1. Open `itinerary.html` and validate no console errors at load.
 2. Verify drawer open/close via both `#menuBtn` and `#moreBtn`, including `Escape` close and focus trap loop.
 3. Verify timeline actions per card:

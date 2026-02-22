@@ -1,6 +1,6 @@
 # UI Wiring Audit Report
 
-Scanned 15 HTML, 38 CSS, 18 JS files.
+Scanned 15 HTML, 38 CSS, 15 JS files.
 
 ## Summary
 Overall status: **ISSUES FOUND**
@@ -8,11 +8,7 @@ Strict fail mode: **ON**
 Config file: `tools/ui-wiring-audit.config.json`
 Unsuppressed page-scoped issues: **0**
 
-## IDs in HTML but unused by CSS/JS (141)
-- `activeFilterPill` (e.g. photos.html)
-- `addToCalendarBtn` (e.g. itinerary.html)
-- `allSetGrid` (e.g. rooms.html)
-- `allSetSection` (e.g. rooms.html)
+## IDs in HTML but unused by CSS/JS (63)
 - `allSetTitle` (e.g. rooms.html)
 - `assistanceActionsTitle` (e.g. rooms.html)
 - `backup` (e.g. contacts.html)
@@ -23,85 +19,24 @@ Unsuppressed page-scoped issues: **0**
 - `check-task-passports-photos` (e.g. operations.html)
 - `check-task-payment-insurance` (e.g. operations.html)
 - `checklist` (e.g. offline.html)
-- `clearComparisonBtn` (e.g. rooms.html)
-- `clearFilters` (e.g. decks.html)
-- `clearSearchBtn` (e.g. photos.html)
-- `closeLightbox` (e.g. photos.html)
-- `compareCount` (e.g. rooms.html)
-- `comparisonGrid` (e.g. rooms.html)
-- `contactContext` (e.g. contacts.html)
-- `contactContextAction` (e.g. contacts.html)
-- `contactContextActionText` (e.g. contacts.html)
-- `contactContextBody` (e.g. contacts.html)
-- `contactContextTitle` (e.g. contacts.html)
 - `contacts` (e.g. offline.html)
 - `contacts-grid` (e.g. contacts.html)
-- `contactsStatus` (e.g. contacts.html)
-- `cruiseModeLine` (e.g. itinerary.html)
 - `daySelector` (e.g. itinerary.html)
 - `deck-directory` (e.g. decks.html)
-- `deckCards` (e.g. decks.html)
-- `deckCategoryPanels` (e.g. decks.html)
-- `deckFocusChips` (e.g. decks.html)
-- `deckPanHint` (e.g. decks.html)
-- `deckPlanCanvas` (e.g. decks.html)
-- `deckPlanStage` (e.g. decks.html)
-- `deckQuickRail` (e.g. decks.html)
-- `deckVerticalIndicator` (e.g. decks.html)
 - `dining-grid` (e.g. dining.html)
-- `diningContext` (e.g. dining.html)
-- `dismissDashboardTour` (e.g. index.html)
-- `downloadImage` (e.g. photos.html)
-- `downloadPlan` (e.g. decks.html)
-- `emailItineraryBtn` (e.g. itinerary.html)
+- `diningSpotlightActionText` (e.g. dining.html)
 - `embark-sequence` (e.g. plan.html)
-- `emptyState` (e.g. decks.html, photos.html)
-- `featuredRail` (e.g. photos.html)
-- `filterPanel` (e.g. rooms.html)
-- `filterToggle` (e.g. rooms.html)
-- `focusGrid` (e.g. rooms.html)
-- `gallerySearch` (e.g. photos.html)
-- `guestFinderClear` (e.g. rooms.html)
-- `guestFinderFavorite` (e.g. rooms.html)
-- `guestFinderFavorites` (e.g. rooms.html)
-- `guestFinderInput` (e.g. rooms.html)
-- `guestFinderList` (e.g. rooms.html)
-- `guestFinderQuick` (e.g. rooms.html)
-- `guestFinderStatus` (e.g. rooms.html)
-- `heroCats` (e.g. photos.html)
-- `heroOfficial` (e.g. photos.html)
-- `heroTotal` (e.g. photos.html)
 - `included-group` (e.g. dining.html)
 - `itinerary` (e.g. offline.html)
 - `itineraryLegendModal` (e.g. itinerary.html)
-- `itineraryStatus` (e.g. itinerary.html)
-- `keyboardHint` (e.g. rooms.html)
 - `legendTitle` (e.g. itinerary.html)
-- `lightbox` (e.g. photos.html)
-- `lightboxCounter` (e.g. photos.html)
-- `lightboxCounterText` (e.g. photos.html)
-- `lightboxDescription` (e.g. photos.html)
-- `lightboxImage` (e.g. photos.html)
-- `lightboxTitle` (e.g. photos.html)
 - `main` (e.g. contacts.html, decks.html, dining.html, index.html, itinerary.html, offline.html, operations.html, plan.html, ports.html, tips.html)
-- `mobileStatsToggle` (e.g. rooms.html)
-- `modalBody` (e.g. rooms.html)
 - `modalCloseBtn` (e.g. rooms.html)
-- `modalDesc` (e.g. decks.html)
-- `modalDescription` (e.g. rooms.html)
-- `modalFrame` (e.g. decks.html)
-- `nextPhoto` (e.g. photos.html)
-- `noSearchResults` (e.g. rooms.html)
 - `onboard` (e.g. contacts.html)
 - `onboard-title` (e.g. contacts.html)
-- `openOriginal` (e.g. photos.html)
 - `orderingActionsTitle` (e.g. rooms.html)
 - `overviewTitle` (e.g. rooms.html)
 - `packing-checks` (e.g. tips.html)
-- `phaseBanner` (e.g. index.html)
-- `photoCount` (e.g. photos.html)
-- `photoGrid` (e.g. photos.html)
-- `photoList` (e.g. photos.html)
 - `pill-entertainment` (e.g. decks.html)
 - `pill-essential` (e.g. decks.html)
 - `pill-wellness` (e.g. decks.html)
@@ -109,8 +44,6 @@ Unsuppressed page-scoped issues: **0**
 - `portday` (e.g. tips.html)
 - `ports` (e.g. contacts.html)
 - `ports-title` (e.g. contacts.html)
-- `prevPhoto` (e.g. photos.html)
-- `printItineraryBtn` (e.g. itinerary.html)
 - `pro-moves-carryon-ids` (e.g. tips.html)
 - `pro-moves-habit-arrive-early` (e.g. tips.html)
 - `pro-moves-habit-muster` (e.g. tips.html)
@@ -120,27 +53,17 @@ Unsuppressed page-scoped issues: **0**
 - `pro-moves-outfit-matrix` (e.g. tips.html)
 - `pro-moves-tech-setup` (e.g. tips.html)
 - `quick-actions` (e.g. rooms.html)
-- `resetFilters` (e.g. photos.html)
-- `roomComparisonRail` (e.g. rooms.html)
 - `rooms-content` (e.g. rooms.html)
-- `roomSearchInput` (e.g. rooms.html)
-- `roomsGridSource` (e.g. rooms.html)
-- `savePDFBtn` (e.g. itinerary.html)
-- `shareItineraryBtn` (e.g. itinerary.html)
 - `shore-support` (e.g. contacts.html)
 - `shore-title` (e.g. contacts.html)
 - `smart-habits` (e.g. tips.html)
-- `sortSelect` (e.g. photos.html)
 - `specialty-group` (e.g. dining.html)
-- `statsGridWrap` (e.g. rooms.html)
 - `task-day-of-arrival` (e.g. operations.html)
 - `task-luggage-tags` (e.g. operations.html)
 - `task-online-checkin` (e.g. operations.html)
 - `task-passports-photos` (e.g. operations.html)
 - `task-payment-insurance` (e.g. operations.html)
-- `todayFocusSection` (e.g. rooms.html)
 - `todayFocusTitle` (e.g. rooms.html)
-- `toggleCategoryBrowse` (e.g. decks.html)
 - `urgent` (e.g. contacts.html)
 - `urgent-title` (e.g. contacts.html)
 - `venue-cafe` (e.g. dining.html)
@@ -149,80 +72,13 @@ Unsuppressed page-scoped issues: **0**
 - `venue-izumi` (e.g. dining.html)
 - `venue-main-dining` (e.g. dining.html)
 - `venue-windjammer` (e.g. dining.html)
-- `zoomLevel` (e.g. decks.html)
 
-## IDs referenced in JS but not found in HTML (71)
-- `.card` (e.g. js/modules/itinerary.js)
-- `.ship-sil` (e.g. js/modules/itinerary.js)
-- `#animToggle` (e.g. js/modules/itinerary.js)
-- `#backToTop` (e.g. js/modules/itinerary.js)
-- `#closeDrawerBtn` (e.g. js/modules/itinerary.js)
-- `#confetti` (e.g. js/modules/itinerary.js)
-- `#drawer` (e.g. js/modules/itinerary.js)
-- `#drawerBackdrop` (e.g. js/modules/itinerary.js)
-- `#live` (e.g. js/modules/itinerary.js)
-- `#menuBtn` (e.g. js/modules/itinerary.js)
-- `#moreBtn` (e.g. js/modules/itinerary.js)
-- `#nextDayBtn` (e.g. js/modules/itinerary.js)
-- `#ocean` (e.g. js/modules/itinerary.js)
-- `#prevDayBtn` (e.g. js/modules/itinerary.js)
-- `#resetBtn` (e.g. js/modules/itinerary.js)
-- `#sailaway` (e.g. js/modules/itinerary.js)
-- `#sailPill` (e.g. js/modules/itinerary.js)
-- `#timeline` (e.g. js/modules/itinerary.js)
-- `#toast` (e.g. js/modules/itinerary.js)
-- `#todayBtn` (e.g. js/modules/itinerary.js)
-- `backToTop` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
-- `cacheText` (e.g. js/index-dashboard.js)
-- `closeDrawerBtn` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
-- `copyResBtn` (e.g. js/index-dashboard.js)
-- `copySailInfoBtn` (e.g. js/index-dashboard.js)
-- `copySnapshotBtn2` (e.g. js/index-dashboard.js)
-- `countKicker` (e.g. js/index-dashboard.js)
-- `dayContent` (e.g. js/modules/plan.js)
-- `dayNav` (e.g. js/modules/plan.js)
-- `daysNum` (e.g. js/index-dashboard.js)
-- `deckCount` (e.g. js/modules/decks.js)
-- `deckGrid` (e.g. js/modules/decks.js)
-- `deckNext` (e.g. js/modules/decks.js)
-- `deckPrev` (e.g. js/modules/decks.js)
-- `deckSearchClear` (e.g. js/modules/decks.js)
-- `deckStage` (e.g. js/modules/decks.js)
-- `deckStatus` (e.g. js/modules/decks.js)
-- `departTime` (e.g. js/index-dashboard.js)
-- `drawerBackdrop` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
-- `drawerStatus` (e.g. js/index-dashboard.js)
-- `fitBtn` (e.g. js/modules/decks.js)
-- `guestViewBtn` (e.g. js/modules/rooms.js)
-- `itList` (e.g. js/index-dashboard.js)
-- `lastUpdatedText` (e.g. js/index-dashboard.js)
-- `manifestContainer` (e.g. js/modules/rooms.js)
-- `menuBtn` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
-- `modalClose` (e.g. js/modules/decks.js)
-- `modalDeckNumber` (e.g. js/modules/decks.js)
-- `modalDeckSub` (e.g. js/modules/decks.js)
-- `modalDeckTitle` (e.g. js/modules/decks.js)
-- `moreBtnMobile` (e.g. js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
+## IDs referenced in JS but not found in HTML (5)
+- `deckPlanCanvas` (e.g. js/pages/decks.js)
+- `deckPlanStage` (e.g. js/pages/decks.js)
 - `moreDrawer` (e.g. js/shared-layout.js)
 - `moreDrawerBackdrop` (e.g. js/shared-layout.js)
-- `netDot` (e.g. js/index-dashboard.js)
-- `netText` (e.g. js/index-dashboard.js)
-- `note` (e.g. js/modules/plan.js)
-- `ocean` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js, js/modules/plan.js)
-- `portsNum` (e.g. js/index-dashboard.js)
-- `primaryRoom` (e.g. js/index-dashboard.js)
-- `resetLocalBtn` (e.g. js/index-dashboard.js, js/modules/operations.js)
-- `roomsList` (e.g. js/index-dashboard.js)
-- `roomsNum` (e.g. js/index-dashboard.js)
-- `roomViewBtn` (e.g. js/modules/rooms.js)
-- `snapMeta` (e.g. js/index-dashboard.js)
-- `toast` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
-- `toastText` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/operations.js)
-- `today-card` (e.g. js/shared-layout.js)
-- `zoomDisplay` (e.g. js/modules/decks.js)
-- `zoomInBtn` (e.g. js/modules/decks.js)
-- `zoomOutBtn` (e.g. js/modules/decks.js)
-- `zoomResetBtn` (e.g. js/modules/decks.js)
+- `today-card` (e.g. js/pages/itinerary.js, js/shared-layout.js)
 
 ## IDs referenced in CSS but not found in HTML (4)
 - `ocean` (e.g. css/index-dashboard.css)
@@ -230,7 +86,7 @@ Unsuppressed page-scoped issues: **0**
 - `zoomIn` (e.g. css/features/_shared.css)
 - `zoomOut` (e.g. css/features/_shared.css)
 
-## Classes in HTML but unused by CSS/JS (101)
+## Classes in HTML but unused by CSS/JS (92)
 - `contact-context__title` (e.g. contacts.html)
 - `contact-section--emergency` (e.g. contacts.html)
 - `dining-context__title` (e.g. dining.html)
@@ -242,15 +98,12 @@ Unsuppressed page-scoped issues: **0**
 - `fa-calendar-day` (e.g. plan.html, ports.html)
 - `fa-calendar-plus` (e.g. itinerary.html)
 - `fa-chart-column` (e.g. rooms.html)
-- `fa-check` (e.g. contacts.html)
 - `fa-check-circle` (e.g. rooms.html)
-- `fa-chevron-down` (e.g. decks.html, index.html, rooms.html)
-- `fa-chevron-left` (e.g. decks.html, photos.html, rooms.html)
-- `fa-chevron-right` (e.g. decks.html, index.html, photos.html, rooms.html)
+- `fa-chevron-left` (e.g. decks.html, photos.html)
+- `fa-chevron-right` (e.g. decks.html, photos.html)
 - `fa-circle-check` (e.g. index.html)
 - `fa-clipboard-check` (e.g. index.html, operations.html, plan.html)
 - `fa-clock` (e.g. itinerary.html)
-- `fa-columns` (e.g. rooms.html)
 - `fa-compass` (e.g. decks.html, index.html, plan.html)
 - `fa-concierge-bell` (e.g. rooms.html)
 - `fa-copy` (e.g. contacts.html)
@@ -265,7 +118,6 @@ Unsuppressed page-scoped issues: **0**
 - `fa-expand` (e.g. rooms.html)
 - `fa-file-pdf` (e.g. decks.html, itinerary.html)
 - `fa-filter` (e.g. photos.html, rooms.html)
-- `fa-folder` (e.g. photos.html)
 - `fa-hand-paper` (e.g. decks.html)
 - `fa-hashtag` (e.g. photos.html)
 - `fa-images` (e.g. photos.html)
@@ -277,7 +129,6 @@ Unsuppressed page-scoped issues: **0**
 - `fa-map` (e.g. photos.html, plan.html, rooms.html)
 - `fa-map-location-dot` (e.g. plan.html, ports.html)
 - `fa-map-marked-alt` (e.g. rooms.html)
-- `fa-map-marker-alt` (e.g. rooms.html)
 - `fa-map-pin` (e.g. itinerary.html)
 - `fa-masks-theater` (e.g. decks.html)
 - `fa-minus` (e.g. decks.html)
@@ -307,7 +158,6 @@ Unsuppressed page-scoped issues: **0**
 - `fa-utensils` (e.g. dining.html, index.html, itinerary.html, photos.html, plan.html)
 - `fa-water` (e.g. itinerary.html, rooms.html)
 - `fa-wifi` (e.g. offline.html, plan.html)
-- `fa-wind` (e.g. rooms.html)
 - `fa-wine-glass` (e.g. dining.html)
 - `fa-xmark` (e.g. photos.html)
 - `far` (e.g. itinerary.html)
@@ -315,9 +165,6 @@ Unsuppressed page-scoped issues: **0**
 - `focus-grid` (e.g. rooms.html)
 - `itinerary-actions` (e.g. itinerary.html)
 - `link-button` (e.g. offline.html)
-- `modal-continue-room` (e.g. rooms.html)
-- `modal-next-room` (e.g. rooms.html)
-- `modal-prev-room` (e.g. rooms.html)
 - `plan-band__content` (e.g. plan.html)
 - `port-band` (e.g. ports.html)
 - `port-band__content` (e.g. ports.html)
@@ -333,31 +180,56 @@ Unsuppressed page-scoped issues: **0**
 - `tip-checkbox-wrap` (e.g. tips.html)
 - `tip-policy` (e.g. tips.html)
 
-## Classes referenced in JS but not found in HTML (22)
-- `deck-card--context-pick` (e.g. js/modules/dining.js)
-- `deck-viewer` (e.g. js/modules/decks.js)
-- `dining-nav__filters` (e.g. js/modules/dining.js)
-- `is-complete` (e.g. js/modules/operations.js, js/modules/tips.js)
-- `is-live` (e.g. js/modules/itinerary.js)
-- `is-loading` (e.g. js/modules/dining.js)
+## Classes referenced in JS but not found in HTML (47)
+- `badge--today` (e.g. js/pages/itinerary.js)
+- `compare-toggle-btn` (e.g. js/pages/rooms.js)
+- `contact-context--port` (e.g. js/pages/contacts.js)
+- `contact-section--priority` (e.g. js/pages/contacts.js)
+- `copy-success` (e.g. js/pages/contacts.js)
+- `deck-card--context-pick` (e.g. js/pages/dining.js)
+- `deck-focuschip` (e.g. js/pages/decks.js)
+- `deck-hotspot` (e.g. js/pages/decks.js)
+- `deck-plan-legend-item` (e.g. js/pages/decks.js)
+- `deck-quickbtn` (e.g. js/pages/decks.js)
+- `env-depth-0` (e.g. js/pages/decks.js)
+- `fa-chevron-up` (e.g. js/pages/rooms.js)
+- `filter-btn--active` (e.g. js/pages/rooms.js)
+- `gallery-list-view` (e.g. js/pages/photos.js)
+- `img-shimmer` (e.g. js/pages/photos.js)
+- `is-collapsed` (e.g. js/pages/index.js, js/pages/itinerary.js)
+- `is-complete` (e.g. js/pages/operations.js, js/pages/tips.js)
+- `is-cruise-mode` (e.g. js/pages/index.js)
+- `is-embark-glow` (e.g. js/pages/decks.js)
+- `is-loading` (e.g. js/pages/dining.js)
 - `is-mobile-open` (e.g. js/shared-layout.js)
-- `is-open` (e.g. js/shared-layout.js)
+- `is-open` (e.g. js/pages/decks.js, js/pages/rooms.js, js/shared-layout.js)
+- `is-port` (e.g. js/pages/itinerary.js)
+- `is-ready` (e.g. js/pages/index.js)
+- `is-reveal-pending` (e.g. js/pages/rooms.js)
 - `is-revealed` (e.g. js/shared-layout.js)
-- `is-today` (e.g. js/modules/itinerary.js)
+- `is-sea` (e.g. js/pages/itinerary.js)
+- `is-swapping` (e.g. js/pages/decks.js)
+- `is-transitioning` (e.g. js/pages/decks.js)
+- `is-visible` (e.g. js/pages/decks.js, js/pages/index.js)
+- `itinerary-day--next` (e.g. js/pages/itinerary.js)
+- `itinerary-day--today` (e.g. js/pages/itinerary.js)
+- `itinerary-day--today-pulse` (e.g. js/pages/itinerary.js)
+- `itinerary-day--tomorrow` (e.g. js/pages/itinerary.js)
+- `mobile-collapse-toggle` (e.g. js/pages/index.js)
+- `modal-continue-room` (e.g. js/pages/rooms.js)
+- `modal-next-room` (e.g. js/pages/rooms.js)
+- `modal-prev-room` (e.g. js/pages/rooms.js)
 - `more-drawer-open` (e.g. js/shared-layout.js)
-- `no-anim` (e.g. js/modules/itinerary.js)
-- `offline` (e.g. js/index-dashboard.js)
-- `on` (e.g. js/modules/itinerary.js)
-- `open` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/itinerary.js, js/modules/operations.js)
+- `photos-lightbox-open` (e.g. js/pages/photos.js)
+- `port` (e.g. js/pages/contacts.js)
 - `rccl-modal--open` (e.g. js/shared-layout.js)
-- `reveal` (e.g. js/index-dashboard.js)
-- `room-selected` (e.g. js/modules/decks.js)
-- `search-status-loading` (e.g. js/modules/tips.js)
-- `ship-sil` (e.g. js/index-dashboard.js, js/modules/operations.js)
-- `show` (e.g. js/index-dashboard.js, js/modules/contacts.js, js/modules/dining.js, js/modules/itinerary.js, js/modules/operations.js)
-- `visible` (e.g. js/index-dashboard.js, js/modules/itinerary.js)
+- `room-card__status-bar` (e.g. js/pages/rooms.js)
+- `room-card__status-line` (e.g. js/pages/rooms.js)
+- `room-card--person-match` (e.g. js/pages/rooms.js)
+- `room-modal--open` (e.g. js/pages/rooms.js)
+- `search-status-loading` (e.g. js/pages/operations.js, js/pages/tips.js)
 
-## Classes referenced in CSS but not found in HTML (519)
+## Classes referenced in CSS but not found in HTML (564)
 - `absolute` (e.g. css/utilities.css)
 - `accent` (e.g. css/index-dashboard.css)
 - `action-buttons` (e.g. css/mobile-first.css)
@@ -380,6 +252,7 @@ Unsuppressed page-scoped issues: **0**
 - `avatar` (e.g. css/features/_shared.css)
 - `back-to-top` (e.g. css/index-dashboard.css)
 - `badge--info` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
+- `badge--today` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
 - `badge--warning` (e.g. css/features/itinerary.css, css/pages/itinerary.css)
 - `bg-accent` (e.g. css/utilities.css)
 - `bg-danger` (e.g. css/utilities.css)
@@ -442,6 +315,8 @@ Unsuppressed page-scoped issues: **0**
 - `comment-card` (e.g. css/components.css, css/features/_shared.css)
 - `comment-item` (e.g. css/features/_shared.css)
 - `compare-toggle-btn` (e.g. css/features/rooms.css, css/pages/rooms.css)
+- `comparison-column` (e.g. css/features/rooms.css, css/pages/rooms.css)
+- `comparison-list` (e.g. css/features/rooms.css, css/pages/rooms.css)
 - `contact-context--port` (e.g. css/features/contacts.css, css/pages/contacts.css)
 - `contact-section--priority` (e.g. css/features/contacts.css, css/pages/contacts.css)
 - `container-fluid` (e.g. css/utilities.css)
@@ -467,9 +342,22 @@ Unsuppressed page-scoped issues: **0**
 - `deck-card--urgent` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
 - `deck-card--wellness` (e.g. css/features/decks.css, css/pages/decks.css)
 - `deck-container` (e.g. css/decks.css)
+- `deck-focuschip` (e.g. css/features/decks.css, css/pages/decks.css)
 - `deck-hero__accent` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-hotspot` (e.g. css/features/decks.css, css/pages/decks.css)
 - `deck-link-pill` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
 - `deck-page` (e.g. css/decks.css)
+- `deck-plan-canvas` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-plan-hotspots` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-plan-legend` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-plan-legend-item` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-plan-media` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-plan-skeleton` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-plan-stage` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-quickbtn` (e.g. css/features/decks.css, css/pages/decks.css, css/shared-layout/theming.css)
+- `deck-quickbtn__num` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-quickbtn__sub` (e.g. css/features/decks.css, css/pages/decks.css)
+- `deck-title` (e.g. css/features/decks.css, css/pages/decks.css)
 - `deck-tooltip` (e.g. css/decks.css)
 - `deck-viewer` (e.g. css/decks.css)
 - `description` (e.g. css/mobile-first.css)
@@ -490,6 +378,14 @@ Unsuppressed page-scoped issues: **0**
 - `env-depth-2` (e.g. css/pages/decks.css)
 - `env-depth-3` (e.g. css/pages/decks.css)
 - `env-depth-4` (e.g. css/pages/decks.css)
+- `family-finder__quick-btn` (e.g. css/features/rooms.css, css/pages/rooms.css)
+- `family-finder__quick-btn--favorite` (e.g. css/features/rooms.css, css/pages/rooms.css)
+- `featured-card` (e.g. css/features/photos.css, css/pages/photos.css, css/shared-layout.css, css/shared-layout/theming.css)
+- `featured-card__chips` (e.g. css/features/photos.css, css/pages/photos.css)
+- `featured-card__img` (e.g. css/features/photos.css, css/pages/photos.css, css/shared-layout.css)
+- `featured-card__meta` (e.g. css/features/photos.css, css/pages/photos.css)
+- `featured-card__name` (e.g. css/features/photos.css, css/pages/photos.css)
+- `featured-card__overlay` (e.g. css/features/photos.css, css/pages/photos.css)
 - `filter-btn--active` (e.g. css/features/rooms.css, css/pages/rooms.css)
 - `fixed` (e.g. css/utilities.css)
 - `flex` (e.g. css/utilities.css)
@@ -534,60 +430,36 @@ Unsuppressed page-scoped issues: **0**
 - `footer-social-row` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
 - `footer-subheading` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
 - `footer-tagline` (e.g. css/shared-layout.css, css/shared-layout/core.css)
-- `gallery-item` (e.g. css/features/_shared.css)
-- `gallery-list-view` (e.g. css/features/photos.css, css/pages/photos.css)
-- `gap-lg` (e.g. css/utilities.css)
-- `gap-md` (e.g. css/utilities.css)
-- `gap-sm` (e.g. css/utilities.css)
-- `gap-xl` (e.g. css/utilities.css)
-- `gap-xs` (e.g. css/utilities.css)
-- `grid` (e.g. css/index-dashboard.css, css/utilities.css)
-- `grid-cols-1` (e.g. css/utilities.css)
-- `grid-cols-2` (e.g. css/utilities.css)
-- `grid-cols-3` (e.g. css/utilities.css)
-- `grid-cols-4` (e.g. css/utilities.css)
-- `h-auto` (e.g. css/utilities.css)
-- `h-full` (e.g. css/utilities.css)
-- `h-lg` (e.g. css/utilities.css)
-- `h-md` (e.g. css/utilities.css)
-- `h-screen` (e.g. css/utilities.css)
-- `h-sm` (e.g. css/utilities.css)
-- `h-xl` (e.g. css/utilities.css)
-- `h-xs` (e.g. css/utilities.css)
-- `hdr-iconbtn` (e.g. css/index-dashboard.css)
-- `hdr-pill` (e.g. css/index-dashboard.css)
-- `header` (e.g. css/shared-layout/theming.css)
-- `header-actions` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css, css/shared-layout/theming.css)
-- ... 319 more
+- ... 364 more
 
 ## Page Entrypoint Mapping (HTML -> JS)
 - contacts.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/contacts.js
+  - Inline script blocks: 0
 - deck-debug.html
   - JS entrypoints: js/global.js
   - Inline script blocks: 0
 - decks.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/decks.js
+  - Inline script blocks: 0
 - dining.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/dining.js
+  - Inline script blocks: 0
 - index.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/index.js
+  - Inline script blocks: 0
 - itinerary.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/itinerary.js
+  - Inline script blocks: 0
 - offline.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/offline.js
+  - Inline script blocks: 0
 - operations.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/operations.js
+  - Inline script blocks: 0
 - photos.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/photos.js
+  - Inline script blocks: 0
 - plan.html
   - JS entrypoints: js/shared-layout.js
   - Inline script blocks: 0
@@ -595,11 +467,11 @@ Unsuppressed page-scoped issues: **0**
   - JS entrypoints: js/shared-layout.js
   - Inline script blocks: 0
 - rooms.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/rooms.js
+  - Inline script blocks: 0
 - tips.html
-  - JS entrypoints: js/shared-layout.js
-  - Inline script blocks: 1
+  - JS entrypoints: js/shared-layout.js, js/pages/tips.js
+  - Inline script blocks: 0
 - tools/_archive/pages/dashboard.html
   - JS entrypoints: (none)
   - Inline script blocks: 1
@@ -609,7 +481,7 @@ Unsuppressed page-scoped issues: **0**
 
 ## Page-Scoped JS Selector Mismatches
 ### contacts.html
-- DOM: 21 ids, 54 classes
+- DOM: 21 ids, 53 classes
 - JS refs (entrypoints + inline): 6 ids, 7 classes
 - Missing IDs: 0
 - Missing classes: 1
@@ -626,23 +498,24 @@ Unsuppressed page-scoped issues: **0**
 - Unsuppressed missing classes: 0
 
 ### decks.html
-- DOM: 26 ids, 96 classes
+- DOM: 24 ids, 73 classes
 - JS refs (entrypoints + inline): 18 ids, 15 classes
-- Missing IDs: 0
+- Missing IDs: 2
 - Missing classes: 0
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
+- Missing ID examples: `deckPlanCanvas`, `deckPlanStage`
 
 ### dining.html
 - DOM: 26 ids, 66 classes
-- JS refs (entrypoints + inline): 12 ids, 6 classes
+- JS refs (entrypoints + inline): 11 ids, 6 classes
 - Missing IDs: 0
 - Missing classes: 0
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
 
 ### index.html
-- DOM: 12 ids, 57 classes
+- DOM: 12 ids, 55 classes
 - JS refs (entrypoints + inline): 4 ids, 10 classes
 - Missing IDs: 0
 - Missing classes: 0
@@ -650,7 +523,7 @@ Unsuppressed page-scoped issues: **0**
 - Unsuppressed missing classes: 0
 
 ### itinerary.html
-- DOM: 15 ids, 76 classes
+- DOM: 15 ids, 75 classes
 - JS refs (entrypoints + inline): 8 ids, 13 classes
 - Missing IDs: 1
 - Missing classes: 0
@@ -675,7 +548,7 @@ Unsuppressed page-scoped issues: **0**
 - Unsuppressed missing classes: 0
 
 ### photos.html
-- DOM: 26 ids, 89 classes
+- DOM: 26 ids, 70 classes
 - JS refs (entrypoints + inline): 24 ids, 7 classes
 - Missing IDs: 0
 - Missing classes: 0
@@ -699,13 +572,13 @@ Unsuppressed page-scoped issues: **0**
 - Unsuppressed missing classes: 0
 
 ### rooms.html
-- DOM: 39 ids, 164 classes
+- DOM: 39 ids, 142 classes
 - JS refs (entrypoints + inline): 28 ids, 31 classes
 - Missing IDs: 0
-- Missing classes: 1
+- Missing classes: 4
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
-- Missing class examples: `fa-chevron-up`
+- Missing class examples: `fa-chevron-up`, `modal-continue-room`, `modal-next-room`, `modal-prev-room`
 
 ### tips.html
 - DOM: 21 ids, 41 classes
