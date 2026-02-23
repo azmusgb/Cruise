@@ -766,7 +766,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setUploadStatus("Upload complete. Photo added to the gallery.", "success");
       } catch (_error) {
         setUploadStatus(
-          "Upload API unavailable. Start the app with `npm run start:server`.",
+          "Upload API unavailable. Start the app with `npm start`.",
           "error",
         );
       } finally {
