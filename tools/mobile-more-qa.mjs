@@ -14,6 +14,7 @@ const caseThresholds = new Map([
   ['itinerary-today-iphone.png', 0.02],
 ]);
 const updateBaseline = process.argv.includes('--update-baseline');
+const fixedTime = process.env.QA_FIXED_TIME || '2026-02-20T15:00:00.000Z';
 
 const snapshotCases = [
   {
@@ -116,8 +117,36 @@ async function runCase(browser, testCase) {
     ...devices['iPhone 13'],
     viewport: { width: 390, height: 844 },
   });
+  await context.addInitScript(({ nowIso }) => {
+    const fixedNow = new Date(nowIso).valueOf();
+    const NativeDate = Date;
+    class FixedDate extends NativeDate {
+      constructor(...args) {
+        if (args.length === 0) {
+          super(fixedNow);
+          return;
+        }
+        super(...args);
+      }
+      static now() {
+        return fixedNow;
+      }
+    }
+    FixedDate.UTC = NativeDate.UTC;
+    FixedDate.parse = NativeDate.parse;
+    window.Date = FixedDate;
+  }, { nowIso: fixedTime });
   const page = await context.newPage();
   await page.goto(pageUrl, { waitUntil: 'load' });
+  try {
+    await page.waitForFunction(
+      () => !document.fonts || document.fonts.status === 'loaded',
+      { timeout: 5000 },
+    );
+  } catch (_error) {
+    // Continue if font readiness cannot be observed in this browser context.
+  }
+  await page.waitForTimeout(120);
 
   if (typeof testCase.setup === 'function') {
     await testCase.setup(page);

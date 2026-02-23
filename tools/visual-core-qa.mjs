@@ -12,6 +12,7 @@ const currentDir = path.join(root, "reports", "visual-core");
 const diffDir = path.join(root, "reports", "visual-core-diff");
 const updateBaseline = process.argv.includes("--update-baseline");
 const threshold = Number(process.env.QA_VISUAL_DIFF_THRESHOLD || 0.03);
+const fixedTime = process.env.QA_FIXED_TIME || "2026-02-20T15:00:00.000Z";
 
 const cases = [
   { name: "index-desktop.png", file: "index.html", device: null },
@@ -66,6 +67,25 @@ try {
         ? { ...devices[c.device], viewport: { width: 390, height: 844 } }
         : { viewport: { width: 1440, height: 960 } },
     );
+    await ctx.addInitScript(({ nowIso }) => {
+      const fixedNow = new Date(nowIso).valueOf();
+      const NativeDate = Date;
+      class FixedDate extends NativeDate {
+        constructor(...args) {
+          if (args.length === 0) {
+            super(fixedNow);
+            return;
+          }
+          super(...args);
+        }
+        static now() {
+          return fixedNow;
+        }
+      }
+      FixedDate.UTC = NativeDate.UTC;
+      FixedDate.parse = NativeDate.parse;
+      window.Date = FixedDate;
+    }, { nowIso: fixedTime });
     const page = await ctx.newPage();
     const [file, hash] = c.file.split("#");
     const url = `${pathToFileURL(path.join(root, file)).toString()}${hash ? `#${hash}` : ""}`;
@@ -77,6 +97,14 @@ try {
       );
     } catch (_error) {
       // Continue even if a late image never settles.
+    }
+    try {
+      await page.waitForFunction(
+        () => !document.fonts || document.fonts.status === "loaded",
+        { timeout: 5000 },
+      );
+    } catch (_error) {
+      // Continue even if font readiness cannot be observed.
     }
     await page.waitForTimeout(900);
     await page.addStyleTag({
