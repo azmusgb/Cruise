@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const countdown = document.getElementById("countdown");
   const phaseBanner = document.getElementById("phaseBanner");
   const statusStrip = document.querySelector(".hero-status-strip");
-  const statusStripLink = document.querySelector(".hero-status-strip__link");
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -55,18 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (statusStrip) {
       statusStrip.classList.toggle("is-complete", isComplete);
     }
-    if (!statusStripLink) return;
-
-    if (isComplete) {
-      statusStripLink.setAttribute("href", "photos.html");
-      statusStripLink.innerHTML =
-        '<i class="fas fa-camera-retro" aria-hidden="true"></i> Open memories';
-      return;
-    }
-
-    statusStripLink.setAttribute("href", "itinerary.html");
-    statusStripLink.innerHTML =
-      '<i class="fas fa-route" aria-hidden="true"></i> Review itinerary';
   }
 
   function createCountdownUnit(value, label) {

@@ -2210,6 +2210,14 @@
       return `
         <footer class="app-footer--minimal app-footer--rccl-site" role="contentinfo">
           <div class="footer-container">
+            <section class="footer-intro" aria-label="Footer intro">
+              <p class="footer-kicker">Royal Caribbean</p>
+              <h2 class="footer-title">Plan better. Sail smoother.</h2>
+              <p class="footer-description">
+                Trip-ready links, updates, and brand resources in one clean place.
+              </p>
+            </section>
+
             <div class="footer-social-row" aria-label="Social links">
               <a href="https://facebook.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
               <a href="https://instagram.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
