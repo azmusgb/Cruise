@@ -270,6 +270,24 @@
     6: ["Room 6650", "Midship Elevators"],
   };
 
+  const quickRailLabelMap = {
+    0: "Overview",
+    15: "Sports",
+    14: "Sky",
+    13: "Adventure",
+    12: "Pool",
+    11: "Fitness",
+    10: "Cabins",
+    9: "Midship",
+    8: "Stateroom",
+    7: "Transit",
+    6: "Stateroom",
+    5: "Promenade",
+    4: "Dining",
+    3: "Lobby",
+    2: "Medical",
+  };
+
   // --- STATE ---
   const state = {
     filter: "all",
@@ -311,7 +329,7 @@
         (d) => `
           <button class="deck-quickbtn" data-deck="${d.number}" aria-label="Open ${d.name}">
             <span class="deck-quickbtn__num">${d.number === 0 ? "ALL" : `D${d.number}`}</span>
-            <span class="deck-quickbtn__sub">${d.subtitle}</span>
+            <span class="deck-quickbtn__sub">${quickRailLabelMap[d.number] || d.subtitle}</span>
           </button>
         `,
       )
