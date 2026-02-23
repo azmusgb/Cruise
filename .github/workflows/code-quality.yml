@@ -1,67 +1,64 @@
-name: 🧠 Code Quality & AI Reviewer
+name: Code Quality
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: ["main"]
     paths:
       - "**/*.js"
       - "**/*.css"
       - "**/*.html"
+      - "tools/**/*.mjs"
       - "eslint.config.js"
       - ".prettierrc"
       - "package.json"
       - "package-lock.json"
+      - ".github/workflows/code-quality.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: code-quality-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  lint:
-    name: ✅ Lint & Format Check
+  lint-and-qa:
+    name: Lint + Structural QA
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - name: 📥 Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🔧 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: "20"
           cache: npm
 
-      - name: 📦 Install Dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: 🧠 ESLint (check)
+      - name: ESLint check
         run: npm run lint:js:check
 
-      - name: 🧪 HTML integrity
+      - name: Stylelint check
+        run: npm run lint:css:check
+
+      - name: Prettier check
+        run: npm run format
+
+      - name: HTML integrity
         run: npm run qa:html
 
-      - name: 🧭 Navigation regression
+      - name: Navigation regression
         run: npm run qa:nav
 
-      - name: ♿ A11y structure checks
+      - name: A11y structure checks
         run: npm run qa:a11y:structure
 
-      - name: 🧪 Core UX matrix
+      - name: Core UX matrix
         run: npm run qa:core-matrix
-
-  ai_review:
-    name: 🤖 GPT-4 AI Review
-    runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository && secrets.OPENAI_API_KEY != '' }}
-
-    steps:
-      - name: 📥 Checkout PR code
-        uses: actions/checkout@v4
-
-      - name: 🧠 Install GPT-Review CLI
-        run: |
-          curl -s https://raw.githubusercontent.com/kuchin/gpt-review/main/install.sh | bash
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: 🤖 Run GPT Review
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gpt-review --openai-api-key=${{ secrets.OPENAI_API_KEY }} --pr=${{ github.event.pull_request.number }}
