@@ -149,7 +149,7 @@
     )
       return;
 
-    const cssHref = "css/shared-layout.entry.css?v=1";
+    const cssHref = "css/shared-layout.entry.css?v=2";
     const linkEl = document.createElement("link");
     linkEl.id = stylesheetId;
     linkEl.rel = "stylesheet";
