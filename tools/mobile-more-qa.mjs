@@ -20,6 +20,7 @@ const snapshotCases = [
   {
     name: 'more-drawer-iphone.png',
     page: 'index.html',
+    clip: { x: 24, y: 0, width: 366, height: 844 },
     setup: async (page) => {
       await page.waitForTimeout(400);
       await page.evaluate(() => window.scrollTo(0, 900));
@@ -55,6 +56,13 @@ const snapshotCases = [
     page: 'itinerary.html#today',
     setup: async (page) => {
       await page.waitForSelector('#today-card', { state: 'visible', timeout: 5000 });
+      await page.evaluate(() => {
+        const target = document.getElementById('today-card');
+        if (target) {
+          target.scrollIntoView({ block: 'start', inline: 'nearest' });
+        }
+      });
+      await page.waitForTimeout(220);
       await page.waitForTimeout(450);
       const todayBadgeExists = await page.locator('#today-card .badge--today').count();
       if (!todayBadgeExists) {
@@ -165,7 +173,10 @@ async function runCase(browser, testCase) {
   });
   await page.waitForTimeout(60);
 
-  await page.screenshot({ path: currentSnapshotPath, fullPage: false });
+  const screenshotOptions = testCase.clip
+    ? { path: currentSnapshotPath, clip: testCase.clip }
+    : { path: currentSnapshotPath, fullPage: false };
+  await page.screenshot(screenshotOptions);
   console.log(`Saved snapshot: ${path.relative(rootDir, currentSnapshotPath)}`);
 
   if (updateBaseline) {

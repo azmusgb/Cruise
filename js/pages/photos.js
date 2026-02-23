@@ -425,20 +425,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     featuredRail.innerHTML = picks
       .map((photo) => {
-        const chips = [
-          `<span class="mini-chip"><i class="fas fa-folder"></i> ${photo.category}</span>`,
-          deckLabel(photo.deck)
-            ? `<span class="mini-chip"><i class="fas fa-layer-group"></i> ${deckLabel(photo.deck)}</span>`
-            : "",
-        ]
-          .filter(Boolean)
-          .join("");
+        const chips = `<span class="mini-chip"><i class="fas fa-folder"></i> ${photo.category}</span>`;
+        const featuredTitle =
+          photo.title.length > 34 ? `${photo.title.slice(0, 34).trim()}...` : photo.title;
         return `
               <article class="featured-card" role="listitem" tabindex="0" data-photo-id="${photo.id}">
                 <img class="featured-card__img" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
                 <div class="featured-card__overlay" aria-hidden="true"></div>
                 <div class="featured-card__meta">
-                  <p class="featured-card__name">${photo.title}</p>
+                  <p class="featured-card__name">${featuredTitle}</p>
                   <div class="featured-card__chips">${chips}</div>
                 </div>
               </article>
