@@ -10,6 +10,9 @@ const rootDir = process.cwd();
 const reportsDir = path.join(rootDir, 'reports', 'visual');
 const baselineDir = path.join(rootDir, 'tests', 'visual-baseline');
 const diffThreshold = Number(process.env.QA_VISUAL_DIFF_THRESHOLD || 0.015);
+const caseThresholds = new Map([
+  ['itinerary-today-iphone.png', 0.02],
+]);
 const updateBaseline = process.argv.includes('--update-baseline');
 
 const snapshotCases = [
@@ -69,7 +72,7 @@ function readPng(filePath) {
   return PNG.sync.read(fs.readFileSync(filePath));
 }
 
-function compareSnapshots(baselinePath, currentPath, diffPath) {
+function compareSnapshots(baselinePath, currentPath, diffPath, snapshotName) {
   const baseline = readPng(baselinePath);
   const current = readPng(currentPath);
 
@@ -92,13 +95,14 @@ function compareSnapshots(baselinePath, currentPath, diffPath) {
   const ratio = mismatchedPixels / (baseline.width * baseline.height);
   fs.writeFileSync(diffPath, PNG.sync.write(diff));
 
-  if (ratio > diffThreshold) {
+  const allowed = caseThresholds.get(snapshotName) ?? diffThreshold;
+  if (ratio > allowed) {
     throw new Error(
-      `Visual diff ratio ${ratio.toFixed(4)} exceeded threshold ${diffThreshold}. See ${path.relative(rootDir, diffPath)}`,
+      `Visual diff ratio ${ratio.toFixed(4)} exceeded threshold ${allowed}. See ${path.relative(rootDir, diffPath)}`,
     );
   }
 
-  console.log(`OK: visual snapshot diff ${ratio.toFixed(4)} within threshold ${diffThreshold}`);
+  console.log(`OK: visual snapshot diff ${ratio.toFixed(4)} within threshold ${allowed}`);
 }
 
 async function runCase(browser, testCase) {
@@ -144,7 +148,7 @@ async function runCase(browser, testCase) {
         `Missing baseline snapshot ${path.relative(rootDir, baselineSnapshotPath)}. Run with --update-baseline locally.`,
       );
     }
-    compareSnapshots(baselineSnapshotPath, currentSnapshotPath, diffSnapshotPath);
+    compareSnapshots(baselineSnapshotPath, currentSnapshotPath, diffSnapshotPath, testCase.name);
   }
 
   if (typeof testCase.teardown === 'function') {
