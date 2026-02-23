@@ -206,6 +206,7 @@ const photoData = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+  const PHOTO_API = "/api/photos";
   const ui = window.CruiseUI;
   const galleryGrid = document.getElementById("photoGrid");
   const galleryList = document.getElementById("photoList");
@@ -305,23 +306,41 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function normalizeSource(source) {
-    return String(source || "official").toLowerCase() === "official"
-      ? "official"
+    return String(source || "official").toLowerCase() === "user"
+      ? "user"
       : "official";
   }
 
-  const normalizedPhotos = photoData
-    .map((photo, idx) => ({
-      id: Number(photo.id) || idx + 1,
+  function normalizePhotoRecord(photo, idx) {
+    const src = String(photo.src || "").trim();
+    if (
+      !src ||
+      (!src.startsWith("images/") &&
+        !src.startsWith("/uploads/") &&
+        !src.startsWith("uploads/"))
+    ) {
+      return null;
+    }
+
+    return {
+      id: String(photo.id || idx + 1),
       title: String(photo.title || "Untitled photo"),
-      src: String(photo.src || ""),
+      src,
       category: normalizeCategory(photo.category),
       deck: canonicalDeck(photo.deck),
       source: normalizeSource(photo.source),
       description: String(photo.description || ""),
       tags: Array.isArray(photo.tags) ? photo.tags : [],
-    }))
-    .filter((photo) => photo.src.startsWith("images/"));
+    };
+  }
+
+  let normalizedPhotos = photoData
+    .map((photo, idx) => normalizePhotoRecord(photo, idx))
+    .filter(Boolean);
+
+  const uploadForm = document.getElementById("photoUploadForm");
+  const uploadSubmit = document.getElementById("photoUploadSubmit");
+  const uploadStatus = document.getElementById("photoUploadStatus");
 
   function updateHeroStats() {
     const categories = new Set(normalizedPhotos.map((photo) => photo.category));
@@ -342,6 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function matchesFilter(photo) {
     if (currentFilter === "all") return true;
     if (currentFilter === "official") return photo.source === "official";
+    if (currentFilter === "user") return photo.source === "user";
     if (currentFilter === "heroes") return photo.tags.includes("hero");
     return photo.category === currentFilter;
   }
@@ -394,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return `
             <span class="meta-tag"><i class="fas fa-folder"></i> ${photo.category}</span>
             ${deck}
-            <span class="meta-tag"><i class="fas fa-crown"></i> ${photo.source}</span>
+            <span class="meta-tag"><i class="fas ${photo.source === "user" ? "fa-user" : "fa-crown"}"></i> ${photo.source}</span>
           `;
   }
 
@@ -457,7 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map(
         (photo, idx) => `
             <article class="photo-card" role="listitem" tabindex="0" data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
-              <span class="source-badge"><i class="fas fa-crown"></i> ${photo.source}</span>
+              <span class="source-badge"><i class="fas ${photo.source === "user" ? "fa-user" : "fa-crown"}"></i> ${photo.source}</span>
               <img class="photo-card__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
               <div class="photo-card__content">
                 <h3 class="photo-card__title">${photo.title}</h3>
@@ -473,7 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map(
         (photo, idx) => `
             <article class="list-item" role="listitem" tabindex="0" data-index="${idx}" data-id="${photo.id}" data-category="${photo.category}">
-              <span class="source-badge"><i class="fas fa-crown"></i> ${photo.source}</span>
+              <span class="source-badge"><i class="fas ${photo.source === "user" ? "fa-user" : "fa-crown"}"></i> ${photo.source}</span>
               <img class="list-item__image" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
               <div class="list-item__content">
                 <h3 class="photo-card__title">${photo.title}</h3>
@@ -554,8 +574,8 @@ document.addEventListener("DOMContentLoaded", () => {
   featuredRail.addEventListener("click", (event) => {
     const card = event.target.closest("[data-photo-id]");
     if (!card) return;
-    const id = Number(card.dataset.photoId);
-    const index = filteredPhotos.findIndex((photo) => photo.id === id);
+    const id = String(card.dataset.photoId || "");
+    const index = filteredPhotos.findIndex((photo) => String(photo.id) === id);
     if (index < 0) return;
     openLightbox(index);
   });
@@ -565,8 +585,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const card = event.target.closest("[data-photo-id]");
     if (!card) return;
     event.preventDefault();
-    const id = Number(card.dataset.photoId);
-    const index = filteredPhotos.findIndex((photo) => photo.id === id);
+    const id = String(card.dataset.photoId || "");
+    const index = filteredPhotos.findIndex((photo) => String(photo.id) === id);
     if (index < 0) return;
     openLightbox(index);
   });
@@ -684,8 +704,82 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "ArrowRight") moveLightbox(1);
   });
 
-  updateHeroStats();
-  sortSelect.value = "name";
-  syncToggleStates();
-  render();
+  function setUploadStatus(message, state = "info") {
+    if (!uploadStatus) return;
+    uploadStatus.textContent = message;
+    uploadStatus.dataset.state = state;
+  }
+
+  async function loadServerPhotos() {
+    try {
+      const response = await fetch(`${PHOTO_API}`);
+      if (!response.ok) return;
+      const payload = await response.json();
+      if (!payload || !Array.isArray(payload.photos)) return;
+      const incoming = payload.photos
+        .map((photo, idx) => normalizePhotoRecord(photo, idx))
+        .filter(Boolean);
+      if (!incoming.length) return;
+
+      const seen = new Set(normalizedPhotos.map((photo) => photo.src));
+      incoming.forEach((photo) => {
+        if (seen.has(photo.src)) return;
+        seen.add(photo.src);
+        normalizedPhotos.unshift(photo);
+      });
+    } catch (_error) {
+      // API not available on static hosts; keep local catalog only.
+    }
+  }
+
+  if (uploadForm) {
+    uploadForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData(uploadForm);
+      if (!formData.get("photo")) {
+        setUploadStatus("Select a photo file first.", "error");
+        return;
+      }
+
+      try {
+        if (uploadSubmit) uploadSubmit.disabled = true;
+        setUploadStatus("Uploading photo...", "info");
+        const response = await fetch(`${PHOTO_API}/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        const payload = await response.json();
+        if (!response.ok || !payload?.ok || !payload.photo) {
+          const message =
+            payload?.message || "Upload failed. Please try again.";
+          setUploadStatus(message, "error");
+          return;
+        }
+
+        const normalized = normalizePhotoRecord(payload.photo, Date.now());
+        if (normalized) {
+          normalizedPhotos.unshift(normalized);
+          updateHeroStats();
+          render();
+        }
+        uploadForm.reset();
+        setUploadStatus("Upload complete. Photo added to the gallery.", "success");
+      } catch (_error) {
+        setUploadStatus(
+          "Upload API unavailable. Start the app with `npm run start:server`.",
+          "error",
+        );
+      } finally {
+        if (uploadSubmit) uploadSubmit.disabled = false;
+      }
+    });
+  }
+
+  (async () => {
+    await loadServerPhotos();
+    updateHeroStats();
+    sortSelect.value = "name";
+    syncToggleStates();
+    render();
+  })();
 });

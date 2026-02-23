@@ -2066,6 +2066,90 @@
         padding-bottom: 0.7rem;
       }
 
+      .app-footer--rccl-site .footer-container {
+        max-width: 980px;
+        padding: 1.55rem 1rem 1.75rem;
+        gap: 0.85rem;
+      }
+
+      .app-footer--rccl-site .footer-kicker {
+        color: rgba(206, 231, 255, 0.94) !important;
+        font-size: 0.72rem;
+        letter-spacing: 0.1em;
+      }
+
+      .app-footer--rccl-site .footer-title {
+        color: #ffffff !important;
+        margin-top: 0.12rem;
+        font-size: clamp(1.22rem, 3.6vw, 1.7rem);
+        line-height: 1.18;
+      }
+
+      .app-footer--rccl-site .footer-description {
+        color: rgba(226, 242, 255, 0.96) !important;
+        max-width: 52ch;
+        margin: 0.32rem auto 0;
+        font-size: 0.92rem;
+        line-height: 1.48;
+      }
+
+      .app-footer--rccl-site .footer-social-row {
+        gap: 0.56rem;
+      }
+
+      .app-footer--rccl-site .footer-social__link {
+        width: 2.12rem;
+        height: 2.12rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.34);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 6px 12px rgba(3, 20, 42, 0.22);
+      }
+
+      .app-footer--rccl-site .footer-country__btn {
+        border-color: rgba(255, 255, 255, 0.4);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.09) 100%);
+        color: #f4fbff;
+      }
+
+      .app-footer--rccl-site .footer-copyright {
+        color: rgba(224, 241, 255, 0.82) !important;
+        font-size: 0.87rem;
+      }
+
+      .app-footer--rccl-site .footer-legal-links {
+        gap: 0.5rem 0.72rem;
+      }
+
+      .app-footer--rccl-site .footer-legal__link {
+        color: #eef8ff !important;
+        font-size: 0.92rem;
+        border: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 0;
+        padding: 0.1rem 0.05rem;
+        background: transparent;
+      }
+
+      .app-footer--rccl-site .footer-legal__link:hover {
+        color: #fff !important;
+        border-bottom-color: rgba(255, 231, 160, 0.86);
+      }
+
+      .app-footer--rccl-site .footer-brands {
+        border-top-color: rgba(255, 255, 255, 0.24);
+        gap: 0.46rem;
+      }
+
+      .app-footer--rccl-site .footer-brand-mark {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: rgba(255, 255, 255, 0.26);
+        color: rgba(236, 248, 255, 0.95);
+        font-size: 0.76rem;
+        letter-spacing: 0.04em;
+        padding: 0.34rem 0.64rem;
+      }
+
       @media (max-width: 1080px) {
         .app-header--rccl-site .header-brand-meta .header-utility__promo {
           display: none;
@@ -2091,6 +2175,43 @@
 
         .app-header--rccl-site .header-brand-meta {
           margin-top: 1px;
+        }
+
+        .app-footer--rccl-site .footer-container {
+          padding: 1.2rem 0.9rem 1.35rem;
+          gap: 0.74rem;
+        }
+
+        .app-footer--rccl-site .footer-description {
+          max-width: 32ch;
+          font-size: 0.88rem;
+        }
+
+        .app-footer--rccl-site .footer-social-row {
+          gap: 0.46rem;
+        }
+
+        .app-footer--rccl-site .footer-social__link {
+          width: 2rem;
+          height: 2rem;
+          border-radius: 11px;
+        }
+
+        .app-footer--rccl-site .footer-country__btn {
+          width: 100%;
+          justify-content: center;
+          min-height: 44px;
+        }
+
+        .app-footer--rccl-site .footer-legal-links {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          text-align: left;
+        }
+
+        .app-footer--rccl-site .footer-brand-mark {
+          font-size: 0.72rem;
+          padding: 0.3rem 0.52rem;
         }
       }
 

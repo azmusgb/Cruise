@@ -19,6 +19,18 @@ You can run this as static files from the repo root, for example:
 python3 -m http.server 8080
 ```
 
+For photo uploads that persist on the server, run:
+
+```bash
+npm run start:server
+```
+
+This starts an Express server with:
+
+- `POST /api/photos/upload` (image upload)
+- `GET /api/photos` (uploaded photo metadata)
+- static file serving from `/uploads/*`
+
 ## GitHub Pages (mobile-friendly deploy)
 
 This app is configured to work from a project subpath (for example `https://<user>.github.io/Cruise/`) using relative PWA paths.
@@ -26,6 +38,8 @@ This app is configured to work from a project subpath (for example `https://<use
 - Enable Pages in repository settings (deploy from branch root).
 - Open `https://<user>.github.io/<repo>/index.html` once online to prime the cache.
 - Then install from mobile browser (`Add to Home Screen`).
+
+Note: GitHub Pages is static hosting. Server-side uploads (`/api/photos/upload`) require running `npm run start:server` on a Node host.
 
 ## Shared deck plans on GitHub Pages
 
