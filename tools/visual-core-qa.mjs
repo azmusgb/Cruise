@@ -90,6 +90,14 @@ try {
     const [file, hash] = c.file.split("#");
     const url = `${pathToFileURL(path.join(root, file)).toString()}${hash ? `#${hash}` : ""}`;
     await page.goto(url, { waitUntil: "load" });
+    if (hash) {
+      await page.evaluate((id) => {
+        const target = document.getElementById(id);
+        if (target) {
+          target.scrollIntoView({ block: "start" });
+        }
+      }, hash);
+    }
     try {
       await page.waitForFunction(
         () => Array.from(document.images).every((img) => img.complete),
@@ -98,6 +106,7 @@ try {
     } catch (_error) {
       // Continue even if a late image never settles.
     }
+    await page.waitForTimeout(140);
     try {
       await page.waitForFunction(
         () => !document.fonts || document.fonts.status === "loaded",
