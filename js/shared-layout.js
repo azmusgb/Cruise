@@ -2031,28 +2031,45 @@
       .app-header--rccl-site .header-brand-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px 8px;
-        margin-top: 4px;
+        align-items: center;
+        gap: 4px 8px;
+        margin-top: 2px;
       }
 
-      .app-header--rccl-site .header-brand-meta .header-utility__crumb {
-        font-size: 0.72rem;
+      .app-header--rccl-site .header-brand-meta .header-utility__mode {
+        margin: 0;
+        min-height: 20px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.67rem;
+        letter-spacing: 0.03em;
+        text-transform: none;
+        font-weight: 800;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.16);
+        color: #e9f5ff;
       }
 
       .app-header--rccl-site .header-brand-meta .header-utility__promo {
-        display: inline-flex;
-        align-items: center;
-        border-radius: 999px;
-        padding: 3px 8px;
-        border: 1px solid rgba(255, 255, 255, 0.34);
-        background: rgba(255, 255, 255, 0.14);
-        color: #deeffd;
-        font-size: 0.72rem;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: rgba(222, 239, 253, 0.9);
+        font-size: 0.73rem;
+        font-weight: 700;
+        line-height: 1.2;
       }
 
       .app-header--rccl-site .header-container {
         padding-top: 0.64rem;
         padding-bottom: 0.7rem;
+      }
+
+      @media (max-width: 1080px) {
+        .app-header--rccl-site .header-brand-meta .header-utility__promo {
+          display: none;
+        }
       }
 
       @media (max-width: 767px) {
@@ -2072,8 +2089,8 @@
           display: none;
         }
 
-        .app-header--rccl-site .header-brand-meta .header-utility__promo {
-          display: none;
+        .app-header--rccl-site .header-brand-meta {
+          margin-top: 1px;
         }
       }
 
@@ -2185,7 +2202,6 @@
                   <span class="header-logo-title">${utils.escapeHtml(DEFAULT_META.brand)}</span>
                   <span class="header-logo-subtitle">${utils.escapeHtml(DEFAULT_META.ship)} · Cruise Companion</span>
                   <div class="header-brand-meta">
-                    <span class="header-utility__crumb">${utils.escapeHtml(DEFAULT_META.ship)}</span>
                     <span class="header-utility__mode" id="navModeBadge">Before Sail</span>
                     <span class="header-utility__promo" id="navContextLine">${utils.escapeHtml(cruiseStatus.label)}</span>
                   </div>
