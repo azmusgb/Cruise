@@ -7,6 +7,11 @@
 
   const DEFAULT_SEARCH_DELAY_MS = 120;
   const DEFAULT_STATUS_TIMEOUT_MS = 2400;
+  const STATUS_TIMEOUT_BY_TYPE = {
+    success: 1800,
+    info: DEFAULT_STATUS_TIMEOUT_MS,
+    error: 3600,
+  };
 
   function ensureGlobalStatusNode() {
     let node = document.getElementById("globalStatusFeedback");
@@ -27,7 +32,7 @@
     target,
     message,
     type = "info",
-    timeoutMs = DEFAULT_STATUS_TIMEOUT_MS,
+    timeoutMs,
   ) {
     const node = target || ensureGlobalStatusNode();
     node.textContent = message;
@@ -43,9 +48,13 @@
       window.clearTimeout(node._statusTimer);
     }
 
+    const resolvedTimeout =
+      typeof timeoutMs === "number"
+        ? timeoutMs
+        : STATUS_TIMEOUT_BY_TYPE[type] || DEFAULT_STATUS_TIMEOUT_MS;
     node._statusTimer = window.setTimeout(() => {
       node.hidden = true;
-    }, timeoutMs);
+    }, resolvedTimeout);
   }
 
   function installSlashFocus(input) {
@@ -69,6 +78,9 @@
 
   function attachClearButton(input, clearButton, onClear) {
     if (!input || !clearButton) return;
+    if (!clearButton.getAttribute("aria-label")) {
+      clearButton.setAttribute("aria-label", "Clear search");
+    }
 
     const syncVisibility = () => {
       clearButton.hidden = !input.value.trim();
@@ -102,6 +114,8 @@
     if (!input || !status || !empty || !Array.isArray(items) || !items.length) {
       return { run: () => 0 };
     }
+    status.setAttribute("aria-live", "polite");
+    empty.setAttribute("role", "status");
 
     const matcher =
       isMatch ||
@@ -146,11 +160,41 @@
     isOpenClass = "is-open",
   }) {
     if (!modal) return;
+    let returnFocusEl = null;
 
     const close = () => {
       modal.setAttribute("aria-hidden", "true");
       modal.classList.remove(isOpenClass);
       document.body.classList.remove("modal-open");
+      if (returnFocusEl && document.contains(returnFocusEl)) {
+        returnFocusEl.focus();
+      }
+    };
+
+    const getFocusable = () =>
+      Array.from(
+        modal.querySelectorAll(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => !el.hasAttribute("hidden"));
+
+    const trapTabKey = (event) => {
+      if (event.key !== "Tab") return;
+      if (modal.getAttribute("aria-hidden") === "true") return;
+      const focusable = getFocusable();
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
     closeSelectors.forEach((selector) => {
@@ -173,6 +217,14 @@
       ) {
         close();
       }
+    });
+
+    document.addEventListener("keydown", trapTabKey);
+
+    modal.querySelectorAll('[data-modal-open]').forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        returnFocusEl = trigger;
+      });
     });
   }
 

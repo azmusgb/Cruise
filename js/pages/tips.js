@@ -16,8 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const totalCountEl = document.getElementById("proMovesTotalCount");
   const STORAGE_KEY = "pro-moves-completed-v1";
   const LEGACY_STORAGE_KEY = "tips-completed-v1";
-  const SEARCH_DELAY_MS = 120;
-  let searchTimer;
 
   if (!input || !status || !empty || items.length === 0) return;
 
@@ -71,25 +69,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (totalCountEl) totalCountEl.textContent = String(total);
   }
 
-  function updateSearch() {
-    const q = input.value.toLowerCase().trim();
-    let shown = 0;
-    const total = items.length;
-    status.classList.add("search-status-loading");
-    status.textContent = "Filtering pro moves...";
-    clearTimeout(searchTimer);
-    searchTimer = window.setTimeout(() => {
-      items.forEach((item) => {
-        const match = !q || item.textContent.toLowerCase().includes(q);
-        item.hidden = !match;
-        if (match) shown += 1;
-      });
-      status.textContent = `Showing ${shown} of ${total} pro moves`;
-      status.classList.remove("search-status-loading");
-      empty.textContent = "No results found.";
-      empty.hidden = shown !== 0;
-    }, SEARCH_DELAY_MS);
-  }
+  const searchModel = ui?.wireSearchModel({
+    input,
+    status,
+    items,
+    empty,
+    clearButton,
+    loadingText: "Filtering pro moves...",
+    emptyText: "No pro moves match this search.",
+    countText: (shown, total) => `Showing ${shown} of ${total} pro moves`,
+  });
 
   const completed = readCompletionSet();
   cardsWithChecks.forEach((card) => {
@@ -114,10 +103,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  input.addEventListener("input", updateSearch);
-  ui?.installSlashFocus(input);
-  ui?.attachClearButton(input, clearButton, updateSearch);
-
   updateCounts();
-  updateSearch();
+  searchModel?.run();
 });

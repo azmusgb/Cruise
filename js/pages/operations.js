@@ -13,8 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const remainingCountEl = document.getElementById("operationsRemainingCount");
   const totalCountEl = document.getElementById("operationsTotalCount");
   const STORAGE_KEY = "operations-completed-v1";
-  const SEARCH_DELAY_MS = 120;
-  let searchTimer;
 
   if (!input || !status || !empty || total === 0) return;
 
@@ -46,24 +44,16 @@ document.addEventListener("DOMContentLoaded", function () {
     if (totalCountEl) totalCountEl.textContent = String(total);
   }
 
-  function updateSearch() {
-    const q = input.value.toLowerCase().trim();
-    let shown = 0;
-    status.classList.add("search-status-loading");
-    status.textContent = "Filtering checklist...";
-    clearTimeout(searchTimer);
-    searchTimer = window.setTimeout(() => {
-      cards.forEach((card) => {
-        const match = !q || card.textContent.toLowerCase().includes(q);
-        card.hidden = !match;
-        if (match) shown += 1;
-      });
-      status.textContent = `Showing ${shown} of ${total} results`;
-      status.classList.remove("search-status-loading");
-      empty.textContent = "No results found.";
-      empty.hidden = shown !== 0;
-    }, SEARCH_DELAY_MS);
-  }
+  const searchModel = ui?.wireSearchModel({
+    input,
+    status,
+    items: cards,
+    empty,
+    clearButton,
+    loadingText: "Filtering checklist...",
+    emptyText: "No checklist items match this search.",
+    countText: (shown, all) => `Showing ${shown} of ${all} results`,
+  });
 
   const completed = readCompletionSet();
   cards.forEach((card) => {
@@ -93,10 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  input.addEventListener("input", updateSearch);
-  ui?.installSlashFocus(input);
-  ui?.attachClearButton(input, clearButton, updateSearch);
-
   updateTaskCounts();
-  updateSearch();
+  searchModel?.run();
 });

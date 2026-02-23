@@ -38,21 +38,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const total = cards.length;
   if (!input || !status || !empty || total === 0) return;
 
-  function update() {
-    const q = input.value.toLowerCase().trim();
-    let shown = 0;
-    cards.forEach((card) => {
-      const match = !q || card.textContent.toLowerCase().includes(q);
-      card.hidden = !match;
-      if (match) shown += 1;
-    });
-    status.textContent = `Showing ${shown} of ${total} results`;
-    empty.textContent = "No results found.";
-    empty.hidden = shown !== 0;
-  }
+  const searchModel = ui?.wireSearchModel({
+    input,
+    status,
+    items: cards,
+    empty,
+    clearButton,
+    loadingText: "Filtering offline tools...",
+    emptyText: "No offline tools match this search.",
+    countText: (shown, all) => `Showing ${shown} of ${all} results`,
+  });
 
-  input.addEventListener("input", update);
-  ui?.installSlashFocus(input);
-  ui?.attachClearButton(input, clearButton, update);
-  update();
+  searchModel?.run();
 });

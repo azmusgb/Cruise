@@ -28,8 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
   const total = cards.length;
   let activeFilter = "all";
-  let searchTimer;
-  const SEARCH_DELAY_MS = 120;
+  let searchModel = null;
   const deepLinkPick = new URLSearchParams(window.location.search).get("pick");
 
   if (!searchInput || !searchStatus || !emptyState || total === 0) {
@@ -159,37 +158,33 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateDiningView() {
-    const term = searchInput.value.toLowerCase().trim();
-    let visible = 0;
+    searchModel?.run();
+  }
 
-    searchStatus.classList.add("search-status-loading");
-    searchStatus.textContent = "Filtering dining options...";
-    clearTimeout(searchTimer);
-    searchTimer = window.setTimeout(() => {
-      cards.forEach((card) => {
-        const venueType = card.dataset.venueType || "";
-        const searchableText =
-          `${card.dataset.search || ""} ${card.textContent || ""}`.toLowerCase();
-        const matchesFilter =
-          activeFilter === "all" || venueType === activeFilter;
-        const matchesSearch = !term || searchableText.includes(term);
-        const shouldShow = matchesFilter && matchesSearch;
-
-        card.hidden = !shouldShow;
-        if (shouldShow) visible += 1;
-      });
-
-      searchStatus.textContent = visible
-        ? `Showing ${visible} of ${total} results`
-        : "Showing 0 of 0 results";
-      searchStatus.classList.remove("search-status-loading");
-      emptyState.textContent = "No results found.";
-      emptyState.hidden = visible !== 0;
+  searchModel = ui?.wireSearchModel({
+    input: searchInput,
+    status: searchStatus,
+    items: cards,
+    empty: emptyState,
+    clearButton,
+    loadingText: "Filtering dining options...",
+    emptyText: "No dining venues match this search.",
+    isMatch: (card, term) => {
+      const venueType = card.dataset.venueType || "";
+      const searchableText =
+        `${card.dataset.search || ""} ${card.textContent || ""}`.toLowerCase();
+      const matchesFilter = activeFilter === "all" || venueType === activeFilter;
+      const matchesSearch = !term || searchableText.includes(term);
+      return matchesFilter && matchesSearch;
+    },
+    countText: (visible, all) =>
+      visible ? `Showing ${visible} of ${all} results` : "Showing 0 of 0 results",
+    onRendered: (visible) => {
       if (countChipValue) {
         countChipValue.textContent = String(visible);
       }
-    }, SEARCH_DELAY_MS);
-  }
+    },
+  });
 
   document.addEventListener("rccl:filter-change", function (event) {
     if (!event.detail || event.detail.group !== "diningType") return;
@@ -202,10 +197,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     updateDiningView();
   });
-
-  searchInput.addEventListener("input", updateDiningView);
-  ui?.installSlashFocus(searchInput);
-  ui?.attachClearButton(searchInput, clearButton, updateDiningView);
 
   updateDiningView();
   applyDiningContext();
