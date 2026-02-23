@@ -1820,8 +1820,7 @@
       }
 
       .app-header--rccl-site .header-utility {
-        background: linear-gradient(180deg, #ecf8ff 0%, #dff1ff 100%);
-        border-bottom: 1px solid rgba(8, 89, 136, 0.14);
+        display: none;
       }
 
       .app-header--rccl-site .header-utility__crumb {
@@ -1844,7 +1843,7 @@
         align-items: flex-start;
         gap: 2px;
         min-width: 96px;
-        padding: 9px 12px 10px;
+        padding: 6px 10px 7px;
       }
 
       .app-header--rccl-site .header-nav__link i {
@@ -1910,7 +1909,7 @@
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         opacity: 0;
-        transform: translateX(14px);
+        transform: translateX(32px);
         transition: transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 180ms ease;
         pointer-events: none;
       }
@@ -2020,11 +2019,40 @@
         font-size: 0.8rem;
       }
 
-      .bottom-nav__item.active {
-        border-color: rgba(255, 190, 92, 0.56);
-        color: #0f4f76;
-        background: rgba(255, 190, 92, 0.22);
-        box-shadow: 0 8px 14px rgba(0, 121, 180, 0.12);
+      .bottom-nav__item.active,
+      .bottom-nav__item[aria-current="page"],
+      .bottom-nav__item--more[aria-expanded="true"] {
+        color: #143f66;
+        border-color: rgba(255, 193, 70, 0.62);
+        background: linear-gradient(180deg, #ffe59f 0%, #ffd15a 100%);
+        box-shadow: 0 10px 18px rgba(172, 119, 23, 0.22);
+      }
+
+      .app-header--rccl-site .header-brand-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 8px;
+        margin-top: 4px;
+      }
+
+      .app-header--rccl-site .header-brand-meta .header-utility__crumb {
+        font-size: 0.72rem;
+      }
+
+      .app-header--rccl-site .header-brand-meta .header-utility__promo {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 3px 8px;
+        border: 1px solid rgba(255, 255, 255, 0.34);
+        background: rgba(255, 255, 255, 0.14);
+        color: #deeffd;
+        font-size: 0.72rem;
+      }
+
+      .app-header--rccl-site .header-container {
+        padding-top: 0.64rem;
+        padding-bottom: 0.7rem;
       }
 
       @media (max-width: 767px) {
@@ -2041,6 +2069,10 @@
         }
 
         .app-header--rccl-site .header-actions .header-cta--help {
+          display: none;
+        }
+
+        .app-header--rccl-site .header-brand-meta .header-utility__promo {
           display: none;
         }
       }
@@ -2145,16 +2177,6 @@
 
       return `
         <header class="app-header--minimal app-header--rccl-site" role="banner">
-          <div class="header-utility">
-            <div class="header-utility__inner">
-              <div class="header-utility__left">
-                <span class="header-utility__crumb">${utils.escapeHtml(DEFAULT_META.ship)}</span>
-                <span class="header-utility__mode" id="navModeBadge">Before Sail</span>
-              </div>
-              <span class="header-utility__promo" id="navContextLine">${utils.escapeHtml(cruiseStatus.label)}</span>
-            </div>
-          </div>
-
           <div class="header-container">
             <div class="header-brand">
               <a href="${sanitizeHref("index.html")}" class="header-logo">
@@ -2162,6 +2184,11 @@
                 <div class="header-logo-text">
                   <span class="header-logo-title">${utils.escapeHtml(DEFAULT_META.brand)}</span>
                   <span class="header-logo-subtitle">${utils.escapeHtml(DEFAULT_META.ship)} · Cruise Companion</span>
+                  <div class="header-brand-meta">
+                    <span class="header-utility__crumb">${utils.escapeHtml(DEFAULT_META.ship)}</span>
+                    <span class="header-utility__mode" id="navModeBadge">Before Sail</span>
+                    <span class="header-utility__promo" id="navContextLine">${utils.escapeHtml(cruiseStatus.label)}</span>
+                  </div>
                 </div>
               </a>
             </div>
@@ -2211,45 +2238,43 @@
         <footer class="app-footer--minimal app-footer--rccl-site" role="contentinfo">
           <div class="footer-container">
             <section class="footer-intro" aria-label="Footer intro">
-              <p class="footer-kicker">Royal Caribbean</p>
-              <h2 class="footer-title">Plan better. Sail smoother.</h2>
+              <p class="footer-kicker">Family Cruise 2026</p>
+              <h2 class="footer-title">Adventure of the Seas memories hub</h2>
               <p class="footer-description">
-                Trip-ready links, updates, and brand resources in one clean place.
+                Shared recap links, albums, and keepsakes from the Feb 14-20, 2026 sailing.
               </p>
             </section>
 
             <div class="footer-social-row" aria-label="Social links">
-              <a href="https://facebook.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-              <a href="https://instagram.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-              <a href="https://tiktok.com/@royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fab fa-tiktok" aria-hidden="true"></i></a>
-              <a href="https://youtube.com/@RoyalCaribbeanInternational" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube" aria-hidden="true"></i></a>
-              <a href="https://x.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="X"><i class="fab fa-x-twitter" aria-hidden="true"></i></a>
-              <a href="https://pinterest.com/royalcaribbean" class="footer-social__link" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><i class="fab fa-pinterest-p" aria-hidden="true"></i></a>
+              <a href="photos.html" class="footer-social__link" aria-label="Open shared album"><i class="fas fa-images" aria-hidden="true"></i></a>
+              <a href="photos.html?section=featured" class="footer-social__link" aria-label="Open group photo"><i class="fas fa-camera" aria-hidden="true"></i></a>
+              <a href="itinerary.html#today" class="footer-social__link" aria-label="Open trip recap"><i class="fas fa-calendar-week" aria-hidden="true"></i></a>
+              <a href="contacts.html" class="footer-social__link" aria-label="Open group chat contacts"><i class="fas fa-comments" aria-hidden="true"></i></a>
+              <a href="offline.html" class="footer-social__link" aria-label="Open trip backup"><i class="fas fa-file-pdf" aria-hidden="true"></i></a>
             </div>
 
             <div class="footer-country">
-              <button type="button" class="footer-country__btn" aria-label="Country: United States">
-                <span>🇺🇸</span>
-                <span>United States</span>
-              </button>
+              <a href="photos.html" class="footer-country__btn" aria-label="Open shared album">
+                <span><i class="fas fa-users" aria-hidden="true"></i></span>
+                <span>Shared album + recap</span>
+              </a>
             </div>
 
-            <p class="footer-copyright">© ${DEFAULT_META.year} Royal Caribbean Cruises</p>
+            <p class="footer-copyright">© ${DEFAULT_META.year} Family Cruise Crew</p>
 
             <nav class="footer-legal-links" aria-label="Legal links">
-              <a href="https://www.royalcaribbean.com/resources/guest-terms" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Cruise contract</a>
-              <a href="https://www.royalcaribbean.com/company/about-us" class="footer-legal__link" target="_blank" rel="noopener noreferrer">About us</a>
-              <a href="https://www.royalcaribbean.com/resources/privacy-policy" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Privacy policy</a>
-              <a href="https://www.royalcaribbean.com/resources/terms-and-conditions" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Terms of use</a>
-              <a href="https://www.royalcaribbeangroup.com/careers/" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Careers</a>
-              <a href="https://www.royalcaribbean.com/resources/travel-updates" class="footer-legal__link" target="_blank" rel="noopener noreferrer">Travel updates</a>
+              <a href="photos.html" class="footer-legal__link">Group photos</a>
+              <a href="photos.html?section=featured" class="footer-legal__link">Shared album</a>
+              <a href="itinerary.html" class="footer-legal__link">Trip recap</a>
+              <a href="contacts.html" class="footer-legal__link">Group chat contacts</a>
+              <a href="offline.html" class="footer-legal__link">Backup copy</a>
             </nav>
 
             <div class="footer-brands" aria-label="Royal Caribbean brands">
-              <span class="footer-brand-mark">Royal Caribbean Group</span>
-              <span class="footer-brand-mark">Royal Caribbean</span>
-              <span class="footer-brand-mark">Celebrity Cruises</span>
-              <span class="footer-brand-mark">Silversea</span>
+              <span class="footer-brand-mark">Adventure of the Seas</span>
+              <span class="footer-brand-mark">Western Caribbean</span>
+              <span class="footer-brand-mark">Feb 14-20, 2026</span>
+              <span class="footer-brand-mark">Cruise memories</span>
             </div>
           </div>
         </footer>

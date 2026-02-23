@@ -7,6 +7,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const countdown = document.getElementById("countdown");
   const phaseBanner = document.getElementById("phaseBanner");
   const statusStrip = document.querySelector(".hero-status-strip");
+  const heroEyebrow = document.querySelector(".hero__eyebrow");
+  const heroTitle = document.querySelector(".hero__title");
+  const heroDescription = document.querySelector(".hero__description");
+  const heroPrimaryAction = document.querySelector(".hero__actions .btn--primary");
+  const heroSecondaryAction = document.querySelector(
+    ".hero__actions .btn--secondary",
+  );
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
@@ -173,6 +180,30 @@ document.addEventListener("DOMContentLoaded", function () {
   function initCinematicHero() {
     if (!hero) return;
     const now = new Date();
+    const mode = (window.RCCLModeContext && window.RCCLModeContext.mode) || "before";
+
+    if (mode === "post") {
+      if (heroEyebrow) {
+        heroEyebrow.innerHTML =
+          '<i class="fas fa-camera-retro" aria-hidden="true"></i> Memories mode';
+      }
+      if (heroTitle) heroTitle.textContent = "Adventure of the Seas · Memories";
+      if (heroDescription) {
+        heroDescription.textContent =
+          "Relive every port, dinner, and deck sunset from your sailing.";
+      }
+      if (heroPrimaryAction) {
+        heroPrimaryAction.href = "photos.html";
+        heroPrimaryAction.innerHTML =
+          '<i class="fas fa-images" aria-hidden="true"></i> Browse photos';
+      }
+      if (heroSecondaryAction) {
+        heroSecondaryAction.href = "itinerary.html";
+        heroSecondaryAction.innerHTML =
+          '<i class="fas fa-route" aria-hidden="true"></i> Open trip recap';
+      }
+    }
+
     if (phaseBanner) {
       phaseBanner.textContent = getHomeportStatus(now);
     }
