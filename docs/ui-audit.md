@@ -4,19 +4,19 @@
 
 - **HTML (root):** `index.html`, `itinerary.html`, `rooms.html`, `decks.html`, `contacts.html`, `operations.html`, `photos.html`, `plan.html`, `tips.html`, `ports.html`, `dining.html`, `offline.html`, `deck-debug.html`.
 - **HTML (archive):** `tools/_archive/pages/dashboard.html`, `tools/_archive/pages/svg-crop.html`.
-- **CSS:** all files in `css/` (`tokens`, `base`, `utilities`, `layout`, `components`, `features`, `shared-layout`, `mobile-first`, plus page-specific styles).
+- **CSS:** all files in `css/` (`tokens`, `base`, `utilities`, `layout`, `components`, `shared-layout`, `mobile-first`, `feature-modules`, plus page-specific styles).
 - **JS:** all files in `js/` and `js/pages/`, including service workers.
 
 ## 1) UI architecture overview
 
-- The product uses a **shared-shell model**: most pages import the same CSS stack (`tokens/base/utilities/layout/components/features/shared-layout/mobile-first`) and bind page behavior from `js/pages/*.js`.
+- The product uses a **shared-shell model**: most pages import the same CSS stack (`tokens/base/utilities/layout/components/shared-layout entry/mobile-first`) and bind page behavior from `js/pages/*.js`.
 - Page-level differentiation happens mostly via:
   - body/page classes (e.g. `page-contacts`, `page-offline`, etc.),
   - unique section containers and IDs,
   - per-page entry scripts in `js/pages/` (`contacts.js`, `operations.js`, `tips.js`, etc.).
 - There are two styling “gravity wells”:
-  - `css/features.css` (largest single surface, 5,745 lines, 907 rule blocks),
-  - `css/shared-layout.css` (3,962 lines, 583 rule blocks, dense variable usage).
+  - `css/shared-layout.css` (large shell + theme surface),
+  - page-level files under `css/pages/*.css` (route-specific visuals and layout).
 
 ## 2) HTML surface inventory and complexity signals
 
@@ -60,11 +60,11 @@ Low-interaction pages:
 
 - **Design tokens:** `css/tokens.css` defines foundational variables.
 - **Structural baseline:** `base`, `layout`, `components`, `utilities`.
-- **Feature overlays:** `features.css`, `shared-layout.css`, `mobile-first.css`.
+- **Feature overlays:** `feature-modules.css`, `shared-layout.entry.css`, `mobile-first.css`.
 
 ### Risk/maintainability indicators
 
-- Very large “global” files (`features.css`, `shared-layout.css`) imply risk of:
+- Very large “global” files (especially `shared-layout.css`) imply risk of:
   - selector collision,
   - cascade side effects across pages,
   - harder root-cause debugging.

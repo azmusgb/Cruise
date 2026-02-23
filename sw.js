@@ -1,4 +1,4 @@
-const VERSION = "v4.1.0";
+const VERSION = "v4.3.0";
 const STATIC = `static-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 
@@ -17,7 +17,13 @@ self.addEventListener("install", (e) => {
           "/css/utilities.css",
           "/css/layout.css",
           "/css/components.css",
-          "/css/features.css",
+          "/css/feature-modules.css",
+          "/css/shared-layout.entry.css",
+          "/css/shared-layout.css",
+          "/css/shared-layout/nav-consistency.css",
+          "/js/shared-layout.config.js",
+          "/js/shared-layout/mode.js",
+          "/js/shared-layout/pwa.js",
           "/css/mobile-first.css",
           "/js/global.js",
           "/js/shared-layout.js",

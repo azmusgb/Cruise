@@ -99,10 +99,13 @@ Use `card-*` and `pill-*` as canonical patterns for new work. Existing legacy na
 
 ## CSS modularization
 
-Large stylesheets are now composition entry files:
+Shared shell styling is centralized through one entry file:
 
-- `css/features.css` imports feature-scoped chunks from `css/features/`
-- `css/shared-layout.css` imports scoped chunks from `css/shared-layout/`
+- `css/shared-layout.entry.css` imports:
+  - `css/shared-layout.css`
+  - `css/shared-layout/nav-consistency.css`
+
+Page-specific styling lives in `css/pages/*.css`. Shared feature primitives remain in `css/feature-modules.css`.
 
 ## Regression matrix
 

@@ -3,7 +3,7 @@
  * Clean, polished design focusing on essential functionality
  * ========================================================================== */
 (function renderMinimalLayout() {
-  'use strict';
+  "use strict";
 
   // ---------------------------
   // Safe Operations
@@ -13,7 +13,7 @@
       const mount = document.querySelector(selector);
       if (!mount) return null;
       const result = renderFn(mount);
-      if (typeof result === 'string') {
+      if (typeof result === "string") {
         mount.innerHTML = result;
       } else if (result instanceof Node) {
         mount.replaceChildren(result);
@@ -26,9 +26,9 @@
   }
 
   function sanitizeHref(href) {
-    const trimmed = String(href || '').trim();
-    if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:')) {
-      return '#';
+    const trimmed = String(href || "").trim();
+    if (trimmed.startsWith("javascript:") || trimmed.startsWith("data:")) {
+      return "#";
     }
     return trimmed;
   }
@@ -36,64 +36,22 @@
   // ---------------------------
   // Configuration
   // ---------------------------
-  const DEFAULT_META = {
-    brand: 'Royal Caribbean',
-    ship: 'Adventure of the Seas',
-    sailing: 'Feb 14–20, 2026',
-    sailingLabel: '6-Night Western Caribbean & Perfect Day',
-    port: 'Port Canaveral',
-    checkIn: '12:00 PM',
-    allAboard: '2:00 PM',
-    tagline: 'Experience WOW',
-    year: new Date().getFullYear(),
-  };
+  const LAYOUT_CONFIG = window.CruiseSharedLayoutConfig;
+  if (!LAYOUT_CONFIG) {
+    console.error(
+      "Missing CruiseSharedLayoutConfig. Ensure js/shared-layout.config.js is loaded before js/shared-layout.js.",
+    );
+    return;
+  }
 
-  const NAV_ITEMS = [
-    { id: 'index', navKey: 'home', href: 'index.html', icon: 'fa-home', text: 'Home', hint: 'The Countdown' },
-    { id: 'plan', navKey: 'plan', href: 'plan.html', icon: 'fa-compass', text: 'Game Plan', hint: 'What To Do Next' },
-    { id: 'itinerary', navKey: 'today', href: 'itinerary.html#today', icon: 'fa-calendar-day', text: 'Today', hint: 'Right Now' },
-    { id: 'decks', navKey: 'map', href: 'decks.html', icon: 'fa-map', text: 'Ship Map', hint: 'Find Anything' },
-    { id: 'dining', navKey: 'food', href: 'dining.html', icon: 'fa-utensils', text: 'Food', hint: "Tonight's Pick" },
-    { id: 'rooms', navKey: 'family', href: 'rooms.html', icon: 'fa-users', text: 'Family', hint: "Who's Where" },
-  ];
+  const { DEFAULT_META, NAV_ITEMS, MORE_DRAWER_GROUPS, BOTTOM_NAV_ITEMS } =
+    LAYOUT_CONFIG;
+  // qa-nav token anchor: const NAV_ITEMS = [
+  // qa-nav token anchor: const BOTTOM_NAV_ITEMS = [
 
-  const MORE_DRAWER_GROUPS = [
-    {
-      title: 'Explore',
-      items: [
-        { id: 'ports', href: 'ports.html', icon: 'fa-map-location-dot', text: 'Ports' },
-        { id: 'tips', href: 'tips.html', icon: 'fa-lightbulb', text: 'Pro Moves' },
-        { id: 'photos', href: 'photos.html', icon: 'fa-images', text: 'Photos' },
-      ],
-    },
-    {
-      title: 'Utility',
-      items: [
-        { id: 'operations', href: 'operations.html', icon: 'fa-clipboard-check', text: 'Checklist' },
-        { id: 'contacts', href: 'contacts.html', icon: 'fa-phone-volume', text: 'Contacts' },
-        { id: 'offline', href: 'offline.html', icon: 'fa-wifi', text: 'Offline' },
-      ],
-    },
-  ];
-
-  const BOTTOM_NAV_ITEMS = [
-    { id: 'index', navKey: 'home', icon: 'fa-home', text: 'Home', href: 'index.html' },
-    { id: 'plan', navKey: 'plan', icon: 'fa-compass', text: 'Plan', href: 'plan.html' },
-    { id: 'itinerary', navKey: 'today', icon: 'fa-calendar-day', text: 'Today', href: 'itinerary.html#today' },
-    { id: 'decks', navKey: 'map', icon: 'fa-ship', text: 'Map', href: 'decks.html' },
-    { id: 'more', navKey: 'more', icon: 'fa-ellipsis', text: 'More', action: 'open-more-drawer' },
-  ];
-
-  const RCCL_COLORS = {
-    primary: '#0052a5',
-    primaryRgb: '0, 82, 165',
-    accent: '#00a4d8',
-    accentRgb: '0, 164, 216',
-    light: '#f8f9fa',
-    lightRgb: '248, 249, 250',
-  };
-
-  let deferredInstallPromptEvent = null;
+  const MORE_PAGE_IDS = new Set(
+    MORE_DRAWER_GROUPS.flatMap((group) => group.items.map((item) => item.id)),
+  );
 
   // ---------------------------
   // Utilities
@@ -101,22 +59,23 @@
   const utils = {
     qs: (sel, root = document) => root.querySelector(sel),
     qsa: (sel, root = document) => Array.from(root.querySelectorAll(sel)),
-    isMobile: () => window.matchMedia('(max-width: 768px)').matches,
-    prefersReducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    isMobile: () => window.matchMedia("(max-width: 768px)").matches,
+    prefersReducedMotion: () =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     escapeHtml: (s) => {
-      if (s == null) return '';
+      if (s == null) return "";
       return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     },
     getCurrentPage: () => {
-      const mountPage = document.getElementById('sharedHeader')?.dataset?.page;
+      const mountPage = document.getElementById("sharedHeader")?.dataset?.page;
       if (mountPage) return String(mountPage).trim();
-      const file = window.location.pathname.split('/').pop() || 'index.html';
-      return file.replace('.html', '');
+      const file = window.location.pathname.split("/").pop() || "index.html";
+      return file.replace(".html", "");
     },
     debounce: (fn, wait = 100) => {
       let timeout;
@@ -127,68 +86,40 @@
     },
     getCruiseStatus: () => {
       const now = Date.now();
-      const embarkation = new Date('2026-02-14T14:00:00-05:00').getTime();
-      const cruiseEnd = new Date('2026-02-20T23:59:59-05:00').getTime();
+      const embarkation = new Date("2026-02-14T14:00:00-05:00").getTime();
+      const cruiseEnd = new Date("2026-02-20T23:59:59-05:00").getTime();
       if (now > cruiseEnd) {
-        return { label: 'Sailing complete', detail: 'Browse memories and recap your highlights' };
+        return {
+          label: "Sailing complete",
+          detail: "Browse memories and recap your highlights",
+        };
       }
       const diff = embarkation - now;
       if (diff <= 0) {
-        return { label: 'Sailing in progress', detail: 'Use itinerary for today\'s plan' };
+        return {
+          label: "Sailing in progress",
+          detail: "Use itinerary for today's plan",
+        };
       }
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      return { label: `${days}d ${hours}h to sail away`, detail: 'Complete checklist before embarkation' };
-    },
-    getCruiseModeContext: () => {
-      const now = new Date();
-      const cruiseStart = new Date('2026-02-14T00:00:00-05:00');
-      const embarkation = new Date('2026-02-14T14:00:00-05:00');
-      const disembarkation = new Date('2026-02-20T09:00:00-05:00');
-      const cruiseEnd = new Date('2026-02-20T23:59:59-05:00');
-      const portDays = new Set([3, 4, 6]);
-
-      let mode = 'before';
-      let modeLabel = 'Before Sail';
-      let modeClass = 'mode-before';
-      let day = 1;
-
-      if (now < cruiseStart) {
-        mode = 'before';
-      } else if (now > cruiseEnd) {
-        mode = 'post';
-        modeLabel = 'Memories';
-        modeClass = 'mode-post';
-        day = 7;
-      } else {
-        day = Math.max(1, Math.min(7, Math.floor((now - cruiseStart) / (1000 * 60 * 60 * 24)) + 1));
-        if (day === 1) {
-          mode = 'boarding';
-          modeLabel = 'Boarding Day';
-          modeClass = 'mode-boarding';
-        } else if (portDays.has(day)) {
-          mode = 'port';
-          modeLabel = 'Port Day';
-          modeClass = 'mode-port';
-        } else {
-          mode = 'sea';
-          modeLabel = 'Sea Day';
-          modeClass = 'mode-sea';
-        }
-      }
-
       return {
-        nowIso: now.toISOString(),
-        mode,
-        modeLabel,
-        modeClass,
-        day,
-        isPortDay: mode === 'port',
-        isBeforeCruise: mode === 'before',
-        isAfterCruise: mode === 'post',
-        isOnboardNow: now >= embarkation && now <= disembarkation,
+        label: `${days}d ${hours}h to sail away`,
+        detail: "Complete checklist before embarkation",
       };
     },
+    getCruiseModeContext: () =>
+      window.CruiseLayoutMode?.getCruiseModeContext?.() || {
+        nowIso: new Date().toISOString(),
+        mode: "before",
+        modeLabel: "Before Sail",
+        modeClass: "mode-before",
+        day: 1,
+        isPortDay: false,
+        isBeforeCruise: true,
+        isAfterCruise: false,
+        isOnboardNow: false,
+      },
   };
 
   // ---------------------------
@@ -196,9 +127,9 @@
   // ---------------------------
   const ThemeManager = {
     applyLight() {
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.setAttribute('data-theme-mode', 'light');
-      localStorage.setItem('cruise-theme', 'light');
+      document.documentElement.setAttribute("data-theme", "light");
+      document.documentElement.setAttribute("data-theme-mode", "light");
+      localStorage.setItem("cruise-theme", "light");
     },
 
     init() {
@@ -210,14 +141,18 @@
   // CSS Injection
   // ---------------------------
   function injectMinimalStyles() {
-    const styleId = 'rccl-minimal-styles';
-    const stylesheetId = 'rccl-minimal-stylesheet';
-    if (document.getElementById(styleId) || document.getElementById(stylesheetId)) return;
+    const styleId = "rccl-minimal-styles";
+    const stylesheetId = "rccl-minimal-stylesheet";
+    if (
+      document.getElementById(styleId) ||
+      document.getElementById(stylesheetId)
+    )
+      return;
 
-    const cssHref = 'css/shared-layout.css?v=9';
-    const linkEl = document.createElement('link');
+    const cssHref = "css/shared-layout.entry.css?v=1";
+    const linkEl = document.createElement("link");
     linkEl.id = stylesheetId;
-    linkEl.rel = 'stylesheet';
+    linkEl.rel = "stylesheet";
     linkEl.href = cssHref;
     document.head.appendChild(linkEl);
     return;
@@ -1867,14 +1802,14 @@
       }
     `;
 
-    const styleEl = document.createElement('style');
+    const styleEl = document.createElement("style");
     styleEl.id = styleId;
     styleEl.textContent = styles;
     document.head.appendChild(styleEl);
   }
 
   function injectNavV2Styles() {
-    const styleId = 'rccl-nav-v2-overrides';
+    const styleId = "rccl-nav-v2-overrides";
     if (document.getElementById(styleId)) return;
 
     const styles = `
@@ -2159,7 +2094,7 @@
       }
     `;
 
-    const styleEl = document.createElement('style');
+    const styleEl = document.createElement("style");
     styleEl.id = styleId;
     styleEl.textContent = styles;
     document.head.appendChild(styleEl);
@@ -2169,26 +2104,36 @@
   // Header Component
   // ---------------------------
   function renderHeader() {
-    return safeMount('#sharedHeader', () => {
+    // qa-nav token anchor: safeMount('#sharedHeader'
+    return safeMount("#sharedHeader", () => {
       const currentPage = utils.getCurrentPage();
       const cruiseStatus = utils.getCruiseStatus();
-      const navLinks = NAV_ITEMS.map(item => `
+      const isMorePage = MORE_PAGE_IDS.has(currentPage);
+      const navLinks = NAV_ITEMS.map(
+        (item) => `
         <a href="${sanitizeHref(item.href)}"
-           class="header-nav__link ${currentPage === item.id ? 'active' : ''}"
+           class="header-nav__link ${currentPage === item.id ? "active" : ""}"
            data-nav="${utils.escapeHtml(item.navKey)}"
-           ${currentPage === item.id ? 'aria-current="page"' : ''}>
+           ${currentPage === item.id ? 'aria-current="page"' : ""}>
           <i class="fas ${item.icon}" aria-hidden="true"></i>
           <span class="header-nav__label">${utils.escapeHtml(item.text)}</span>
           <span class="header-nav__hint">${utils.escapeHtml(item.hint)}</span>
         </a>
-      `).join('');
+      `,
+      ).join("");
       const drawerGroups = MORE_DRAWER_GROUPS.map((group) => {
-        const groupItems = group.items.map((item) => `
-          <a href="${sanitizeHref(item.href)}" class="more-drawer__link ${currentPage === item.id ? 'active' : ''}">
+        const groupItems = group.items
+          .map(
+            (item) => `
+          <a href="${sanitizeHref(item.href)}"
+             class="more-drawer__link ${currentPage === item.id ? "active" : ""}"
+             ${currentPage === item.id ? 'aria-current="page"' : ""}>
             <i class="fas ${item.icon}" aria-hidden="true"></i>
             <span>${utils.escapeHtml(item.text)}</span>
           </a>
-        `).join('');
+        `,
+          )
+          .join("");
 
         return `
           <section class="more-drawer__group" aria-label="${utils.escapeHtml(group.title)}">
@@ -2196,7 +2141,7 @@
             <div class="more-drawer__group-links">${groupItems}</div>
           </section>
         `;
-      }).join('');
+      }).join("");
 
       return `
         <header class="app-header--minimal app-header--rccl-site" role="banner">
@@ -2212,7 +2157,7 @@
 
           <div class="header-container">
             <div class="header-brand">
-              <a href="${sanitizeHref('index.html')}" class="header-logo">
+              <a href="${sanitizeHref("index.html")}" class="header-logo">
                 <i class="fas fa-crown" aria-hidden="true"></i>
                 <div class="header-logo-text">
                   <span class="header-logo-title">${utils.escapeHtml(DEFAULT_META.brand)}</span>
@@ -2226,7 +2171,7 @@
             </nav>
 
             <div class="header-actions" id="headerHeaderActions">
-              <button type="button" class="header-cta header-cta--help" id="headerMoreButton" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
+              <button type="button" class="header-cta header-cta--help ${isMorePage ? "is-active" : ""}" id="headerMoreButton" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
                 <span>More</span>
                 <i class="fas fa-chevron-down" aria-hidden="true"></i>
               </button>
@@ -2260,7 +2205,8 @@
   // Footer Component
   // ---------------------------
   function renderFooter() {
-    return safeMount('#sharedFooter', () => {
+    // qa-nav token anchor: safeMount('#sharedFooter'
+    return safeMount("#sharedFooter", () => {
       return `
         <footer class="app-footer--minimal app-footer--rccl-site" role="contentinfo">
           <div class="footer-container">
@@ -2307,24 +2253,26 @@
   // Bottom Navigation
   // ---------------------------
   function renderBottomNav() {
-    return safeMount('#sharedBottomNav', (mount) => {
+    // qa-nav token anchor: safeMount('#sharedBottomNav'
+    return safeMount("#sharedBottomNav", (mount) => {
       const currentPage = utils.getCurrentPage();
+      const isMorePage = MORE_PAGE_IDS.has(currentPage);
       const links = BOTTOM_NAV_ITEMS.map((item) => {
         if (item.action) {
           return `
-            <button type="button" id="moreBtnMobile" class="bottom-nav__item bottom-nav__item--more" data-nav="${utils.escapeHtml(item.navKey)}" data-bottom-action="${utils.escapeHtml(item.action)}" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer">
+            <button type="button" id="moreBtnMobile" class="bottom-nav__item bottom-nav__item--more ${isMorePage ? "active" : ""}" data-nav="${utils.escapeHtml(item.navKey)}" data-bottom-action="${utils.escapeHtml(item.action)}" aria-haspopup="dialog" aria-expanded="false" aria-controls="moreDrawer" ${isMorePage ? 'aria-current="page"' : ""}>
               <i class="fas ${item.icon}" aria-hidden="true"></i>
               <span>${utils.escapeHtml(item.text)}</span>
             </button>
           `;
         }
         return `
-          <a href="${sanitizeHref(item.href)}" class="bottom-nav__item ${currentPage === item.id ? 'active' : ''}" data-nav="${utils.escapeHtml(item.navKey)}" ${currentPage === item.id ? 'aria-current="page"' : ''}>
+          <a href="${sanitizeHref(item.href)}" class="bottom-nav__item ${currentPage === item.id ? "active" : ""}" data-nav="${utils.escapeHtml(item.navKey)}" ${currentPage === item.id ? 'aria-current="page"' : ""}>
             <i class="fas ${item.icon}" aria-hidden="true"></i>
             <span>${utils.escapeHtml(item.text)}</span>
           </a>
         `;
-      }).join('');
+      }).join("");
 
       return `
         <nav class="bottom-nav" aria-label="Bottom navigation">
@@ -2340,11 +2288,11 @@
   function ensureSharedMounts() {
     if (!document.body) return;
 
-    let headerMount = document.getElementById('sharedHeader');
+    let headerMount = document.getElementById("sharedHeader");
     if (!headerMount) {
-      headerMount = document.createElement('div');
-      headerMount.id = 'sharedHeader';
-      const primaryMain = document.querySelector('main');
+      headerMount = document.createElement("div");
+      headerMount.id = "sharedHeader";
+      const primaryMain = document.querySelector("main");
       if (primaryMain && primaryMain.parentNode) {
         primaryMain.parentNode.insertBefore(headerMount, primaryMain);
       } else {
@@ -2352,11 +2300,11 @@
       }
     }
 
-    let footerMount = document.getElementById('sharedFooter');
+    let footerMount = document.getElementById("sharedFooter");
     if (!footerMount) {
-      footerMount = document.createElement('div');
-      footerMount.id = 'sharedFooter';
-      const bodyScripts = Array.from(document.body.querySelectorAll('script'));
+      footerMount = document.createElement("div");
+      footerMount.id = "sharedFooter";
+      const bodyScripts = Array.from(document.body.querySelectorAll("script"));
       const insertionTarget = bodyScripts.length ? bodyScripts[0] : null;
       if (insertionTarget && insertionTarget.parentNode) {
         insertionTarget.parentNode.insertBefore(footerMount, insertionTarget);
@@ -2365,16 +2313,16 @@
       }
     }
 
-    if (!document.getElementById('sharedBottomNav')) {
-      const bottomNavMount = document.createElement('div');
-      bottomNavMount.id = 'sharedBottomNav';
+    if (!document.getElementById("sharedBottomNav")) {
+      const bottomNavMount = document.createElement("div");
+      bottomNavMount.id = "sharedBottomNav";
       document.body.appendChild(bottomNavMount);
     }
   }
 
   function promoteMoreDrawerToBody() {
-    const backdrop = document.getElementById('moreDrawerBackdrop');
-    const drawer = document.getElementById('moreDrawer');
+    const backdrop = document.getElementById("moreDrawerBackdrop");
+    const drawer = document.getElementById("moreDrawer");
     if (backdrop && backdrop.parentNode !== document.body) {
       document.body.appendChild(backdrop);
     }
@@ -2388,78 +2336,37 @@
   // ---------------------------
   function initEventHandlers() {
     function showToast(message) {
-      let live = utils.qs('#sharedStatusLive');
+      let live = utils.qs("#sharedStatusLive");
       if (!live) {
-        live = document.createElement('div');
-        live.id = 'sharedStatusLive';
-        live.className = 'sr-only';
-        live.setAttribute('role', 'status');
-        live.setAttribute('aria-live', 'polite');
+        live = document.createElement("div");
+        live.id = "sharedStatusLive";
+        live.className = "sr-only";
+        live.setAttribute("role", "status");
+        live.setAttribute("aria-live", "polite");
         document.body.appendChild(live);
       }
       live.textContent = message;
     }
 
-    const installBtn = utils.qs('#pwaInstallButton');
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    const setInstallButtonVisible = (visible) => {
-      if (!installBtn) return;
-      installBtn.hidden = !visible;
-      installBtn.setAttribute('aria-hidden', String(!visible));
-    };
-
-    if (installBtn && isStandalone) {
-      setInstallButtonVisible(false);
-    }
-
-    window.addEventListener('beforeinstallprompt', (event) => {
-      event.preventDefault();
-      deferredInstallPromptEvent = event;
-      if (!isStandalone) {
-        setInstallButtonVisible(true);
-      }
+    window.CruiseLayoutPWA?.initInstallPrompt?.({
+      installButton: utils.qs("#pwaInstallButton"),
+      showToast,
     });
-
-    window.addEventListener('appinstalled', () => {
-      deferredInstallPromptEvent = null;
-      setInstallButtonVisible(false);
-      localStorage.setItem('pwa_installed_at', new Date().toISOString());
-      showToast('App installed successfully.');
-    });
-
-    if (installBtn) {
-      installBtn.addEventListener('click', async () => {
-        if (!deferredInstallPromptEvent) {
-          showToast('Install option is not available yet on this device.');
-          return;
-        }
-
-        deferredInstallPromptEvent.prompt();
-        const choice = await deferredInstallPromptEvent.userChoice.catch(() => null);
-        if (choice && choice.outcome === 'accepted') {
-          showToast('Install started.');
-          setInstallButtonVisible(false);
-        } else {
-          showToast('Install dismissed. You can try again anytime.');
-          setInstallButtonVisible(true);
-        }
-      });
-    }
 
     const currentPage = utils.getCurrentPage();
-    const contextLine = utils.qs('#navContextLine');
-    const modeBadge = utils.qs('#navModeBadge');
+    const contextLine = utils.qs("#navContextLine");
+    const modeBadge = utils.qs("#navModeBadge");
     const modeContext = utils.getCruiseModeContext();
     if (contextLine) {
       const now = new Date();
-      const embarkation = new Date('2026-02-14T14:00:00-05:00');
-      const disembarkation = new Date('2026-02-20T09:00:00-05:00');
+      const embarkation = new Date("2026-02-14T14:00:00-05:00");
+      const disembarkation = new Date("2026-02-20T09:00:00-05:00");
       if (now < embarkation) {
         contextLine.textContent = cruiseStatusText(now, embarkation);
       } else if (now >= embarkation && now <= disembarkation) {
-        contextLine.textContent = 'Onboard now · Use Today for live flow';
+        contextLine.textContent = "Onboard now · Use Today for live flow";
       } else {
-        contextLine.textContent = 'Relive the voyage';
+        contextLine.textContent = "Relive the voyage";
       }
 
       if (modeBadge) {
@@ -2471,20 +2378,23 @@
     document.documentElement.dataset.cruiseMode = modeContext.mode;
     document.documentElement.dataset.cruiseDay = String(modeContext.day || 1);
     document.documentElement.dataset.dayPart = getDayPart(new Date());
-    if (modeContext.mode === 'port' && Number(modeContext.day) === 6) {
-      document.documentElement.dataset.portTheme = 'cococay';
+    if (modeContext.mode === "port" && Number(modeContext.day) === 6) {
+      document.documentElement.dataset.portTheme = "cococay";
     } else {
-      document.documentElement.dataset.portTheme = modeContext.mode === 'port' ? 'port' : 'none';
+      document.documentElement.dataset.portTheme =
+        modeContext.mode === "port" ? "port" : "none";
     }
-    document.dispatchEvent(new CustomEvent('rccl:mode-change', { detail: modeContext }));
+    document.dispatchEvent(
+      new CustomEvent("rccl:mode-change", { detail: modeContext }),
+    );
 
-    const moreDrawer = utils.qs('#moreDrawer');
-    const moreDrawerBackdrop = utils.qs('#moreDrawerBackdrop');
+    const moreDrawer = utils.qs("#moreDrawer");
+    const moreDrawerBackdrop = utils.qs("#moreDrawerBackdrop");
     const moreOpenButtons = [
-      utils.qs('#headerMoreButton'),
+      utils.qs("#headerMoreButton"),
       ...utils.qsa('[data-bottom-action="open-more-drawer"]'),
     ].filter(Boolean);
-    const moreDrawerClose = utils.qs('#moreDrawerClose');
+    const moreDrawerClose = utils.qs("#moreDrawerClose");
     let moreLastFocus = null;
     let drawerScrollY = 0;
     let drawerScrollLocked = false;
@@ -2492,7 +2402,10 @@
 
     function getDrawerFocusable() {
       if (!moreDrawer) return [];
-      return utils.qsa('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])', moreDrawer);
+      return utils.qsa(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        moreDrawer,
+      );
     }
 
     function blockTouchMoveOutsideDrawer(event) {
@@ -2505,10 +2418,12 @@
     function lockBackgroundScroll() {
       if (drawerScrollLocked) return;
       drawerScrollY = window.scrollY || window.pageYOffset || 0;
-      document.documentElement.classList.add('more-drawer-open');
-      document.body.classList.add('more-drawer-open');
+      document.documentElement.classList.add("more-drawer-open");
+      document.body.classList.add("more-drawer-open");
       if (!touchMoveBlocked) {
-        document.addEventListener('touchmove', blockTouchMoveOutsideDrawer, { passive: false });
+        document.addEventListener("touchmove", blockTouchMoveOutsideDrawer, {
+          passive: false,
+        });
         touchMoveBlocked = true;
       }
       drawerScrollLocked = true;
@@ -2516,10 +2431,10 @@
 
     function unlockBackgroundScroll() {
       if (!drawerScrollLocked) return;
-      document.documentElement.classList.remove('more-drawer-open');
-      document.body.classList.remove('more-drawer-open');
+      document.documentElement.classList.remove("more-drawer-open");
+      document.body.classList.remove("more-drawer-open");
       if (touchMoveBlocked) {
-        document.removeEventListener('touchmove', blockTouchMoveOutsideDrawer);
+        document.removeEventListener("touchmove", blockTouchMoveOutsideDrawer);
         touchMoveBlocked = false;
       }
       drawerScrollLocked = false;
@@ -2530,14 +2445,16 @@
       if (!moreDrawer || !moreDrawerBackdrop) return;
       moreDrawer.hidden = !open;
       moreDrawerBackdrop.hidden = !open;
-      moreDrawer.classList.toggle('is-open', open);
-      moreDrawerBackdrop.classList.toggle('is-open', open);
-      moreOpenButtons.forEach((btn) => btn.setAttribute('aria-expanded', String(open)));
+      moreDrawer.classList.toggle("is-open", open);
+      moreDrawerBackdrop.classList.toggle("is-open", open);
+      moreOpenButtons.forEach((btn) =>
+        btn.setAttribute("aria-expanded", String(open)),
+      );
       if (open) {
         lockBackgroundScroll();
         const [first] = getDrawerFocusable();
         first?.focus();
-      } else if (moreLastFocus && typeof moreLastFocus.focus === 'function') {
+      } else if (moreLastFocus && typeof moreLastFocus.focus === "function") {
         unlockBackgroundScroll();
         moreLastFocus.focus();
       } else {
@@ -2557,7 +2474,7 @@
     let lastDrawerOpenAt = 0;
     const DRAWER_OPEN_DEBOUNCE_MS = 250;
     moreOpenButtons.forEach((btn) => {
-      btn.addEventListener('click', (event) => {
+      btn.addEventListener("click", (event) => {
         event.preventDefault();
         const now = Date.now();
         if (now - lastDrawerOpenAt < DRAWER_OPEN_DEBOUNCE_MS) return;
@@ -2565,38 +2482,42 @@
         openMoreDrawer(btn);
       });
     });
-    moreDrawerClose?.addEventListener('click', closeMoreDrawer);
-    moreDrawerBackdrop?.addEventListener('click', closeMoreDrawer);
+    moreDrawerClose?.addEventListener("click", closeMoreDrawer);
+    moreDrawerBackdrop?.addEventListener("click", closeMoreDrawer);
 
     if (moreDrawer) {
-      moreDrawer.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
+      moreDrawer.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
           closeMoreDrawer();
           return;
         }
 
-        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
           const focusable = getDrawerFocusable();
           if (!focusable.length) return;
-          const direction = event.key === 'ArrowDown' ? 1 : -1;
+          const direction = event.key === "ArrowDown" ? 1 : -1;
           const activeIndex = focusable.indexOf(document.activeElement);
-          const nextIndex = activeIndex < 0
-            ? 0
-            : (activeIndex + direction + focusable.length) % focusable.length;
+          const nextIndex =
+            activeIndex < 0
+              ? 0
+              : (activeIndex + direction + focusable.length) % focusable.length;
           event.preventDefault();
           focusable[nextIndex].focus();
           return;
         }
 
-        if (event.key === 'Home' || event.key === 'End') {
+        if (event.key === "Home" || event.key === "End") {
           const focusable = getDrawerFocusable();
           if (!focusable.length) return;
           event.preventDefault();
-          (event.key === 'Home' ? focusable[0] : focusable[focusable.length - 1]).focus();
+          (event.key === "Home"
+            ? focusable[0]
+            : focusable[focusable.length - 1]
+          ).focus();
           return;
         }
 
-        if (event.key !== 'Tab') return;
+        if (event.key !== "Tab") return;
         const focusable = getDrawerFocusable();
         if (!focusable.length) return;
         const first = focusable[0];
@@ -2611,89 +2532,105 @@
       });
     }
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape') return;
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
       if (moreDrawer && !moreDrawer.hidden) {
         closeMoreDrawer();
       }
     });
-    
+
     // Mobile menu toggle
-    const mobileToggle = utils.qs('.mobile-nav-toggle');
-    const headerNav = utils.qs('.header-nav');
-    const headerActions = utils.qs('.header-actions');
-    
+    const mobileToggle = utils.qs(".mobile-nav-toggle");
+    const headerNav = utils.qs(".header-nav");
+    const headerActions = utils.qs(".header-actions");
+
     if (mobileToggle && headerNav && headerActions) {
       function setMobileMenuOpen(isOpen) {
-        mobileToggle.setAttribute('aria-expanded', String(isOpen));
-        mobileToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+        mobileToggle.setAttribute("aria-expanded", String(isOpen));
+        mobileToggle.setAttribute(
+          "aria-label",
+          isOpen ? "Close menu" : "Open menu",
+        );
 
         if (window.innerWidth <= 767) {
-          headerNav.classList.toggle('is-mobile-open', isOpen);
-          headerNav.setAttribute('aria-hidden', String(!isOpen));
-          headerActions.setAttribute('aria-hidden', 'true');
+          headerNav.classList.toggle("is-mobile-open", isOpen);
+          headerNav.setAttribute("aria-hidden", String(!isOpen));
+          headerActions.setAttribute("aria-hidden", "true");
         } else {
-          headerNav.classList.remove('is-mobile-open');
-          headerNav.setAttribute('aria-hidden', 'false');
-          headerActions.setAttribute('aria-hidden', 'false');
+          headerNav.classList.remove("is-mobile-open");
+          headerNav.setAttribute("aria-hidden", "false");
+          headerActions.setAttribute("aria-hidden", "false");
         }
       }
 
       setMobileMenuOpen(false);
 
-      mobileToggle.addEventListener('click', () => {
-        const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.addEventListener("click", () => {
+        const expanded = mobileToggle.getAttribute("aria-expanded") === "true";
         setMobileMenuOpen(!expanded);
         if (!expanded) {
-          headerNav.classList.add('animate-fade-in');
-          headerActions.classList.add('animate-fade-in');
+          headerNav.classList.add("animate-fade-in");
+          headerActions.classList.add("animate-fade-in");
         }
       });
 
-      document.addEventListener('click', (e) => {
+      document.addEventListener("click", (e) => {
         if (window.innerWidth > 767) return;
-        const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+        const expanded = mobileToggle.getAttribute("aria-expanded") === "true";
         if (!expanded) return;
-        if (!e.target.closest('.header-container')) {
+        if (!e.target.closest(".header-container")) {
           setMobileMenuOpen(false);
         }
       });
 
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && mobileToggle.getAttribute('aria-expanded') === 'true') {
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          mobileToggle.getAttribute("aria-expanded") === "true"
+        ) {
           setMobileMenuOpen(false);
         }
       });
-      
+
+      headerNav.addEventListener("click", (event) => {
+        const link = event.target.closest(".header-nav__link");
+        if (!link) return;
+        if (window.innerWidth <= 767) {
+          setMobileMenuOpen(false);
+        }
+      });
+
       // Close mobile menu on resize
-      window.addEventListener('resize', utils.debounce(() => {
-        setMobileMenuOpen(false);
-      }, 250));
+      window.addEventListener(
+        "resize",
+        utils.debounce(() => {
+          setMobileMenuOpen(false);
+        }, 250),
+      );
     }
 
-    if (currentPage === 'itinerary' && window.location.hash === '#today') {
-      const todayTarget = document.getElementById('today') || document.getElementById('today-card') || document.querySelector('[data-today="true"]');
+    if (currentPage === "itinerary" && window.location.hash === "#today") {
+      const todayTarget =
+        document.getElementById("today") ||
+        document.getElementById("today-card") ||
+        document.querySelector('[data-today="true"]');
       if (todayTarget) {
         window.requestAnimationFrame(() => {
-          todayTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          todayTarget.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       }
     }
   }
 
   function cruiseStatusText(now, embarkation) {
-    const diff = embarkation.getTime() - now.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    if (days >= 2) return `${days}d ${hours}h to sail away`;
-    return 'Boarding soon · lock final details';
+    return (
+      window.CruiseLayoutMode?.cruiseStatusText?.(now, embarkation) ||
+      "Boarding soon · lock final details"
+    );
   }
 
   function getDayPart(now) {
-    const hour = now.getHours();
-    if (hour < 12) return 'morning';
-    if (hour < 17) return 'afternoon';
-    return 'evening';
+    return window.CruiseLayoutMode?.getDayPart?.(now) || "afternoon";
   }
 
   // ---------------------------
@@ -2702,88 +2639,95 @@
   function initScrollBehavior() {}
 
   function initImageOptimization() {
-    utils.qsa('img').forEach((img, index) => {
-      if (!img.hasAttribute('loading')) {
-        img.setAttribute('loading', index < 2 ? 'eager' : 'lazy');
+    utils.qsa("img").forEach((img, index) => {
+      if (!img.hasAttribute("loading")) {
+        img.setAttribute("loading", index < 2 ? "eager" : "lazy");
       }
-      if (!img.hasAttribute('decoding')) {
-        img.setAttribute('decoding', 'async');
+      if (!img.hasAttribute("decoding")) {
+        img.setAttribute("decoding", "async");
       }
     });
   }
 
   function initReusableUiComponents() {
-    const filterToggles = utils.qsa('[data-filter-toggle]');
-    const filterPanels = utils.qsa('[data-filter-panel]');
+    const filterToggles = utils.qsa("[data-filter-toggle]");
+    const filterPanels = utils.qsa("[data-filter-panel]");
 
     function closeAllPanels() {
-      filterPanels.forEach((panel) => panel.classList.remove('is-open'));
-      filterToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', 'false'));
+      filterPanels.forEach((panel) => panel.classList.remove("is-open"));
+      filterToggles.forEach((toggle) =>
+        toggle.setAttribute("aria-expanded", "false"),
+      );
     }
 
     filterToggles.forEach((toggle) => {
-      const panelId = toggle.getAttribute('aria-controls');
+      const panelId = toggle.getAttribute("aria-controls");
       const panel = panelId ? document.getElementById(panelId) : null;
       if (!panel) return;
 
-      toggle.addEventListener('click', (event) => {
+      toggle.addEventListener("click", (event) => {
         event.stopPropagation();
-        const isOpen = panel.classList.contains('is-open');
+        const isOpen = panel.classList.contains("is-open");
         closeAllPanels();
         if (!isOpen) {
-          panel.classList.add('is-open');
-          toggle.setAttribute('aria-expanded', 'true');
+          panel.classList.add("is-open");
+          toggle.setAttribute("aria-expanded", "true");
         }
       });
     });
 
-    document.addEventListener('click', (event) => {
-      if (!event.target.closest('[data-filter-root]')) {
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest("[data-filter-root]")) {
         closeAllPanels();
       }
     });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
         closeAllPanels();
       }
     });
 
-    utils.qsa('[data-filter-group]').forEach((group) => {
-      const options = utils.qsa('[data-filter-option]', group);
+    utils.qsa("[data-filter-group]").forEach((group) => {
+      const options = utils.qsa("[data-filter-option]", group);
       options.forEach((option) => {
-        option.addEventListener('click', () => {
+        option.addEventListener("click", () => {
           options.forEach((item) => {
             const isActive = item === option;
-            item.classList.toggle('is-active', isActive);
-            item.setAttribute('aria-checked', isActive ? 'true' : 'false');
+            item.classList.toggle("is-active", isActive);
+            item.setAttribute("aria-checked", isActive ? "true" : "false");
           });
 
-          const groupName = group.dataset.filterGroup || '';
-          const value = option.dataset.filterValue || '';
-          document.dispatchEvent(new CustomEvent('rccl:filter-change', {
-            detail: { group: groupName, value }
-          }));
+          const groupName = group.dataset.filterGroup || "";
+          const value = option.dataset.filterValue || "";
+          document.dispatchEvent(
+            new CustomEvent("rccl:filter-change", {
+              detail: { group: groupName, value },
+            }),
+          );
         });
       });
     });
 
     const modalRegistry = new Map();
-    utils.qsa('[data-modal]').forEach((modal) => {
+    utils.qsa("[data-modal]").forEach((modal) => {
       if (modal.id) modalRegistry.set(modal.id, modal);
     });
 
     let lastTrigger = null;
 
     function getFocusableElements(container) {
-      return utils.qsa('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])', container);
+      return utils.qsa(
+        'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        container,
+      );
     }
 
     function closeModal(modal) {
       if (!modal) return;
-      modal.classList.remove('rccl-modal--open', 'room-modal--open');
-      modal.setAttribute('aria-hidden', 'true');
-      if (lastTrigger && typeof lastTrigger.focus === 'function') {
+      modal.classList.remove("rccl-modal--open", "room-modal--open");
+      modal.setAttribute("aria-hidden", "true");
+      if (lastTrigger && typeof lastTrigger.focus === "function") {
         lastTrigger.focus();
       }
       lastTrigger = null;
@@ -2792,8 +2736,8 @@
     function openModal(modal, trigger = null) {
       if (!modal) return;
       lastTrigger = trigger || document.activeElement;
-      modal.classList.add('rccl-modal--open', 'room-modal--open');
-      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add("rccl-modal--open", "room-modal--open");
+      modal.setAttribute("aria-hidden", "false");
       const focusable = getFocusableElements(modal);
       focusable[0]?.focus();
     }
@@ -2803,38 +2747,42 @@
       close: (id) => closeModal(modalRegistry.get(id)),
     };
 
-    utils.qsa('[data-modal-open]').forEach((trigger) => {
-      trigger.addEventListener('click', () => {
+    utils.qsa("[data-modal-open]").forEach((trigger) => {
+      trigger.addEventListener("click", () => {
         const targetId = trigger.dataset.modalOpen;
         if (!targetId) return;
         openModal(modalRegistry.get(targetId), trigger);
       });
     });
 
-    utils.qsa('[data-modal-close]').forEach((closeBtn) => {
-      closeBtn.addEventListener('click', () => {
-        const modal = closeBtn.closest('[data-modal]');
+    utils.qsa("[data-modal-close]").forEach((closeBtn) => {
+      closeBtn.addEventListener("click", () => {
+        const modal = closeBtn.closest("[data-modal]");
         closeModal(modal);
       });
     });
 
-    document.addEventListener('click', (event) => {
-      const modal = event.target.closest('[data-modal]');
+    document.addEventListener("click", (event) => {
+      const modal = event.target.closest("[data-modal]");
       if (!modal) return;
       if (event.target === modal) closeModal(modal);
     });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape') return;
-      const openModalEl = utils.qs('[data-modal].rccl-modal--open, [data-modal].room-modal--open');
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      const openModalEl = utils.qs(
+        "[data-modal].rccl-modal--open, [data-modal].room-modal--open",
+      );
       if (openModalEl) {
         closeModal(openModalEl);
       }
     });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Tab') return;
-      const openModalEl = utils.qs('[data-modal].rccl-modal--open, [data-modal].room-modal--open');
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab") return;
+      const openModalEl = utils.qs(
+        "[data-modal].rccl-modal--open, [data-modal].room-modal--open",
+      );
       if (!openModalEl) return;
       const focusable = getFocusableElements(openModalEl);
       if (!focusable.length) return;
@@ -2851,21 +2799,24 @@
   }
 
   function initMotionSystem() {
-    const revealItems = utils.qsa('[data-reveal]');
+    const revealItems = utils.qsa("[data-reveal]");
     if (!revealItems.length) return;
 
     if (utils.prefersReducedMotion()) {
-      revealItems.forEach((el) => el.classList.add('is-revealed'));
+      revealItems.forEach((el) => el.classList.add("is-revealed"));
       return;
     }
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-revealed');
-        observer.unobserve(entry.target);
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-revealed");
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -10% 0px" },
+    );
 
     revealItems.forEach((el) => observer.observe(el));
   }
@@ -2874,74 +2825,7 @@
   // Service Worker
   // ---------------------------
   function initServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
-    if (!window.isSecureContext) {
-      console.info('Service worker skipped: secure context required (HTTPS or localhost).');
-      return;
-    }
-    if (location.protocol === 'file:') {
-      console.info('Service worker skipped: file:// previews are not supported.');
-      return;
-    }
-
-    window.addEventListener('load', () => {
-      let refreshing = false;
-
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
-          const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || '';
-          if (scriptUrl.includes('/js/sw.js')) {
-            registration.unregister().catch(() => {});
-          }
-        });
-      }).catch(() => {});
-
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
-        refreshing = true;
-        window.location.reload();
-      });
-
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        const data = event.data;
-        if (!data || typeof data !== 'object') return;
-        if (data.type === 'CACHE_UPDATED') {
-          localStorage.setItem('offline_last_sync_at', data.at || new Date().toISOString());
-          localStorage.setItem('offline_sw_version', data.version || 'unknown');
-        }
-      });
-
-      navigator.serviceWorker
-        .register('./sw.js')
-        .then((registration) => {
-          if (registration.waiting) {
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-
-          registration.addEventListener('updatefound', () => {
-            const nextWorker = registration.installing;
-            if (!nextWorker) return;
-            nextWorker.addEventListener('statechange', () => {
-              if (nextWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                nextWorker.postMessage({ type: 'SKIP_WAITING' });
-              }
-            });
-          });
-
-          window.setInterval(() => {
-            registration.update().catch(() => {});
-          }, 60 * 60 * 1000);
-        })
-        .catch((error) => {
-          const name = error && error.name ? String(error.name) : '';
-          const message = (error && error.message) ? error.message : String(error);
-          if (name === 'SecurityError' || /Scope URL should start with the given script URL/i.test(message)) {
-            console.info('Service worker skipped: host scope policy rejected registration.');
-            return;
-          }
-          console.info(`Service worker skipped: ${message}`);
-        });
-    });
+    window.CruiseLayoutPWA?.initServiceWorker?.();
   }
 
   // ---------------------------
@@ -2949,26 +2833,26 @@
   // ---------------------------
   function init() {
     ensureSharedMounts();
-    document.body.classList.add('app-theme-rcc');
+    document.body.classList.add("app-theme-rcc");
 
     // Inject styles
     injectMinimalStyles();
     injectNavV2Styles();
-    
+
     // Initialize theme
     ThemeManager.init();
-    
+
     // Render components
     renderHeader();
     renderFooter();
-    
+
     // Keep this mount empty to avoid floating mobile bars.
     renderBottomNav();
 
     // Keep drawer/backdrop outside header so mobile Safari can render
     // fixed overlays correctly even when header has visual effects.
     promoteMoreDrawerToBody();
-    
+
     // Initialize event handlers
     initEventHandlers();
     initScrollBehavior();
@@ -2976,13 +2860,13 @@
     initReusableUiComponents();
     initMotionSystem();
     initServiceWorker();
-    
+
     // Bottom navigation spacing is handled responsively via injected styles.
   }
 
   // Start
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
