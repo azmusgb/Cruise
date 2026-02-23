@@ -6,14 +6,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const hero = document.querySelector(".hero--cinematic");
   const countdown = document.getElementById("countdown");
   const phaseBanner = document.getElementById("phaseBanner");
+  const statusStrip = document.querySelector(".hero-status-strip");
+  const statusStripLink = document.querySelector(".hero-status-strip__link");
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   ).matches;
   const sailDate = new Date("2026-02-14T16:00:00-05:00");
+  const cruiseEnd = new Date("2026-02-20T23:59:59-05:00");
 
   function getHomeportStatus(now) {
     const dayMs = 1000 * 60 * 60 * 24;
-    const cruiseEnd = new Date("2026-02-20T23:59:59-05:00");
     if (now < sailDate) {
       const daysToSail = Math.max(0, Math.ceil((sailDate - now) / dayMs));
       return `Departing in ${daysToSail} Day${daysToSail === 1 ? "" : "s"}`;
@@ -48,6 +50,25 @@ document.addEventListener("DOMContentLoaded", function () {
     return `Day ${dayIndex} – ${location}`;
   }
 
+  function syncStatusStripState(now) {
+    const isComplete = now > cruiseEnd;
+    if (statusStrip) {
+      statusStrip.classList.toggle("is-complete", isComplete);
+    }
+    if (!statusStripLink) return;
+
+    if (isComplete) {
+      statusStripLink.setAttribute("href", "photos.html");
+      statusStripLink.innerHTML =
+        '<i class="fas fa-camera-retro" aria-hidden="true"></i> Open memories';
+      return;
+    }
+
+    statusStripLink.setAttribute("href", "itinerary.html");
+    statusStripLink.innerHTML =
+      '<i class="fas fa-route" aria-hidden="true"></i> Review itinerary';
+  }
+
   function createCountdownUnit(value, label) {
     const unit = document.createElement("div");
     unit.className = "countdown-unit";
@@ -55,9 +76,14 @@ document.addEventListener("DOMContentLoaded", function () {
     return unit;
   }
 
-  function renderCountdownSequence() {
+  function renderCountdownSequence(now) {
     if (!countdown) return;
-    const diffMs = Math.max(0, sailDate.getTime() - Date.now());
+    if (now > cruiseEnd) {
+      countdown.replaceChildren();
+      return;
+    }
+
+    const diffMs = Math.max(0, sailDate.getTime() - now.getTime());
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
@@ -163,6 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (phaseBanner) {
       phaseBanner.textContent = getHomeportStatus(now);
     }
+    syncStatusStripState(now);
 
     if (
       (window.RCCLModeContext &&
@@ -175,12 +202,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (reducedMotion) {
       hero.classList.add("is-ready");
-      renderCountdownSequence();
+      renderCountdownSequence(now);
     } else {
       window.setTimeout(function () {
         hero.classList.add("is-ready");
       }, 150);
-      renderCountdownSequence();
+      renderCountdownSequence(now);
     }
     maybePlayEmbarkTone(now);
   }
