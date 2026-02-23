@@ -4,6 +4,7 @@
  */
 document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("roomSearchInput");
+  const searchClearButton = document.getElementById("roomSearchClear");
   const guestFinderInput = document.getElementById("guestFinderInput");
   const guestFinderList = document.getElementById("guestFinderList");
   const guestFinderQuick = document.getElementById("guestFinderQuick");
@@ -449,6 +450,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   searchInput.addEventListener("input", function () {
+    clearPersonHighlights();
+    setGuestFinderStatus("");
+    updateRoomVisibility();
+  });
+
+  window.CruiseUI?.attachClearButton(searchInput, searchClearButton, () => {
     clearPersonHighlights();
     setGuestFinderStatus("");
     updateRoomVisibility();

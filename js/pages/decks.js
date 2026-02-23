@@ -598,7 +598,9 @@
 
   // --- EVENT LISTENERS (luxe) ---
   function bindEvents() {
+    const ui = window.CruiseUI;
     const searchInput = document.getElementById("deckSearch");
+    const clearButton = document.getElementById("deckSearchClear");
 
     // Filter buttons
     document.querySelectorAll(".pill-btn").forEach((btn) => {
@@ -622,11 +624,16 @@
     });
 
     // global key
+    ui?.installSlashFocus(searchInput);
+    ui?.attachClearButton(searchInput, clearButton, () => {
+      state.search = "";
+      renderDeckCards(
+        document.querySelector(".pill-btn.is-active").dataset.filter,
+        "",
+      );
+    });
+
     document.addEventListener("keydown", (e) => {
-      if (e.key === "/" && document.activeElement !== els.search) {
-        e.preventDefault();
-        els.search.focus();
-      }
       if (e.key === "Escape") closeModal();
     });
 

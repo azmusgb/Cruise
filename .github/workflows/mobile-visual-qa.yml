@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright WebKit
-        run: npx playwright install --with-deps webkit
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Run HTML integrity checks
         run: npm run qa:html
@@ -34,6 +34,17 @@ jobs:
       - name: Run mobile More + visual QA
         run: npm run qa:mobile-more
 
+      - name: Run accessibility smoke checks
+        run: |
+          npm run qa:a11y:structure
+          npm run qa:a11y
+
+      - name: Run UX critical flow checks
+        run: npm run qa:ux-flows
+
+      - name: Run core visual regression checks
+        run: npm run qa:visual-core
+
       - name: Upload visual artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -41,4 +52,6 @@ jobs:
           name: mobile-visual-artifacts
           path: |
             reports/visual/
+            reports/visual-core/
+            reports/visual-core-diff/
           if-no-files-found: ignore

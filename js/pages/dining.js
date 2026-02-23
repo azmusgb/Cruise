@@ -3,7 +3,9 @@
  * Extracted from inline script for maintainability and testability.
  */
 document.addEventListener("DOMContentLoaded", function () {
+  const ui = window.CruiseUI;
   const searchInput = document.getElementById("diningSearchInput");
+  const clearButton = document.getElementById("diningSearchClear");
   const searchStatus = document.getElementById("diningSearchStatus");
   const emptyState = document.getElementById("diningSearchEmpty");
   const cards = Array.from(
@@ -160,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const term = searchInput.value.toLowerCase().trim();
     let visible = 0;
 
-    searchStatus.classList.add("is-loading");
+    searchStatus.classList.add("search-status-loading");
     searchStatus.textContent = "Filtering dining options...";
     clearTimeout(searchTimer);
     searchTimer = window.setTimeout(() => {
@@ -178,9 +180,10 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       searchStatus.textContent = visible
-        ? "Venues filtered."
-        : "No venues match.";
-      searchStatus.classList.remove("is-loading");
+        ? `Showing ${visible} of ${total} results`
+        : "Showing 0 of 0 results";
+      searchStatus.classList.remove("search-status-loading");
+      emptyState.textContent = "No results found.";
       emptyState.hidden = visible !== 0;
       if (countChipValue) {
         countChipValue.textContent = String(visible);
@@ -201,13 +204,8 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   searchInput.addEventListener("input", updateDiningView);
-
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "/" && e.target !== searchInput) {
-      e.preventDefault();
-      searchInput.focus();
-    }
-  });
+  ui?.installSlashFocus(searchInput);
+  ui?.attachClearButton(searchInput, clearButton, updateDiningView);
 
   updateDiningView();
   applyDiningContext();

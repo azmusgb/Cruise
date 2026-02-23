@@ -3,7 +3,9 @@
  * Extracted from inline script for maintainability and testability.
  */
 document.addEventListener("DOMContentLoaded", function () {
+  const ui = window.CruiseUI;
   const input = document.getElementById("operationsSearchInput");
+  const clearButton = document.getElementById("operationsSearchClear");
   const status = document.getElementById("operationsSearchStatus");
   const empty = document.getElementById("operationsSearchEmpty");
   const cards = Array.from(document.querySelectorAll("#tasks .deck-card"));
@@ -56,8 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
         card.hidden = !match;
         if (match) shown += 1;
       });
-      status.textContent = shown ? "Tasks filtered." : "No tasks match.";
+      status.textContent = `Showing ${shown} of ${total} results`;
       status.classList.remove("search-status-loading");
+      empty.textContent = "No results found.";
       empty.hidden = shown !== 0;
     }, SEARCH_DELAY_MS);
   }
@@ -80,23 +83,19 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       writeCompletionSet(completed);
       updateTaskCounts();
-      status.textContent = done
-        ? "Task marked complete."
-        : "Task marked incomplete.";
+      if (ui) {
+        ui.setStatus(
+          status,
+          done ? "Task marked complete." : "Task marked incomplete.",
+          done ? "success" : "info",
+        );
+      }
     });
   });
 
   input.addEventListener("input", updateSearch);
-
-  const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
-  if (!isMobileViewport) {
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "/" && e.target !== input) {
-        e.preventDefault();
-        input.focus();
-      }
-    });
-  }
+  ui?.installSlashFocus(input);
+  ui?.attachClearButton(input, clearButton, updateSearch);
 
   updateTaskCounts();
   updateSearch();

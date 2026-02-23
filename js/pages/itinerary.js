@@ -3,6 +3,7 @@
  * Extracted from inline script for maintainability and testability.
  */
 document.addEventListener("DOMContentLoaded", function () {
+  const ui = window.CruiseUI;
   const dayButtons = Array.from(document.querySelectorAll(".day-btn"));
   const daySections = Array.from(document.querySelectorAll(".itinerary-day"));
 
@@ -27,15 +28,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const savePdfButton = document.getElementById("savePDFBtn");
   const calendarButton = document.getElementById("addToCalendarBtn");
   const emailButton = document.getElementById("emailItineraryBtn");
+  const openLegendButton = document.getElementById("openLegendBtn");
+  const legendModal = document.getElementById("itineraryLegendModal");
   const itineraryStatus = document.getElementById("itineraryStatus");
   const cruiseModeLine = document.getElementById("cruiseModeLine");
   let currentDay = 1;
   let todayDay = "1";
 
   function setStatus(message) {
-    if (itineraryStatus) {
-      itineraryStatus.textContent = message;
-    }
+    if (!itineraryStatus) return;
+    ui?.setStatus(itineraryStatus, message, "info");
   }
 
   function getCruiseDayContext() {
@@ -197,6 +199,15 @@ document.addEventListener("DOMContentLoaded", function () {
       window.location.href = `mailto:?subject=${encodeURIComponent("Cruise Itinerary")}&body=${encodeURIComponent(window.location.href)}`;
     });
   }
+
+  if (openLegendButton && legendModal) {
+    openLegendButton.addEventListener("click", () => {
+      legendModal.setAttribute("aria-hidden", "false");
+      legendModal.classList.add("is-open");
+    });
+  }
+
+  ui?.wireModalModel({ modal: legendModal });
 
   const context = getCruiseDayContext();
   todayDay = String(context.day);

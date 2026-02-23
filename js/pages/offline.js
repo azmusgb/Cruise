@@ -3,6 +3,7 @@
  * Extracted from inline script for maintainability and testability.
  */
 document.addEventListener("DOMContentLoaded", function () {
+  const ui = window.CruiseUI;
   const lastSync = document.getElementById("lastSyncLabel");
   const refreshOfflineStatus = document.getElementById("refreshOfflineStatus");
   function updateSyncLabel() {
@@ -22,11 +23,13 @@ document.addEventListener("DOMContentLoaded", function () {
     refreshOfflineStatus.addEventListener("click", function () {
       localStorage.setItem("offline_last_sync_at", new Date().toISOString());
       updateSyncLabel();
+      ui?.setStatus(null, "Offline status refreshed.", "success");
     });
   }
   updateSyncLabel();
 
   const input = document.getElementById("offlineSearchInput");
+  const clearButton = document.getElementById("offlineSearchClear");
   const status = document.getElementById("offlineSearchStatus");
   const empty = document.getElementById("offlineSearchEmpty");
   const cards = Array.from(
@@ -43,16 +46,13 @@ document.addEventListener("DOMContentLoaded", function () {
       card.hidden = !match;
       if (match) shown += 1;
     });
-    status.textContent = `Showing ${shown} of ${total} items`;
+    status.textContent = `Showing ${shown} of ${total} results`;
+    empty.textContent = "No results found.";
     empty.hidden = shown !== 0;
   }
 
   input.addEventListener("input", update);
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "/" && e.target !== input) {
-      e.preventDefault();
-      input.focus();
-    }
-  });
+  ui?.installSlashFocus(input);
+  ui?.attachClearButton(input, clearButton, update);
   update();
 });

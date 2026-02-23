@@ -3,6 +3,7 @@
  * Extracted from inline script for maintainability and testability.
  */
 document.addEventListener("DOMContentLoaded", function () {
+  const ui = window.CruiseUI;
   const statusEl = document.getElementById("contactsStatus");
   const BACKUP_STORAGE_KEY = "contacts-backup-v1";
   const contextCard = document.getElementById("contactContext");
@@ -12,9 +13,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const contextActionText = document.getElementById("contactContextActionText");
 
   function setStatus(message) {
-    if (statusEl) {
-      statusEl.textContent = message;
-    }
+    if (!statusEl) return;
+    ui?.setStatus(statusEl, message, "info");
   }
 
   function getCruiseContext() {

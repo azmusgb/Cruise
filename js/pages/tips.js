@@ -3,7 +3,9 @@
  * Extracted from inline script for maintainability and testability.
  */
 document.addEventListener("DOMContentLoaded", function () {
+  const ui = window.CruiseUI;
   const input = document.getElementById("proMovesSearchInput");
+  const clearButton = document.getElementById("proMovesSearchClear");
   const status = document.getElementById("proMovesSearchStatus");
   const empty = document.getElementById("proMovesSearchEmpty");
   const items = Array.from(document.querySelectorAll("[data-search-item]"));
@@ -84,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       status.textContent = `Showing ${shown} of ${total} pro moves`;
       status.classList.remove("search-status-loading");
+      empty.textContent = "No results found.";
       empty.hidden = shown !== 0;
     }, SEARCH_DELAY_MS);
   }
@@ -103,20 +106,17 @@ document.addEventListener("DOMContentLoaded", function () {
       else completed.delete(id);
       writeCompletionSet(completed);
       updateCounts();
+      ui?.setStatus(
+        status,
+        checked ? "Pro move marked complete." : "Pro move marked incomplete.",
+        checked ? "success" : "info",
+      );
     });
   });
 
   input.addEventListener("input", updateSearch);
-
-  const isMobileViewport = window.matchMedia("(max-width: 768px)").matches;
-  if (!isMobileViewport) {
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "/" && e.target !== input) {
-        e.preventDefault();
-        input.focus();
-      }
-    });
-  }
+  ui?.installSlashFocus(input);
+  ui?.attachClearButton(input, clearButton, updateSearch);
 
   updateCounts();
   updateSearch();

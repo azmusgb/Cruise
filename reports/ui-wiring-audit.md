@@ -1,6 +1,6 @@
 # UI Wiring Audit Report
 
-Scanned 15 HTML, 38 CSS, 15 JS files.
+Scanned 15 HTML, 38 CSS, 16 JS files.
 
 ## Summary
 Overall status: **ISSUES FOUND**
@@ -8,7 +8,7 @@ Strict fail mode: **ON**
 Config file: `tools/ui-wiring-audit.config.json`
 Unsuppressed page-scoped issues: **0**
 
-## IDs in HTML but unused by CSS/JS (63)
+## IDs in HTML but unused by CSS/JS (62)
 - `allSetTitle` (e.g. rooms.html)
 - `assistanceActionsTitle` (e.g. rooms.html)
 - `backup` (e.g. contacts.html)
@@ -28,7 +28,6 @@ Unsuppressed page-scoped issues: **0**
 - `embark-sequence` (e.g. plan.html)
 - `included-group` (e.g. dining.html)
 - `itinerary` (e.g. offline.html)
-- `itineraryLegendModal` (e.g. itinerary.html)
 - `legendTitle` (e.g. itinerary.html)
 - `main` (e.g. contacts.html, decks.html, dining.html, index.html, itinerary.html, offline.html, operations.html, plan.html, ports.html, tips.html)
 - `modalCloseBtn` (e.g. rooms.html)
@@ -73,9 +72,10 @@ Unsuppressed page-scoped issues: **0**
 - `venue-main-dining` (e.g. dining.html)
 - `venue-windjammer` (e.g. dining.html)
 
-## IDs referenced in JS but not found in HTML (5)
+## IDs referenced in JS but not found in HTML (6)
 - `deckPlanCanvas` (e.g. js/pages/decks.js)
 - `deckPlanStage` (e.g. js/pages/decks.js)
+- `globalStatusFeedback` (e.g. js/pages/shared-interactions.js)
 - `moreDrawer` (e.g. js/shared-layout.js)
 - `moreDrawerBackdrop` (e.g. js/shared-layout.js)
 - `today-card` (e.g. js/pages/itinerary.js, js/shared-layout.js)
@@ -102,6 +102,7 @@ Unsuppressed page-scoped issues: **0**
 - `fa-chevron-left` (e.g. decks.html, photos.html)
 - `fa-chevron-right` (e.g. decks.html, photos.html)
 - `fa-circle-check` (e.g. index.html)
+- `fa-circle-info` (e.g. itinerary.html)
 - `fa-clipboard-check` (e.g. index.html, operations.html, plan.html)
 - `fa-clock` (e.g. itinerary.html)
 - `fa-compass` (e.g. decks.html, index.html, plan.html)
@@ -163,7 +164,6 @@ Unsuppressed page-scoped issues: **0**
 - `far` (e.g. itinerary.html)
 - `fas` (e.g. contacts.html, decks.html, dining.html, index.html, itinerary.html, offline.html, operations.html, photos.html, plan.html, ports.html, rooms.html, tips.html)
 - `focus-grid` (e.g. rooms.html)
-- `itinerary-actions` (e.g. itinerary.html)
 - `link-button` (e.g. offline.html)
 - `plan-band__content` (e.g. plan.html)
 - `port-band` (e.g. ports.html)
@@ -180,7 +180,7 @@ Unsuppressed page-scoped issues: **0**
 - `tip-checkbox-wrap` (e.g. tips.html)
 - `tip-policy` (e.g. tips.html)
 
-## Classes referenced in JS but not found in HTML (47)
+## Classes referenced in JS but not found in HTML (48)
 - `badge--today` (e.g. js/pages/itinerary.js)
 - `compare-toggle-btn` (e.g. js/pages/rooms.js)
 - `contact-context--port` (e.g. js/pages/contacts.js)
@@ -200,9 +200,8 @@ Unsuppressed page-scoped issues: **0**
 - `is-complete` (e.g. js/pages/operations.js, js/pages/tips.js)
 - `is-cruise-mode` (e.g. js/pages/index.js)
 - `is-embark-glow` (e.g. js/pages/decks.js)
-- `is-loading` (e.g. js/pages/dining.js)
 - `is-mobile-open` (e.g. js/shared-layout.js)
-- `is-open` (e.g. js/pages/decks.js, js/pages/rooms.js, js/shared-layout.js)
+- `is-open` (e.g. js/pages/decks.js, js/pages/itinerary.js, js/pages/rooms.js, js/shared-layout.js)
 - `is-port` (e.g. js/pages/itinerary.js)
 - `is-ready` (e.g. js/pages/index.js)
 - `is-reveal-pending` (e.g. js/pages/rooms.js)
@@ -218,6 +217,7 @@ Unsuppressed page-scoped issues: **0**
 - `mobile-collapse-toggle` (e.g. js/pages/index.js)
 - `modal-continue-room` (e.g. js/pages/rooms.js)
 - `modal-next-room` (e.g. js/pages/rooms.js)
+- `modal-open` (e.g. js/pages/shared-interactions.js)
 - `modal-prev-room` (e.g. js/pages/rooms.js)
 - `more-drawer-open` (e.g. js/shared-layout.js)
 - `photos-lightbox-open` (e.g. js/pages/photos.js)
@@ -227,9 +227,10 @@ Unsuppressed page-scoped issues: **0**
 - `room-card__status-line` (e.g. js/pages/rooms.js)
 - `room-card--person-match` (e.g. js/pages/rooms.js)
 - `room-modal--open` (e.g. js/pages/rooms.js)
-- `search-status-loading` (e.g. js/pages/operations.js, js/pages/tips.js)
+- `search-status-loading` (e.g. js/pages/dining.js, js/pages/operations.js, js/pages/shared-interactions.js, js/pages/tips.js)
+- `status-feedback--info` (e.g. js/pages/shared-interactions.js)
 
-## Classes referenced in CSS but not found in HTML (564)
+## Classes referenced in CSS but not found in HTML (568)
 - `absolute` (e.g. css/utilities.css)
 - `accent` (e.g. css/index-dashboard.css)
 - `action-buttons` (e.g. css/mobile-first.css)
@@ -430,35 +431,35 @@ Unsuppressed page-scoped issues: **0**
 - `footer-social-row` (e.g. css/shared-layout.css, css/shared-layout/theming.css)
 - `footer-subheading` (e.g. css/shared-layout.css, css/shared-layout/core.css, css/shared-layout/responsive.css)
 - `footer-tagline` (e.g. css/shared-layout.css, css/shared-layout/core.css)
-- ... 364 more
+- ... 368 more
 
 ## Page Entrypoint Mapping (HTML -> JS)
 - contacts.html
-  - JS entrypoints: js/shared-layout.js, js/pages/contacts.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/contacts.js
   - Inline script blocks: 0
 - deck-debug.html
   - JS entrypoints: js/global.js
   - Inline script blocks: 0
 - decks.html
-  - JS entrypoints: js/shared-layout.js, js/pages/decks.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/decks.js
   - Inline script blocks: 0
 - dining.html
-  - JS entrypoints: js/shared-layout.js, js/pages/dining.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/dining.js
   - Inline script blocks: 0
 - index.html
-  - JS entrypoints: js/shared-layout.js, js/pages/index.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/index.js
   - Inline script blocks: 0
 - itinerary.html
-  - JS entrypoints: js/shared-layout.js, js/pages/itinerary.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/itinerary.js
   - Inline script blocks: 0
 - offline.html
-  - JS entrypoints: js/shared-layout.js, js/pages/offline.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/offline.js
   - Inline script blocks: 0
 - operations.html
-  - JS entrypoints: js/shared-layout.js, js/pages/operations.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/operations.js
   - Inline script blocks: 0
 - photos.html
-  - JS entrypoints: js/shared-layout.js, js/pages/photos.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/photos.js
   - Inline script blocks: 0
 - plan.html
   - JS entrypoints: js/shared-layout.js
@@ -467,10 +468,10 @@ Unsuppressed page-scoped issues: **0**
   - JS entrypoints: js/shared-layout.js
   - Inline script blocks: 0
 - rooms.html
-  - JS entrypoints: js/shared-layout.js, js/pages/rooms.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/rooms.js
   - Inline script blocks: 0
 - tips.html
-  - JS entrypoints: js/shared-layout.js, js/pages/tips.js
+  - JS entrypoints: js/shared-layout.js, js/pages/shared-interactions.js, js/pages/tips.js
   - Inline script blocks: 0
 - tools/_archive/pages/dashboard.html
   - JS entrypoints: (none)
@@ -482,12 +483,13 @@ Unsuppressed page-scoped issues: **0**
 ## Page-Scoped JS Selector Mismatches
 ### contacts.html
 - DOM: 21 ids, 53 classes
-- JS refs (entrypoints + inline): 6 ids, 7 classes
-- Missing IDs: 0
-- Missing classes: 1
+- JS refs (entrypoints + inline): 7 ids, 10 classes
+- Missing IDs: 1
+- Missing classes: 2
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
-- Missing class examples: `port`
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `modal-open`, `port`
 
 ### deck-debug.html
 - DOM: 0 ids, 0 classes
@@ -498,62 +500,74 @@ Unsuppressed page-scoped issues: **0**
 - Unsuppressed missing classes: 0
 
 ### decks.html
-- DOM: 24 ids, 73 classes
-- JS refs (entrypoints + inline): 18 ids, 15 classes
-- Missing IDs: 2
-- Missing classes: 0
+- DOM: 25 ids, 74 classes
+- JS refs (entrypoints + inline): 20 ids, 18 classes
+- Missing IDs: 3
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
-- Missing ID examples: `deckPlanCanvas`, `deckPlanStage`
+- Missing ID examples: `deckPlanCanvas`, `deckPlanStage`, `globalStatusFeedback`
+- Missing class examples: `modal-open`
 
 ### dining.html
-- DOM: 26 ids, 66 classes
-- JS refs (entrypoints + inline): 11 ids, 6 classes
-- Missing IDs: 0
-- Missing classes: 0
+- DOM: 27 ids, 67 classes
+- JS refs (entrypoints + inline): 13 ids, 8 classes
+- Missing IDs: 1
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `modal-open`
 
 ### index.html
 - DOM: 12 ids, 55 classes
-- JS refs (entrypoints + inline): 4 ids, 10 classes
-- Missing IDs: 0
-- Missing classes: 0
+- JS refs (entrypoints + inline): 5 ids, 13 classes
+- Missing IDs: 1
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `modal-open`
 
 ### itinerary.html
-- DOM: 15 ids, 75 classes
-- JS refs (entrypoints + inline): 8 ids, 13 classes
-- Missing IDs: 1
-- Missing classes: 0
+- DOM: 17 ids, 79 classes
+- JS refs (entrypoints + inline): 11 ids, 17 classes
+- Missing IDs: 2
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
-- Missing ID examples: `today-card`
+- Missing ID examples: `globalStatusFeedback`, `today-card`
+- Missing class examples: `modal-open`
 
 ### offline.html
-- DOM: 13 ids, 56 classes
-- JS refs (entrypoints + inline): 6 ids, 1 classes
-- Missing IDs: 0
-- Missing classes: 0
+- DOM: 14 ids, 57 classes
+- JS refs (entrypoints + inline): 8 ids, 4 classes
+- Missing IDs: 1
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `modal-open`
 
 ### operations.html
-- DOM: 20 ids, 39 classes
-- JS refs (entrypoints + inline): 6 ids, 4 classes
-- Missing IDs: 0
-- Missing classes: 0
+- DOM: 21 ids, 40 classes
+- JS refs (entrypoints + inline): 8 ids, 6 classes
+- Missing IDs: 1
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `modal-open`
 
 ### photos.html
 - DOM: 26 ids, 70 classes
-- JS refs (entrypoints + inline): 24 ids, 7 classes
-- Missing IDs: 0
-- Missing classes: 0
+- JS refs (entrypoints + inline): 25 ids, 10 classes
+- Missing IDs: 1
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `modal-open`
 
 ### plan.html
 - DOM: 5 ids, 43 classes
@@ -572,21 +586,24 @@ Unsuppressed page-scoped issues: **0**
 - Unsuppressed missing classes: 0
 
 ### rooms.html
-- DOM: 39 ids, 142 classes
-- JS refs (entrypoints + inline): 28 ids, 31 classes
-- Missing IDs: 0
-- Missing classes: 4
+- DOM: 41 ids, 143 classes
+- JS refs (entrypoints + inline): 30 ids, 34 classes
+- Missing IDs: 1
+- Missing classes: 5
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
-- Missing class examples: `fa-chevron-up`, `modal-continue-room`, `modal-next-room`, `modal-prev-room`
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `fa-chevron-up`, `modal-continue-room`, `modal-next-room`, `modal-open`, `modal-prev-room`
 
 ### tips.html
-- DOM: 21 ids, 41 classes
-- JS refs (entrypoints + inline): 5 ids, 3 classes
-- Missing IDs: 0
-- Missing classes: 0
+- DOM: 22 ids, 42 classes
+- JS refs (entrypoints + inline): 7 ids, 5 classes
+- Missing IDs: 1
+- Missing classes: 1
 - Unsuppressed missing IDs: 0
 - Unsuppressed missing classes: 0
+- Missing ID examples: `globalStatusFeedback`
+- Missing class examples: `modal-open`
 
 ### tools/_archive/pages/dashboard.html
 - DOM: 0 ids, 0 classes

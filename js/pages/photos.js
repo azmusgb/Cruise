@@ -206,6 +206,7 @@ const photoData = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+  const ui = window.CruiseUI;
   const galleryGrid = document.getElementById("photoGrid");
   const galleryList = document.getElementById("photoList");
   const searchInput = document.getElementById("gallerySearch");
@@ -529,6 +530,7 @@ document.addEventListener("DOMContentLoaded", () => {
     openOriginal.href = photo.src;
     downloadImage.href = photo.src;
     lightbox.hidden = false;
+    lightbox.setAttribute("aria-hidden", "false");
     lightbox.classList.add("active");
     document.body.classList.add("photos-lightbox-open");
     lightbox.focus();
@@ -536,6 +538,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function closeLightbox() {
     lightbox.hidden = true;
+    lightbox.setAttribute("aria-hidden", "true");
     lightbox.classList.remove("active");
     document.body.classList.remove("photos-lightbox-open");
   }
@@ -660,10 +663,15 @@ document.addEventListener("DOMContentLoaded", () => {
     render();
   });
 
-  clearSearchBtn.addEventListener("click", () => {
+  ui?.installSlashFocus(searchInput);
+  ui?.attachClearButton(searchInput, clearSearchBtn, () => {
     currentSearch = "";
-    searchInput.value = "";
     render();
+  });
+  ui?.wireModalModel({
+    modal: lightbox,
+    closeSelectors: ["#closeLightbox"],
+    isOpenClass: "active",
   });
 
   closeButton.addEventListener("click", closeLightbox);
