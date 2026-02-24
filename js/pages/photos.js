@@ -847,7 +847,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (uploadApiAvailable) {
       setUploadStatus(
-        "Connected to upload API. New photos will be posted to the server.",
+        "Connected to upload API. Photos sync to everyone using this app.",
         "success",
       );
       return;
@@ -1008,7 +1008,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => setUploadProgress(0), 500);
         setUploadStatus(
           uploadApiAvailable
-            ? "Upload complete. Photo posted to server and added to the shared gallery."
+            ? "Upload complete. Photo added to the shared gallery."
             : "Saved locally. Photo added to this device's gallery.",
           "success",
         );
