@@ -316,6 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (
       !src ||
       (!src.startsWith("images/") &&
+        !src.startsWith("/images/") &&
         !src.startsWith("/uploads/") &&
         !src.startsWith("uploads/"))
     ) {
