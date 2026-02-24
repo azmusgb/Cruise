@@ -10,6 +10,7 @@ const ROOT_DIR = __dirname;
 const DATA_DIR = path.join(ROOT_DIR, "data");
 const DATA_FILE = path.join(DATA_DIR, "uploads.json");
 const UPLOADS_DIR = path.join(ROOT_DIR, "uploads");
+const PHOTO_UPLOADS_DIR = path.join(UPLOADS_DIR, "photos");
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
 const ALLOWED_CATEGORIES = new Set([
   "dining",
@@ -38,6 +39,7 @@ function safeCategory(value) {
 async function ensureStorage() {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
+  await fs.mkdir(PHOTO_UPLOADS_DIR, { recursive: true });
   try {
     await fs.access(DATA_FILE);
   } catch {
@@ -56,11 +58,15 @@ async function readPhotoRecords() {
 }
 
 async function writePhotoRecords(records) {
-  await fs.writeFile(DATA_FILE, JSON.stringify(records, null, 2) + "\n", "utf8");
+  await fs.writeFile(
+    DATA_FILE,
+    JSON.stringify(records, null, 2) + "\n",
+    "utf8",
+  );
 }
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+  destination: (_req, _file, cb) => cb(null, PHOTO_UPLOADS_DIR),
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname || "").toLowerCase() || ".jpg";
     const stamp = Date.now().toString(36);
@@ -115,7 +121,7 @@ app.post("/api/photos/upload", upload.single("photo"), async (req, res) => {
   const photo = {
     id: Date.now(),
     title,
-    src: `/uploads/${req.file.filename}`,
+    src: `/uploads/photos/${req.file.filename}`,
     category,
     deck,
     source: "user",
