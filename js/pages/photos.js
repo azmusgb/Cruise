@@ -279,6 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentSort = "name";
   let currentIndex = 0;
   let filteredPhotos = [];
+  let uploadPreviewUrl = "";
 
   function canonicalDeck(deck) {
     const value = String(deck || "").trim();
@@ -316,7 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (
       !src ||
       (!src.startsWith("images/") &&
-        !src.startsWith("/images/") &&
         !src.startsWith("/uploads/") &&
         !src.startsWith("uploads/"))
     ) {
@@ -340,19 +340,20 @@ document.addEventListener("DOMContentLoaded", () => {
     .filter(Boolean);
 
   const uploadForm = document.getElementById("photoUploadForm");
+  const uploadFile = document.getElementById("photoUploadFile");
+  const uploadTitle = document.getElementById("photoUploadTitle");
   const uploadSubmit = document.getElementById("photoUploadSubmit");
+  const uploadReset = document.getElementById("photoUploadReset");
   const uploadStatus = document.getElementById("photoUploadStatus");
+  const uploadDropZone = document.getElementById("photoDropZone");
+  const uploadDropEmpty = document.getElementById("photoDropEmpty");
+  const uploadDropPreview = document.getElementById("photoDropPreview");
+  const uploadPreviewImage = document.getElementById("photoUploadPreviewImage");
+  const uploadFileName = document.getElementById("photoUploadFileName");
+  const uploadFileSize = document.getElementById("photoUploadFileSize");
+  const uploadClearFile = document.getElementById("photoUploadClearFile");
   const uploadProgress = document.getElementById("photoUploadProgress");
   const uploadProgressBar = document.getElementById("photoUploadProgressBar");
-  const uploadDropZone = document.getElementById("photoUploadDropZone");
-  const uploadFileInput = document.getElementById("photoUploadFile");
-  const uploadPreview = document.getElementById("photoUploadPreview");
-  const uploadPreviewImage = document.getElementById("photoUploadPreviewImage");
-  const uploadPreviewMeta = document.getElementById("photoUploadPreviewMeta");
-  const uploadClear = document.getElementById("photoUploadClear");
-
-  const MAX_UPLOAD_SIZE_MB = 12;
-  const LOCAL_UPLOAD_STORAGE_KEY = "cruisePhotoLocalUploads.v1";
   let uploadApiAvailable = false;
 
   function updateHeroStats() {
@@ -460,9 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map((photo) => {
         const chips = `<span class="mini-chip"><i class="fas fa-folder"></i> ${photo.category}</span>`;
         const featuredTitle =
-          photo.title.length > 34
-            ? `${photo.title.slice(0, 34).trim()}...`
-            : photo.title;
+          photo.title.length > 34 ? `${photo.title.slice(0, 34).trim()}...` : photo.title;
         return `
               <article class="featured-card" role="listitem" tabindex="0" data-photo-id="${photo.id}">
                 <img class="featured-card__img" src="${photo.src}" alt="${photo.title}" loading="lazy" decoding="async" />
@@ -725,138 +724,128 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadStatus.dataset.state = state;
   }
 
-  function setUploadProgress(percent) {
-    if (!uploadProgress || !uploadProgressBar) return;
-    const clamped = Math.max(0, Math.min(100, Number(percent) || 0));
-    uploadProgress.hidden = clamped <= 0 || clamped >= 100;
-    uploadProgressBar.style.width = `${clamped}%`;
-    uploadProgressBar.setAttribute(
-      "aria-valuenow",
-      String(Math.round(clamped)),
+  function formatFileSize(bytes) {
+    const value = Number(bytes || 0);
+    if (value < 1024) return `${value} B`;
+    if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+    return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function inferTitleFromFilename(filename) {
+    return String(filename || "")
+      .replace(/\.[^/.]+$/, "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\b\w/g, (char) => char.toUpperCase())
+      .slice(0, 120);
+  }
+
+  function getSelectedUploadFile() {
+    return uploadFile && uploadFile.files && uploadFile.files[0]
+      ? uploadFile.files[0]
+      : null;
+  }
+
+  function clearUploadPreview() {
+    if (!uploadDropPreview || !uploadDropEmpty || !uploadPreviewImage) return;
+    if (uploadPreviewUrl) {
+      URL.revokeObjectURL(uploadPreviewUrl);
+      uploadPreviewUrl = "";
+    }
+    uploadDropPreview.hidden = true;
+    uploadDropEmpty.hidden = false;
+    uploadPreviewImage.removeAttribute("src");
+    if (uploadFileName) uploadFileName.textContent = "—";
+    if (uploadFileSize) uploadFileSize.textContent = "—";
+  }
+
+  function showUploadPreview(file) {
+    if (!uploadDropPreview || !uploadDropEmpty || !uploadPreviewImage) return;
+    if (uploadPreviewUrl) {
+      URL.revokeObjectURL(uploadPreviewUrl);
+    }
+    uploadDropPreview.hidden = false;
+    uploadDropEmpty.hidden = true;
+    if (uploadFileName) uploadFileName.textContent = file.name;
+    if (uploadFileSize) uploadFileSize.textContent = formatFileSize(file.size);
+    uploadPreviewUrl = URL.createObjectURL(file);
+    uploadPreviewImage.src = uploadPreviewUrl;
+  }
+
+  function assignFile(file) {
+    if (!uploadFile || !file) return;
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    uploadFile.files = dataTransfer.files;
+
+    if (uploadTitle && !uploadTitle.value.trim()) {
+      uploadTitle.value = inferTitleFromFilename(file.name);
+    }
+    showUploadPreview(file);
+    setUploadStatus("File ready. Add details and upload.", "info");
+  }
+
+  function resetUploadForm() {
+    if (!uploadForm || !uploadFile) return;
+    uploadForm.reset();
+    uploadFile.value = "";
+    clearUploadPreview();
+    if (uploadProgress) uploadProgress.hidden = true;
+    if (uploadProgressBar) uploadProgressBar.style.width = "0%";
+    setUploadStatus(
+      "Uploads require running the Node server (`npm run start:server`).",
+      "info",
     );
   }
 
-  function readLocalUploads() {
-    try {
-      const raw = window.localStorage.getItem(LOCAL_UPLOAD_STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (_error) {
-      return [];
-    }
-  }
-
-  function writeLocalUploads(records) {
-    try {
-      window.localStorage.setItem(
-        LOCAL_UPLOAD_STORAGE_KEY,
-        JSON.stringify(records.slice(0, 40)),
-      );
-    } catch (_error) {
-      // No-op if storage quota is reached.
-    }
-  }
-
-  function showPreviewFromFile(file) {
-    if (!uploadPreview || !uploadPreviewImage || !uploadPreviewMeta) return;
-    if (!file) {
-      uploadPreview.hidden = true;
-      uploadPreviewImage.removeAttribute("src");
-      uploadPreviewMeta.textContent = "";
-      return;
-    }
-
-    const objectUrl = URL.createObjectURL(file);
-    uploadPreview.hidden = false;
-    uploadPreviewImage.src = objectUrl;
-    uploadPreviewImage.alt = file.name || "Photo preview";
-    const kb = Math.max(1, Math.round(file.size / 1024));
-    uploadPreviewMeta.textContent = `${file.name} · ${kb} KB`;
-    uploadPreviewImage.addEventListener(
-      "load",
-      () => {
-        URL.revokeObjectURL(objectUrl);
+  function setUploadControlsEnabled(enabled) {
+    [uploadFile, uploadSubmit, uploadReset, uploadClearFile].forEach(
+      (control) => {
+        if (!control) return;
+        control.disabled = !enabled;
       },
-      { once: true },
     );
-  }
-
-  function validateUploadFile(file) {
-    if (!file) return "Select a photo file first.";
-    if (!String(file.type || "").startsWith("image/")) {
-      return "Please choose an image file (jpg, png, webp, heic).";
-    }
-    if (file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024) {
-      return `Image is too large. Max size is ${MAX_UPLOAD_SIZE_MB} MB.`;
-    }
-    return "";
-  }
-
-  async function fileToDataUrl(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result || ""));
-      reader.onerror = () =>
-        reject(new Error("Failed to read selected image."));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function normalizeUploadedCategory(value) {
-    const normalized = normalizeCategory(value);
-    return normalized === "heroes" ? "decks" : normalized;
-  }
-
-  async function saveUploadLocally(formData, file) {
-    const tags = String(formData.get("tags") || "")
-      .split(",")
-      .map((entry) => entry.trim())
-      .filter(Boolean)
-      .slice(0, 12);
-    const categoryInput = String(formData.get("category") || "").toLowerCase();
-    if (categoryInput === "heroes") tags.push("hero");
-
-    const photo = {
-      id: `local-${Date.now()}`,
-      title:
-        String(formData.get("title") || "Guest photo").trim() || "Guest photo",
-      src: await fileToDataUrl(file),
-      category: normalizeUploadedCategory(categoryInput),
-      deck: String(formData.get("deck") || "").trim(),
-      source: "user",
-      description:
-        String(formData.get("description") || "").trim() || "Uploaded photo.",
-      tags: tags.length ? tags : ["uploaded"],
-      uploadedAt: new Date().toISOString(),
-    };
-
-    const records = readLocalUploads();
-    records.unshift(photo);
-    writeLocalUploads(records);
-    return photo;
+    uploadDropZone?.classList.toggle("is-disabled", !enabled);
   }
 
   async function detectUploadApi() {
-    try {
-      const response = await fetch(`${PHOTO_API}`, { method: "GET" });
-      uploadApiAvailable = response.ok;
-    } catch (_error) {
+    const isGitHubPagesHost =
+      window.location.hostname.endsWith(".github.io") ||
+      window.location.protocol === "file:";
+    if (isGitHubPagesHost) {
       uploadApiAvailable = false;
-    }
-
-    if (uploadApiAvailable) {
+      setUploadControlsEnabled(false);
       setUploadStatus(
-        "Connected to upload API. Photos sync to everyone using this app.",
-        "success",
+        "Uploads are disabled on static hosting. Use a Node host (`npm run start:server`) to store photos on server.",
+        "error",
       );
       return;
     }
 
-    setUploadStatus(
-      "Server upload API unavailable. Local upload mode is active for this device.",
-      "warning",
-    );
+    try {
+      const response = await fetch(`${PHOTO_API}`, {
+        method: "GET",
+        cache: "no-store",
+      });
+      uploadApiAvailable = response.ok;
+      setUploadControlsEnabled(uploadApiAvailable);
+      if (!uploadApiAvailable) {
+        setUploadStatus(
+          "Upload API not reachable. Start server with `npm run start:server`.",
+          "error",
+        );
+        return;
+      }
+      setUploadStatus("Upload API connected. Add a file to begin.", "success");
+    } catch {
+      uploadApiAvailable = false;
+      setUploadControlsEnabled(false);
+      setUploadStatus(
+        "Upload API unavailable. Start server with `npm run start:server`.",
+        "error",
+      );
+    }
   }
 
   async function loadServerPhotos() {
@@ -881,154 +870,175 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function mergeLocalPhotos() {
-    const incoming = readLocalUploads()
-      .map((photo, idx) => normalizePhotoRecord(photo, idx))
-      .filter(Boolean);
-    if (!incoming.length) return;
-
-    const seen = new Set(normalizedPhotos.map((photo) => photo.src));
-    incoming.forEach((photo) => {
-      if (seen.has(photo.src)) return;
-      seen.add(photo.src);
-      normalizedPhotos.unshift(photo);
-    });
-  }
-
-  async function uploadViaApi(formData) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", `${PHOTO_API}/upload`);
-      xhr.responseType = "json";
-      xhr.upload.addEventListener("progress", (event) => {
-        if (!event.lengthComputable) return;
-        const percent = (event.loaded / event.total) * 100;
-        setUploadProgress(percent);
-      });
-      xhr.addEventListener("error", () => {
-        reject(new Error("Upload failed due to network error."));
-      });
-      xhr.addEventListener("load", () => {
-        const payload = xhr.response || {};
-        if (
-          xhr.status < 200 ||
-          xhr.status >= 300 ||
-          !payload?.ok ||
-          !payload?.photo
-        ) {
-          reject(
-            new Error(payload?.message || "Upload failed. Please try again."),
-          );
-          return;
-        }
-        resolve(payload.photo);
-      });
-      xhr.send(formData);
-    });
-  }
-
   if (uploadForm) {
-    uploadFileInput?.addEventListener("change", () => {
-      const file = uploadFileInput.files?.[0];
-      const validationError = validateUploadFile(file);
-      if (validationError) {
-        setUploadStatus(validationError, "error");
-        showPreviewFromFile(null);
+    uploadFile?.addEventListener("change", () => {
+      const file = getSelectedUploadFile();
+      if (!file) {
+        clearUploadPreview();
         return;
       }
-      showPreviewFromFile(file);
-      setUploadStatus(
-        uploadApiAvailable
-          ? "Ready to upload."
-          : "Ready to save locally on this device.",
-        "info",
-      );
+      if (!String(file.type || "").startsWith("image/")) {
+        setUploadStatus("Only image files are supported.", "error");
+        resetUploadForm();
+        return;
+      }
+      if (file.size > 12 * 1024 * 1024) {
+        setUploadStatus("File is too large. Max upload size is 12 MB.", "error");
+        resetUploadForm();
+        return;
+      }
+      showUploadPreview(file);
     });
 
+    uploadDropZone?.addEventListener("dragenter", (event) => {
+      event.preventDefault();
+      uploadDropZone.classList.add("is-active");
+    });
     uploadDropZone?.addEventListener("dragover", (event) => {
       event.preventDefault();
-      uploadDropZone.classList.add("is-dragover");
+      uploadDropZone.classList.add("is-active");
     });
-
-    uploadDropZone?.addEventListener("dragleave", () => {
-      uploadDropZone.classList.remove("is-dragover");
+    uploadDropZone?.addEventListener("dragleave", (event) => {
+      if (event.currentTarget !== event.target) return;
+      uploadDropZone.classList.remove("is-active");
     });
-
     uploadDropZone?.addEventListener("drop", (event) => {
       event.preventDefault();
-      uploadDropZone.classList.remove("is-dragover");
+      uploadDropZone.classList.remove("is-active");
       const file = event.dataTransfer?.files?.[0];
-      if (!file || !uploadFileInput) return;
-      const transfer = new DataTransfer();
-      transfer.items.add(file);
-      uploadFileInput.files = transfer.files;
-      uploadFileInput.dispatchEvent(new Event("change", { bubbles: true }));
+      if (!file) return;
+      if (!String(file.type || "").startsWith("image/")) {
+        setUploadStatus("Only image files are supported.", "error");
+        return;
+      }
+      if (file.size > 12 * 1024 * 1024) {
+        setUploadStatus("File is too large. Max upload size is 12 MB.", "error");
+        return;
+      }
+      assignFile(file);
+    });
+    uploadDropZone?.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      uploadFile?.click();
     });
 
-    uploadClear?.addEventListener("click", () => {
-      uploadForm.reset();
-      showPreviewFromFile(null);
-      setUploadProgress(0);
-      setUploadStatus("Upload form cleared.", "info");
+    uploadClearFile?.addEventListener("click", () => {
+      if (uploadFile) uploadFile.value = "";
+      clearUploadPreview();
+      setUploadStatus("File removed. Choose another image.", "info");
+    });
+
+    uploadReset?.addEventListener("click", () => {
+      resetUploadForm();
     });
 
     uploadForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const formData = new FormData(uploadForm);
-      const file = uploadFileInput?.files?.[0];
-      const validationError = validateUploadFile(file);
-      if (validationError) {
-        setUploadStatus(validationError, "error");
+      if (!uploadApiAvailable) {
+        setUploadStatus(
+          "Upload API unavailable. Start server with `npm run start:server`.",
+          "error",
+        );
         return;
       }
+      const file = getSelectedUploadFile();
+      if (!file) {
+        setUploadStatus("Select a photo file first.", "error");
+        return;
+      }
+      if (!String(file.type || "").startsWith("image/")) {
+        setUploadStatus("Only image files are supported.", "error");
+        return;
+      }
+      if (file.size > 12 * 1024 * 1024) {
+        setUploadStatus("File is too large. Max upload size is 12 MB.", "error");
+        return;
+      }
+      const formData = new FormData(uploadForm);
 
       try {
         if (uploadSubmit) uploadSubmit.disabled = true;
-        setUploadProgress(1);
-        setUploadStatus(
-          uploadApiAvailable
-            ? "Uploading photo to server..."
-            : "Saving photo in local gallery...",
-          "info",
-        );
+        if (uploadReset) uploadReset.disabled = true;
+        if (uploadProgress) uploadProgress.hidden = false;
+        if (uploadProgressBar) uploadProgressBar.style.width = "4%";
+        setUploadStatus("Uploading photo (0%)...", "info");
 
-        const uploadedPhoto = uploadApiAvailable
-          ? await uploadViaApi(formData)
-          : await saveUploadLocally(formData, file);
-        setUploadProgress(100);
+        const payload = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", `${PHOTO_API}/upload`, true);
+          xhr.responseType = "json";
 
-        const normalized = normalizePhotoRecord(uploadedPhoto, Date.now());
+          xhr.upload.addEventListener("progress", (progressEvent) => {
+            if (!progressEvent.lengthComputable) return;
+            const percent = Math.max(
+              0,
+              Math.min(
+                100,
+                Math.round((progressEvent.loaded / progressEvent.total) * 100),
+              ),
+            );
+            if (uploadProgressBar) uploadProgressBar.style.width = `${percent}%`;
+            setUploadStatus(`Uploading photo (${percent}%)...`, "info");
+          });
+
+          xhr.addEventListener("load", () => {
+            const body = xhr.response || {};
+            if (xhr.status >= 200 && xhr.status < 300 && body?.ok) {
+              resolve(body);
+              return;
+            }
+            reject(
+              new Error(body?.message || "Upload failed. Please try again."),
+            );
+          });
+
+          xhr.addEventListener("error", () => {
+            reject(new Error("Network error while uploading."));
+          });
+
+          xhr.send(formData);
+        });
+
+        const normalized = normalizePhotoRecord(payload?.photo, Date.now());
         if (normalized) {
           normalizedPhotos.unshift(normalized);
           updateHeroStats();
+          currentFilter = "user";
+          filterButtons.forEach((button) => {
+            const isActive = button.dataset.filter === "user";
+            button.classList.toggle("active", isActive);
+            button.setAttribute("aria-pressed", isActive ? "true" : "false");
+          });
           render();
         }
-        uploadForm.reset();
-        showPreviewFromFile(null);
-        setTimeout(() => setUploadProgress(0), 500);
+        if (uploadProgressBar) uploadProgressBar.style.width = "100%";
         setUploadStatus(
-          uploadApiAvailable
-            ? "Upload complete. Photo added to the shared gallery."
-            : "Saved locally. Photo added to this device's gallery.",
+          "Upload complete. Added to My uploads.",
           "success",
         );
+        setTimeout(() => {
+          resetUploadForm();
+          setUploadStatus("Upload complete. Added to My uploads.", "success");
+        }, 700);
       } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Upload failed. Please try again.";
-        setUploadStatus(message, "error");
-        setUploadProgress(0);
+        setUploadStatus(
+          error?.message ||
+            "Upload API unavailable. Start the app with `npm run start:server`.",
+          "error",
+        );
       } finally {
         if (uploadSubmit) uploadSubmit.disabled = false;
+        if (uploadReset) uploadReset.disabled = false;
+        if (uploadProgressBar) uploadProgressBar.style.width = "0%";
+        if (uploadProgress) uploadProgress.hidden = true;
       }
     });
   }
 
   (async () => {
-    await detectUploadApi();
     await loadServerPhotos();
-    mergeLocalPhotos();
+    await detectUploadApi();
     updateHeroStats();
     sortSelect.value = "name";
     syncToggleStates();

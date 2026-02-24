@@ -29,7 +29,7 @@
     <script src="js/shared-layout/mode.js?v=1" defer></script>
     <script src="js/shared-layout/pwa.js?v=1" defer></script>
     <script src="js/shared-layout.js?v=24" defer></script>
-    <link rel="stylesheet" href="css/pages/photos.css?v=3" />
+    <link rel="stylesheet" href="css/pages/photos.css?v=4" />
   </head>
 
   <body class="app-theme-rcc gallery-grid-view photos-page">
@@ -203,119 +203,110 @@
           </div>
           <form id="photoUploadForm" class="upload-form">
             <div
-              class="upload-drop-zone upload-field--wide"
-              id="photoUploadDropZone"
+              class="upload-dropzone"
+              id="photoDropZone"
+              tabindex="0"
+              role="button"
+              aria-label="Drop photo here or click to choose a file"
             >
-              <p class="upload-drop-zone__title">Drag & drop an image here</p>
-              <p class="upload-drop-zone__meta">
-                or choose a file below (max 12MB)
-              </p>
-            </div>
-            <label class="upload-field">
-              <span>Photo</span>
               <input
                 id="photoUploadFile"
                 name="photo"
                 type="file"
                 accept="image/*"
                 required
+                class="upload-file-input"
               />
-            </label>
-            <div class="upload-preview" id="photoUploadPreview" hidden>
-              <img id="photoUploadPreviewImage" src="" alt="Upload preview" />
-              <p id="photoUploadPreviewMeta"></p>
+              <div class="upload-dropzone__empty" id="photoDropEmpty">
+                <i class="fas fa-cloud-arrow-up" aria-hidden="true"></i>
+                <p class="upload-dropzone__title">Drop image here or click to browse</p>
+                <p class="upload-dropzone__hint">JPG, PNG, WEBP up to 12 MB</p>
+              </div>
+              <div class="upload-dropzone__preview" id="photoDropPreview" hidden>
+                <img id="photoUploadPreviewImage" alt="Selected photo preview" />
+                <div class="upload-preview__meta">
+                  <p class="upload-preview__name" id="photoUploadFileName">—</p>
+                  <p class="upload-preview__size" id="photoUploadFileSize">—</p>
+                  <button
+                    type="button"
+                    class="upload-clear-file"
+                    id="photoUploadClearFile"
+                  >
+                    Remove file
+                  </button>
+                </div>
+              </div>
             </div>
-            <label class="upload-field">
-              <span>Title</span>
-              <input
-                id="photoUploadTitle"
-                name="title"
-                type="text"
-                maxlength="120"
-                placeholder="CocoCay sunset deck shot"
-                required
-              />
-            </label>
-            <label class="upload-field">
-              <span>Category</span>
-              <select id="photoUploadCategory" name="category">
-                <option value="ports">Ports</option>
-                <option value="decks">Decks</option>
-                <option value="dining">Dining</option>
-                <option value="activities">Activities</option>
-                <option value="heroes">Hero angles</option>
-                <option value="staterooms">Staterooms</option>
-              </select>
-            </label>
-            <label class="upload-field">
-              <span>Deck (optional)</span>
-              <input
-                id="photoUploadDeck"
-                name="deck"
-                type="text"
-                maxlength="24"
-                placeholder="11"
-              />
-            </label>
-            <label class="upload-field upload-field--wide">
-              <span>Description</span>
-              <input
-                id="photoUploadDescription"
-                name="description"
-                type="text"
-                maxlength="180"
-                placeholder="Post-lunch view near Windjammer."
-              />
-            </label>
-            <label class="upload-field upload-field--wide">
-              <span>Tags (comma separated)</span>
-              <input
-                id="photoUploadTags"
-                name="tags"
-                type="text"
-                maxlength="160"
-                placeholder="cococay, sunset, family"
-              />
-            </label>
+
+            <div class="upload-fields">
+              <label class="upload-field">
+                <span>Title</span>
+                <input
+                  id="photoUploadTitle"
+                  name="title"
+                  type="text"
+                  maxlength="120"
+                  placeholder="CocoCay sunset deck shot"
+                  required
+                />
+              </label>
+              <label class="upload-field">
+                <span>Category</span>
+                <select id="photoUploadCategory" name="category">
+                  <option value="ports">Ports</option>
+                  <option value="decks">Decks</option>
+                  <option value="dining">Dining</option>
+                  <option value="activities">Activities</option>
+                  <option value="heroes">Hero angles</option>
+                  <option value="staterooms">Staterooms</option>
+                </select>
+              </label>
+              <label class="upload-field">
+                <span>Deck (optional)</span>
+                <input
+                  id="photoUploadDeck"
+                  name="deck"
+                  type="text"
+                  maxlength="24"
+                  placeholder="11"
+                />
+              </label>
+              <label class="upload-field upload-field--wide">
+                <span>Description</span>
+                <input
+                  id="photoUploadDescription"
+                  name="description"
+                  type="text"
+                  maxlength="180"
+                  placeholder="Post-lunch view near Windjammer."
+                />
+              </label>
+              <label class="upload-field upload-field--wide">
+                <span>Tags (comma separated)</span>
+                <input
+                  id="photoUploadTags"
+                  name="tags"
+                  type="text"
+                  maxlength="160"
+                  placeholder="cococay, sunset, family"
+                />
+              </label>
+            </div>
             <div class="upload-actions upload-field--wide">
+              <div class="upload-progress" id="photoUploadProgress" hidden>
+                <div class="upload-progress__bar" id="photoUploadProgressBar"></div>
+              </div>
               <div class="upload-actions__buttons">
-                <button
-                  type="submit"
-                  class="btn btn--primary"
-                  id="photoUploadSubmit"
-                >
+                <button type="submit" class="btn btn--primary" id="photoUploadSubmit">
                   <i class="fas fa-upload" aria-hidden="true"></i>
                   Upload photo
                 </button>
-                <button
-                  type="button"
-                  class="btn btn--secondary"
-                  id="photoUploadClear"
-                >
-                  <i class="fas fa-xmark" aria-hidden="true"></i>
-                  Clear
+                <button type="button" class="ghost-btn" id="photoUploadReset">
+                  Reset form
                 </button>
               </div>
-              <div
-                class="upload-progress"
-                id="photoUploadProgress"
-                hidden
-                role="progressbar"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="0"
-                aria-label="Upload progress"
-              >
-                <span id="photoUploadProgressBar"></span>
-              </div>
-              <p
-                class="upload-status"
-                id="photoUploadStatus"
-                role="status"
-                aria-live="polite"
-              >
-                Uploads require running the Node server (`npm run
-                start:server`).
+              <p class="upload-status" id="photoUploadStatus" role="status" aria-live="polite">
+                Uploads require running the Node server (`npm run start:server`).
               </p>
             </div>
           </form>
@@ -468,6 +459,6 @@
     <div id="sharedBottomNav" data-page="photos"></div>
     <script src="js/pages/shared-interactions.js" defer></script>
 
-    <script src="js/pages/photos.js?v=2"></script>
+    <script src="js/pages/photos.js?v=4"></script>
   </body>
 </html>
